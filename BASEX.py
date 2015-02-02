@@ -15,11 +15,11 @@ import Image, time, scipy.ndimage, scipy.misc
 # V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, and H. Reisler, 
 # Review of Scientific Instruments 73, 2634 (2002).
 #
-# Version 1.2 - 2015-02-01
+# Version 0.3 - 2015-02-01
 #   Added documentation 
-# Version 1.1 - 2014-10-09
+# Version 0.2 - 2014-10-09
 #   Adding a "center_and_transform" function to make things easier
-# Versions 1.0 - 2012 
+# Versions 0.1 - 2012 
 #   First port to Python
 #
 #
