@@ -50,13 +50,16 @@ def main():
     
     # Load an image file as a numpy array:
     
-    filename = 'example_data/Xenon_800_nm.tif'
+    # filename = 'example_data/Xenon_800_nm.tif'
+    filename = 'example_data/Xenon_800_nm.raw'
+    
     output_image = filename[:-4] + '_Abel_transform.png'
     output_text  = filename[:-4] + '_speeds.txt'
     output_plot  = filename[:-4] + '_comparison.pdf'
     
     print 'Loading ' + filename
-    raw_data = plt.imread(filename)
+    raw_data = load_raw(filename)
+    # raw_data = plt.imread(filename)
     
     # Specify the center in x,y (horiz,vert) format
     center = (681,491)
@@ -183,7 +186,7 @@ def BASEX(rawdata,verbose=False,calc_speeds=True):
     if verbose==True: print 'Loading basis sets...           ',; t1 = time.time()
     
     try:
-        left,right,M,MT,Mc,McT = np.load('basisALL.npy0')
+        left,right,M,MT,Mc,McT = np.load('basisALL.npy')
     except:
         print 'Basis sets not saved in numpy format. Loading text files.'
     
