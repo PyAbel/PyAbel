@@ -12,5 +12,6 @@ print 'Performing the inverse Abel transform:'
 recon,speeds = BASEX.center_and_transform(raw_data,center,median_size=2,gaussian_blur=0,
                                     post_median=0,verbose=True)
 									
+#This makes the plots
 plt.imshow(recon,origin='lower')
 plt.show()
