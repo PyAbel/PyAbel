@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 
-from BASEX import center_and_transform
+from BASEX import BASEX
 from BASEX.io import load_raw
 import scipy.misc
 
@@ -25,7 +25,7 @@ import scipy.misc
 # Load an image file as a numpy array:
 
 # filename = 'example_data/Xenon_800_nm.tif'
-filename = 'example_data/Xenon_800_nm.raw'
+filename = 'data/Xenon_800_nm.raw'
 
 output_image = filename[:-4] + '_Abel_transform.png'
 output_text  = filename[:-4] + '_speeds.txt'
@@ -39,9 +39,13 @@ raw_data = load_raw(filename)
 center = (681,491)
 
 print('Performing the inverse Abel transform:')
+inv_ab = BASEX(n=1001, nbf=500, basis_dir='./',
+        verbose=True, calc_speeds=True)
+
 # Transform the data
-recon,speeds = center_and_transform(raw_data,center,median_size=2,gaussian_blur=0,
-                                    post_median=0,verbose=True)
+
+recon, speeds = inv_ab(raw_data, center, median_size=2,
+          gaussian_blur=0, post_median=0)
 
 # # save the transform in 16-bits (requires pyPNG):
 # save16bitPNG('Xenon_800_transformed.png',recon)

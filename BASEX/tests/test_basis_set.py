@@ -5,9 +5,9 @@ import numpy as np
 from numpy.testing import assert_allclose
 
 
-from BASEX.core import get_left_right
+from BASEX.core import get_left_right_matrices
 from BASEX.io import parse_matlab
-from BASEX.basis import generate_basis
+from BASEX.basis import generate_basis_sets
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], '../data/')
 
@@ -18,11 +18,11 @@ def setup():
 
 def test_consistency_included_dataset():
     # just a sanity check
-    path = os.path.join(DATA_DIR, 'basex_basis_1000_orig.npy')
+    path = os.path.join(DATA_DIR, 'basex_basis_1000_500_orig.npy')
 
     left, right, M, Mc = np.load(path)
 
-    left_new, right_new = get_left_right(M, Mc)
+    left_new, right_new = get_left_right_matrices(M, Mc)
 
     # checking that get_left_right is consistent with the shipped data
     yield assert_allclose, left, left_new
@@ -42,7 +42,7 @@ def test_generation_basis40():
     for size in [40, 100]:
         M_ref, Mc_ref = parse_matlab('basis{}'.format(size), base_dir, gzip=False)
 
-        M, Mc = generate_basis(size+1, size//2)
+        M, Mc = generate_basis_sets(size+1, size//2)
 
         yield assert_allclose, Mc_ref.view(np.ndarray), Mc
         yield assert_allclose, M_ref.view(np.ndarray), M

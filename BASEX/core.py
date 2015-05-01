@@ -9,8 +9,9 @@ from time import time
 import os.path
 
 import numpy as np
-from numpy import dot
 from scipy.ndimage import median_filter, gaussian_filter, map_coordinates
+
+from .basis import generate_basis_sets
 
 
 ######################################################################
@@ -52,21 +53,54 @@ from scipy.ndimage import median_filter, gaussian_filter, map_coordinates
 
 class BASEX(object):
 
-    def __init__(self, verbose=True, calc_speeds=False, 
-                    base_dir='./', recalculate_basis=False):
-        """ Initalize the BASEX class, preloading the basis set
+    def __init__(self, n=101, nbf=200, basis_dir='./', verbose=True,
+                        calc_speeds=False):
+        """ Initalize the BASEX class, preloading or generating the basis set.
+
+        Parameters:
+        -----------
+          - N : odd integer: Abel inverse transform will be performed on a `n x n`
+            area of the image
+          - nbf: integer: number of basis functions ?
+          - basis_dir : path to the directory for saving / loading the basis set coefficients.
+          - verbose: Set to True to see more output for debugging
+          - calc_speeds: determines if the speed distribution should be calculated
+
         """
+        n = 2*(n//2) + 1 # make sure n is odd
+
         self.verbose = verbose
         self.calc_speeds = calc_speeds
 
+        self.n = n
+        self.nbf = nbf
 
-    def load_basis_set(self):
-        """ Loading basis sets """
         if self.verbose:
-            print('Loading basis sets...           ')
             t1 = time()
 
-        left, right, M, Mc = np.load('basisALL.npy')
+
+        basis_name = "basex_basis_{}_{}.npy".format(n, nbf)
+        path_to_basis_file = os.path.join(basis_dir, basis_name)
+        if os.path.exists(path_to_basis_file):
+            if self.verbose:
+                print('Loading basis sets...           ')
+            left, right, M, Mc = np.load(path_to_basis_file)
+
+        else:
+            if self.verbose:
+                print('Suitable basis sets not found...')
+
+            M, Mc = generate_basis_sets(n, nbf, verbose=verbose)
+            left, right = get_left_right_matrices(M, Mc)
+
+            np.save(path_to_basis_file, (left, right, M, Mc))
+            print('Basis set saved for later use to,')
+            print(' '*10 + '{}'.format(path_to_basis_file))
+
+
+        self.left, self.right, self.M, self.Mc = left, right, M, Mc
+
+
 
         if self.verbose:
             print('{:.2f} seconds'.format((time()-t1)))
@@ -85,16 +119,15 @@ class BASEX(object):
          RETURNS:
           IM: The abel-transformed image, 1000x1000.
               This is a slice of the 3D distribution
-          speeds: a array of length=500 of the 1D distribution, integrated over all angles
+          speeds: (optional) a array of length=500 of the 1D distribution, integrated over all angles
         """
         rawdata = rawdata.view(np.matrix)
-        left, right, M, Mc = np.load('/home/rth/sandbox/pyBASEX/BASEX/data/basex_basis_1000x1000.npy')
+        left, right, M, Mc = self.left, self.right, self.M, self.Mc
 
         # ### Reconstructing image  - This is where the magic happens###
         if self.verbose:
             print('Reconstructing image...         ')
             t1 = time()
-        
 
         Ci = (left*rawdata)*right
         # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, which should recreate the original image
@@ -136,7 +169,7 @@ class BASEX(object):
          calc_speeds - determines if the speed distribution should be calculated
         """
 
-        image = center_image(data, center=center)
+        image = center_image(data, center=center, n=self.n)
 
         if symmetrize:
             #image = apply_symmetry(image)
@@ -149,14 +182,20 @@ class BASEX(object):
             image = gaussian_filter(image,sigma=gaussian_blur)
 
         #Do the actual transform
-        if self.calc_speeds:
-            recon, speeds = self._basex_transform(image)
+        res = self._basex_transform(image)
 
-            if post_median > 0:
-                recon = median_filter(recon, size=post_median)
-            return recon,speeds
+        if self.calc_speeds:
+            recon, speeds = res
         else:
-            return self._basex_transform(image)
+            recon = res
+
+        if post_median > 0:
+            recon = median_filter(recon, size=post_median)
+
+        if self.calc_speeds:
+            return recon, speeds
+        else:
+            return recon
 
 
 
@@ -167,7 +206,7 @@ class BASEX(object):
 
         if self.verbose:
             print('Generating speed distribution...')
-            t1 = time.time()
+            t1 = time()
 
         nx,ny = np.shape(IM)
         xi = np.linspace(-100, 100, nx)
@@ -184,26 +223,26 @@ class BASEX(object):
         return speeds
 
 
-def center_image(data, center):
-    """ This centers the image at the given center and makes it 1000 by 1000
+def center_image(data, center, n):
+    """ This centers the image at the given center and makes it of size n by n
      We cannot use larger images without making new coefficients, which I don't know how to do """
-    H,W = np.shape(data)
-    im=np.zeros((2000,2000))
-    im[(1000-center[1]):(1000-center[1]+H),(1000-center[0]):(1000-center[0]+W)] = data
-    im = im[499:1500,499:1500]
+    Nh,Nw = data.shape
+    cx, cy = np.asarray(center, dtype='int')
+    im = np.zeros((2*n,2*n))
+    im[n-cy:n-cy+Nh, n-cx:n-cx+Nw] = data
+    #im = im[499:1500,499:1500]
+    n_2 = n//2
+    im = im[ n_2:n+n_2, n_2:n+n_2]
     return im
 
 
-def get_left_right(M, Mc):
+def get_left_right_matrices(M, Mc):
     left = (Mc.T * Mc).I * Mc.T #Just making things easier to read
     q=1;
     NBF=np.shape(M)[1] # number of basis functions
     E = np.identity(NBF)*q  # Creating diagonal matrix for regularization. (?)
     right = M * (M.T*M + E).I
     return left, right
-
-
-
 
 
 # This section is to get the speed distribution.
