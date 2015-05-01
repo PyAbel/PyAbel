@@ -47,7 +47,7 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
     gammaln_0o5 = gammaln(0.5) 
 
     if verbose:
-        print('Generating the BASEX basis sets for n = {}, nbf = {} (this can take a while):\n'.format(n, nbf))
+        print('Generating BASEX basis sets for n = {}, nbf = {} (this can take a while):\n'.format(n, nbf))
         sys.stdout.write('0')
         sys.stdout.flush()
 
