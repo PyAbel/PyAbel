@@ -168,8 +168,18 @@ class BASEX(object):
          verbose - Set to True to see more output for debugging
          calc_speeds - determines if the speed distribution should be calculated
         """
+        data = np.atleast_2d(data) # if passed a 1D array convert it to 2D
+        if data.shape[0] == 1:
+            self.ndim = 1
+        elif data.shape[1] == 1:
+            raise ValueError('Wrong input shape for data {0}, should be  (N1, N2) or (1, N), not (N, 1)'.format(data.shape))
+        else:
+            self.ndim = 2
 
-        image = center_image(data, center=center, n=self.n)
+
+
+
+        image = center_image(data, center=center, n=self.n, ndim=self.ndim)
 
         if symmetrize:
             #image = apply_symmetry(image)
@@ -191,6 +201,14 @@ class BASEX(object):
 
         if post_median > 0:
             recon = median_filter(recon, size=post_median)
+
+        print(recon.shape)
+        # abandonning the matrix notation and going back to a ndarray view
+        recon = recon.view(np.ndarray)
+
+        if self.ndim == 1:
+            recon = recon[0, :] # taking one row, since they are all the same anyway
+        print(recon.shape)
 
         if self.calc_speeds:
             return recon, speeds
@@ -223,16 +241,29 @@ class BASEX(object):
         return speeds
 
 
-def center_image(data, center, n):
+def center_image(data, center, n, ndim=2):
     """ This centers the image at the given center and makes it of size n by n
      We cannot use larger images without making new coefficients, which I don't know how to do """
     Nh,Nw = data.shape
     cx, cy = np.asarray(center, dtype='int')
-    im = np.zeros((2*n,2*n))
-    im[n-cy:n-cy+Nh, n-cx:n-cx+Nw] = data
-    #im = im[499:1500,499:1500]
     n_2 = n//2
-    im = im[ n_2:n+n_2, n_2:n+n_2]
+    if ndim == 1:
+        im = np.zeros((1,2*n))
+        im[0, n-cx:n-cx+Nw] = data
+        im = im[:, n_2:n+n_2]
+        # This is really not efficient
+        # Processing 2D image with identical rows while we just want a
+        # 1D slice 
+        im = np.repeat(im, n, axis=0)
+
+    elif ndim == 2:
+        im = np.zeros((2*n,2*n))
+        im[n-cy:n-cy+Nh, n-cx:n-cx+Nw] = data
+        #im = im[499:1500,499:1500]
+        im = im[ n_2:n+n_2, n_2:n+n_2]
+    else:
+        raise ValueError
+
     return im
 
 
