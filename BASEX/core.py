@@ -25,6 +25,9 @@ from .basis import generate_basis_sets
 # V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, and H. Reisler,
 # Review of Scientific Instruments 73, 2634 (2002).
 #
+# Version 0.4 - 2015-05-0
+#   Major code update see pull request
+#   https://github.com/DanHickstein/pyBASEX/pull/3
 # Version 0.3 - 2015-02-01
 #   Added documentation
 # Version 0.2 - 2014-10-09
