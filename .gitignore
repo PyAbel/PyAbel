@@ -1,0 +1,6 @@
+dist/
+additional_files/Matlab/
+*.pyc
+*.swp
+build/
+*.egg-info/
