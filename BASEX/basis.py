@@ -10,8 +10,9 @@ from math import exp, log
 
 import numpy as np
 from scipy.special import gammaln
+import sys
 
-def generate_basis(n=1001, nbf=500, verbose=True):
+def generate_basis_sets(n=1001, nbf=500, verbose=True):
     """ 
     Generate the basis set for the BASEX method. 
 
@@ -27,6 +28,10 @@ def generate_basis(n=1001, nbf=500, verbose=True):
     --------
       M, Mc : np.matrix
     """
+    if n % 2 == 0:
+        raise ValueError('The n parameter must be odd (more or less sure about it).')
+
+
     Rm = n//2 + 1
 
     I = np.arange(1,n+1)
@@ -42,7 +47,9 @@ def generate_basis(n=1001, nbf=500, verbose=True):
     gammaln_0o5 = gammaln(0.5) 
 
     if verbose:
-        print('Generating the BASEX basis set: (n = {}, nbf = {})'.format(n, nbf))
+        print('Generating the BASEX basis sets for n = {}, nbf = {} (this can take a while):\n'.format(n, nbf))
+        sys.stdout.write('0')
+        sys.stdout.flush()
 
 
     for k in range(1, nbf):
@@ -90,8 +97,11 @@ def generate_basis(n=1001, nbf=500, verbose=True):
             M[l+Rm-1, k] = aux
             M[Rm-l-1, k] = aux
 
-        if verbose and k % 10 == 0:
-            print('      k = {} '.format(k))
+        if verbose and k % 50 == 0:
+            sys.stdout.write('...{}'.format(k))
+            sys.stdout.flush()
+
+    print(' ')
 
 
     return M.view(np.matrix), Mc.view(np.matrix)

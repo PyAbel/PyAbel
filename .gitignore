@@ -4,3 +4,5 @@ additional_files/Matlab/
 *.swp
 build/
 *.egg-info/
+*.npy 
+examples/data/Xenon_800_nm*
