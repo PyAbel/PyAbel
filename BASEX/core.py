@@ -203,11 +203,6 @@ def get_left_right(M, Mc):
     return left, right
 
 
-def parse_matlab(basename='basis1000', base_dir='./'):
-
-    M = np.loadtxt(os.path.join(base_dir, basename+'pr_1.bst'))
-    Mc = np.loadtxt(os.path.join(base_dir, basename+'_1.bst'))
-    return M.view(np.matrix), Mc.view(np.matrix)
 
 
 

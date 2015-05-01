@@ -5,6 +5,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os.path
+
 import numpy as np
 
 
@@ -36,3 +38,18 @@ def save16bitPNG(filename,data):
         writer = png.Writer(width=data.shape[1], height=data.shape[0], bitdepth=16, greyscale=True)
         data_list = data.tolist()
         writer.write(f, data_list)
+
+
+def parse_matlab(basename='basis1000', base_dir='./', gzip=False):
+    """ Parse matlab basis files, in the format,
+            basis1000_1.bst.gz
+            basis1000pr_1.bst.gz
+    """
+
+    if gzip:
+        ext = ".bst.gz"
+    else:
+        ext = ".bst"
+    M = np.loadtxt(os.path.join(base_dir, basename+'pr_1'+ext))
+    Mc = np.loadtxt(os.path.join(base_dir, basename+'_1'+ext))
+    return M.view(np.matrix), Mc.view(np.matrix)
