@@ -1,4 +1,4 @@
-import BASEX
+from BASEX import BASEX
 import matplotlib.pyplot as plt
 
 filename = 'data/Xenon_800_nm.tif'
@@ -9,9 +9,10 @@ center = (681,491)
 
 print('Performing the inverse Abel transform:')
 # Transform the data
-recon,speeds = BASEX.center_and_transform(raw_data,center,median_size=2,gaussian_blur=0,
-                                    post_median=0,verbose=True)
-									
+b = BASEX(verbose=True, calc_speeds=False)
+
+recon = b.center_and_transform(raw_data,center,median_size=2,gaussian_blur=0,
+                                    post_median=0)
 #This makes the plots
 print(raw_data.shape)
 plt.imshow(recon,origin='lower')

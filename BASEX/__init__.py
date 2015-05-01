@@ -8,5 +8,5 @@ from __future__ import unicode_literals
 
 from . import io
 
-from .core import center_and_transform
+from .core import BASEX
 
