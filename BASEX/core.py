@@ -205,13 +205,11 @@ class BASEX(object):
         if post_median > 0:
             recon = median_filter(recon, size=post_median)
 
-        print(recon.shape)
         # abandonning the matrix notation and going back to a ndarray view
         recon = recon.view(np.ndarray)
 
         if self.ndim == 1:
             recon = recon[0, :] # taking one row, since they are all the same anyway
-        print(recon.shape)
 
         if self.calc_speeds:
             return recon, speeds
