@@ -5,11 +5,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from time import time
+import os.path
+
 import numpy as np
-from numpy.linalg import inv
-from numpy import dot, transpose
-import time
-import scipy.ndimage as ndimage
+from numpy import dot
+from scipy.ndimage import median_filter, gaussian_filter, map_coordinates
+
 
 ######################################################################
 # PyBASEX - A Python BASEX implementation
@@ -45,137 +47,172 @@ import scipy.ndimage as ndimage
 #
 ########################################################################
 
-def center_and_transform(data, center,
-                         median_size=0, gaussian_blur=0, post_median=0,
-                         verbose=False, calc_speeds=True, symmetrize=False):
-    """ This is the main function that center the image, blurs the image (if desired)
-     and completes the BASEX transform.
-
-     Inputs:
-     data - a NxN numpy array where N is larger than 1000.
-            If N is smaller than 1000, zeros will we added to the edges on the image.
-     center - the center of the image in (x,y) format
-     median_size - size (in pixels) of the median filter that will be applied to the image before
-                   the transform. This is crucial for emiminating hot pixels and other
-                   high-frequency sensor noise that would interfere with the transform
-     gaussian_blur - the size (in pixels) of the gaussian blur applied before the BASEX tranform.
-                     this is another way to blur the image before the transform.
-                     It is normally not used, but if you are looking at very broad features
-                     in very noisy data and wich to apply an aggressive (large radius) blur
-                     (i.e., a blur in excess of a few pixels) then the gaussian blur will
-                     provide better results than the median filter.
-     post_median - this is the size (in pixels) of the median blur applied AFTER the BASEX transform
-                   it is not normally used, but it can be a good way to get rid of high-frequency
-                   artifacts in the transformed image. For example, it can reduce centerline noise.
-     verbose - Set to True to see more output for debugging
-     calc_speeds - determines if the speed distribution should be calculated
-    """
-
-    image = center_image(data,center=center)
-
-    if symmetrize==True:
-        #image = apply_symmetry(image)
-        raise NotImplementedError
-
-    if median_size>0:
-        image = ndimage.median_filter(image,size=median_size)
-    if gaussian_blur>0: image = ndimage.gaussian_filter(image,sigma=gaussian_blur)
-
-    #Do the actual transform
-    recon,speeds = BASEX(image,calc_speeds=calc_speeds,verbose=verbose)
-
-    if post_median > 0:
-        recon = ndimage.median_filter(recon,size=post_median)
-    return recon,speeds
-
-def center_image(data,center):
-    """ This centers the image at the given center and makes it 1000 by 1000
-     We cannot use larger images without making new coefficients, which I don't know how to do """
-    H,W = np.shape(data)
-    im=np.zeros((2000,2000))
-    im[(1000-center[1]):(1000-center[1]+H),(1000-center[0]):(1000-center[0]+W)]=data
-    im = im[499:1500,499:1500]
-    return im
 
 
-def BASEX(rawdata,verbose=False,calc_speeds=True):
-    """ This is the core funciton that does the actual transform
-     INPUTS:
-      rawdata: a 1000x1000 numpy array of the raw image.
-           Must use this size, since this is what we have generated the coefficients for.
-           If your image is larger you must crop or downsample.
-           If smaller, pad with zeros outside. Just use the "center_image" function.
-      verbose: Set to True to see more output for debugging
-      calc_speeds: determines if the speed distribution should be calculated
 
-     RETURNS:
-      IM: The abel-transformed image, 1000x1000.
-          This is a slice of the 3D distribution
-      speeds: a array of length=500 of the 1D distribution, integrated over all angles
-    """ 
-     
-    ### Loading basis sets ### 
-    if verbose==True:
-        print('Loading basis sets...           ')
-        t1 = time.time()
+class BASEX(object):
 
-    try:
-        left,right,M,MT,Mc,McT = np.load('basisALL.npy')
-    except:
-        print('Basis sets not saved in numpy format. Loading text files.')
+    def __init__(self, verbose=True, calc_speeds=False, 
+                    base_dir='./', recalculate_basis=False):
+        """ Initalize the BASEX class, preloading the basis set
+        """
+        self.verbose = verbose
+        self.calc_speeds = calc_speeds
 
-        try:
-            M = np.loadtxt('basis1000pr_1.txt')
-            Mc = np.loadtxt('basis1000_1.txt')
-        except:
-            M = np.loadtxt('./additional_files/basis1000pr_1.txt')
-            Mc = np.loadtxt('./additional_files/basis1000_1.txt')
 
-        np.save('basis1000.npy',(M,Mc))
-        McT = transpose(Mc)
-        MT  = transpose(M)
+    def load_basis_set(self):
+        """ Loading basis sets """
+        if self.verbose:
+            print('Loading basis sets...           ')
+            t1 = time()
 
-        left = dot( inv(dot(McT,Mc)) , McT) #Just making things easier to read
-        q=1;
-        NBF=np.shape(M)[1] # number of basis functions
-        E = np.identity(NBF)*q  # Creating diagonal matrix for regularization. (?)
-        right = dot(M,inv(dot(MT,M)+E))
-        np.save('basisALL.npy',(left,right,M,MT,Mc,McT))
+        left, right, M, Mc = np.load('basisALL.npy')
 
-    if verbose==True:
-        print('%.2f seconds'%(time.time()-t1))
+        if self.verbose:
+            print('{:.2f} seconds'.format((time()-t1)))
 
-    # ### Reconstructing image  - This is where the magic happens###
-    if verbose==True:
-        print('Reconstructing image...         ')
-        t1 = time.time()
 
-    Ci = dot(dot(left,rawdata),right)
-    # P = dot(dot(Mc,Ci),MT) # This calculates the projection, which should recreate the original image
-    IM = dot(dot(Mc,Ci),McT)
+    def __call__(self, rawdata):
+        """ This is the core funciton that does the actual transform
+         INPUTS:
+          rawdata: a 1000x1000 numpy array of the raw image.
+               Must use this size, since this is what we have generated the coefficients for.
+               If your image is larger you must crop or downsample.
+               If smaller, pad with zeros outside. Just use the "center_image" function.
+          verbose: Set to True to see more output for debugging
+          calc_speeds: determines if the speed distribution should be calculated
 
-    if verbose==True:
-        print('%.2f seconds' % (time.time()-t1))
+         RETURNS:
+          IM: The abel-transformed image, 1000x1000.
+              This is a slice of the 3D distribution
+          speeds: a array of length=500 of the 1D distribution, integrated over all angles
+        """
+        rawdata = rawdata.view(np.matrix)
+        left, right, M, Mc = np.load('/home/rth/sandbox/pyBASEX/BASEX/data/basex_basis_1000x1000.npy')
 
-    if calc_speeds==True:
-        if verbose==True:
+        # ### Reconstructing image  - This is where the magic happens###
+        if self.verbose:
+            print('Reconstructing image...         ')
+            t1 = time()
+        
+
+        Ci = (left*rawdata)*right
+        # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, which should recreate the original image
+        IM = (Mc*Ci)*Mc.T
+
+        if self.verbose:
+            print('%.2f seconds' % (time()-t1))
+
+        if self.calc_speeds:
+            speeds = self.calculate_speeds(IM)
+            return IM, speeds
+        else:
+            return IM
+
+
+    def center_and_transform(self, data, center,
+                             median_size=0, gaussian_blur=0, post_median=0,
+                             symmetrize=False):
+        """ This is the main function that center the image, blurs the image (if desired)
+         and completes the BASEX transform.
+
+         Inputs:
+         data - a NxN numpy array where N is larger than 1000.
+                If N is smaller than 1000, zeros will we added to the edges on the image.
+         center - the center of the image in (x,y) format
+         median_size - size (in pixels) of the median filter that will be applied to the image before
+                       the transform. This is crucial for emiminating hot pixels and other
+                       high-frequency sensor noise that would interfere with the transform
+         gaussian_blur - the size (in pixels) of the gaussian blur applied before the BASEX tranform.
+                         this is another way to blur the image before the transform.
+                         It is normally not used, but if you are looking at very broad features
+                         in very noisy data and wich to apply an aggressive (large radius) blur
+                         (i.e., a blur in excess of a few pixels) then the gaussian blur will
+                         provide better results than the median filter.
+         post_median - this is the size (in pixels) of the median blur applied AFTER the BASEX transform
+                       it is not normally used, but it can be a good way to get rid of high-frequency
+                       artifacts in the transformed image. For example, it can reduce centerline noise.
+         verbose - Set to True to see more output for debugging
+         calc_speeds - determines if the speed distribution should be calculated
+        """
+
+        image = center_image(data, center=center)
+
+        if symmetrize:
+            #image = apply_symmetry(image)
+            raise NotImplementedError
+
+        if median_size>0:
+            image = median_filter(image,size=median_size)
+
+        if gaussian_blur>0:
+            image = gaussian_filter(image,sigma=gaussian_blur)
+
+        #Do the actual transform
+        if self.calc_speeds:
+            recon, speeds = self(image)
+
+            if post_median > 0:
+                recon = median_filter(recon, size=post_median)
+            return recon,speeds
+        else:
+            return self(image)
+
+
+
+    def calculate_speeds(self, IM):
+        """ Generating the speed distribution """
+
+        IM = IM.view(np.ndarray)
+
+        if self.verbose:
             print('Generating speed distribution...')
             t1 = time.time()
+
         nx,ny = np.shape(IM)
-        xi = np.linspace(-100,100,nx)
-        yi = np.linspace(-100,100,ny)
+        xi = np.linspace(-100, 100, nx)
+        yi = np.linspace(-100, 100, ny)
         X,Y = np.meshgrid(xi,yi)
 
         polarIM, ri, thetai = reproject_image_into_polar(IM)
 
-        speeds = np.sum(polarIM,axis=1)
+        speeds = np.sum(polarIM, axis=1)
         speeds = speeds[:500] #Clip off the corners
-        if verbose==True:
-            print('%.2f seconds'%(time.time()-t1))
-    else:
-        speeds = np.zeros(500)
 
-    return IM,speeds
+        if self.verbose:
+            print('%.2f seconds' % (time()-t1))
+        return speeds
+
+
+
+
+
+
+def center_image(data, center):
+    """ This centers the image at the given center and makes it 1000 by 1000
+     We cannot use larger images without making new coefficients, which I don't know how to do """
+    H,W = np.shape(data)
+    im=np.zeros((2000,2000))
+    im[(1000-center[1]):(1000-center[1]+H),(1000-center[0]):(1000-center[0]+W)] = data
+    im = im[499:1500,499:1500]
+    return im
+
+
+def get_left_right(M, Mc):
+    left = (Mc.T * Mc).I * Mc.T #Just making things easier to read
+    q=1;
+    NBF=np.shape(M)[1] # number of basis functions
+    E = np.identity(NBF)*q  # Creating diagonal matrix for regularization. (?)
+    right = M * (M.T*M + E).I
+    return left, right
+
+
+def parse_matlab(basename='basis1000', base_dir='./'):
+
+    M = np.loadtxt(os.path.join(base_dir, basename+'pr_1.txt'))
+    Mc = np.loadtxt(os.path.join(base_dir, basename+'_1.txt'))
+    return M.view(np.matrix), Mc.view(np.matrix)
+
 
 
 # This section is to get the speed distribution.
@@ -214,7 +251,7 @@ def reproject_image_into_polar(data, origin=None):
     xi, yi = X.flatten(), Y.flatten()
     coords = np.vstack((xi,yi)) # (map_coordinates requires a 2xn array)
 
-    zi = ndimage.map_coordinates(data, coords)
+    zi = map_coordinates(data, coords)
     output = zi.reshape((nr,nt))
     return output, r_i, theta_i
 
