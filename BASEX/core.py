@@ -72,8 +72,8 @@ class BASEX(object):
             print('{:.2f} seconds'.format((time()-t1)))
 
 
-    def __call__(self, rawdata):
-        """ This is the core funciton that does the actual transform
+    def _basex_transform(self, rawdata):
+        """ This is the core function that does the actual transform
          INPUTS:
           rawdata: a 1000x1000 numpy array of the raw image.
                Must use this size, since this is what we have generated the coefficients for.
@@ -110,7 +110,7 @@ class BASEX(object):
             return IM
 
 
-    def center_and_transform(self, data, center,
+    def __call__(self, data, center,
                              median_size=0, gaussian_blur=0, post_median=0,
                              symmetrize=False):
         """ This is the main function that center the image, blurs the image (if desired)
@@ -150,13 +150,13 @@ class BASEX(object):
 
         #Do the actual transform
         if self.calc_speeds:
-            recon, speeds = self(image)
+            recon, speeds = self._basex_transform(image)
 
             if post_median > 0:
                 recon = median_filter(recon, size=post_median)
             return recon,speeds
         else:
-            return self(image)
+            return self._basex_transform(image)
 
 
 
@@ -184,10 +184,6 @@ class BASEX(object):
         return speeds
 
 
-
-
-
-
 def center_image(data, center):
     """ This centers the image at the given center and makes it 1000 by 1000
      We cannot use larger images without making new coefficients, which I don't know how to do """
@@ -209,8 +205,8 @@ def get_left_right(M, Mc):
 
 def parse_matlab(basename='basis1000', base_dir='./'):
 
-    M = np.loadtxt(os.path.join(base_dir, basename+'pr_1.txt'))
-    Mc = np.loadtxt(os.path.join(base_dir, basename+'_1.txt'))
+    M = np.loadtxt(os.path.join(base_dir, basename+'pr_1.bst'))
+    Mc = np.loadtxt(os.path.join(base_dir, basename+'_1.bst'))
     return M.view(np.matrix), Mc.view(np.matrix)
 
 
