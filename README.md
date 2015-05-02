@@ -1,5 +1,5 @@
 # pyBASEX
-A Python implementation of the BASEX algorithm by Dribinski, Ossadtchi, Mandelshtam, and Reisler, Rev. Sci. Instrum. 73 2634, (2012)
+A Python implementation of the BASEX algorithm by Dribinski, Ossadtchi, Mandelshtam, and Reisler, Rev. Sci. Instrum. 73 2634, (2002)
 
 The main function of the script is to perform the inverse Abel transform. The inverse Abel transform takes a 2D projection of a cylindrically symmetric 3D image and return the 2D slice of the 3D distribution. The BASEX implementation uses Gaussian basis functions to find the transform instead of directly solving the inverse Abel transform of applying the Fourier-Hankel method. The BASEX implementation is quick, robust, and is probably the most common method used to transform velocity-map-imaging datasets.
 
