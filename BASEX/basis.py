@@ -47,7 +47,7 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
     gammaln_0o5 = gammaln(0.5) 
 
     if verbose:
-        print('Generating BASEX basis sets for n = {}, nbf = {} (this can take a while):\n'.format(n, nbf))
+        print('Generating BASEX basis sets for n = {}, nbf = {}:\n'.format(n, nbf))
         sys.stdout.write('0')
         sys.stdout.flush()
 
@@ -65,50 +65,30 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
         for l in range(1, n-Rm+1):
             l2 = l*l
             log_l2 = log(l2)
-            # this was factorised from the argument of the exp in the
-            # 3rd inner loop (allow to reuse the computed value 
-            aux_factor = k2 - l2 - k2*log_k2  + gammaln(k2+1) - gammaln_0o5
 
             val = exp(k2 - l2 + 2*k2*log((1.0*l)/k))
             Mc[l-1+Rm, k] = val
             Mc[Rm-l-1, k] = val
 
             aux = val + angn*Mc[l+Rm-1, 0]
-            #
-            # A. version with a loop that we can completly vectorize 
-            #
-            #for p in range(max(1, l2 - 100), min(k2 - 1,  l2 + 100)+1):
-
-            #    aux += exp(
-            #            #k2 - l2 - k2*log_k2  # original 
-            #            aux_factor            # factor containting elements computed outside of the loop
-            #            + p*log_l2
-            #            # version 1 : 
-            #            #
-            #            # np.log(np.arange(p+1, k**2+1)).sum() + \
-            #            # np.log(np.arange(0.5, k**2 - p)).sum() - \
-            #            # np.log(np.arange(1, k**2 - p + 1)).sum() 
-            #            #
-            #            # version 2 : (optimized) 
-            #            #
-            #            # we use here the fact that 
-            #            # np.log(np.arange(p, k)).sum() == gammaln(k) - gammaln(p)
-            #            # and put as much elements as possible out of this loop
-            #            - gammaln(p+1)            # + gammaln(k2+1)   # factorized in  aux_factor
-            #            + gammaln(k2 - p + 0.5)     # - gammaln_0o5   # factorized in  aux_factor  
-            #            - gammaln(k2 - p + 1)       # since gammaln(1) == 0
-            #            )
-            # 
-            # B. Vectorized version
 
             p = np.arange(max(1, l2 - 100), min(k2 - 1,  l2 + 100)+1)
 
-            # see the non vecotorized version above for the origin of this expression
-            aux += np.exp(aux_factor + p*log_l2
-                      - gammaln(p+1) + gammaln(k2 - p + 0.5) 
+            # We use here the fact that for p, k real and positive
+            #
+            #  np.log(np.arange(p, k)).sum() == gammaln(k) - gammaln(p) 
+            #
+            # where gammaln is scipy.misc.gammaln (i.e. the log of the Gamma function)
+            #
+            # The following line corresponds to the vectorized third
+            # loop of the original BASIS2.m matlab file.
+
+            aux += np.exp(k2 - l2 - k2*log_k2 + p*log_l2
+                      + gammaln(k2+1) - gammaln(p+1) 
+                      + gammaln(k2 - p + 0.5) - gammaln_0o5
                       - gammaln(k2 - p + 1)).sum()
 
-            # End of vectorized version
+            # End of vectorized third loop
 
             aux *= 2
 
