@@ -9,6 +9,7 @@ from time import time
 import os.path
 
 import numpy as np
+from numpy.linalg import inv
 from scipy.ndimage import median_filter, gaussian_filter, map_coordinates
 
 from .basis import generate_basis_sets
@@ -100,7 +101,6 @@ class BASEX(object):
             print('Basis set saved for later use to,')
             print(' '*10 + '{}'.format(path_to_basis_file))
 
-
         self.left, self.right, self.M, self.Mc = left, right, M, Mc
 
 
@@ -124,7 +124,6 @@ class BASEX(object):
               This is a slice of the 3D distribution
           speeds: (optional) a array of length=500 of the 1D distribution, integrated over all angles
         """
-        rawdata = rawdata.view(np.matrix)
         left, right, M, Mc = self.left, self.right, self.M, self.Mc
 
         # ### Reconstructing image  - This is where the magic happens###
@@ -132,9 +131,9 @@ class BASEX(object):
             print('Reconstructing image...         ')
             t1 = time()
 
-        Ci = (left*rawdata)*right
+        Ci = left.dot(rawdata).dot(right)
         # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, which should recreate the original image
-        IM = (Mc*Ci)*Mc.T
+        IM = left.dot(Mc).dot(Ci).dot(Mc.T)
 
         if self.verbose:
             print('%.2f seconds' % (time()-t1))
@@ -205,8 +204,6 @@ class BASEX(object):
         if post_median > 0:
             recon = median_filter(recon, size=post_median)
 
-        # abandonning the matrix notation and going back to a ndarray view
-        recon = recon.view(np.ndarray)
 
         if self.ndim == 1:
             recon = recon[0, :] # taking one row, since they are all the same anyway
@@ -220,8 +217,6 @@ class BASEX(object):
 
     def calculate_speeds(self, IM):
         """ Generating the speed distribution """
-
-        IM = IM.view(np.ndarray)
 
         if self.verbose:
             print('Generating speed distribution...')
@@ -269,11 +264,11 @@ def center_image(data, center, n, ndim=2):
 
 
 def get_left_right_matrices(M, Mc):
-    left = (Mc.T * Mc).I * Mc.T #Just making things easier to read
+    left = inv(Mc.T.dot(Mc)).dot(Mc.T) 
     q=1;
     NBF=np.shape(M)[1] # number of basis functions
     E = np.identity(NBF)*q  # Creating diagonal matrix for regularization. (?)
-    right = M * (M.T*M + E).I
+    right = M.dot(inv((M.T.dot(M) + E)))
     return left, right
 
 

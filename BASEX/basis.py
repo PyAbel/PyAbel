@@ -103,5 +103,5 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
         print("...{}".format(k+1))
 
 
-    return M.view(np.matrix), Mc.view(np.matrix)
+    return M, Mc
 
