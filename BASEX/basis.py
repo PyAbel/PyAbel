@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pthon
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
@@ -11,6 +11,8 @@ from math import exp, log
 import numpy as np
 from scipy.special import gammaln
 import sys
+
+MAX_OFFSET = 4000
 
 def generate_basis_sets(n=1001, nbf=500, verbose=True):
     """ 
@@ -51,7 +53,7 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
         sys.stdout.write('0')
         sys.stdout.flush()
 
-
+    delta = np.concatenate((np.ones(250)*4000, np.ones(250)*4000+ np.arange(1,251)*32))
     for k in range(1, nbf):
         k2 = k*k # so we don't recalculate it all the time
         log_k2 = log(k2) 
@@ -72,7 +74,7 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
 
             aux = val + angn*Mc[l+Rm-1, 0]
 
-            p = np.arange(max(1, l2 - 100), min(k2 - 1,  l2 + 100)+1)
+            p = np.arange(max(1, l2 - delta[k]), min(k2 - 1,  l2 + delta[k]) + 1)
 
             # We use here the fact that for p, k real and positive
             #
@@ -83,10 +85,12 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
             # The following line corresponds to the vectorized third
             # loop of the original BASIS2.m matlab file.
 
+
             aux += np.exp(k2 - l2 - k2*log_k2 + p*log_l2
                       + gammaln(k2+1) - gammaln(p+1) 
                       + gammaln(k2 - p + 0.5) - gammaln_0o5
-                      - gammaln(k2 - p + 1)).sum()
+                      - gammaln(k2 - p + 1)
+                      ).sum()
 
             # End of vectorized third loop
 
