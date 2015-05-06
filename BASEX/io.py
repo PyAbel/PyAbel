@@ -40,16 +40,11 @@ def save16bitPNG(filename,data):
         writer.write(f, data_list)
 
 
-def parse_matlab(basename='basis1000', base_dir='./', gzip=False):
+def parse_matlab(path):
     """ Parse matlab basis files, in the format,
             basis1000_1.bst.gz
             basis1000pr_1.bst.gz
     """
-
-    if gzip:
-        ext = ".bst.gz"
-    else:
-        ext = ".bst"
-    M = np.loadtxt(os.path.join(base_dir, basename+'pr_1'+ext))
-    Mc = np.loadtxt(os.path.join(base_dir, basename+'_1'+ext))
-    return M.view(np.matrix), Mc.view(np.matrix)
+    M = np.loadtxt(path.format('pr'))
+    Mc = np.loadtxt(path.format(''))
+    return M, Mc
