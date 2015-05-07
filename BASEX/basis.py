@@ -53,7 +53,8 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
         sys.stdout.write('0')
         sys.stdout.flush()
 
-    delta = np.concatenate((np.ones(250)*4000, np.ones(250)*4000+ np.arange(1,251)*32))
+    # the number of elements used to calculate the projected coefficeints
+    delta = np.fmax(np.arange(nbf)*32 - 4000, 4000) 
     for k in range(1, nbf):
         k2 = k*k # so we don't recalculate it all the time
         log_k2 = log(k2) 
