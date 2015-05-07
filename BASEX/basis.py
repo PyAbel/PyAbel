@@ -33,6 +33,9 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
     if n % 2 == 0:
         raise ValueError('The n parameter must be odd (more or less sure about it).')
 
+    if n//2 < nbf:
+        raise ValueError('The number of basis functions nbf cannot be larger then the number of points n!')
+
 
     Rm = n//2 + 1
 
