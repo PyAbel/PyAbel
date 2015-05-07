@@ -13,6 +13,7 @@ print('Performing the inverse Abel transform:')
 # using 500 basis function
 
 inv_ab = BASEX(n=1001, nbf=500, basis_dir='./',
+        # use_basis_set="../BASEX/data/ascii/original_basis1000{}_1.txt.gz",
         verbose=True, calc_speeds=True)
 
 # Calculate the inverse abel transform for the centered data

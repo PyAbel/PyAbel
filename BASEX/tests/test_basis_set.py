@@ -57,8 +57,8 @@ def test_generation_basis():
 
     M, Mc = generate_basis_sets(size+1, size//2)
 
-    yield assert_allclose, Mc_ref, Mc, 1e-7, 1e-50
-    yield assert_allclose, M_ref, M, 1e-7, 1e-50
+    yield assert_allclose, Mc_ref, Mc, 1e-7, 1e-100
+    yield assert_allclose, M_ref, M, 1e-7, 1e-100
 
 
 #def test_generation_basis100():

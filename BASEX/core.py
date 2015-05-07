@@ -13,6 +13,7 @@ from numpy.linalg import inv
 from scipy.ndimage import median_filter, gaussian_filter, map_coordinates
 
 from .basis import generate_basis_sets
+from .io import parse_matlab
 
 
 ######################################################################
@@ -57,8 +58,9 @@ from .basis import generate_basis_sets
 
 class BASEX(object):
 
-    def __init__(self, n=101, nbf=200, basis_dir='./', verbose=True,
-                        calc_speeds=False):
+    def __init__(self, n=101, nbf=200, basis_dir='./',
+                    use_basis_set=None,
+                    verbose=True, calc_speeds=False):
         """ Initalize the BASEX class, preloading or generating the basis set.
 
         Parameters:
@@ -67,6 +69,13 @@ class BASEX(object):
             area of the image
           - nbf: integer: number of basis functions ?
           - basis_dir : path to the directory for saving / loading the basis set coefficients.
+          - use_basis_set: use the basis set stored as a text files, if
+                  it provided, the following parameters will be ignored N, nbf, basis_dir
+                  The expected format is a string of the form "some_basis_set_{}_1.bsc" where 
+                  "{}" will be replaced by "" for the first file and "pr" for the second.
+                  Gzip compressed text files are accepted.
+                  For instance, we would use use_basis_set_matlab="../BASEX/data/ascii/original_basis1000{}_1.txt.gz"
+                  to load the basis set included with this package.
           - verbose: Set to True to see more output for debugging
           - calc_speeds: determines if the speed distribution should be calculated
 
@@ -85,12 +94,22 @@ class BASEX(object):
 
         basis_name = "basex_basis_{}_{}.npy".format(n, nbf)
         path_to_basis_file = os.path.join(basis_dir, basis_name)
-        if os.path.exists(path_to_basis_file):
+        if use_basis_set is not None:
+            # load the matlab generated basis set
+            M, Mc = parse_matlab(use_basis_set)
+            left, right = get_left_right_matrices(M, Mc)
+
+            self.n, self.nbf = M.shape # overwrite the provided parameters
+
+        elif os.path.exists(path_to_basis_file):
+            # load the basis set generated with this python module,
+            # saved as a .npy file
             if self.verbose:
                 print('Loading basis sets...           ')
             left, right, M, Mc = np.load(path_to_basis_file)
 
         else:
+            # generate the basis set
             if self.verbose:
                 print('Suitable basis sets not found...')
 
@@ -126,6 +145,7 @@ class BASEX(object):
         """
         left, right, M, Mc = self.left, self.right, self.M, self.Mc
 
+
         # ### Reconstructing image  - This is where the magic happens###
         if self.verbose:
             print('Reconstructing image...         ')
@@ -133,7 +153,7 @@ class BASEX(object):
 
         Ci = left.dot(rawdata).dot(right)
         # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, which should recreate the original image
-        IM = left.dot(Mc).dot(Ci).dot(Mc.T)
+        IM = Mc.dot(Ci).dot(Mc.T)
 
         if self.verbose:
             print('%.2f seconds' % (time()-t1))
@@ -241,9 +261,9 @@ def center_image(data, center, n, ndim=2):
     """ This centers the image at the given center and makes it of size n by n
      We cannot use larger images without making new coefficients, which I don't know how to do """
     Nh,Nw = data.shape
-    cx, cy = np.asarray(center, dtype='int')
     n_2 = n//2
     if ndim == 1:
+        cx = int(center)
         im = np.zeros((1,2*n))
         im[0, n-cx:n-cx+Nw] = data
         im = im[:, n_2:n+n_2]
@@ -253,6 +273,7 @@ def center_image(data, center, n, ndim=2):
         im = np.repeat(im, n, axis=0)
 
     elif ndim == 2:
+        cx, cy = np.asarray(center, dtype='int')
         im = np.zeros((2*n,2*n))
         im[n-cy:n-cy+Nh, n-cx:n-cx+Nw] = data
         #im = im[499:1500,499:1500]
