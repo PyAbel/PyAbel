@@ -111,7 +111,10 @@ class BASEX(object):
         else:
             # generate the basis set
             if self.verbose:
-                print('Suitable basis sets not found...')
+                print('A suitable basis set was not found.',
+                      'A new basis set will be generated.',
+                      'This may take a few minutes.',
+                      'But don\'t worry, it will be saved to disk for future use.\n')
 
             M, Mc = generate_basis_sets(n, nbf, verbose=verbose)
             left, right = get_left_right_matrices(M, Mc)
