@@ -58,9 +58,8 @@ from .io import parse_matlab
 
 class BASEX(object):
 
-    def __init__(self, n=101, nbf=200, basis_dir='./',
-                    use_basis_set=None,
-                    verbose=True, calc_speeds=False):
+    def __init__(self, n=501, nbf=250, basis_dir='./',
+                    use_basis_set=None, verbose=True, calc_speeds=False):
         """ Initalize the BASEX class, preloading or generating the basis set.
 
         Parameters:
@@ -74,7 +73,8 @@ class BASEX(object):
                   The expected format is a string of the form "some_basis_set_{}_1.bsc" where 
                   "{}" will be replaced by "" for the first file and "pr" for the second.
                   Gzip compressed text files are accepted.
-                  For instance, we would use use_basis_set_matlab="../BASEX/data/ascii/original_basis1000{}_1.txt.gz"
+                  For instance, we would use:
+                  use_basis_set_matlab="../BASEX/data/ascii/original_basis1000{}_1.txt.gz"
                   to load the basis set included with this package.
           - verbose: Set to True to see more output for debugging
           - calc_speeds: determines if the speed distribution should be calculated
@@ -91,9 +91,9 @@ class BASEX(object):
         if self.verbose:
             t1 = time()
 
-
         basis_name = "basex_basis_{}_{}.npy".format(n, nbf)
         path_to_basis_file = os.path.join(basis_dir, basis_name)
+        
         if use_basis_set is not None:
             # load the matlab generated basis set
             M, Mc = parse_matlab(use_basis_set)
@@ -111,7 +111,10 @@ class BASEX(object):
         else:
             # generate the basis set
             if self.verbose:
-                print('Suitable basis sets not found...')
+                print('A suitable basis set was not found.',
+                      'A new basis set will be generated.',
+                      'This may take a few minutes.',
+                      'But don\'t worry, it will be saved to disk for future use.\n')
 
             M, Mc = generate_basis_sets(n, nbf, verbose=verbose)
             left, right = get_left_right_matrices(M, Mc)
@@ -129,24 +132,21 @@ class BASEX(object):
 
 
     def _basex_transform(self, rawdata):
-        """ This is the core function that does the actual transform
+        """ This is the core function that does the actual transform, 
+            but it's not typically what is called by the user
          INPUTS:
-          rawdata: a 1000x1000 numpy array of the raw image.
-               Must use this size, since this is what we have generated the coefficients for.
-               If your image is larger you must crop or downsample.
-               If smaller, pad with zeros outside. Just use the "center_image" function.
+          rawdata: a NxN numpy array of the raw image.
           verbose: Set to True to see more output for debugging
-          calc_speeds: determines if the speed distribution should be calculated
+          calc_speeds: determines if the 1D speed distribution should be calculated (takes a little more time)
 
          RETURNS:
-          IM: The abel-transformed image, 1000x1000.
-              This is a slice of the 3D distribution
+          IM: The abel-transformed image, a slice of the 3D distribution
           speeds: (optional) a array of length=500 of the 1D distribution, integrated over all angles
         """
         left, right, M, Mc = self.left, self.right, self.M, self.Mc
 
 
-        # ### Reconstructing image  - This is where the magic happens###
+        ### Reconstructing image  - This is where the magic happens ###
         if self.verbose:
             print('Reconstructing image...         ')
             t1 = time()
@@ -168,12 +168,13 @@ class BASEX(object):
     def __call__(self, data, center,
                              median_size=0, gaussian_blur=0, post_median=0,
                              symmetrize=False):
-        """ This is the main function that center the image, blurs the image (if desired)
-         and completes the BASEX transform.
+        """ This is the main function that is called by the user. 
+            It center the image, blurs the image (if desired)
+            and completes the BASEX transform.
 
          Inputs:
-         data - a NxN numpy array where N is larger than 1000.
-                If N is smaller than 1000, zeros will we added to the edges on the image.
+         data - a NxN numpy array
+                If N is smaller than the size of the basis set, zeros will be padded on the edges.
          center - the center of the image in (x,y) format
          median_size - size (in pixels) of the median filter that will be applied to the image before
                        the transform. This is crucial for emiminating hot pixels and other
@@ -190,6 +191,8 @@ class BASEX(object):
          verbose - Set to True to see more output for debugging
          calc_speeds - determines if the speed distribution should be calculated
         """
+        
+        # make sure that the data is the right shape (1D must be converted to 2D)
         data = np.atleast_2d(data) # if passed a 1D array convert it to 2D
         if data.shape[0] == 1:
             self.ndim = 1
@@ -198,9 +201,7 @@ class BASEX(object):
         else:
             self.ndim = 2
 
-
-
-
+        
         image = center_image(data, center=center, n=self.n, ndim=self.ndim)
 
         if symmetrize:
@@ -235,7 +236,12 @@ class BASEX(object):
 
 
 
+
     def calculate_speeds(self, IM):
+        # This section is to get the speed distribution.
+        # The original matlab version used an analytical formula to get the speed distribution directly
+        # from the basis coefficients. But, the C version of BASEX uses a numerical method similar to
+        # the one implemented here. The difference between the two methods is negligable.
         """ Generating the speed distribution """
 
         if self.verbose:
@@ -250,7 +256,7 @@ class BASEX(object):
         polarIM, ri, thetai = reproject_image_into_polar(IM)
 
         speeds = np.sum(polarIM, axis=1)
-        speeds = speeds[:500] #Clip off the corners
+        speeds = speeds[:self.n//2] #Clip off the corners
 
         if self.verbose:
             print('%.2f seconds' % (time()-t1))
@@ -258,8 +264,8 @@ class BASEX(object):
 
 
 def center_image(data, center, n, ndim=2):
-    """ This centers the image at the given center and makes it of size n by n
-     We cannot use larger images without making new coefficients, which I don't know how to do """
+    """ This centers the image at the given center and makes it of size n by n"""
+    
     Nh,Nw = data.shape
     n_2 = n//2
     if ndim == 1:
@@ -274,10 +280,13 @@ def center_image(data, center, n, ndim=2):
 
     elif ndim == 2:
         cx, cy = np.asarray(center, dtype='int')
-        im = np.zeros((2*n,2*n))
-        im[n-cy:n-cy+Nh, n-cx:n-cx+Nw] = data
-        #im = im[499:1500,499:1500]
-        im = im[ n_2:n+n_2, n_2:n+n_2]
+        
+        #make an array of zeros that is large enough for cropping or padding:
+        sz = 2*np.round(n+np.max((Nw,Nh)))
+        im = np.zeros((sz,sz))
+        im[sz//2-cy:sz//2-cy+Nh, sz//2-cx:sz//2-cx+Nw] = data
+        im = im[ sz//2-n_2-1:n_2+sz//2, sz//2-n_2-1:n_2+sz//2] #not sure if this exactly preserves the center
+        print(np.shape(im))
     else:
         raise ValueError
 
@@ -293,10 +302,6 @@ def get_left_right_matrices(M, Mc):
     return left, right
 
 
-# This section is to get the speed distribution.
-# The original matlab version used an analytical formula to get the speed distribution directly
-# from the basis coefficients. But, the C version of BASEX uses a numerical method similar to
-# the one implemented here. The difference between the two methods is negligable.
 
 # I got these next two functions from a stackoverflow page and slightly modified them.
 # http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
