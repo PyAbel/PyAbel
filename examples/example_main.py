@@ -39,7 +39,11 @@ raw_data = load_raw(filename)
 center = (681,491)
 
 print('Performing the inverse Abel transform:')
-inv_ab = BASEX(n=1001, nbf=500, basis_dir='./',
+
+# inv_ab = BASEX(n=1001, nbf=500, basis_dir='./',
+#         verbose=True, calc_speeds=True)
+        
+inv_ab = BASEX(n=501, nbf=250, basis_dir='./',
         verbose=True, calc_speeds=True)
 
 # Transform the data

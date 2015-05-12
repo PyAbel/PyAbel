@@ -274,10 +274,13 @@ def center_image(data, center, n, ndim=2):
 
     elif ndim == 2:
         cx, cy = np.asarray(center, dtype='int')
-        im = np.zeros((2*n,2*n))
-        im[n-cy:n-cy+Nh, n-cx:n-cx+Nw] = data
-        #im = im[499:1500,499:1500]
-        im = im[ n_2:n+n_2, n_2:n+n_2]
+        
+        #make an array of zeros that is large enough for cropping or padding:
+        sz = 2*np.round(n+np.max((Nw,Nh)))
+        im = np.zeros((sz,sz))
+        im[sz//2-cy:sz//2-cy+Nh, sz//2-cx:sz//2-cx+Nw] = data
+        im = im[ sz//2-n_2-1:n_2+sz//2, sz//2-n_2-1:n_2+sz//2] #not sure if this exactly preserves the center
+        print(np.shape(im))
     else:
         raise ValueError
 
