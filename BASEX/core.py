@@ -235,8 +235,6 @@ class BASEX(object):
             return recon
 
 
-
-
     def calculate_speeds(self, IM):
         # This section is to get the speed distribution.
         # The original matlab version used an analytical formula to get the speed distribution directly
@@ -308,7 +306,7 @@ def get_left_right_matrices(M, Mc):
 # It is possible that there is a faster way to get the speed distribution.
 # If you figure it out, pease let me know! (danhickstein@gmail.com)
 def reproject_image_into_polar(data, origin=None):
-    """Reprojects a 3D numpy array ("data") into a polar coordinate system.
+    """Reprojects a 2D numpy array ("data") into a polar coordinate system.
     "origin" is a tuple of (x0, y0) and defaults to the center of the image.
     """
     ny, nx = data.shape[:2]
