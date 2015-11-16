@@ -47,10 +47,10 @@ recon, speeds = inv_ab(raw_data, center, median_size=2,
 # # save the transform in 16-bits (requires pyPNG):
 # save16bitPNG('Xenon_800_transformed.png',recon)
 
-# save the transfrom in 8-bits:
+# save the transfrom in 8-bit format:
 scipy.misc.imsave(output_image,recon)
 
-#save the speed distribution
+# save the speed distribution
 with open(output_text,'w') as outfile:
     outfile.write('Pixel\tIntensity\n')
     for pixel,intensity in enumerate(speeds):

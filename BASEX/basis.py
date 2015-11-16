@@ -19,7 +19,7 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
     the Reisler group: BASIS2.m, with some optimizations.
     
     Typically, the number of basis functions will be (n-1)/2
-    so that each pixel in the image is represented by it's own basis function.
+    so that each pixel in the image is represented by its own basis function.
 
     Parameters:
     -----------
