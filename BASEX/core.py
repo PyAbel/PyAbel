@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -27,6 +25,8 @@ from .io import parse_matlab
 # V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, and H. Reisler,
 # Review of Scientific Instruments 73, 2634 (2002).
 #
+# Version 0.5 - 2015-11-16
+#   Code cleanup
 # Version 0.4 - 2015-05-0
 #   Major code update see pull request
 #   https://github.com/DanHickstein/pyBASEX/pull/3
@@ -43,13 +43,6 @@ from .io import parse_matlab
 #   I took all of the linear algebra straight from the Matlab program. It's
 #   a little hard to compare with the Rev. Sci. Instrum. paper. It would be
 #   nice to clean this up so that it's easier to follow along with the paper.
-#
-#   Currently, this program just uses the 1000x1000 basis set generated using
-#   the Matlab implementation of BASEX. It would be good to port the basis set
-#   generating functions as well. This would give people the flexibility to use
-#   different sized basis sets. For example, some image may need higher resolution
-#   than 1000x1000, or, transforming larger quantities of low-resolution images
-#   may be faster with a 100x100 basis set.
 #
 ########################################################################
 
