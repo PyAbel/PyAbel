@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
@@ -12,7 +11,6 @@ import matplotlib.pyplot as plt
 from BASEX import BASEX
 from BASEX.io import load_raw
 import scipy.misc
-
 
 # This function only executes if you run this file directly
 # This is not normally done, but it is a good way to test the transform
