@@ -12,16 +12,6 @@ from BASEX import BASEX
 from BASEX.io import load_raw
 import scipy.misc
 
-# This function only executes if you run this file directly
-# This is not normally done, but it is a good way to test the transform
-# and also serves as a basic example of how to use the pyBASEX program.
-# In practice, you will probably want to write your own script and 
-# use "import BASEX" at the top of your script. 
-# Then, you can call, for example:
-# BASEX.center_and_transform('my_data.png',(500,500))
-
-# Load an image file as a numpy array:
-
 # filename = 'example_data/Xenon_800_nm.tif'
 filename = 'data/Xenon_800_nm.raw'
 
@@ -29,8 +19,12 @@ output_image = filename[:-4] + '_Abel_transform.png'
 output_text  = filename[:-4] + '_speeds.txt'
 output_plot  = filename[:-4] + '_comparison.pdf'
 
+# Load an image file as a numpy array:
+
 print('Loading ' + filename)
 raw_data = load_raw(filename)
+
+# use for common image formats, like PNG:
 # raw_data = plt.imread(filename)
 
 # Specify the center in x,y (horiz,vert) format
@@ -38,14 +32,15 @@ center = (681,491)
 
 print('Performing the inverse Abel transform:')
 
+# # use 1000x1000 basis set:
 # inv_ab = BASEX(n=1001, nbf=500, basis_dir='./',
 #         verbose=True, calc_speeds=True)
-        
+
+# use 500x500 basis set:
 inv_ab = BASEX(n=501, nbf=250, basis_dir='./',
         verbose=True, calc_speeds=True)
 
-# Transform the data
-
+# Transform the data:
 recon, speeds = inv_ab(raw_data, center, median_size=2,
           gaussian_blur=0, post_median=0)
 
