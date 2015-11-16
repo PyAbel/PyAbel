@@ -66,9 +66,6 @@ class BASEX(object):
                   The expected format is a string of the form "some_basis_set_{}_1.bsc" where 
                   "{}" will be replaced by "" for the first file and "pr" for the second.
                   Gzip compressed text files are accepted.
-                  For instance, we would use:
-                  use_basis_set_matlab="../BASEX/data/ascii/original_basis1000{}_1.txt.gz"
-                  to load the basis set included with this package.
           - verbose: Set to True to see more output for debugging
           - calc_speeds: determines if the speed distribution should be calculated
 
