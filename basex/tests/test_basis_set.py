@@ -1,9 +1,7 @@
-#!/usr/bin/python
 import os.path
 
 import numpy as np
 from numpy.testing import assert_allclose
-
 
 from BASEX.core import get_left_right_matrices
 from BASEX.io import parse_matlab
@@ -13,8 +11,6 @@ DATA_DIR = os.path.join(os.path.split(__file__)[0], '../data/')
 
 def setup():
     pass
-
-
 
 #def test_consistency_included_dataset():
 #    # just a sanity check
