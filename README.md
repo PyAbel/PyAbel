@@ -1,5 +1,7 @@
-# pyBASEX
-pyBASEX is a Python implementation of the BASEX algorithm creared by Dribinski, Ossadtchi, Mandelshtam, and Reisler [[Rev. Sci. Instrum. 73 2634, (2002)](http://dx.doi.org/10.1063/1.1482156)].
+# PyAbel
+PyAbel is a Python package for performing Abel and (primarily) inverse Abel transforms. The Abel transform takes a 3D object and finds the 2D projection of that object. The more difficult problem -- the inverse Abel transform -- takes the 2D projection and finds the 3D object by assuming cylindrical symmetry in the vertical direction.
+
+Currently, this package only uses the BASEX algorithm creared by Dribinski, Ossadtchi, Mandelshtam, and Reisler [[Rev. Sci. Instrum. 73 2634, (2002)](http://dx.doi.org/10.1063/1.1482156)], but we hope to include more algorithms for the inverse Abel transform in the future! 
 
 The main function of this program is to perform the inverse Abel transform on a two-dimensional image. The inverse Abel transform takes a 2D projection of a cylindrically symmetric 3D image and return the central slice (2D) of the 3D distribution. The BASEX implementation uses Gaussian basis functions to find the transform instead of analytically solving the inverse Abel transform or applying the Fourier-Hankel method, as both the analytical solution and the Fourier-Hankel methods provide lower quality transforms when applied to real-world datasets (see the RSI paper). The BASEX implementation is quick, robust, and is probably the most common method used to transform velocity-map-imaging (VMI) datasets.
 
