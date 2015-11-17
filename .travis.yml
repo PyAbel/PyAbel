@@ -29,7 +29,7 @@ install:
     - pwd
 
 script: 
-    - python  -c "import basex.tests; basex.tests.run_cli(coverage=True)"
+    - python  -c "import BASEX.tests; BASEX.tests.run_cli(coverage=True)"
 
 #after_success:
 #    coveralls
