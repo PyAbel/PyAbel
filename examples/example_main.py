@@ -9,8 +9,8 @@ from __future__ import unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 
-from BASEX import BASEX
-from BASEX.io import load_raw
+from basex import BASEX
+from basex.io import load_raw
 import scipy.misc
 
 
