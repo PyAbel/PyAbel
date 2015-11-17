@@ -11,8 +11,6 @@ import numpy as np
 from scipy.special import gammaln
 import sys
 
-MAX_OFFSET = 4000
-
 def generate_basis_sets(n=1001, nbf=500, verbose=True):
     """ 
     Generate the basis set for the BASEX method. 
