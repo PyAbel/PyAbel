@@ -7,9 +7,9 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from basex.core import get_left_right_matrices
-from basex.io import parse_matlab
-from basex.basis import generate_basis_sets
+from abel.core import get_left_right_matrices
+from abel.io import parse_matlab
+from abel.basis import generate_basis_sets
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
