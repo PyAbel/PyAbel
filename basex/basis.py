@@ -1,4 +1,3 @@
-#!/usr/bin/pthon
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
@@ -12,18 +11,19 @@ import numpy as np
 from scipy.special import gammaln
 import sys
 
-MAX_OFFSET = 4000
-
 def generate_basis_sets(n=1001, nbf=500, verbose=True):
     """ 
     Generate the basis set for the BASEX method. 
 
-    This function was adapted from the a matlab script BASIS2.m,
-    with some optimizations.
+    This function was adapted from the a matlab script provided by
+    the Reisler group: BASIS2.m, with some optimizations.
+    
+    Typically, the number of basis functions will be (n-1)/2
+    so that each pixel in the image is represented by its own basis function.
 
     Parameters:
     -----------
-      n : integer : problem size ?
+      n : integer : size of the basis set (pixels)
       nbf: integer: number of basis functions ?
 
     Returns:
@@ -35,7 +35,6 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
 
     if n//2 < nbf:
         raise ValueError('The number of basis functions nbf cannot be larger then the number of points n!')
-
 
     Rm = n//2 + 1
 
@@ -110,6 +109,4 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
     if verbose:
         print("...{}".format(k+1))
 
-
     return M, Mc
-
