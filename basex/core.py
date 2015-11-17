@@ -118,7 +118,7 @@ class BASEX(object):
 
 
         if self.verbose:
-            print('{:.2f} seconds'.format((time()-t1)))
+            print('{:.2f} seconds'.format((time() - t1)))
 
 
     def _basex_transform(self, rawdata):
@@ -146,7 +146,7 @@ class BASEX(object):
         IM = Mc.dot(Ci).dot(Mc.T)
 
         if self.verbose:
-            print('%.2f seconds' % (time()-t1))
+            print('%.2f seconds' % (time() - t1))
 
         if self.calc_speeds:
             speeds = self.calculate_speeds(IM)
@@ -199,10 +199,10 @@ class BASEX(object):
             raise NotImplementedError
 
         if median_size>0:
-            image = median_filter(image,size=median_size)
+            image = median_filter(image, size=median_size)
 
         if gaussian_blur>0:
-            image = gaussian_filter(image,sigma=gaussian_blur)
+            image = gaussian_filter(image, sigma=gaussian_blur)
 
         #Do the actual transform
         res = self._basex_transform(image)
@@ -239,7 +239,7 @@ class BASEX(object):
         nx,ny = np.shape(IM)
         xi = np.linspace(-100, 100, nx)
         yi = np.linspace(-100, 100, ny)
-        X,Y = np.meshgrid(xi,yi)
+        X,Y = np.meshgrid(xi, yi)
 
         polarIM, ri, thetai = reproject_image_into_polar(IM)
 
@@ -247,7 +247,7 @@ class BASEX(object):
         speeds = speeds[:self.n//2] #Clip off the corners
 
         if self.verbose:
-            print('%.2f seconds' % (time()-t1))
+            print('%.2f seconds' % (time() - t1))
         return speeds
 
 
@@ -258,7 +258,7 @@ def center_image(data, center, n, ndim=2):
     n_2 = n//2
     if ndim == 1:
         cx = int(center)
-        im = np.zeros((1,2*n))
+        im = np.zeros((1, 2*n))
         im[0, n-cx:n-cx+Nw] = data
         im = im[:, n_2:n+n_2]
         # This is really not efficient
@@ -270,11 +270,11 @@ def center_image(data, center, n, ndim=2):
         cx, cy = np.asarray(center, dtype='int')
         
         #make an array of zeros that is large enough for cropping or padding:
-        sz = 2*np.round(n+np.max((Nw,Nh)))
-        im = np.zeros((sz,sz))
+        sz = 2*np.round(n + np.max((Nw, Nh)))
+        im = np.zeros((sz, sz))
         im[sz//2-cy:sz//2-cy+Nh, sz//2-cx:sz//2-cx+Nw] = data
         im = im[ sz//2-n_2-1:n_2+sz//2, sz//2-n_2-1:n_2+sz//2] #not sure if this exactly preserves the center
-        print(np.shape(im))
+        #print(np.shape(im))
     else:
         raise ValueError
 
@@ -295,6 +295,7 @@ def get_left_right_matrices(M, Mc):
 # http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
 # It is possible that there is a faster way to get the speed distribution.
 # If you figure it out, pease let me know! (danhickstein@gmail.com)
+
 def reproject_image_into_polar(data, origin=None):
     """Reprojects a 2D numpy array ("data") into a polar coordinate system.
     "origin" is a tuple of (x0, y0) and defaults to the center of the image.
@@ -320,10 +321,10 @@ def reproject_image_into_polar(data, origin=None):
     X += origin[0] # We need to shift the origin
     Y += origin[1] # back to the lower-left corner...
     xi, yi = X.flatten(), Y.flatten()
-    coords = np.vstack((xi,yi)) # (map_coordinates requires a 2xn array)
+    coords = np.vstack((xi, yi)) # (map_coordinates requires a 2xn array)
 
     zi = map_coordinates(data, coords)
-    output = zi.reshape((nr,nt))
+    output = zi.reshape((nr, nt))
     return output, r_i, theta_i
 
 
@@ -342,13 +343,15 @@ def index_coords(data, origin=None):
     y -= origin_y
     return x, y
 
+
 def cart2polar(x, y):
     """
     Transform carthesian coordinates to polar
     """
     r = np.sqrt(x**2 + y**2)
-    theta = np.arctan2(y,x)
+    theta = np.arctan2(y, x)
     return r, theta
+
 
 def polar2cart(r, theta):
     """
