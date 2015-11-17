@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from basex import BASEX
+from abel import BASEX
 
 fig, ax= plt.subplots(1,1)
 plt.title('Abel tranforms of a gaussian function')

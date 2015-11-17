@@ -8,8 +8,8 @@ from __future__ import unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 
-from basex import BASEX
-from basex.io import load_raw
+from abel import BASEX
+from abel.io import load_raw
 import scipy.misc
 
 # filename = 'example_data/Xenon_800_nm.tif'
