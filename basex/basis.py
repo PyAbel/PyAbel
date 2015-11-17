@@ -11,6 +11,8 @@ import numpy as np
 from scipy.special import gammaln
 import sys
 
+MAX_OFFSET = 4000
+
 def generate_basis_sets(n=1001, nbf=500, verbose=True):
     """ 
     Generate the basis set for the BASEX method. 
@@ -56,7 +58,7 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
         sys.stdout.flush()
 
     # the number of elements used to calculate the projected coefficeints
-    delta = np.fmax(np.arange(nbf)*32 - 4000, 4000) 
+    delta = np.fmax(np.arange(nbf)*32 - MAX_OFFSET, MAX_OFFSET) 
     for k in range(1, nbf):
         k2 = k*k # so we don't recalculate it all the time
         log_k2 = log(k2) 
