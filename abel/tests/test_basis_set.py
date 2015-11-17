@@ -11,7 +11,7 @@ from basex.core import get_left_right_matrices
 from basex.io import parse_matlab
 from basex.basis import generate_basis_sets
 
-DATA_DIR = os.path.join(os.path.split(__file__)[0], '../data/')
+DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
 def setup():
     pass
@@ -37,25 +37,25 @@ def setup():
     #print(rawdata)
     #yield assert_allclose, rawdata, P
 
-def test_basis_original():
-    """
-    Comparing the basis generated with "BASIS1.m"  with the basis set originally included with this package
-    """
-    M, Mc = parse_matlab(os.path.join(DATA_DIR, 'ascii', 'dan_basis1000{}_1.bst.gz'))
-    M_orig, Mc_orig = parse_matlab(os.path.join(DATA_DIR, 'ascii', 'original_basis1000{}_1.txt.gz'))
-
-    yield assert_allclose, Mc_orig, Mc, 1e-7, 1e-50
-    yield assert_allclose, M_orig, M, 1e-7, 1e-50
+#def test_basis_original():
+#    """
+#    Comparing the basis generated with "BASIS1.m"  with the basis set originally included with this package
+#    """
+#    M, Mc = parse_matlab(os.path.join(DATA_DIR, 'ascii', 'dan_basis1000{}_1.bst.gz'))
+#    M_orig, Mc_orig = parse_matlab(os.path.join(DATA_DIR, 'ascii', 'original_basis1000{}_1.txt.gz'))
+#
+#    yield assert_allclose, Mc_orig, Mc, 1e-7, 1e-50
+#    yield assert_allclose, M_orig, M, 1e-7, 1e-50
 
 
 def test_generation_basis():
     """
     Check the that the basis.py returns the same result as the BASIS1.m script
     """
-    size = 1000
-    M_ref, Mc_ref = parse_matlab(os.path.join(DATA_DIR, 'ascii', 'dan_basis1000{}_1.bst.gz'))
+    size = 100
+    M_ref, Mc_ref = parse_matlab(os.path.join(DATA_DIR, 'dan_basis100{}_1.bst.gz'))
 
-    M, Mc = generate_basis_sets(size+1, size//2)
+    M, Mc = generate_basis_sets(size+1, size//2, verbose=False)
 
     yield assert_allclose, Mc_ref, Mc, 1e-7, 1e-100
     yield assert_allclose, M_ref, M, 1e-7, 1e-100
