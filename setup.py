@@ -3,12 +3,12 @@
 from setuptools import setup
 
 
-setup(name='pyBASEX',
+setup(name='PyAbel',
       version='0.5.0',
-      description='A Python implementation of the BASEX algorithm',
+      description='A Python package for inverse Abel transforms',
       author='Dan Hickstein',
-      packages=['basex'],
-      package_data={'basex': ['basex/data/*','basex/tests/data/*' ]},
+      packages=['abel'],
+      package_data={'abel': ['abel/data/*','abel/tests/data/*' ]},
       #test_suite="BASEX.tests.run"
      )
 

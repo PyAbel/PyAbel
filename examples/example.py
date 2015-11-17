@@ -1,4 +1,4 @@
-from basex import BASEX
+from abel import BASEX
 import matplotlib.pyplot as plt
 
 filename = 'data/Xenon_800_nm.tif'
