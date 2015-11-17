@@ -38,7 +38,7 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
 
     Rm = n//2 + 1
 
-    I = np.arange(1,n+1)
+    I = np.arange(1, n+1)
 
     R2 = (I - Rm)**2
     # R = I - Rm
@@ -56,12 +56,12 @@ def generate_basis_sets(n=1001, nbf=500, verbose=True):
         sys.stdout.flush()
 
     # the number of elements used to calculate the projected coefficeints
-    delta = np.fmax(np.arange(nbf)*32 - 4000, 4000) 
+    delta = np.fmax(np.arange(nbf)*32 - MAX_OFFSET, MAX_OFFSET) 
     for k in range(1, nbf):
         k2 = k*k # so we don't recalculate it all the time
         log_k2 = log(k2) 
         angn = exp(
-                    k2-2*k2*log(k) +
+                    k2 - 2*k2*log(k) +
                     #np.log(np.arange(0.5, k2 + 0.5)).sum() # original version
                     gammaln(k2 + 0.5) - gammaln_0o5  # optimized version
                     )

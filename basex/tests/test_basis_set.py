@@ -3,9 +3,9 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from BASEX.core import get_left_right_matrices
-from BASEX.io import parse_matlab
-from BASEX.basis import generate_basis_sets
+from basex.core import get_left_right_matrices
+from basex.io import parse_matlab
+from basex.basis import generate_basis_sets
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], '../data/')
 
