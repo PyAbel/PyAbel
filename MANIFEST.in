@@ -1,0 +1,4 @@
+include README.md
+recursive-include abel *.py
+recursive-include abel *.gz
+recursive-include examples *.py
