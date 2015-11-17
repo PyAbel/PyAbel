@@ -12,7 +12,7 @@ In this code, the axis of cylindrical symmetry is in assumed to be in the vertic
 
 ### Installation notes
 
-To install this module run,
+This module requires Python 2.7 or 3.3-3.5. It can be installed with
 
     python setup.py install --user
 	
