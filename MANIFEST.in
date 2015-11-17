@@ -1,4 +1,4 @@
 include README.md
-recursive-include BASEX *.py
-recursive-include BASEX *.gz
+recursive-include abel *.py
+recursive-include abel *.gz
 recursive-include examples *.py
