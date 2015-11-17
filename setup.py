@@ -9,6 +9,6 @@ setup(name='PyAbel',
       author='Dan Hickstein',
       packages=find_packages(),
       package_data={'abel': ['tests/data/*' ]},
-      #test_suite="BASEX.tests.run"
+      test_suite="abel.tests.run_cli"
      )
 
