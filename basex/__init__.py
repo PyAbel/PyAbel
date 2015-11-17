@@ -7,3 +7,6 @@ from . import io
 
 from .core import BASEX
 
+
+__version__ = '0.5.0'
+
