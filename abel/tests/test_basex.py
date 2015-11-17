@@ -11,9 +11,10 @@ from abel.core import get_left_right_matrices
 from abel.io import parse_matlab
 from abel.basis import generate_basis_sets
 
+
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
-def test_generation_basis():
+def test_basis_set_generation():
     """
     Check the that the basis.py returns the same result as the BASIS1.m script
     """
