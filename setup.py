@@ -8,7 +8,7 @@ setup(name='PyAbel',
       description='A Python package for inverse Abel transforms',
       author='Dan Hickstein',
       packages=find_packages(),
-      package_data={'abel': ['data/*','tests/data/*' ]},
+      package_data={'abel': ['tests/data/*' ]},
       #test_suite="BASEX.tests.run"
      )
 
