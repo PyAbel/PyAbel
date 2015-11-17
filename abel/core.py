@@ -52,7 +52,8 @@ from .io import parse_matlab
 class BASEX(object):
 
     def __init__(self, n=501, nbf=250, basis_dir='./',
-                    use_basis_set=None, verbose=True, calc_speeds=False):
+                    use_basis_set=None, verbose=True, calc_speeds=False,
+                    pixel_size=1.0, correct_scaling=True):
         """ Initalize the BASEX class, preloading or generating the basis set.
 
         Parameters:
@@ -68,12 +69,18 @@ class BASEX(object):
                   Gzip compressed text files are accepted.
           - verbose: Set to True to see more output for debugging
           - calc_speeds: determines if the speed distribution should be calculated
+          - pixel_size: size of one pixel in the radial direction (optional)
+          - correct_scaling: correct the result by a heuristic scaling factor
+                            as to be consistent with the analytical inverse Abel transform.
+                            This requires to set pixel_size to the correct value.
 
         """
         n = 2*(n//2) + 1 # make sure n is odd
 
         self.verbose = verbose
         self.calc_speeds = calc_speeds
+        self.correct_scaling = correct_scaling
+        self.pixel_size = pixel_size
 
         self.n = n
         self.nbf = nbf
@@ -110,8 +117,9 @@ class BASEX(object):
             left, right = get_left_right_matrices(M, Mc)
 
             np.save(path_to_basis_file, (left, right, M, Mc))
-            print('Basis set saved for later use to,')
-            print(' '*10 + '{}'.format(path_to_basis_file))
+            if self.verbose:
+                print('Basis set saved for later use to,')
+                print(' '*10 + '{}'.format(path_to_basis_file))
 
         self.left, self.right, self.M, self.Mc = left, right, M, Mc
 
@@ -153,6 +161,12 @@ class BASEX(object):
             return IM, speeds
         else:
             return IM
+
+
+    def _get_scaling_factor(self):
+
+        return 1./self.pixel_size
+
 
 
     def __call__(self, data, center,
@@ -218,6 +232,9 @@ class BASEX(object):
 
         if self.ndim == 1:
             recon = recon[0, :] # taking one row, since they are all the same anyway
+
+        if self.correct_scaling:
+            recon *= self._get_scaling_factor()
 
         if self.calc_speeds:
             return recon, speeds
