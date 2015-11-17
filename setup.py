@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 setup(name='BASEX',
-      version='0.4.0',
+      version='0.5.0',
       description='A Python implementation of the BASEX algorithm',
       author='Dan Hickstein',
       packages=['BASEX'],
