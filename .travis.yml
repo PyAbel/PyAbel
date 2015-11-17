@@ -1,0 +1,36 @@
+language: python
+sudo: false
+matrix:
+    include:
+    - python: "3.5"
+      env: DEPS="numpy scipy nose"
+    - python: "3.4"
+      env: DEPS="numpy scipy nose"
+    - python: "3.3"
+      env: DEPS="numpy scipy nose"
+    - python: "2.7"
+      env: DEPS="numpy scipy nose"
+
+install: 
+    - wget http://repo.continuum.io/miniconda/Miniconda${TRAVIS_PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh -O miniconda.sh
+    - chmod +x miniconda.sh
+    - ./miniconda.sh -b
+    - export PATH=/home/travis/miniconda${TRAVIS_PYTHON_VERSION:0:1}/bin:$PATH
+    # See: https://groups.google.com/a/continuum.io/forum/#!topic/conda/RSFENqovnro
+    - conda update --yes --no-deps conda
+    - conda config --set always_yes yes --set changeps1 no
+    # Learned the hard way: miniconda is not always up-to-date with conda.
+    - conda update --yes conda
+    - conda install --yes -c conda conda-env
+    - conda install --yes $DEPS pip python=${TRAVIS_PYTHON_VERSION}
+    - pip install coveralls
+    - python setup.py install
+    - cd ~/
+    - pwd
+
+script: 
+    - python  -c "import basex.tests; basex.tests.run_cli(coverage=True)"
+
+#after_success:
+#    coveralls
+
