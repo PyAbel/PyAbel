@@ -51,9 +51,9 @@ from .io import parse_matlab
 
 class BASEX(object):
 
-    def __init__(self, n=501, nbf=250, basis_dir='./',
-                    use_basis_set=None, verbose=True, calc_speeds=False,
-                    pixel_size=1.0, correct_scaling=True):
+    def __init__(self, n=501, nbf=250, basis_dir='./', use_basis_set=None,
+                    calc_speeds=False, pixel_size=1.0, correct_scaling=True,
+                    verbose=True):
         """ Initalize the BASEX class, preloading or generating the basis set.
 
         Parameters:
@@ -62,17 +62,18 @@ class BASEX(object):
             area of the image
           - nbf: integer: number of basis functions ?
           - basis_dir : path to the directory for saving / loading the basis set coefficients.
+                        If None, the basis set will not be saved to disk. 
           - use_basis_set: use the basis set stored as a text files, if
                   it provided, the following parameters will be ignored N, nbf, basis_dir
                   The expected format is a string of the form "some_basis_set_{}_1.bsc" where 
                   "{}" will be replaced by "" for the first file and "pr" for the second.
                   Gzip compressed text files are accepted.
-          - verbose: Set to True to see more output for debugging
           - calc_speeds: determines if the speed distribution should be calculated
           - pixel_size: size of one pixel in the radial direction (optional)
           - correct_scaling: correct the result by a heuristic scaling factor
                             as to be consistent with the analytical inverse Abel transform.
                             This requires to set pixel_size to the correct value.
+          - verbose: Set to True to see more output for debugging
 
         """
         n = 2*(n//2) + 1 # make sure n is odd
@@ -89,8 +90,11 @@ class BASEX(object):
             t1 = time()
 
         basis_name = "basex_basis_{}_{}.npy".format(n, nbf)
-        path_to_basis_file = os.path.join(basis_dir, basis_name)
-        
+        if basis_dir is not None:
+            path_to_basis_file = os.path.join(basis_dir, basis_name)
+        else:
+            path_to_basis_file = None
+
         if use_basis_set is not None:
             # load the matlab generated basis set
             M, Mc = parse_matlab(use_basis_set)
@@ -98,7 +102,7 @@ class BASEX(object):
 
             self.n, self.nbf = M.shape # overwrite the provided parameters
 
-        elif os.path.exists(path_to_basis_file):
+        elif basis_dir is not None and os.path.exists(path_to_basis_file):
             # load the basis set generated with this python module,
             # saved as a .npy file
             if self.verbose:
@@ -110,16 +114,20 @@ class BASEX(object):
             if self.verbose:
                 print('A suitable basis set was not found.',
                       'A new basis set will be generated.',
-                      'This may take a few minutes.',
-                      'But don\'t worry, it will be saved to disk for future use.\n')
+                      'This may take a few minutes. ', end='')
+                if basis_dir is not None:
+                    print('But don\'t worry, it will be saved to disk for future use.\n')
+                else:
+                    print(' ')
 
             M, Mc = generate_basis_sets(n, nbf, verbose=verbose)
             left, right = get_left_right_matrices(M, Mc)
 
-            np.save(path_to_basis_file, (left, right, M, Mc))
-            if self.verbose:
-                print('Basis set saved for later use to,')
-                print(' '*10 + '{}'.format(path_to_basis_file))
+            if basis_dir is not None:
+                np.save(path_to_basis_file, (left, right, M, Mc))
+                if self.verbose:
+                    print('Basis set saved for later use to,')
+                    print(' '*10 + '{}'.format(path_to_basis_file))
 
         self.left, self.right, self.M, self.Mc = left, right, M, Mc
 
