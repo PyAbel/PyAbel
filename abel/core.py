@@ -51,9 +51,9 @@ from .io import parse_matlab
 
 class BASEX(object):
 
-    def __init__(self, n=501, nbf=250, basis_dir='./', use_basis_set=None,
-                    calc_speeds=False, pixel_size=1.0, correct_scaling=True,
-                    verbose=True):
+    def __init__(self, n=501, nbf=250, basis_dir='./',
+                    use_basis_set=None, verbose=True, calc_speeds=False,
+                    pixel_size=1.0, scaling_correction=True):
         """ Initalize the BASEX class, preloading or generating the basis set.
 
         Parameters:
@@ -70,7 +70,7 @@ class BASEX(object):
                   Gzip compressed text files are accepted.
           - calc_speeds: determines if the speed distribution should be calculated
           - pixel_size: size of one pixel in the radial direction (optional)
-          - correct_scaling: correct the result by a heuristic scaling factor
+          - scaling_correction: correct the result by a heuristic scaling factor
                             as to be consistent with the analytical inverse Abel transform.
                             This requires to set pixel_size to the correct value.
           - verbose: Set to True to see more output for debugging
@@ -80,7 +80,7 @@ class BASEX(object):
 
         self.verbose = verbose
         self.calc_speeds = calc_speeds
-        self.correct_scaling = correct_scaling
+        self.scaling_correction = scaling_correction
         self.pixel_size = pixel_size
 
         self.n = n
@@ -173,7 +173,8 @@ class BASEX(object):
 
     def _get_scaling_factor(self):
 
-        return 1./self.pixel_size
+        MAGIC_NUMBER = 8.053   # see https://github.com/PyAbel/PyAbel/issues/4
+        return MAGIC_NUMBER/self.pixel_size
 
 
 
@@ -241,7 +242,7 @@ class BASEX(object):
         if self.ndim == 1:
             recon = recon[0, :] # taking one row, since they are all the same anyway
 
-        if self.correct_scaling:
+        if self.scaling_correction:
             recon *= self._get_scaling_factor()
 
         if self.calc_speeds:
