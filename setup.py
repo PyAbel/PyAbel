@@ -12,7 +12,7 @@ setup(name='PyAbel',
       install_requires=[
               "numpy >= 1.6",
               "setuptools >= 16.0",
-              "scipy >= 0.15",
+              "scipy >= 0.14",
               ],
       test_suite="abel.tests.run_cli"
      )
