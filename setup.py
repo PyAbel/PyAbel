@@ -9,6 +9,11 @@ setup(name='PyAbel',
       author='Dan Hickstein',
       packages=find_packages(),
       package_data={'abel': ['tests/data/*' ]},
+      install_requires=[
+              "numpy >= 1.6",
+              "setuptools >= 16.0",
+              "scipy >= 0.15",
+              ],
       test_suite="abel.tests.run_cli"
      )
 
