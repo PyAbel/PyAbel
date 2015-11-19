@@ -32,6 +32,6 @@ class SymStepBenchmark(object):
         """
         st = self.step
         mask2 = np.abs(np.abs(st.r)- 0.5*(st.r1 + st.r2)) < ratio*0.5*(st.r2 - st.r1)
-        err = (st.func/recon)[mask2]
+        err = st.func[mask2]/recon[mask2]
         return np.mean(err), np.std(err), np.sum(mask2)
 
