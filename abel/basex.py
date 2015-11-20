@@ -14,6 +14,7 @@ from scipy.special import gammaln
 from numpy.linalg import inv
 from scipy.ndimage import median_filter, gaussian_filter
 
+from ._version import __version__
 from .tools import calculate_speeds, center_image
 
 ######################################################################
