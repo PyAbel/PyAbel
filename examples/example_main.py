@@ -12,8 +12,7 @@ from abel.basex import BASEX
 from abel.io import load_raw
 import scipy.misc
 
-# filename = 'example_data/Xenon_800_nm.tif'
-filename = 'data/Xenon_800_nm.raw'
+filename = 'data/Xenon_800_nm.tif'
 
 output_image = filename[:-4] + '_Abel_transform.png'
 output_text  = filename[:-4] + '_speeds.txt'
@@ -22,10 +21,10 @@ output_plot  = filename[:-4] + '_comparison.pdf'
 # Load an image file as a numpy array:
 
 print('Loading ' + filename)
-raw_data = load_raw(filename)
+#raw_data = load_raw(filename)
 
 # use for common image formats, like PNG:
-# raw_data = plt.imread(filename)
+raw_data = plt.imread(filename)
 
 # Specify the center in x,y (horiz,vert) format
 center = (681,491)
