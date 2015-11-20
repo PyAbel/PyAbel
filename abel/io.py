@@ -39,10 +39,15 @@ def save16bitPNG(filename, data):
         writer.write(f, data_list)
 
 
-def parse_matlab(path):
-    """ Parse matlab basis files, in the format,
-            basis1000_1.bst.gz
-            basis1000pr_1.bst.gz
+def basex_parse_matlab_basis_sets(path):
+    """ Load matlab generated basis sets files,
+
+          The expected format for the `path` argument is a string of the form
+          "some_basis_set_{}_1.bsc" where "{}" will be replaced by "" for
+          the first file and "pr" for the second. Gzip compressed text files
+          are accepted. For instance:
+               basis1000_1.bst.gz
+               basis1000pr_1.bst.gz
     """
     M = np.loadtxt(path.format('pr'))
     Mc = np.loadtxt(path.format(''))
