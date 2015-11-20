@@ -2,8 +2,53 @@
 import numpy as np
 
 
-class SymStep(object):
-    def __init__(self, n, r_max, r1, r2, A0=1.0):
+# This file includes functions that have a known analytical Abel transform.
+# They are used in unit testing as well for comparing different iAbel impementations.
+# See BaseAnalytical class for more information.
+
+
+class BaseAnalytical(object):
+
+    def __init__(self, n, r_max, symmetric=True, **args):
+        """This is the base class for functions that have a known Abel transform. 
+        Every such class should expose the following public attributes:
+          - self.r: vector of positions along the r axis
+          - self.func: the values of the original function (same shape as self.r)
+          - self.abel: the values of the Abel transform (same shape as self.r)
+          - self.mask_valid: mask of the r interval where the function is well smoothed/well behaved 
+                           (no known artefacts in the inverse Abel reconstuction), typically expluding
+                           the origin, the domain boundaries, and function discontinuities, that can 
+                           be used for unit testing. 
+
+        See StepAnalytical for a concrete example.
+
+        Parameters
+        ----------
+           - n : int: number of points along the r axis
+           - r_max: float: maximum r interval
+          - symmetric: if True the r interval is [-r_max, r_max]  (and n should be odd)
+                       otherwise the r interval is [0, r_max]
+        """
+        self.n = n
+        self.r_max = r_max
+
+        assert r_max > 0
+
+        if symmetric:
+            self.r = np.linspace(-r_max, r_max, n)
+            if n % 2 == 0:
+                raise ValueError("Error: When using a symmetric interval, the number of discretization points\n\
+                n = {} must be odd".format(n))
+        else:
+            self.r = np.linspace(0, r_max, n)
+
+        self.dr =  np.diff(self.r)[0]
+
+
+
+class StepAnalytical(BaseAnalytical):
+    def __init__(self, n, r_max, r1, r2, A0=1.0,
+                                                ratio_valid_step=1.0, symmetric=True):
         """
         Define a a symmetric step function and calculate it's analytical
         Abel transform. See examples/example_step.py
@@ -11,27 +56,35 @@ class SymStep(object):
         Parameters
            - n : int: number of points along the r axis
            - r_max: float: range of the symmetric r interval
+           - symmetric: if True the r interval is [-r_max, r_max]  (and n should be odd)
+                       otherwise the r interval is [0, r_max]
            - r1, r2: floats: bounds of the step function if r > 0
                     ( symetic function is constructed for r < 0)
            - A0: float: height of the step
+           - ratio_valid_step: float: in the benchmark take only the central ratio*100% of the step
+                                         (exclude possible artefacts on the edges)
+
+        see https://github.com/PyAbel/PyAbel/pull/16
+
         """
 
-        self.n = n
-        self.r_max = r_max
+        super(StepAnalytical, self).__init__(n, r_max, symmetric)
+
         self.r1, self.r2 = r1, r2
         self.A0 = A0
 
-        self.r = r = np.linspace(-r_max, r_max, n)
-        mask = np.abs(np.abs(r)- 0.5*(r1 + r2)) < 0.5*(r2 - r1)
-        self.dr =  np.diff(r)[0]
-        fr = np.zeros(r.shape)
+        mask = np.abs(np.abs(self.r)- 0.5*(r1 + r2)) < 0.5*(r2 - r1)
+
+        fr = np.zeros(self.r.shape)
         fr[mask] = A0
+
         self.func = fr
 
-    @property
-    def abel(self):
-        """ Return the direct Abel transform """
-        return sym_abel_step_1d(self.r, self.A0, self.r1, self.r2)[0]
+        self.abel = sym_abel_step_1d(self.r, self.A0, self.r1, self.r2)[0]
+
+        # exclude the region near the discontinuity
+        self.mask_valid = np.abs(np.abs(self.r)- 0.5*(r1 + r2)) < \
+                                                ratio_valid_step*0.5*(r2 - r1)
 
 
 def abel_step_analytical(r, A0, r0, r1):
