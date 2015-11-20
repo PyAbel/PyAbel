@@ -1,6 +1,6 @@
 
 import matplotlib.pyplot as plt
-from abel import BASEX
+from abel.basex import BASEX
 from abel.analytical import SymStep
 
 fig, ax= plt.subplots(1,1)

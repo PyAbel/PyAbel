@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 
-from abel import BASEX
+from abel.basex import BASEX
 from abel.io import load_raw
 import scipy.misc
 
