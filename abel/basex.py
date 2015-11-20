@@ -56,7 +56,7 @@ class BASEX(object):
 
     def __init__(self, n=501, nbf='auto', basis_dir='./', calc_speeds=False,
                     dr=1.0, verbose=True):
-        """ Initalize the BASEX class, preloading or generating the basis set.
+        """ Initialize the BASEX class, preloading or generating the basis set.
 
         Parameters:
         -----------
@@ -103,13 +103,13 @@ class BASEX(object):
                 If N is smaller than the size of the basis set, zeros will be padded on the edges.
          center - the center of the image in (x,y) format
          median_size - size (in pixels) of the median filter that will be applied to the image before
-                       the transform. This is crucial for emiminating hot pixels and other
+                       the transform. This is crucial for eliminating hot pixels and other
                        high-frequency sensor noise that would interfere with the transform
-         gaussian_blur - the size (in pixels) of the gaussian blur applied before the BASEX tranform.
+         gaussian_blur - the size (in pixels) of the Gaussian blur applied before the BASEX transform.
                          this is another way to blur the image before the transform.
                          It is normally not used, but if you are looking at very broad features
                          in very noisy data and wich to apply an aggressive (large radius) blur
-                         (i.e., a blur in excess of a few pixels) then the gaussian blur will
+                         (i.e., a blur in excess of a few pixels) then the Gaussian blur will
                          provide better results than the median filter.
          post_median - this is the size (in pixels) of the median blur applied AFTER the BASEX transform
                        it is not normally used, but it can be a good way to get rid of high-frequency
@@ -252,8 +252,15 @@ def basex_get_basis_sets_cached(n, nbf='auto', basis_dir='.', verbose=False):
             if verbose:
                 print('Loading basis sets...           ')
                 # saved as a .npy file
-            M, Mc, M_left, M_right,  = np.load(path_to_basis_file)
-            #M_left, M_right, M, Mc = np.load(path_to_basis_file)
+            try:
+                M, Mc, M_left, M_right, M_version  = np.load(path_to_basis_file)
+            except ValueError:
+                try: # falling back to the legacy basis set file format
+                    M_left, M_right, M, Mc = np.load(path_to_basis_file)
+                except:
+                    raise
+            except:
+                raise
 
     if M is None:
         if verbose:
@@ -284,7 +291,7 @@ def basex_generate_basis_sets(n, nbf='auto', verbose=False):
     """ 
     Generate the basis set for the BASEX method. 
 
-    This function was adapted from the a matlab script provided by
+    This function was adapted from the matlab script provided by
     the Reisler group: BASIS2.m, with some optimizations.
     
     Typically, the number of basis functions will be (n-1)/2
@@ -327,7 +334,7 @@ def basex_generate_basis_sets(n, nbf='auto', verbose=False):
         sys.stdout.write('0')
         sys.stdout.flush()
 
-    # the number of elements used to calculate the projected coefficeints
+    # the number of elements used to calculate the projected coefficients
     delta = np.fmax(np.arange(nbf)*32 - MAX_BASIS_SET_OFFSET, MAX_BASIS_SET_OFFSET)
     for k in range(1, nbf):
         k2 = k*k # so we don't recalculate it all the time
