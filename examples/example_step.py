@@ -20,7 +20,7 @@ ax.plot(st.r, st.func,'b', label='Original signal')
 ax.plot(st.r, st.abel*0.05, 'r', label='Direct Abel transform x0.05 [analytical]')
 
 # BASEX Transform: 
-inv_ab = BASEX(n=n, nbf=n//2, basis_dir='./', verbose=True, calc_speeds=False)
+inv_ab = BASEX(n=n, basis_dir='./', verbose=True, calc_speeds=False)
 
 # Calculate the inverse abel transform for the centered data
 center = n//2

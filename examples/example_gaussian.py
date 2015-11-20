@@ -16,7 +16,7 @@ F_a = (np.pi)**0.5*fr.copy()
 ax.plot(r, F_a, 'r', label='Direct Abel transform [analytical]')
 
 # BASEX Transform: 
-inv_ab = BASEX(n=501, nbf=250, basis_dir='./', verbose=True, calc_speeds=False)
+inv_ab = BASEX(n=501, basis_dir='./', verbose=True, calc_speeds=False)
 
 # Calculate the inverse abel transform for the centered data
 center = n//2

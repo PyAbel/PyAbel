@@ -22,7 +22,7 @@ def test_basex_basis_set():
     size = 100
     M_ref, Mc_ref = basex_parse_matlab_basis_sets(os.path.join(DATA_DIR, 'dan_basis100{}_1.bst.gz'))
 
-    M, Mc = basex_generate_basis_sets(size+1, size//2, verbose=False)
+    M, Mc = basex_generate_basis_sets(size+1, nbf='auto', verbose=False)
 
     yield assert_allclose, Mc_ref, Mc, 1e-7, 1e-100
     yield assert_allclose, M_ref, M, 1e-7, 1e-100
