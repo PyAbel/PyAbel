@@ -7,9 +7,9 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from abel.core import BASEX
+from abel.basex import BASEX
 from abel.io import parse_matlab
-from abel.basis import generate_basis_sets
+from abel.basex import generate_basis_sets
 from abel.benchmark import SymStepBenchmark
 
 
