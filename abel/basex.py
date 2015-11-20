@@ -5,12 +5,16 @@ from __future__ import unicode_literals
 
 from time import time
 import os.path
+from math import exp, log
+import sys
+
 
 import numpy as np
+from scipy.special import gammaln
 from numpy.linalg import inv
-from scipy.ndimage import median_filter, gaussian_filter, map_coordinates
+from scipy.ndimage import median_filter, gaussian_filter
 
-from .basis import generate_basis_sets
+from .tools import calculate_speeds, center_image
 from .io import parse_matlab
 
 
@@ -177,6 +181,16 @@ class BASEX(object):
         return MAGIC_NUMBER/self.pixel_size
 
 
+    def calculate_speeds(self, IM):
+
+        if self.verbose:
+            print('Generating speed distribution...')
+            t1 = time()
+
+        speeds = calculate_speeds(IM, self.n)
+
+        if self.verbose:
+            print('%.2f seconds' % (time() - t1))
 
     def __call__(self, data, center,
                              median_size=0, gaussian_blur=0, post_median=0,
@@ -251,60 +265,109 @@ class BASEX(object):
             return recon
 
 
-    def calculate_speeds(self, IM):
-        # This section is to get the speed distribution.
-        # The original matlab version used an analytical formula to get the speed distribution directly
-        # from the basis coefficients. But, the C version of BASEX uses a numerical method similar to
-        # the one implemented here. The difference between the two methods is negligable.
-        """ Generating the speed distribution """
 
-        if self.verbose:
-            print('Generating speed distribution...')
-            t1 = time()
-
-        nx,ny = np.shape(IM)
-        xi = np.linspace(-100, 100, nx)
-        yi = np.linspace(-100, 100, ny)
-        X,Y = np.meshgrid(xi, yi)
-
-        polarIM, ri, thetai = reproject_image_into_polar(IM)
-
-        speeds = np.sum(polarIM, axis=1)
-        speeds = speeds[:self.n//2] #Clip off the corners
-
-        if self.verbose:
-            print('%.2f seconds' % (time() - t1))
-        return speeds
+MAX_OFFSET = 4000
 
 
-def center_image(data, center, n, ndim=2):
-    """ This centers the image at the given center and makes it of size n by n"""
+def generate_basis_sets(n=1001, nbf=500, verbose=True):
+    """ 
+    Generate the basis set for the BASEX method. 
+
+    This function was adapted from the a matlab script provided by
+    the Reisler group: BASIS2.m, with some optimizations.
     
-    Nh,Nw = data.shape
-    n_2 = n//2
-    if ndim == 1:
-        cx = int(center)
-        im = np.zeros((1, 2*n))
-        im[0, n-cx:n-cx+Nw] = data
-        im = im[:, n_2:n+n_2]
-        # This is really not efficient
-        # Processing 2D image with identical rows while we just want a
-        # 1D slice 
-        im = np.repeat(im, n, axis=0)
+    Typically, the number of basis functions will be (n-1)/2
+    so that each pixel in the image is represented by its own basis function.
 
-    elif ndim == 2:
-        cx, cy = np.asarray(center, dtype='int')
-        
-        #make an array of zeros that is large enough for cropping or padding:
-        sz = 2*np.round(n + np.max((Nw, Nh)))
-        im = np.zeros((sz, sz))
-        im[sz//2-cy:sz//2-cy+Nh, sz//2-cx:sz//2-cx+Nw] = data
-        im = im[ sz//2-n_2-1:n_2+sz//2, sz//2-n_2-1:n_2+sz//2] #not sure if this exactly preserves the center
-        #print(np.shape(im))
-    else:
-        raise ValueError
+    Parameters:
+    -----------
+      n : integer : size of the basis set (pixels)
+      nbf: integer: number of basis functions ?
 
-    return im
+    Returns:
+    --------
+      M, Mc : np.matrix
+    """
+    if n % 2 == 0:
+        raise ValueError('The n parameter must be odd (more or less sure about it).')
+
+    if n//2 < nbf:
+        raise ValueError('The number of basis functions nbf cannot be larger then the number of points n!')
+
+    Rm = n//2 + 1
+
+    I = np.arange(1, n+1)
+
+    R2 = (I - Rm)**2
+    # R = I - Rm
+    M = np.zeros((n, nbf))
+    Mc = np.zeros((n, nbf))
+
+    M[:,0] = 2*np.exp(-R2)
+    Mc[:,0] = np.exp(-R2)
+
+    gammaln_0o5 = gammaln(0.5) 
+
+    if verbose:
+        print('Generating BASEX basis sets for n = {}, nbf = {}:\n'.format(n, nbf))
+        sys.stdout.write('0')
+        sys.stdout.flush()
+
+    # the number of elements used to calculate the projected coefficeints
+    delta = np.fmax(np.arange(nbf)*32 - MAX_OFFSET, MAX_OFFSET) 
+    for k in range(1, nbf):
+        k2 = k*k # so we don't recalculate it all the time
+        log_k2 = log(k2) 
+        angn = exp(
+                    k2 - 2*k2*log(k) +
+                    #np.log(np.arange(0.5, k2 + 0.5)).sum() # original version
+                    gammaln(k2 + 0.5) - gammaln_0o5  # optimized version
+                    )
+        M[Rm-1, k] =  2*angn
+
+        for l in range(1, n-Rm+1):
+            l2 = l*l
+            log_l2 = log(l2)
+
+            val = exp(k2 - l2 + 2*k2*log((1.0*l)/k))
+            Mc[l-1+Rm, k] = val
+            Mc[Rm-l-1, k] = val
+
+            aux = val + angn*Mc[l+Rm-1, 0]
+
+            p = np.arange(max(1, l2 - delta[k]), min(k2 - 1,  l2 + delta[k]) + 1)
+
+            # We use here the fact that for p, k real and positive
+            #
+            #  np.log(np.arange(p, k)).sum() == gammaln(k) - gammaln(p) 
+            #
+            # where gammaln is scipy.misc.gammaln (i.e. the log of the Gamma function)
+            #
+            # The following line corresponds to the vectorized third
+            # loop of the original BASIS2.m matlab file.
+
+
+            aux += np.exp(k2 - l2 - k2*log_k2 + p*log_l2
+                      + gammaln(k2+1) - gammaln(p+1) 
+                      + gammaln(k2 - p + 0.5) - gammaln_0o5
+                      - gammaln(k2 - p + 1)
+                      ).sum()
+
+            # End of vectorized third loop
+
+            aux *= 2
+
+            M[l+Rm-1, k] = aux
+            M[Rm-l-1, k] = aux
+
+        if verbose and k % 50 == 0:
+            sys.stdout.write('...{}'.format(k))
+            sys.stdout.flush()
+
+    if verbose:
+        print("...{}".format(k+1))
+
+    return M, Mc
 
 
 def get_left_right_matrices(M, Mc):
@@ -314,75 +377,3 @@ def get_left_right_matrices(M, Mc):
     E = np.identity(NBF)*q  # Creating diagonal matrix for regularization. (?)
     right = M.dot(inv((M.T.dot(M) + E)))
     return left, right
-
-
-
-# I got these next two functions from a stackoverflow page and slightly modified them.
-# http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
-# It is possible that there is a faster way to get the speed distribution.
-# If you figure it out, pease let me know! (danhickstein@gmail.com)
-
-def reproject_image_into_polar(data, origin=None):
-    """Reprojects a 2D numpy array ("data") into a polar coordinate system.
-    "origin" is a tuple of (x0, y0) and defaults to the center of the image.
-    """
-    ny, nx = data.shape[:2]
-    if origin is None:
-        origin = (nx//2, ny//2)
-
-    # Determine that the min and max r and theta coords will be...
-    x, y = index_coords(data, origin=origin)
-    r, theta = cart2polar(x, y)
-
-    nr = r.max()
-    nt = ny//2
-
-    # Make a regular (in polar space) grid based on the min and max r & theta
-    r_i = np.linspace(r.min(), r.max(), nr)
-    theta_i = np.linspace(theta.min(), theta.max(), nt)
-    theta_grid, r_grid = np.meshgrid(theta_i, r_i)
-
-    # Project the r and theta grid back into pixel coordinates
-    X, Y = polar2cart(r_grid, theta_grid)
-    X += origin[0] # We need to shift the origin
-    Y += origin[1] # back to the lower-left corner...
-    xi, yi = X.flatten(), Y.flatten()
-    coords = np.vstack((xi, yi)) # (map_coordinates requires a 2xn array)
-
-    zi = map_coordinates(data, coords)
-    output = zi.reshape((nr, nt))
-    return output, r_i, theta_i
-
-
-def index_coords(data, origin=None):
-    """Creates x & y coords for the indicies in a numpy array "data".
-    "origin" defaults to the center of the image. Specify origin=(0,0)
-    to set the origin to the lower left corner of the image.
-    """
-    ny, nx = data.shape[:2]
-    if origin is None:
-        origin_x, origin_y = nx // 2, ny // 2
-    else:
-        origin_x, origin_y = origin
-    x, y = np.meshgrid(np.arange(nx), np.arange(ny))
-    x -= origin_x
-    y -= origin_y
-    return x, y
-
-
-def cart2polar(x, y):
-    """
-    Transform carthesian coordinates to polar
-    """
-    r = np.sqrt(x**2 + y**2)
-    theta = np.arctan2(y, x)
-    return r, theta
-
-
-def polar2cart(r, theta):
-    """
-    Transform polar coordinates to carthesian
-    """
-    x = r * np.sin(theta)
-    y = r * np.cos(theta)
-    return x, y
