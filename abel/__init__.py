@@ -5,8 +5,7 @@ from __future__ import unicode_literals
 
 from . import io
 
-from .core import BASEX
-
+from . import basex
 
 __version__ = '0.5.0'
 
