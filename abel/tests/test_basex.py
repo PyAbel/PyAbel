@@ -7,49 +7,63 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from abel.core import BASEX
-from abel.io import parse_matlab
-from abel.basis import generate_basis_sets
-from abel.benchmark import SymStepBenchmark
+from abel.basex import BASEX
+from abel.io import parse_matlab_basis_sets
+from abel.basex import generate_basis_sets, get_basis_sets_cached
+from abel.analytical import StepAnalytical
+from abel.benchmark import absolute_ratio_benchmark
 
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
+
+def assert_equal(x, y, message, rtol=1e-5):
+    assert np.allclose(x, y, rtol=1e-5), message
 
 def test_basex_basis_set():
     """
     Check that the basis.py returns the same result as the BASIS1.m script
     """
-    size = 100
-    M_ref, Mc_ref = parse_matlab(os.path.join(DATA_DIR, 'dan_basis100{}_1.bst.gz'))
+    size = 101
+    M_ref, Mc_ref = parse_matlab_basis_sets(os.path.join(DATA_DIR, 'dan_basis100{}_1.bst.gz'))
 
-    M, Mc = generate_basis_sets(size+1, size//2, verbose=False)
+    M, Mc = generate_basis_sets(size, nbf='auto', verbose=False)
 
     yield assert_allclose, Mc_ref, Mc, 1e-7, 1e-100
     yield assert_allclose, M_ref, M, 1e-7, 1e-100
 
-def test_basex_step():
-    """
-    Check that BASEX implementation passes the SymStepBenchmark (up to a scaling factor)
-    """
+def test_basex_basis_sets_cache():
+    n = 121
+    file_name = os.path.join(DATA_DIR, "basex_basis_{}_{}.npy".format(n, n//2))
+    if os.path.exists(file_name):
+        os.remove(file_name)
+    # 1st call generate and save
+    get_basis_sets_cached(n, basis_dir=DATA_DIR, verbose=False)
+    # 2nd call load from file
+    get_basis_sets_cached(n, basis_dir=DATA_DIR, verbose=False)
+    if os.path.exists(file_name):
+        os.remove(file_name)
+
+
+def test_basex_step_ratio():
+    # This test checks that 
 
     n = 101
     r_max = 25
-    A0 = 10.0
-    r1 = 6.0
-    r2 = 14.0
 
-    sbench = SymStepBenchmark(n, r_max, r1, r2, A0)
+    step_options = dict(A0=10.0, r1=6.0, r2=14.0, ratio_valid_step=0.6)
 
-    st = sbench.step
+    ref = StepAnalytical(n, r_max, symmetric=True, **step_options)
+
 
     # Calculate the inverse abel transform for the centered data
-    inv_ab = BASEX(n=n, nbf=n//2, basis_dir=None, verbose=False, calc_speeds=False)
-    center = n//2
-    recon = inv_ab(st.abel, center , median_size=2,
+    inv_ab = BASEX(n=n, basis_dir=None, verbose=False, calc_speeds=False, dr=ref.dr)
+    recon = inv_ab(ref.abel, center=n//2 , median_size=2,
                         gaussian_blur=0, post_median=0)
 
 
-    err_mean, err_std, _ = sbench.run(recon, 0.5)
+    ratio_mean, ratio_std, _ = absolute_ratio_benchmark(ref, recon)
+    backend_name = type(inv_ab).__name__
 
-    snr = err_mean/err_std # calculate a signal to noise ratio (SNR)
-    assert snr > 100  # a randomly large value
+    yield assert_allclose, ratio_mean, 1.0, 1e-2, 0, "{}: ratio == 1.0".format(backend_name)
+    yield assert_allclose, ratio_std, 0.0,  1e-5, 4e-2,  "{}: std == 0.0".format(backend_name)
+

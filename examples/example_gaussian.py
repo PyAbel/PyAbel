@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from abel import BASEX
+from abel.basex import BASEX
 
 fig, ax= plt.subplots(1,1)
 plt.title('Abel tranforms of a gaussian function')
@@ -16,7 +16,7 @@ F_a = (np.pi)**0.5*fr.copy()
 ax.plot(r, F_a, 'r', label='Direct Abel transform [analytical]')
 
 # BASEX Transform: 
-inv_ab = BASEX(n=501, nbf=250, basis_dir='./', verbose=True, calc_speeds=False)
+inv_ab = BASEX(n=501, basis_dir='./', verbose=True, calc_speeds=False)
 
 # Calculate the inverse abel transform for the centered data
 center = n//2
