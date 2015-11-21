@@ -39,7 +39,7 @@ def save16bitPNG(filename, data):
         writer.write(f, data_list)
 
 
-def basex_parse_matlab_basis_sets(path):
+def parse_matlab_basis_sets(path):
     """ Load matlab generated basis sets files,
 
           The expected format for the `path` argument is a string of the form

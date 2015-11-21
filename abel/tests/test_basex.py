@@ -8,8 +8,8 @@ import numpy as np
 from numpy.testing import assert_allclose
 
 from abel.basex import BASEX
-from abel.io import basex_parse_matlab_basis_sets
-from abel.basex import basex_generate_basis_sets, basex_get_basis_sets_cached
+from abel.io import parse_matlab_basis_sets
+from abel.basex import generate_basis_sets, get_basis_sets_cached
 from abel.analytical import StepAnalytical
 from abel.benchmark import absolute_ratio_benchmark
 
@@ -24,9 +24,9 @@ def test_basex_basis_set():
     Check that the basis.py returns the same result as the BASIS1.m script
     """
     size = 101
-    M_ref, Mc_ref = basex_parse_matlab_basis_sets(os.path.join(DATA_DIR, 'dan_basis100{}_1.bst.gz'))
+    M_ref, Mc_ref = parse_matlab_basis_sets(os.path.join(DATA_DIR, 'dan_basis100{}_1.bst.gz'))
 
-    M, Mc = basex_generate_basis_sets(size, nbf='auto', verbose=False)
+    M, Mc = generate_basis_sets(size, nbf='auto', verbose=False)
 
     yield assert_allclose, Mc_ref, Mc, 1e-7, 1e-100
     yield assert_allclose, M_ref, M, 1e-7, 1e-100
@@ -37,9 +37,9 @@ def test_basex_basis_sets_cache():
     if os.path.exists(file_name):
         os.remove(file_name)
     # 1st call generate and save
-    basex_get_basis_sets_cached(n, basis_dir=DATA_DIR, verbose=False)
+    get_basis_sets_cached(n, basis_dir=DATA_DIR, verbose=False)
     # 2nd call load from file
-    basex_get_basis_sets_cached(n, basis_dir=DATA_DIR, verbose=False)
+    get_basis_sets_cached(n, basis_dir=DATA_DIR, verbose=False)
     if os.path.exists(file_name):
         os.remove(file_name)
 
