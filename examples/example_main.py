@@ -36,12 +36,10 @@ print('Performing the inverse Abel transform:')
 #         verbose=True, calc_speeds=True)
 
 # use 500x500 basis set:
-inv_ab = BASEX(n=501, nbf=250, basis_dir='./',
+# Transform the data:
+recon, speeds = BASEX(raw_data, center, n=501, basis_dir='./',
         verbose=True, calc_speeds=True)
 
-# Transform the data:
-recon, speeds = inv_ab(raw_data, center, median_size=2,
-          gaussian_blur=0, post_median=0)
 
 # # save the transform in 16-bits (requires pyPNG):
 # save16bitPNG('Xenon_800_transformed.png',recon)
