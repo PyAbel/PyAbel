@@ -15,18 +15,12 @@ ax.plot(r, fr,'b', label='Original signal')
 F_a = (np.pi)**0.5*fr.copy()
 ax.plot(r, F_a, 'r', label='Direct Abel transform [analytical]')
 
-# BASEX Transform: 
-inv_ab = BASEX(n=501, basis_dir='./', verbose=True, calc_speeds=False)
-
-# Calculate the inverse abel transform for the centered data
 center = n//2
-recon = inv_ab(F_a, center , median_size=2,
-                    gaussian_blur=0, post_median=0)
 
-scale = 1./dr
-recon *= scale
-
-print(np.median((fr/recon)[490:-490]))
+# BASEX Transform: 
+# Calculate the inverse abel transform for the centered data
+recon = BASEX(F_a, center,  n=501, basis_dir='./', dr=dr,
+        verbose=True, calc_speeds=False)
 
 plt.plot(r, recon , '--o',c='red', label='Inverse transform [BASEX]')
 
