@@ -56,14 +56,11 @@ def test_basex_step_ratio():
 
 
     # Calculate the inverse abel transform for the centered data
-    inv_ab = BASEX(n=n, basis_dir=None, verbose=False, calc_speeds=False, dr=ref.dr)
-    recon = inv_ab(ref.abel, center=n//2 , median_size=2,
-                        gaussian_blur=0, post_median=0)
-
+    recon = BASEX(ref.abel, center=n//2, n=n, basis_dir=None, verbose=False, calc_speeds=False, dr=ref.dr)
 
     ratio_mean, ratio_std, _ = absolute_ratio_benchmark(ref, recon)
-    backend_name = type(inv_ab).__name__
+    backend_name = "BASEX"
 
-    yield assert_allclose, ratio_mean, 1.0, 1e-2, 0, "{}: ratio == 1.0".format(backend_name)
+    yield assert_allclose, ratio_mean, 1.0, 3e-2, 0, "{}: ratio == 1.0".format(backend_name)
     yield assert_allclose, ratio_std, 0.0,  1e-5, 4e-2,  "{}: std == 0.0".format(backend_name)
 

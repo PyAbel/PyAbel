@@ -52,125 +52,80 @@ from .tools import calculate_speeds, center_image
 
 
 
-class BASEX(object):
+def BASEX(data, center, n=501, nbf='auto',  basis_dir='./', calc_speeds=False,
+                    dr=1.0, verbose=True,):
+        """ This is the function that performs the BASEX transform.
 
-    def __init__(self, n=501, nbf='auto', basis_dir='./', calc_speeds=False,
-                    dr=1.0, verbose=True):
-        """ Initialize the BASEX class, preloading or generating the basis set.
+            It centers the image, performs the BASEX transform (loads or generates basis sets),
+            and optionally calculates radial speeds.
 
         Parameters:
         -----------
+          - data:  a NxN numpy array
+                    If N is smaller than the size of the basis set, zeros will be padded on the edges.
           - N : odd integer: Abel inverse transform will be performed on a `n x n`
             area of the image
-          - nbf: integer: number of basis functions ?
+          - nbf: integer: number of basis functions. If nbf='auto', it is set to (n-1)/2.
+          - center - the center of the image in (x,y) format
           - basis_dir : path to the directory for saving / loading the basis set coefficients.
                         If None, the basis set will not be saved to disk. 
           - dr: size of one pixel in the radial direction
           - calc_speeds: determines if the speed distribution should be calculated
           - verbose: Set to True to see more output for debugging
 
+        Returns:
+           if calc_speeds=False: the processed image
+           if calc_speeds=True:  the processes images, arrays with the calculated speeds
+
         """
         n = 2*(n//2) + 1 # make sure n is odd
 
-        self.verbose = verbose
-        self.calc_speeds = calc_speeds
-        self.dr = dr
-        self.n = n
 
-        if self.verbose:
-            t1 = time()
-
-        self.M, self.Mc, self.M_left, self.M_right = \
-                get_basis_sets_cached(n, nbf, basis_dir, verbose)
-
-        if self.verbose:
-            print('{:.2f} seconds'.format((time() - t1)))
-
-
-
-
-
-
-    def __call__(self, data, center,
-                             median_size=0, gaussian_blur=0, post_median=0,
-                             symmetrize=False):
-        """ This is the main function that is called by the user. 
-            It center the image, blurs the image (if desired)
-            and completes the BASEX transform.
-
-         Inputs:
-         data - a NxN numpy array
-                If N is smaller than the size of the basis set, zeros will be padded on the edges.
-         center - the center of the image in (x,y) format
-         median_size - size (in pixels) of the median filter that will be applied to the image before
-                       the transform. This is crucial for eliminating hot pixels and other
-                       high-frequency sensor noise that would interfere with the transform
-         gaussian_blur - the size (in pixels) of the Gaussian blur applied before the BASEX transform.
-                         this is another way to blur the image before the transform.
-                         It is normally not used, but if you are looking at very broad features
-                         in very noisy data and wich to apply an aggressive (large radius) blur
-                         (i.e., a blur in excess of a few pixels) then the Gaussian blur will
-                         provide better results than the median filter.
-         post_median - this is the size (in pixels) of the median blur applied AFTER the BASEX transform
-                       it is not normally used, but it can be a good way to get rid of high-frequency
-                       artifacts in the transformed image. For example, it can reduce centerline noise.
-         verbose - Set to True to see more output for debugging
-         calc_speeds - determines if the speed distribution should be calculated
-        """
-        
         # make sure that the data is the right shape (1D must be converted to 2D)
         data = np.atleast_2d(data) # if passed a 1D array convert it to 2D
         if data.shape[0] == 1:
-            self.ndim = 1
+            data_ndim = 1
         elif data.shape[1] == 1:
             raise ValueError('Wrong input shape for data {0}, should be  (N1, N2) or (1, N), not (N, 1)'.format(data.shape))
         else:
-            self.ndim = 2
+            data_ndim = 2
 
-        
-        image = center_image(data, center=center, n=self.n, ndim=self.ndim)
+        image = center_image(data, center=center, n=n, ndim=data_ndim)
 
-        if symmetrize:
-            #image = apply_symmetry(image)
-            raise NotImplementedError
+        if verbose:
+            t1 = time()
 
-        if median_size>0:
-            image = median_filter(image, size=median_size)
+        M, Mc, M_left, M_right = get_basis_sets_cached(n, nbf, basis_dir, verbose)
 
-        if gaussian_blur>0:
-            image = gaussian_filter(image, sigma=gaussian_blur)
+        if verbose:
+            print('{:.2f} seconds'.format((time() - t1)))
 
         #Do the actual transform
-        if self.verbose:
+        if verbose:
             print('Reconstructing image...         ')
             t1 = time()
 
-        recon = basex_transform(image, self.M, self.Mc, 
-                            self.M_left, self.M_right, self.dr)
+        recon = basex_transform(image, M, Mc, M_left, M_right, dr)
 
-        if self.verbose:
+        if verbose:
             print('%.2f seconds' % (time() - t1))
 
-        if post_median > 0:
-            recon = median_filter(recon, size=post_median)
-
-
-        if self.ndim == 1:
+        if data_ndim == 1:
             recon = recon[0, :] # taking one row, since they are all the same anyway
 
-
-        if self.calc_speeds:
-            if self.verbose:
+        if calc_speeds:
+            if verbose:
                 print('Generating speed distribution...')
                 t1 = time()
 
-            speeds = calculate_speeds(recon, self.n)
+            speeds = calculate_speeds(recon, n)
 
-            if self.verbose:
+            if verbose:
                 print('%.2f seconds' % (time() - t1))
             return recon, speeds
         else:
             return recon
+
 
 
 def basex_transform(rawdata, M, Mc, M_left, M_right, dr=1.0):
