@@ -81,7 +81,7 @@ class BASEX(object):
             t1 = time()
 
         self.M, self.Mc, self.M_left, self.M_right = \
-                basex_get_basis_sets_cached(n, nbf, basis_dir, verbose)
+                get_basis_sets_cached(n, nbf, basis_dir, verbose)
 
         if self.verbose:
             print('{:.2f} seconds'.format((time() - t1)))
@@ -225,7 +225,7 @@ def _nbf_default(n, nbf):
     return nbf
 
 
-def basex_get_basis_sets_cached(n, nbf='auto', basis_dir='.', verbose=False):
+def get_basis_sets_cached(n, nbf='auto', basis_dir='.', verbose=False):
     """
     Internal function.
 
@@ -272,7 +272,7 @@ def basex_get_basis_sets_cached(n, nbf='auto', basis_dir='.', verbose=False):
             else:
                 print(' ')
 
-        M, Mc = basex_generate_basis_sets(n, nbf, verbose=verbose)
+        M, Mc = generate_basis_sets(n, nbf, verbose=verbose)
         M_left, M_right = _get_left_right_matrices(M, Mc)
 
         if basis_dir is not None:
@@ -287,7 +287,7 @@ def basex_get_basis_sets_cached(n, nbf='auto', basis_dir='.', verbose=False):
 MAX_BASIS_SET_OFFSET = 4000
 
 
-def basex_generate_basis_sets(n, nbf='auto', verbose=False):
+def generate_basis_sets(n, nbf='auto', verbose=False):
     """ 
     Generate the basis set for the BASEX method. 
 
