@@ -19,13 +19,12 @@ ax.plot(st.r, st.func,'b', label='Original signal')
 
 ax.plot(st.r, st.abel*0.05, 'r', label='Direct Abel transform x0.05 [analytical]')
 
-# BASEX Transform: 
-inv_ab = BASEX(n=n, basis_dir='./', dr=st.dr, verbose=True, calc_speeds=False)
-
-# Calculate the inverse abel transform for the centered data
 center = n//2
-recon = inv_ab(st.abel, center , median_size=2,
-                    gaussian_blur=0, post_median=0)
+# BASEX Transform: 
+# Calculate the inverse abel transform for the centered data
+recon = BASEX(st.abel, center, n=n, basis_dir='./', dr=st.dr,
+                                    verbose=True, calc_speeds=False)
+
 
 plt.plot(st.r, recon , '--o',c='red', label='Inverse transform x10 [BASEX]')
 

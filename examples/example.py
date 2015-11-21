@@ -11,12 +11,8 @@ print('Performing the inverse Abel transform:')
 
 # Load (or pre-calculate if needed) the basis set for a 1001x1001 image
 # using 500 basis function
-
-inv_ab = BASEX(n=1001, basis_dir='./', verbose=True, calc_speeds=True)
-
 # Calculate the inverse abel transform for the centered data
-recon, speed = inv_ab(raw_data, center, median_size=2,
-                    gaussian_blur=0, post_median=0)
+recon, speed = BASEX(raw_data, center, n=1001, basis_dir='./', verbose=True, calc_speeds=True)
 
 #This makes the plots
 plt.imshow(recon,origin='lower')
