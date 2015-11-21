@@ -1,7 +1,7 @@
 
 import matplotlib.pyplot as plt
-from abel import BASEX
-from abel.analytical import SymStep
+from abel.basex import BASEX
+from abel.analytical import StepAnalytical
 
 fig, ax= plt.subplots(1,1)
 plt.title('Abel tranforms of a step function')
@@ -13,21 +13,21 @@ r1 = 6.0
 r2 = 14.0
 
 # define a symmetric step function and calculate its analytical Abel transform
-st = SymStep(n, r_max, r1, r2, A0)
+st = StepAnalytical(n, r_max, r1, r2, A0)
 
 ax.plot(st.r, st.func,'b', label='Original signal')
 
 ax.plot(st.r, st.abel*0.05, 'r', label='Direct Abel transform x0.05 [analytical]')
 
 # BASEX Transform: 
-inv_ab = BASEX(n=n, nbf=n//2, basis_dir='./', verbose=True, calc_speeds=False)
+inv_ab = BASEX(n=n, basis_dir='./', dr=st.dr, verbose=True, calc_speeds=False)
 
 # Calculate the inverse abel transform for the centered data
 center = n//2
 recon = inv_ab(st.abel, center , median_size=2,
                     gaussian_blur=0, post_median=0)
 
-plt.plot(st.r, 10*recon , '--o',c='red', label='Inverse transform x10 [BASEX]')
+plt.plot(st.r, recon , '--o',c='red', label='Inverse transform x10 [BASEX]')
 
 ax.legend()
 
