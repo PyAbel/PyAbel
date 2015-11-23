@@ -54,24 +54,28 @@ from .tools import calculate_speeds, center_image
 
 def BASEX(data, center, n=501, nbf='auto',  basis_dir='./', calc_speeds=False,
                     dr=1.0, verbose=True,):
-        """ This is the function that performs the BASEX transform.
-
-            It centers the image, performs the BASEX transform (loads or generates basis sets),
-            and optionally calculates radial speeds.
+        """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
+            and (optionally) calculates the radial integration of the image (calc_speeds)
 
         Parameters:
         -----------
           - data:  a NxN numpy array
-                    If N is smaller than the size of the basis set, zeros will be padded on the edges.
-          - N : odd integer: Abel inverse transform will be performed on a `n x n`
-            area of the image
-          - nbf: integer: number of basis functions. If nbf='auto', it is set to (n-1)/2.
-          - center - the center of the image in (x,y) format
-          - basis_dir : path to the directory for saving / loading the basis set coefficients.
-                        If None, the basis set will not be saved to disk. 
-          - dr: size of one pixel in the radial direction
-          - calc_speeds: determines if the speed distribution should be calculated
-          - verbose: Set to True to see more output for debugging
+                If N is smaller than the size of the basis set, zeros will be padded on the edges.
+          - n: odd integer 
+                Abel inverse transform will be performed on a `n x n` area of the image
+          - nbf: integer
+                number of basis functions. If nbf='auto', it is set to (n-1)/2.
+          - center: tuple (x,y)
+                the center of the image in (x,y) format
+          - basis_dir: string
+                path to the directory for saving / loading the basis set coefficients.
+                If None, the basis set will not be saved to disk. 
+          - dr: float
+                size of one pixel in the radial direction
+          - calc_speeds: True/False
+                determines if the speed distribution should be calculated
+          - verbose: True/False
+                Set to True to see more output for debugging
 
         Returns:
            if calc_speeds=False: the processed image
