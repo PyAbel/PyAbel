@@ -1,6 +1,12 @@
-#!/usr/bin/python
+import sys
 import re
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
+import numpy as np
+from Cython.Distutils import build_ext
+import Cython.Compiler.Options
+
+
+Cython.Compiler.Options.annotate = False
 
 # a define the version sting inside the package
 # see https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package 
@@ -13,6 +19,18 @@ if mo:
 else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
+if sys.platform != 'win32':
+    compile_args =  dict( extra_compile_args=['-O2', '-march=core2', '-mtune=native'],
+                 extra_link_args=['-O2', '-march=core2', '-mtune=native'])
+else:
+    compile_args = {}
+
+ext_modules=[
+    Extension("abel.lib.direct",
+             ["abel/lib/direct.pyx"],
+             **compile_args),
+    ]
+
 
 setup(name='PyAbel',
       version=version,
@@ -20,6 +38,9 @@ setup(name='PyAbel',
       author='Dan Hickstein',
       packages=find_packages(),
       package_data={'abel': ['tests/data/*' ]},
+      cmdclass= {'build_ext': build_ext},
+      ext_modules= ext_modules,
+      include_dirs=[ np.get_include() ],
       install_requires=[
               "numpy >= 1.6",
               "setuptools >= 16.0",
