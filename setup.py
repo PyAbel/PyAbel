@@ -1,5 +1,6 @@
 import sys
 import re
+import os.path
 from setuptools import setup, find_packages, Extension
 import numpy as np
 from Cython.Distutils import build_ext
@@ -27,7 +28,8 @@ else:
 
 ext_modules=[
     Extension("abel.lib.direct",
-             ["abel/lib/direct.pyx"],
+             [os.path.join("abel","lib","direct.pyx")],
+             libraries=["m"],
              **compile_args),
     ]
 
