@@ -54,10 +54,6 @@ def test_basex_shape():
     assert recon.shape == (n, n) 
 
 
-
-
-
-
 def test_basex_step_ratio():
     # This test checks that 
 
