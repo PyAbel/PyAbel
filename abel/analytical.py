@@ -20,7 +20,7 @@ class BaseAnalytical(object):
                            the origin, the domain boundaries, and function discontinuities, that can 
                            be used for unit testing. 
 
-        See StepAnalytical for a concrete example.
+        See GaussianAnalytical for a concrete example.
 
         Parameters
         ----------
@@ -85,6 +85,44 @@ class StepAnalytical(BaseAnalytical):
         # exclude the region near the discontinuity
         self.mask_valid = np.abs(np.abs(self.r)- 0.5*(r1 + r2)) < \
                                                 ratio_valid_step*0.5*(r2 - r1)
+
+
+
+class GaussianAnalytical(BaseAnalytical):
+    def __init__(self, n, r_max, sigma=1.0, A0=1.0,
+                            ratio_valid_sigma=2.0, symmetric=True):
+        """
+        Define a gaussian function and calculate its analytical
+        Abel transform. See examples/example_gaussian.py
+
+        Parameters
+           - n : int: number of points along the r axis
+           - r_max: float: range of the symmetric r interval
+           - symmetric: if True the r interval is [-r_max, r_max]  (and n should be odd)
+                       otherwise the r interval is [0, r_max]
+           - sigma: floats: sigma parameter for the gaussian
+           - A0: float: amplitude of the gaussian
+           - ratio_valid_sigma: float: in the benchmark ta
+                        0 < r < ration_valid_sigma * sigma 
+                        (exclude possible artefacts on the axis, and )
+
+        Source: http://mathworld.wolfram.com/AbelTransform.html
+        """
+
+        super(GaussianAnalytical, self).__init__(n, r_max, symmetric)
+
+        self.sigma = sigma
+        self.A0 = A0
+
+        r = self.r
+
+        self.func = A0*np.exp(-r**2/sigma**2) 
+
+        self.abel = sigma * np.sqrt(np.pi) * A0*np.exp(-r**2/sigma**2)
+
+        # exclude the region near the discontinuity
+        self.mask_valid = (np.abs(self.r) < ratio_valid_sigma*sigma) &\
+                          (np.abs(self.r) > 0)
 
 
 def abel_step_analytical(r, A0, r0, r1):
