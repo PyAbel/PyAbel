@@ -10,7 +10,7 @@ from numpy.testing import assert_allclose
 from abel.basex import BASEX
 from abel.io import parse_matlab_basis_sets
 from abel.basex import generate_basis_sets, get_basis_sets_cached
-from abel.analytical import StepAnalytical
+from abel.analytical import StepAnalytical, GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
 
 
@@ -50,17 +50,24 @@ def test_basex_step_ratio():
     n = 101
     r_max = 25
 
-    step_options = dict(A0=10.0, r1=6.0, r2=14.0, ratio_valid_step=0.6)
 
-    ref = StepAnalytical(n, r_max, symmetric=True, **step_options)
+    for analytical_backend, analytical_options in [
+                (StepAnalytical,  dict(A0=10.0, r1=6.0, r2=14.0, ratio_valid_step=0.6)),
+                (GaussianAnalytical, {'sigma': 10.0})]:
+        ref = analytical_backend(n, r_max, symmetric=True, **analytical_options)
 
 
-    # Calculate the inverse abel transform for the centered data
-    recon = BASEX(ref.abel, center=n//2, n=n, basis_dir=None, verbose=False, calc_speeds=False, dr=ref.dr)
+        # Calculate the inverse abel transform for the centered data
+        recon = BASEX(ref.abel, center=n//2, n=n, basis_dir=None, verbose=False, calc_speeds=False, dr=ref.dr)
 
-    ratio_mean, ratio_std, _ = absolute_ratio_benchmark(ref, recon)
-    backend_name = "BASEX"
+        ratio_mean, ratio_std, _ = absolute_ratio_benchmark(ref, recon)
+        backend_name = "BASEX"
 
-    yield assert_allclose, ratio_mean, 1.0, 3e-2, 0, "{}: ratio == 1.0".format(backend_name)
-    yield assert_allclose, ratio_std, 0.0,  1e-5, 4e-2,  "{}: std == 0.0".format(backend_name)
+        analytical_name = type(ref).__name__
+
+
+
+        # test ratio == 1, with rtol=1e-2, atol=0.0
+        yield assert_allclose, ratio_mean, 1.0, 1e-2, 0, "{} with {}: ratio == 1.0".format(backend_name, analytical_name)
+        yield assert_allclose, ratio_std, 0.0,  1e-5, 2e-2,  "{} with {}: std == 0.0".format(backend_name, analytical_name)
 

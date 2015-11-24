@@ -1,33 +1,34 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from abel.basex import BASEX
+from abel.analytical import GaussianAnalytical
 
 fig, ax= plt.subplots(1,1)
 plt.title('Abel tranforms of a gaussian function')
 
 # Analytical inverse Abel: 
-n = 501
-r = np.linspace(-20, 20, n)
-dr = np.diff(r)[0]
-fr = np.exp(-r**2)
-#fr += 1e-1*nprandom.rand(n)
-ax.plot(r, fr,'b', label='Original signal')
-F_a = (np.pi)**0.5*fr.copy()
-ax.plot(r, F_a, 'r', label='Direct Abel transform [analytical]')
+n = 101
+r_max = 20
+sigma = 10
+
+ref = GaussianAnalytical(n, r_max, sigma)
+
+ax.plot(ref.r, ref.func,'b', label='Original signal')
+
+ax.plot(ref.r, ref.abel*0.05, 'r', label='Direct Abel transform x0.05 [analytical]')
 
 center = n//2
 
 # BASEX Transform: 
 # Calculate the inverse abel transform for the centered data
-recon = BASEX(F_a, center,  n=501, basis_dir='./', dr=dr,
+recon = BASEX(ref.abel, center,  n=n, basis_dir=None, dr=ref.dr,
         verbose=True, calc_speeds=False)
 
-plt.plot(r, recon , '--o',c='red', label='Inverse transform [BASEX]')
+plt.plot(ref.r, recon , '--o',c='red', label='Inverse transform [BASEX]')
 
 ax.legend()
 
-ax.set_xlim(-4,4)
-ax.set_ylim(-0.1, 2.7)
+ax.set_xlim(-20,20)
 ax.set_xlabel('x')
 ax.set_ylabel("f(x)")
 
