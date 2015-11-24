@@ -98,7 +98,71 @@ def center_image(data, center, n, ndim=2):
     
     return im
 
+def center_image_asymmetric(data, center_column, n_vert, n_horz, verbose=False):
+    """ This centers a (rectangular) image at the given center_column and makes it of size n_vert by n_horz"""
 
+    if data.ndim > 2:
+        raise ValueError("Array to be centered must be 1- or 2-dimensional")
+
+    c_im = np.copy(data) # make a copy of the original data for manipulation
+    data_vert, data_horz = c_im.shape
+
+    if data_horz % 2 == 0:
+        # Add column of zeros to the extreme right to give data array odd columns
+        c_im = np.lib.pad(c_im, ((0,0),(0,1)), 'constant', constant_values=0)
+        data_vert, data_horz = c_im.shape # update data dimensions
+
+    delta_h = int(center_column - data_horz//2)
+    if delta_h != 0:
+        if delta_h < 0: 
+            # Specified center is to the left of nominal center
+            # Add compensating zeroes on the left edge
+            c_im = np.lib.pad(c_im, ((0,0),(2*np.abs(delta_h),0)), 'constant', constant_values=0)
+            data_vert, data_horz = c_im.shape
+        else:
+            # Specified center is to the right of nominal center
+            # Add compensating zeros on the right edge
+            c_im = np.lib.pad(c_im, ((0,0),(0,2*delta_h)), 'constant', constant_values=0)
+            data_vert, data_horz = c_im.shape
+
+    if n_vert >= data_vert and n_horz >= data_horz:
+        pad_up = (n_vert - data_vert)//2
+        pad_down = n_vert - data_vert - pad_up
+        pad_left = (n_horz - data_horz)//2
+        pad_right = n_horz - data_horz - pad_left
+        c_im = np.lib.pad(c_im, ((pad_up,pad_down), (pad_left,pad_right)), 'constant', constant_values=0)
+
+    elif n_vert >= data_vert and n_horz < data_horz:
+        pad_up = (n_vert - data_vert)//2
+        pad_down = n_vert - data_vert - pad_up
+        crop_left = (data_horz - n_horz)//2
+        crop_right = data_horz - n_horz - crop_left
+        if verbose:
+            print("Warning: cropping %d pixels from the sides of the image" %crop_left)
+        c_im = np.lib.pad(c_im[:,crop_left:-crop_right], ((pad_up, pad_down), (0,0)), 'constant', constant_values=0)
+
+    elif n_vert < data_vert and n_horz >= data_horz:
+        crop_up = (data_vert - n_vert)//2
+        crop_down = data_vert - n_vert - crop_up
+        pad_left = (n_horz - data_horz)//2
+        pad_right = n_horz - data_horz - pad_left
+        if verbose:
+            print("Warning: cropping %d pixels from top and bottom of the image" %crop_up)
+        c_im = np.lib.pad(c_im[crop_up:-crop_down], ((0,0), (pad_left, pad_right)), 'constant', constant_values=0)
+
+    elif n_vert < data_vert and n_horz < data_horz:
+        crop_up = (data_vert - n_vert)//2
+        crop_down = data_vert - n_vert - crop_up
+        crop_left = (data_horz - n_horz)//2
+        crop_right = data_horz - n_horz - crop_left
+        if verbose:
+            print("Warning: cropping %d pixels from top and bottom and %d pixels from the sides of the image " %(crop_up, crop_left))
+        c_im = c_im[crop_up:-crop_down,crop_left:-crop_right]
+
+    else:
+        raise ValueError('Input data dimensions incompatible with chosen basis set.')
+
+    return c_im
 
 # The next two functions are adapted from
 # http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
