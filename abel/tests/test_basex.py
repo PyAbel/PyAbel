@@ -9,7 +9,7 @@ from numpy.testing import assert_allclose
 
 from abel.basex import BASEX
 from abel.io import parse_matlab_basis_sets
-from abel.basex import generate_basis_sets, get_basis_sets_cached
+from abel.basex import generate_basis_sets, get_basis_sets_cached, basex_transform
 from abel.analytical import StepAnalytical, GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
 
@@ -42,6 +42,20 @@ def test_basex_basis_sets_cache():
     get_basis_sets_cached(n, basis_dir=DATA_DIR, verbose=False)
     if os.path.exists(file_name):
         os.remove(file_name)
+
+
+def test_basex_shape():
+    n = 21
+    x = np.ones((n, n), dtype='float32')
+    bs = get_basis_sets_cached(n, basis_dir=None, verbose=False)
+
+    recon = basex_transform(x, *bs)
+
+    assert recon.shape == (n, n) 
+
+
+
+
 
 
 def test_basex_step_ratio():
