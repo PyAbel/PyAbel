@@ -148,6 +148,43 @@ def basex_transform(rawdata, M, Mc, M_left, M_right, dr=1.0):
 
     return IM
 
+def basex_transform_asymmetric(rawdata, M, Mc, M_left, M_right, dr=1.0):
+    """ This is the internal function that does the actual BASEX transform for the no-up/down-symmetry case.
+
+     Parameters
+     ----------
+      - rawdata: a N_vert x N_horz numpy array of the raw image.
+      - M, Mc, M_left, M_right: 2D arrays given given by the basis set calculation function
+      - dr: float: pixel size
+
+     Returns
+     -------
+      IM: The abel-transformed image, a slice of the 3D distribution
+    """
+
+    vert_left, horz_right = self.vert_left, self.horz_right
+    Mc_vert, Mc_horz = self.Mc_vert, self.Mc_horz
+
+    ### Reconstructing image  - This is where the magic happens ###
+    if self.verbose:
+        print('Reconstructing image...         ')
+        t1 = time()
+
+    Ci = vert_left.dot(rawdata).dot(horz_right)
+    Ci = Ci * 1.1122244156826457 # Scaling factor necessary to match analytical Abel inverse
+    # Haven't yet figured out why we need the scaling factor (?!?!)
+    # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, which should recreate the original image
+    IM = Mc_vert.dot(Ci).dot(Mc_horz.T)
+
+    if self.verbose:
+        print('%.2f seconds' % (time()-t1))
+
+    if self.calc_speeds:
+        speeds = self.calculate_speeds(IM)
+        return IM, speeds
+    else:
+        return IM
+
 
 def _get_left_right_matrices(M, Mc):
     """ An internal helper function for BASEX:
