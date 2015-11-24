@@ -152,7 +152,9 @@ def basex_transform(rawdata, M, Mc, M_left, M_right, dr=1.0):
 
     # use an heuristic scaling factor to match the analytical abel transform
     # see https://github.com/PyAbel/PyAbel/issues/4
-    MAGIC_NUMBER = 8.053
+    # When nbf = n//2, we need the MAGIC_NUMBER = 8.053
+    # When nbf = n//2 + 1, see below,
+    MAGIC_NUMBER = 1.1122 
     IM *= MAGIC_NUMBER/dr
 
     return IM
@@ -174,9 +176,9 @@ def _nbf_default(n, nbf):
     """ An internal helper function to check that nbf = n//2 and print a waring
     otherwise """
     if nbf == 'auto':
-        nbf = n//2
+        nbf = n//2 + 1
     else:
-        if nbf != n//2:
+        if nbf != n//2 +1:
             print('Warning: the number of basis functions nbf = {} != (n-1)/2 = {}\n'.format(n, nbf),
                     '    This behaviour is currently not tested and should not be used\
                     unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
@@ -271,7 +273,7 @@ def generate_basis_sets(n, nbf='auto', verbose=False):
 
     nbf = _nbf_default(n, nbf)
 
-    if n//2 < nbf:
+    if nbf > n//2 + 1:
         raise ValueError('The number of basis functions nbf cannot be larger then the number of points n!')
 
     Rm = n//2 + 1
