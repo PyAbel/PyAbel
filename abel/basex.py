@@ -218,13 +218,13 @@ def _get_left_right_matrices_asymmetric(M_vert, M_horz, Mc_vert, Mc_horz):
     return vert_left, horz_right
 
 def _nbf_default(n, nbf):
-    """ An internal helper function to check that nbf = n//2 and print a waring
+    """ An internal helper function to check that nbf = n//2 + 1 and print a waring
     otherwise """
     if nbf == 'auto':
         nbf = n//2 + 1
     else:
         if nbf != n//2 +1:
-            print('Warning: the number of basis functions nbf = {} != (n-1)/2 = {}\n'.format(n, nbf),
+            print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf, n//2 +1),
                     '    This behaviour is currently not tested and should not be used\
                     unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
 
