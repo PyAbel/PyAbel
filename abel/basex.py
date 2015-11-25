@@ -218,7 +218,7 @@ def _get_left_right_matrices_asymmetric(M_vert, M_horz, Mc_vert, Mc_horz):
     return vert_left, horz_right
 
 def _nbf_default(n, nbf):
-    """ An internal helper function to check that nbf = n//2 + 1 and print a waring
+    """ An internal helper function to check that nbf = n//2 + 1 and print a warning
     otherwise """
     if nbf == 'auto':
         nbf = n//2 + 1
