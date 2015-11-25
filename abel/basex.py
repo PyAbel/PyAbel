@@ -15,7 +15,7 @@ from numpy.linalg import inv
 from scipy.ndimage import median_filter, gaussian_filter
 
 from ._version import __version__
-from .tools import calculate_speeds, center_image
+from .tools import calculate_speeds, center_image, center_image_asymmetric
 
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
@@ -164,42 +164,32 @@ def basex_transform(rawdata, M, Mc, M_left, M_right, dr=1.0):
 
     return IM
 
-def basex_transform_asymmetric(rawdata, M, Mc, M_left, M_right, dr=1.0):
+def basex_transform_asymmetric(rawdata, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr=1.0):
     """ This is the internal function that does the actual BASEX transform for the no-up/down-symmetry case.
-
      Parameters
      ----------
-      - rawdata: a N_vert x N_horz numpy array of the raw image.
-      - M, Mc, M_left, M_right: 2D arrays given given by the basis set calculation function
+      - rawdata: 
+            a N_vert x N_horz numpy array of the raw image.
+      - M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right: 
+            2D arrays given given by the basis set calculation function
       - dr: float: pixel size
 
      Returns
      -------
       IM: The abel-transformed image, a slice of the 3D distribution
     """
-
-    vert_left, horz_right = self.vert_left, self.horz_right
-    Mc_vert, Mc_horz = self.Mc_vert, self.Mc_horz
-
     ### Reconstructing image  - This is where the magic happens ###
-    if self.verbose:
-        print('Reconstructing image...         ')
-        t1 = time()
-
     Ci = vert_left.dot(rawdata).dot(horz_right)
-    Ci = Ci * 1.1122244156826457 # Scaling factor necessary to match analytical Abel inverse
-    # Haven't yet figured out why we need the scaling factor (?!?!)
-    # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, which should recreate the original image
+
+    # use an heuristic scaling factor to match the analytical abel transform
+    # For more info see https://github.com/PyAbel/PyAbel/issues/4
+    MAGIC_NUMBER = 1.1122244156826457
+    Ci *= MAGIC_NUMBER/dr 
+
     IM = Mc_vert.dot(Ci).dot(Mc_horz.T)
+    # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, which should recreate the original image
 
-    if self.verbose:
-        print('%.2f seconds' % (time()-t1))
-
-    if self.calc_speeds:
-        speeds = self.calculate_speeds(IM)
-        return IM, speeds
-    else:
-        return IM
+    return IM
 
 
 def _get_left_right_matrices(M, Mc):
@@ -236,20 +226,35 @@ def _nbf_default(n, nbf):
     """ An internal helper function to check that nbf = n//2 + 1 and print a warning
     otherwise """
     if nbf == 'auto':
+        nbf = n//2 + 1
+    else:
+        if nbf != n//2 +1:
+            print('Warning: the number of basis functions nbf = {} != (n-1)/2 = {}\n'.format(n, nbf),
+                    '    This behaviour is currently not tested and should not be used\
+                    unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
+
+    return nbf
+
+def _nbf_default_asymmetric(n_vert, n_horz, nbf):
+    """ An internal helper function for the asymmetric case to check that nbf = n//2 + 1 and print a warning otherwise """
+    if nbf == 'auto':
         # nbf_vert = n_vert (if relevant)
         # nbf_horz = n_horz//2 + 1
-        nbf = [n[0], n[1]//2 + 1]
+        nbf = [n_vert, n_horz//2 + 1]
+    elif type(nbf) == int:
+        if nbf != n_horz//2 +1:
+            print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf, n_horz//2 +1),
+                    '    This behaviour is currently not tested and should not be used\
+                    unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
+        nbf = [nbf]*2
+    elif type(nbf) == list:
+        if nbf[-1] != n_horz//2 +1:
+            print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf[-1], n_horz//2 +1),
+                    '    This behaviour is currently not tested and should not be used\
+                    unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
+        if len(nbf) < 2: nbf = nbf*2
     else:
-        if type(nbf) == int and nbf != n[1]//2 +1:
-            print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf, n[1]//2 +1),
-                    '    This behaviour is currently not tested and should not be used\
-                    unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
-        elif type(nbf) == list and nbf[-1] != n[1]//2 +1:
-            print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf[-1], n[1]//2 +1),
-                    '    This behaviour is currently not tested and should not be used\
-                    unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
-        else:
-            pass
+        raise ValueError('nbf must be set to "auto" or an integer or a list')
     return nbf
 
 
@@ -268,7 +273,7 @@ def get_basis_sets_cached(n, nbf='auto', basis_dir='.', verbose=False):
       - basis_dir : path to the directory for saving / loading the basis set coefficients.
                     If None, the basis sets will not be saved to disk. 
     """
-
+    # Sanitizing nbf
     nbf = _nbf_default(n, nbf)
 
     basis_name = "basex_basis_{}_{}.npy".format(n, nbf)
@@ -312,25 +317,29 @@ def get_basis_sets_cached(n, nbf='auto', basis_dir='.', verbose=False):
     return M, Mc, M_left, M_right
 
 
-def get_basis_sets_cached_asymmetric(n, nbf='auto', basis_dir='.', verbose=False):
+def get_basis_sets_cached_asymmetric(n_vert, n_horz, nbf='auto', basis_dir='.', verbose=False):
     """
     Internal function.
 
-    Get basis sets, using the disk as a cache 
+    Get up/down-asymmetric basis sets, using the disk as a cache 
     (i.e. load from disk if they exist, if not calculate them and save a copy on disk).
 
     Parameters:
     -----------
-      - n : odd integer: Abel inverse transform will be performed on a `n x n`
-        area of the image
-      - nbf: integer: number of basis functions. If nbf='auto', it is set to (n-1)/2.
-      - basis_dir : path to the directory for saving / loading the basis set coefficients.
-                    If None, the basis sets will not be saved to disk. 
+      - n_vert, n_horz:
+            integer: Abel inverse transform will be performed on a `n_vert x n_horz` area of the image
+      - nbf: 
+            integer or list: number of basis functions. If nbf='auto', it is set to n//2 + 1.
+      - basis_dir : path to the directory for saving / loading the basis set coefficients. If None, the basis sets will not be saved to disk. 
+
+    Returns:
+    --------
+      - M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right: numpy arrays
     """
 
-    nbf = _nbf_default(n, nbf)
-
-    # SOMETHING FOR NBF_VERT HERE
+    # Sanitize nbf
+    nbf = _nbf_default_asymmetric(n_vert, n_horz, nbf)
+    nbf_vert, nbf_horz = nbf[0], nbf[1]
 
     basis_name = "basex_asymm_basis_{}_{}_{}_{}.npy".format(n_vert, n_horz, nbf_vert, nbf_horz)
 
@@ -494,10 +503,11 @@ def generate_basis_sets_asymmetric(n_vert=1001, n_horz = 501,
     --------
       M_vert, M_horz, Mc_vert, Mc_horz : numpy arrays
     """
+
     if n_horz % 2 == 0:
         raise ValueError('The horizontal dimensions of the image (n_horz) must be odd.')
 
-    if (n_horz+1)//2 < nbf_horz:
+    if nbf_horz > n_horz//2 + 1:
         raise ValueError('The number of horizontal basis functions (nbf_horz) cannot be greater than n_horz//2 + 1')
 
     if n_vert < nbf_vert:
