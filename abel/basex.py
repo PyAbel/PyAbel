@@ -221,13 +221,20 @@ def _nbf_default(n, nbf):
     """ An internal helper function to check that nbf = n//2 + 1 and print a warning
     otherwise """
     if nbf == 'auto':
-        nbf = n//2 + 1
+        # nbf_vert = n_vert (if relevant)
+        # nbf_horz = n_horz//2 + 1
+        nbf = [n[0], n[1]//2 + 1]
     else:
-        if nbf != n//2 +1:
-            print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf, n//2 +1),
+        if type(nbf) == int and nbf != n[1]//2 +1:
+            print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf, n[1]//2 +1),
                     '    This behaviour is currently not tested and should not be used\
                     unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
-
+        elif type(nbf) == list and nbf[-1] != n[1]//2 +1:
+            print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf[-1], n[1]//2 +1),
+                    '    This behaviour is currently not tested and should not be used\
+                    unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
+        else:
+            raise ValueError('nbf must be set to "auto" or an integer or a list')
     return nbf
 
 
