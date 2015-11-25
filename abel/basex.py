@@ -135,6 +135,53 @@ def BASEX(data, center, n,
         else:
             return recon
 
+    else: # No vertical symmetry
+        if type(center) == tuple: cx, cy = center
+        elif type(center) == int: cx = int(center)
+        else: raise ValueError("Center specified incorrectly. Must be tuple (x,y) or integer (column)")
+
+        image = center_image_asymmetric(data, center_column = cx, n_vert = n[0], n_horz = n[1], verbose)
+
+        if verbose:
+            t1 = time()
+
+        M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right = get_basis_sets_cached_asymmetric(n_vert = n[0], n_horz = n[1], nbf, basis_dir, verbose)
+
+        if verbose:
+            print('{:.2f} seconds'.format((time() - t1)))
+
+        #Do the actual transform
+        if verbose:
+            print('Reconstructing image...         ')
+            t1 = time()
+
+        recon = basex_transform_asymmetric(image, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr)
+
+        if verbose:
+            print('%.2f seconds' % (time() - t1))
+
+        if data_ndim == 1:
+            recon = recon[0, :] # taking one row, since they are all the same anyway
+
+        # -------------------------------------------------
+        # asymmetric speeds calculation not implemented yet
+        # -------------------------------------------------
+        # if calc_speeds:
+        #     if verbose:
+        #         print('Generating speed distribution...')
+        #         t1 = time()
+
+        #     speeds = calculate_speeds(recon, n)
+
+        #     if verbose:
+        #         print('%.2f seconds' % (time() - t1))
+        #     return recon, speeds
+        # else:
+        #     return recon
+
+        return recon
+
+
 
 
 def basex_transform(rawdata, M, Mc, M_left, M_right, dr=1.0):
