@@ -41,54 +41,70 @@ from .tools import calculate_speeds, center_image
 #############################################################################
 
 
-def BASEX(data, center, n=501, nbf='auto',  basis_dir='./', calc_speeds=False,
-                    dr=1.0, verbose=True,):
-        """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
-            and (optionally) calculates the radial integration of the image (calc_speeds)
+def BASEX(data, center, n, 
+        nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=False, dr=1.0, verbose=True):
 
-        Parameters:
-        -----------
-          - data:  a NxN numpy array
-                If N is smaller than the size of the basis set, zeros will be padded on the edges.
-          - n: odd integer 
+    """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
+        and (optionally) calculates the radial integration of the image (calc_speeds)
+
+    Parameters:
+    -----------
+      - data:  a NxM numpy array
+            If data is smaller than the size of the basis set, zeros will be padded on the edges.
+      - n:  * odd integer -
                 Abel inverse transform will be performed on a `n x n` area of the image
-          - nbf: integer
-                number of basis functions. If nbf='auto', it is set to (n-1)/2.
-          - center: tuple (x,y)
-                the center of the image in (x,y) format
-          - basis_dir: string
-                path to the directory for saving / loading the basis set coefficients.
-                If None, the basis set will not be saved to disk. 
-          - dr: float
-                size of one pixel in the radial direction
-          - calc_speeds: True/False
-                determines if the speed distribution should be calculated
-          - verbose: True/False
-                Set to True to see more output for debugging
+            * list in format [n_vert, n_horz] - 
+                Abel inverse transform will be performed on a `n[0] x n[1]` area of the image
+      - nbf: * integer - 
+                number of basis functions. If nbf='auto', it is set to n//2 + 1.
+             * list in format [nbf_vert, nbf_horz] -
+                If nbf='auto', it is set to [n_vert, n_horz//2 + 1]
+      - center: * integer - 
+                    the center column of the image
+                * tuple (x,y) -
+                    the center of the image in (x,y) format
+      - basis_dir: string
+            path to the directory for saving / loading the basis set coefficients.
+            If None, the basis set will not be saved to disk. 
+      - dr: float
+            size of one pixel in the radial direction
+      - calc_speeds: True/False
+            determines if the speed distribution should be calculated
+      - vertical_symmetry: True/False
+            determines if the data has up/down symmetry 
+      - verbose: True/False
+            Set to True to see more output for debugging
 
-        Returns:
-           if calc_speeds=False: the processed image
-           if calc_speeds=True:  the processes images, arrays with the calculated speeds
+    Returns:
+       if calc_speeds=False: the processed image
+       if calc_speeds=True:  the processes images, arrays with the calculated speeds
 
-        """
-        n = 2*(n//2) + 1 # make sure n is odd
+    """
+    # make dimension-of-rawdata into list to account for rectangular n
+    if type(n) is not list: n = [ n ] 
 
+    # duplicate elements of n if n is single-valued (rawdata is square)
+    if len(n) < 2: n = n*2
 
-        # make sure that the data is the right shape (1D must be converted to 2D)
-        data = np.atleast_2d(data) # if passed a 1D array convert it to 2D
-        if data.shape[0] == 1:
-            data_ndim = 1
-        elif data.shape[1] == 1:
-            raise ValueError('Wrong input shape for data {0}, should be  (N1, N2) or (1, N), not (N, 1)'.format(data.shape))
-        else:
-            data_ndim = 2
+    # make sure n_horz is odd
+    n[1] = 2 * (n[1] // 2) + 1 
 
-        image = center_image(data, center=center, n=n, ndim=data_ndim)
+    # make sure that the data is the right shape (1D must be converted to 2D)
+    data = np.atleast_2d(data) # if passed a 1D array convert it to 2D
+    if data.shape[0] == 1:
+        data_ndim = 1
+    elif data.shape[1] == 1:
+        raise ValueError('Wrong input shape for data {0}, should be  (N1, N2) or (1, N), not (N, 1)'.format(data.shape))
+    else:
+        data_ndim = 2
+
+    if vertical_symmetry:
+        image = center_image(data, center=center, n=n[1], ndim=data_ndim)
 
         if verbose:
             t1 = time()
 
-        M, Mc, M_left, M_right = get_basis_sets_cached(n, nbf, basis_dir, verbose)
+        M, Mc, M_left, M_right = get_basis_sets_cached(n[1], nbf, basis_dir, verbose)
 
         if verbose:
             print('{:.2f} seconds'.format((time() - t1)))
