@@ -234,7 +234,7 @@ def _nbf_default(n, nbf):
                     '    This behaviour is currently not tested and should not be used\
                     unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
         else:
-            raise ValueError('nbf must be set to "auto" or an integer or a list')
+            pass
     return nbf
 
 
