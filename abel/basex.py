@@ -218,14 +218,13 @@ def _get_left_right_matrices(M, Mc):
 
 def _get_left_right_matrices_asymmetric(M_vert, M_horz, Mc_vert, Mc_horz): 
     """ An internal helper function for no-up/down-asymmetry BASEX:
-
         given basis sets  M_vert, M_horz, Mc_vert, Mc_horz,
         return M_left and M_right matrices 
     """
 
     nbf_vert, nbf_horz = np.shape(M_vert)[1], np.shape(M_horz)[1]
     
-    q_vert, q_horz = 0,0
+    q_vert, q_horz = 0,0 # No Tikhonov regularization
     E_vert, E_horz = np.identity(nbf_vert)*q_vert, np.identity(nbf_horz)*q_horz
 
     vert_left = inv(Mc_vert.T.dot(Mc_vert) + E_vert).dot(Mc_vert.T)
