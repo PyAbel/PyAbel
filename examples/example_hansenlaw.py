@@ -18,8 +18,8 @@ import numpy as np
 #  image of O2- photodetachment at 454 nm
 ######################################################################
 
-#from abel.hansenlaw import *  
-from hansenlaw import *
+ 
+from abel.hansenlaw import *
 from matplotlib.pylab import plt
 
 # ascii image data: ANU O- photodetachment velocity-map image 1024x1024 pixel
