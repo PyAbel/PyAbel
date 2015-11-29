@@ -34,7 +34,6 @@ filename = 'data/O2-ANU1024.txt.bz2'
 
 # Name the output files
 name = filename.split('.')[0]
-print ("----",name)
 output_image = name + '_inverse_Abel_transform_HansenLaw.png'
 output_text  = name + '_speeds_HansenLaw.dat'
 output_plot  = name + '_comparison_HansenLaw.pdf'
