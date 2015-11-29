@@ -52,12 +52,7 @@ def center_image(data, center, n, ndim=2):
         im = np.zeros((sz, sz))
         im[sz//2-cy:sz//2-cy+Nh, sz//2-cx:sz//2-cx+Nw] = data
         
-        if n%2==0:
-            # If the image size is even, use lower left of the central 4 pixels as center
-            im = im[ sz//2-n_2-1:n_2+sz//2, sz//2-n_2-1:n_2+sz//2]
-        if n%2==1:
-            # If the image size is odd, set the central pixel to be exactly center
-            im = im[ sz//2-n_2:n_2+sz//2+1, sz//2-n_2:n_2+sz//2+1]
+        im = im[ sz//2-n_2:n_2+sz//2+1, sz//2-n_2:n_2+sz//2+1]
         
         #print(np.shape(im))
     else:
