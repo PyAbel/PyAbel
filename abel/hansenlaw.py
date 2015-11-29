@@ -8,7 +8,6 @@ import multiprocessing as mp
 from time import time
 from math import exp, log, pow, pi
 from abel.tools import calculate_speeds
-verboseprint = print if verbose else lambda *a, **k: None
 
 ###########################################################################
 # hasenlaw - an alternative inverse Abel transformation algorithm 
@@ -113,6 +112,7 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
           - verbose: boolean, more output, timings etc.
           - freecpus: integer, parallel processing, use all cpus - freecpus (default 1)
     """  
+    verboseprint = print if verbose else lambda *a, **k: None
     pool = mp.Pool(processes=mp.cpu_count()-freecpus) 
 
     (N,M)=np.shape(data)
