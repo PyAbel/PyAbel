@@ -38,7 +38,7 @@ def iabel_hansenlaw_transform (ImgRow):
         Parameters:
         ----------
          - ImgRow: a N/2 numpy vector 
-           |       one row from am image, orientated top/left
+           |       one quadrant row from the image, orientated top/left
            |     +--------+              --------+ 
            \=>   |      * |               *      |
                  |   *    |                  *   |
