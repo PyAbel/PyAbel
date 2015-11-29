@@ -8,6 +8,7 @@ import multiprocessing as mp
 from time import time
 from math import exp, log, pow, pi
 from abel.tools import calculate_speeds
+verboseprint = print if verbose else lambda *a, **k: None
 
 ###########################################################################
 # hasenlaw - an alternative inverse Abel transformation algorithm 
@@ -116,8 +117,7 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
 
     (N,M)=np.shape(data)
     N2 = N//2
-    if verbose:
-        print ("HL: Calculating inverse Abel transform: image size {:d}x{:d}".format(N,M))
+    verboseprint ("HL: Calculating inverse Abel transform: image size {:d}x{:d}".format(N,M))
 
 # split image into quadrants
     t0=time()
@@ -130,11 +130,11 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
 
 # combine selected quadrants into one or loop through if none 
     if np.any(quad):
-        if verbose: print ("HL: Co-adding quadrants")
+        verboseprint ("HL: Co-adding quadrants")
 
         Q = Q0*quad[0]+Q1*quad[1]+Q2*quad[2]+Q3*quad[3]
 
-        if verbose: print ("HL: Calculating inverse Abel transform ... ")
+        verboseprint ("HL: Calculating inverse Abel transform ... ")
         # inverse Abel transform of combined quadrant, applied to each row
 
         AQ0 = pool.map(iabel_hansenlaw_transform,[Q[row] for row in range(N2)])
@@ -142,10 +142,10 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
         AQ3 = AQ2 = AQ1 = AQ0  # all quadrants the same
 
     else:
-        if verbose: print ("HL: Individual quadrants")
+        verboseprint ("HL: Individual quadrants")
 
         # inversion of each quandrant, one row at a time
-        if verbose: print ("HL: Calculating inverse Abel transform ... ")
+        verboseprint ("HL: Calculating inverse Abel transform ... ")
         AQ0 = pool.map(iabel_hansenlaw_transform,[Q0[row] for row in range(N2)])
         AQ1 = pool.map(iabel_hansenlaw_transform,[Q1[row] for row in range(N2)])
         AQ2 = pool.map(iabel_hansenlaw_transform,[Q2[row] for row in range(N2)])
@@ -156,16 +156,15 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
     Bottom = np.flipud(np.concatenate ((AQ2,np.fliplr(AQ3)),axis=1))
     recon  = np.concatenate ((Top,Bottom),axis=0)
             
-    if verbose: print ("{:.2f} seconds".format(time()-t0))
+    verboseprint ("{:.2f} seconds".format(time()-t0))
 
     if calc_speeds:
-        if verbose:
-            print('Generating speed distribution ...')
-            t1 = time()
+        verboseprint('Generating speed distribution ...')
+        t1 = time()
 
         speeds = calculate_speeds(recon, N)
 
-        if verbose: print('{:.2f} seconds'.format(time() - t1))
+        verboseprint('{:.2f} seconds'.format(time() - t1))
         return recon, speeds
     else:
         return recon

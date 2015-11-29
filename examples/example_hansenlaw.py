@@ -48,6 +48,7 @@ print ('image size {:d}x{:d}'.format(n,m))
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
+# quad = (True ... => combine the 4 quadrants into one
 recon, speeds = iabel_hansenlaw (im,quad=(True,True,True,True),verbose=True,freecpus=1)
 
 # save the transform in 8-bit format:
