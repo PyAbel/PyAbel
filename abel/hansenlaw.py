@@ -10,7 +10,7 @@ from math import exp, log, pow, pi
 from abel.tools import calculate_speeds
 
 ###########################################################################
-# hasenlaw - an alternative inverse Abel transformation algorithm 
+# hasenlaw - a recursive method inverse Abel transformation algorithm 
 #
 # Stephen Gibson - Australian National University, Australia
 # Jason Gascooke - Flinders University, Australia
@@ -26,18 +26,30 @@ from abel.tools import calculate_speeds
 #
 # Implemented in Python, with image quadrant co-adding, by Steve Gibson
 #
-# Note: the inversion is carried out one image row at a time
-#
 ###########################################################################
 
 def iabel_hansenlaw_transform (ImgRow):
     """ Inverse Abel transformation using the algorithm of: 
         Hansen and Law J. Opt. Soc. Am A2, 510-520 (1985).
-         Eqs. (14), (17) & (18)
+                        
+                       ∞                
+                       ⌠                
+                   -1  ⎮   g'(R)     
+           f(r) =  ─── ⎮ ──────────── dR      Eq. (2a)
+                    π  ⎮    _________   
+                       ⎮   ╱  2    2    
+                       ⎮ ╲╱  R  - r     
+                       ⌡                
+                       r                 
+
+        where f(r) = reconstructed image (source) function
+              g'(R) = derivative of the projection (measured) function
+
+        Evaluation via Eqs. (14), (17) & (18).
 
         Recursion method proceeds from the outer edge of the image
         toward the image centre (origin). i.e. when n=0, R=Rmax, and
-        when n=N-1, R=0. This fits well with analysing an image one 
+        when n=N-1, R=0. This fits well with processing an image one 
         quadrant at a time.
 
         Parameters:
@@ -58,7 +70,8 @@ def iabel_hansenlaw_transform (ImgRow):
 
     N = np.size(ImgRow)     # length of pixel row, note in this case N = n/2
     AImgRow = np.zeros(N)   # the inverse Abel transformed pixel row
-# constants Table 1.
+
+# constants listed in Table 1.
     h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
     lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
 
@@ -68,10 +81,11 @@ def iabel_hansenlaw_transform (ImgRow):
 
     K = np.size(h)
     X = np.zeros(K)
+
 # g' - derivative of the intensity profile
     gp = np.gradient (ImgRow)   
 
-# iterate along the pixel row, starting at the image edge
+# iterate along the pixel row, starting at the outer edge to the image centre
     for n in range(N-1):       
         Nm = (N-n)/(N-n-1.0)    # R0/R 
         for k in range(K):
@@ -131,7 +145,7 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
     """  
     verboseprint = print if verbose else lambda *a, **k: None
     
-# parallel processing set pool = mp.Pool(1) if any issues
+# parallel processing set pool = mp.Pool(1) if any multiprocessor issues
     pool = mp.Pool(processes=mp.cpu_count()-freecpus) 
 
     (N,M)=np.shape(data)
