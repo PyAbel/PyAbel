@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+#from numba import jit
 import numpy as np
 import multiprocessing as mp 
 from time import time
@@ -28,6 +30,7 @@ from abel.tools import calculate_speeds
 #
 ###########################################################################
 
+#@jit
 def iabel_hansenlaw_transform (ImgRow):
     """ Inverse Abel transformation using the algorithm of: 
         Hansen and Law J. Opt. Soc. Am A2, 510-520 (1985).

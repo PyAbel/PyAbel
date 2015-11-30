@@ -14,10 +14,10 @@ from abel.basex import BASEX
 from abel.io import load_raw
 import scipy.misc
 
-# This example demonstrates Hansen and Law inverse Abel transform
-# of an image obtained using a velocity map imaging (VMI) photoelecton 
-# spectrometer to record the photoelectron angular distribution resulting 
-# from photodetachement of O2- at 454 nm.
+# This example demonstrates both Hansen and Law inverse Abel transform
+# and basex for an image obtained using a velocity map imaging (VMI) 
+# photoelecton spectrometer to record the photoelectron angular distribution 
+# resulting  from photodetachement of O2- at 454 nm.
 # This spectrum was recorded in 2010  
 # ANU / The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
@@ -39,23 +39,26 @@ output_image = name + '_inverse_Abel_transform_HansenLaw.png'
 output_text  = name + '_speeds_HansenLaw.dat'
 output_plot  = name + '_comparison_HansenLaw.pdf'
 
-# Step 1: Load an image file as a numpy array
+# Load an image file as a numpy array
 print('Loading ' + filename)
 im = np.loadtxt(filename)
 (n,m) = np.shape(im)
 n2 = n//2   # half-image
 print ('image size {:d}x{:d}'.format(n,m))
 
-# Step 2: perform the Hansen & Law transform!
+# Hansen & Law inverse Abel transform
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
 reconH, speedsH = iabel_hansenlaw (im,quad=(False,False,False,False),verbose=True,freecpus=1)
 
+# Basex inverse Abel transform
+print('Performing basex inverse Abel transform:')
 center = (n2+.5,n2)
 reconB, speedsB = BASEX (im, center, n=n, basis_dir='./',
-                                   verbose=True, calc_speeds=True)
+                             verbose=True, calc_speeds=True)
 
+# plot the results - VMI, inverse Abel transformed image, speed profiles
 # Set up some axes
 fig = plt.figure(figsize=(15,4))
 ax1 = plt.subplot(131)
@@ -78,16 +81,16 @@ im2 = ax2.imshow(recon,origin='lower',aspect='auto',vmin=0,vmax=recon[:n2-50,:n2
 fig.colorbar(im2,ax=ax2,fraction=.1,shrink=0.9,pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
-ax2.set_title('Hansen Law | Basex')
+ax2.set_title('Hansen Law | Basex',x=0.4)
 
-# Plot the 1D speed distribution
-ax3.plot(speedsH/speedsH[370:390].max(),label="Hansen Law")
-ax3.plot(speedsB/speedsB[370:390].max(),label="Basex")
-ax3.axis(ymin=-0.1,ymax=1.2)
+# Plot the 1D speed distribution - normalized
+ax3.plot(speedsB/speedsB[250:280].max(),'r-',label="Basex")
+ax3.plot(speedsH/speedsH[250:280].max(),'b-',label="Hansen Law")
+ax3.axis(xmax=n2-12,ymin=-0.1,ymax=1.5)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Intensity')
 ax3.set_title('Speed distribution')
-ax3.legend()
+ax3.legend(labelspacing=0.1,fontsize='small')
 
 # Prettify the plot a little bit:
 plt.subplots_adjust(left=0.06,bottom=0.17,right=0.95,top=0.89,wspace=0.35,hspace=0.37)
