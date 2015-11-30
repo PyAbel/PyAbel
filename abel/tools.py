@@ -29,24 +29,21 @@ def calculate_speeds(IM, n):
     return speeds
 
 
-def get_image_quadrants(img):
+def get_image_quadrants(img, reorientate=False):
     """
-    Given an image (m,n) reuturn its 4 quadratnts Q0, Q1, Q2, Q3
+    Given an image (m,n) reuturn its 4 quadrants Q0, Q1, Q2, Q3
     as defined in abel.hansenlaw.iabel_hansenlaw
+
+    Parameters:
+      - img: 1D or 2D array
+      - reorientate: reorientate image as required by abel.hansenlaw.iabel_hansenlaw
     """
     img = np.atleast_2d(img)
 
     n, m = img.shape
 
-    if n % 2 == 1:
-        n_c = n//2 + 1
-    else:
-        n_c = n//2
-
-    if m % 2 == 1:
-        m_c = m//2 + 1
-    else:
-        m_c = m//2
+    n_c = n//2 + n%2
+    m_c = m//2 + m % 2
 
     # define 4 quadrants of the image
     # see definition in abel.hansenlaw.iabel_hansenlaw
@@ -54,6 +51,11 @@ def get_image_quadrants(img):
     Q2 = img[-n_c:, :m_c]
     Q0 = img[:n_c, -m_c:]
     Q3 = img[-n_c:, -m_c:]
+
+    if reorientate:
+        Q0 = np.fliplr(Q0)
+        Q2 = np.flipud(Q2)
+        Q3 = np.fliplr(np.flipud(Q3))
 
     return Q0, Q1, Q2, Q3
 
