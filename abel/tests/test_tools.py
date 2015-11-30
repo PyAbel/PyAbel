@@ -25,3 +25,8 @@ def test_speeds():
     IM = np.random.randn(n, n)
 
     calculate_speeds(IM, n)
+
+
+def test_centering_function():
+    pass
+

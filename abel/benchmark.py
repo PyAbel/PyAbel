@@ -20,8 +20,8 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
        - j_sym: array is symmetric with respect to the 2nd axis
 
     Returns:
-       an binary array with correspoding conditions.
-       The global validity can be checked with all(array)
+       a binary array with the symmetry condition for the corresponding quadrants.
+       The global validity can be checked with `array.all()`
 
     Note: if both i_sym=True and i_sym=True, the input array is checked
     for polar symmetry.

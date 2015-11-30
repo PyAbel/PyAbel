@@ -46,6 +46,12 @@ def test_symmetry_function():
         yield assert_equal, is_symmetric(f3, i_sym=True, j_sym=False), False, \
               'Checking that f3 function does not have i symmetry n={},m={}'.format(n,m)
 
+    for n in [10, 11]:
+        x = np.linspace(-np.pi, np.pi, n)
+        f1 = np.cos(x)
+        yield assert_equal, is_symmetric(f1, i_sym=True, j_sym=False), True,\
+              'Checking f1 function for symmetry in 1D n={},m={}'.format(n,m)
+
 
 def test_absolute_ratio_benchmark():
     # Mostly sanity to check that Analytical functions don't have typos

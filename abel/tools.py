@@ -34,6 +34,8 @@ def get_image_quadrants(img):
     Given an image (m,n) reuturn its 4 quadratnts Q0, Q1, Q2, Q3
     as defined in abel.hansenlaw.iabel_hansenlaw
     """
+    img = np.atleast_2d(img)
+
     n, m = img.shape
 
     if n % 2 == 1:
