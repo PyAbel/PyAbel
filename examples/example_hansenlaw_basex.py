@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from abel.hansenlaw import *
+from abel.basex import BASEX 
 from abel.io import load_raw
 import scipy.misc
 
@@ -49,15 +50,11 @@ print ('image size {:d}x{:d}'.format(n,m))
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
-recon, speeds = iabel_hansenlaw (im,quad=(False,False,False,False),verbose=True,freecpus=1)
+reconH, speedsH = iabel_hansenlaw (im,quad=(False,False,False,False),verbose=True,freecpus=1)
 
-# save the transform in 8-bit format:
-scipy.misc.imsave(output_image,recon)
-
-# save the speed distribution
-np.savetxt(output_text,speeds)
-
-## Finally, let's plot the data
+center = (n2+.5,n2)
+reconB, speedsB = BASEX (im, center, n=n, basis_dir='./',
+                                   verbose=True, calc_speeds=True)
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))
@@ -73,18 +70,24 @@ ax1.set_ylabel('y (pixels)')
 ax1.set_title('velocity map image')
 
 # Plot the 2D transform
+reconB = reconB[:-1,:-1]  # fix temp basex (width+1,height+1) issue
+reconH2 = reconH[:,:n2]
+reconB2 = reconB[:,n2:] 
+recon = np.concatenate((reconH2,reconB2),axis=1)
 im2 = ax2.imshow(recon,origin='lower',aspect='auto',vmin=0,vmax=recon[:n2-50,:n2-50].max())
 fig.colorbar(im2,ax=ax2,fraction=.1,shrink=0.9,pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
-ax2.set_title('Hansen Law inverse Abel')
+ax2.set_title('Hansen Law | Basex')
 
 # Plot the 1D speed distribution
-ax3.plot(speeds)
-ax3.axis(ymin=-50)
+ax3.plot(speedsH/speedsH[370:390].max(),label="Hansen Law")
+ax3.plot(speedsB/speedsB[370:390].max(),label="Basex")
+ax3.axis(ymin=-0.1,ymax=1.2)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Intensity')
 ax3.set_title('Speed distribution')
+ax3.legend()
 
 # Prettify the plot a little bit:
 plt.subplots_adjust(left=0.06,bottom=0.17,right=0.95,top=0.89,wspace=0.35,hspace=0.37)

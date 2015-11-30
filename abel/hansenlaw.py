@@ -20,9 +20,9 @@ from abel.tools import calculate_speeds
 #  "Recursive methods for computing the Abel transform and its inverse"
 #   J. Opt. Soc. Am A2, 510-520 (1985) doi: 10.1364/JOSAA.2.000510
 #
-# J. R. Gascooke PhD Thesis:
-#  "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals 
-#   Molecule Dissociation", Flinders University, 2000.
+#  J. R. Gascooke PhD Thesis:
+#   "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals 
+#    Molecule Dissociation", Flinders University, 2000.
 #
 # Implemented in Python, with image quadrant co-adding, by Steve Gibson
 #
@@ -33,12 +33,17 @@ from abel.tools import calculate_speeds
 def iabel_hansenlaw_transform (ImgRow):
     """ Inverse Abel transformation using the algorithm of: 
         Hansen and Law J. Opt. Soc. Am A2, 510-520 (1985).
-         Eqs. (17) & (18)
+         Eqs. (14), (17) & (18)
+
+        Recursion method proceeds from the outer edge of the image
+        toward the image centre (origin). i.e. when n=0, R=Rmax, and
+        when n=N-1, R=0. This fits well with analysing an image one 
+        quadrant at a time.
 
         Parameters:
         ----------
-         - ImgRow: a N/2 numpy vector 
-           |       one quadrant row from the image, orientated top/left
+         - ImgRow: a N/2 numpy vector = one row of one quadrant of the image
+           |       orientated top/left
            |     +--------+              --------+ 
            \=>   |      * |               *      |
                  |   *    |                  *   |
@@ -49,20 +54,26 @@ def iabel_hansenlaw_transform (ImgRow):
                                |     *  | *      |
                                +--------+--------+
 
-        recursive inversion starts at the leftside outer edge
     """
+
+    N = np.size(ImgRow)     # length of pixel row, note in this case N = n/2
+    AImgRow = np.zeros(N)   # the inverse Abel transformed pixel row
+# constants Table 1.
     h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
     lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
 
+# Eq. (18)
     Gamma = lambda Nm, lam: (1.0-pow(Nm,lam))/(pi*lam)\
-            if lam < -1 else -np.log(Nm)/pi         # Eq. (18)
+            if lam < -1 else -np.log(Nm)/pi         
 
-    K = np.size(h);  N = np.size(ImgRow)
-    X = np.zeros(K); AImgRow = np.zeros(N)
+    K = np.size(h)
+    X = np.zeros(K)
+# g' - derivative of the intensity profile
+    gp = np.gradient (ImgRow)   
 
-    gp = np.gradient (ImgRow)   # derivative
-    for n in range(N-1):        # each pixel of row
-        Nm = (N-n)/(N-n-1.0)
+# iterate along the pixel row, starting at the image edge
+    for n in range(N-1):       
+        Nm = (N-n)/(N-n-1.0)    # R0/R 
         for k in range(K):
             X[k] = pow(Nm,lam[k])*X[k] + h[k]*Gamma(Nm,lam[k])*gp[n] # Eq. (17)
         AImgRow[n] = X.sum()
@@ -72,15 +83,19 @@ def iabel_hansenlaw_transform (ImgRow):
 
 
 def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=True,freecpus=1):
-    """ Split image into quadrants and co-add,
-        Hansen Law inverse Abel transform,
-        reassemble,
-        and (optionally) calculate the radial integration of the image (calc_speeds)
+    """ Helper function for Hansen Law inverse Abel transform.
+        (1) split image into quadrants
+            (optional) exploit symmetry and co-add selected quadrants together
+        (2) inverse Abel transform of quadrant (iabel_hansenlaw_transform)
+        (3) reassemble image
+            for co-add all inverted quadrants are identical
+        (4) (optionally) calculate the radial integration of the image (calc_speeds)
 
         Parameters:
         ----------
          - data: a NxN numpy array
-         - quad:  boolean tuple, (Q0,Q1,Q2,Q3)
+         - quad: boolean tuple, (Q0,Q1,Q2,Q3)
+                 image is inverted one quadrant at a time
                  +--------+--------+                
                  | Q1   * | *   Q0 |
                  |   *    |    *   |  
@@ -92,11 +107,13 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
                  +--------+--------+
 
            NB may exploit image symmetry, all quadrants are equivalent, co-add
-           (1) quad.any() = False
-                (FALSE,FALSE,FALSE,FALSE) => inverse Abel transform for each quadrant
 
-               inverse image   AQ1 | AQ0
-                               ---------
+           (1) quad.any() = False
+                (FALSE,FALSE,FALSE,FALSE) => inverse Abel transform for 
+                                             each quadrant
+
+               inverse image   AQ1 | AQ0     AQi == inverse Abel transform  
+                               ---------            of quadrant Q0
                                AQ2 | AQ3
 
            (2) quad.any() = True   exploits image symmetry to improve signal
@@ -113,6 +130,8 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
           - freecpus: integer, parallel processing, use all cpus - freecpus (default 1)
     """  
     verboseprint = print if verbose else lambda *a, **k: None
+    
+# parallel processing set pool = mp.Pool(1) if any issues
     pool = mp.Pool(processes=mp.cpu_count()-freecpus) 
 
     (N,M)=np.shape(data)
@@ -136,7 +155,6 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
 
         verboseprint ("HL: Calculating inverse Abel transform ... ")
         # inverse Abel transform of combined quadrant, applied to each row
-
         AQ0 = pool.map(iabel_hansenlaw_transform,[Q[row] for row in range(N2)])
 
         AQ3 = AQ2 = AQ1 = AQ0  # all quadrants the same
