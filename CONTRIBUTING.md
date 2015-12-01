@@ -24,7 +24,7 @@ The implementation named `<implementation>`, located under `abel/<implementation
 
 As to detect issues early and avoid regressions, the submitted implementation should have the following properties and pass the corresponding unit tests,
 
- 1. The reconstruction has the same shape as the original image for the parity it supports. When provided with an image size with a parity it does not support a clear exception should be raised.
+ 1. The reconstruction has the same shape as the original image for the parity (even/odd shape of the image) it supports. When provided with an image size with a parity it does not support a clear exception should be raised.
 
  2. Given an array of 0 elements, the reconstruction should also be a 0 array.
   
@@ -44,11 +44,12 @@ which performs an equivalent call.
 
 ##### Dependencies
 
-The current list of dependencies can be found in [`setup.py`](https://github.com/PyAbel/PyAbel/blob/master/setup.py). Unless it cannot be avoided, refraining from adding new dependencies is preferred. 
+The current list of dependencies can be found in [`setup.py`](https://github.com/PyAbel/PyAbel/blob/master/setup.py). Please refrain from adding new dependencies, unless it cannot be avoided.
+
 
 ##### Before merging
 
-As to keep a clean git history, before merging your pull request please rebase your fork on the last master on PyAbel/. This could be done  [as explained in this post](https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository),
+As to keep a clean git history, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done  [as explained in this post](https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository),
    
     # Add the remote, call it "upstream" (only the fist time)
     git remote add upstream git@github.com:PyAbel/PyAbel.git
