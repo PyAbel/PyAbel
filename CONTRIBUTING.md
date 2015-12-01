@@ -45,3 +45,28 @@ which performs an equivalent call.
 ##### Dependencies
 
 The current list of dependencies can be found in [`setup.py`](https://github.com/PyAbel/PyAbel/blob/master/setup.py). Unless it cannot be avoided, refraining from adding new dependencies is preferred. 
+
+##### Before merging
+
+As to keep a clean git history, before merging your pull request please rebase your fork on the last master on PyAbel/. This could be done  [as explained in this post](https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository),
+   
+    # Add the remote, call it "upstream" (only the fist time)
+    git remote add upstream git@github.com:PyAbel/PyAbel.git
+
+    # Fetch all the branches of that remote into remote-tracking branches,
+    # such as upstream/master:
+
+    git fetch upstream
+
+    # Make sure that you're on your master branch 
+    # or any other branch your are working on
+
+    git checkout master  # or your other working branch
+
+    # Rewrite your master branch so that any commits of yours that
+    # aren't already in upstream/master are replayed on top of that
+    # other branch:
+
+    git rebase upstream/master
+
+See [this wiki](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request) for more information.
