@@ -13,18 +13,18 @@ def calculate_speeds(IM, n):
     # The original matlab version used an analytical formula to get the speed distribution directly
     # from the basis coefficients. But, the C version of BASEX uses a numerical method similar to
     # the one implemented here. The difference between the two methods is negligable.
-    """ Generating the speed distribution """
-
-
-    nx,ny = np.shape(IM)
-    xi = np.linspace(-100, 100, nx)
-    yi = np.linspace(-100, 100, ny)
-    X,Y = np.meshgrid(xi, yi)
+    """ This performs an angular integration of the image and returns the one-dimentional intensity profile 
+        as a function of the radial coordinate. It assumes that the image is properly centered. 
+        
+     Parameters
+     ----------
+      - IM: a NxN ndarray.
+     """
 
     polarIM, ri, thetai = reproject_image_into_polar(IM)
 
     speeds = np.sum(polarIM, axis=1)
-    speeds = speeds[:n//2] #Clip off the corners
+    speeds = speeds[:n//2] # Clip off the corners, since they contain incomplete information
 
     return speeds
 
