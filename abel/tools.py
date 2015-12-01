@@ -88,10 +88,12 @@ def center_image(data, center, n, ndim=2):
         # Crop padded image to size n 
         # note the n%2 which return the appropriate image size for both 
         # odd and even images
-        im = im[ sz//2-n_2:n_2+sz//2+n%2, sz//2-n_2:n_2+sz//2+n%2]
+        im = im[sz//2-n_2:n_2+sz//2+n%2, sz//2-n_2:n_2+sz//2+n%2]
         
     else:
         raise ValueError
+    
+    return im
 
 
 
