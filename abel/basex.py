@@ -41,8 +41,6 @@ from .tools import calculate_speeds, center_image
 #############################################################################
 
 
-
-
 def BASEX(data, center, n=501, nbf='auto',  basis_dir='./', calc_speeds=False,
                     dr=1.0, verbose=True,):
         """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
