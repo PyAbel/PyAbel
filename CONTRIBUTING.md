@@ -70,4 +70,8 @@ As to keep a clean git history, before merging your pull request please rebase y
 
     git rebase upstream/master
 
+    # push the changes to your fork
+ 
+    git push -f
+
 See [this wiki](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request) for more information.
