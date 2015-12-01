@@ -9,7 +9,7 @@ import numpy as np
 import multiprocessing as mp 
 from time import time
 from math import exp, log, pow, pi
-from abel.tools import calculate_speeds
+from abel.tools import calculate_speeds, get_image_quadrants
 
 ###########################################################################
 # hasenlaw - a recursive method inverse Abel transformation algorithm 
@@ -52,12 +52,12 @@ def iabel_hansenlaw_transform (ImgRow):
 
         Recursion method proceeds from the outer edge of the image
         toward the image centre (origin). i.e. when n=0, R=Rmax, and
-        when n=N-1, R=0. This fits well with processing an image one 
+        when n=N-1, R=0. This fits well with processing the image one 
         quadrant at a time.
 
         Parameters:
         ----------
-         - ImgRow: a N/2 numpy vector = one row of one quadrant of the image
+         - ImgRow: a n/2 numpy vector = one row of one quadrant of the image
            |       orientated top/left
            |     +--------+              --------+ 
            \=>   |      * |               *      |
@@ -68,7 +68,7 @@ def iabel_hansenlaw_transform (ImgRow):
                                |   *    |    *   |
                                |     *  | *      |
                                +--------+--------+
-
+            
     """
 
     N = np.size(ImgRow)     # length of pixel row, note in this case N = n/2
@@ -138,7 +138,7 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
                              or    Q = Q0 + Q1 + Q2       (True,True,True,False)
                                    etc
 
-                inverse image   AQ | AQ
+                inverse image   AQ | AQ       all quadrants are equivalent
                                 -------
                                 AQ | AQ
 
@@ -155,12 +155,15 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
     N2 = N//2
     verboseprint ("HL: Calculating inverse Abel transform: image size {:d}x{:d}".format(N,M))
 
-# split image into quadrants
     t0=time()
+# split image into quadrants
     left,right = np.array_split(data,2,axis=1)  # (left | right)  half image
     Q0,Q3 = np.array_split(right,2,axis=0)      # top/bottom of right half
     Q1,Q2 = np.array_split(left,2,axis=0)       # top/bottom of left half
-    Q0 = np.fliplr(Q0)                          # reorientate
+
+# re-orientate: all quadrants to look like Q1, for iabel_hansenlaw_transform
+#               i.e. outer-edge is on the left, centre is bottom-right
+    Q0 = np.fliplr(Q0)                          
     Q2 = np.flipud(Q2)
     Q3 = np.fliplr(np.flipud(Q3))
 
