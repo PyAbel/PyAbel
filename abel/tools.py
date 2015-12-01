@@ -25,9 +25,9 @@ def calculate_speeds(IM):
 
     speeds = np.sum(polarIM, axis=1)
     
-    # Clip off the data corresponding to the corners, since these pixels contain incomplete information
+    # Clip the data corresponding to the corners, since these pixels contain incomplete information
     n = np.min(np.shape(IM))//2     # find the shortest radial coordinate
-    speeds = speeds[:n//2] # clip the 1D data
+    speeds = speeds[:n//2]          # clip the 1D data
 
     return speeds
 
@@ -100,10 +100,9 @@ def center_image(data, center, n, ndim=2):
 
 
 
-# I got these next two functions from a stackoverflow page and slightly modified them.
+# The next two functions are adapted from
 # http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
-# It is possible that there is a faster way to get the speed distribution.
-# If you figure it out, pease let me know! (danhickstein@gmail.com)
+# It is possible that there is a faster way to convert to polar coordinates.
 
 def reproject_image_into_polar(data, origin=None):
     """Reprojects a 2D numpy array ("data") into a polar coordinate system.
