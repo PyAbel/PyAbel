@@ -17,17 +17,15 @@ from scipy.ndimage import median_filter, gaussian_filter
 from ._version import __version__
 from .tools import calculate_speeds, center_image
 
-######################################################################
-# PyBASEX - A Python BASEX implementation
-# Dan Hickstein - University of Colorado Boulder
-# danhickstein@gmail.com
-#
+#############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
 #
 # Please cite: "The Gaussian basis-set expansion Abel transform method"
 # V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, and H. Reisler,
 # Review of Scientific Instruments 73, 2634 (2002).
 #
+# Version 0.6 - 2015-12-01
+#   Another major code reformatting
 # Version 0.5 - 2015-11-16
 #   Code cleanup
 # Version 0.4 - 2015-05-0
@@ -40,16 +38,7 @@ from .tools import calculate_speeds, center_image
 # Versions 0.1 - 2012
 #   First port to Python
 #
-#
-# To-Do list:
-#
-#   I took all of the linear algebra straight from the Matlab program. It's
-#   a little hard to compare with the Rev. Sci. Instrum. paper. It would be
-#   nice to clean this up so that it's easier to follow along with the paper.
-#
-########################################################################
-
-
+#############################################################################
 
 
 def BASEX(data, center, n=501, nbf='auto',  basis_dir='./', calc_speeds=False,
@@ -104,7 +93,7 @@ def BASEX(data, center, n=501, nbf='auto',  basis_dir='./', calc_speeds=False,
         if verbose:
             print('{:.2f} seconds'.format((time() - t1)))
 
-        #Do the actual transform
+        # Do the actual transform
         if verbose:
             print('Reconstructing image...         ')
             t1 = time()
@@ -122,7 +111,7 @@ def BASEX(data, center, n=501, nbf='auto',  basis_dir='./', calc_speeds=False,
                 print('Generating speed distribution...')
                 t1 = time()
 
-            speeds = calculate_speeds(recon, n)
+            speeds = calculate_speeds(recon)
 
             if verbose:
                 print('%.2f seconds' % (time() - t1))
@@ -162,11 +151,14 @@ def basex_transform(rawdata, M, Mc, M_left, M_right, dr=1.0):
 
 def _get_left_right_matrices(M, Mc):
     """ An internal helper function for BASEX:
-        given basis sets  M, Mc return M_left and M_right matrices """
+        given basis sets  M, Mc return M_left and M_right matrices 
+        M_left and M_right are the A and B matrices (respectively) 
+        from Equation 13 of the Dribinski et al. paper."""
 
     M_left = inv(Mc.T.dot(Mc)).dot(Mc.T) 
-    q = 1
-    nbf = M.shape[1] # number of basis functions
+    q = 1  # q is the regularization factor from Equation 8 of the Dribinski paper.
+           # Changing this from 1 may improve performance in some situations?
+    nbf = M.shape[1]        # number of basis functions
     E = np.identity(nbf)*q  # Creating diagonal matrix for regularization. (?)
     M_right = M.dot(inv((M.T.dot(M) + E)))
     return M_left, M_right
@@ -255,6 +247,9 @@ def generate_basis_sets(n, nbf='auto', verbose=False):
     This function was adapted from the matlab script provided by
     the Reisler group: BASIS2.m, with some optimizations.
     
+    See original Matlab program here:
+    https://github.com/PyAbel/PyAbelLegacy/tree/master/Matlab
+    
     Typically, the number of basis functions will be (n-1)/2
     so that each pixel in the image is represented by its own basis function.
 
@@ -327,7 +322,6 @@ def generate_basis_sets(n, nbf='auto', verbose=False):
             #
             # The following line corresponds to the vectorized third
             # loop of the original BASIS2.m matlab file.
-
 
             aux += np.exp(k2 - l2 - k2*log_k2 + p*log_l2
                       + gammaln(k2+1) - gammaln(p+1) 

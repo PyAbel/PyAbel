@@ -8,15 +8,16 @@ import os.path
 import numpy as np
 
 
-# The following functions are just conveinent functions for loading and saving images.
+# The following are just convenient functions for loading and saving images.
 # Often you can just use plt.imread('my_file.png') to load a file.
 # plt.imread also works for 16-bit tiff files.
+
 def load_raw(filename, start=2, end=1440746, height=1038, width=1388):
     """
-     This loads one of the raw VMI images from Vrakking's "VMI_Acquire" software
+     This loads raw VMI images from Vrakking's "VMI_Acquire" software
      It ignores the first two values (which are just the dimensions of the image,
      and not actual data) and cuts off about 10 values at the end.
-     I don't know why the files are not quite the right size, but this seems to work.
+     It's unclear why the files are not quite the right size, but this seems to work.
     """
     
     # Load raw data
@@ -27,7 +28,8 @@ def load_raw(filename, start=2, end=1440746, height=1038, width=1388):
 
 def save16bitPNG(filename, data):
     """ It's not easy to save 16-bit images in Python. Here is a way to save a 16-bit PNG
-     Again, this is thanks to stackoverflow: #http://stackoverflow.com/questions/25696615/can-i-save-a-numpy-array-as-a-16-bit-image-using-normal-enthought-python
+     Again, this is thanks to stackoverflow: 
+     http://stackoverflow.com/questions/25696615/can-i-save-a-numpy-array-as-a-16-bit-image-using-normal-enthought-python
      This requires pyPNG
     """
     
