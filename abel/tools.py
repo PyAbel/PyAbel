@@ -78,24 +78,20 @@ def center_image(data, center, n, ndim=2):
     elif ndim == 2:
         cx, cy = np.asarray(center, dtype='int')
         
-        #make an array of zeros that is large enough for cropping or padding:
+        # Make an array of zeros that is large enough for cropping or padding:
         sz = 2*np.round(n + np.max((Nw, Nh)))
         im = np.zeros((sz, sz))
+        
+        # Set center of "zeros image" to be the data
         im[sz//2-cy:sz//2-cy+Nh, sz//2-cx:sz//2-cx+Nw] = data
         
-        im = im[ sz//2-n_2:n_2+sz//2+1, sz//2-n_2:n_2+sz//2+1]
+        # Crop padded image to size n 
+        # note the n%2 which return the appropriate image size for both 
+        # odd and even images
+        im = im[ sz//2-n_2:n_2+sz//2+n%2, sz//2-n_2:n_2+sz//2+n%2]
         
-        #print(np.shape(im))
     else:
         raise ValueError
-
-    if n%2==0: # if n is odd
-        return im[:-1,:-1]
-        
-    else:      # if n is even
-        return im
-
-
 
 
 
