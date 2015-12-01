@@ -89,7 +89,11 @@ def center_image(data, center, n, ndim=2):
     else:
         raise ValueError
 
-    return im
+    if n%2==0: # if n is odd
+        return im[:-1,:-1]
+        
+    else:      # if n is even
+        return im
 
 
 
