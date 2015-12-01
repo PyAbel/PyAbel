@@ -17,10 +17,11 @@ import scipy.misc
 # photoelectron angualar distribution resulting from above threshold ionization (ATI)
 # in xenon gas using a ~40 femtosecond, 800 nm laser pulse. 
 # This spectrum was recorded in 2012 in the Kapteyn-Murnane research group at 
-# JILA / The University of Colorado at Boulder.
+# JILA / The University of Colorado at Boulder
+# By Dan Hickstein and co-workers (contact DanHickstein@gmail.com)
 # http://journals.aps.org/prl/abstract/10.1103/PhysRevLett.109.073004
-
-# Before you start, identify the central pixel of the image.
+#
+# Before you start a transform of your own data, identify the central pixel of the image.
 # It's nice to use a program like ImageJ for this. 
 # http://imagej.nih.gov/ij/
 
@@ -46,9 +47,7 @@ recon, speeds = BASEX(raw_data, center, n=501, basis_dir='./',
                       verbose=True, calc_speeds=True)
 
 
-# # save the transform in 16-bits (recommended, but requires pyPNG)
-# # (type "pip install pypng" on the command line to install)
-
+## save the transform in 16-bits (recommended, but requires pyPNG):
 # save16bitPNG('Xenon_800_transformed.png',recon)
 
 # save the transform in 8-bit format:
@@ -60,7 +59,7 @@ with open(output_text,'w') as outfile:
     for pixel,intensity in enumerate(speeds):
         outfile.write('%i\t%f\n'%(pixel,intensity))
 
-## Finally, let's plot the data
+## Finally, plot the original image, transform, and radial distribution
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))

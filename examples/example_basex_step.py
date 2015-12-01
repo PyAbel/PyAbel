@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 from abel.basex import BASEX
 from abel.analytical import StepAnalytical
 
+# This example calculates the BASEX transform of a step function and 
+# compares with the analtical result.
+
 fig, ax= plt.subplots(1,1)
 plt.title('Abel tranforms of a step function')
 
@@ -24,13 +27,12 @@ center = n//2
 recon = BASEX(st.abel, center, n=n, basis_dir='./', dr=st.dr,
                                     verbose=True, calc_speeds=False)
 
-
 plt.plot(st.r, recon , '--o',c='red', label='Inverse transform x10 [BASEX]')
 
 ax.legend()
 
 ax.set_xlim(-20,20)
-#ax.set_ylim(-0.1, 2.7)
+ax.set_ylim(-5, 20)
 ax.set_xlabel('x')
 ax.set_ylabel("f(x)")
 
