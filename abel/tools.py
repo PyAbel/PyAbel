@@ -29,6 +29,37 @@ def calculate_speeds(IM, n):
     return speeds
 
 
+def get_image_quadrants(img, reorientate=False):
+    """
+    Given an image (m,n) reuturn its 4 quadrants Q0, Q1, Q2, Q3
+    as defined in abel.hansenlaw.iabel_hansenlaw
+
+    Parameters:
+      - img: 1D or 2D array
+      - reorientate: reorientate image as required by abel.hansenlaw.iabel_hansenlaw
+    """
+    img = np.atleast_2d(img)
+
+    n, m = img.shape
+
+    n_c = n//2 + n%2
+    m_c = m//2 + m % 2
+
+    # define 4 quadrants of the image
+    # see definition in abel.hansenlaw.iabel_hansenlaw
+    Q1 = img[:n_c, :m_c]
+    Q2 = img[-n_c:, :m_c]
+    Q0 = img[:n_c, -m_c:]
+    Q3 = img[-n_c:, -m_c:]
+
+    if reorientate:
+        Q0 = np.fliplr(Q0)
+        Q2 = np.flipud(Q2)
+        Q3 = np.fliplr(np.flipud(Q3))
+
+    return Q0, Q1, Q2, Q3
+
+
 def center_image(data, center, n, ndim=2):
     """ This centers the image at the given center and makes it of size n by n"""
     
