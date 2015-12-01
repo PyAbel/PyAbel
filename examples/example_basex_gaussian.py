@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 from abel.basex import BASEX
 from abel.analytical import GaussianAnalytical
 
+# This example performs a BASEX transform of a simple 1D Gaussian function and compares
+# this to the analytical inverse Abel transform 
+
 fig, ax= plt.subplots(1,1)
 plt.title('Abel tranforms of a gaussian function')
 
@@ -13,7 +16,7 @@ sigma = 10
 
 ref = GaussianAnalytical(n, r_max, sigma)
 
-ax.plot(ref.r, ref.func,'b', label='Original signal')
+ax.plot(ref.r, ref.func, 'b', label='Original signal')
 
 ax.plot(ref.r, ref.abel*0.05, 'r', label='Direct Abel transform x0.05 [analytical]')
 
@@ -30,7 +33,7 @@ ax.legend()
 
 ax.set_xlim(-20,20)
 ax.set_xlabel('x')
-ax.set_ylabel("f(x)")
+ax.set_ylabel('f(x)')
 
 plt.legend()
 plt.show()
