@@ -8,23 +8,26 @@ from __future__ import unicode_literals
 import numpy as np
 from scipy.ndimage import map_coordinates
 
-def calculate_speeds(IM, n):
-    # This section is to get the speed distribution.
-    # The original matlab version used an analytical formula to get the speed distribution directly
-    # from the basis coefficients. But, the C version of BASEX uses a numerical method similar to
-    # the one implemented here. The difference between the two methods is negligable.
-    """ Generating the speed distribution """
-
-
-    nx,ny = np.shape(IM)
-    xi = np.linspace(-100, 100, nx)
-    yi = np.linspace(-100, 100, ny)
-    X,Y = np.meshgrid(xi, yi)
-
+def calculate_speeds(IM):
+    """ This performs an angular integration of the image and returns the one-dimentional intensity profile 
+        as a function of the radial coordinate. It assumes that the image is properly centered. 
+        
+     Parameters
+     ----------
+      - IM: a NxN ndarray.
+      
+     Returns
+     -------
+      - speeds: a 1D array of the integrated intensity versus the radial coordinate.
+     """
+    
     polarIM, ri, thetai = reproject_image_into_polar(IM)
 
     speeds = np.sum(polarIM, axis=1)
-    speeds = speeds[:n//2] #Clip off the corners
+    
+    # Clip the data corresponding to the corners, since these pixels contain incomplete information
+    n = np.min(np.shape(IM))//2     # find the shortest radial coordinate
+    speeds = speeds[:n//2]          # clip the 1D data
 
     return speeds
 
@@ -97,10 +100,9 @@ def center_image(data, center, n, ndim=2):
 
 
 
-# I got these next two functions from a stackoverflow page and slightly modified them.
+# The next two functions are adapted from
 # http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
-# It is possible that there is a faster way to get the speed distribution.
-# If you figure it out, pease let me know! (danhickstein@gmail.com)
+# It is possible that there is a faster way to convert to polar coordinates.
 
 def reproject_image_into_polar(data, origin=None):
     """Reprojects a 2D numpy array ("data") into a polar coordinate system.
