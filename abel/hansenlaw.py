@@ -200,7 +200,7 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
         verboseprint('Generating speed distribution ...')
         t1 = time()
 
-        speeds = calculate_speeds(recon, N)
+        speeds = calculate_speeds(recon)
 
         verboseprint('{:.2f} seconds'.format(time() - t1))
         return recon, speeds
