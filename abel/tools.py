@@ -27,7 +27,7 @@ def calculate_speeds(IM):
     
     # Clip the data corresponding to the corners, since these pixels contain incomplete information
     n = np.min(np.shape(IM))//2     # find the shortest radial coordinate
-    speeds = speeds[:n//2]          # clip the 1D data
+    speeds = speeds[:n]          # clip the 1D data
 
     return speeds
 
