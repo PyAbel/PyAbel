@@ -152,42 +152,42 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
     pool = mp.Pool(processes=mp.cpu_count()-freecpus) 
 
     (N,M) = data.shape
-
-    verboseprint ("HL: Calculating inverse Abel transform: image size {:d}x{:d}".format(N,M))
+    verboseprint ("HL: Calculating inverse Abel transform:",
+                      " image size {:d}x{:d}".format(N,M))
 
     t0=time()
     # split image into quadrants
     Q = get_image_quadrants(data, reorientate=True)
-    (N2,M2) = Q[0].shape   # size of quadrant
+    (N2,M2) = Q[0].shape   # quadrant size
 
-    AQ = []  # empty reconstructed 
+    AQ = []  # empty reconstructed image
+
     # combine selected quadrants into one or loop through if none 
     if np.any(quad):
         verboseprint ("HL: Co-adding quadrants")
 
-        Qcombined = np.zeros(Q[0].shape)
-        for i,q in enumerate(Q):
-            Qcombined += q*quad[i]
-
-        verboseprint ("HL: Calculating inverse Abel transform ... ")
-        # inverse Abel transform of combined quadrant, applied to each row
-        AQ.append(pool.map(iabel_hansenlaw_transform,[Qcombined[row] for row in range(N2)]))
-
-        for q in Q[1:]:
-            AQ.append(AQ[0])  # all quadrants identical to AQ[0] 
+        Qcombined = Q[0]*quad[0]+Q[1]*quad[1]+Q[2]*quad[2]+Q[3]*quad[3]
+        Q = (Qcombined,)    # one combined quadrant
 
     else:
         verboseprint ("HL: Individual quadrants")
 
-        # inversion of each quandrant, one row at a time
-        verboseprint ("HL: Calculating inverse Abel transform ... ")
-        for i,q in enumerate(Q):
-            AQ.append(pool.map(iabel_hansenlaw_transform,[Q[i][row] for row in range(N2)]))
+    verboseprint ("HL: Calculating inverse Abel transform ... ")
+    # HL inverse Abel transform for quadrant Q0
+    AQ.append(pool.map(iabel_hansenlaw_transform,\
+                       [Q[0][row] for row in range(N2)]))
+
+    if np.all(quad):
+       for q in (1,2,3): AQ.append(AQ[0])   # all quadrants the same
+    else:
+       for q in (1,2,3):   # inverse Abel transform remaining quadrants
+           AQ.append(pool.map(iabel_hansenlaw_transform,\
+                     [Q[q][row] for row in range(N2)]))
 
     # for odd-pixel image trim off 1-pixel from end (centre)
     if N2%2:
-        for i in range(1,4):
-            AQ[i] = AQ[i][:,:-1]
+        for q in (1,2,3):
+            AQ[q] = AQ[q][:,:-1]
 
     # reform image
     Top    = np.concatenate ((AQ[1],np.fliplr(AQ[0])),axis=1)
