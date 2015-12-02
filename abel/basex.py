@@ -15,7 +15,7 @@ from numpy.linalg import inv
 from scipy.ndimage import median_filter, gaussian_filter
 
 from ._version import __version__
-from .tools import calculate_speeds, center_image, center_image_asymmetric
+from .tools import calculate_speeds, center_image, center_image_asym
 
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
@@ -140,12 +140,12 @@ def BASEX(data, center, n,
         elif type(center) == int: cx = int(center)
         else: raise ValueError("Center specified incorrectly. Must be tuple (x,y) or integer (column)")
 
-        image = center_image_asymmetric(data, center_column = cx, n_vert = n[0], n_horz = n[1], verbose)
+        image = center_image_asym(data, center_column = cx, n_vert = n[0], n_horz = n[1], verbose)
 
         if verbose:
             t1 = time()
 
-        M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right = get_basis_sets_cached_asymmetric(n_vert = n[0], n_horz = n[1], nbf, basis_dir, verbose)
+        M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right = get_bs_basex_cached_asym(n_vert = n[0], n_horz = n[1], nbf, basis_dir, verbose)
 
         if verbose:
             print('{:.2f} seconds'.format((time() - t1)))
@@ -155,7 +155,7 @@ def BASEX(data, center, n,
             print('Reconstructing image...         ')
             t1 = time()
 
-        recon = basex_transform_asymmetric(image, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr)
+        recon = basex_transform_asym(image, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr)
 
         if verbose:
             print('%.2f seconds' % (time() - t1))
@@ -211,7 +211,7 @@ def basex_transform(rawdata, M, Mc, M_left, M_right, dr=1.0):
 
     return IM
 
-def basex_transform_asymmetric(rawdata, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr=1.0):
+def basex_transform_asym(rawdata, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr=1.0):
     """ This is the internal function that does the actual BASEX transform for the no-up/down-symmetry case.
      Parameters
      ----------
@@ -253,7 +253,7 @@ def _get_left_right_matrices(M, Mc):
     M_right = M.dot(inv((M.T.dot(M) + E)))
     return M_left, M_right
 
-def _get_left_right_matrices_asymmetric(M_vert, M_horz, Mc_vert, Mc_horz): 
+def _get_left_right_matrices_asym(M_vert, M_horz, Mc_vert, Mc_horz): 
     """ An internal helper function for no-up/down-asymmetry BASEX:
         given basis sets  M_vert, M_horz, Mc_vert, Mc_horz,
         return M_left and M_right matrices 
@@ -282,7 +282,7 @@ def _nbf_default(n, nbf):
 
     return nbf
 
-def _nbf_default_asymmetric(n_vert, n_horz, nbf):
+def _nbf_default_asym(n_vert, n_horz, nbf):
     """ An internal helper function for the asymmetric case to check that nbf = n//2 + 1 and print a warning otherwise """
     if nbf == 'auto':
         # nbf_vert = n_vert (if relevant)
@@ -364,7 +364,7 @@ def get_basis_sets_cached(n, nbf='auto', basis_dir='.', verbose=False):
     return M, Mc, M_left, M_right
 
 
-def get_basis_sets_cached_asymmetric(n_vert, n_horz, nbf='auto', basis_dir='.', verbose=False):
+def get_bs_basex_cached_asym(n_vert, n_horz, nbf='auto', basis_dir='.', verbose=False):
     """
     Internal function.
 
@@ -385,7 +385,7 @@ def get_basis_sets_cached_asymmetric(n_vert, n_horz, nbf='auto', basis_dir='.', 
     """
 
     # Sanitize nbf
-    nbf = _nbf_default_asymmetric(n_vert, n_horz, nbf)
+    nbf = _nbf_default_asym(n_vert, n_horz, nbf)
     nbf_vert, nbf_horz = nbf[0], nbf[1]
 
     basis_name = "basex_asymm_basis_{}_{}_{}_{}.npy".format(n_vert, n_horz, nbf_vert, nbf_horz)
@@ -412,8 +412,8 @@ def get_basis_sets_cached_asymmetric(n_vert, n_horz, nbf='auto', basis_dir='.', 
             else:
                 print(' ')
 
-        M_vert, M_horz, Mc_vert, Mc_horz  = generate_basis_sets_asymmetric(n_vert, n_horz, nbf_vert, nbf_horz, verbose=verbose)
-        vert_left, horz_right = _get_left_right_matrices_asymmetric(M_vert, M_horz, Mc_vert, Mc_horz)
+        M_vert, M_horz, Mc_vert, Mc_horz  = _bs_basex_asym(n_vert, n_horz, nbf_vert, nbf_horz, verbose=verbose)
+        vert_left, horz_right = _get_left_right_matrices_asym(M_vert, M_horz, Mc_vert, Mc_horz)
 
         if basis_dir is not None:
             np.save(path_to_basis_file,
@@ -533,7 +533,7 @@ def generate_basis_sets(n, nbf='auto', verbose=False):
 
     return M, Mc
 
-def generate_basis_sets_asymmetric(n_vert=1001, n_horz = 501, 
+def _bs_basex_asym(n_vert=1001, n_horz = 501, 
                                     nbf_vert = 1001, nbf_horz = 251, 
                                     verbose=True):    
     """ 

@@ -98,7 +98,7 @@ def center_image(data, center, n, ndim=2):
     
     return im
 
-def center_image_asymmetric(data, center_column, n_vert, n_horz, verbose=False):
+def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
     """ This centers a (rectangular) image at the given center_column and makes it of size n_vert by n_horz"""
 
     if data.ndim > 2:
