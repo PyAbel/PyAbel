@@ -74,21 +74,21 @@ def iabel_hansenlaw_transform (ImgRow):
     N = np.size(ImgRow)     # length of pixel row, note in this case N = n/2
     AImgRow = np.zeros(N)   # the inverse Abel transformed pixel row
 
-# constants listed in Table 1.
+    # constants listed in Table 1.
     h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
     lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
 
-# Eq. (18)
+    # Eq. (18)
     Gamma = lambda Nm, lam: (1.0-pow(Nm,lam))/(pi*lam)\
             if lam < -1 else -np.log(Nm)/pi         
 
     K = np.size(h)
     X = np.zeros(K)
 
-# g' - derivative of the intensity profile
+    # g' - derivative of the intensity profile
     gp = np.gradient (ImgRow)   
 
-# iterate along the pixel row, starting at the outer edge to the image centre
+    # iterate along the pixel row, starting at the outer edge to the image centre
     for n in range(N-1):       
         Nm = (N-n)/(N-n-1.0)    # R0/R 
         for k in range(K):
@@ -148,50 +148,50 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
     """  
     verboseprint = print if verbose else lambda *a, **k: None
     
-# parallel processing set pool = mp.Pool(1) if any multiprocessor issues
+    # parallel processing set pool = mp.Pool(1) if any multiprocessor issues
     pool = mp.Pool(processes=mp.cpu_count()-freecpus) 
 
-    (N,M)=np.shape(data)
-    N2 = N//2
+    (N,M) = data.shape
+
     verboseprint ("HL: Calculating inverse Abel transform: image size {:d}x{:d}".format(N,M))
 
     t0=time()
-# split image into quadrants
-    left,right = np.array_split(data,2,axis=1)  # (left | right)  half image
-    Q0,Q3 = np.array_split(right,2,axis=0)      # top/bottom of right half
-    Q1,Q2 = np.array_split(left,2,axis=0)       # top/bottom of left half
+    # split image into quadrants
+    Q = get_image_quadrants(data, reorientate=True)
+    (N2,M2) = Q[0].shape   # size of quadrant
 
-# re-orientate: all quadrants to look like Q1, for iabel_hansenlaw_transform
-#               i.e. outer-edge is on the left, centre is bottom-right
-    Q0 = np.fliplr(Q0)                          
-    Q2 = np.flipud(Q2)
-    Q3 = np.fliplr(np.flipud(Q3))
-
-# combine selected quadrants into one or loop through if none 
+    AQ = []  # empty reconstructed 
+    # combine selected quadrants into one or loop through if none 
     if np.any(quad):
         verboseprint ("HL: Co-adding quadrants")
 
-        Q = Q0*quad[0]+Q1*quad[1]+Q2*quad[2]+Q3*quad[3]
+        Qcombined = np.zeros(Q[0].shape)
+        for i,q in enumerate(Q):
+            Qcombined += q*quad[i]
 
         verboseprint ("HL: Calculating inverse Abel transform ... ")
         # inverse Abel transform of combined quadrant, applied to each row
-        AQ0 = pool.map(iabel_hansenlaw_transform,[Q[row] for row in range(N2)])
+        AQ.append(pool.map(iabel_hansenlaw_transform,[Qcombined[row] for row in range(N2)]))
 
-        AQ3 = AQ2 = AQ1 = AQ0  # all quadrants the same
+        for q in Q[1:]:
+            AQ.append(AQ[0])  # all quadrants identical to AQ[0] 
 
     else:
         verboseprint ("HL: Individual quadrants")
 
         # inversion of each quandrant, one row at a time
         verboseprint ("HL: Calculating inverse Abel transform ... ")
-        AQ0 = pool.map(iabel_hansenlaw_transform,[Q0[row] for row in range(N2)])
-        AQ1 = pool.map(iabel_hansenlaw_transform,[Q1[row] for row in range(N2)])
-        AQ2 = pool.map(iabel_hansenlaw_transform,[Q2[row] for row in range(N2)])
-        AQ3 = pool.map(iabel_hansenlaw_transform,[Q3[row] for row in range(N2)])
+        for i,q in enumerate(Q):
+            AQ.append(pool.map(iabel_hansenlaw_transform,[Q[i][row] for row in range(N2)]))
+
+    # for odd-pixel image trim off 1-pixel from end (centre)
+    if N2%2:
+        for i in range(1,4):
+            AQ[i] = AQ[i][:,:-1]
 
     # reform image
-    Top    = np.concatenate ((AQ1,np.fliplr(AQ0)),axis=1)
-    Bottom = np.flipud(np.concatenate ((AQ2,np.fliplr(AQ3)),axis=1))
+    Top    = np.concatenate ((AQ[1],np.fliplr(AQ[0])),axis=1)
+    Bottom = np.flipud(np.concatenate ((AQ[2],np.fliplr(AQ[3])),axis=1))
     recon  = np.concatenate ((Top,Bottom),axis=0)
             
     verboseprint ("{:.2f} seconds".format(time()-t0))
