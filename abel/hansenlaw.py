@@ -59,7 +59,7 @@ def iabel_hansenlaw_transform(IM):
 
         Parameters:
         ----------
-         - Img: a nRows/2 x n/2 numpy vector = one row of one quadrant of the image
+         - IM: a nRows/2 x n/2 numpy vector = one row of one quadrant of the image
            |       orientated top/left
            |     +--------+              --------+ 
            \=>   |      * |               *      |
