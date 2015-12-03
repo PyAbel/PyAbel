@@ -98,7 +98,7 @@ def iabel_hansenlaw_transform(IM):
         Nm = (ncols-col)/(ncols-col-1.0)    # R0/R 
         
         for k in range(K): # Iterate over k, the eigenvectors?
-            X[:,k] = pow(Nm,lam[k])*X[:,k] + h[k]*Gamma(Nm,lam[k])*gp[:,col] # Eq. (17)
+            X[:,k] = pow(Nm,lam[k])*X[:,k] + h[k]*Gamma(Nm,lam[k])*gp[:,col] # Eq. (17)            
             
         AImg[:,col] = X.sum(axis=1)
 

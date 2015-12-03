@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 from abel.hansenlaw import *
 from abel.io import load_raw
 import scipy.misc
-import os
 
 # This example demonstrates Hansen and Law inverse Abel transform
 # of an image obtained using a velocity map imaging (VMI) photoelecton 
@@ -34,7 +33,7 @@ import os
 filename = 'data/O2-ANU1024.txt.bz2'
 
 # Name the output files
-name = filename.split('.')[0]
+name = filename.split('.')[0].split('/')[1]
 output_image = name + '_inverse_Abel_transform_HansenLaw.png'
 output_text  = name + '_speeds_HansenLaw.dat'
 output_plot  = name + '_comparison_HansenLaw.pdf'
