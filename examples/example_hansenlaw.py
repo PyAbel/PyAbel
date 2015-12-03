@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from abel.hansenlaw import *
 from abel.io import load_raw
 import scipy.misc
+import os
 
 # This example demonstrates Hansen and Law inverse Abel transform
 # of an image obtained using a velocity map imaging (VMI) photoelecton 
