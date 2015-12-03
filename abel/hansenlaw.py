@@ -9,7 +9,8 @@ import numpy as np
 import multiprocessing as mp 
 from time import time
 from math import exp, log, pow, pi
-from abel.tools import calculate_speeds, get_image_quadrants
+from abel.tools import calculate_speeds, get_image_quadrants,\
+                       put_image_quadrants
 
 ###########################################################################
 # hasenlaw - a recursive method inverse Abel transformation algorithm 
@@ -157,7 +158,7 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
 
     t0=time()
     # split image into quadrants
-    Q = get_image_quadrants(data, reorientate=True)
+    Q = get_image_quadrants(data, reorient=True)
     (N2,M2) = Q[0].shape   # quadrant size
 
     AQ = []  # empty reconstructed image
@@ -184,15 +185,8 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
            AQ.append(pool.map(iabel_hansenlaw_transform,\
                      [Q[q][row] for row in range(N2)]))
 
-    # for odd-pixel image trim off 1-pixel from end (centre)
-    if N2%2:
-        for q in (1,2,3):
-            AQ[q] = AQ[q][:,:-1]
-
     # reform image
-    Top    = np.concatenate ((AQ[1],np.fliplr(AQ[0])),axis=1)
-    Bottom = np.flipud(np.concatenate ((AQ[2],np.fliplr(AQ[3])),axis=1))
-    recon  = np.concatenate ((Top,Bottom),axis=0)
+    recon = put_image_quadrants(AQ,odd_size=N%2)
             
     verboseprint ("{:.2f} seconds".format(time()-t0))
 
