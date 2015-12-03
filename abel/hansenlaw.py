@@ -27,7 +27,10 @@ from abel.tools import calculate_speeds, get_image_quadrants,\
 #    Molecule Dissociation", Flinders University, 2000.
 #
 # Implemented in Python, with image quadrant co-adding, by Steve Gibson
-#
+# 2015-12-03: Vectorization and code improvements Dan Hickstein and Roman Yurchak
+#             Previously the algorithm iterated over the rows of the image
+#             now all of the rows are calculated simultaneously, which provides
+#             the same result, but speeds up processing considerably.
 ###########################################################################
 
 def iabel_hansenlaw_transform(IM):
@@ -101,7 +104,6 @@ def iabel_hansenlaw_transform(IM):
             X[:,k] = pow(Nm,lam[k])*X[:,k] + h[k]*Gamma(Nm,lam[k])*gp[:,col] # Eq. (17)            
             
         AImg[:,col] = X.sum(axis=1)
-
 
     AImg[ncols-1] = AImg[ncols-2]  # special case for the center pixel
     
