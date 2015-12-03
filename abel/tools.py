@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 import numpy as np
 from scipy.ndimage import map_coordinates
 
-def calculate_speeds(IM):
+def calculate_speeds(IM,origin=None):
     """ This performs an angular integration of the image and returns the one-dimentional intensity profile 
         as a function of the radial coordinate. It assumes that the image is properly centered. 
         
@@ -21,7 +21,7 @@ def calculate_speeds(IM):
       - speeds: a 1D array of the integrated intensity versus the radial coordinate.
      """
     
-    polarIM, ri, thetai = reproject_image_into_polar(IM)
+    polarIM, ri, thetai = reproject_image_into_polar(IM,origin)
 
     speeds = np.sum(polarIM, axis=1)
     
@@ -32,21 +32,21 @@ def calculate_speeds(IM):
     return speeds
 
 
-def get_image_quadrants(img, reorientate=False):
+def get_image_quadrants(img, reorient=False):
     """
-    Given an image (m,n) reuturn its 4 quadrants Q0, Q1, Q2, Q3
+    Given an image (m,n) return its 4 quadrants Q0, Q1, Q2, Q3
     as defined in abel.hansenlaw.iabel_hansenlaw
 
     Parameters:
       - img: 1D or 2D array
-      - reorientate: reorientate image as required by abel.hansenlaw.iabel_hansenlaw
+      - reorient: reorient image as required by abel.hansenlaw.iabel_hansenlaw
     """
     img = np.atleast_2d(img)
 
     n, m = img.shape
 
     n_c = n//2 + n%2
-    m_c = m//2 + m % 2
+    m_c = m//2 + m%2
 
     # define 4 quadrants of the image
     # see definition in abel.hansenlaw.iabel_hansenlaw
@@ -55,13 +55,42 @@ def get_image_quadrants(img, reorientate=False):
     Q0 = img[:n_c, -m_c:]
     Q3 = img[-n_c:, -m_c:]
 
-    if reorientate:
+    if reorient:
         Q0 = np.fliplr(Q0)
         Q2 = np.flipud(Q2)
         Q3 = np.fliplr(np.flipud(Q3))
 
     return Q0, Q1, Q2, Q3
 
+def put_image_quadrants (Q,odd_size=False):
+    """
+    Reassemble image from 4 quadrants Q = (Q0, Q1, Q2, Q3)
+    The reverse process to get_image_quadrants()
+    Qi defined in abel.hansenlaw.iabel_hansenlaw
+    
+    Parameters:
+      - Q: tuple of N2xN2 numpy array quadrants
+      - even_size: boolean, whether final image is even or odd pixel size
+                   odd size requires trimming 1 row from Q1, Q0, and
+                                              1 column from Q1, Q2
+
+    Returns:  
+      - NxN numpy array - the reassembled image
+    """
+
+
+    if not odd_size:
+        Top    = np.concatenate ((Q[1],np.fliplr(Q[0])),axis=1)
+        Bottom = np.flipud(np.concatenate ((Q[2],np.fliplr(Q[3])),axis=1))
+    else:
+        # odd size image remove extra row/column added in get_image_quadrant()
+        Top    = np.concatenate ((Q[1][:-1,:-1],np.fliplr(Q[0][:-1,:])),axis=1)
+        Bottom = np.flipud(np.concatenate ((Q[2][:,:-1],np.fliplr(Q[3])),axis=1))
+
+    img = np.concatenate ((Top,Bottom),axis=0)
+
+    return img
+ 
 
 def center_image(data, center, n, ndim=2):
     """ This centers the image at the given center and makes it of size n by n"""
