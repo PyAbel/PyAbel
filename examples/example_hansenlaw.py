@@ -49,7 +49,7 @@ print ('image size {:d}x{:d}'.format(n,m))
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
-recon, speeds = iabel_hansenlaw (im,quad=(False,False,False,False),verbose=True,freecpus=-99)
+recon, speeds = iabel_hansenlaw (im,quad=(False,False,False,False),verbose=True)
 
 # save the transform in 8-bit format:
 scipy.misc.imsave(output_image,recon)
