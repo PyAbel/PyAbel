@@ -169,7 +169,6 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
 
         Qcombined = Q[0]*quad[0]+Q[1]*quad[1]+Q[2]*quad[2]+Q[3]*quad[3]
         Q = (Qcombined,)    # one combined quadrant
-
     else:
         verboseprint ("HL: Individual quadrants")
 
@@ -194,7 +193,7 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
         verboseprint('Generating speed distribution ...')
         t1 = time()
 
-        speeds = calculate_speeds(recon)
+        speeds = calculate_speeds(recon,(N2-0.5,N2-0.5))
 
         verboseprint('{:.2f} seconds'.format(time() - t1))
         return recon, speeds

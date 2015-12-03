@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 import numpy as np
 from scipy.ndimage import map_coordinates
 
-def calculate_speeds(IM):
+def calculate_speeds(IM,origin=None):
     """ This performs an angular integration of the image and returns the one-dimentional intensity profile 
         as a function of the radial coordinate. It assumes that the image is properly centered. 
         
@@ -21,7 +21,7 @@ def calculate_speeds(IM):
       - speeds: a 1D array of the integrated intensity versus the radial coordinate.
      """
     
-    polarIM, ri, thetai = reproject_image_into_polar(IM)
+    polarIM, ri, thetai = reproject_image_into_polar(IM,origin)
 
     speeds = np.sum(polarIM, axis=1)
     
