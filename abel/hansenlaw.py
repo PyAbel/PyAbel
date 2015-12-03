@@ -30,8 +30,7 @@ from abel.tools import calculate_speeds, get_image_quadrants
 #
 ###########################################################################
 
-#@jit
-def iabel_hansenlaw_transform (ImgRow):
+def iabel_hansenlaw_transform (IM):
     """ Inverse Abel transformation using the algorithm of: 
         Hansen and Law J. Opt. Soc. Am A2, 510-520 (1985).
                         
@@ -71,32 +70,37 @@ def iabel_hansenlaw_transform (ImgRow):
             
     """
 
-    N = np.size(ImgRow)     # length of pixel row, note in this case N = n/2
-    AImgRow = np.zeros(N)   # the inverse Abel transformed pixel row
+    N    = np.shape(IM)     # length of pixel row, note in this case N = n/2
+    AImg = np.zeros(N)      # the inverse Abel transformed pixel row
+    
+    nrows,ncols = N # number of rows, number of columns
 
 # constants listed in Table 1.
     h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
     lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
 
-# Eq. (18)
-    Gamma = lambda Nm, lam: (1.0-pow(Nm,lam))/(pi*lam)\
-            if lam < -1 else -np.log(Nm)/pi         
+# Eq. (18)            
+    def Gamma(Nm,lam):   
+        if lam < -1:
+            return (1.0-pow(Nm,lam))/(pi*lam)
+        else:
+            return -np.log(Nm)/pi    
 
     K = np.size(h)
-    X = np.zeros(K)
+    X = np.zeros((nrows,K))
 
 # g' - derivative of the intensity profile
-    gp = np.gradient (ImgRow)   
+    gp = np.gradient(IM)[1]  # take the second element which is the gradient along the columns
 
-# iterate along the pixel row, starting at the outer edge to the image centre
-    for n in range(N-1):       
-        Nm = (N-n)/(N-n-1.0)    # R0/R 
+# iterate along the column, starting at the outer edge to the image centre
+    for col in range(ncols-1):       
+        Nm = (ncols-col)/(ncols-col-1.0)    # R0/R 
         for k in range(K):
-            X[k] = pow(Nm,lam[k])*X[k] + h[k]*Gamma(Nm,lam[k])*gp[n] # Eq. (17)
-        AImgRow[n] = X.sum()
+            X[:,k] = pow(Nm,lam[k])*X[:,k] + h[k]*Gamma(Nm,lam[k])*gp[:,col] # Eq. (17)
+        AImg[:,col] = X.sum(axis=1)
 
-    AImgRow[N-1] = AImgRow[N-2]  # special case for N=N-1
-    return -AImgRow
+    AImg[ncols-1] = AImg[ncols-2]  # special case for N=N-1
+    return -AImg
 
 
 def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=True,freecpus=1):
@@ -149,7 +153,7 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
     verboseprint = print if verbose else lambda *a, **k: None
     
 # parallel processing set pool = mp.Pool(1) if any multiprocessor issues
-    pool = mp.Pool(processes=mp.cpu_count()-freecpus) 
+    # pool = mp.Pool(processes=mp.cpu_count()-freecpus) 
 
     (N,M)=np.shape(data)
     N2 = N//2
@@ -175,7 +179,10 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
 
         verboseprint ("HL: Calculating inverse Abel transform ... ")
         # inverse Abel transform of combined quadrant, applied to each row
-        AQ0 = pool.map(iabel_hansenlaw_transform,[Q[row] for row in range(N2)])
+        # AQ0 = iabel_hansenlaw_transform(Q)
+        # AQ0 = pool.map(iabel_hansenlaw_transform,[Q[row] for row in range(N2)])
+        AQ0 = iabel_hansenlaw_transform(Q)
+        
 
         AQ3 = AQ2 = AQ1 = AQ0  # all quadrants the same
 
@@ -184,10 +191,10 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
 
         # inversion of each quandrant, one row at a time
         verboseprint ("HL: Calculating inverse Abel transform ... ")
-        AQ0 = pool.map(iabel_hansenlaw_transform,[Q0[row] for row in range(N2)])
-        AQ1 = pool.map(iabel_hansenlaw_transform,[Q1[row] for row in range(N2)])
-        AQ2 = pool.map(iabel_hansenlaw_transform,[Q2[row] for row in range(N2)])
-        AQ3 = pool.map(iabel_hansenlaw_transform,[Q3[row] for row in range(N2)])
+        AQ0 = iabel_hansenlaw_transform(Q0)
+        AQ1 = iabel_hansenlaw_transform(Q1)
+        AQ2 = iabel_hansenlaw_transform(Q2)
+        AQ3 = iabel_hansenlaw_transform(Q3)
 
     # reform image
     Top    = np.concatenate ((AQ1,np.fliplr(AQ0)),axis=1)
