@@ -30,7 +30,10 @@ import scipy.misc
 #   + ---+----+
 
 # Specify the path to the file
-filename = 'data/O2-ANU1024.txt.bz2'
+#filename = 'data/O2-ANU1024.txt.bz2'
+#filename = 'data/O2-27M13CM2048.txt.bz2'
+#filename = 'data/O2-26J13CMI2048.txt.bz2'
+filename = 'data/O-28M23CMM8192.txt.bz2'
 
 # Name the output files
 name = filename.split('.')[0]
@@ -49,7 +52,7 @@ print ('image size {:d}x{:d}'.format(n,m))
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
-recon, speeds = iabel_hansenlaw (im,quad=(True,True,True,True),verbose=True,freecpus=1)
+recon, speeds = iabel_hansenlaw (im,quad=(True,True,True,True),verbose=True)
 
 # save the transform in 8-bit format:
 scipy.misc.imsave(output_image,recon)

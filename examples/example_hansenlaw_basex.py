@@ -50,7 +50,7 @@ print ('image size {:d}x{:d}'.format(n,m))
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
-reconH, speedsH = iabel_hansenlaw (im,quad=(False,False,False,False),verbose=True,freecpus=1)
+reconH, speedsH = iabel_hansenlaw (im,quad=(False,False,False,False),verbose=True)
 
 # Basex inverse Abel transform
 print('Performing basex inverse Abel transform:')
