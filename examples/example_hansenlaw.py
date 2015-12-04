@@ -36,7 +36,7 @@ import scipy.misc
 filename = 'data/O-28M23CMM8192.txt.bz2'
 
 # Name the output files
-name = filename.split('.')[0]
+name = filename.split('.')[0].split('/')[1]
 output_image = name + '_inverse_Abel_transform_HansenLaw.png'
 output_text  = name + '_speeds_HansenLaw.dat'
 output_plot  = name + '_comparison_HansenLaw.pdf'
@@ -52,7 +52,11 @@ print ('image size {:d}x{:d}'.format(n,m))
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
+<<<<<<< HEAD
 recon, speeds = iabel_hansenlaw (im,quad=(True,True,True,True),verbose=True)
+=======
+recon, speeds = iabel_hansenlaw (im,quad=(False,False,False,False),verbose=True)
+>>>>>>> upstream/master
 
 # save the transform in 8-bit format:
 scipy.misc.imsave(output_image,recon)
