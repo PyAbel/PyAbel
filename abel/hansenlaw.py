@@ -6,10 +6,10 @@ from __future__ import unicode_literals
 
 #from numba import jit
 import numpy as np
-import multiprocessing as mp 
 from time import time
 from math import exp, log, pow, pi
-from abel.tools import calculate_speeds, get_image_quadrants
+from abel.tools import calculate_speeds, get_image_quadrants,\
+                       put_image_quadrants
 
 ###########################################################################
 # hasenlaw - a recursive method inverse Abel transformation algorithm 
@@ -27,13 +27,15 @@ from abel.tools import calculate_speeds, get_image_quadrants
 #    Molecule Dissociation", Flinders University, 2000.
 #
 # Implemented in Python, with image quadrant co-adding, by Steve Gibson
-#
+# 2015-12-03: Vectorization and code improvements Dan Hickstein and Roman Yurchak
+#             Previously the algorithm iterated over the rows of the image
+#             now all of the rows are calculated simultaneously, which provides
+#             the same result, but speeds up processing considerably.
 ###########################################################################
 
-#@jit
-def iabel_hansenlaw_transform (ImgRow):
+def iabel_hansenlaw_transform(IM):
     """ Inverse Abel transformation using the algorithm of: 
-        Hansen and Law J. Opt. Soc. Am A2, 510-520 (1985).
+        Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).
                         
                        ∞                
                        ⌠                
@@ -57,7 +59,7 @@ def iabel_hansenlaw_transform (ImgRow):
 
         Parameters:
         ----------
-         - ImgRow: a n/2 numpy vector = one row of one quadrant of the image
+         - IM: a nRows/2 x n/2 numpy vector = one row of one quadrant of the image
            |       orientated top/left
            |     +--------+              --------+ 
            \=>   |      * |               *      |
@@ -71,35 +73,44 @@ def iabel_hansenlaw_transform (ImgRow):
             
     """
 
-    N = np.size(ImgRow)     # length of pixel row, note in this case N = n/2
-    AImgRow = np.zeros(N)   # the inverse Abel transformed pixel row
+    N    = np.shape(IM)  # length of pixel row, note in this case N = n/2
+    AImg = np.zeros(N)   # the inverse Abel transformed pixel row
+    
+    nrows,ncols = N      # number of rows, number of columns
 
-# constants listed in Table 1.
+    # constants listed in Table 1.
     h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
     lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
 
-# Eq. (18)
-    Gamma = lambda Nm, lam: (1.0-pow(Nm,lam))/(pi*lam)\
-            if lam < -1 else -np.log(Nm)/pi         
+    # Eq. (18)            
+    def Gamma(Nm,lam):   
+        if lam < -1:
+            return (1.0-pow(Nm,lam))/(pi*lam)
+        else:
+            return -np.log(Nm)/pi    
 
     K = np.size(h)
-    X = np.zeros(K)
+    X = np.zeros((nrows,K))
 
-# g' - derivative of the intensity profile
-    gp = np.gradient (ImgRow)   
+    # g' - derivative of the intensity profile
 
-# iterate along the pixel row, starting at the outer edge to the image centre
-    for n in range(N-1):       
-        Nm = (N-n)/(N-n-1.0)    # R0/R 
-        for k in range(K):
-            X[k] = pow(Nm,lam[k])*X[k] + h[k]*Gamma(Nm,lam[k])*gp[n] # Eq. (17)
-        AImgRow[n] = X.sum()
+    gp = np.gradient(IM)[1]  # take the second element which is the gradient along the columns
 
-    AImgRow[N-1] = AImgRow[N-2]  # special case for N=N-1
-    return -AImgRow
+    # iterate along the column, starting at the outer edge to the image center
+    for col in range(ncols-1):       
+        Nm = (ncols-col)/(ncols-col-1.0)    # R0/R 
+        
+        for k in range(K): # Iterate over k, the eigenvectors?
+            X[:,k] = pow(Nm,lam[k])*X[:,k] + h[k]*Gamma(Nm,lam[k])*gp[:,col] # Eq. (17)            
+            
+        AImg[:,col] = X.sum(axis=1)
+
+    AImg[ncols-1] = AImg[ncols-2]  # special case for the center pixel
+    
+    return -AImg
 
 
-def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=True,freecpus=1):
+def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=True):
     """ Helper function for Hansen Law inverse Abel transform.
         (1) split image into quadrants
             (optional) exploit symmetry and co-add selected quadrants together
@@ -144,55 +155,44 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
 
           - calc_speeds: boolean, evaluate speed profile
           - verbose: boolean, more output, timings etc.
-          - freecpus: integer, parallel processing, use all cpus - freecpus (default 1)
     """  
     verboseprint = print if verbose else lambda *a, **k: None
-    
-# parallel processing set pool = mp.Pool(1) if any multiprocessor issues
-    pool = mp.Pool(processes=mp.cpu_count()-freecpus) 
 
-    (N,M)=np.shape(data)
-    N2 = N//2
-    verboseprint ("HL: Calculating inverse Abel transform: image size {:d}x{:d}".format(N,M))
+    (N,M) = data.shape
+    verboseprint ("HL: Calculating inverse Abel transform:",
+                      " image size {:d}x{:d}".format(N,M))
 
     t0=time()
-# split image into quadrants
-    left,right = np.array_split(data,2,axis=1)  # (left | right)  half image
-    Q0,Q3 = np.array_split(right,2,axis=0)      # top/bottom of right half
-    Q1,Q2 = np.array_split(left,2,axis=0)       # top/bottom of left half
+    
+    # split image into quadrants
+    Q = get_image_quadrants(data, reorient=True)
+    (N2,M2) = Q[0].shape   # quadrant size
 
-# re-orientate: all quadrants to look like Q1, for iabel_hansenlaw_transform
-#               i.e. outer-edge is on the left, centre is bottom-right
-    Q0 = np.fliplr(Q0)                          
-    Q2 = np.flipud(Q2)
-    Q3 = np.fliplr(np.flipud(Q3))
+    AQ = []  # empty reconstructed image
 
-# combine selected quadrants into one or loop through if none 
+    # combine selected quadrants into one or loop through if none 
     if np.any(quad):
         verboseprint ("HL: Co-adding quadrants")
 
-        Q = Q0*quad[0]+Q1*quad[1]+Q2*quad[2]+Q3*quad[3]
-
-        verboseprint ("HL: Calculating inverse Abel transform ... ")
-        # inverse Abel transform of combined quadrant, applied to each row
-        AQ0 = pool.map(iabel_hansenlaw_transform,[Q[row] for row in range(N2)])
-
-        AQ3 = AQ2 = AQ1 = AQ0  # all quadrants the same
-
+        Qcombined = Q[0]*quad[0]+Q[1]*quad[1]+Q[2]*quad[2]+Q[3]*quad[3]
+        Q = (Qcombined,)    # one combined quadrant
     else:
         verboseprint ("HL: Individual quadrants")
 
-        # inversion of each quandrant, one row at a time
-        verboseprint ("HL: Calculating inverse Abel transform ... ")
-        AQ0 = pool.map(iabel_hansenlaw_transform,[Q0[row] for row in range(N2)])
-        AQ1 = pool.map(iabel_hansenlaw_transform,[Q1[row] for row in range(N2)])
-        AQ2 = pool.map(iabel_hansenlaw_transform,[Q2[row] for row in range(N2)])
-        AQ3 = pool.map(iabel_hansenlaw_transform,[Q3[row] for row in range(N2)])
+    verboseprint ("HL: Calculating inverse Abel transform ... ")
+    
+    # HL inverse Abel transform for quadrant 0
+    AQ.append(iabel_hansenlaw_transform(Q[0]))
+
+    if np.any(quad):
+       for q in (1,2,3): AQ.append(AQ[0])   # if symmetry is applied, all quadrants the same
+    else:
+       # otherwise, take the inverse Abel transform of the remaining quadrants individually 
+       for q in (1,2,3):   
+           AQ.append(iabel_hansenlaw_transform(Q[q]))
 
     # reform image
-    Top    = np.concatenate ((AQ1,np.fliplr(AQ0)),axis=1)
-    Bottom = np.flipud(np.concatenate ((AQ2,np.fliplr(AQ3)),axis=1))
-    recon  = np.concatenate ((Top,Bottom),axis=0)
+    recon = put_image_quadrants(AQ,odd_size=N%2)
             
     verboseprint ("{:.2f} seconds".format(time()-t0))
 
@@ -200,7 +200,8 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
         verboseprint('Generating speed distribution ...')
         t1 = time()
 
-        speeds = calculate_speeds(recon)
+        image_centre = (N2,N2) if N2%2 else (N2-0.5,N2-0.5)
+        speeds = calculate_speeds(recon,origin=image_centre)
 
         verboseprint('{:.2f} seconds'.format(time() - t1))
         return recon, speeds
