@@ -32,66 +32,38 @@ def calculate_speeds(IM,origin=None):
     return speeds
 
 
-def get_image_quadrants(img, reorient=False):
+def add_image_col (im):
     """
-    Given an image (m,n) return its 4 quadrants Q0, Q1, Q2, Q3
-    as defined in abel.hansenlaw.iabel_hansenlaw
-
-    Parameters:
-      - img: 1D or 2D array
-      - reorient: reorient image as required by abel.hansenlaw.iabel_hansenlaw
-    """
-    img = np.atleast_2d(img)
-
-    n, m = img.shape
-
-    n_c = n//2 + n%2
-    m_c = m//2 + m%2
-
-    # define 4 quadrants of the image
-    # see definition in abel.hansenlaw.iabel_hansenlaw
-    Q1 = img[:n_c, :m_c]
-    Q2 = img[-n_c:, :m_c]
-    Q0 = img[:n_c, -m_c:]
-    Q3 = img[-n_c:, -m_c:]
-
-    if reorient:
-        Q0 = np.fliplr(Q0)
-        Q2 = np.flipud(Q2)
-        Q3 = np.fliplr(np.flipud(Q3))
-
-    return Q0, Q1, Q2, Q3
-
-def put_image_quadrants (Q,odd_size=False):
-    """
-    Reassemble image from 4 quadrants Q = (Q0, Q1, Q2, Q3)
-    The reverse process to get_image_quadrants()
-    Qi defined in abel.hansenlaw.iabel_hansenlaw
+    Add 1 column at image centre
+    increases image shape to (rows,columns+1)
     
-    Parameters:
-      - Q: tuple of N2xN2 numpy array quadrants
-      - even_size: boolean, whether final image is even or odd pixel size
-                   odd size requires trimming 1 row from Q1, Q0, and
-                                              1 column from Q1, Q2
-
-    Returns:  
-      - NxN numpy array - the reassembled image
+    Basex basis calculation requires odd size image
+    Hansen and Law operates on quadrants, an even size image
     """
+    rows,cols = im.shape
+    n2 = cols//2 + cols%2  # mid point
+    # add centre row
+    #im = np.concatenate((im[:n2],im[n2-1:n2],im[n2:]),axis=0)
+    # add centre column
+    im = np.concatenate((im[:,:n2],im[:,n2-1:n2],im[:,n2:]),axis=1)
+    return im
 
-
-    if not odd_size:
-        Top    = np.concatenate ((Q[1],np.fliplr(Q[0])),axis=1)
-        Bottom = np.flipud(np.concatenate ((Q[2],np.fliplr(Q[3])),axis=1))
-    else:
-        # odd size image remove extra row/column added in get_image_quadrant()
-        Top    = np.concatenate ((Q[1][:-1,:-1],np.fliplr(Q[0][:-1,:])),axis=1)
-        Bottom = np.flipud(np.concatenate ((Q[2][:,:-1],np.fliplr(Q[3])),axis=1))
-
-    img = np.concatenate ((Top,Bottom),axis=0)
-
-    return img
- 
-
+def delete_image_col (im):
+    """
+    Delete 1 column at image centre
+    decreases image shape to (rows,columns-1)
+    
+    Basex basis calculation requires odd size image width
+    Hansen and Law splits image into quadrants => an even size image width
+    """
+    rows,cols = im.shape
+    n2 = cols//2
+    # delete centre row
+    #im = np.concatenate((im[:n2],im[n2+1:]),axis=0)
+    # delete centre column
+    im = np.concatenate((im[:,:n2],im[:,n2+1:]),axis=1)
+    return im
+    
 def center_image(data, center, n, ndim=2):
     """ This centers the image at the given center and makes it of size n by n"""
     

@@ -10,7 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from abel.hansenlaw import *
-from abel.io import load_raw
 import scipy.misc
 
 # This example demonstrates Hansen and Law inverse Abel transform
@@ -48,8 +47,7 @@ print ('image size {:d}x{:d}'.format(n,m))
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-# quad = (True ... => combine the 4 quadrants into one
-recon, speeds = iabel_hansenlaw (im,quad=(False,False,False,False),verbose=True)
+recon, speeds = iabel_hansenlaw (im,calc_speeds=True,verbose=True,quad=(False,False,False,False))
 
 # save the transform in 8-bit format:
 scipy.misc.imsave(output_image,recon)

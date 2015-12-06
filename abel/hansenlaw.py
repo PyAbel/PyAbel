@@ -8,8 +8,7 @@ from __future__ import unicode_literals
 import numpy as np
 from time import time
 from math import exp, log, pow, pi
-from abel.tools import calculate_speeds, get_image_quadrants,\
-                       put_image_quadrants
+from abel.tools import calculate_speeds, add_image_col, delete_image_col
 
 ###########################################################################
 # hasenlaw - a recursive method inverse Abel transformation algorithm 
@@ -55,26 +54,26 @@ def iabel_hansenlaw_transform(IM):
         Recursion method proceeds from the outer edge of the image
         toward the image centre (origin). i.e. when n=0, R=Rmax, and
         when n=N-1, R=0. This fits well with processing the image one 
-        quadrant at a time.
+        half at a time (or one quandrant to exploit image symmetry).
 
         Parameters:
         ----------
-         - IM: a n/2 x n/2 numpy array = one quadrant of the image
-           |       oriented top/left
-           |     +--------+              --------+ 
-           \=>   |      * |               *      |
-                 |   *    |                  *   |
-                 |  *     |                   *  |
-                 +--------+              --------+
-                               |  *     |     *  |
-                               |   *    |    *   |
-                               |     *  | *      |
-                               +--------+--------+
+         - IM: a rows x cols numpy array = one half-side of the image
+                                           oriented centre on right side
+                 +--------+      --------+ 
+                 |      * |       *      |
+                 |   *    |          *   |
+                 |  *     |           *  |
+                 |        +              |
+                 |  *     |           *  |
+                 |   *    |          *   |
+                 |     *  |       *      |
+                 +--------+      --------+
             
     """
 
-    N    = np.shape(IM)  # length of pixel row, note in this case N = n/2
-    AImg = np.zeros(N)   # the inverse Abel transformed pixel row
+    N    = np.shape(IM)  # quadrant size 
+    AImg = np.zeros(N)   # inverse Abel transformed IM array
     
     nrows,ncols = N      # number of rows, number of columns
 
@@ -83,9 +82,9 @@ def iabel_hansenlaw_transform(IM):
     lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
 
     # Eq. (18)            
-    def Gamma(Nm,lam):   
+    def Gamma (Nm,lam): 
         if lam < -1:
-            return (1.0-pow(Nm,lam))/(pi*lam)
+            return (1-pow(Nm,lam))/(pi*lam)
         else:
             return -np.log(Nm)/pi    
 
@@ -98,9 +97,9 @@ def iabel_hansenlaw_transform(IM):
 
     # iterate along the column, starting at the outer edge to the image center
     for col in range(ncols-1):       
-        Nm = (ncols-col)/(ncols-col-1.0)    # R0/R 
+        Nm = (ncols-col)/(ncols-col-1)    # R0/R 
         
-        for k in range(K): # Iterate over k, the eigenvectors?
+        for k in range(K): # Iterate over k, the eigenvectors
             X[:,k] = pow(Nm,lam[k])*X[:,k] + h[k]*Gamma(Nm,lam[k])*gp[:,col] # Eq. (17)            
             
         AImg[:,col] = X.sum(axis=1)
@@ -110,100 +109,133 @@ def iabel_hansenlaw_transform(IM):
     return -AImg
 
 
-def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=True):
+def iabel_hansenlaw (data,calc_speeds=True,verbose=True,quad=(False,False,False,False)):
     """ Helper function for Hansen Law inverse Abel transform.
-        (1) split image into quadrants
-            (optional) exploit symmetry and co-add selected quadrants together
-        (2) inverse Abel transform of quadrant (iabel_hansenlaw_transform)
-        (3) reassemble image
-            for co-add all inverted quadrants are identical
+        (0) add centre column to odd size width images 
+        (1) split image to 2 halves
+        (2) inverse Abel transform of half (iabel_hansenlaw_transform)
+            (option) inverse Abel transform of combined quadrants
+        (3) reform image
         (4) (optionally) calculate the radial integration of the image (calc_speeds)
 
         Parameters:
         ----------
-         - data: a NxN numpy array
-         - quad: boolean tuple, (Q0,Q1,Q2,Q3)
-                 image is inverted one quadrant at a time
-                 +--------+--------+                
-                 | Q1   * | *   Q0 |
-                 |   *    |    *   |  
-                 |  *     |     *  |
-                 +--------+--------+
-                 |  *     |     *  |
-                 |   *    |    *   |
-                 | Q2  *  | *   Q3 |
-                 +--------+--------+
+         - data: a NxM numpy array
+                 image is inverted one half-side at a time
 
-           NB may exploit image symmetry, all quadrants are equivalent, co-add
+                    left      right
+                 +---------+---------+                
+                 |       * | *       |
+                 |   *     |     *   |  
+                 |  *      |      *  |
+                 |         +         |
+                 |  *      |      *  |
+                 |   *     |     *   |
+                 |      *  |  *      |
+                 +---------+---------+
 
-           (1) quad.any() = False
-                (FALSE,FALSE,FALSE,FALSE) => inverse Abel transform for 
-                                             each quadrant
+         - calc_speeds: boolean, evaluate speed profile
+         - verbose: boolean, more output, timings etc.
+         - quad: boolean tuple, (Q0,Q1,Q2,Q3) 
+                 exploit image symmerty combining selected Qi quadrants into one
+                 for transform:
 
-               inverse image   AQ1 | AQ0     AQi == inverse Abel transform  
-                               ---------            of quadrant Q0
-                               AQ2 | AQ3
+                   +----+----+    +---+                  +----+----+
+                   | Q1 | Q0 |    | Q |                  | AQ | AQ |
+                   +----+----+ -> +---+  -(transform) -> +----+----+
+                   | Q2 | Q3 |                           | AQ | AQ |
+                   +----+----+                           +----+----+
 
-           (2) quad.any() = True   exploits image symmetry to improve signal
-                sum True quadrants Q = Q0 + Q1 + Q2 + Q3  (True,True,True,True)
-                             or    Q = Q0 + Q1 + Q2       (True,True,True,False)
-                                   etc
-
-                inverse image   AQ | AQ       all quadrants are equivalent
-                                -------
-                                AQ | AQ
-
-          - calc_speeds: boolean, evaluate speed profile
-          - verbose: boolean, more output, timings etc.
+                 where Q = Q0+Q1+Q2+Q3 for quad = (True,True,True,True)
+                           Q0+Q1+Q2                True,True,True,False
+                           etc
     """  
     verboseprint = print if verbose else lambda *a, **k: None
 
-    (N,M) = data.shape
+    (nrows,ncols) = data.shape
     verboseprint ("HL: Calculating inverse Abel transform:",
-                      " image size {:d}x{:d}".format(N,M))
+                      " image size {:d}x{:d}".format(nrows,ncols))
+   
+    # (1) Image width even? -------------------
+    #      Hansen and Law algorithm works with image split in half, an even size image
+
+    # add a centre column if needed to make image width even
+
+    oddimage = ncols%2    # whether image has an odd pixel number width
+    if oddimage:
+        verboseprint("HL: odd size image, add centre row + column")
+        data = add_image_col (data)
 
     t0=time()
     
-    # split image into quadrants
-    Q = get_image_quadrants(data, reorient=True)
-    (N2,M2) = Q[0].shape   # quadrant size
+    # (2) Split image into half -----------------------------
+    Hleft, Hright = left_right_image (data)     # Hleft | Hright
 
-    AQ = []  # empty reconstructed image
+    # (option) Symmetry - combine quadrants to improve signal
+    #                     split into quadrants
 
-    # combine selected quadrants into one or loop through if none 
-    if np.any(quad):
-        verboseprint ("HL: Co-adding quadrants")
+    if np.any(quad):                           #    Q1 | Q0  
+        Q1, Q2 = top_bottom_image (Hleft)      #   ----+----
+        Q0, Q3 = top_bottom_image (Hright)     #    Q2 | Q3  
+        # orient the same as Q1
+        Q0 = np.fliplr(Q0)
+        Q2 = np.flipud(Q2)
+        Q3 = np.flipud(np.fliplr(Q3))
+        # combine into a single quadrant
+        Qcomb = Q0*quad[0]+Q1*quad[1]+Q2*quad[2]+Q3*quad[3]
+   
+    # (3) Hansen and Law inverse Abel transform 
 
-        Qcombined = Q[0]*quad[0]+Q[1]*quad[1]+Q[2]*quad[2]+Q[3]*quad[3]
-        Q = (Qcombined,)    # one combined quadrant
+    verboseprint ("HL: Calculating inverse Abel transform: ... ")
+
+    if np.any(quad):                                                        
+        # quadrants                                                          #  AQ
+        AQcomb = iabel_hansenlaw_transform(Qcomb)                            # ----
+        AHleft = AHright = np.concatenate((AQcomb,np.flipud(AQcomb)),axis=0) #  AQ
     else:
-        verboseprint ("HL: Individual quadrants")
+        # halves
+        AHleft  = (iabel_hansenlaw_transform(Hleft))                #  AHl | AHr
+        AHright = (iabel_hansenlaw_transform(np.fliplr(Hright)))  
 
-    verboseprint ("HL: Calculating inverse Abel transform ... ")
-    
-    # HL inverse Abel transform for quadrant 0
-    AQ.append(iabel_hansenlaw_transform(Q[0]))
+    # (4) reform image ----------
+    AHright = np.fliplr(AHright)
 
-    if np.any(quad):
-       for q in (1,2,3): AQ.append(AQ[0])   # if symmetry is applied, all quadrants the same
-    else:
-       # otherwise, take the inverse Abel transform of the remaining quadrants individually 
-       for q in (1,2,3):   
-           AQ.append(iabel_hansenlaw_transform(Q[q]))
+    recon = np.concatenate((AHleft,AHright),axis=1)
 
-    # reform image
-    recon = put_image_quadrants(AQ,odd_size=N%2)
-            
     verboseprint ("{:.2f} seconds".format(time()-t0))
 
+    # (6) return image to the input shape -----------------
+    if oddimage:
+        verboseprint ("HL: return image to input shape")
+        recon = delete_image_col (recon) 
+
+    # (7) optionally calculate speed distribution -----------------
     if calc_speeds:
         verboseprint('Generating speed distribution ...')
         t1 = time()
 
-        image_centre = (N2,N2) if N2%2 else (N2-0.5,N2-0.5)
+        # centre of even image is corner of pixel, not centre of pixel, issue #39
+        # shift by 1/2 pixel.
+        n2 = nrows//2
+        m2 = ncols//2
+        image_centre = (n2,m2) if oddimage else (n2-1/2,m2-1/2)
         speeds = calculate_speeds(recon,origin=image_centre)
 
         verboseprint('{:.2f} seconds'.format(time() - t1))
         return recon, speeds
     else:
         return recon
+
+def left_right_image (data):
+    half   = data.shape[1]//2
+    Hleft  = data[:,:half]
+    Hright = data[:,half:]
+    
+    return Hleft, Hright
+
+def top_bottom_image (Hdata):
+    mid    = Hdata.shape[0]//2
+    top    = Hdata[:mid]
+    bottom = Hdata[mid:]
+
+    return top, bottom
