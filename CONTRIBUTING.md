@@ -31,6 +31,9 @@ As to detect issues early and avoid regressions, the submitted implementation sh
  3. The implementation should be able to calculated the inverse (or forward) transform of a Gaussian function defined by a standard deviation `sigma`, with better than a `10 %` relative error with respect to the analytical solution for `0 > r > 2*sigma`.
 
 
+Unit tests for a given implementation are located under `abel/tests/test_<implemenation>.py`, which should contain at least the following 3 functions `test_<implementation>_shape`, `test_<implementation>_zeros`, `test_<implementation>_gaussian`. See `abel/tests/test_basex.py` for a concrete example.
+
+
 The test suite can be run from within the PyAbel package with,
   
     nose -s  abel/tests/ --verbosity=2  --with-coverage --cover-package=abel
