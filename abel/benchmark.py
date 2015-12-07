@@ -62,5 +62,5 @@ def absolute_ratio_benchmark(analytical, recon):
     """
     mask = analytical.mask_valid
     err = analytical.func[mask]/recon[mask]
-    return np.mean(err), np.std(err), np.sum(mask)
+    return err
 

@@ -49,7 +49,7 @@ The current list of dependencies can be found in [`setup.py`](https://github.com
 
 ##### Before merging
 
-As to keep a clean git history, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done  [as explained in this post](https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository),
+If possible, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done  [as explained in this post](https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository),
    
     # Add the remote, call it "upstream" (only the fist time)
     git remote add upstream git@github.com:PyAbel/PyAbel.git

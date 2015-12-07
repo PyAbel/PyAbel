@@ -65,12 +65,12 @@ def test_absolute_ratio_benchmark():
                                  (GaussianAnalytical, dict(sigma=2))]:
 
             ref = Backend(n, r_max, symmetric=symmetric, **options)
-            ratio_mean, ratio_std, _ = absolute_ratio_benchmark(ref, ref.func)
+            ratio = absolute_ratio_benchmark(ref, ref.func)
 
             backend_name = type(ref).__name__
 
 
-            yield assert_allclose_msg, ratio_mean, 1.0,\
+            yield assert_allclose_msg, ratio.mean(), 1.0,\
                     "Sanity test, sym={}: {}: ratio == 1.0".format(symmetric, backend_name)
-            yield assert_allclose_msg, ratio_std, 0.0,\
+            yield assert_allclose_msg, ratio.std(), 0.0,\
                     "Sanity test, sym={}: {}: std == 0.0".format(symmetric, backend_name)
