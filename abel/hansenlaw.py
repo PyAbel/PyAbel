@@ -161,7 +161,7 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
     """  
     verboseprint = print if verbose else lambda *a, **k: None
     
-    if data.ndim == 1:
+    if data.ndim == 1 or np.shape(data)[0] <= 2:
             raise ValueError('Data must be 2-dimensional. To transform a single row, use iabel_hansenlaw_transform().')
         
     (N,M) = np.shape(data)
