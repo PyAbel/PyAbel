@@ -72,9 +72,10 @@ def iabel_hansenlaw_transform(IM):
                  +--------+      --------+
                               
     """
+    IM   = np.atleast_2d(IM)
     N    = np.shape(IM)  # length of pixel row, note in this case N = n/2
-    AImg = np.zeros(N)   # the inverse Abel transformed pixel row
-    
+    AImg = np.zeros(N)   # the inverse Abel transformed image
+
     nrows,ncols = N      # number of rows, number of columns
 
     # constants listed in Table 1.
@@ -160,7 +161,10 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
     """  
     verboseprint = print if verbose else lambda *a, **k: None
     
-    (N,M) = np.shape(np.atleast_2d(data))
+    if data.ndim == 1:
+            raise ValueError('Data must be 2-dimensional. To transform a single row, use iabel_hansenlaw_transform().')
+        
+    (N,M) = np.shape(data)
     verboseprint ("HL: Calculating inverse Abel transform:",
                       " image size {:d}x{:d}".format(N,M))
 
