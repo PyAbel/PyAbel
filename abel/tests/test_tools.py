@@ -38,8 +38,8 @@ def test_centering_function_shape():
                     (4, 11)]:
         data = np.zeros((ni, ni))
         res = center_image(data, (ni//2, ni//2), n)
-        yield assert_equal, res.shape, (n, n),\
-                    'Centering preserves shapes for ni={}, n={}'.format(ni, n)
+        assert_equal( res.shape, (n, n),
+                    'Centering preserves shapes for ni={}, n={}'.format(ni, n))
 
 
 def test_centering_function():
@@ -64,6 +64,6 @@ def test_centering_function():
         # print('Centered array')
         # print(res)
 
-        yield assert_equal, is_symmetric(res), True,\
-            'Validating the centering function for ni={}, n_c={}, n={}'.format(ni, n_c, n)
+        assert_equal( is_symmetric(res), True,\
+            'Validating the centering function for ni={}, n_c={}, n={}'.format(ni, n_c, n))
 

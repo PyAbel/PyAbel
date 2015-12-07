@@ -7,7 +7,6 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from abel.basex import BASEX
 from abel.io import parse_matlab_basis_sets
 from abel.basex import generate_basis_sets, get_basis_sets_cached, basex_transform
 from abel.analytical import StepAnalytical, GaussianAnalytical
@@ -63,7 +62,7 @@ def test_basex_zeros():
 
 
 def test_basex_step_ratio():
-    # This test checks that BASEX correctly calculates a gaussian solution
+    """Check a gaussian solution for BASEX"""
     n = 51
     r_max = 25
 
@@ -77,10 +76,5 @@ def test_basex_step_ratio():
 
     ratio = absolute_ratio_benchmark(ref, recon1d)
 
-    analytical_name = type(ref).__name__
-    backend_name = "BASEX"
-
-    # test ratio == 1, with rtol=1e-2, atol=0.0
-    yield assert_allclose, ratio.mean(), 1.0, 1e-2, 0, "{} / {}: ratio == 1.0".format(backend_name, analytical_name)
-    yield assert_allclose, ratio.std(), 0.0,  1e-5, 2e-2,  "{} / {}: std == 0.0".format(backend_name, analytical_name)
+    assert_allclose( ratio , 1.0, rtol=3e-2, atol=0)
 

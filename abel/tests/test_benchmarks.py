@@ -32,25 +32,25 @@ def test_symmetry_function():
 
 
         f1 = np.cos(XX)*np.cos(YY)
-        yield assert_equal, is_symmetric(f1, i_sym=True, j_sym=True), True,\
-              'Checking f1 function for polar symmetry n={},m={}'.format(n,m)
+        assert_equal( is_symmetric(f1, i_sym=True, j_sym=True), True,
+              'Checking f1 function for polar symmetry n={},m={}'.format(n,m))
 
         f2 = np.cos(XX)*np.sin(YY)
-        yield assert_equal, is_symmetric(f2, i_sym=True, j_sym=False), True,\
-              'Checking f2 function for i symmetry n={},m={}'.format(n,m)
+        assert_equal( is_symmetric(f2, i_sym=True, j_sym=False), True,
+              'Checking f2 function for i symmetry n={},m={}'.format(n,m))
 
         f3 = np.sin(XX)*np.cos(YY)
-        yield assert_equal, is_symmetric(f3, i_sym=False, j_sym=True), True, \
-              'Checking f3 function for j symmetry n={},m={}'.format(n,m)
+        assert_equal( is_symmetric(f3, i_sym=False, j_sym=True), True,
+              'Checking f3 function for j symmetry n={},m={}'.format(n,m))
 
-        yield assert_equal, is_symmetric(f3, i_sym=True, j_sym=False), False, \
-              'Checking that f3 function does not have i symmetry n={},m={}'.format(n,m)
+        assert_equal( is_symmetric(f3, i_sym=True, j_sym=False), False,
+              'Checking that f3 function does not have i symmetry n={},m={}'.format(n,m))
 
     for n in [10, 11]:
         x = np.linspace(-np.pi, np.pi, n)
         f1 = np.cos(x)
-        yield assert_equal, is_symmetric(f1, i_sym=True, j_sym=False), True,\
-              'Checking f1 function for symmetry in 1D n={},m={}'.format(n,m)
+        assert_equal( is_symmetric(f1, i_sym=True, j_sym=False), True,\
+              'Checking f1 function for symmetry in 1D n={},m={}'.format(n,m))
 
 
 def test_absolute_ratio_benchmark():
@@ -70,7 +70,7 @@ def test_absolute_ratio_benchmark():
             backend_name = type(ref).__name__
 
 
-            yield assert_allclose_msg, ratio.mean(), 1.0,\
-                    "Sanity test, sym={}: {}: ratio == 1.0".format(symmetric, backend_name)
-            yield assert_allclose_msg, ratio.std(), 0.0,\
-                    "Sanity test, sym={}: {}: std == 0.0".format(symmetric, backend_name)
+            assert_allclose_msg(ratio.mean(), 1.0,
+                    "Sanity test, sym={}: {}: ratio == 1.0".format(symmetric, backend_name))
+            assert_allclose_msg(ratio.std(), 0.0,
+                    "Sanity test, sym={}: {}: std == 0.0".format(symmetric, backend_name))
