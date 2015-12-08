@@ -1,6 +1,8 @@
 # PyAbel
 
 [![Build Status](https://travis-ci.org/PyAbel/PyAbel.svg?branch=master)](https://travis-ci.org/PyAbel/PyAbel)
+[![Appveyor Status](https://ci.appveyor.com/api/projects/status/github/PyAbel/PyAbel?branch=master&svg=true)](https://ci.appveyor.com/project/PyAbel/PyAbel)
+
 
 PyAbel is a Python package for performing Abel and (primarily) inverse Abel transforms. The Abel transform takes a cylindrically symmetric 3D object and finds the 2D projection of that object. The more difficult problem -- the inverse Abel transform -- takes the 2D projection and finds the central slice of the 3D object by assuming cylindrical symmetry in the vertical direction.
 
