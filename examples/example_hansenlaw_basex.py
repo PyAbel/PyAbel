@@ -6,6 +6,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os.path
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -31,10 +33,11 @@ import scipy.misc
 #   + ---+----+
 
 # Specify the path to the file
-filename = 'data/O2-ANU1024.txt.bz2'
+filename = os.path.join('data', 'O2-ANU1024.txt.bz2')
 
 # Name the output files
-name = filename.split('.')[0].split('/')[1]
+base_dir, name = os.path.split(filename)
+name  = name.split('.')[0]
 output_image = name + '_inverse_Abel_transform_HansenLaw.png'
 output_text  = name + '_speeds_HansenLaw.dat'
 output_plot  = name + '_comparison_HansenLaw.pdf'
