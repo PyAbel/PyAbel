@@ -59,23 +59,23 @@ def iabel_hansenlaw_transform(IM):
 
         Parameters:
         ----------
-         - IM: a nRows/2 x n/2 numpy vector = one row of one quadrant of the image
+         - IM: a rows x cols numpy array = one quadrant of the image
            |       orientated top/left
-           |     +--------+              --------+ 
-           \=>   |      * |               *      |
-                 |   *    |                  *   |
-                 |  *     |                   *  |
-                 +--------+              --------+
-                               |  *     |     *  |
-                               |   *    |    *   |
-                               |     *  | *      |
-                               +--------+--------+
-            
+           |     +--------+      --------+ 
+           \=>   |      * |       *      |
+                 |   *    |          *   |
+                 |  *     |           *  |
+                 +--------+      --------+
+                 |  *     |           *  |
+                 |   *    |          *   |
+                 |     *  |       *      |
+                 +--------+      --------+
+                              
     """
-
+    IM   = np.atleast_2d(IM)
     N    = np.shape(IM)  # length of pixel row, note in this case N = n/2
-    AImg = np.zeros(N)   # the inverse Abel transformed pixel row
-    
+    AImg = np.zeros(N)   # the inverse Abel transformed image
+
     nrows,ncols = N      # number of rows, number of columns
 
     # constants listed in Table 1.
@@ -93,10 +93,13 @@ def iabel_hansenlaw_transform(IM):
     X = np.zeros((nrows,K))
 
     # g' - derivative of the intensity profile
+    
+    if nrows>1:
+        gp = np.gradient(IM)[1]  # take the second element which is the gradient along the columns
+    else: # If there is only one row
+        gp = np.atleast_2d(np.gradient(IM[0]))
 
-    gp = np.gradient(IM)[1]  # take the second element which is the gradient along the columns
-
-    # iterate along the column, starting at the outer edge to the image center
+    # iterate along the columns, starting at the outer edge (left) to the image center
     for col in range(ncols-1):       
         Nm = (ncols-col)/(ncols-col-1.0)    # R0/R 
         
@@ -105,7 +108,7 @@ def iabel_hansenlaw_transform(IM):
             
         AImg[:,col] = X.sum(axis=1)
 
-    AImg[ncols-1] = AImg[ncols-2]  # special case for the center pixel
+    AImg[:,ncols-1] = AImg[:,ncols-2]  # special case for the center pixel
     
     return -AImg
 
@@ -157,8 +160,11 @@ def iabel_hansenlaw (data,quad=(True,True,True,True),calc_speeds=True,verbose=Tr
           - verbose: boolean, more output, timings etc.
     """  
     verboseprint = print if verbose else lambda *a, **k: None
-
-    (N,M) = data.shape
+    
+    if data.ndim == 1 or np.shape(data)[0] <= 2:
+            raise ValueError('Data must be 2-dimensional. To transform a single row, use iabel_hansenlaw_transform().')
+        
+    (N,M) = np.shape(data)
     verboseprint ("HL: Calculating inverse Abel transform:",
                       " image size {:d}x{:d}".format(N,M))
 
