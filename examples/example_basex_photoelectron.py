@@ -6,6 +6,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os.path
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -27,7 +29,7 @@ import scipy.misc
 # http://imagej.nih.gov/ij/
 
 # Specify the path to the file
-filename = 'data/Xenon_ATI_VMI_800_nm_649x519.tif'
+filename = os.path.join('data', 'Xenon_ATI_VMI_800_nm_649x519.tif')
 
 # Name the output files
 output_image = filename[:-4] + '_Abel_transform.png'
