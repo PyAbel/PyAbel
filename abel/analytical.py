@@ -36,9 +36,6 @@ class BaseAnalytical(object):
 
         if symmetric:
             self.r = np.linspace(-r_max, r_max, n)
-            if n % 2 == 0:
-                raise ValueError("Error: When using a symmetric interval, the number of discretization points\n\
-                n = {} must be odd".format(n))
         else:
             self.r = np.linspace(0, r_max, n)
 

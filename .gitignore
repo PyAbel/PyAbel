@@ -8,5 +8,6 @@ build/
 examples/data/Xenon_800_nm*
 examples/*.pdf
 examples/*.png
-examples/*basis*
+examples/*basex_basis*
 examples/*.dat
+*basex_basis*

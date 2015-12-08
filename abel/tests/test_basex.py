@@ -7,7 +7,6 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from abel.basex import BASEX
 from abel.io import parse_matlab_basis_sets
 from abel.basex import generate_basis_sets, get_basis_sets_cached, basex_transform
 from abel.analytical import StepAnalytical, GaussianAnalytical
@@ -16,8 +15,6 @@ from abel.benchmark import absolute_ratio_benchmark
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
-def assert_equal(x, y, message, rtol=1e-5):
-    assert np.allclose(x, y, rtol=1e-5), message
 
 def test_basex_basis_set():
     """
@@ -30,6 +27,7 @@ def test_basex_basis_set():
 
     yield assert_allclose, Mc_ref, Mc, 1e-7, 1e-100
     yield assert_allclose, M_ref, M, 1e-7, 1e-100
+
 
 def test_basex_basis_sets_cache():
     n = 121
@@ -53,31 +51,30 @@ def test_basex_shape():
 
     assert recon.shape == (n, n) 
 
+def test_basex_zeros():
+    n = 21
+    x = np.zeros((n, n), dtype='float32')
+    bs = get_basis_sets_cached(n, basis_dir=None, verbose=False)
+
+    recon = basex_transform(x, *bs)
+
+    assert_allclose(recon, 0)
+
 
 def test_basex_step_ratio():
-    # This test checks that 
-
-    n = 101
+    """Check a gaussian solution for BASEX"""
+    n = 51
     r_max = 25
 
+    ref = GaussianAnalytical(n, r_max, symmetric=True,  sigma=10)
+    tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
-    for analytical_backend, analytical_options in [
-                (StepAnalytical,  dict(A0=10.0, r1=6.0, r2=14.0, ratio_valid_step=0.6)),
-                (GaussianAnalytical, {'sigma': 10.0})]:
-        ref = analytical_backend(n, r_max, symmetric=True, **analytical_options)
+    bs = get_basis_sets_cached(n, basis_dir=None, verbose=False)
 
+    recon = basex_transform(tr, *bs)
+    recon1d = recon[n//2 + n%2]
 
-        # Calculate the inverse abel transform for the centered data
-        recon = BASEX(ref.abel, center=n//2, n=n, basis_dir=None, verbose=False, calc_speeds=False, dr=ref.dr)
+    ratio = absolute_ratio_benchmark(ref, recon1d)
 
-        ratio_mean, ratio_std, _ = absolute_ratio_benchmark(ref, recon)
-        backend_name = "BASEX"
-
-        analytical_name = type(ref).__name__
-
-
-
-        # test ratio == 1, with rtol=1e-2, atol=0.0
-        yield assert_allclose, ratio_mean, 1.0, 1e-2, 0, "{} with {}: ratio == 1.0".format(backend_name, analytical_name)
-        yield assert_allclose, ratio_std, 0.0,  1e-5, 2e-2,  "{} with {}: std == 0.0".format(backend_name, analytical_name)
+    assert_allclose( ratio , 1.0, rtol=3e-2, atol=0)
 
