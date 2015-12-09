@@ -50,7 +50,7 @@ def iabel_hansenlaw_transform(IM):
         where f(r) = reconstructed image (source) function
               g'(R) = derivative of the projection (measured) function
 
-        Evaluation via Eqs. (14), (17) & (18).
+        Evaluation via Eq. (17), using (16a), (16b), & (18).
 
         Recursion method proceeds from the outer edge of the image
         toward the image centre (origin). i.e. when n=0, R=Rmax, and
@@ -60,21 +60,21 @@ def iabel_hansenlaw_transform(IM):
         Parameters:
         ----------
          - IM: a rows x cols numpy array = one quadrant of the image
-           |       orientated top/left
-           |     +--------+      --------+ 
-           \=>   |      * |       *      |
-                 |   *    |          *   |
-                 |  *     |           *  |
-                 +--------+      --------+
-                 |  *     |           *  |
-                 |   *    |          *   |
-                 |     *  |       *      |
-                 +--------+      --------+
+           |                               oriented top/left
+           |     +--------+           --------+ 
+           \=>   |      * |            *      |
+                 |   *    |               *   |
+                 |  *     |                *  |
+                 +--------+           --------+
+                            |  *     |     *  |
+                            |   *    |    *   |
+                            |     *  | *      |
+                            +--------+--------+
                               
     """
     IM   = np.atleast_2d(IM)
-    N    = np.shape(IM)  # length of pixel row, note in this case N = n/2
-    AImg = np.zeros(N)   # the inverse Abel transformed image
+    N    = np.shape(IM)  # shape of quadrant, note in this case N = n/2
+    AImg = np.zeros(N)   # the inverse Abel transformed quadrant
 
     nrows,ncols = N      # number of rows, number of columns
 
@@ -95,15 +95,15 @@ def iabel_hansenlaw_transform(IM):
     # g' - derivative of the intensity profile
     
     if nrows>1:
-        gp = np.gradient(IM)[1]  # take the second element which is the gradient along the columns
+        gp = np.gradient(IM)[1]  # second element gradient along the columns
     else: # If there is only one row
         gp = np.atleast_2d(np.gradient(IM[0]))
 
-    # iterate along the columns, starting at the outer edge (left) to the image center
+    # iterate along columns, starting outer edge (left), to image center
     for col in range(ncols-1):       
         Nm = (ncols-col)/(ncols-col-1.0)    # R0/R 
         
-        for k in range(K): # Iterate over k, the eigenvectors?
+        for k in range(K): # Iterate over k, the eigenvectors
             X[:,k] = pow(Nm,lam[k])*X[:,k] + h[k]*Gamma(Nm,lam[k])*gp[:,col] # Eq. (17)            
             
         AImg[:,col] = X.sum(axis=1)
