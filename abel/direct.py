@@ -14,15 +14,67 @@ from .math import gradient
 from .lib.direct import _cabel_integrate, _cabel_integrate_naive
 
 
-def iabel_transform(fr, dr=1, derivative=gradient):
+def iabel_direct(fr, dr=None, r=None, derivative=gradient):
     """
     Returns inverse Abel transform.
 
     """
-    return _abel_transform_wrapper(fr, dr, inverse=True)
+    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=True)
 
 
-def abel_transform(fr=None, dr=1.0):
+def fabel_direct(fr, dr=None, r=None):
+    """
+    Returns the direct Abel transform of a function
+    sampled at discrete points.
+
+    This algorithm does a direct computation of the Abel transform:
+      * integration near the singular value is done analytically
+      * integration further from the singular value with the Simpson
+        rule.
+
+    Parameters:
+    fr:  1d or 2d numpy array
+        input array to which direct/inversed Abel transform will be applied.
+        For a 2d array, the first dimension is assumed to be the z axis and
+        the second the r axis.
+    dr: float
+        space between samples
+    dfr:  1d or 2d numpy array
+        input array containg the derivative of data vs r (only applicable for inverse transforms).
+
+    Returns
+
+    out: 1d or 2d numpy array of the same shape as fr
+        with either the direct or the inverse abel transform.
+    """
+    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=False)
+
+
+def _construct_r_grid(n, dr=None, r=None):
+    """ Internal function to construct a 1D spatial grid """
+    if dr is None and r is None:
+        # default value, we don't care about the scaling since the mesh size was not provided
+        dr = 1.0
+
+    if dr is not None and r is not None:
+        raise ValueError('Both r and dr input parameters cannot be specified at the same time')
+    elif dr is None and r is not None:
+        if r.ndim != 1 or r.shape[0] != n:
+            raise ValueError('The input parameter r should be a 1D array'
+                             'of shape = ({},), got shape = {}'.format(n, r.shape))
+        # not so sure about this, needs verification
+        dr = np.gradient(r) 
+
+    else:
+        if isinstance(dr, np.ndarray):
+            raise NotImplementedError
+        r = (np.arange(n) + 0.5)*dr
+    return r, dr
+
+
+
+def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False, derivative=gradient,
+                                        singularity_correction=True):
     """
     Returns the direct or inverse Abel transform of a function
     sampled at discrete points.
@@ -49,56 +101,24 @@ def abel_transform(fr=None, dr=1.0):
     out: 1d or 2d numpy array of the same shape as fr
         with either the direct or the inverse abel transform.
     """
-    return _abel_transform_wrapper(fr, dr, inverse=False)
-
-
-def _abel_transform_wrapper(fr, dr=1.0, inverse=False, derivative=gradient,
-        singularity_correction=True):
-    """
-    Returns the direct or inverse Abel transform of a function
-    sampled at discrete points.
-
-    This algorithm does a direct computation of the Abel transform:
-      * integration near the singular value is done analytically
-      * integration further from the singular value with the Simpson
-        rule.
-
-    Parameters:
-    fr:  1d or 2d numpy array
-        input array to which direct/inversed Abel transform will be applied.
-        For a 2d array, the first dimension is assumed to be the z axis and
-        the second the r axis.
-    dr: float
-        space between samples
-    inverse: boolean
-        If True inverse Abel transform is applied.
-    dfr:  1d or 2d numpy array
-        input array containg the derivative of data vs r (only applicable for inverse transforms).
-
-    Returns
-
-    out: 1d or 2d numpy array of the same shape as fr
-        with either the direct or the inverse abel transform.
-    """
-    if inverse:
-        # a derivative function must be provided
-        fr = derivative(fr)/dr
-        ## setting the derivative at the origin to 0
-        if fr.ndim == 1:
-            fr[0] = 0
-        else:
-            fr[:,0] = 0
-
     f = np.atleast_2d(fr.copy())
 
-    r = (np.arange(f.shape[1])+0.5)*dr
+    r, dr = _construct_r_grid(f.shape[1], dr=dr, r=r)
+
+    if inverse:
+        # a derivative function must be provided
+        f = derivative(f)/dr
+        ## setting the derivative at the origin to 0
+        f[:,0] = 0
+
+
 
     if inverse:
         f *= - 1./np.pi
     else:
         f *= 2*r
 
-    f = np.asarray(f, order='C')
+    f = np.asarray(f, order='C', dtype='float64')
 
     if singularity_correction:
         out = _cabel_integrate(f, r)
@@ -110,6 +130,7 @@ def _abel_transform_wrapper(fr, dr=1.0, inverse=False, derivative=gradient,
         return out[0]
     else:
         return out
+
 
 def _abel_sym():
     """

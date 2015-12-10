@@ -129,7 +129,7 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
 
 
 
-def absolute_ratio_benchmark(analytical, recon):
+def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
     """
     Check the absolute ratio between an analytical function and the result
      of a inv. Abel reconstruction.
@@ -140,6 +140,12 @@ def absolute_ratio_benchmark(analytical, recon):
       - recon: 1D ndarray: a reconstruction (i.e. inverse abel) given by some PyAbel implementation
     """
     mask = analytical.mask_valid
-    err = analytical.func[mask]/recon[mask]
+
+    if kind == 'inverse':
+        func = analytical.func
+    elif kind == 'direct':
+        func = analytical.abel
+
+    err = func[mask]/recon[mask]
     return err
 
