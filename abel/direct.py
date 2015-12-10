@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-# Copyright CNRS 2012
-# Roman Yurchak (LULI)
-# This software is governed by the CeCILL-B license under French law and
-# abiding by the rules of distribution of free software.
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -13,16 +9,27 @@ import numpy as np
 from .math import gradient
 from .lib.direct import _cabel_integrate, _cabel_integrate_naive
 
+###########################################################################
+# direct - calculation of forward and inverse Abel transforms by direct
+# numerical integration
+#
+# Roman Yurchak - Laboratoire LULI, Ecole Polytechnique/CNRS/CEA, France
+#
+# 2012: First implementation in hedp.math.abel
+# 2015: Moved to PyAbel, added more unit tests, reorganized code base
+###########################################################################
 
-def iabel_direct(fr, dr=None, r=None, derivative=gradient):
+
+def iabel_direct(fr, dr=None, r=None, derivative=gradient, naive=False):
     """
     Returns inverse Abel transform.
 
     """
-    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=True)
+    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=True,
+            naive=naive)
 
 
-def fabel_direct(fr, dr=None, r=None):
+def fabel_direct(fr, dr=None, r=None, naive=False):
     """
     Returns the direct Abel transform of a function
     sampled at discrete points.
@@ -39,15 +46,13 @@ def fabel_direct(fr, dr=None, r=None):
         the second the r axis.
     dr: float
         space between samples
-    dfr:  1d or 2d numpy array
-        input array containg the derivative of data vs r (only applicable for inverse transforms).
 
     Returns
-
     out: 1d or 2d numpy array of the same shape as fr
         with either the direct or the inverse abel transform.
     """
-    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=False)
+    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=False,
+            naive=naive)
 
 
 def _construct_r_grid(n, dr=None, r=None):
@@ -73,11 +78,11 @@ def _construct_r_grid(n, dr=None, r=None):
 
 
 
-def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False, derivative=gradient,
-                                        singularity_correction=True):
+def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
+                                derivative=gradient, naive=False):
     """
-    Returns the direct or inverse Abel transform of a function
-    sampled at discrete points.
+    Returns the forward or the inverse Abel transform of a function
+    sampled using direct intergation.
 
     This algorithm does a direct computation of the Abel transform:
       * integration near the singular value is done analytically
@@ -90,14 +95,17 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False, derivative=gradi
         For a 2d array, the first dimension is assumed to be the z axis and
         the second the r axis.
     dr: float
-        space between samples
+        spatial mesh resolution           (optional, default to 1.0)
+    f : 1D ndarray with the spatial mesh  (optional)
+    derivative: a function that can return the derivative of the fr array with respect to r
     inverse: boolean
-        If True inverse Abel transform is applied.
-    dfr:  1d or 2d numpy array
-        input array containg the derivative of data vs r (only applicable for inverse transforms).
+        If True inverse Abel transform is applied, otherwise use a forward Abel transform.
+    naive: if True integration is performed with the Simpson rule,
+           the pixel where the weighting function has a singular value is ignored
+           if False, in addition to the integration with the Simpson rule, integration near
+               the singular value is done analytically, assuming a piecewise linear data. 
 
     Returns
-
     out: 1d or 2d numpy array of the same shape as fr
         with either the direct or the inverse abel transform.
     """
@@ -109,7 +117,7 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False, derivative=gradi
         # a derivative function must be provided
         f = derivative(f)/dr
         ## setting the derivative at the origin to 0
-        f[:,0] = 0
+        #f[:,0] = 0
 
 
 
@@ -120,7 +128,7 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False, derivative=gradi
 
     f = np.asarray(f, order='C', dtype='float64')
 
-    if singularity_correction:
+    if not naive:
         out = _cabel_integrate(f, r)
     else:
         out = _cabel_integrate_naive(f, r)
@@ -172,48 +180,3 @@ def reflect_array(x, axis=1, kind='even'):
         raise NotImplementedError
 
     return np.concatenate((fact*x_sym, x), axis=axis)
-
-
-
-
-if __name__ == "__main__":
-    # just an example to illustrate the use of this algorthm
-    import matplotlib.pyplot as plt
-    from time import time
-    import sys
-
-
-    ax0= plt.subplot(211)
-    plt.title('Abel tranforms of a gaussian function')
-    n = 800
-    r = np.linspace(0, 20, n)
-    dr = np.diff(r)[0]
-    rc = 0.5*(r[1:]+r[:-1])
-    fr = np.exp(-rc**2)
-    #fr += 1e-1*np.random.rand(n)
-    plt.plot(rc,fr,'b', label='Original signal')
-    F = abel(fr,dr=dr)
-    F_a = (np.pi)**0.5*fr.copy()
-
-    F_i = abel(F,dr=dr, inverse=True)
-    #sys.exit()
-    plt.plot(rc, F_a, 'r', label='Direct transform [analytical expression]')
-    mask = slice(None,None,5)
-    plt.plot(rc[mask], F[mask], 'ko', label='Direct transform [computed]')
-    plt.plot(rc[mask], F_i[mask],'o',c='orange', label='Direct-inverse transform')
-    plt.legend()
-    ax0.set_xlim(0,4)
-    ax0.set_xlabel('x')
-    ax0.set_ylabel("f(x)")
-
-    ax1 = plt.subplot(212)
-    err1 = np.abs(F_a-F)/F_a
-    err2 = np.abs(fr-F_i)/fr
-    plt.semilogy(rc, err1, label='Direct transform error')
-    plt.semilogy(rc, err2, label='Direct-Inverse transform error')
-    #plt.semilogy(rc, np.abs(F-F_a), label='abs err')
-    ax1.set_ylabel('Relative error')
-    ax1.set_xlabel('x')
-
-    plt.legend()
-    plt.show()

@@ -25,6 +25,13 @@ class AbelTiming(object):
         from .basex import get_basis_sets_cached, basex_transform
         from .hansenlaw import iabel_hansenlaw
         from timeit import Timer
+        try:
+            from .direct import fabel_direct, iabel_direct
+            cython_extensions = True
+        except ImportError:
+            cython_extensions = False
+            raise
+
 
         self.n = n
 
@@ -34,8 +41,15 @@ class AbelTiming(object):
         res_iabel = {'BASEX':     {'bs': [], 'tr': []},
                'HansenLaw': {'tr': []}
                }
+        if cython_extensions:
+            res_fabel['direct'] = {'tr': []}
+            res_iabel['direct'] = {'tr': []}
+            res_fabel['direct-naive'] = {'tr': []}
+            res_iabel['direct-naive'] = {'tr': []}
+
         for ni in n:
             x = np.random.randn(ni,ni)
+            # direct implementations
             if ni <= n_max_bs:
                 bs = get_basis_sets_cached(ni, basis_dir=None)
                 res_iabel['BASEX']['bs'].append(
@@ -48,6 +62,17 @@ class AbelTiming(object):
 
             res_iabel['HansenLaw']['tr'].append(
                 Timer(lambda: iabel_hansenlaw(x, verbose=False)).timeit(number=NREPEAT)/NREPEAT)
+
+            if cython_extensions:
+                res_iabel['direct']['tr'].append(
+                    Timer(lambda: iabel_direct(x, naive=False)).timeit(number=NREPEAT)/NREPEAT)
+                res_fabel['direct']['tr'].append(
+                    Timer(lambda: fabel_direct(x, naive=False)).timeit(number=NREPEAT)/NREPEAT)
+                res_iabel['direct-naive']['tr'].append(
+                    Timer(lambda: iabel_direct(x, naive=True)).timeit(number=NREPEAT)/NREPEAT)
+                res_fabel['direct-naive']['tr'].append(
+                    Timer(lambda: fabel_direct(x, naive=True)).timeit(number=NREPEAT)/NREPEAT)
+
         self.fabel = res_fabel
         self.iabel = res_iabel
 
@@ -83,6 +108,7 @@ class AbelTiming(object):
             return out
 
         out += print_benchmark('Direct', self.fabel)
+        out += ['']
         out += print_benchmark('Inverse', self.iabel)
 
         return '\n'.join(out)
