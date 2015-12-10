@@ -4,10 +4,10 @@ import os.path
 from setuptools import setup, find_packages, Extension
 import numpy as np
 from Cython.Distutils import build_ext
+from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
 import Cython.Compiler.Options
 
 
-Cython.Compiler.Options.annotate = False
 
 # a define the version sting inside the package
 # see https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package 
@@ -20,11 +20,39 @@ if mo:
 else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
+
+
+Cython.Compiler.Options.annotate = False
+
 if sys.platform != 'win32':
-    compile_args =  dict( extra_compile_args=['-O2', '-march=core2', '-mtune=native'],
-                 extra_link_args=['-O2', '-march=core2', '-mtune=native'])
+    compile_args =  dict( extra_compile_args=['-O2', '-march=native'],
+                 extra_link_args=['-O2', '-march=native'])
 else:
     compile_args = {}
+
+# Optional compilation of Cython modules adapted from
+# https://github.com/bsmurphy/PyKrige which was itself adapted from a StackOverflow post
+
+
+ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError)
+
+class TryBuildExt(build_ext):
+    def build_extensions(self):
+        try:
+            build_ext.build_extensions(self)
+        except ext_errors:
+            print("**************************************************")
+            print("WARNING: Cython extensions failed to build (used in abel.direct).\n"
+                  "Typical reasons for this problem are:\n"
+                  "  - the C compliler is not installed or not found\n"
+                  "  - issues using mingw compiler on Winows 64bit (experimental support for now)\n"
+                  "This only means that the abel.direct implementation will not be avalable.\n")
+            print("**************************************************")
+            # continue the install
+            pass
+        except:
+            raise
+
 
 ext_modules=[
     Extension("abel.lib.direct",
@@ -40,13 +68,14 @@ setup(name='PyAbel',
       author='Dan Hickstein',
       packages=find_packages(),
       package_data={'abel': ['tests/data/*' ]},
-      cmdclass= {'build_ext': build_ext},
+      cmdclass= {'build_ext': TryBuildExt},
       ext_modules= ext_modules,
       include_dirs=[ np.get_include() ],
       install_requires=[
               "numpy >= 1.6",
               "setuptools >= 16.0",
               "scipy >= 0.14",
+              "cython >= 0.22"
               ],
       test_suite="abel.tests.run_cli"
      )

@@ -13,10 +13,9 @@ cimport numpy as np
 from libc.math cimport sqrt, acosh
 #from cython.parallel import prange
 
-
 cpdef _cabel_integrate(double [:, ::1] f, double [::1] r):
     """
-    Compute the integral  used in Abel transform (both direct and inverse).
+    Naive calculation of the integral  used in Abel transform (both direct and inverse).
              ∞                  
             ⌠                  
             ⎮      f(r)        
@@ -71,6 +70,7 @@ cpdef _cabel_integrate(double [:, ::1] f, double [::1] r):
                 s = s * dr / 3.
 
                 # Integration of the cell with the singular value
+                # Assuming a piecewise linear behaviour of the data
                 # c0*acosh(r1/y) - c_r*y*acosh(r1/y) + c_r*sqrt(r1**2 - y**2)
                 if j < N1 - 1:
                     s = s + I_sqrt[j,j+1]*f_r[i,j] \
