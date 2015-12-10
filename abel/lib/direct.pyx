@@ -43,7 +43,7 @@ cpdef _cabel_integrate(double [:, ::1] f, double [::1] r):
     cdef double [:, ::1] f_r = f_r_arr
 
     with nogil:
-        # precalculate the array of r_i, r_j
+        # pre-calculate the array of r_i, r_j
         for i in range(N1):
             for j in range(0,i):
                 val = sqrt(r[i]**2 - r[j]**2)
@@ -53,7 +53,7 @@ cpdef _cabel_integrate(double [:, ::1] f, double [::1] r):
         for i in range(N0):
             for j in range(N1):
                 s = 0
-                # Integrating with the simpson rule the part of the
+                # Integrating with the Simpson rule the part of the
                 # integral that is numerically stable
                 s = s + f[i,j+1]*I_isqrt[j,j+1] + f[i,N1-1]*I_isqrt[j,N1-1]
                 for k in range(j+2, N1-1):
@@ -108,7 +108,7 @@ cpdef _cabel_integrate_naive(double [:, ::1] f, double [::1] r):
 
 
     with nogil:
-        # precalculate the array of r_i, r_j
+        # pre-calculate the array of r_i, r_j
         for i in range(N1):
             for j in range(0,i):
                 val = sqrt(r[i]**2 - r[j]**2)
@@ -118,7 +118,7 @@ cpdef _cabel_integrate_naive(double [:, ::1] f, double [::1] r):
         for i in range(N0):
             for j in range(N1):
                 s = 0
-                # Integrating with the simpson rule the part of the
+                # Integrating with the Simpson rule the part of the
                 # integral that is numerically stable
                 s = s + f[i,j+1]*I_isqrt[j,j+1] + f[i,N1-1]*I_isqrt[j,N1-1]
                 for k in range(j+2, N1-1):

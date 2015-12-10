@@ -2,15 +2,24 @@
 import time
 
 import numpy as np
-from abel.direct import fabel_direct, iabel_direct
 from abel.math import gradient
 import scipy.ndimage as nd
 from numpy.testing import assert_allclose
 from abel.analytical import GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
+from unittest.case import SkipTest
+
+try:
+    from abel.direct import fabel_direct, iabel_direct
+    skip_tests = False
+except ImportError:
+    skip_tests = True
+
 
 
 def test_direct_shape():
+    if skip_tests:
+        raise SkipTest
     n = 21
     x = np.ones((n, n))
 
@@ -25,6 +34,8 @@ def test_direct_shape():
 
 def test_direct_zeros():
     # just a sanity check
+    if skip_tests:
+        raise SkipTest
     n = 64
     x = np.zeros((n,n))
     assert (fabel_direct(x)==0).all()
@@ -34,6 +45,8 @@ def test_direct_zeros():
 
 def test_inverse_direct_gaussian():
     """Check iabel_direct with a Gaussian"""
+    if skip_tests:
+        raise SkipTest
     n = 51
     r_max = 25
 
@@ -48,6 +61,8 @@ def test_inverse_direct_gaussian():
 
 def test_forward_direct_gaussian():
     """Check fabel_direct with a Gaussian"""
+    if skip_tests:
+        raise SkipTest
     n = 51
     r_max = 25
 

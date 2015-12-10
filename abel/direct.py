@@ -82,7 +82,7 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
                                 derivative=gradient, naive=False):
     """
     Returns the forward or the inverse Abel transform of a function
-    sampled using direct intergation.
+    sampled using direct integration.
 
     This algorithm does a direct computation of the Abel transform:
       * integration near the singular value is done analytically
@@ -163,7 +163,7 @@ def _abel_sym():
 
 def reflect_array(x, axis=1, kind='even'):
     """
-    Make a symmetrucally reflected array with respect to the given axis
+    Make a symmetrically reflected array with respect to the given axis
     """
     if axis == 0:
         x_sym = np.flipud(x)

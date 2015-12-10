@@ -44,9 +44,9 @@ class TryBuildExt(build_ext):
             print("**************************************************")
             print("WARNING: Cython extensions failed to build (used in abel.direct).\n"
                   "Typical reasons for this problem are:\n"
-                  "  - the C compliler is not installed or not found\n"
-                  "  - issues using mingw compiler on Winows 64bit (experimental support for now)\n"
-                  "This only means that the abel.direct implementation will not be avalable.\n")
+                  "  - the C compiler is not installed or not found\n"
+                  "  - issues using mingw compiler on Windows 64bit (experimental support for now)\n"
+                  "This only means that the abel.direct implementation will not be available.\n")
             print("**************************************************")
             # continue the install
             pass
