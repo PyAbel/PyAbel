@@ -58,12 +58,3 @@ def gradient(f, x=None, dx=1, axis=-1):
         return np.dot(I/H, f)
     else:
         return np.dot(I/H, f.T).T
-
-
-class TestDeriv(object):
-    def test_sav_gol(self):
-        """Check that the derivative of sin gives cos"""
-        x = np.sort(np.random.rand(1000))*2*np.pi
-        y = np.sin(x)
-        dy =  savgol(x, y, 5, order=3, deriv=1)
-        assert np.allclose(dy, np.cos(x), atol=1.0e-6)
