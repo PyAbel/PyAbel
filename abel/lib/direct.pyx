@@ -2,11 +2,11 @@
 # cython: boundscheck=False
 # cython: cdivision=True
 # cython: wraparound=False
-## cython: profile=True
 
 import numpy as np
 cimport numpy as np
 from libc.math cimport sqrt, acosh
+
 
 cpdef _cabel_integrate(double [:, ::1] f, double [::1] r):
     """
@@ -75,6 +75,7 @@ cpdef _cabel_integrate(double [:, ::1] f, double [::1] r):
 
     return out.base
 
+
 cpdef _cabel_integrate_naive(double [:, ::1] f, double [::1] r):
     """
     Compute the integral  used in Abel transform (both direct and inverse).
@@ -132,8 +133,6 @@ cpdef _cabel_integrate_naive(double [:, ::1] f, double [::1] r):
                 out[i,j] = s
 
     return out.base
-
-
 
 
 cpdef double trapz (double [::1] y, double dx, int Ny):
