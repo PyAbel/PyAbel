@@ -7,12 +7,13 @@ import scipy.ndimage as nd
 from numpy.testing import assert_allclose
 from abel.analytical import GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
+from abel.tools import CythonExtensionsNotBuilt
 from unittest.case import SkipTest
 
 try:
     from abel.direct import fabel_direct, iabel_direct
     skip_tests = False
-except ImportError:
+except CythonExtensionsNotBuilt:
     skip_tests = True
 
 

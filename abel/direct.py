@@ -7,7 +7,13 @@ from __future__ import unicode_literals
 import numpy as np
 
 from .math import gradient
-from .lib.direct import _cabel_integrate, _cabel_integrate_naive
+from .tools import CythonExtensionsNotBuilt_msg
+
+try:
+    from .lib.direct import _cabel_integrate, _cabel_integrate_naive
+except (ImportError, UnicodeDecodeError):
+    raise CythonExtensionsNotBuilt_msg
+
 
 ###########################################################################
 # direct - calculation of forward and inverse Abel transforms by direct
