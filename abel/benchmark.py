@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 
-from .tools import get_image_quadrants
+from .tools import get_image_quadrants, CythonExtensionsNotBuilt
 
 class AbelTiming(object):
     def __init__(self, n=[201, 401], n_max_bs=500):
@@ -28,9 +28,8 @@ class AbelTiming(object):
         try:
             from .direct import fabel_direct, iabel_direct
             cython_extensions = True
-        except ImportError:
+        except CythonExtensionsNotBuilt:
             cython_extensions = False
-            raise
 
 
         self.n = n
