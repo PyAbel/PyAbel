@@ -2,10 +2,22 @@ import sys
 import re
 import os.path
 from setuptools import setup, find_packages, Extension
-import numpy as np
-from Cython.Distutils import build_ext
 from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
-import Cython.Compiler.Options
+import numpy as np
+
+try:
+    from Cython.Distutils import build_ext
+    import Cython.Compiler.Options
+    Cython.Compiler.Options.annotate = False
+    _cython_installed = True
+except ImportError:
+    _cython_installed = False
+    build_ext = object # just avoid a syntax error in TryBuildExt, this is not used anyway
+    print('='*80)
+    print('Warning: Cython extensions will not be built as Cython is not installed!\n'\
+          '         This means that the abel.direct implementation will not be available.')
+    print('='*80)
+
 
 
 
@@ -20,9 +32,6 @@ if mo:
 else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
-
-
-Cython.Compiler.Options.annotate = False
 
 if sys.platform != 'win32':
     compile_args =  dict( extra_compile_args=['-O2', '-march=native'],
@@ -61,6 +70,13 @@ ext_modules=[
              **compile_args),
     ]
 
+if _cython_installed:
+    setup_args = {'cmdclass': {'build_ext': TryBuildExt},
+                  'include_dirs': [ np.get_include() ],
+                  'ext_modules': ext_modules}
+else:
+    setup_args = {}
+
 
 setup(name='PyAbel',
       version=version,
@@ -68,15 +84,12 @@ setup(name='PyAbel',
       author='Dan Hickstein',
       packages=find_packages(),
       package_data={'abel': ['tests/data/*' ]},
-      cmdclass= {'build_ext': TryBuildExt},
-      ext_modules= ext_modules,
-      include_dirs=[ np.get_include() ],
       install_requires=[
               "numpy >= 1.6",
               "setuptools >= 16.0",
               "scipy >= 0.14",
-              "cython >= 0.22"
               ],
-      test_suite="abel.tests.run_cli"
+      test_suite="abel.tests.run_cli",
+      **setup_args
      )
 
