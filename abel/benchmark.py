@@ -9,6 +9,85 @@ import numpy as np
 
 from .tools import get_image_quadrants
 
+class AbelTiming(object):
+    def __init__(self, n=[201, 401], n_max_bs=500):
+        """
+        Benchmark performance of different iAbel/fAbel implementations.
+
+        Parameters
+        ----------
+          - n: a list of arrays sizes for the benchmark (assuming 2D
+            square arrays (n,n) )
+          - n_max_bs: since the basis sets generation takes a long time,
+            do not run this benchmark for implementations that use basis sets
+            for n > n_max_bs
+        """
+        from .basex import get_basis_sets_cached, basex_transform
+        from .hansenlaw import iabel_hansenlaw
+        from timeit import Timer
+
+        self.n = n
+
+        NREPEAT = 10
+
+        res_fabel = {}
+        res_iabel = {'BASEX':     {'bs': [], 'tr': []},
+               'HansenLaw': {'tr': []}
+               }
+        for ni in n:
+            x = np.random.randn(ni,ni)
+            if ni <= n_max_bs:
+                bs = get_basis_sets_cached(ni, basis_dir=None)
+                res_iabel['BASEX']['bs'].append(
+                    Timer(lambda: get_basis_sets_cached(ni, basis_dir=None)).timeit(number=1))
+                res_iabel['BASEX']['tr'].append(
+                    Timer(lambda: basex_transform(x, *bs)).timeit(number=NREPEAT)/NREPEAT)
+            else:
+                res_iabel['BASEX']['bs'].append( np.nan)
+                res_iabel['BASEX']['tr'].append( np.nan)
+
+            res_iabel['HansenLaw']['tr'].append(
+                Timer(lambda: iabel_hansenlaw(x, verbose=False)).timeit(number=NREPEAT)/NREPEAT)
+        self.fabel = res_fabel
+        self.iabel = res_iabel
+
+
+    def __repr__(self):
+        import platform
+        from itertools import chain
+
+        out = []
+        out += ['PyAbel benchmark run on {}\n'.format(platform.processor())]
+
+        LABEL_FORMAT =     '|'.join([' Implementation '] \
+                + ['    n = {:<12} '.format(ni) for ni in self.n])
+        TR_ROW_FORMAT = '|'.join(['{:>15} '] + [ ' {:8.1e}            ' ]*len(self.n))
+        BS_ROW_FORMAT = '|'.join(['{:>15} '] + [ ' {:8.1e} ({:8.1e}) ' ]*len(self.n))
+        SEP_ROW = ' ' + '-'*(22 + (17+1)*len(self.n))
+
+        HEADER_ROW = ' ========= {:>10} Abel implementations ==========\n' \
+                ' time to solution [s] -> transform (basis sets generation)\n'
+
+
+        def print_benchmark(name, res):
+            out = [HEADER_ROW.format(name)]
+            if res:
+                out += [LABEL_FORMAT]
+                out += [SEP_ROW]
+                for name, row  in res.items():
+                    if 'bs' in row:
+                        pars = list(chain(*zip(row['tr'], row['bs'])))
+                        out += [BS_ROW_FORMAT.format(name, *pars)]
+                    else:
+                        out += [TR_ROW_FORMAT.format(name, *row['tr'])]
+            return out
+
+        out += print_benchmark('Direct', self.fabel)
+        out += print_benchmark('Inverse', self.iabel)
+
+        return '\n'.join(out)
+
+
 
 def is_symmetric(arr, i_sym=True, j_sym=True):
     """
@@ -62,5 +141,5 @@ def absolute_ratio_benchmark(analytical, recon):
     """
     mask = analytical.mask_valid
     err = analytical.func[mask]/recon[mask]
-    return np.mean(err), np.std(err), np.sum(mask)
+    return err
 
