@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -81,6 +83,7 @@ def BASEX(data, center, n,
 
     """
     # make dimension-of-rawdata into list to account for rectangular n
+    # Format of n -> n = [n_vert, n_horz]
     if type(n) is not list: n = [ n ] 
 
     # duplicate elements of n if n is single-valued (rawdata is square)
@@ -104,7 +107,7 @@ def BASEX(data, center, n,
         if verbose:
             t1 = time()
 
-        M, Mc, M_left, M_right = get_basis_sets_cached(n[1], nbf, basis_dir, verbose)
+        M, Mc, M_left, M_right = get_bs_basex_cached(n[1], nbf, basis_dir, verbose)
 
         if verbose:
             print('{:.2f} seconds'.format((time() - t1)))
@@ -218,7 +221,7 @@ def basex_transform_asym(rawdata, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, h
       - rawdata: 
             a N_vert x N_horz numpy array of the raw image.
       - M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right: 
-            2D arrays given given by the basis set calculation function
+            2D arrays given by the basis set calculation function
       - dr: float: pixel size
 
      Returns
@@ -293,19 +296,19 @@ def _nbf_default_asym(n_vert, n_horz, nbf):
             print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf, n_horz//2 +1),
                     '    This behaviour is currently not tested and should not be used\
                     unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
-        nbf = [nbf]*2
+        nbf = [nbf]*2 # Setting identical number of vert and horz functions
     elif type(nbf) == list:
         if nbf[-1] != n_horz//2 +1:
             print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf[-1], n_horz//2 +1),
                     '    This behaviour is currently not tested and should not be used\
                     unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
-        if len(nbf) < 2: nbf = nbf*2
+        if len(nbf) < 2: nbf = nbf*2 # In case user inputs [nbf] instead of [nbf_vert, nbf_horz]
     else:
         raise ValueError('nbf must be set to "auto" or an integer or a list')
     return nbf
 
 
-def get_basis_sets_cached(n, nbf='auto', basis_dir='.', verbose=False):
+def get_bs_basex_cached(n, nbf='auto', basis_dir='.', verbose=False):
     """
     Internal function.
 
@@ -376,7 +379,7 @@ def get_bs_basex_cached_asym(n_vert, n_horz, nbf='auto', basis_dir='.', verbose=
       - n_vert, n_horz:
             integer: Abel inverse transform will be performed on a `n_vert x n_horz` area of the image
       - nbf: 
-            integer or list: number of basis functions. If nbf='auto', it is set to n//2 + 1.
+            integer or list: number of basis functions. If nbf='auto', n_horz is set to n//2 + 1.
       - basis_dir : path to the directory for saving / loading the basis set coefficients. If None, the basis sets will not be saved to disk. 
 
     Returns:
@@ -400,7 +403,7 @@ def get_bs_basex_cached_asym(n_vert, n_horz, nbf='auto', basis_dir='.', verbose=
             try:
                 M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, M_version  = np.load(path_to_basis_file)
             except ValueError:
-                raise
+                raise print("Cached basis file incompatible. Please delete the saved basis file and try again.")
 
     if M_horz is None: # generate the basis set
         if verbose:
@@ -542,7 +545,7 @@ def _bs_basex_asym(n_vert=1001, n_horz = 501,
     Parameters:
     -----------
       n_vert : integer : Vertical dimensions of the image in pixels. 
-      n_horz : integer : Horizontal dimensions of the image in pixels. Must be odd.
+      n_horz : integer : Horizontal dimensions of the image in pixels. Must be odd. See https://github.com/PyAbel/PyAbel/issues/34
       nbf_vert : integer : Number of basis functions in the z-direction. Must be less than or equal (default) to n_vert 
       nbf_horz: integer: Number of basis functions in the x-direction. Must be less than or equal (default) to n_horz//2 + 1
 
@@ -557,7 +560,7 @@ def _bs_basex_asym(n_vert=1001, n_horz = 501,
     if nbf_horz > n_horz//2 + 1:
         raise ValueError('The number of horizontal basis functions (nbf_horz) cannot be greater than n_horz//2 + 1')
 
-    if n_vert < nbf_vert:
+    if nbf_vert > n_vert:
         raise ValueError('The number of vertical basis functions (nbf_vert) cannot be greater than the number of vertical pixels (n_vert).')
 
     Rm_h = n_horz//2 + 1
