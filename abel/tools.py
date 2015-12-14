@@ -135,10 +135,11 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
 
     c_im = np.copy(data) # make a copy of the original data for manipulation
     data_vert, data_horz = c_im.shape
+    pad_mode = str("constant")
 
     if data_horz % 2 == 0:
         # Add column of zeros to the extreme right to give data array odd columns
-        c_im = np.lib.pad(c_im, ((0,0),(0,1)), 'constant', constant_values=0)
+        c_im = np.pad(c_im, ((0,0),(0,1)), pad_mode, constant_values=0)
         data_vert, data_horz = c_im.shape # update data dimensions
 
     delta_h = int(center_column - data_horz//2)
@@ -146,12 +147,12 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
         if delta_h < 0: 
             # Specified center is to the left of nominal center
             # Add compensating zeroes on the left edge
-            c_im = np.lib.pad(c_im, ((0,0),(2*np.abs(delta_h),0)), 'constant', constant_values=0)
+            c_im = np.pad(c_im, ((0,0),(2*np.abs(delta_h),0)), pad_mode, constant_values=0)
             data_vert, data_horz = c_im.shape
         else:
             # Specified center is to the right of nominal center
             # Add compensating zeros on the right edge
-            c_im = np.lib.pad(c_im, ((0,0),(0,2*delta_h)), 'constant', constant_values=0)
+            c_im = np.pad(c_im, ((0,0),(0,2*delta_h)), pad_mode, constant_values=0)
             data_vert, data_horz = c_im.shape
 
     if n_vert >= data_vert and n_horz >= data_horz:
@@ -159,7 +160,8 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
         pad_down = n_vert - data_vert - pad_up
         pad_left = (n_horz - data_horz)//2
         pad_right = n_horz - data_horz - pad_left
-        c_im = np.lib.pad(c_im, ((pad_up,pad_down), (pad_left,pad_right)), 'constant', constant_values=0)
+
+        c_im = np.pad(c_im, ((pad_up,pad_down), (pad_left,pad_right)), pad_mode, constant_values=0)
 
     elif n_vert >= data_vert and n_horz < data_horz:
         pad_up = (n_vert - data_vert)//2
@@ -168,7 +170,7 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
         crop_right = data_horz - n_horz - crop_left
         if verbose:
             print("Warning: cropping %d pixels from the sides of the image" %crop_left)
-        c_im = np.lib.pad(c_im[:,crop_left:-crop_right], ((pad_up, pad_down), (0,0)), 'constant', constant_values=0)
+        c_im = np.pad(c_im[:,crop_left:-crop_right], ((pad_up, pad_down), (0,0)), pad_mode, constant_values=0)
 
     elif n_vert < data_vert and n_horz >= data_horz:
         crop_up = (data_vert - n_vert)//2
@@ -177,7 +179,7 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
         pad_right = n_horz - data_horz - pad_left
         if verbose:
             print("Warning: cropping %d pixels from top and bottom of the image" %crop_up)
-        c_im = np.lib.pad(c_im[crop_up:-crop_down], ((0,0), (pad_left, pad_right)), 'constant', constant_values=0)
+        c_im = np.pad(c_im[crop_up:-crop_down], ((0,0), (pad_left, pad_right)), pad_mode, constant_values=0)
 
     elif n_vert < data_vert and n_horz < data_horz:
         crop_up = (data_vert - n_vert)//2
