@@ -10,7 +10,7 @@ from .math import gradient
 from .tools import CythonExtensionsNotBuilt_msg
 
 try:
-    from .lib.direct import _cabel_integrate, _cabel_integrate_naive
+    from .lib.direct import _cabel_direct_integral
 except (ImportError, UnicodeDecodeError):
     raise CythonExtensionsNotBuilt_msg
 
@@ -26,20 +26,8 @@ except (ImportError, UnicodeDecodeError):
 ###########################################################################
 
 
-def iabel_direct(fr, dr=None, r=None, derivative=gradient, naive=False):
+_direct_doctsting = \
     """
-    Returns inverse Abel transform.
-
-    """
-    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=True,
-            naive=naive)
-
-
-def fabel_direct(fr, dr=None, r=None, naive=False):
-    """
-    Returns the direct Abel transform of a function
-    sampled at discrete points.
-
     This algorithm does a direct computation of the Abel transform:
       * integration near the singular value is done analytically
       * integration further from the singular value with the Simpson
@@ -51,14 +39,38 @@ def fabel_direct(fr, dr=None, r=None, naive=False):
         For a 2d array, the first dimension is assumed to be the z axis and
         the second the r axis.
     dr: float
-        space between samples
+        spatial mesh resolution           (optional, default to 1.0)
+    f : 1D ndarray with the spatial mesh  (optional)
+    derivative: a function that can return the derivative of the fr array with respect to r
+                (only used in the inverse Abel transform).
+    inverse: boolean
+        If True inverse Abel transform is applied, otherwise use a forward Abel transform.
+    correction: if False integration is performed with the Simpson rule,
+        the pixel where the weighting function has a singular value is ignored
+        if True in addition to the integration with the Simpson rule, integration near
+            the singular value is done analytically, assuming a piecewise linear data. 
 
     Returns
     out: 1d or 2d numpy array of the same shape as fr
         with either the direct or the inverse abel transform.
     """
-    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=False,
-            naive=naive)
+
+
+def iabel_direct(fr, dr=None, r=None, **args):
+    """
+    Returns the inverse Abel transform 
+
+    """
+    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=True, **args)
+
+
+def fabel_direct(fr, dr=None, r=None, **args):
+    """
+    Returns the direct Abel transform of a function
+    sampled at discrete points.
+
+    """
+    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=False, **args)
 
 
 def _construct_r_grid(n, dr=None, r=None):
@@ -85,35 +97,11 @@ def _construct_r_grid(n, dr=None, r=None):
 
 
 def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
-                                derivative=gradient, naive=False):
+                                derivative=gradient, correction=True):
     """
     Returns the forward or the inverse Abel transform of a function
     sampled using direct integration.
 
-    This algorithm does a direct computation of the Abel transform:
-      * integration near the singular value is done analytically
-      * integration further from the singular value with the Simpson
-        rule.
-
-    Parameters:
-    fr:  1d or 2d numpy array
-        input array to which direct/inversed Abel transform will be applied.
-        For a 2d array, the first dimension is assumed to be the z axis and
-        the second the r axis.
-    dr: float
-        spatial mesh resolution           (optional, default to 1.0)
-    f : 1D ndarray with the spatial mesh  (optional)
-    derivative: a function that can return the derivative of the fr array with respect to r
-    inverse: boolean
-        If True inverse Abel transform is applied, otherwise use a forward Abel transform.
-    naive: if True integration is performed with the Simpson rule,
-           the pixel where the weighting function has a singular value is ignored
-           if False, in addition to the integration with the Simpson rule, integration near
-               the singular value is done analytically, assuming a piecewise linear data. 
-
-    Returns
-    out: 1d or 2d numpy array of the same shape as fr
-        with either the direct or the inverse abel transform.
     """
     f = np.atleast_2d(fr.copy())
 
@@ -126,7 +114,6 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
         #f[:,0] = 0
 
 
-
     if inverse:
         f *= - 1./np.pi
     else:
@@ -134,16 +121,18 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
 
     f = np.asarray(f, order='C', dtype='float64')
 
-    if not naive:
-        out = _cabel_integrate(f, r)
-    else:
-        out = _cabel_integrate_naive(f, r)
-
+    out = _cabel_direct_integral(f, r, int(correction))
 
     if f.shape[0] == 1:
         return out[0]
     else:
         return out
+
+
+# append the same docstring to all functions
+iabel_direct.__doc__ += _direct_doctsting
+fabel_direct.__doc__ += _direct_doctsting
+_abel_transform_wrapper.__doc__ += _direct_doctsting
 
 
 def _abel_sym():
