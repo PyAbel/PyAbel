@@ -175,7 +175,9 @@ def index_coords(data, origin=None):
         origin_x, origin_y = nx // 2, ny // 2
     else:
         origin_x, origin_y = origin
-    x, y = np.meshgrid(np.arange(nx), np.arange(ny))
+    
+    x, y = np.meshgrid(np.arange(float(nx)), np.arange(float(ny)))
+    
     x -= origin_x
     y -= origin_y
     return x, y
