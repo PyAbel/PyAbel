@@ -67,8 +67,8 @@ def test_centering_function():
         assert_equal( is_symmetric(res), True,\
             'Validating the centering function for ni={}, n_c={}, n={}'.format(ni, n_c, n))
 
- def test_speeds_non_integer_center():  
-     # ensures that the rest speeds function can work with a non-integer center
-     n  = 101
-     IM = np.random.randn(n, n)
-     calculate_speeds(IM, origin=(50.5, 50.5))
+def test_speeds_non_integer_center():  
+    # ensures that the rest speeds function can work with a non-integer center
+    n  = 101
+    IM = np.random.randn(n, n)
+    calculate_speeds(IM, origin=(50.5, 50.5))
