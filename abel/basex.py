@@ -140,15 +140,15 @@ def BASEX(data, center, n,
 
     else: # No vertical symmetry
         if type(center) == tuple: cx, cy = center
-        elif type(center) == int: cx = int(center)
+        elif type(center) == int: cx = center
         else: raise ValueError("Center specified incorrectly. Must be tuple (x,y) or integer (column)")
 
-        image = center_image_asym(data, center_column = cx, n_vert = n[0], n_horz = n[1], verbose)
+        image = center_image_asym(data, center_column = cx, n_vert = n[0], n_horz = n[1], verbose = verbose)
 
         if verbose:
             t1 = time()
 
-        M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right = get_bs_basex_cached_asym(n_vert = n[0], n_horz = n[1], nbf, basis_dir, verbose)
+        M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right = get_bs_basex_cached_asym(n_vert = n[0], n_horz = n[1], nbf = nbf, basis_dir = basis_dir, verbose = verbose)
 
         if verbose:
             print('{:.2f} seconds'.format((time() - t1)))
