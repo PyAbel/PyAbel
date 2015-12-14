@@ -209,7 +209,8 @@ def basex_transform(rawdata, M, Mc, M_left, M_right, dr=1.0):
     # see https://github.com/PyAbel/PyAbel/issues/4
     # When nbf = n//2, we need the MAGIC_NUMBER = 8.053
     # When nbf = n//2 + 1, see below,
-    MAGIC_NUMBER = 1.1122 
+    MAGIC_NUMBER = 1.1122244156826457 
+    # MAGIC_NUMBER = 8.053 
     IM *= MAGIC_NUMBER/dr
 
     return IM
