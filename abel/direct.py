@@ -59,6 +59,23 @@ _direct_doctsting = \
     """
 
 
+def simpson_rule_wrong(f, x=None, dx=None, axis=1, **args):
+   """
+   This function computes the Simpson rule
+      https://en.wikipedia.org/wiki/Simpson%27s_rule#Python
+   both in the cases of odd and even intervals which is not technically valid
+   """
+   if x is not None:
+       raise NotImplementedError
+   if axis != 1:
+       raise NotImplementedError
+
+   res = f[:,0] + f[:,-1]
+   res += 2*f[:, 1:-1:2].sum(axis=axis)
+   res += 4*f[:, 2:-1:2].sum(axis=axis)
+   return res*dx/3
+
+
 def iabel_direct(fr, dr=None, r=None, **args):
     """
     Returns the inverse Abel transform 
@@ -101,7 +118,7 @@ def _construct_r_grid(n, dr=None, r=None):
 
 def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
                                 derivative=gradient,
-                                int_func=scipy.integrate.simps, 
+                                int_func=simpson_rule_wrong,
                                 correction=True, backend='C'):
     """
     Returns the forward or the inverse Abel transform of a function
@@ -151,7 +168,7 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
         return out
 
 
-def _pyabel_direct_integral(f, r, correction, int_func=scipy.integrate.simps):
+def _pyabel_direct_integral(f, r, correction, int_func=simpson_rule_wrong):
     """
     Calculation of the integral  used in Abel transform (both direct and inverse).
              ∞                  
@@ -171,13 +188,14 @@ def _pyabel_direct_integral(f, r, correction, int_func=scipy.integrate.simps):
     if correction not in [0, 1]:
         raise ValueError
 
+    if is_uniform_sampling(r):
+        int_opts = {'dx': abs(r[1] - r[0])}
+    else:
+        int_opts = {'x': r}
+
     N0 = f.shape[0]
     N1 = f.shape[1]
-    out = np.zeros((N0, N1))
-    I_sqrt = np.zeros((N1, N1))
-    I_isqrt = np.zeros((N1, N1))
-
-
+    out = np.zeros(f.shape)
     R, Y = np.meshgrid(r, r, indexing='ij')
     # the following 2 lines can be better written
     i_vect = np.arange(len(r), dtype=int)
@@ -192,9 +210,7 @@ def _pyabel_direct_integral(f, r, correction, int_func=scipy.integrate.simps):
 
     for i, row in enumerate(f): # loop over rows (z)
         P = row[None,:] * I_isqrt # set up the integral
-        res = int_func(P, r, axis=1) # take the integral
-
-        out[i, :] = res
+        out[i, :] =  int_func(P, axis=1, **int_opts) # take the integral
     #=========================================================================#
     #         Compute the correction
     # Pre-calculated analytical integration of the cell with the singular value
@@ -245,6 +261,8 @@ def _abel_sym():
     res = integrate(P*K_d, (r,y, r1))
     sres= simplify(res)
     print(sres)
+
+
 
 
 def reflect_array(x, axis=1, kind='even'):

@@ -9,7 +9,7 @@ from abel.analytical import GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
 from abel.tools import CythonExtensionsNotBuilt
 from unittest.case import SkipTest
-from abel.direct import fabel_direct, iabel_direct, cython_ext
+from abel.direct import fabel_direct, iabel_direct, cython_ext, simpson_rule_wrong
 import abel.direct
 
 
@@ -79,7 +79,6 @@ def test_direct_c_python_correspondance():
     out2 = abel.direct._cabel_direct_integral(x, r, 0)
     assert_allclose(out1, out2)
 
-
 def test_forward_direct_gaussian():
     """Check fabel_direct with a Gaussian"""
     if not cython_ext:
@@ -94,3 +93,16 @@ def test_forward_direct_gaussian():
     ratio = absolute_ratio_benchmark(ref, recon, kind='direct')
 
     assert_allclose(ratio, 1.0, rtol=7e-2, atol=0)
+
+
+def test_simps_wrong():
+    from scipy.integrate import simps
+    dx = 1.0
+    x = np.arange(32).reshape((1, -1))
+
+    res1 = simps(x, dx=dx)
+    res2 = simpson_rule_wrong(x, dx=dx)
+    assert_allclose(res1, res2, rtol=0.001)
+
+
+
