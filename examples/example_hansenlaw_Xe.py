@@ -10,9 +10,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from abel.hansenlaw import *
-from abel.io import load_raw
+from abel.tools import center_image
 import scipy.misc
-from scipy.ndimage.interpolation import shift
 
 # This example demonstrates Hansen and Law inverse Abel transform
 # of an image obtained using a velocity map imaging (VMI) photoelecton 
@@ -31,7 +30,8 @@ from scipy.ndimage.interpolation import shift
 #   + ---+----+
 
 # Specify the path to the file
-filename = 'data/O2-ANU1024.txt.bz2'
+#filename = 'data/O2-ANU1024.txt.bz2'
+filename = 'data/Xenon_ATI_VMI_800_nm_649x519.tif'
 
 # Name the output files
 name = filename.split('.')[0].split('/')[1]
@@ -41,21 +41,18 @@ output_plot  = name + '_comparison_HansenLaw.pdf'
 
 # Step 1: Load an image file as a numpy array
 print('Loading ' + filename)
-im = np.loadtxt(filename)
+#im = np.loadtxt(filename)
+im = plt.imread(filename)
 (rows,cols) = np.shape(im)
-if cols%2 != 1:  # even image shift centre to mid-pixel
-    print ("HL: even pixel image, re-adjust image centre")
-    print ("HL: shift(im,(-0.5,-0.5))")
-    imx = shift(im,(-0.5,-0.5))
-    im  = imx[:-1,1:]  # drop first column, last row 
-(rows,cols) = np.shape(im)
-c2 = cols//2   # half-image
 print ('image size {:d}x{:d}'.format(rows,cols))
+
+im = center_image (im,(340,245),n=rows)
 
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
 recon, speeds = iabel_hansenlaw (im,calc_speeds=True,verbose=True)
+
 
 # save the transform in 8-bit format:
 scipy.misc.imsave(output_image,recon)
@@ -79,7 +76,7 @@ ax1.set_ylabel('y (pixels)')
 ax1.set_title('velocity map image')
 
 # Plot the 2D transform
-im2 = ax2.imshow(recon,origin='lower',aspect='auto',vmin=0,vmax=recon[:c2-50,:c2-50].max())
+im2 = ax2.imshow(recon,origin='lower',aspect='auto')
 fig.colorbar(im2,ax=ax2,fraction=.1,shrink=0.9,pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
@@ -87,10 +84,10 @@ ax2.set_title('Hansen Law inverse Abel')
 
 # Plot the 1D speed distribution
 ax3.plot(speeds)
-ax3.axis(ymin=-50)
 ax3.set_xlabel('Speed (pixel)')
-ax3.set_ylabel('Intensity')
+ax3.set_ylabel('Yield (log)')
 ax3.set_title('Speed distribution')
+ax3.set_yscale('log')
 
 # Prettify the plot a little bit:
 plt.subplots_adjust(left=0.06,bottom=0.17,right=0.95,top=0.89,wspace=0.35,hspace=0.37)
