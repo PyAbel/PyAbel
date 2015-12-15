@@ -58,7 +58,7 @@ def BASEX(data, center, n,
             * list in format [n_vert, n_horz] - 
                 Abel inverse transform will be performed on a `n[0] x n[1]` area of the image
       - nbf: * integer - 
-                number of basis functions. If nbf='auto', it is set to n//2 + 1.
+                number of basis functions. If nbf='auto', it is set to (n//2 + 1).
              * list in format [nbf_vert, nbf_horz] -
                 If nbf='auto', it is set to [n_vert, n_horz//2 + 1]
       - center: * integer - 
@@ -280,7 +280,7 @@ def _nbf_default(n, nbf):
         nbf = n//2 + 1
     else:
         if nbf != n//2 +1:
-            print('Warning: the number of basis functions nbf = {} != (n-1)/2 = {}\n'.format(n, nbf),
+            print('Warning: the number of basis functions nbf = {} != (n//2 + 1) = {}\n'.format(n, nbf),
                     '    This behaviour is currently not tested and should not be used\
                     unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
 
@@ -294,13 +294,13 @@ def _nbf_default_asym(n_vert, n_horz, nbf):
         nbf = [n_vert, n_horz//2 + 1]
     elif type(nbf) == int:
         if nbf != n_horz//2 +1:
-            print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf, n_horz//2 +1),
+            print('Warning: the number of basis functions nbf = {} != (n//2 + 1)  = {}\n'.format(nbf, n_horz//2 +1),
                     '    This behaviour is currently not tested and should not be used\
                     unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
         nbf = [nbf]*2 # Setting identical number of vert and horz functions
     elif type(nbf) == list:
         if nbf[-1] != n_horz//2 +1:
-            print('Warning: the number of basis functions nbf = {} != (n//2 +1) = {}\n'.format(nbf[-1], n_horz//2 +1),
+            print('Warning: the number of basis functions nbf = {} != (n//2 + 1) = {}\n'.format(nbf[-1], n_horz//2 +1),
                     '    This behaviour is currently not tested and should not be used\
                     unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
         if len(nbf) < 2: nbf = nbf*2 # In case user inputs [nbf] instead of [nbf_vert, nbf_horz]
@@ -320,7 +320,7 @@ def get_bs_basex_cached(n, nbf='auto', basis_dir='.', verbose=False):
     -----------
       - n : odd integer: Abel inverse transform will be performed on a `n x n`
         area of the image
-      - nbf: integer: number of basis functions. If nbf='auto', it is set to (n-1)/2.
+      - nbf: integer: number of basis functions. If nbf='auto', it is set to (n//2 + 1).
       - basis_dir : path to the directory for saving / loading the basis set coefficients.
                     If None, the basis sets will not be saved to disk. 
     """
@@ -380,7 +380,7 @@ def get_bs_basex_cached_asym(n_vert, n_horz, nbf='auto', basis_dir='.', verbose=
       - n_vert, n_horz:
             integer: Abel inverse transform will be performed on a `n_vert x n_horz` area of the image
       - nbf: 
-            integer or list: number of basis functions. If nbf='auto', n_horz is set to n//2 + 1.
+            integer or list: number of basis functions. If nbf='auto', n_horz is set to (n//2 + 1).
       - basis_dir : path to the directory for saving / loading the basis set coefficients. If None, the basis sets will not be saved to disk. 
 
     Returns:
@@ -442,13 +442,13 @@ def generate_basis_sets(n, nbf='auto', verbose=False):
     See original Matlab program here:
     https://github.com/PyAbel/PyAbelLegacy/tree/master/Matlab
     
-    Typically, the number of basis functions will be (n-1)/2
+    Typically, the number of basis functions will be (n//2 + 1)
     so that each pixel in the image is represented by its own basis function.
 
     Parameters:
     -----------
       n : integer : size of the basis set (pixels)
-      nbf: integer: number of basis functions. If nbf='auto', it is set to (n-1)/2.
+      nbf: integer: number of basis functions. If nbf='auto', it is set to (n//2 + 1).
       verbose: bool: print progress 
 
     Returns:
