@@ -78,10 +78,13 @@ def iabel_hansenlaw_transform(img):
                                     [ ]...[ ][ ]
                                      :     :  : 
                                     [ ]...[ ][ ]
+        Returns:
+        --------
+          - Aimg: a rows x cols numpy array, inverse Abel transformed image
     """
     img  = np.atleast_2d(img)
     N    = np.shape(img)  # shape of quadrant (half) in this case N = n/2
-    AImg = np.zeros(N)    # inverse Abel transformed image
+    Aimg = np.zeros(N)    # inverse Abel transformed image
 
     nrows,ncols = N      # number of rows, number of columns
 
@@ -112,14 +115,14 @@ def iabel_hansenlaw_transform(img):
         for k in range(K): # Iterate over k, the eigenvectors?
             X[:,k] = pow(Nm,lam[k])*X[:,k] + h[k]*Gamma(Nm,lam[k])*gp[:,col] # Eq. (17)            
             
-        AImg[:,col] = X.sum(axis=1)
+        Aimg[:,col] = X.sum(axis=1)
 
-    AImg[:,ncols-1] = AImg[:,ncols-2]  # special case for the center pixel
+    Aimg[:,ncols-1] = Aimg[:,ncols-2]  # special case for the center pixel
     
-    return -AImg
+    return -Aimg*np.pi     # scaling pi/delta(=1)
 # ---- end iabel_hansenlaw_transform ----
 
-def iabel_hansenlaw(img, calc_speeds=True, verbose=True):
+def iabel_hansenlaw(img, calc_speeds=False, verbose=False):
     """
     Helper function: 
       - split image into two halves
@@ -144,14 +147,14 @@ def iabel_hansenlaw(img, calc_speeds=True, verbose=True):
                       " image size {:d}x{:d}".format(rows,cols))
 
     t0=time()
-    # slit image into left-half, right-half
+    # split image into left-half, right-half
     Hleft  = img[:,:midcol+1]  # include centre-line column
     Hright = img[:,midcol:]    # with centre line, flipped
 
     Aleft  = iabel_hansenlaw_transform(Hleft)
     Aright = iabel_hansenlaw_transform(Hright[:,::-1])[:,::-1] # flipped
 
-    # reassemble image
+    # reassemble image removing duplicate centre column
     Aimg = np.concatenate ((Aleft,Aright[:,1:]),axis=1)
 
     verboseprint ("{:.2f} seconds".format(time()-t0))
@@ -168,7 +171,7 @@ def iabel_hansenlaw(img, calc_speeds=True, verbose=True):
         return Aimg
 
 
-def iabel_hansenlaw_symmetric (img, use_quadrants=(True,True,True,True), vertical_symmetry=True, horizontal_symmetry=True, calc_speeds=True, verbose=True):
+def iabel_hansenlaw_symmetric (img, use_quadrants=(True,True,True,True), vertical_symmetry=True, horizontal_symmetry=True, calc_speeds=False, verbose=False):
     """ Helper function for Hansen Law inverse Abel transform.
         
         Exploit image symmetry - select quadrants, combine to improve 

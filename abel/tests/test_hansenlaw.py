@@ -32,19 +32,16 @@ def test_hansenlaw_zeros():
 
 def test_hansenlaw_gaussian():
     """Check a gaussian solution for HansenLaw"""
-    n = 51
-    r_max = 25
+    n = 1001   # better with a larger number of points
+    r_max = 501
 
-    ref = GaussianAnalytical(n, r_max, symmetric=True,  sigma=10)
+    ref = GaussianAnalytical(n, r_max, symmetric=True,  sigma=200)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
 
-    recon = iabel_hansenlaw(tr, calc_speeds=False, verbose=False)
-    recon1d = recon[n//2 + n%2]
+    recon = iabel_hansenlaw(tr)
+    recon1d = recon[n//2 + n%2]  # centre row
 
     ratio = absolute_ratio_benchmark(ref, recon1d)
 
-    # this only passes with a relative tolerance of 0.35, someone would
-    # need to look into it.
-    assert_allclose(ratio,  1.0, rtol=0.35, atol=0)
-
+    assert_allclose(ratio,  1.0, rtol=0.1, atol=0)
