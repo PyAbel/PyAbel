@@ -15,7 +15,7 @@ import scipy.misc
 from scipy.ndimage.interpolation import shift
 
 # This example demonstrates Hansen and Law inverse Abel transform
-# exploiting image symmetry iabel_hansenlaw_symmetric ()
+# exploiting image symmetry options in iabel_hansenlaw ()
 #
 #
 # The velocity-map image is a photoelecton spectrum of O2- photodetachement 
@@ -56,7 +56,7 @@ print ('image size {:d}x{:d}'.format(rows,cols))
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon, speeds = iabel_hansenlaw_symmetric (im,use_quadrants=(True,True,True,True),vertical_symmetry=True,horizontal_symmetry=True,calc_speeds=True,verbose=True)
+recon, speeds = iabel_hansenlaw (im,use_quadrants=(True,True,True,True),vertical_symmetry=True,horizontal_symmetry=True,calc_speeds=True,verbose=True)
 
 # save the transform in 8-bit format:
 scipy.misc.imsave(output_image,recon)
