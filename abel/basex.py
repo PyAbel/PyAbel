@@ -44,7 +44,7 @@ from .tools import calculate_speeds, center_image, center_image_asym
 
 
 def BASEX(data, center, n, 
-        nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=False, dr=1.0, verbose=True):
+        nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=True, dr=1.0, verbose=True):
 
     """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
         and (optionally) calculates the radial integration of the image (calc_speeds)
