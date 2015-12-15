@@ -164,7 +164,7 @@ def BASEX(data, center, n,
             print('%.2f seconds' % (time() - t1))
 
         if data_ndim == 1:
-            recon = recon[0, :] # taking one row, since they are all the same anyway
+            recon = recon[recon.shape[0] - recon.shape[0]//2 - 1] # taking the middle row, since the rest are zeroes
 
         # -------------------------------------------------
         # asymmetric speeds calculation not implemented yet
