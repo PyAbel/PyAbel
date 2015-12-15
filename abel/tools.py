@@ -62,7 +62,7 @@ def get_image_quadrants(img, reorient=False):
 
     return Q0, Q1, Q2, Q3
 
-def put_image_quadrants (Q,odd_size=False):
+def put_image_quadrants (Q,odd_size=True):
     """
     Reassemble image from 4 quadrants Q = (Q0, Q1, Q2, Q3)
     The reverse process to get_image_quadrants()

@@ -55,7 +55,7 @@ print ('image size {:d}x{:d}'.format(rows,cols))
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon, speeds = iabel_hansenlaw (im,calc_speeds=True,verbose=True)
+recon, speeds = iabel_hansenlaw (im,use_quadrants=(True,True,True,True),vertical_symmetry=False,horizontal_symmetry=False,calc_speeds=True,verbose=True)
 
 # save the transform in 8-bit format:
 scipy.misc.imsave(output_image,recon)
