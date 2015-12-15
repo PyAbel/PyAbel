@@ -124,7 +124,7 @@ def iabel_hansenlaw_transform(img):
 # ---- end iabel_hansenlaw_transform ----
 
 
-def iabel_hansenlaw (img, use_quadrants=(False,False,False,False), 
+def iabel_hansenlaw (img, use_quadrants=(True,True,True,True), 
                      vertical_symmetry=False, horizontal_symmetry=False, 
                      calc_speeds=False, verbose=False):
     """ 
@@ -179,10 +179,13 @@ def iabel_hansenlaw (img, use_quadrants=(False,False,False,False),
             raise ValueError('Data must be 2-dimensional.'
                              'To transform a single row, use'
                              'iabel_hansenlaw_transform().')
+
+    rows,cols = np.shape(img)
+
+    if not np.any(use_quadrants):
+        verboseprint ("HL: Error: no image quadrants selected to use")
+        return np.zeros((rows,cols))
         
-
-    (rows,cols) = np.shape(img)
-
     verboseprint ("HL: Calculating inverse Abel transform:",
                       " image size {:d}x{:d}".format(rows,cols))
 
@@ -193,7 +196,9 @@ def iabel_hansenlaw (img, use_quadrants=(False,False,False,False),
 
     verboseprint ("HL: Calculating inverse Abel transform ... ")
 
-    if not vertical_symmetry and not horizontal_symmetry and use_quadrants.all():
+    if not vertical_symmetry and not horizontal_symmetry\
+                             and np.all(use_quadrants):
+        # individual quadrant inverse Abel transform
         AQ0 = iabel_hansenlaw_transform(Q0)
         AQ1 = iabel_hansenlaw_transform(Q1)
         AQ2 = iabel_hansenlaw_transform(Q2)
@@ -208,8 +213,7 @@ def iabel_hansenlaw (img, use_quadrants=(False,False,False,False),
             Q1 = Q2 = Q1*use_quadrants[1]+Q2*use_quadrants[2] 
             Q0 = Q3 = Q0*use_quadrants[0]+Q3*use_quadrants[3] 
 
-    
-        # HL inverse Abel transform for quadrant 0
+        # HL inverse Abel transform for quadrant 1
         AQ1 = iabel_hansenlaw_transform(Q1)  # all possibilities include Q1
 
         if vertical_symmetry:
@@ -221,7 +225,7 @@ def iabel_hansenlaw (img, use_quadrants=(False,False,False,False),
             AQ3 = AQ0 = iabel_hansenlaw_transform(Q0)
 
     # reassemble image
-    recon = put_image_quadrants ((AQ0,AQ1,AQ2,AQ3))
+    recon = put_image_quadrants ((AQ0,AQ1,AQ2,AQ3),odd_size=True)
 
     verboseprint ("{:.2f} seconds".format(time()-t0))
 
