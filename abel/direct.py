@@ -8,7 +8,6 @@ import numpy as np
 import scipy.integrate
 
 from .math import gradient
-from .tools import CythonExtensionsNotBuilt_msg
 
 try:
     from .lib.direct import _cabel_direct_integral
@@ -134,7 +133,7 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
                   '         Falling back to a pure Python backend...')
             backend = 'python'
         elif not is_uniform_sampling(r):
-            print('Warning: non uniform sampling is not supported by the C backend!\n'\
+            print('Warning: non uniform sampling is currently not supported by the C backend!\n'\
                   '         Falling back to a pure Python backend...')
             backend = 'python'
 
@@ -154,7 +153,7 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
 
 def _pyabel_direct_integral(f, r, correction, int_func=scipy.integrate.simps):
     """
-    Naive calculation of the integral  used in Abel transform (both direct and inverse).
+    Calculation of the integral  used in Abel transform (both direct and inverse).
              ∞                  
             ⌠                  
             ⎮      f(r)        
@@ -180,7 +179,10 @@ def _pyabel_direct_integral(f, r, correction, int_func=scipy.integrate.simps):
 
 
     R, Y = np.meshgrid(r, r, indexing='ij')
-    mask = Y > R
+    # the following 2 lines can be better written
+    i_vect = np.arange(len(r), dtype=int)
+    II, JJ = np.meshgrid(i_vect, i_vect, indexing='ij')
+    mask = (II < JJ )
 
     I_sqrt = np.zeros(R.shape)
     I_sqrt[mask] = np.sqrt((Y**2 - R**2)[mask])
@@ -202,9 +204,6 @@ def _pyabel_direct_integral(f, r, correction, int_func=scipy.integrate.simps):
     if correction == 1:
         # computing forward derivative of the data
         f_r = (f[:,1:] - f[:,:N1-1])/np.diff(r)[None, :]
-        # the following 2 lines can be better written
-        i_vect = np.arange(len(r), dtype=int)
-        II, JJ = np.meshgrid(i_vect, i_vect, indexing='ij')
 
         for i, row in enumerate(f): # loop over rows (z)
             out[i, :-1] += I_sqrt[II+1==JJ]*f_r[i] \

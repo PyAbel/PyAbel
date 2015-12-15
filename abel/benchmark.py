@@ -25,26 +25,22 @@ class AbelTiming(object):
         from .basex import get_basis_sets_cached, basex_transform
         from .hansenlaw import iabel_hansenlaw
         from timeit import Timer
-        try:
-            from .direct import fabel_direct, iabel_direct
-            cython_extensions = True
-        except CythonExtensionsNotBuilt:
-            cython_extensions = False
+        from .direct import fabel_direct, iabel_direct, cython_ext
 
 
         self.n = n
 
-        NREPEAT = 10
+        NREPEAT = 5
 
         res_fabel = {}
         res_iabel = {'BASEX':     {'bs': [], 'tr': []},
                'HansenLaw': {'tr': []}
                }
-        if cython_extensions:
-            res_fabel['direct'] = {'tr': []}
-            res_iabel['direct'] = {'tr': []}
-            res_fabel['direct-naive'] = {'tr': []}
-            res_iabel['direct-naive'] = {'tr': []}
+        res_fabel['direct_Python'] = {'tr': []}
+        res_iabel['direct_Python'] = {'tr': []}
+        if cython_ext:
+            res_fabel['direct_C'] = {'tr': []}
+            res_iabel['direct_C'] = {'tr': []}
 
         for ni in n:
             x = np.random.randn(ni,ni)
@@ -62,15 +58,15 @@ class AbelTiming(object):
             res_iabel['HansenLaw']['tr'].append(
                 Timer(lambda: iabel_hansenlaw(x, verbose=False)).timeit(number=NREPEAT)/NREPEAT)
 
-            if cython_extensions:
-                res_iabel['direct']['tr'].append(
-                    Timer(lambda: iabel_direct(x, naive=False)).timeit(number=NREPEAT)/NREPEAT)
-                res_fabel['direct']['tr'].append(
-                    Timer(lambda: fabel_direct(x, naive=False)).timeit(number=NREPEAT)/NREPEAT)
-                res_iabel['direct-naive']['tr'].append(
-                    Timer(lambda: iabel_direct(x, naive=True)).timeit(number=NREPEAT)/NREPEAT)
-                res_fabel['direct-naive']['tr'].append(
-                    Timer(lambda: fabel_direct(x, naive=True)).timeit(number=NREPEAT)/NREPEAT)
+            res_iabel['direct_Python']['tr'].append(
+                Timer(lambda: iabel_direct(x, correction=False, backend='Python')).timeit(number=NREPEAT)/NREPEAT)
+            res_fabel['direct_Python']['tr'].append(
+                Timer(lambda: fabel_direct(x, correction=False, backend='Python')).timeit(number=NREPEAT)/NREPEAT)
+            if cython_ext:
+                res_iabel['direct_C']['tr'].append(
+                    Timer(lambda: iabel_direct(x, correction=False, backend='C')).timeit(number=NREPEAT)/NREPEAT)
+                res_fabel['direct_C']['tr'].append(
+                    Timer(lambda: fabel_direct(x, correction=False, backend='C')).timeit(number=NREPEAT)/NREPEAT)
 
         self.fabel = res_fabel
         self.iabel = res_iabel

@@ -10,7 +10,7 @@ from libc.math cimport sqrt, acosh
 
 cpdef _cabel_direct_integral(double [:, ::1] f, double [::1] r, int correction):
     """
-    Naive calculation of the integral  used in Abel transform (both direct and inverse).
+    Calculation of the integral  used in Abel transform (both direct and inverse).
              ∞                  
             ⌠                  
             ⎮      f(r)        
