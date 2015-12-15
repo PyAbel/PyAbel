@@ -49,7 +49,7 @@ im = np.loadtxt(filename)
 (rows,cols) = np.shape(im)
 if cols%2 != 1:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
-           " shift(im,(-0.5,-0.5)")
+           " shift(im,(-0.5,-0.5))")
     imx = shift(im,(-0.5,-0.5))
     im  = imx[:-1,1:]  # drop left column, bottom row
     (rows,cols) = np.shape(im)
