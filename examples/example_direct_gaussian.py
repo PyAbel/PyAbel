@@ -26,17 +26,17 @@ ax[1].set_title('Inverse transform of a Gaussian')
 
 ax[0].plot(ref.r, ref.abel, 'b', label='Analytical transform')
 
-recon = fabel_direct(ref.func, dr=ref.dr, naive=False)
+recon = fabel_direct(ref.func, dr=ref.dr, correction=True, backend='C')
 ax[0].plot(ref.r, recon , '--o',c='red', label='direct')
-recon = fabel_direct(ref.func, dr=ref.dr, naive=True)
+recon = fabel_direct(ref.func, dr=ref.dr, correction=True, backend='Python')
 ax[0].plot(ref.r, recon , ':d', c='k', label='direct naive')
 
 
 ax[1].plot(ref.r, ref.func, 'b', label='Original function')
 
-recon = iabel_direct(ref.abel, dr=ref.dr, naive=False)
+recon = iabel_direct(ref.abel, dr=ref.dr, correction=True)
 ax[1].plot(ref.r, recon , '--o', c='red', label='direct')
-recon = iabel_direct(ref.abel, dr=ref.dr, naive=True)
+recon = iabel_direct(ref.abel, dr=ref.dr, correction=False)
 ax[1].plot(ref.r, recon , ':d', c='k', label='direct - naive')
 
 for axi in ax:

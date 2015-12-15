@@ -50,7 +50,7 @@ cpdef _cabel_direct_integral(double [:, ::1] f, double [::1] r, int correction):
                 I_isqrt[j,i] = 1./val
 
         for i in range(N0): # loop over rows (z)
-            for j in range(N1):  # loop over (r) elements
+            for j in range(N1 - 1):  # loop over (r) elements
                 s = 0
                 # Integrating with the Simpson rule the part of the
                 # integral that is numerically stable

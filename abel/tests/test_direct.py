@@ -9,17 +9,13 @@ from abel.analytical import GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
 from abel.tools import CythonExtensionsNotBuilt
 from unittest.case import SkipTest
-
-try:
-    from abel.direct import fabel_direct, iabel_direct
-    skip_tests = False
-except CythonExtensionsNotBuilt:
-    skip_tests = True
+from abel.direct import fabel_direct, iabel_direct, cython_ext
+import abel.direct
 
 
 
 def test_direct_shape():
-    if skip_tests:
+    if not cython_ext:
         raise SkipTest
     n = 21
     x = np.ones((n, n))
@@ -35,7 +31,7 @@ def test_direct_shape():
 
 def test_direct_zeros():
     # just a sanity check
-    if skip_tests:
+    if not cython_ext:
         raise SkipTest
     n = 64
     x = np.zeros((n,n))
@@ -46,7 +42,7 @@ def test_direct_zeros():
 
 def test_inverse_direct_gaussian():
     """Check iabel_direct with a Gaussian"""
-    if skip_tests:
+    if not cython_ext:
         raise SkipTest
     n = 51
     r_max = 25
@@ -60,9 +56,33 @@ def test_inverse_direct_gaussian():
     assert_allclose(ratio, 1.0, rtol=7e-2, atol=0)
 
 
+def test_direct_c_python_correspondance_wcorrection():
+    """ Check that both the C and Python backends are identical (correction=True)"""
+    if not cython_ext:
+        raise SkipTest
+    N = 10
+    r = 0.5 + np.arange(N).astype('float64') 
+    x = 2*r.reshape((1, -1))**2
+    out1 =  abel.direct._pyabel_direct_integral(x, r, 1)
+    out2 = abel.direct._cabel_direct_integral(x, r, 1)
+    assert_allclose(out1, out2)
+
+
+def test_direct_c_python_correspondance():
+    """ Check that both the C and Python backends are identical (correction=False)"""
+    if not cython_ext:
+        raise SkipTest
+    N = 10
+    r = 0.5 + np.arange(N).astype('float64')
+    x = 2*r.reshape((1, -1))**2
+    out1 = abel.direct._pyabel_direct_integral(x, r, 0)
+    out2 = abel.direct._cabel_direct_integral(x, r, 0)
+    assert_allclose(out1, out2)
+
+
 def test_forward_direct_gaussian():
     """Check fabel_direct with a Gaussian"""
-    if skip_tests:
+    if not cython_ext:
         raise SkipTest
     n = 51
     r_max = 25

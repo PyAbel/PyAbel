@@ -5,14 +5,16 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+import scipy.integrate
 
 from .math import gradient
 from .tools import CythonExtensionsNotBuilt_msg
 
 try:
     from .lib.direct import _cabel_direct_integral
+    cython_ext = True
 except (ImportError, UnicodeDecodeError):
-    raise CythonExtensionsNotBuilt_msg
+    cython_ext = False
 
 
 ###########################################################################
@@ -20,9 +22,11 @@ except (ImportError, UnicodeDecodeError):
 # numerical integration
 #
 # Roman Yurchak - Laboratoire LULI, Ecole Polytechnique/CNRS/CEA, France
-#
-# 2012: First implementation in hedp.math.abel
-# 2015: Moved to PyAbel, added more unit tests, reorganized code base
+# 
+# 12.2015: Added a pure python implementation following a dissuasion
+#                                                     with Dan Hickstein
+# 11.2015: Moved to PyAbel, added more unit tests, reorganized code base
+#    2012: First implementation in hedp.math.abel
 ###########################################################################
 
 
@@ -97,12 +101,17 @@ def _construct_r_grid(n, dr=None, r=None):
 
 
 def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
-                                derivative=gradient, correction=True):
+                                derivative=gradient,
+                                int_func=scipy.integrate.simps, 
+                                correction=True, backend='C'):
     """
     Returns the forward or the inverse Abel transform of a function
     sampled using direct integration.
 
     """
+    backend = backend.lower()
+    if backend not in ['c', 'python']:
+        raise ValueError
     f = np.atleast_2d(fr.copy())
 
     r, dr = _construct_r_grid(f.shape[1], dr=dr, r=r)
@@ -117,11 +126,25 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
     if inverse:
         f *= - 1./np.pi
     else:
-        f *= 2*r
+        f *= 2*r[None, :]
+
+    if backend == 'c':
+        if not cython_ext:
+            print('Warning: Cython extensions were not built, the C backend is not available!\n'\
+                  '         Falling back to a pure Python backend...')
+            backend = 'python'
+        elif not is_uniform_sampling(r):
+            print('Warning: non uniform sampling is not supported by the C backend!\n'\
+                  '         Falling back to a pure Python backend...')
+            backend = 'python'
+
 
     f = np.asarray(f, order='C', dtype='float64')
+    if backend == 'c':
+        out = _cabel_direct_integral(f, r, int(correction))
+    else:
+        out = _pyabel_direct_integral(f, r, int(correction), int_func)
 
-    out = _cabel_direct_integral(f, r, int(correction))
 
     if f.shape[0] == 1:
         return out[0]
@@ -129,10 +152,79 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
         return out
 
 
+def _pyabel_direct_integral(f, r, correction, int_func=scipy.integrate.simps):
+    """
+    Naive calculation of the integral  used in Abel transform (both direct and inverse).
+             ∞                  
+            ⌠                  
+            ⎮      f(r)        
+            ⎮ ────────────── dr
+            ⎮    ___________   
+            ⎮   ╱  2   2     
+            ⎮ ╲╱  y - r      
+            ⌡                  
+            y
+    Returns:
+    --------
+    np.array: of the same shape as f with the integral evaluated at r
+
+    """
+    if correction not in [0, 1]:
+        raise ValueError
+
+    N0 = f.shape[0]
+    N1 = f.shape[1]
+    out = np.zeros((N0, N1))
+    I_sqrt = np.zeros((N1, N1))
+    I_isqrt = np.zeros((N1, N1))
+
+
+    R, Y = np.meshgrid(r, r, indexing='ij')
+    mask = Y > R
+
+    I_sqrt = np.zeros(R.shape)
+    I_sqrt[mask] = np.sqrt((Y**2 - R**2)[mask])
+
+    I_isqrt = np.zeros(R.shape)
+    I_isqrt[mask] = 1./I_sqrt[mask]
+
+    for i, row in enumerate(f): # loop over rows (z)
+        P = row[None,:] * I_isqrt # set up the integral
+        res = int_func(P, r, axis=1) # take the integral
+
+        out[i, :] = res
+    #=========================================================================#
+    #         Compute the correction
+    # Pre-calculated analytical integration of the cell with the singular value
+    # Assuming a piecewise linear behaviour of the data
+    #     c0*acosh(r1/y) - c_r*y*acosh(r1/y) + c_r*sqrt(r1**2 - y**2)
+    #=========================================================================#
+    if correction == 1:
+        # computing forward derivative of the data
+        f_r = (f[:,1:] - f[:,:N1-1])/np.diff(r)[None, :]
+        # the following 2 lines can be better written
+        i_vect = np.arange(len(r), dtype=int)
+        II, JJ = np.meshgrid(i_vect, i_vect, indexing='ij')
+
+        for i, row in enumerate(f): # loop over rows (z)
+            out[i, :-1] += I_sqrt[II+1==JJ]*f_r[i] \
+                    + np.arccosh(r[1:]/r[:-1])*(row[:-1] - f_r[i]*r[:-1])
+
+    return out
+
+
+
+
 # append the same docstring to all functions
 iabel_direct.__doc__ += _direct_doctsting
 fabel_direct.__doc__ += _direct_doctsting
 _abel_transform_wrapper.__doc__ += _direct_doctsting
+
+
+def is_uniform_sampling(r):
+    dr = np.diff(r)
+    ddr = np.diff(dr)
+    return np.allclose(ddr, 0, atol=1e-13)
 
 
 def _abel_sym():
