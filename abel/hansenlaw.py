@@ -34,39 +34,13 @@ from abel.tools import calculate_speeds, get_image_quadrants,\
 ###########################################################################
 
 def fabel_hansenlaw_transform(img):
-    img  = np.atleast_2d(img)
-    N    = np.shape(img)  # shape of quadrant (or half) 
-    Aimg = np.zeros(N)    # forward Abel transform image
-
-    rows,cols = N     
-
-    # constants listed in Table 1.
-    h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
-    lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
-
-    # Eq. (16c)            
-    def Gamma(Nm, lam, N, n):   
-        Nn1 = N - n - 1
-        return 2*Nn1*(1-pow(Nm,(lam+1)))/(lam+1)
-
-    K = np.size(h)
-    X = np.zeros((rows,K))
-
-    # iterate along columns, starting outer edge (left side) toward image center
-    for col in range(cols-1):       
-        Nm = (cols-col)/(cols-col-1)    # R0/R 
-        
-        for k in range(K): # Iterate over k, the eigenvectors?
-            X[:,k] = pow(Nm,lam[k])*X[:,k] + \
-                     h[k]*Gamma(Nm,lam[k],cols,col)*img[:,col] # Eq. (15)            
-        Aimg[:,col] = X.sum(axis=1)
-
-    Aimg[:,cols-1] = Aimg[:,cols-2]  # special case for the center pixel
-
-    return -Aimg[::-1]  # for some reason, needs flip, scaling *delta(=1)
+    return abel_hansenlaw_transform (img,forward=True)[::-1]  # needs flip
 
 def iabel_hansenlaw_transform(img):
-    """ Inverse Abel transformation using the algorithm of: 
+    return abel_hansenlaw_transform (img,forward=False)*np.pi  # scaling
+
+def abel_hansenlaw_transform(img,forward=True):
+    """ Forward/Inverse Abel transformation using the algorithm of: 
         Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).
                         
                        ∞                
@@ -112,7 +86,7 @@ def iabel_hansenlaw_transform(img):
                                     [ ]...[ ][ ]
         Returns:
         --------
-          - Aimg: a rows x cols numpy array, inverse Abel transformed image
+          - Aimg: a rows x cols numpy array, forward/inverse Abel transform image
     """
     img  = np.atleast_2d(img)
     N    = np.shape(img)  # shape of quadrant (half) 
@@ -124,8 +98,12 @@ def iabel_hansenlaw_transform(img):
     h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
     lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
 
+    # Eq. (16c)            
+    def fGamma(Nm, lam, N, n):   
+        Nn1 = N - n - 1
+        return 2*Nn1*(1-pow(Nm,(lam+1)))/(lam+1)
     # Eq. (18)            
-    def Gamma(Nm, lam):   
+    def iGamma(Nm, lam, N, n):   
         if lam < -1:
             return (1.0-pow(Nm,lam))/(pi*lam)
         else:
@@ -134,26 +112,35 @@ def iabel_hansenlaw_transform(img):
     K = np.size(h)
     X = np.zeros((rows,K))
 
-    # g' - derivative of the intensity profile
-    if rows>1:
-        gp = np.gradient(img)[1]  # second element is gradient along the columns
-    else: # If there is only one row
-        gp = np.atleast_2d(np.gradient(img[0]))
+    if not forward: 
+        # inverse transform
+        # g' - derivative of the intensity profile
+        Gamma = iGamma
+        if rows>1:
+            gp = np.gradient(img)[1]  # second element is gradient along the columns
+        else: # If there is only one row
+            gp = np.atleast_2d(np.gradient(img[0]))
+    else:
+      # forward transform
+      Gamma = fGamma
+      gp = img   
 
     # iterate along columns, starting outer edge (left side) toward image center
     for col in range(cols-1):       
         Nm = (cols-col)/(cols-col-1.0)    # R0/R 
         
         for k in range(K): # Iterate over k, the eigenvectors?
-            X[:,k] = pow(Nm,lam[k])*X[:,k] + h[k]*Gamma(Nm,lam[k])*gp[:,col] # Eq. (17)            
+            X[:,k] = pow(Nm,lam[k])*X[:,k] +\
+                     h[k]*Gamma(Nm,lam[k],cols,col)*gp[:,col] # Eq. (15 or 17)            
             
         Aimg[:,col] = X.sum(axis=1)
 
     Aimg[:,cols-1] = Aimg[:,cols-2]  # special case for the center pixel
     
-    return -Aimg*np.pi     # scaling pi/delta(=1)
+    return -Aimg
 
-# ---- end iabel_hansenlaw_transform ----
+# ---- end abel_hansenlaw_transform ----
+
 
 def iabel_hansenlaw (img, use_quadrants=(True,True,True,True), 
                      vertical_symmetry=False, horizontal_symmetry=False, 
