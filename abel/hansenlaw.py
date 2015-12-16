@@ -58,7 +58,7 @@ def fabel_hansenlaw_transform(img):
         
         for k in range(K): # Iterate over k, the eigenvectors?
             X[:,k] = pow(Nm,lam[k])*X[:,k] + \
-                     h[k]*Gamma(Nm,lam[k],cols,col)*img[:,col] # Eq. (17)            
+                     h[k]*Gamma(Nm,lam[k],cols,col)*img[:,col] # Eq. (15)            
         Aimg[:,col] = X.sum(axis=1)
 
     Aimg[:,cols-1] = Aimg[:,cols-2]  # special case for the center pixel
