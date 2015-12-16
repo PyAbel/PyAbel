@@ -4,7 +4,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-#from numba import jit
 import numpy as np
 from time import time
 from math import exp, log, pow, pi
@@ -113,12 +112,10 @@ def abel_hansenlaw_transform(img, forward=True):
         else:
             return -np.log(Nm)/pi    
 
-    if forward: 
-        # forward transform
+    if forward: # forward transform
         Gamma = fGamma
         gp = img   
-    else:
-        # inverse transform
+    else: # inverse transform
         # g' - derivative of the intensity profile
         Gamma = iGamma
         if rows>1:
@@ -149,14 +146,15 @@ def abel_hansenlaw (img, use_quadrants=(True,True,True,True),
                     vertical_symmetry=False, horizontal_symmetry=False, 
                     calc_speeds=False, verbose=False, forward=False):
     """ 
-    Helper function for Hansen Law inverse Abel transform.
+    Helper function abel_hansenlaw_transfor()
+    Transforms the whole image
     
     Exploit image symmetry - select quadrants, combine to improve 
                              signal
 
     Parameters:
     ----------
-     - img: a rowsXcols numpy array
+     - img: a rows x cols numpy array
      - use_quadrants: boolean tuple, (Q0,Q1,Q2,Q3)
              +--------+--------+                
              | Q1   * | *   Q0 |
@@ -263,7 +261,8 @@ def abel_hansenlaw (img, use_quadrants=(True,True,True,True),
     else:
         return recon
 
-# functions to conform to naming conventions" contributing.md
+# functions to conform to naming conventions: contributing.md ------------
+
 def fabel_hansenlaw_transform(img):
     return abel_hansenlaw_transform(img, forward=True)
 
