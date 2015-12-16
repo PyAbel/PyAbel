@@ -80,11 +80,12 @@ def abel_hansenlaw_transform(img, forward=True):
                                     [ ]...[ ][ ]
                                      :     :  : 
                                     [ ]...[ ][ ]
-          - forward: boolean: True = forward Abel transform
-                              False = inverse Abel transform
+
+         - forward: boolean: True = forward Abel transform
+                             False = inverse Abel transform
         Returns:
         --------
-          - Aimg: a rows x cols numpy array, forward/inverse Abel transform image
+         - Aimg: a rows x cols numpy array, forward/inverse Abel transform image
     """
     img  = np.atleast_2d(img)  
     N    = np.shape(img)       # shape of input quadrant (half) 
@@ -137,7 +138,7 @@ def abel_hansenlaw_transform(img, forward=True):
     # special case for the center pixel
     Aimg[:,cols-1] = Aimg[:,cols-2]  
     
-    return -Aimg[::-1] if forward else -Aimg*np.pi  # flip(?) or scaling
+    return -Aimg if forward else -Aimg*np.pi  # scaling
 
     # ---- end abel_hansenlaw_transform ----
 
@@ -146,7 +147,7 @@ def abel_hansenlaw (img, use_quadrants=(True,True,True,True),
                     vertical_symmetry=False, horizontal_symmetry=False, 
                     calc_speeds=False, verbose=False, forward=False):
     """ 
-    Helper function abel_hansenlaw_transfor()
+    Helper function abel_hansenlaw_transform()
     Transforms the whole image
     
     Exploit image symmetry - select quadrants, combine to improve 
