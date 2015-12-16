@@ -15,7 +15,7 @@ except ImportError:
     build_ext = object # just avoid a syntax error in TryBuildExt, this is not used anyway
     print('='*80)
     print('Warning: Cython extensions will not be built as Cython is not installed!\n'\
-          '         This means that the abel.direct implementation will not be available.')
+          '         This means that the abel.direct C implementation will not be available.')
     print('='*80)
 
 
@@ -53,9 +53,9 @@ class TryBuildExt(build_ext):
             print("**************************************************")
             print("WARNING: Cython extensions failed to build (used in abel.direct).\n"
                   "Typical reasons for this problem are:\n"
-                  "  - the C compiler is not installed or not found\n"
+                  "  - a C compiler is not installed or not found\n"
                   "  - issues using mingw compiler on Windows 64bit (experimental support for now)\n"
-                  "This only means that the abel.direct implementation will not be available.\n")
+                  "This only means that the abel.direct C implementation will not be available.\n")
             print("**************************************************")
             # continue the install
             pass
@@ -80,8 +80,8 @@ else:
 
 setup(name='PyAbel',
       version=version,
-      description='A Python package for inverse Abel transforms',
-      author='Dan Hickstein',
+      description='A Python package for forward and inverse Abel transforms',
+      author='The PyAbel Team',
       packages=find_packages(),
       package_data={'abel': ['tests/data/*' ]},
       install_requires=[
