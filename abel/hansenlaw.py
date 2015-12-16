@@ -12,7 +12,7 @@ from abel.tools import calculate_speeds, get_image_quadrants,\
                        put_image_quadrants
 
 ###########################################################################
-# hasenlaw - a recursive method inverse Abel transformation algorithm 
+# hasenlaw - a recursive method forwrd/inverse Abel transform algorithm 
 #
 # Stephen Gibson - Australian National University, Australia
 # Jason Gascooke - Flinders University, Australia
@@ -32,6 +32,38 @@ from abel.tools import calculate_speeds, get_image_quadrants,\
 #             now all of the rows are calculated simultaneously, which provides
 #             the same result, but speeds up processing considerably.
 ###########################################################################
+
+def fabel_hansenlaw_transform(img):
+    img  = np.atleast_2d(img)
+    N    = np.shape(img)  # shape of quadrant (or half) 
+    Aimg = np.zeros(N)    # forward Abel transform image
+
+    rows,cols = N     
+
+    # constants listed in Table 1.
+    h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
+    lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
+
+    # Eq. (16c)            
+    def Gamma(Nm, lam, N, n):   
+        Nn1 = N - n - 1
+        return 2*Nn1*(1-pow(Nm,(lam+1)))/(lam+1)
+
+    K = np.size(h)
+    X = np.zeros((rows,K))
+
+    # iterate along columns, starting outer edge (left side) toward image center
+    for col in range(cols-1):       
+        Nm = (cols-col)/(cols-col-1)    # R0/R 
+        
+        for k in range(K): # Iterate over k, the eigenvectors?
+            X[:,k] = pow(Nm,lam[k])*X[:,k] + \
+                     h[k]*Gamma(Nm,lam[k],cols,col)*img[:,col] # Eq. (17)            
+        Aimg[:,col] = X.sum(axis=1)
+
+    Aimg[:,cols-1] = Aimg[:,cols-2]  # special case for the center pixel
+
+    return -Aimg[::-1]  # for some reason, needs flip, scaling *delta(=1)
 
 def iabel_hansenlaw_transform(img):
     """ Inverse Abel transformation using the algorithm of: 
@@ -60,7 +92,7 @@ def iabel_hansenlaw_transform(img):
         Parameters:
         ----------
          - img: a rows x cols numpy array = one quadrant (or half) of the image
-           |                               oriented top/left
+           |                                oriented top/left
            |     +--------+      --------+ 
            \=>   |      * |       *      |
                  |   *    |          *   |
@@ -83,46 +115,45 @@ def iabel_hansenlaw_transform(img):
           - Aimg: a rows x cols numpy array, inverse Abel transformed image
     """
     img  = np.atleast_2d(img)
-    N    = np.shape(img)  # shape of quadrant (half) in this case N = n/2
-    Aimg = np.zeros(N)    # inverse Abel transformed image
+    N    = np.shape(img)  # shape of quadrant (half) 
+    Aimg = np.zeros(N)    # inverse Abel transform image
 
-    nrows,ncols = N      # number of rows, number of columns
+    rows,cols = N 
 
     # constants listed in Table 1.
     h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
     lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
 
     # Eq. (18)            
-    def Gamma(Nm,lam):   
+    def Gamma(Nm, lam):   
         if lam < -1:
             return (1.0-pow(Nm,lam))/(pi*lam)
         else:
             return -np.log(Nm)/pi    
 
     K = np.size(h)
-    X = np.zeros((nrows,K))
+    X = np.zeros((rows,K))
 
     # g' - derivative of the intensity profile
-    if nrows>1:
+    if rows>1:
         gp = np.gradient(img)[1]  # second element is gradient along the columns
     else: # If there is only one row
         gp = np.atleast_2d(np.gradient(img[0]))
 
     # iterate along columns, starting outer edge (left side) toward image center
-    for col in range(ncols-1):       
-        Nm = (ncols-col)/(ncols-col-1.0)    # R0/R 
+    for col in range(cols-1):       
+        Nm = (cols-col)/(cols-col-1.0)    # R0/R 
         
         for k in range(K): # Iterate over k, the eigenvectors?
             X[:,k] = pow(Nm,lam[k])*X[:,k] + h[k]*Gamma(Nm,lam[k])*gp[:,col] # Eq. (17)            
             
         Aimg[:,col] = X.sum(axis=1)
 
-    Aimg[:,ncols-1] = Aimg[:,ncols-2]  # special case for the center pixel
+    Aimg[:,cols-1] = Aimg[:,cols-2]  # special case for the center pixel
     
     return -Aimg*np.pi     # scaling pi/delta(=1)
 
 # ---- end iabel_hansenlaw_transform ----
-
 
 def iabel_hansenlaw (img, use_quadrants=(True,True,True,True), 
                      vertical_symmetry=False, horizontal_symmetry=False, 
@@ -204,7 +235,7 @@ def iabel_hansenlaw (img, use_quadrants=(True,True,True,True),
         AQ2 = iabel_hansenlaw_transform(Q2)
         AQ3 = iabel_hansenlaw_transform(Q3)
 
-    else:
+    else:  # combine selected quadrants according to assumed symmetry
         if vertical_symmetry:   # co-add quadrants
             Q0 = Q1 = Q0*use_quadrants[0]+Q1*use_quadrants[1] 
             Q2 = Q3 = Q2*use_quadrants[2]+Q3*use_quadrants[3] 
