@@ -33,32 +33,35 @@ from abel.tools import calculate_speeds, get_image_quadrants,\
 #             the same result, but speeds up processing considerably.
 ################################################################################
 
-# see fabel, iabel functions at bottom
+_hansenlaw_header = \
+    """ 
+    Forward/Inverse Abel transformation using the algorithm of: 
+    Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).
+                    
+                   ∞                
+                   ⌠                
+               -1  ⎮   g'(R)     
+       f(r) =  ─── ⎮ ──────────── dR      Eq. (2a)
+                π  ⎮    _________   
+                   ⎮   ╱  2    2    
+                   ⎮ ╲╱  R  - r     
+                   ⌡                
+                   r                 
 
-def abel_hansenlaw_transform(img, forward=True):
-    """ Forward/Inverse Abel transformation using the algorithm of: 
-        Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).
-                        
-                       ∞                
-                       ⌠                
-                   -1  ⎮   g'(R)     
-           f(r) =  ─── ⎮ ──────────── dR      Eq. (2a)
-                    π  ⎮    _________   
-                       ⎮   ╱  2    2    
-                       ⎮ ╲╱  R  - r     
-                       ⌡                
-                       r                 
+    where f(r) = reconstructed image (source) function
+          g'(R) = derivative of the projection (measured) function
 
-        where f(r) = reconstructed image (source) function
-              g'(R) = derivative of the projection (measured) function
+    Evaluation via Eq. (15 or 17), using (16a), (16b), and (16c or 18)
 
-        Evaluation via Eq. (15 or 17), using (16a), (16b), and (16c or 18)
+    Recursion method proceeds from the outer edge of the image
+    toward the image centre (origin). i.e. when n=0, R=Rmax, and
+    when n=N-1, R=0. This fits well with processing the image one 
+    quadrant (or half) at a time.
 
-        Recursion method proceeds from the outer edge of the image
-        toward the image centre (origin). i.e. when n=0, R=Rmax, and
-        when n=N-1, R=0. This fits well with processing the image one 
-        quadrant (or half) at a time.
+    """
 
+_hansenlaw_transform_docstring = \
+    """
         Parameters:
         ----------
          - img: a rows x cols numpy array = one quadrant (or half) of the image
@@ -81,81 +84,25 @@ def abel_hansenlaw_transform(img, forward=True):
                                      :     :  : 
                                     [ ]...[ ][ ]
 
-         - forward: boolean: True = forward Abel transform
-                             False = inverse Abel transform
+         -  dr: float - sampling size (=1 for pixel images), 
+                        used for scaling result
+         - inverse: boolean: False = forward Abel transform
+                             True  = inverse Abel transform
         Returns:
         --------
          - Aimg: a rows x cols numpy array, forward/inverse Abel transform image
+
     """
-    img  = np.atleast_2d(img)  
-    N    = np.shape(img)       # shape of input quadrant (half) 
-    Aimg = np.zeros(N)         # forward/inverse Abel transform image
 
-    rows,cols = N 
-
-    # constants listed in Table 1.
-    h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
-    lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
-
-    K = np.size(h)
-    X = np.zeros((rows,K))
-
-    # Two alternative Gamma functions for forward/inverse transform
-    # Eq. (16c) used for the forward transform           
-    def fGamma(Nm, lam, N, n):   
-        Nn1 = N - n - 1
-        return 2*Nn1*(1-pow(Nm,(lam+1)))/(lam+1)
-
-    # Eq. (18) used for the inverse transform           
-    def iGamma(Nm, lam, N, n):   
-        if lam < -1:
-            return (1.0-pow(Nm,lam))/(pi*lam)
-        else:
-            return -np.log(Nm)/pi    
-
-    if forward: # forward transform
-        Gamma = fGamma
-        gp = img   
-    else: # inverse transform
-        # g' - derivative of the intensity profile
-        Gamma = iGamma
-        if rows>1:
-            gp = np.gradient(img)[1]  # second element is gradient along the columns
-        else: # If there is only one row
-            gp = np.atleast_2d(np.gradient(img[0]))
-
-    # ------ The Hansen and Law algorithm ------------
-    # iterate along columns, starting outer edge (left side) toward image center
-
-    for col in range(cols-1):       
-        Nm = (cols-col)/(cols-col-1.0)    # R0/R 
-        
-        for k in range(K): # Iterate over k, the eigenvectors?
-            X[:,k] = pow(Nm,lam[k])*X[:,k] +\
-                     h[k]*Gamma(Nm,lam[k],cols,col)*gp[:,col] # Eq. (15 or 17)            
-        Aimg[:,col] = X.sum(axis=1)
-
-    # special case for the center pixel
-    Aimg[:,cols-1] = Aimg[:,cols-2]  
-    
-    return -Aimg if forward else -Aimg*np.pi  # scaling
-
-    # ---- end abel_hansenlaw_transform ----
-
-
-def abel_hansenlaw (img, use_quadrants=(True,True,True,True), 
-                    vertical_symmetry=False, horizontal_symmetry=False, 
-                    calc_speeds=False, verbose=False, forward=False):
+_hansenlaw_docstring = \
     """ 
-    Helper function abel_hansenlaw_transform()
-    Transforms the whole image
-    
     Exploit image symmetry - select quadrants, combine to improve 
                              signal
 
     Parameters:
     ----------
      - img: a rows x cols numpy array
+     -  dr: float - sampling size (=1 for pixel images), used for scaling result
      - use_quadrants: boolean tuple, (Q0,Q1,Q2,Q3)
              +--------+--------+                
              | Q1   * | *   Q0 |
@@ -192,9 +139,124 @@ def abel_hansenlaw (img, use_quadrants=(True,True,True,True),
 
       - calc_speeds: boolean, evaluate speed profile
       - verbose: boolean, more output, timings etc.
-      - forward: boolean: True = forward Abel transform
-                          False = inverse Abel transform
+      - inverse: boolean: False = forward Abel transform
+                          True  = inverse Abel transform
+
     """  
+
+
+# functions to conform to naming conventions: contributing.md ------------
+
+def fabel_hansenlaw_transform(img, dr=1):
+    """
+    Forward Abel transform for one-quadrant
+    """
+    return _abel_hansenlaw_transform_wrapper(img, dr=dr, inverse=False)
+
+def iabel_hansenlaw_transform(img, dr=1):
+    """
+    Inverse Abel transform for one-quadrant
+    """
+    return _abel_hansenlaw_transform_wrapper(img, dr=dr, inverse=True)
+
+def fabel_hansenlaw(img, dr=1, **args):
+    """
+    Helper function - splits image into quadrants for processing by
+    fabel_hansenlaw_transform
+    """
+    return _abel_hansenlaw_wrapper(img, dr=dr, inverse=False, **args)
+
+def iabel_hansenlaw(img, dr=1, **args):
+    """
+    Helper function - splits image into quadrants for processing by
+    iabel_hansenlaw_transform
+    """
+    return _abel_hansenlaw_wrapper(img, dr=dr, inverse=True, **args) 
+
+# ----- end naming ---------------
+
+def _abel_hansenlaw_transform_wrapper(img, dr=1, inverse=False):
+    """
+    Hansen and Law JOSA A2 510 (1985) forward and inverse Abel transform
+    for left-top quadrant of an image.
+
+    """
+    img  = np.atleast_2d(img)  
+    N    = np.shape(img)       # shape of input quadrant (half) 
+    Aimg = np.zeros(N)         # forward/inverse Abel transform image
+
+    rows,cols = N 
+
+    # constants listed in Table 1.
+    h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
+    lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
+
+    K = np.size(h)
+    X = np.zeros((rows,K))
+
+    # Two alternative Gamma functions for forward/inverse transform
+    # Eq. (16c) used for the forward transform           
+    def fGamma(Nm, lam, N, n):   
+        Nn1 = N - n - 1
+        return 2*Nn1*(1-pow(Nm,(lam+1)))/(lam+1)
+
+    # Eq. (18) used for the inverse transform           
+    def iGamma(Nm, lam, N, n):   
+        if lam < -1:
+            return (1.0-pow(Nm,lam))/(pi*lam)
+        else:
+            return -np.log(Nm)/pi    
+
+    if inverse: # inverse transform
+        Gamma = iGamma 
+        # g' - derivative of the intensity profile
+        if rows>1:
+            gp = np.gradient(img)[1]  # second element is gradient along 
+                                      # the columns
+        else: # If there is only one row
+            gp = np.atleast_2d(np.gradient(img[0]))
+    else:  # forward transform
+        Gamma = fGamma
+        gp = img   
+
+    # ------ The Hansen and Law algorithm ------------
+    # iterate along columns, starting outer edge (left side) toward image center
+
+    for col in range(cols-1):       
+        Nm = (cols-col)/(cols-col-1.0)    # R0/R 
+        
+        for k in range(K): # Iterate over k, the eigenvectors?
+            X[:,k] = pow(Nm,lam[k])*X[:,k] +\
+                     h[k]*Gamma(Nm,lam[k],cols,col)*gp[:,col] # Eq. (15 or 17)            
+        Aimg[:,col] = X.sum(axis=1)
+
+    # special case for the center pixel
+    Aimg[:,cols-1] = Aimg[:,cols-2]  
+    
+    if Aimg.shape[0] == 1:
+        if inverse:
+            return -Aimg[0]*np.pi/dr
+        else:
+            return -Aimg[0]/dr
+    else:
+        if inverse:
+            return -Aimg*np.pi/dr 
+        else:
+            return -Aimg/dr 
+
+    # ---- end abel_hansenlaw_transform ----
+
+
+def _abel_hansenlaw_wrapper(img, dr=1, inverse=True, 
+                            use_quadrants=(True,True,True,True), 
+                            vertical_symmetry=False, horizontal_symmetry=False, 
+                            calc_speeds=False, verbose=False):
+    """
+    Returns the forward or the inverse Abel transform of a function
+    sampled using the Hansen and Law algorithm
+
+    """
+
     verboseprint = print if verbose else lambda *a, **k: None
     
     if img.ndim == 1 or np.shape(img)[0] <= 2:
@@ -262,26 +324,15 @@ def abel_hansenlaw (img, use_quadrants=(True,True,True,True),
     else:
         return recon
 
-# functions to conform to naming conventions: contributing.md ------------
-
-def fabel_hansenlaw_transform(img):
-    return abel_hansenlaw_transform(img, forward=True)
-
-def iabel_hansenlaw_transform(img):
-    return abel_hansenlaw_transform(img, forward=False)
-
-def fabel_hansenlaw(img, use_quadrants=(True,True,True,True), 
-                    vertical_symmetry=False, horizontal_symmetry=False, 
-                    calc_speeds=False, verbose=False):
-
-    return abel_hansenlaw(img, use_quadrants, vertical_symmetry, 
-                          horizontal_symmetry, calc_speeds, verbose,
-                          forward=True)
-
-def iabel_hansenlaw(img, use_quadrants=(True,True,True,True), 
-                    vertical_symmetry=False, horizontal_symmetry=False, 
-                    calc_speeds=False, verbose=False):
-
-    return abel_hansenlaw(img, use_quadrants, vertical_symmetry, 
-                          horizontal_symmetry, calc_speeds, verbose,
-                          forward=False)
+# append the same docstring to all functions - borrowed from @rth
+iabel_hansenlaw_transform.__doc__ += _hansenlaw_header +\
+                                     _hansenlaw_transform_docstring
+fabel_hansenlaw_transform.__doc__ += _hansenlaw_header +\
+                                     _hansenlaw_transform_docstring
+iabel_hansenlaw.__doc__ += _hansenlaw_header + _hansenlaw_docstring
+fabel_hansenlaw.__doc__ += _hansenlaw_header +\
+                           _hansenlaw_docstring.replace('AQ','fQ')\
+                                      .replace('(inverse','(forward')\
+                                      .replace('== inverse','== forward')\
+                                      .replace('inverse image','forward image')
+#_abel_hansenlaw_transform_wrapper.__doc__ += _hansenlaw_header + _hansenlaw_transform_docstring
