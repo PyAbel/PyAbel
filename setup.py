@@ -82,6 +82,8 @@ setup(name='PyAbel',
       version=version,
       description='A Python package for forward and inverse Abel transforms',
       author='The PyAbel Team',
+      url='https://github.com/PyAbel/PyAbel',
+      license='GPLv3',
       packages=find_packages(),
       package_data={'abel': ['tests/data/*' ]},
       install_requires=[
@@ -90,6 +92,33 @@ setup(name='PyAbel',
               "scipy >= 0.14",
               ],
       test_suite="abel.tests.run_cli",
+      classifiers=[
+          # How mature is this project? Common values are
+          #   3 - Alpha
+          #   4 - Beta
+          #   5 - Production/Stable
+          'Development Status :: 3 - Alpha',
+
+          # Indicate who your project is intended for
+          'Intended Audience :: Developers',
+          'Intended Audience :: Science/Research',
+          'Topic :: Scientific/Engineering :: Mathematics',
+          'Topic :: Scientific/Engineering :: Physics',
+          'Topic :: Scientific/Engineering :: Medical Science Apps.',
+          'Topic :: Software Development :: Libraries :: Python Modules'
+
+          # Pick your license as you wish (should match "license" above)
+           'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+
+          # Specify the Python versions you support here. In particular, ensure
+          # that you indicate whether you support Python 2, Python 3 or both.
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.3',
+          'Programming Language :: Python :: 3.4',
+          'Programming Language :: Python :: 3.5',
+      ],
       **setup_args
      )
 
