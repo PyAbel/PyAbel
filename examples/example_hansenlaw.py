@@ -1,17 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-import numpy as np
-import matplotlib.pyplot as plt
-
 from abel.hansenlaw import *
 from abel.io import load_raw
 import scipy.misc
+import matplotlib.pylab as plt
 from scipy.ndimage.interpolation import shift
 
 # This example demonstrates Hansen and Law inverse Abel transform
@@ -55,7 +47,7 @@ print ('image size {:d}x{:d}'.format(rows,cols))
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon, speeds = iabel_hansenlaw (im,use_quadrants=(True,True,True,True),vertical_symmetry=False,horizontal_symmetry=False,calc_speeds=True,verbose=True)
+recon, speeds = iabel_hansenlaw (im,dr=1,use_quadrants=(True,True,True,True),vertical_symmetry=False,horizontal_symmetry=False,calc_speeds=True,verbose=True)
 
 # save the transform in 8-bit format:
 scipy.misc.imsave(output_image,recon)
