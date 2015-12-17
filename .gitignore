@@ -11,3 +11,5 @@ examples/*.png
 examples/*basex_basis*
 examples/*.dat
 *basex_basis*
+*.c
+*.so

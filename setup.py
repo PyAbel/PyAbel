@@ -100,8 +100,8 @@ setup(name='PyAbel',
           'Development Status :: 3 - Alpha',
 
           # Indicate who your project is intended for
-          'Intended Audience :: Developers',
           'Intended Audience :: Science/Research',
+          'Intended Audience :: Developers',
           'Topic :: Scientific/Engineering :: Mathematics',
           'Topic :: Scientific/Engineering :: Physics',
           'Topic :: Scientific/Engineering :: Medical Science Apps.',
