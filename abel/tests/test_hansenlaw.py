@@ -8,7 +8,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 
 from abel.hansenlaw import fabel_hansenlaw_transform, iabel_hansenlaw,\
-                           iabel_hansenlaw_transform
+                           iabel_hansenlaw_transform, fabel_hansenlaw
 from abel.analytical import GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
 
@@ -64,7 +64,7 @@ def test_hansenlaw_gaussian():
 
 
 def test_hansenlaw_curveA():
-    """ Check hansenlaw_transform()
+    """ Check hansenlaw_transform() curve A
     """
     delta = 0.01 # sample size
 
@@ -88,7 +88,7 @@ def test_hansenlaw_curveA():
     assert_allclose(orig[mask], recon[mask], rtol=0.1, atol=0)
 
 def test_fabel_hansenlaw():
-    """ Check fabel_hansenlaw_transform()
+    """ Check fabel_hansenlaw_transform() curve A
     """
     delta = 0.01 # sample size
 
@@ -110,4 +110,18 @@ def test_fabel_hansenlaw():
 
     mask = np.logical_and(r > 0.1,r<0.9)  
     assert_allclose(proj[mask],Aproj[mask], rtol=0.1, atol=0)
+
+
+def test_forward_direct_gaussian():
+    """Check fabel_direct with a Gaussian"""
+    n = 501
+    r_max = 251
+
+    ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=100)
+
+    recon = fabel_hansenlaw_transform(ref.func)[0]
+
+    ratio = absolute_ratio_benchmark(ref, recon, kind='direct')
+
+    assert_allclose(ratio, 1.0, rtol=7e-2, atol=0)
 
