@@ -9,6 +9,7 @@ from time import time
 from math import exp, log, pow, pi
 from abel.tools import calculate_speeds, get_image_quadrants,\
                        put_image_quadrants
+from scipy.integrate import simps
 
 ################################################################################
 # hasenlaw - a recursive method forwrd/inverse Abel transform algorithm 
@@ -33,7 +34,7 @@ from abel.tools import calculate_speeds, get_image_quadrants,\
 #             the same result, but speeds up processing considerably.
 ################################################################################
 
-_hansenlaw_header = \
+_hansenlaw_header_docstring = \
     """ 
     Forward/Inverse Abel transformation using the algorithm of: 
     Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).
@@ -53,44 +54,49 @@ _hansenlaw_header = \
 
     Evaluation via Eq. (15 or 17), using (16a), (16b), and (16c or 18)
 
-    Recursion method proceeds from the outer edge of the image
-    toward the image centre (origin). i.e. when n=0, R=Rmax, and
-    when n=N-1, R=0. This fits well with processing the image one 
-    quadrant (or half) at a time.
-
     """
 
 _hansenlaw_transform_docstring = \
     """
-        Parameters:
-        ----------
-         - img: a rows x cols numpy array = one quadrant (or half) of the image
-           |                                oriented top/left
-           |     +--------+      --------+ 
-           \=>   |      * |       *      |
-                 |   *    |          *   |
-                 |  *     |           *  |
-                 +--------+      --------+
-                 |  *     |           *  |
-                 |   *    |          *   |
-                 |     *  |       *      |
-                 +--------+      --------+
-                     |        
-                     \=>            [ ]...[ ][ ]
-                                     :     :  : 
-                                    [ ]...[ ][ ]
-         Image centre is mid-pixel  [ ]...[ ][+]
-                                    [ ]...[ ][ ]
-                                     :     :  : 
-                                    [ ]...[ ][ ]
 
-         -  dr: float - sampling size (=1 for pixel images), 
-                        used for scaling result
-         - inverse: boolean: False = forward Abel transform
-                             True  = inverse Abel transform
-        Returns:
-        --------
-         - Aimg: a rows x cols numpy array, forward/inverse Abel transform image
+    Core Hansen and Law Abel transform
+
+    Recursion method proceeds from the outer edge of the image
+    toward the image centre (origin). i.e. when n=0, R=Rmax, and
+    when n=N-1, R=0. This fits well with processing the image one 
+    quadrant (oriented top left), or one left-half image at a time.
+
+    Use (f/i)abel_transform (img) to transform a whole image
+       
+    Parameters:
+    ----------
+     - img: a rows x cols numpy array = one quadrant (or half) of the image
+       |                                oriented top/left
+       |     +--------+      --------+ 
+       \=>   |      * |       *      |
+             |   *    |          *   |
+             |  *     |           *  |
+             +--------+      --------+
+             |  *     |           *  |
+             |   *    |          *   |
+             |     *  |       *      |
+             +--------+      --------+
+                 |        
+                 \=>            [ ]...[ ][ ]
+                                 :     :  : 
+                                [ ]...[ ][ ]
+     Image centre is mid-pixel  [ ]...[ ][+]
+                                [ ]...[ ][ ]
+                                 :     :  : 
+                                [ ]...[ ][ ]
+
+     -  dr: float - sampling size (=1 for pixel images), 
+                    used for scaling result
+     - inverse: boolean: False = forward Abel transform
+                         True  = inverse Abel transform
+    Return:
+    -------
+     - Aimg: a rows x cols numpy array, forward/inverse Abel transform image
 
     """
 
@@ -147,35 +153,35 @@ _hansenlaw_docstring = \
 
 # functions to conform to naming conventions: contributing.md ------------
 
-def fabel_hansenlaw_transform(img, dr=1):
+def fabel_hansenlaw_transform(img, dr=1, r=None):
     """
     Forward Abel transform for one-quadrant
     """
     return _abel_hansenlaw_transform_wrapper(img, dr=dr, inverse=False)
 
-def iabel_hansenlaw_transform(img, dr=1):
+def iabel_hansenlaw_transform(img, dr=1, r=None):
     """
     Inverse Abel transform for one-quadrant
     """
     return _abel_hansenlaw_transform_wrapper(img, dr=dr, inverse=True)
 
-def fabel_hansenlaw(img, dr=1, **args):
+def fabel_hansenlaw(img, dr=1, r=None, **args):
     """
     Helper function - splits image into quadrants for processing by
     fabel_hansenlaw_transform
     """
-    return _abel_hansenlaw_wrapper(img, dr=dr, inverse=False, **args)
+    return _abel_hansenlaw_wrapper(img, dr=dr, r=r, inverse=False, **args)
 
-def iabel_hansenlaw(img, dr=1, **args):
+def iabel_hansenlaw(img, dr=1, r=None, **args):
     """
     Helper function - splits image into quadrants for processing by
     iabel_hansenlaw_transform
     """
-    return _abel_hansenlaw_wrapper(img, dr=dr, inverse=True, **args) 
+    return _abel_hansenlaw_wrapper(img, dr=dr, r=r, inverse=True, **args) 
 
 # ----- end naming ---------------
 
-def _abel_hansenlaw_transform_wrapper(img, dr=1, inverse=False):
+def _abel_hansenlaw_transform_wrapper(img, dr=1, r=None, inverse=False):
     """
     Hansen and Law JOSA A2 510 (1985) forward and inverse Abel transform
     for left-top quadrant of an image.
@@ -234,20 +240,22 @@ def _abel_hansenlaw_transform_wrapper(img, dr=1, inverse=False):
     Aimg[:,cols-1] = Aimg[:,cols-2]  
     
     if Aimg.shape[0] == 1:
+        area = simps(img,r)
+        print ("--------- area =",area)
         if inverse:
-            return -Aimg[0]*np.pi/dr
+            return -Aimg[0]
         else:
-            return -Aimg[0]/dr
+            return -Aimg[0]
     else:
         if inverse:
-            return -Aimg*np.pi/dr 
-        else:
             return -Aimg/dr 
+        else:
+            return -Aimg*dr 
 
     # ---- end abel_hansenlaw_transform ----
 
 
-def _abel_hansenlaw_wrapper(img, dr=1, inverse=True, 
+def _abel_hansenlaw_wrapper(img, dr=1, r=None, inverse=True, 
                             use_quadrants=(True,True,True,True), 
                             vertical_symmetry=False, horizontal_symmetry=False, 
                             calc_speeds=False, verbose=False):
@@ -309,7 +317,7 @@ def _abel_hansenlaw_wrapper(img, dr=1, inverse=True,
             AQ3 = AQ0 = iabel_hansenlaw_transform(Q0)
 
     # reassemble image
-    recon = put_image_quadrants ((AQ0,AQ1,AQ2,AQ3),odd_size=True)
+    recon = put_image_quadrants ((AQ0,AQ1,AQ2,AQ3),odd_size=cols%2)
 
     verboseprint ("{:.2f} seconds".format(time()-t0))
 
@@ -325,14 +333,15 @@ def _abel_hansenlaw_wrapper(img, dr=1, inverse=True,
         return recon
 
 # append the same docstring to all functions - borrowed from @rth
-iabel_hansenlaw_transform.__doc__ += _hansenlaw_header +\
+iabel_hansenlaw_transform.__doc__ += _hansenlaw_header_docstring +\
                                      _hansenlaw_transform_docstring
-fabel_hansenlaw_transform.__doc__ += _hansenlaw_header +\
+fabel_hansenlaw_transform.__doc__ += _hansenlaw_header_docstring +\
                                      _hansenlaw_transform_docstring
-iabel_hansenlaw.__doc__ += _hansenlaw_header + _hansenlaw_docstring
-fabel_hansenlaw.__doc__ += _hansenlaw_header +\
+iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_docstring
+fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring +\
                            _hansenlaw_docstring.replace('AQ','fQ')\
                                       .replace('(inverse','(forward')\
                                       .replace('== inverse','== forward')\
                                       .replace('inverse image','forward image')
-#_abel_hansenlaw_transform_wrapper.__doc__ += _hansenlaw_header + _hansenlaw_transform_docstring
+#_abel_hansenlaw_transform_wrapper.__doc__ += _hansenlaw_header_docstring +\
+                                              #_hansenlaw_transform_docstring
