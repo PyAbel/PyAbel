@@ -17,8 +17,8 @@ def f (r):
     return 1-2*r**2 if np.all(r) <= 0.5 else 2*(1-r)**2
 
 def g (R):
-    alpha = np.sqrt(1-R**2)
     R2 = R**2
+    alpha = np.sqrt(1-R**2)
 
     if np.all(R) <= 0.5:
         beta  = np.sqrt(0.25-R**2)
@@ -53,9 +53,9 @@ def test_hansenlaw_gaussian():
 
     ref = GaussianAnalytical(n, r_max, symmetric=True,  sigma=200)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
+    r = ref.r
 
-
-    recon = iabel_hansenlaw(tr)
+    recon = iabel_hansenlaw(tr,r[1]-r[0])
     recon1d = recon[n//2 + n%2]  # centre row
 
     ratio = absolute_ratio_benchmark(ref, recon1d)
@@ -69,7 +69,6 @@ def test_hansenlaw_curveA():
     delta = 0.01 # sample size
 
     # split r-domain to suit function pair
-    # there must be a more Python way to achieve this
     rl = np.arange(0,0.5+delta/2,delta) # 0 <= r <= 0.5
     rr = np.arange(0.5+delta,1.0,delta) # 0.5 < r < 1.0
     r = np.concatenate((rl,rr),axis=0)  # whole r = [0,1)
@@ -79,7 +78,7 @@ def test_hansenlaw_curveA():
     orig = orig[::-1] # flip them  
     proj = proj[::-1]
 
-    recon = iabel_hansenlaw_transform(proj)[0]  # inverse Abel 
+    recon = iabel_hansenlaw_transform(proj,r[1]-r[0])  # inverse Abel 
                                                 # == f(r)???
     orig = orig[::-1]  # flip back
     recon = recon[::-1]/delta  # flip + scaling for sample size not 1
@@ -93,7 +92,6 @@ def test_fabel_hansenlaw():
     delta = 0.01 # sample size
 
     # split r-domain to suit function pair
-    # there must be a more Python way to achieve this
     rl = np.arange(0,0.5+delta/2,delta) # 0 <= r <= 0.5
     rr = np.arange(0.5+delta,1.0,delta) # 0.5 < r < 1.0
     r = np.concatenate((rl,rr),axis=0)  # whole r = [0,1)
@@ -103,7 +101,7 @@ def test_fabel_hansenlaw():
     orig = orig[::-1] # flip them  
     proj = proj[::-1]
 
-    Aproj = fabel_hansenlaw_transform(orig)[0]  # forward Abel 
+    Aproj = fabel_hansenlaw_transform(orig,r[1]-r[0])  # forward Abel 
                                                 # == g(r)???
     orig = orig[::-1]  # flip back
     Aproj = Aproj*delta*np.pi  # no flip + scaling for sample size not 1
@@ -118,8 +116,9 @@ def test_forward_direct_gaussian():
     r_max = 251
 
     ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=100)
+    r = ref.r
 
-    recon = fabel_hansenlaw_transform(ref.func)[0]
+    recon = fabel_hansenlaw_transform(ref.func,r[1]-r[0])
 
     ratio = absolute_ratio_benchmark(ref, recon, kind='direct')
 
