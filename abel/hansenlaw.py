@@ -53,6 +53,11 @@ _hansenlaw_header_docstring = \
 
     Evaluation via Eq. (15 or 17), using (16a), (16b), and (16c or 18)
 
+         f = iabel_hansenlaw(g) - inverse Abel transform of image g
+         g = fabel_hansenlaw(f) - forward Abel transform of image f
+        
+         (f/i)abel_hansenlaw_transform() - core algorithm
+
     """
 
 _hansenlaw_transform_docstring = \
@@ -101,8 +106,11 @@ _hansenlaw_transform_docstring = \
 
 _hansenlaw_docstring = \
     """ 
-    Exploit image symmetry - select quadrants, combine to improve 
-                             signal
+    inverse Abel transform image
+
+    options to exploit image symmetry 
+           - select quadrants
+           - combine quadrantsto improve signal
 
     Parameters:
     ----------
@@ -152,38 +160,38 @@ _hansenlaw_docstring = \
 
 # functions to conform to naming conventions: contributing.md ------------
 
-def fabel_hansenlaw_transform(img, dr=1, r=None):
+def fabel_hansenlaw_transform(img, dr=1):
     """
     Forward Abel transform for one-quadrant
     """
     return _abel_hansenlaw_transform_wrapper(img, dr=dr, inverse=False)
 
-def iabel_hansenlaw_transform(img, dr=1, r=None):
+def iabel_hansenlaw_transform(img, dr=1):
     """
     Inverse Abel transform for one-quadrant
     """
     return _abel_hansenlaw_transform_wrapper(img, dr=dr, inverse=True)
 
-def fabel_hansenlaw(img, dr=1, r=None, **args):
+def fabel_hansenlaw(img, dr=1, **args):
     """
     Helper function - splits image into quadrants for processing by
     fabel_hansenlaw_transform
     """
-    return _abel_hansenlaw_wrapper(img, dr=dr, r=r, inverse=False, **args)
+    return _abel_hansenlaw_wrapper(img, dr=dr, inverse=False, **args)
 
-def iabel_hansenlaw(img, dr=1, r=None, **args):
+def iabel_hansenlaw(img, dr=1, **args):
     """
     Helper function - splits image into quadrants for processing by
     iabel_hansenlaw_transform
     """
-    return _abel_hansenlaw_wrapper(img, dr=dr, r=r, inverse=True, **args) 
+    return _abel_hansenlaw_wrapper(img, dr=dr, inverse=True, **args) 
 
 # ----- end naming ---------------
 
-def _abel_hansenlaw_transform_wrapper(img, dr=1, r=None, inverse=False):
+def _abel_hansenlaw_transform_wrapper(img, dr=1, inverse=False):
     """
     Hansen and Law JOSA A2 510 (1985) forward and inverse Abel transform
-    for left-top quadrant of an image.
+    for left half (or left-top quadrant) of an image.
 
     """
     img  = np.atleast_2d(img)  
@@ -252,7 +260,7 @@ def _abel_hansenlaw_transform_wrapper(img, dr=1, r=None, inverse=False):
     # ---- end abel_hansenlaw_transform ----
 
 
-def _abel_hansenlaw_wrapper(img, dr=1, r=None, inverse=True, 
+def _abel_hansenlaw_wrapper(img, dr=1, inverse=True, 
                             use_quadrants=(True,True,True,True), 
                             vertical_symmetry=False, horizontal_symmetry=False, 
                             calc_speeds=False, verbose=False):
@@ -288,10 +296,10 @@ def _abel_hansenlaw_wrapper(img, dr=1, r=None, inverse=True,
     if not vertical_symmetry and not horizontal_symmetry\
                              and np.all(use_quadrants):
         # individual quadrant inverse Abel transform
-        AQ0 = iabel_hansenlaw_transform(Q0)
-        AQ1 = iabel_hansenlaw_transform(Q1)
-        AQ2 = iabel_hansenlaw_transform(Q2)
-        AQ3 = iabel_hansenlaw_transform(Q3)
+        AQ0 = _abel_hansenlaw_transform_wrapper(Q0, dr, inverse)
+        AQ1 = _abel_hansenlaw_transform_wrapper(Q1, dr, inverse)
+        AQ2 = _abel_hansenlaw_transform_wrapper(Q2, dr, inverse)
+        AQ3 = _abel_hansenlaw_transform_wrapper(Q3, dr, inverse)
 
     else:  # combine selected quadrants according to assumed symmetry
         if vertical_symmetry:   # co-add quadrants
@@ -303,18 +311,18 @@ def _abel_hansenlaw_wrapper(img, dr=1, r=None, inverse=True,
             Q0 = Q3 = Q0*use_quadrants[0]+Q3*use_quadrants[3] 
 
         # HL inverse Abel transform for quadrant 1
-        AQ1 = iabel_hansenlaw_transform(Q1)  # all possibilities include Q1
+        AQ1 = _abel_hansenlaw_transform_wrapper(Q1, dr, inverse)  # all possibilities include Q1
 
         if vertical_symmetry:
             AQ0 = AQ1
-            AQ3 = AQ2 = iabel_hansenlaw_transform(Q2)
+            AQ3 = AQ2 = _abel_hansenlaw_transform_wrapper(Q2, dr, inverse)
 
         if horizontal_symmetry:
             AQ2 = AQ1
-            AQ3 = AQ0 = iabel_hansenlaw_transform(Q0)
+            AQ3 = AQ0 = _abel_hansenlaw_transform_wrapper(Q0, dr, inverse)
 
     # reassemble image
-    recon = put_image_quadrants ((AQ0,AQ1,AQ2,AQ3),odd_size=cols%2)
+    recon = put_image_quadrants ((AQ0,AQ1,AQ2,AQ3), odd_size=cols%2)
 
     verboseprint ("{:.2f} seconds".format(time()-t0))
 
