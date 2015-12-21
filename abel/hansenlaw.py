@@ -9,7 +9,6 @@ from time import time
 from math import exp, log, pow, pi
 from abel.tools import calculate_speeds, get_image_quadrants,\
                        put_image_quadrants
-from scipy.integrate import simps
 
 ################################################################################
 # hasenlaw - a recursive method forwrd/inverse Abel transform algorithm 
@@ -240,17 +239,15 @@ def _abel_hansenlaw_transform_wrapper(img, dr=1, r=None, inverse=False):
     Aimg[:,cols-1] = Aimg[:,cols-2]  
     
     if Aimg.shape[0] == 1:
-        area = simps(img,r)
-        print ("--------- area =",area)
         if inverse:
-            return -Aimg[0]
+            return -Aimg[0]*np.pi/dr    # 1/dr - from derivative
         else:
-            return -Aimg[0]
+            return -Aimg[0]*np.pi*dr
     else:
         if inverse:
-            return -Aimg/dr 
+            return -Aimg*np.pi/dr 
         else:
-            return -Aimg*dr 
+            return -Aimg*np.pi*dr 
 
     # ---- end abel_hansenlaw_transform ----
 
