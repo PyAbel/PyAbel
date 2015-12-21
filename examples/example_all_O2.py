@@ -20,10 +20,10 @@ mask[h2-20:h2,140:160] = True   # region of bright pixels for intensity normaliz
 # direct ------------------------------
 print ("direct inverse ...")  
 t0 = time()
-direct = iabel_direct (data[:,w2:])   # operates on 1/2 image??
+direct = iabel_direct (data[:,w2:])   # operates on 1/2 image, oriented [0,r]
 print ("                    {:.1f} sec".format(time()-t0))
-direct = np.concatenate((direct,direct[:,::-1]),axis=1)
-direct_speed = calculate_speeds(direct)[::-1]  # looks more correct this way
+direct = np.concatenate((direct[:,::-1],direct),axis=1)  
+direct_speed = calculate_speeds(direct)
 directmax = direct[mask].max()
 direct /= directmax
 
@@ -65,7 +65,7 @@ basex  /= basexmax
 # reassemble image, each quadrant a different method
 im = data.copy()
 direct = direct[:h2,:w2]
-im[:h2,:w2] = direct[:,::-1]   # Q1  
+im[:h2,:w2] = direct[:,:]   # Q1  
 im[:h2,w2:] = onion[:h2,w2:]    # Q0
 im[h2:,:w2] = basex[h2:-1,:w2]    # Q2
 im[h2:,w2:] = hl[h2:,w2:]       # Q3
@@ -79,10 +79,10 @@ plt.annotate("quadrant intensities normalized",
              (100,1200),color='b',annotation_clip=False)   
 plt.annotate("speed intensity normalized $\\rightarrow$",
              (200,1400),color='b',annotation_clip=False)   
-plt.imshow(im,vmin=0,vmax=hlmax*2)
+plt.imshow(im,vmin=0,vmax=hlmax/2)
 
 plt.subplot(122)
-plt.plot (direct_speed/direct_speed[:-50].max(),'grey',label='direct')
+plt.plot (direct_speed/direct_speed[:-50].max(),'k',label='direct')
 plt.plot (onion_speed/onion_speed[:-50].max(),'r',label='onion')
 plt.plot (basex_speed/basex_speed[:-50].max(),'g',label='basex')
 plt.plot (hl_speed/hl_speed[:-50].max(),'b',label='hansenlaw')
