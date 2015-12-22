@@ -71,7 +71,7 @@ def test_hansenlaw_curveA():
     # split r-domain to suit function pair
     rl = np.arange(0,0.5+delta/2,delta) # 0 <= r <= 0.5
     rr = np.arange(0.5+delta,1.0,delta) # 0.5 < r < 1.0
-    r = np.concatenate((rl,rr),axis=0)  # whole r = [0,1)
+    r  = np.concatenate((rl,rr),axis=0)  # whole r = [0,1)
 
     orig = np.concatenate((f(rl),f(rr)),axis=0)   # f(r)
     proj = np.concatenate((g(rl),g(rr)),axis=0)   # g(r)
@@ -80,8 +80,8 @@ def test_hansenlaw_curveA():
 
     recon = iabel_hansenlaw_transform(proj,r[1]-r[0])  # inverse Abel 
                                                 # == f(r)???
-    orig = orig[::-1]  # flip back
-    recon = recon[::-1]/delta  # flip + scaling for sample size not 1
+    orig  = orig[::-1]  # flip back
+    recon = recon[::-1]
 
     mask = r < 0.9  # check deviation away from small values
     assert_allclose(orig[mask], recon[mask], rtol=0.1, atol=0)
@@ -94,7 +94,7 @@ def test_fabel_hansenlaw():
     # split r-domain to suit function pair
     rl = np.arange(0,0.5+delta/2,delta) # 0 <= r <= 0.5
     rr = np.arange(0.5+delta,1.0,delta) # 0.5 < r < 1.0
-    r = np.concatenate((rl,rr),axis=0)  # whole r = [0,1)
+    r  = np.concatenate((rl,rr),axis=0) # whole r = [0,1)
 
     orig = np.concatenate((f(rl),f(rr)),axis=0)   # f(r)
     proj = np.concatenate((g(rl),g(rr)),axis=0)   # g(r)
@@ -102,9 +102,8 @@ def test_fabel_hansenlaw():
     proj = proj[::-1]
 
     Aproj = fabel_hansenlaw_transform(orig,r[1]-r[0])  # forward Abel 
-                                                # == g(r)???
+                                                       # == g(r)
     orig = orig[::-1]  # flip back
-    Aproj = Aproj*delta*np.pi  # no flip + scaling for sample size not 1
 
     mask = np.logical_and(r > 0.1,r<0.9)  
     assert_allclose(proj[mask],Aproj[mask], rtol=0.1, atol=0)
@@ -112,13 +111,13 @@ def test_fabel_hansenlaw():
 
 def test_forward_direct_gaussian():
     """Check fabel_direct with a Gaussian"""
-    n = 501
-    r_max = 251
+    n = 51
+    r_max = 25
 
-    ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=100)
+    ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=10)
     r = ref.r
 
-    recon = fabel_hansenlaw_transform(ref.func,r[1]-r[0])
+    recon = fabel_hansenlaw_transform(ref.func[::-1],r[1]-r[0])[::-1]
 
     ratio = absolute_ratio_benchmark(ref, recon, kind='direct')
 
