@@ -10,53 +10,40 @@ from scipy.ndimage.interpolation import shift
 # of an image obtained using a velocity map imaging (VMI) photoelecton 
 # spectrometer to record the photoelectron angular distribution resulting 
 # from photodetachement of O2- at 454 nm.
-# This spectrum was recorded in 2010  
+# The spectrum was recorded in 2010  
 # ANU / The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
-# Before you start, centre of the NxN numpy array should be the centre
-#  of image symmetry
-#   +----+----+
-#   |    |    |
-#   +----o----+
-#   |    |    |
-#   + ---+----+
-
-# Specify the path to the file
+# path to the file
 filename = 'data/O2-ANU1024.txt.bz2'
 
-# Name the output files
-name = filename.split('.')[0].split('/')[1]
-output_image = name + '_inverse_Abel_transform_HansenLaw.png'
-output_text  = name + '_speeds_HansenLaw.dat'
-output_plot  = name + '_comparison_HansenLaw.pdf'
-
-# Step 1: Load an image file as a numpy array
+# Load an image file as a numpy array
 print('Loading ' + filename)
-im = np.loadtxt(filename)
-(rows,cols) = np.shape(im)
-if cols%2 != 1:  # even image shift centre to mid-pixel
-   im = center_image_by_slice (im,r_range=(300,400))
-#    print ("HL: even pixel image, re-adjust image centre")
-#    print ("HL: shift(im,(-0.5,-0.5))")
-#    imx = shift(im,(-0.5,-0.5))
-#    im  = imx[:-1,1:]  # drop first column, last row 
-   (rows,cols) = np.shape(im)
+IM = np.loadtxt(filename)   # use plt.imread(filename) for image file format
+
+rows,cols = np.shape(IM)    # image size
+
+# Image center should be mid-pixel, i.e. odd number of colums
+if cols%2 != 1: 
+   print ("HL: even pixel width image, re-adjust image centre")
+   # re-center image based on horizontal and vertical slice profiles
+   IM = center_image_by_slice (IM,r_range=(300,400))[0]
+#    print ("HL: shift(IM,(-0.5,-0.5))")
+#    IMx = shift(IM,(-0.5,-0.5))
+#    IM  = IMx[:-1,1:]  # drop first column, last row 
+   rows,cols = np.shape(IM)   # new image size
+
 c2 = cols//2   # half-image
 print ('image size {:d}x{:d}'.format(rows,cols))
 
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon, speeds = iabel_hansenlaw (im,dr=1,use_quadrants=(True,True,True,True),vertical_symmetry=False,horizontal_symmetry=False,calc_speeds=True,verbose=True)
-
-# save the transform in 8-bit format:
-scipy.misc.imsave(output_image,recon)
-
-# save the speed distribution
-np.savetxt(output_text,speeds)
-
-## Finally, let's plot the data
+recon, speeds = iabel_hansenlaw(IM, dr=1, use_quadrants=(True,True,True,True),
+                                vertical_symmetry=False,
+                                horizontal_symmetry=False,
+                                calc_speeds=True,
+                                verbose=True)
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))
@@ -65,7 +52,7 @@ ax2 = plt.subplot(132)
 ax3 = plt.subplot(133)
 
 # Plot the raw data
-im1 = ax1.imshow(im,origin='lower',aspect='auto')
+im1 = ax1.imshow(IM,origin='lower',aspect='auto')
 fig.colorbar(im1,ax=ax1,fraction=.1,shrink=0.9,pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
@@ -89,7 +76,7 @@ ax3.set_title('Speed distribution')
 plt.subplots_adjust(left=0.06,bottom=0.17,right=0.95,top=0.89,wspace=0.35,hspace=0.37)
 
 # Save a image of the plot
-plt.savefig(output_plot,dpi=150)
+plt.savefig(filename[:-7]+"png",dpi=150)
 
 # Show the plots
 plt.show()

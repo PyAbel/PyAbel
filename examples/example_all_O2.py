@@ -2,6 +2,11 @@
 # rough comparison of direct, onion, hansenlaw, and basex inverse Abel transform
 # for the O2- data
 #
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from abel.onion import *
 from abel.hansenlaw import *
 from abel.basex import *
@@ -33,8 +38,10 @@ data = im.copy()
 t0 = time()
 Q = get_image_quadrants(data,reorient=True)
 AO = []
+# flip quadrants to match pre 24 Dec 15 orientation definition 
 for q in Q:
-    AO.append(iabel_onion_peeling(q)) # only quadrant inversion available??
+    AO.append(iabel_onion_peeling(q[:,::-1])[:,::-1]) #flip, flip-back
+# only quadrant inversion available??
 # reassemble
 onion = put_image_quadrants((AO[0],AO[1],AO[2],AO[3]),odd_size=False)
 print ("                   {:.1f} sec".format(time()-t0))
