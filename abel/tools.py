@@ -7,6 +7,8 @@ from __future__ import unicode_literals
 
 import numpy as np
 from scipy.ndimage import map_coordinates
+from scipy.ndimage.interpolation import shift
+from scipy.optimize import minimize
 
 def calculate_speeds(IM,origin=None):
     """ This performs an angular integration of the image and returns the one-dimentional intensity profile 
@@ -32,28 +34,28 @@ def calculate_speeds(IM,origin=None):
     return speeds
 
 
-def get_image_quadrants(img, reorient=False):
+def get_image_quadrants(IM, reorient=False):
     """
     Given an image (m,n) return its 4 quadrants Q0, Q1, Q2, Q3
     as defined in abel.hansenlaw.iabel_hansenlaw
 
     Parameters:
-      - img: 1D or 2D array
+      - IM: 1D or 2D array
       - reorient: reorient image as required by abel.hansenlaw.iabel_hansenlaw
     """
-    img = np.atleast_2d(img)
+    IM = np.atleast_2d(IM)
 
-    n, m = img.shape
+    n, m = IM.shape
 
     n_c = n//2 + n%2
     m_c = m//2 + m%2
 
     # define 4 quadrants of the image
     # see definition in abel.hansenlaw.iabel_hansenlaw
-    Q1 = img[:n_c, :m_c]
-    Q2 = img[-n_c:, :m_c]
-    Q0 = img[:n_c, -m_c:]
-    Q3 = img[-n_c:, -m_c:]
+    Q1 = IM[:n_c, :m_c]
+    Q2 = IM[-n_c:, :m_c]
+    Q0 = IM[:n_c, -m_c:]
+    Q3 = IM[-n_c:, -m_c:]
 
     if reorient:
         Q0 = np.fliplr(Q0)
@@ -80,16 +82,16 @@ def put_image_quadrants (Q,odd_size=True):
 
 
     if not odd_size:
-        Top    = np.concatenate ((Q[1],np.fliplr(Q[0])),axis=1)
-        Bottom = np.flipud(np.concatenate ((Q[2],np.fliplr(Q[3])),axis=1))
+        Top    = np.concatenate((Q[1], np.fliplr(Q[0])), axis=1)
+        Bottom = np.flipud(np.concatenate((Q[2], np.fliplr(Q[3])), axis=1))
     else:
         # odd size image remove extra row/column added in get_image_quadrant()
-        Top    = np.concatenate ((Q[1][:-1,:-1],np.fliplr(Q[0][:-1,:])),axis=1)
-        Bottom = np.flipud(np.concatenate ((Q[2][:,:-1],np.fliplr(Q[3])),axis=1))
+        Top    = np.concatenate((Q[1][:-1,:-1], np.fliplr(Q[0][:-1,:])), axis=1)
+        Bottom = np.flipud(np.concatenate((Q[2][:,:-1], np.fliplr(Q[3])), axis=1))
 
-    img = np.concatenate ((Top,Bottom),axis=0)
+    IM = np.concatenate((Top,Bottom), axis=0)
 
-    return img
+    return IM
  
 
 def center_image(data, center, n, ndim=2):
@@ -126,6 +128,7 @@ def center_image(data, center, n, ndim=2):
         raise ValueError
     
     return im
+
 
 def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
     """ This centers a (rectangular) image at the given center_column and makes it of size n_vert by n_horz"""
@@ -194,6 +197,66 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
         raise ValueError('Input data dimensions incompatible with chosen basis set.')
 
     return c_im
+
+
+def center_image_by_slice(IM, slice_width=10, r_range=(0,-1),
+                          pixel_center=True):
+    """
+    Center image by comparing opposite side slice profiles 
+
+    Parameters
+    ----------
+      - IM : rows x cols numpy array 
+      
+      - slice_width : add together this number of rows (cols) to improve signal
+      
+      - r_range(rmin,rmax): radial range [rmin,rmax] for slide profile comparison
+      - pixel_center: boolean, make center of image within a pixel
+    """
+    # intensity difference between an axial slice and its shifted opposite
+    def align(offset, top_or_left_slice, bottom_or_right_slice):
+
+        diff = shift(top_or_left_slice,offset) - bottom_or_right_slice
+
+        return (diff**2).sum()
+
+    rows,cols = IM.shape
+    r2 = rows//2
+    c2 = cols//2
+    sw2 = slice_width//2
+
+    # slices - sum across slice_width rows (cols)
+    left  = IM[r2-sw2:r2+sw2, :c2].sum(axis=0)
+    right = IM[r2-sw2:r2+sw2, c2:].sum(axis=0)
+    top   = IM[:r2, c2-sw2:c2+sw2].sum(axis=1)
+    bot   = IM[r2:, c2-sw2:c2+sw2].sum(axis=1)
+
+    # reorient slices to the same direction, select region [rmin:rmax]
+    rmin, rmax = r_range
+    left  = left[::-1][rmin:rmax]   # flip same direction as 'right'
+    right = right[rmin:rmax]
+    top   = top[::-1][rmin:rmax]    # flip
+    bot   = bot[rmin:rmax]
+
+    # compare and determine shift to best overlap slice profiles
+    shift0 = [0.0]
+    horiz = minimize(align, shift0, args=(left,right))
+    vert  = minimize(align, shift0, args=(top,bot))
+
+    col_shift = horiz['x']
+    row_shift = vert['x']
+
+    if pixel_center:
+        col_shift += 0.5
+        row_shift -= 0.5
+
+    IM_centered = shift(IM,(row_shift,col_shift)) # center image
+
+    if rows%2==0 and pixel_center:    # make odd size image
+        IM_centered = IM_centered[:-1, 1:]  # drop left most column, bottom row
+
+    return IM_centered, (row_shift,col_shift)
+
 
 # The next two functions are adapted from
 # http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system

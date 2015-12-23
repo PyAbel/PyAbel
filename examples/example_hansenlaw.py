@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from abel.hansenlaw import *
-from abel.io import load_raw
+from abel.tools import center_image_by_slice
 import scipy.misc
 import matplotlib.pylab as plt
 from scipy.ndimage.interpolation import shift
@@ -36,11 +36,12 @@ print('Loading ' + filename)
 im = np.loadtxt(filename)
 (rows,cols) = np.shape(im)
 if cols%2 != 1:  # even image shift centre to mid-pixel
-    print ("HL: even pixel image, re-adjust image centre")
-    print ("HL: shift(im,(-0.5,-0.5))")
-    imx = shift(im,(-0.5,-0.5))
-    im  = imx[:-1,1:]  # drop first column, last row 
-(rows,cols) = np.shape(im)
+   im = center_image_by_slice (im,r_range=(300,400))
+#    print ("HL: even pixel image, re-adjust image centre")
+#    print ("HL: shift(im,(-0.5,-0.5))")
+#    imx = shift(im,(-0.5,-0.5))
+#    im  = imx[:-1,1:]  # drop first column, last row 
+   (rows,cols) = np.shape(im)
 c2 = cols//2   # half-image
 print ('image size {:d}x{:d}'.format(rows,cols))
 
