@@ -66,41 +66,37 @@ _hansenlaw_transform_docstring = \
     Core Hansen and Law Abel transform
 
     Recursion method proceeds from the outer edge of the image
-    toward the image centre (origin). i.e. when n=0, R=Rmax, and
-    when n=N-1, R=0. This fits well with processing the image one 
-    quadrant (oriented top left), or one left-half image at a time.
+    toward the image centre (origin). i.e. when n=N-1, R=Rmax, and
+    when n=0, R=0. This fits well with processing the image one 
+    quadrant (chosen orientation to be rightside-top), or one right-half 
+    image at a time.
 
-    Use (f/i)abel_transform (img) to transform a whole image
+    Use (f/i)abel_transform (IM) to transform a whole image
        
     Parameters:
     ----------
-     - img: a rows x cols numpy array = one quadrant (or half) of the image
-       |                                oriented top/left
-       |     +--------+      --------+ 
-       \=>   |      * |       *      |
-             |   *    |          *   |
-             |  *     |           *  |
-             +--------+      --------+
-             |  *     |           *  |
-             |   *    |          *   |
-             |     *  |       *      |
-             +--------+      --------+
-                 |        
-                 \=>            [ ]...[ ][ ]
-                                 :     :  : 
-                                [ ]...[ ][ ]
-     Image centre is mid-pixel  [ ]...[ ][+]
-                                [ ]...[ ][ ]
-                                 :     :  : 
-                                [ ]...[ ][ ]
+     - IM: a rows x cols numpy array = one quadrant (or half) of the image
+                                        oriented rightside-top
+             +--------      +--------+              |
+             |      *       | *      |              |
+             |   *          |    *   |  <----------/
+             |  *           |     *  |         
+             +--------      o--------+
+             |  *           |     *  |
+             |   *          |    *   |
+             |     *        | *      |
+             +--------      +--------+
+                          
+      Image centre `o' should be within a pixel (i.e. an odd number of columns)
+      [Use abel.tool.center_image_by_slice () to transform] 
 
      -  dr: float - sampling size (=1 for pixel images), 
-                    used for scaling result
+                    used for Jacobian scaling
      - inverse: boolean: False = forward Abel transform
                          True  = inverse Abel transform
     Return:
     -------
-     - Aimg: a rows x cols numpy array, forward/inverse Abel transform image
+     - AIM: rows x cols numpy array, forward/inverse Abel transform image
 
     """
 
@@ -114,14 +110,14 @@ _hansenlaw_docstring = \
 
     Parameters:
     ----------
-     - img: a rows x cols numpy array
+     - IM: a rows x cols numpy array
      -  dr: float - sampling size (=1 for pixel images), used for scaling result
      - use_quadrants: boolean tuple, (Q0,Q1,Q2,Q3)
              +--------+--------+                
              | Q1   * | *   Q0 |
              |   *    |    *   |                               
              |  *     |     *  |                               AQ1 | AQ0
-             +--------+--------+ --(inverse Abel transform)--> ---------
+             +--------o--------+ --(inverse Abel transform)--> ----o----
              |  *     |     *  |                               AQ2 | AQ3 
              |   *    |    *   |
              | Q2  *  | *   Q3 |          AQi == inverse Abel transform  
@@ -131,14 +127,14 @@ _hansenlaw_docstring = \
 
            Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
            inverse image   AQ01 | AQ01     
-                           -----------            
+                           -----o-----            
                            AQ23 | AQ23
 
        (2) horizontal_symmetry = True
 
            Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
            inverse image   AQ12 | AQ03       
-                           -----------
+                           -----o-----
                            AQ12 | AQ03
 
        (3) vertical_symmetry = True, horizontal = True
@@ -146,7 +142,7 @@ _hansenlaw_docstring = \
 
            Combine: Q = Q0 + Q1 + Q2 + Q3
            inverse image   AQ | AQ       
-                           -------  all quadrants equivalent
+                           ---o---  all quadrants equivalent
                            AQ | AQ
 
 
@@ -160,49 +156,51 @@ _hansenlaw_docstring = \
 
 # functions to conform to naming conventions: contributing.md ------------
 
-def fabel_hansenlaw_transform(img, dr=1):
+def fabel_hansenlaw_transform(IM, dr=1):
     """
     Forward Abel transform for one-quadrant
     """
-    return _abel_hansenlaw_transform_wrapper(img, dr=dr, inverse=False)
+    return _abel_hansenlaw_transform_wrapper(IM, dr=dr, inverse=False)
 
-def iabel_hansenlaw_transform(img, dr=1):
+def iabel_hansenlaw_transform(IM, dr=1):
     """
     Inverse Abel transform for one-quadrant
     """
-    return _abel_hansenlaw_transform_wrapper(img, dr=dr, inverse=True)
+    return _abel_hansenlaw_transform_wrapper(IM, dr=dr, inverse=True)
 
-def fabel_hansenlaw(img, dr=1, **args):
+def fabel_hansenlaw(IM, dr=1, **args):
     """
     Helper function - splits image into quadrants for processing by
     fabel_hansenlaw_transform
     """
-    return _abel_hansenlaw_wrapper(img, dr=dr, inverse=False, **args)
+    return _abel_hansenlaw_wrapper(IM, dr=dr, inverse=False, **args)
 
-def iabel_hansenlaw(img, dr=1, **args):
+def iabel_hansenlaw(IM, dr=1, **args):
     """
     Helper function - splits image into quadrants for processing by
     iabel_hansenlaw_transform
     """
-    return _abel_hansenlaw_wrapper(img, dr=dr, inverse=True, **args) 
+    return _abel_hansenlaw_wrapper(IM, dr=dr, inverse=True, **args) 
 
 # ----- end naming ---------------
 
-def _abel_hansenlaw_transform_wrapper(img, dr=1, inverse=False):
+def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
     """
     Hansen and Law JOSA A2 510 (1985) forward and inverse Abel transform
-    for left half (or left-top quadrant) of an image.
+    for right half (or right-top quadrant) of an image.
 
     """
-    img  = np.atleast_2d(img)  
-    N    = np.shape(img)       # shape of input quadrant (half) 
-    Aimg = np.zeros(N)         # forward/inverse Abel transform image
+    IM  = np.atleast_2d(IM)  
+    # Fix me! - temp fudge - fliplr code written for left-side image
+    IM  = IM[:,::-1]
+    N   = np.shape(IM)       # shape of input quadrant (half) 
+    AIM = np.zeros(N)         # forward/inverse Abel transform image
 
     rows,cols = N 
 
     # constants listed in Table 1.
-    h   = [0.318,0.19,0.35,0.82,1.8,3.9,8.3,19.6,48.3]
-    lam = [0.0,-2.1,-6.2,-22.4,-92.5,-414.5,-1889.4,-8990.9,-47391.1]
+    h   = [0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3]
+    lam = [0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9, -47391.1]
 
     K = np.size(h)
     X = np.zeros((rows,K))
@@ -224,16 +222,17 @@ def _abel_hansenlaw_transform_wrapper(img, dr=1, inverse=False):
         Gamma = iGamma 
         # g' - derivative of the intensity profile
         if rows>1:
-            gp = np.gradient(img)[1]  # second element is gradient along 
+            gp = np.gradient(IM)[1]  # second element is gradient along 
                                       # the columns
         else: # If there is only one row
-            gp = np.atleast_2d(np.gradient(img[0]))
+            gp = np.atleast_2d(np.gradient(IM[0]))
     else:  # forward transform
         Gamma = fGamma
-        gp = img   
+        gp = IM   
 
     # ------ The Hansen and Law algorithm ------------
-    # iterate along columns, starting outer edge (left side) toward image center
+    # iterate along columns, starting outer edge (right side) 
+    # toward the image center
 
     for col in range(cols-1):       
         Nm = (cols-col)/(cols-col-1.0)    # R0/R 
@@ -241,26 +240,29 @@ def _abel_hansenlaw_transform_wrapper(img, dr=1, inverse=False):
         for k in range(K): # Iterate over k, the eigenvectors?
             X[:,k] = pow(Nm,lam[k])*X[:,k] +\
                      h[k]*Gamma(Nm,lam[k],cols,col)*gp[:,col] # Eq. (15 or 17)            
-        Aimg[:,col] = X.sum(axis=1)
+        AIM[:,col] = X.sum(axis=1)
 
     # special case for the center pixel
-    Aimg[:,cols-1] = Aimg[:,cols-2]  
-    
-    if Aimg.shape[0] == 1:
+    AIM[:,cols-1] = AIM[:,cols-2]  
+
+    # Fix me! - flip back
+    AIM  = AIM[:,::-1]
+
+    if AIM.shape[0] == 1:
         if inverse:
-            return -Aimg[0]*np.pi/dr    # 1/dr - from derivative
+            return -AIM[0]*np.pi/dr    # 1/dr - from derivative
         else:
-            return -Aimg[0]*np.pi*dr
+            return -AIM[0]*np.pi*dr
     else:
         if inverse:
-            return -Aimg*np.pi/dr 
+            return -AIM*np.pi/dr 
         else:
-            return -Aimg*np.pi*dr 
+            return -AIM*np.pi*dr 
 
     # ---- end abel_hansenlaw_transform ----
 
 
-def _abel_hansenlaw_wrapper(img, dr=1, inverse=True, 
+def _abel_hansenlaw_wrapper(IM, dr=1, inverse=True, 
                             use_quadrants=(True,True,True,True), 
                             vertical_symmetry=False, horizontal_symmetry=False, 
                             calc_speeds=False, verbose=False):
@@ -272,12 +274,12 @@ def _abel_hansenlaw_wrapper(img, dr=1, inverse=True,
 
     verboseprint = print if verbose else lambda *a, **k: None
     
-    if img.ndim == 1 or np.shape(img)[0] <= 2:
+    if IM.ndim == 1 or np.shape(IM)[0] <= 2:
             raise ValueError('Data must be 2-dimensional.'
                              'To transform a single row, use'
                              'iabel_hansenlaw_transform().')
 
-    rows,cols = np.shape(img)
+    rows,cols = np.shape(IM)
 
     if not np.any(use_quadrants):
         verboseprint ("HL: Error: no image quadrants selected to use")
@@ -289,7 +291,7 @@ def _abel_hansenlaw_wrapper(img, dr=1, inverse=True,
     t0=time()
     
     # split image into quadrants
-    Q0,Q1,Q2,Q3 = get_image_quadrants(img, reorient=True)
+    Q0,Q1,Q2,Q3 = get_image_quadrants(IM, reorient=True)
 
     verboseprint ("HL: Calculating inverse Abel transform ... ")
 

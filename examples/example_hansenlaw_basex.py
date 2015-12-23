@@ -26,14 +26,6 @@ from scipy.ndimage.interpolation import shift
 # ANU / The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
-# Before you start, centre of the NxN numpy array should be the centre
-#  of image symmetry
-#   +----+----+
-#   |    |    |
-#   +----o----+
-#   |    |    |
-#   + ---+----+
-
 # Specify the path to the file
 filename = os.path.join('data', 'O2-ANU1024.txt.bz2')
 
@@ -48,12 +40,12 @@ output_plot  = name + '_comparison_HansenLaw.png'
 print('Loading ' + filename)
 im = np.loadtxt(filename)
 (rows,cols) = np.shape(im)
-if cols%2 != 1:
+if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
-           " shift(im,(-0.5,-0.5))")
-    imx = shift(im,(-0.5,0.5))
-    im  = imx[:-1,1:]  # drop left column, bottom row
+           " center_image_by_slice ()")
+    im = center_image_by_slice (im,r_range=(300,400))[0]
     (rows,cols) = np.shape(im)
+
 c2 = cols//2   # half-image width
 r2 = rows//2   # half-image height
 print ('image size {:d}x{:d}'.format(rows,cols))
