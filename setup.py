@@ -15,7 +15,7 @@ except ImportError:
     build_ext = object # just avoid a syntax error in TryBuildExt, this is not used anyway
     print('='*80)
     print('Warning: Cython extensions will not be built as Cython is not installed!\n'\
-          '         This means that the abel.direct implementation will not be available.')
+          '         This means that the abel.direct C implementation will not be available.')
     print('='*80)
 
 
@@ -53,9 +53,9 @@ class TryBuildExt(build_ext):
             print("**************************************************")
             print("WARNING: Cython extensions failed to build (used in abel.direct).\n"
                   "Typical reasons for this problem are:\n"
-                  "  - the C compiler is not installed or not found\n"
+                  "  - a C compiler is not installed or not found\n"
                   "  - issues using mingw compiler on Windows 64bit (experimental support for now)\n"
-                  "This only means that the abel.direct implementation will not be available.\n")
+                  "This only means that the abel.direct C implementation will not be available.\n")
             print("**************************************************")
             # continue the install
             pass
@@ -80,8 +80,10 @@ else:
 
 setup(name='PyAbel',
       version=version,
-      description='A Python package for inverse Abel transforms',
-      author='Dan Hickstein',
+      description='A Python package for forward and inverse Abel transforms',
+      author='The PyAbel Team',
+      url='https://github.com/PyAbel/PyAbel',
+      license='MIT',
       packages=find_packages(),
       package_data={'abel': ['tests/data/*' ]},
       install_requires=[
@@ -90,6 +92,33 @@ setup(name='PyAbel',
               "scipy >= 0.14",
               ],
       test_suite="abel.tests.run_cli",
+      classifiers=[
+      # How mature is this project? Common values are
+      #   3 - Alpha
+      #   4 - Beta
+      #   5 - Production/Stable
+      'Development Status :: 3 - Alpha',
+
+      # Indicate who your project is intended for
+      'Intended Audience :: Science/Research',
+      'Intended Audience :: Developers',
+      'Topic :: Scientific/Engineering :: Mathematics',
+      'Topic :: Scientific/Engineering :: Physics',
+      'Topic :: Scientific/Engineering :: Medical Science Apps.',
+      'Topic :: Software Development :: Libraries :: Python Modules'
+
+      # Pick your license as you wish (should match "license" above)
+      'License :: OSI Approved :: MIT License',
+
+      # Specify the Python versions you support here. In particular, ensure
+      # that you indicate whether you support Python 2, Python 3 or both.
+      'Programming Language :: Python :: 2',
+      'Programming Language :: Python :: 2.7',
+      'Programming Language :: Python :: 3',
+      'Programming Language :: Python :: 3.3',
+      'Programming Language :: Python :: 3.4',
+      'Programming Language :: Python :: 3.5',
+      ],
       **setup_args
      )
 
