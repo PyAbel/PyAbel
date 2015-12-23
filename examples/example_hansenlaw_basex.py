@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 
 from abel.hansenlaw import *
 from abel.basex import BASEX 
+from abel.tools import *
 from abel.io import load_raw
 import scipy.misc
 from scipy.ndimage.interpolation import shift
@@ -50,7 +51,7 @@ im = np.loadtxt(filename)
 if cols%2 != 1:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
            " shift(im,(-0.5,-0.5))")
-    imx = shift(im,(-0.5,-0.5))
+    imx = shift(im,(-0.5,0.5))
     im  = imx[:-1,1:]  # drop left column, bottom row
     (rows,cols) = np.shape(im)
 c2 = cols//2   # half-image width
