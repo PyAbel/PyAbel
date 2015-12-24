@@ -191,10 +191,10 @@ def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
 
     """
     IM  = np.atleast_2d(IM)  
-    # Fix me! - temp fudge - fliplr code written for left-side image
-    IM  = IM[:,::-1]
+    # Fix me! - temp fudge - fliplr former code written for left-side image
+    #IM  = IM[:,::-1]
     N   = np.shape(IM)       # shape of input quadrant (half) 
-    AIM = np.zeros(N)         # forward/inverse Abel transform image
+    AIM = np.zeros(N)        # forward/inverse Abel transform image
 
     rows,cols = N 
 
@@ -234,8 +234,9 @@ def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
     # iterate along columns, starting outer edge (right side) 
     # toward the image center
 
-    for col in range(cols-1):       
-        Nm = (cols-col)/(cols-col-1.0)    # R0/R 
+    for col in range(cols-1,0,-1):       
+        #Nm = (cols-col)/(cols-col-1.0)    # R0/R 
+        Nm = (col+1)/col
         
         for k in range(K): # Iterate over k, the eigenvectors?
             X[:,k] = pow(Nm,lam[k])*X[:,k] +\
@@ -243,21 +244,22 @@ def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
         AIM[:,col] = X.sum(axis=1)
 
     # special case for the center pixel
-    AIM[:,cols-1] = AIM[:,cols-2]  
+    #AIM[:,cols-1] = AIM[:,cols-2]  
+    AIM[:,0] = AIM[:,1]  
 
     # Fix me! - flip back
-    AIM  = AIM[:,::-1]
+    #AIM  = AIM[:,::-1]
 
     if AIM.shape[0] == 1:
         if inverse:
-            return -AIM[0]*np.pi/dr    # 1/dr - from derivative
+            return AIM[0]*np.pi/dr    # 1/dr - from derivative
         else:
-            return -AIM[0]*np.pi*dr
+            return AIM[0]*np.pi*dr
     else:
         if inverse:
-            return -AIM*np.pi/dr 
+            return AIM*np.pi/dr 
         else:
-            return -AIM*np.pi*dr 
+            return AIM*np.pi*dr 
 
     # ---- end abel_hansenlaw_transform ----
 
