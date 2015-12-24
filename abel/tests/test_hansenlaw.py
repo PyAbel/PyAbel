@@ -71,14 +71,14 @@ def test_hansenlaw_curveA():
     # split r-domain to suit function pair
     rl = np.arange(0,0.5+delta/2,delta) # 0 <= r <= 0.5
     rr = np.arange(0.5+delta,1.0,delta) # 0.5 < r < 1.0
-    r  = np.concatenate((rl,rr),axis=0)  # whole r = [0,1)
+    r  = np.concatenate((rl,rr),axis=0) # whole r = [0,1)
 
     orig = np.concatenate((f(rl),f(rr)),axis=0)   # f(r)
     proj = np.concatenate((g(rl),g(rr)),axis=0)   # g(r)
 
     recon = iabel_hansenlaw_transform(proj,r[1]-r[0])  # inverse Abel 
                                                        # == f(r)
-    mask = r < 0.9  # check deviation away from small values
+    mask = r > 0.2  # check deviation away from small values
     assert_allclose(orig[mask], recon[mask], rtol=0.1, atol=0)
 
 def test_fabel_hansenlaw():
@@ -96,13 +96,12 @@ def test_fabel_hansenlaw():
 
     Aproj = fabel_hansenlaw_transform(orig,r[1]-r[0])  # forward Abel 
                                                        # == g(r)
+    mask = r > 0.1
+    assert_allclose(proj[mask],Aproj[mask], rtol=0.2, atol=0)
 
-    mask = np.logical_and(r > 0.1,r<0.9)  
-    assert_allclose(proj[mask],Aproj[mask], rtol=0.1, atol=0)
 
-
-def test_forward_direct_gaussian():
-    """Check fabel_direct with a Gaussian"""
+def test_forward_gaussian():
+    """Check fabel_hansenlaw with a Gaussian"""
     n = 51
     r_max = 25
 
