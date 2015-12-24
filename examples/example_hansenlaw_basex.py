@@ -44,6 +44,8 @@ if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
            " center_image_by_slice ()")
     im = center_image_by_slice (im,r_range=(300,400))[0]
+    #im = shift(im,(0.5,0.5))
+    #im = im[:-1, 1::]  # drop left col, bottom row
     (rows,cols) = np.shape(im)
 
 c2 = cols//2   # half-image width
