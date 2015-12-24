@@ -191,8 +191,6 @@ def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
 
     """
     IM  = np.atleast_2d(IM)  
-    # Fix me! - temp fudge - fliplr former code written for left-side image
-    #IM  = IM[:,::-1]
     N   = np.shape(IM)       # shape of input quadrant (half) 
     AIM = np.zeros(N)        # forward/inverse Abel transform image
 
@@ -208,8 +206,7 @@ def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform           
     def fGamma(Nm, lam, N, n):   
-        Nn1 = N - n - 1
-        return 2*Nn1*(1-pow(Nm,(lam+1)))/(lam+1)
+        return 2*n*(1-pow(Nm,(lam+1)))/(lam+1)
 
     # Eq. (18) used for the inverse transform           
     def iGamma(Nm, lam, N, n):   
@@ -235,8 +232,7 @@ def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
     # toward the image center
 
     for col in range(cols-1,0,-1):       
-        #Nm = (cols-col)/(cols-col-1.0)    # R0/R 
-        Nm = (col+1)/col
+        Nm = (col+1)/col          # R0/R
         
         for k in range(K): # Iterate over k, the eigenvectors?
             X[:,k] = pow(Nm,lam[k])*X[:,k] +\
@@ -244,22 +240,19 @@ def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
         AIM[:,col] = X.sum(axis=1)
 
     # special case for the center pixel
-    #AIM[:,cols-1] = AIM[:,cols-2]  
     AIM[:,0] = AIM[:,1]  
 
-    # Fix me! - flip back
-    #AIM  = AIM[:,::-1]
 
     if AIM.shape[0] == 1:
         if inverse:
             return AIM[0]*np.pi/dr    # 1/dr - from derivative
         else:
-            return AIM[0]*np.pi*dr
+            return -AIM[0]*np.pi*dr   # forward still needs '-' sign
     else:
         if inverse:
             return AIM*np.pi/dr 
         else:
-            return AIM*np.pi*dr 
+            return -AIM*np.pi*dr 
 
     # ---- end abel_hansenlaw_transform ----
 
