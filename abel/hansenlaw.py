@@ -205,18 +205,18 @@ def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
 
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform           
-    def fGamma(Nm, lam, N, n):   
+    def fgamma(Nm, lam, n):   
         return 2*n*(1-pow(Nm,(lam+1)))/(lam+1)
 
     # Eq. (18) used for the inverse transform           
-    def iGamma(Nm, lam, N, n):   
+    def igamma(Nm, lam, n):   
         if lam < -1:
-            return (1.0-pow(Nm,lam))/(pi*lam)
+            return (1-pow(Nm,lam))/(pi*lam)
         else:
             return -np.log(Nm)/pi    
 
     if inverse: # inverse transform
-        Gamma = iGamma 
+        gamma = igamma 
         # g' - derivative of the intensity profile
         if rows>1:
             gp = np.gradient(IM)[1]  # second element is gradient along 
@@ -224,20 +224,20 @@ def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
         else: # If there is only one row
             gp = np.atleast_2d(np.gradient(IM[0]))
     else:  # forward transform
-        Gamma = fGamma
+        gamma = fgamma
         gp = IM   
 
     # ------ The Hansen and Law algorithm ------------
     # iterate along columns, starting outer edge (right side) 
     # toward the image center
 
-    for col in range(cols-1,0,-1):       
-        Nm = (col+1)/col          # R0/R
+    for n in range(cols-1,0,-1):       
+        Nm = (n+1)/n          # R0/R
         
         for k in range(K): # Iterate over k, the eigenvectors?
             X[:,k] = pow(Nm,lam[k])*X[:,k] +\
-                     h[k]*Gamma(Nm,lam[k],cols,col)*gp[:,col] # Eq. (15 or 17)            
-        AIM[:,col] = X.sum(axis=1)
+                     h[k]*gamma(Nm,lam[k],n)*gp[:,n] # Eq. (15 or 17)            
+        AIM[:,n] = X.sum(axis=1)
 
     # special case for the center pixel
     AIM[:,0] = AIM[:,1]  
