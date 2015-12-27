@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 import numpy as np
 from scipy.ndimage import map_coordinates
 from scipy.ndimage.interpolation import shift
-from scipy.optimize import minimize
+from scipy.optimize import curve_fit, minimize 
 
 def calculate_speeds(IM,origin=None):
     """ This performs an angular integration of the image and returns the one-dimentional intensity profile 
@@ -33,6 +33,81 @@ def calculate_speeds(IM,origin=None):
 
     return speeds
 
+
+def anisotropy(AIM, r_range=[(0,-1),], theta_range=[(-3*np.pi/2,np.pi/2),]):
+    """
+    Evaluate anisotropy parameter ß, for a radial feature between
+    r_range = (Rmin, Rmax):
+    
+         I = σ_total/4π [ 1 + β P_2(cosθ) ]     Eq.(1)
+
+     where P_2 is a 2nd order Legendre polynomial
+
+        θ=0
+        +--------+
+        | *      |
+        |    *   |
+        |     *  |
+        +--------+ θ=π/2
+        0     ^  Rmax
+              |
+              peak intensity vs angle
+                                       + peak0   peak1
+                                      / \         /\
+    Radial image profile:    o-------.   .-------.  .----
+                                   |       |    |    |
+				  Rmin   Rmax  
+
+    Parameters:
+    ----------
+      - AIM: a NxN numpy array - inverse Abel transformed image
+      - r_range: list of tuple (Rmin,Rmax) tuples
+                 radial range of spectral feature
+                 default (0, Rmax)
+      - theta_range: list of tuple (theta_min,theta_max) angular range 
+                     to follow relative to vertical polarization
+
+    Returns:
+    --------
+      - Fit parameters: (amp,error_amp), (beta, error_beta)
+          - amplitude, error estimate
+          - β, error: anisotropy parameter, error estimate
+      - (theta,Ivstheta): 1d-numpy arrays of the intensity variation vs angle
+      - Eq. (1) fit
+
+    """
+    def P2(x):   # 2nd order Legendre polynomial
+        return (3*x*x-1)/2
+
+    def PAD(theta, beta, amp):
+        return amp*(1 + beta*P2(np.cos(theta)))   # Eq. (1) as above
+
+    polarAIM, r, theta = reproject_image_into_polar(AIM)
+    theta -= np.pi/2    # re-refernce zero angle to vertical
+
+    subr = np.ones(len(r), dtype=bool)
+    for rr in r_range:
+        subr = np.logical_and(subr,np.logical_and(r >= rr[0],r <= rr[1]))
+
+    subtheta = np.ones(len(theta), dtype=bool)
+    for rt in theta_range:
+        subtheta = np.logical_and(subtheta==True,
+                   np.logical_and(theta >= rt[0],theta <= rt[1]))
+
+    intensity = np.sum(polarAIM[subr], axis=0)  # sum intensity across radius
+                                                # of spectral feature
+
+    intensity_sub = intensity[subtheta]
+    theta_sub = theta[subtheta]
+
+    # fit angular intensity distribution 
+    popt, pcov = curve_fit(PAD, theta_sub, intensity_sub)
+
+    beta, amp = popt
+    error_beta, error_amp = np.sqrt(np.diag(pcov))
+
+    return (beta, error_beta), (amp, error_amp), (theta, intensity),\
+           (theta_sub, PAD(theta_sub, beta, amp))
 
 def get_image_quadrants(IM, reorient=False):
     """
@@ -241,9 +316,10 @@ def center_image_by_slice(IM, slice_width=10, r_range=(0,-1),
     bot   = bot[rmin:rmax]
 
     # compare and determine shift to best overlap slice profiles
-    shift0 = [0.0]
-    horiz = minimize(align, shift0, args=(left,right))
-    vert  = minimize(align, shift0, args=(top,bot))
+    # fix me! - should be consistent and use curve_fit()?
+    shift0 = [0,]
+    horiz = minimize(align, shift0, args=(left, right))
+    vert  = minimize(align, shift0, args=(top, bot))
 
     col_shift = horiz['x']
     row_shift = vert['x']
