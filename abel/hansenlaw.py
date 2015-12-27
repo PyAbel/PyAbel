@@ -160,31 +160,31 @@ def fabel_hansenlaw_transform(IM, dr=1):
     """
     Forward Abel transform for one-quadrant
     """
-    return _abel_hansenlaw_transform_wrapper(IM, dr=dr, inverse=False)
+    return _abel_hansenlaw_transform_core(IM, dr=dr, inverse=False)
 
 def iabel_hansenlaw_transform(IM, dr=1):
     """
     Inverse Abel transform for one-quadrant
     """
-    return _abel_hansenlaw_transform_wrapper(IM, dr=dr, inverse=True)
+    return _abel_hansenlaw_transform_core(IM, dr=dr, inverse=True)
 
 def fabel_hansenlaw(IM, dr=1, **args):
     """
     Helper function - splits image into quadrants for processing by
     fabel_hansenlaw_transform
     """
-    return _abel_hansenlaw_wrapper(IM, dr=dr, inverse=False, **args)
+    return _abel_hansenlaw_core(IM, dr=dr, inverse=False, **args)
 
 def iabel_hansenlaw(IM, dr=1, **args):
     """
     Helper function - splits image into quadrants for processing by
     iabel_hansenlaw_transform
     """
-    return _abel_hansenlaw_wrapper(IM, dr=dr, inverse=True, **args) 
+    return _abel_hansenlaw_core(IM, dr=dr, inverse=True, **args) 
 
 # ----- end naming ---------------
 
-def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
+def _abel_hansenlaw_transform_core(IM, dr=1, inverse=False):
     """
     Hansen and Law JOSA A2 510 (1985) forward and inverse Abel transform
     for right half (or right-top quadrant) of an image.
@@ -242,22 +242,18 @@ def _abel_hansenlaw_transform_wrapper(IM, dr=1, inverse=False):
     # special case for the center pixel
     AIM[:,0] = AIM[:,1]  
 
-
     if AIM.shape[0] == 1:
-        if inverse:
-            return AIM[0]*np.pi/dr    # 1/dr - from derivative
-        else:
-            return -AIM[0]*np.pi*dr   # forward still needs '-' sign
+        AIM = AIM[0]   # flatten to a vector
+
+    if inverse:
+        return AIM*np.pi/dr    # 1/dr - from derivative
     else:
-        if inverse:
-            return AIM*np.pi/dr 
-        else:
-            return -AIM*np.pi*dr 
+        return -AIM*np.pi*dr   # forward still needs '-' sign
 
     # ---- end abel_hansenlaw_transform ----
 
 
-def _abel_hansenlaw_wrapper(IM, dr=1, inverse=True, 
+def _abel_hansenlaw_core(IM, dr=1, inverse=True, 
                             use_quadrants=(True,True,True,True), 
                             vertical_symmetry=False, horizontal_symmetry=False, 
                             calc_speeds=False, verbose=False):
@@ -293,10 +289,10 @@ def _abel_hansenlaw_wrapper(IM, dr=1, inverse=True,
     if not vertical_symmetry and not horizontal_symmetry\
                              and np.all(use_quadrants):
         # individual quadrant inverse Abel transform
-        AQ0 = _abel_hansenlaw_transform_wrapper(Q0, dr, inverse)
-        AQ1 = _abel_hansenlaw_transform_wrapper(Q1, dr, inverse)
-        AQ2 = _abel_hansenlaw_transform_wrapper(Q2, dr, inverse)
-        AQ3 = _abel_hansenlaw_transform_wrapper(Q3, dr, inverse)
+        AQ0 = _abel_hansenlaw_transform_core(Q0, dr, inverse)
+        AQ1 = _abel_hansenlaw_transform_core(Q1, dr, inverse)
+        AQ2 = _abel_hansenlaw_transform_core(Q2, dr, inverse)
+        AQ3 = _abel_hansenlaw_transform_core(Q3, dr, inverse)
 
     else:  # combine selected quadrants according to assumed symmetry
         if vertical_symmetry:   # co-add quadrants
@@ -308,15 +304,15 @@ def _abel_hansenlaw_wrapper(IM, dr=1, inverse=True,
             Q0 = Q3 = Q0*use_quadrants[0]+Q3*use_quadrants[3] 
 
         # HL inverse Abel transform for quadrant 1
-        AQ1 = _abel_hansenlaw_transform_wrapper(Q1, dr, inverse)  # all possibilities include Q1
+        AQ1 = _abel_hansenlaw_transform_core(Q1, dr, inverse)  # all possibilities include Q1
 
         if vertical_symmetry:
             AQ0 = AQ1
-            AQ3 = AQ2 = _abel_hansenlaw_transform_wrapper(Q2, dr, inverse)
+            AQ3 = AQ2 = _abel_hansenlaw_transform_core(Q2, dr, inverse)
 
         if horizontal_symmetry:
             AQ2 = AQ1
-            AQ3 = AQ0 = _abel_hansenlaw_transform_wrapper(Q0, dr, inverse)
+            AQ3 = AQ0 = _abel_hansenlaw_transform_core(Q0, dr, inverse)
 
     # reassemble image
     recon = put_image_quadrants ((AQ0,AQ1,AQ2,AQ3), odd_size=cols%2)
@@ -345,5 +341,5 @@ fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring +\
                                       .replace('(inverse','(forward')\
                                       .replace('== inverse','== forward')\
                                       .replace('inverse image','forward image')
-#_abel_hansenlaw_transform_wrapper.__doc__ += _hansenlaw_header_docstring +\
+#_abel_hansenlaw_transform_core.__doc__ += _hansenlaw_header_docstring +\
                                               #_hansenlaw_transform_docstring
