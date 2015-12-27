@@ -43,16 +43,17 @@ def anisotropy(AIM, r_range=[(0,-1),], theta_range=[(-3*np.pi/2,np.pi/2),]):
 
      where P_2 is a 2nd order Legendre polynomial
 
-        θ=0
-        +--------+
-        | *      |
-        |    *   |
-        |     *  |
-        +--------+ θ=π/2
-        0     ^  Rmax
-              |
-              peak intensity vs angle
-                                       + peak0   peak1
+                 θ=0
+        +--------+--------+
+        |      * | *      |
+        |   *    |    *   |
+        |  *     |     *  |
+        +--------o--------+ θ=π/2
+        |  *     |     *  |
+        |   *    |    *   |
+        |     *  | *      |    * = peak intensity vs angle
+        +--------+--------+
+                 0       Rmax          + peak0   peak1
                                       / \         /\
     Radial image profile:    o-------.   .-------.  .----
                                    |       |    |    |
@@ -72,7 +73,8 @@ def anisotropy(AIM, r_range=[(0,-1),], theta_range=[(-3*np.pi/2,np.pi/2),]):
       - Fit parameters: (amp,error_amp), (beta, error_beta)
           - amplitude, error estimate
           - β, error: anisotropy parameter, error estimate
-      - (theta,Ivstheta): 1d-numpy arrays of the intensity variation vs angle
+      - (beta, error_beta), (amp, error_amp), (theta, intensity),\
+           (theta_sub, function_fit0
       - Eq. (1) fit
 
     """
