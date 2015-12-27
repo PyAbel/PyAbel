@@ -27,5 +27,7 @@ plt.annotate("$\\beta = {:.3f}\pm{:.3f}$".format(beta[0],beta[1]), (-2,-2),
              fontsize='large')
 plt.title("O2- electron anisotropy $I {\propto} [1 + \\beta P_{2}(\cos{\\theta})]$")
 plt.legend(loc=0)
+plt.xlabel("angle $\\theta$")
+plt.ylabel("intensity variation")
 plt.savefig("example_anisotropy.png",dpi=150)
 plt.show()
