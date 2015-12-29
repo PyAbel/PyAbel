@@ -10,7 +10,7 @@ from scipy.ndimage import map_coordinates
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize 
 
-def calculate_speeds(IM,origin=None):
+def calculate_speeds(IM, origin=None):
     """ This performs an angular integration of the image and returns the one-dimentional intensity profile 
         as a function of the radial coordinate. It assumes that the image is properly centered. 
         
@@ -34,82 +34,91 @@ def calculate_speeds(IM,origin=None):
     return speeds
 
 
-def anisotropy(AIM, r_range=[(0,-1),], theta_range=[(-3*np.pi/2,np.pi/2),]):
+def calculate_angular_distributions(IM, radial_ranges=None):
     """
-    Evaluate anisotropy parameter ß, for a radial feature between
-    r_range = (Rmin, Rmax):
+    Intensity variation in the angular coordinate, theta
+
+    This function is the theta-coordinate complement to 'calculate_speeds(IM)'
+
+    (optionally and more useful) returning intensity vs angle for specific
+    radial ranges
+
+   Parameters
+   ----------
+     - IM: rows x cols  numpy array - image
+
+     - radial_ranges: tuple list [(r0, r1), (r2, r3), ...] 
+                      Evaluate the intensity vs angle for the radial
+                      ranges r0_r1, r2_r3, etc. 
+
+    Returns
+    ---------
+     - theta: 1d numpy array of angles, relative to vertical direction
+     - angular_dist: cols/2 x number of radial ranges numpy array 
+                     Intensity vs angle distribution for each selected
+                     radial range
+    """
+
+    polarIM, r, theta = reproject_image_into_polar(IM)
+
+    if radial_ranges is None:
+        radial_ranges = [(0,len(r)),]
+
+    intensity_vs_theta_at_R = []
+    for rr in radial_ranges:
+        subr = np.logical_and(r >= rr[0],r <= rr[1])
+
+        # sum intensity across radius of spectral feature
+        intensity_vs_theta_at_R.append(np.sum(polarIM[subr], axis=0))
+
+    return theta, intensity_vs_theta_at_R
+
+
+def anisotropy_parameter (theta, intensity, theta_ranges=None):
+    """
+    Evaluate anisotropy parameter ß, for I vs θ data
     
-         I = σ_total/4π [ 1 + β P_2(cosθ) ]     Eq.(1)
+         I = σ_total/4π [ 1 + β P2(cosθ) ]     Eq.(1)
 
-     where P_2 is a 2nd order Legendre polynomial
+     where P2(x)=(3x^2-1)/2 is a 2nd order Legendre polynomial.
+    
+    Cooper and Zare "Angular distribution of photoelectrons"
+    J Chem Phys 48, 942-943 (1968) doi:10.1063/1.1668742
 
-                 θ=0
-        +--------+--------+
-        |      * | *      |
-        |   *    |    *   |
-        |  *     |     *  |
-        +--------o--------+ θ=π/2
-        |  *     |     *  |
-        |   *    |    *   |
-        |     *  | *      |    * = peak intensity vs angle
-        +--------+--------+
-                 0       Rmax          + peak0   peak1
-                                      / \         /\
-    Radial image profile:    o-------.   .-------.  .----
-                                   |       |    |    |
-				  Rmin   Rmax  
 
     Parameters:
-    ----------
-      - AIM: a NxN numpy array - inverse Abel transformed image
-      - r_range: list of tuple (Rmin,Rmax) tuples
-                 radial range of spectral feature
-                 default (0, Rmax)
-      - theta_range: list of tuple (theta_min,theta_max) angular range 
-                     to follow relative to vertical polarization
-
+    -----------
+     - theta
+     - intensity: 1d numpy array
+     - theta_ranges: list of tuple angular ranges over which to fit
+                     
     Returns:
     --------
-      - Fit parameters: (amp,error_amp), (beta, error_beta)
-          - amplitude, error estimate
-          - β, error: anisotropy parameter, error estimate
-      - (beta, error_beta), (amp, error_amp), (theta, intensity),\
-           (theta_sub, function_fit0
-      - Eq. (1) fit
+      - fit parameters: (beta, error_beta), (amplitude, error_amplitude)
 
     """
     def P2(x):   # 2nd order Legendre polynomial
         return (3*x*x-1)/2
 
-    def PAD(theta, beta, amp):
-        return amp*(1 + beta*P2(np.cos(theta)))   # Eq. (1) as above
+    def PAD(theta, beta, amplitude):
+        return amplitude*(1 + beta*P2(np.cos(theta)))   # Eq. (1) as above
 
-    polarAIM, r, theta = reproject_image_into_polar(AIM)
-    theta -= np.pi/2    # re-refernce zero angle to vertical
-
-    subr = np.ones(len(r), dtype=bool)
-    for rr in r_range:
-        subr = np.logical_and(subr,np.logical_and(r >= rr[0],r <= rr[1]))
-
-    subtheta = np.ones(len(theta), dtype=bool)
-    for rt in theta_range:
-        subtheta = np.logical_and(subtheta==True,
-                   np.logical_and(theta >= rt[0],theta <= rt[1]))
-
-    intensity = np.sum(polarAIM[subr], axis=0)  # sum intensity across radius
-                                                # of spectral feature
-
-    intensity_sub = intensity[subtheta]
-    theta_sub = theta[subtheta]
+    # select data to be included in the fit by θ
+    if theta_ranges is not None:
+        subtheta = np.ones(len(theta), dtype=bool) 
+        for rt in theta_ranges:
+            subtheta = np.logical_and(subtheta==True,
+                       np.logical_and(theta >= rt[0],theta <= rt[1]))
+        theta = theta[subtheta]
+        intensity = intensity[subtheta] 
 
     # fit angular intensity distribution 
-    popt, pcov = curve_fit(PAD, theta_sub, intensity_sub)
+    popt, pcov = curve_fit(PAD, theta, intensity)
 
-    beta, amp = popt
-    error_beta, error_amp = np.sqrt(np.diag(pcov))
+    beta, amplitude = popt
+    error_beta, error_amplitude = np.sqrt(np.diag(pcov))
 
-    return (beta, error_beta), (amp, error_amp), (theta, intensity),\
-           (theta_sub, PAD(theta_sub, beta, amp))
+    return (beta, error_beta), (amplitude, error_amplitude)
 
 def get_image_quadrants(IM, reorient=False):
     """
@@ -397,7 +406,7 @@ def cart2polar(x, y):
     Transform carthesian coordinates to polar
     """
     r = np.sqrt(x**2 + y**2)
-    theta = np.arctan2(y, x)
+    theta = np.arctan2(x, y)   # θ referenced to vertical
     return r, theta
 
 
@@ -405,8 +414,8 @@ def polar2cart(r, theta):
     """
     Transform polar coordinates to carthesian
     """
-    x = r * np.sin(theta)
-    y = r * np.cos(theta)
+    y = r * np.sin(theta)   # θ referenced to vertical
+    x = r * np.cos(theta)
     return x, y
 
 
