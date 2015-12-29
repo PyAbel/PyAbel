@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 
-from .tools import get_image_quadrants
+from .tools import get_image_quadrants, CythonExtensionsNotBuilt
 
 class AbelTiming(object):
     def __init__(self, n=[201, 401], n_max_bs=500):
@@ -25,17 +25,26 @@ class AbelTiming(object):
         from .basex import get_basis_sets_cached, basex_transform
         from .hansenlaw import iabel_hansenlaw
         from timeit import Timer
+        from .direct import fabel_direct, iabel_direct, cython_ext
+
 
         self.n = n
 
-        NREPEAT = 10
+        NREPEAT = 5
 
         res_fabel = {}
         res_iabel = {'BASEX':     {'bs': [], 'tr': []},
                'HansenLaw': {'tr': []}
                }
+        res_fabel['direct_Python'] = {'tr': []}
+        res_iabel['direct_Python'] = {'tr': []}
+        if cython_ext:
+            res_fabel['direct_C'] = {'tr': []}
+            res_iabel['direct_C'] = {'tr': []}
+
         for ni in n:
             x = np.random.randn(ni,ni)
+            # direct implementations
             if ni <= n_max_bs:
                 bs = get_basis_sets_cached(ni, basis_dir=None)
                 res_iabel['BASEX']['bs'].append(
@@ -48,6 +57,17 @@ class AbelTiming(object):
 
             res_iabel['HansenLaw']['tr'].append(
                 Timer(lambda: iabel_hansenlaw(x, verbose=False)).timeit(number=NREPEAT)/NREPEAT)
+
+            res_iabel['direct_Python']['tr'].append(
+                Timer(lambda: iabel_direct(x, correction=False, backend='Python')).timeit(number=NREPEAT)/NREPEAT)
+            res_fabel['direct_Python']['tr'].append(
+                Timer(lambda: fabel_direct(x, correction=False, backend='Python')).timeit(number=NREPEAT)/NREPEAT)
+            if cython_ext:
+                res_iabel['direct_C']['tr'].append(
+                    Timer(lambda: iabel_direct(x, correction=False, backend='C')).timeit(number=NREPEAT)/NREPEAT)
+                res_fabel['direct_C']['tr'].append(
+                    Timer(lambda: fabel_direct(x, correction=False, backend='C')).timeit(number=NREPEAT)/NREPEAT)
+
         self.fabel = res_fabel
         self.iabel = res_iabel
 
@@ -83,6 +103,7 @@ class AbelTiming(object):
             return out
 
         out += print_benchmark('Direct', self.fabel)
+        out += ['']
         out += print_benchmark('Inverse', self.iabel)
 
         return '\n'.join(out)
@@ -129,7 +150,7 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
 
 
 
-def absolute_ratio_benchmark(analytical, recon):
+def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
     """
     Check the absolute ratio between an analytical function and the result
      of a inv. Abel reconstruction.
@@ -140,6 +161,12 @@ def absolute_ratio_benchmark(analytical, recon):
       - recon: 1D ndarray: a reconstruction (i.e. inverse abel) given by some PyAbel implementation
     """
     mask = analytical.mask_valid
-    err = analytical.func[mask]/recon[mask]
+
+    if kind == 'inverse':
+        func = analytical.func
+    elif kind == 'direct':
+        func = analytical.abel
+
+    err = func[mask]/recon[mask]
     return err
 

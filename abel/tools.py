@@ -241,7 +241,9 @@ def index_coords(data, origin=None):
         origin_x, origin_y = nx // 2, ny // 2
     else:
         origin_x, origin_y = origin
-    x, y = np.meshgrid(np.arange(nx), np.arange(ny))
+    
+    x, y = np.meshgrid(np.arange(float(nx)), np.arange(float(ny)))
+    
     x -= origin_x
     y -= origin_y
     return x, y
@@ -263,3 +265,17 @@ def polar2cart(r, theta):
     x = r * np.sin(theta)
     y = r * np.cos(theta)
     return x, y
+
+
+
+class CythonExtensionsNotBuilt(Exception):
+    pass
+
+
+CythonExtensionsNotBuilt_msg = CythonExtensionsNotBuilt(
+        "Cython extensions were not propery built.\n"
+        "Either the complilation failed at the setup phase (no complier, compiller not found etc),\n"
+        "or you are using Windows 64bit with Anaconda that has a known issue with Cython\n"
+        "https://groups.google.com/a/continuum.io/forum/#!topic/anaconda/3ES7VyW4t3I \n"
+        )
+
