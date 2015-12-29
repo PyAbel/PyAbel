@@ -63,5 +63,5 @@ plt.ylabel("intensity")
 
 #plt.title("$I \propto 1 + \\beta P_{2}(\cos\\theta)$")
 plt.suptitle("example_anisotropy_parameter.py",fontsize="large")
-plt.savefig("example_anisotropy_parameyer.png",dpi=150)
+plt.savefig("example_anisotropy_parameter.png",dpi=150)
 plt.show()
