@@ -22,9 +22,10 @@ IM = np.loadtxt("data/O2-ANU1024.txt.bz2")
 # inverse Abel transform
 AIM = iabel_hansenlaw(IM)
 
-# radial ranges for which to follow intensity vs angle
+# radial ranges (of spectral features) for which to follow intensity vs angle
 r_range=[(93,111),(145,162),(255,280),(330,350),(350,370),(370,390),(390,410),(410,430)]
 
+# map to intensity vs theta for each radial range
 theta, intensities = calculate_angular_distributions(AIM, r_range)
 
 print ("radial-range      anisotropy parameter (β)")
@@ -33,7 +34,7 @@ for rr,intensity in zip(r_range,intensities):
     result = "    {:3d}-{:3d}        {:+.2f}+-{:.2f}".format(*rr+beta)
     print (result)
 
-# plot one radial intensity variation and fit
+# plot one example radial intensity variation and fit
 rr = r_range[3]
 intensity = intensities[3]
 beta, amp  = anisotropy_parameter(theta, intensity)
@@ -41,7 +42,8 @@ plt.subplot(121)
 rows,cols = AIM.shape
 rw2 = rows//2
 cl2 = rows//2
-vmax = AIM[rw2+50:,:].max()
+vmax = AIM[rw2+50:,:].max() # max image intensity, exclude center line 
+# draw a circle representing this radial range
 for rw in range(rows):
    for cl in range(cols):
        circ = (rw-rw2)**2 + (cl-cl2)**2
