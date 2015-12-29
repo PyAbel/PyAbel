@@ -84,7 +84,9 @@ def BASEX(data, center, n,
     """
     # make dimension-of-rawdata into list to account for rectangular n
     # Format of n -> n = [n_vert, n_horz]
-    if type(n) is not list: n = [ n ] 
+    if type(n) is not list: 
+        if type(n) is int: n = [ n ] 
+        else: n = list(n)
 
     # duplicate elements of n if n is single-valued (rawdata is square)
     if len(n) < 2: n = n*2
@@ -298,7 +300,7 @@ def _nbf_default_asym(n_vert, n_horz, nbf):
                     '    This behaviour is currently not tested and should not be used\
                     unless you know exactly what you are doing. Setting nbf="auto" is best for now.')
         nbf = [nbf]*2 # Setting identical number of vert and horz functions
-    elif type(nbf) == list:
+    elif isinstance(nbf, (list, tuple)):
         if nbf[-1] != n_horz//2 +1:
             print('Warning: the number of basis functions nbf = {} != (n//2 + 1) = {}\n'.format(nbf[-1], n_horz//2 +1),
                     '    This behaviour is currently not tested and should not be used\
