@@ -663,7 +663,7 @@ def _bs_basex_asym(n_vert=1001, n_horz = 501,
     k2 = (k*k)[None, :]
     l = np.arange(1, n_vert)
     l2 = (l*l)[:, None]
-    Mc_vert[1:, 1:] = exp(k2 * (1 + log(l2/k2)) - l2)
+    Mc_vert[1:, 1:] = np.exp(k2 * (1 + np.log(l2/k2)) - l2)
 
     if verbose:
         print("...{}".format(k+1))
