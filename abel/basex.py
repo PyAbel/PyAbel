@@ -654,26 +654,16 @@ def _bs_basex_asym(n_vert=1001, n_horz = 501,
 
     if verbose:
         print('Generating vertical BASEX basis sets for n_vert = {}, nbf_vert = {}:\n'.format(n_vert, nbf_vert))
-        sys.stdout.write('0')
+        # sys.stdout.write('0')
         sys.stdout.flush()
 
     # delta_v = np.fmax(np.arange(nbf_vert)*32 - 0, 8000) 
 
-    for k in range(1, nbf_vert):
-        k2 = k*k
-        log_k2 = log(k2)
-
-        for l in range(1, n_vert):
-            l2 = l*l
-            log_l2 = log(l2)
-
-            val = exp(k2 * (1 + log(l2/k2)) - l2) 
-
-            Mc_vert[l, k] = val 
-
-        if verbose and k % 50 == 0:
-            sys.stdout.write('...{}'.format(k))
-            sys.stdout.flush()
+    k = np.arange(1, nbf_vert)
+    k2 = (k*k)[None, :]
+    l = np.arange(1, n_vert)
+    l2 = (l*l)[:, None]
+    Mc_vert[1:, 1:] = exp(k2 * (1 + log(l2/k2)) - l2)
 
     if verbose:
         print("...{}".format(k+1))
