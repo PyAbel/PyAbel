@@ -10,7 +10,7 @@ from scipy.ndimage import map_coordinates
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize 
 
-def calculate_speeds(IM, origin=None, Jacobian=False, grid=None):
+def calculate_speeds(IM, origin=None, Jacobian=False, polar_grid=None):
     """ This performs an angular integration of the image and returns the one-dimentional intensity profile 
         as a function of the radial coordinate. It assumes that the image is properly centered. 
         
@@ -20,16 +20,16 @@ def calculate_speeds(IM, origin=None, Jacobian=False, grid=None):
       - origin: tuple, image center coordinate 
                 defaults to (rows//2+rows%2,cols//2+cols%2)
       - Jacobian: boolean, include sinθ in the angular sum (integration)
-      - grid: tuple (nr, nt) integer size of r, theta grids 
-              = shape of the polar image
-              defaults to (r.max(), rows//2+rows%2)
+      - polar_grid: tuple (nr, nt) integer size of r, theta grids 
+                    = shape of the polar image
+                    defaults to (r.max(), rows//2+rows%2)
       
      Returns
      -------
       - speeds: a 1D array of the integrated intensity versus the radial coordinate.
      """
     
-    polarIM, r, theta = reproject_image_into_polar(IM, origin, grid)
+    polarIM, r, theta = reproject_image_into_polar(IM, origin, polar_grid)
 
     if Jacobian:  #  x sinθ    
         sintheta = np.abs(np.sin(theta))
@@ -362,7 +362,7 @@ def center_image_by_slice(IM, slice_width=10, r_range=(0,-1),
 # http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
 # It is possible that there is a faster way to convert to polar coordinates.
 
-def reproject_image_into_polar(data, origin=None, grid=None):
+def reproject_image_into_polar(data, origin=None, polar_grid=None):
     """Reprojects a 2D numpy array ("data") into a polar coordinate system.
     "origin" is a tuple of (x0, y0) and defaults to the center of the image.
     
@@ -370,7 +370,7 @@ def reproject_image_into_polar(data, origin=None, grid=None):
     ----------
      - data:   rowsxcolums numpy array
      - origin: tuple, the coordinate of the image center
-     - grid:   size of the r, and theta 1d arrays 
+     - polar_grid:   size of the r, and theta 1d arrays 
     """
     ny, nx = data.shape[:2]
     if origin is None:
@@ -381,8 +381,8 @@ def reproject_image_into_polar(data, origin=None, grid=None):
     r, theta = cart2polar(x, y)   # convert (x,y) -> (r,θ)
 
     # set the length of the r, and theta grids
-    if grid is not None:
-        nr, nt = grid
+    if polar_grid is not None:
+        nr, nt = polar_grid
     else:
         nr = r.max()      # this is sqrt(ny**2 + nx**2)
         nt = ny//2 + ny%2 
@@ -407,7 +407,7 @@ def reproject_image_into_polar(data, origin=None, grid=None):
 def index_coords(data, origin=None):
     """Creates x & y coords for the indicies in a numpy array "data".
     "origin" defaults to the center of the image. Specify origin=(0,0)
-    to set the origin to the top right corner of the image.
+    to set the origin to the top left corner of the image.
     """
     ny, nx = data.shape[:2]
     if origin is None:
