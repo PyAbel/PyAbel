@@ -10,9 +10,10 @@ from scipy.ndimage import map_coordinates
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize 
 
-def calculate_speeds(IM, origin=None, Jacobian=False, polar_grid=None):
-    """ This performs an angular integration of the image and returns the one-dimentional intensity profile 
-        as a function of the radial coordinate. It assumes that the image is properly centered. 
+def calculate_speeds(IM, origin=None, Jacobian=False, polar_grid_sizes=None):
+    """ This performs an angular integration of the image returning 
+        the one-dimentional intensity profile as a function of the 
+        radial coordinate. 
         
      Parameters
      ----------
@@ -20,16 +21,17 @@ def calculate_speeds(IM, origin=None, Jacobian=False, polar_grid=None):
       - origin: tuple, image center coordinate 
                 defaults to (rows//2+rows%2,cols//2+cols%2)
       - Jacobian: boolean, include sinθ in the angular sum (integration)
-      - polar_grid: tuple (nr, nt) integer size of r, theta grids 
-                    = shape of the polar image
-                    defaults to (r.max(), rows//2+rows%2)
+      - polar_grid_sizes: tuple (nr, nt) integer size of r, theta grids 
+                          = shape of the polar image
+                          defaults to (r.max(), rows//2+rows%2)
       
      Returns
      -------
-      - speeds: a 1D array of the integrated intensity versus the radial coordinate.
+      - speeds: a 1D array of the integrated intensity 
+      - r: the 1D array of radial coordinates.
      """
     
-    polarIM, r, theta = reproject_image_into_polar(IM, origin, polar_grid)
+    polarIM, r, theta = reproject_image_into_polar(IM, origin, polar_grid_sizes)
 
     if Jacobian:  #  x sinθ    
         sintheta = np.abs(np.sin(theta))
@@ -42,10 +44,10 @@ def calculate_speeds(IM, origin=None, Jacobian=False, polar_grid=None):
     #n = np.min(np.shape(IM))//2     # find the shortest radial coordinate
     #speeds = speeds[:n]          # clip the 1D data
 
-    return speeds, r
+    return speeds if polar_grid_sizes is None else speeds, r
 
 
-def calculate_angular_distributions(IM, radial_ranges=None):
+def calculate_angular_distributions(IM, radial_ranges=None, polar_grid_sizes=None):
     """
     Intensity variation in the angular coordinate, theta
 
@@ -62,6 +64,8 @@ def calculate_angular_distributions(IM, radial_ranges=None):
                       Evaluate the intensity vs angle for the radial
                       ranges r0_r1, r2_r3, etc. 
 
+     - polar_grid_sizes: tuple (nr, nt) radial and theta grid sizes
+
     Returns
     ---------
      - theta: 1d numpy array of angles, relative to vertical direction
@@ -70,7 +74,7 @@ def calculate_angular_distributions(IM, radial_ranges=None):
                      radial range
     """
 
-    polarIM, r, theta = reproject_image_into_polar(IM)
+    polarIM, r, theta = reproject_image_into_polar(IM, polar_grid_sizes)
 
     if radial_ranges is None:
         radial_ranges = [(0,r[-1]),]
@@ -362,7 +366,7 @@ def center_image_by_slice(IM, slice_width=10, r_range=(0,-1),
 # http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
 # It is possible that there is a faster way to convert to polar coordinates.
 
-def reproject_image_into_polar(data, origin=None, polar_grid=None):
+def reproject_image_into_polar(data, origin=None, polar_grid_sizes=None):
     """Reprojects a 2D numpy array ("data") into a polar coordinate system.
     "origin" is a tuple of (x0, y0) and defaults to the center of the image.
     
@@ -370,7 +374,7 @@ def reproject_image_into_polar(data, origin=None, polar_grid=None):
     ----------
      - data:   rowsxcolums numpy array
      - origin: tuple, the coordinate of the image center
-     - polar_grid:   size of the r, and theta 1d arrays 
+     - polar_grid_sizes:   size of the r, and theta 1d arrays 
     """
     ny, nx = data.shape[:2]
     if origin is None:
@@ -381,8 +385,8 @@ def reproject_image_into_polar(data, origin=None, polar_grid=None):
     r, theta = cart2polar(x, y)   # convert (x,y) -> (r,θ)
 
     # set the length of the r, and theta grids
-    if polar_grid is not None:
-        nr, nt = polar_grid
+    if polar_grid_sizes is not None:
+        nr, nt = polar_grid_sizes
     else:
         nr = r.max()      # this is sqrt(ny**2 + nx**2)
         nt = ny//2 + ny%2 
