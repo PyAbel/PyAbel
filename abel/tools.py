@@ -33,9 +33,10 @@ def calculate_speeds(IM, origin=None, Jacobian=False, polar_grid_sizes=None):
     
     polarIM, r, theta = reproject_image_into_polar(IM, origin, polar_grid_sizes)
 
-    if Jacobian:  #  x sinθ    
+    if Jacobian:  #  x r sinθ    
         sintheta = np.abs(np.sin(theta))
         polarIM = polarIM*sintheta[np.newaxis, :]
+        polarIM = polarIM*r[:,np.newaxis]
     
     speeds = np.sum(polarIM, axis=1)
     
