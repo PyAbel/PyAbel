@@ -17,10 +17,11 @@ from time import time
 data = np.loadtxt('data/O2-ANU1024.txt.bz2')
 im = data.copy()
 h,w  = np.shape(data)
+print ("image 'data/O2-ANU2048.txt' shape = {:d}x{:d}".format(h,w))
 h2 = h//2
 w2 = w//2
 mask = np.zeros(data.shape,dtype=bool)
-mask[h2-20:h2,140:160] = True   # region of bright pixels for intensity normalization
+mask[h2-40:h2,140:160] = True   # region of bright pixels for intensity normalization
 
 # direct ------------------------------
 print ("direct inverse ...")  
@@ -60,13 +61,13 @@ hl /= hlmax
 hl[0:50,0:50] = 5  # tag image top-left corner
 
 # basex  ------------------------------
-centre = (h2,w2) 
+centre = (h2-0.5,w2+0.5) 
 print ("basex inverse ...")
 data = im.copy()
 t0 = time()
 basex,basex_speed = BASEX (data,centre,n=h,calc_speeds=True,verbose=False)
 print ("                   {:.1f} sec".format(time()-t0))
-basexmax = basex[mask].max()
+basexmax = basex[mask].max()*2  # fix me! fudge factor
 basex  /= basexmax
 
 # reassemble image, each quadrant a different method
