@@ -111,7 +111,7 @@ _hansenlaw_docstring = \
     Parameters:
     ----------
      - IM: a rows x cols numpy array
-     -  dr: float - sampling size (=1 for pixel images), used for scaling result
+     - dr: float - sampling size (=1 for pixel images), used to scale result
      - use_quadrants: boolean tuple, (Q0,Q1,Q2,Q3)
              +--------+--------+                
              | Q1   * | *   Q0 |
@@ -146,7 +146,6 @@ _hansenlaw_docstring = \
                            AQ | AQ
 
 
-      - calc_speeds: boolean, evaluate speed profile
       - verbose: boolean, more output, timings etc.
       - inverse: boolean: False = forward Abel transform
                           True  = inverse Abel transform
@@ -254,12 +253,12 @@ def _abel_hansenlaw_transform_core(IM, dr=1, inverse=False):
 
 
 def _abel_hansenlaw_core(IM, dr=1, inverse=True, 
-                            use_quadrants=(True,True,True,True), 
-                            vertical_symmetry=False, horizontal_symmetry=False, 
-                            calc_speeds=False, verbose=False):
+                         use_quadrants=(True,True,True,True), 
+                         vertical_symmetry=False, horizontal_symmetry=False, 
+                         verbose=False):
     """
     Returns the forward or the inverse Abel transform of a function
-    sampled using the Hansen and Law algorithm
+    using the Hansen and Law algorithm
 
     """
 
@@ -273,18 +272,18 @@ def _abel_hansenlaw_core(IM, dr=1, inverse=True,
     rows,cols = np.shape(IM)
 
     if not np.any(use_quadrants):
-        verboseprint ("HL: Error: no image quadrants selected to use")
+        verboseprint("HL: Error: no image quadrants selected to use")
         return np.zeros((rows,cols))
         
-    verboseprint ("HL: Calculating inverse Abel transform:",
-                      " image size {:d}x{:d}".format(rows,cols))
+    verboseprint("HL: Calculating inverse Abel transform:",
+                 " image size {:d}x{:d}".format(rows,cols))
 
     t0=time()
     
     # split image into quadrants
     Q0,Q1,Q2,Q3 = get_image_quadrants(IM, reorient=True)
 
-    verboseprint ("HL: Calculating inverse Abel transform ... ")
+    verboseprint("HL: Calculating inverse Abel transform ... ")
 
     if not vertical_symmetry and not horizontal_symmetry\
                              and np.all(use_quadrants):
@@ -315,20 +314,12 @@ def _abel_hansenlaw_core(IM, dr=1, inverse=True,
             AQ3 = AQ0 = _abel_hansenlaw_transform_core(Q0, dr, inverse)
 
     # reassemble image
-    recon = put_image_quadrants ((AQ0,AQ1,AQ2,AQ3), odd_size=cols%2)
+    recon = put_image_quadrants((AQ0,AQ1,AQ2,AQ3), odd_size=cols%2)
 
-    verboseprint ("{:.2f} seconds".format(time()-t0))
+    verboseprint("{:.2f} seconds".format(time()-t0))
 
-    if calc_speeds:
-        verboseprint('Generating speed distribution ...')
-        t1 = time()
+    return recon
 
-        speeds = calculate_speeds(recon)
-
-        verboseprint('{:.2f} seconds'.format(time() - t1))
-        return recon, speeds
-    else:
-        return recon
 
 # append the same docstring to all functions - borrowed from @rth
 iabel_hansenlaw_transform.__doc__ += _hansenlaw_header_docstring +\
@@ -337,9 +328,9 @@ fabel_hansenlaw_transform.__doc__ += _hansenlaw_header_docstring +\
                                      _hansenlaw_transform_docstring
 iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_docstring
 fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring +\
-                           _hansenlaw_docstring.replace('AQ','fQ')\
-                                      .replace('(inverse','(forward')\
-                                      .replace('== inverse','== forward')\
-                                      .replace('inverse image','forward image')
+                           _hansenlaw_docstring.replace('AQ', 'fQ')\
+                                      .replace('(inverse', '(forward')\
+                                      .replace('== inverse', '== forward')\
+                                      .replace('inverse image', 'forward image')
 #_abel_hansenlaw_transform_core.__doc__ += _hansenlaw_header_docstring +\
                                               #_hansenlaw_transform_docstring
