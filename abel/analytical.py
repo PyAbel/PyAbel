@@ -16,7 +16,7 @@ class BaseAnalytical(object):
           - self.func: the values of the original function (same shape as self.r)
           - self.abel: the values of the Abel transform (same shape as self.r)
           - self.mask_valid: mask of the r interval where the function is well smoothed/well behaved 
-                           (no known artefacts in the inverse Abel reconstuction), typically expluding
+                           (no known artefacts in the inverse Abel reconstuction), typically excluding
                            the origin, the domain boundaries, and function discontinuities, that can 
                            be used for unit testing. 
 

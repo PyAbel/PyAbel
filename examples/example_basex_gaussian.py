@@ -27,7 +27,7 @@ center = n//2
 recon = BASEX(ref.abel, center,  n=n, basis_dir=None, dr=ref.dr,
         verbose=True, calc_speeds=False)
 
-plt.plot(ref.r, recon , '--o',c='red', label='Inverse transform [BASEX]')
+ax.plot(ref.r, recon , '--o',c='red', label='Inverse transform [BASEX]')
 
 ax.legend()
 
