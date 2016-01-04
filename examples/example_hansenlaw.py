@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from abel.hansenlaw import *
 from abel.tools import center_image_by_slice
 import scipy.misc
@@ -14,24 +18,23 @@ from scipy.ndimage.interpolation import shift
 # ANU / The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
-# path to the file
+# image file
 filename = 'data/O2-ANU1024.txt.bz2'
 
-# Load an image file as a numpy array
+# Load as a numpy array
 print('Loading ' + filename)
-IM = np.loadtxt(filename)   # use plt.imread(filename) for image file format
+IM = np.loadtxt(filename)   
+# use plt.imread(filename) to load image formats (.png, .jpg, etc)
 
-rows,cols = np.shape(IM)    # image size
+rows,cols = IM.shape    # image size
 
 # Image center should be mid-pixel, i.e. odd number of colums
 if cols%2 != 1: 
    print ("HL: even pixel width image, re-adjust image centre")
    # re-center image based on horizontal and vertical slice profiles
+   # covering the radial range [300:400] pixels from the center
    IM = center_image_by_slice (IM,r_range=(300,400))[0]
-#    print ("HL: shift(IM,(-0.5,-0.5))")
-#    IMx = shift(IM,(-0.5,-0.5))
-#    IM  = IMx[:-1,1:]  # drop first column, last row 
-   rows,cols = np.shape(IM)   # new image size
+   rows,cols = IM.shape   # new image size
 
 c2 = cols//2   # half-image
 print ('image size {:d}x{:d}'.format(rows,cols))
@@ -39,11 +42,12 @@ print ('image size {:d}x{:d}'.format(rows,cols))
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon, speeds = iabel_hansenlaw(IM, dr=1, use_quadrants=(True,True,True,True),
+AIM = iabel_hansenlaw(IM, dr=1, use_quadrants=(True,True,True,True),
                                 vertical_symmetry=False,
                                 horizontal_symmetry=False,
-                                calc_speeds=True,
                                 verbose=True)
+
+speeds = calculate_speeds (AIM)
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))
@@ -59,7 +63,7 @@ ax1.set_ylabel('y (pixels)')
 ax1.set_title('velocity map image')
 
 # Plot the 2D transform
-im2 = ax2.imshow(recon,origin='lower',aspect='auto',vmin=0,vmax=recon[:c2-50,:c2-50].max())
+im2 = ax2.imshow(AIM,origin='lower',aspect='auto',vmin=0,vmax=AIM[:c2-50,:c2-50].max())
 fig.colorbar(im2,ax=ax2,fraction=.1,shrink=0.9,pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
