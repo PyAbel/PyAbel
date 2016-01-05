@@ -10,7 +10,7 @@ from scipy.ndimage import map_coordinates
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize 
 
-def calculate_speeds(IM, origin=None, Jacobian=False, dr=None, dt=None):
+def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
     """ This performs an angular integration of the image returning 
         the one-dimentional intensity profile as a function of the 
         radial coordinate. 
@@ -21,11 +21,15 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=None, dt=None):
       - origin: tuple, image center coordinate 
                 defaults to (rows//2+rows%2,cols//2+cols%2)
       - Jacobian: boolean, include sinθ in the angular sum (integration)
+      - dr: float, radial coordinate grid spacing, in pixels (default 1)
+      - dt: float, theta coordinate grid spacing in degrees
+            (default rows//2)
       
      Returns
      -------
       - speeds: a 1D array of the integrated intensity 
       - r: the 1D array of radial coordinates.
+      - theta: 1D array of theta coordinates
      """
     
     polarIM, r, theta = reproject_image_into_polar(IM, origin, dr, dt)
