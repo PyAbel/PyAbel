@@ -6,7 +6,7 @@ from __future__ import print_function
 import numpy as np
 from itertools import product
 
-def iable_dasch_transform(IM):
+def iabel_three_point_transform(IM):
     """ Inverse Abel transformation using the algorithm of: 
         Dasch, Applied Optics, Vol. 31, No. 8, 1146-1152 (1992).
 
