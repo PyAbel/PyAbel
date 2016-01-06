@@ -139,4 +139,8 @@ def iabel_three_point(data, center, dr = 1.0):
     # scale output by dr
     inv_IM = inv_IM/dr
 
+    # if data is 1-dimensional, output ought to be 1-dimensional
+    if row == 1:
+        inv_IM = inv_IM[0]
+
     return inv_IM
