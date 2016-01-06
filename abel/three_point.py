@@ -83,3 +83,43 @@ def OP1(i,j):
         raise(ValueError)
         
     return I1
+
+def iabel_three_point(data, center, dr = 1.0):  
+    """ This function splits the image into two halves, 
+        sends each half to iabel_three_point_transform(), 
+        stitches the output back together,
+        and returns the full transform to the user.
+
+    Parameters:
+    -----------
+        - data:   NxM numpy array
+                  The raw data is presumed to be symmetric about the vertical axis. 
+        - center: * integer - 
+                    The location of the symmetry axis (center column index of the image). 
+                  * tuple (x,y) - 
+                    The center of the image in (x,y) format.
+        - dr:     float - 
+                  Size of one pixel in the radial direction
+    """
+
+    # sanity checks for center
+
+    # cut data in half
+    # each half has the center column at one edge
+    left_half, right_half = data[:,0:center+1], data[:,center:]
+
+    # mirror left half
+    left_half = np.fliplr(left_half)
+
+    # transform both halves
+    inv_left = iabel_three_point_transform(left_half)
+    inv_right = iabel_three_point_transform(right_half)
+
+    # undo mirroring of left half
+    inv_left = np.fliplr(inv_left)
+
+    # stitch both halves back together
+    # (extra) center column is excluded from left half
+    inv_IM = np.hstack((inv_left[:,:-1], inv_right))
+
+    return inv_IM
