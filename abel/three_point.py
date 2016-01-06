@@ -103,6 +103,20 @@ def iabel_three_point(data, center, dr = 1.0):
     """
 
     # sanity checks for center
+    # 1. If center is tuple, only take the second value inside it
+    if isinstance(center, int):
+        pass
+    elif isinstance(center, tuple):
+        _,center = center # extracting y from (x,y)
+    else:
+        raise ValueError('Center must be an integer or tuple.')
+
+    # 2. center index must be >= 0 (possibly >= 2 for the transform)
+    # 3. center index must be < # of columns in raw data
+    data = np.atleast_2d(data)
+    row, col = data.shape
+    if not 0 <= center <= col-1:
+        raise ValueError('Center column index invalid.')    
 
     # cut data in half
     # each half has the center column at one edge
