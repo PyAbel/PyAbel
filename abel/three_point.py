@@ -136,4 +136,7 @@ def iabel_three_point(data, center, dr = 1.0):
     # (extra) center column is excluded from left half
     inv_IM = np.hstack((inv_left[:,:-1], inv_right))
 
+    # scale output by dr
+    inv_IM = inv_IM/dr
+
     return inv_IM
