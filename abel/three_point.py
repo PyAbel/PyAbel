@@ -20,7 +20,7 @@ def iabel_three_point_transform(IM):
     """
     IM = np.atleast_2d(IM)
     row, col = IM.shape
-    D = np.zeros((col, col))
+    D = np.zeros((col, col)) # Empty D_ij matrix
 
     for i,j in product(range(col), range(col)):
         D[i,j] = OP_D(i,j)
@@ -30,7 +30,9 @@ def iabel_three_point_transform(IM):
     for i, P in enumerate(IM):
         F = np.zeros(col)
         for j,k in product(range(col), range(col)):
-            F[j] += D[j,k] * P[k]
+            # Deconvoluting projection data P to give field distribution F
+            # See Eq (1) in Dasch 1992.
+            F[j] += D[j,k] * P[k] 
 
         inv_IM[i] = F
 
@@ -38,8 +40,9 @@ def iabel_three_point_transform(IM):
 
 def OP_D(i,j):
     """
-    Calculate three-point abel inversion operator Di,j
-    The formula followed Dasch 1992 (Applied Optics) which contains several typos.
+    Calculates three-point abel inversion operator D_ij, 
+    following Eq (6) in Dasch 1992 (Applied Optics).
+    The original reference contains several typos.
     One correction is done in function OP1 following Karl Martin's PhD thesis
     See here: https://www.lib.utexas.edu/etd/d/2002/martinkm07836/martinkm07836.pdf
     """
@@ -60,7 +63,9 @@ def OP_D(i,j):
     return D
 
 def OP0(i,j):
-    
+    """
+    This is the I_ij(0) function in Dasch 1992, pg 1147, Eq (7)
+    """
     if j < i or (j == i and i == 0):
         I0 = 0
     elif j == i and i != 0:
@@ -74,6 +79,9 @@ def OP0(i,j):
     return I0
 
 def OP1(i,j):
+    """
+    This is the I_ij(1) function in Dasch 1992, pg 1147, Eq (7)
+    """
     if j < i:
         I1 = 0
     elif j == i:
