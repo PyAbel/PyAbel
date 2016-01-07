@@ -40,7 +40,8 @@ def OP_D(i,j):
     """
     Calculate three-point abel inversion operator Di,j
     The formula followed Dasch 1992 (Applied Optics) which contains several typos.
-    One correction is done in function OP1 follow Martin's PhD thesis
+    One correction is done in function OP1 following Karl Martin's PhD thesis
+    See here: https://www.lib.utexas.edu/etd/d/2002/martinkm07836/martinkm07836.pdf
     """
     
     if j < i-1:
