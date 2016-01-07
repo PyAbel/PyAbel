@@ -32,9 +32,9 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
       - theta: 1D array of theta coordinates
      """
     
-    polarIM, r, theta = reproject_image_into_polar(IM, origin, dr, dt)
+    polarIM, r, theta = reproject_image_into_polar(IM, origin, rmax='circle', dr, dt)
 
-    if Jacobian:  #  x r sinθ    
+    if Jacobian:  #  x r^2 sinθ    
         sintheta = np.abs(np.sin(theta))
         polarIM = polarIM*sintheta[np.newaxis, :]
         r2 = r**2
@@ -370,7 +370,7 @@ def center_image_by_slice(IM, slice_width=10, r_range=(0,-1),
 # http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
 # It is possible that there is a faster way to convert to polar coordinates.
 
-def reproject_image_into_polar(data, origin=None, dr=None, dt=None):
+def reproject_image_into_polar(data, origin=None, rmax='corner', dr=1, dt=None):
     """Reprojects a 2D numpy array ("data") into a polar coordinate system.
     "origin" is a tuple of (x0, y0) and defaults to the center of the image.
     
@@ -387,13 +387,13 @@ def reproject_image_into_polar(data, origin=None, dr=None, dt=None):
     x, y = index_coords(data, origin=origin)
     r, theta = cart2polar(x, y)   # convert (x,y) -> (r,θ)
 
-    if dr is not None:
+    if rmax == 'corner':
+       rmax = r.max()
+       nr = rmax 
+    else:
        min_nxy = np.min((nx,ny))
        rmax = min_nxy//2 + min_nxy%2 - 1 
        nr = int((min_nxy//2 + min_nxy%2)/dr+0.5)
-    else:
-       rmax = r.max()
-       nr = rmax 
          
     if dt is not None:
        nt = int((theta.max()-theta.min())/(np.pi*dt/180)+0.5)
