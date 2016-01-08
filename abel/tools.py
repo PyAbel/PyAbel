@@ -32,7 +32,7 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
       - theta: 1D array of theta coordinates
      """
     
-    polarIM, r, theta = reproject_image_into_polar(IM, origin, rmax='circle', dr, dt)
+    polarIM, r, theta = reproject_image_into_polar(IM, origin, rmax='circle', dr=dr, dt=dt)
 
     if Jacobian:  #  x r^2 sinθ    
         sintheta = np.abs(np.sin(theta))
