@@ -47,7 +47,7 @@ AIM = iabel_hansenlaw(IM, dr=1, use_quadrants=(True,True,True,True),
                                 horizontal_symmetry=False,
                                 verbose=True)
 
-speeds = calculate_speeds (AIM)
+speeds, r, theta = calculate_speeds (AIM)
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))
@@ -70,7 +70,7 @@ ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law inverse Abel')
 
 # Plot the 1D speed distribution
-ax3.plot(speeds)
+ax3.plot(r,speeds)
 ax3.axis(ymin=-50)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Intensity')
