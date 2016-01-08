@@ -51,7 +51,8 @@ im = center_image (im,(340,245),n=rows)
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon, speeds = iabel_hansenlaw (im,calc_speeds=True,verbose=True)
+recon = iabel_hansenlaw (im,verbose=True)
+speeds, r, _ = calculate_speeds(recon)
 
 
 # save the transform in 8-bit format:

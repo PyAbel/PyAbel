@@ -378,6 +378,16 @@ def reproject_image_into_polar(data, origin=None, rmax='corner', dr=1, dt=None):
     ----------
      - data:   rowsxcolums numpy array
      - origin: tuple, the coordinate of the image center
+     - rmax:   radius maximum, beyond which no projection is done
+               'corner' => sqrt((rows//2)**2+(cols//2)**2)
+                  - used to convert the whole cartesian image to polar
+               otherwise the minimum of the 1/2 width or 1/2 height of the image
+               = min((rows//2, cols//2)
+                  - used to convert only the circular region that fits within
+                    the image
+     - dr: radial coordinate spacing for the grid interpolation
+             tests show that there is not much point in going below 0.5
+     - dt: angular coordinate spacing (in degrees)
     """
     ny, nx = data.shape[:2]
     if origin is None:
