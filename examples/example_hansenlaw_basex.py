@@ -56,13 +56,14 @@ print ('image size {:d}x{:d}'.format(rows,cols))
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
-reconH, speedsH = iabel_hansenlaw (im,calc_speeds=True,verbose=True)
+reconH = iabel_hansenlaw (im, verbose=True)
+speedsH,rH = calculate_speeds(reconH)
 
 # Basex inverse Abel transform
 print('Performing basex inverse Abel transform:')
 center = (r2,c2)
-reconB, speedsB = BASEX (im, center, n=rows, basis_dir='./',
-                             verbose=True, calc_speeds=True)
+reconB = BASEX (im, center, n=rows, basis_dir='./', verbose=True)
+speedsB, rB = calculate_speeds (reconB)
 
 # plot the results - VMI, inverse Abel transformed image, speed profiles
 # Set up some axes
@@ -89,8 +90,8 @@ ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law | Basex',x=0.4)
 
 # Plot the 1D speed distribution - normalized
-ax3.plot(speedsB/speedsB[250:280].max(),'r-',label="Basex")
-ax3.plot(speedsH/speedsH[250:280].max(),'b-',label="Hansen Law")
+ax3.plot(rB,speedsB/speedsB[250:280].max(),'r-',label="Basex")
+ax3.plot(rH,speedsH/speedsH[250:280].max(),'b-',label="Hansen Law")
 ax3.axis(xmax=c2-12,ymin=-0.1,ymax=1.5)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Intensity')

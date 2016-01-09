@@ -11,7 +11,7 @@ from abel.onion import *
 from abel.hansenlaw import *
 from abel.basex import *
 from abel.direct import *
-from abel.dasch import *
+from abel.three_point import *
 from abel.tools import center_image_by_slice
 import matplotlib.pylab as plt
 from time import time
@@ -31,7 +31,7 @@ t0 = time()
 direct = iabel_direct (data[:,w2:])   # operates on 1/2 image, oriented [0,r]
 print ("                    {:.1f} sec".format(time()-t0))
 direct = np.concatenate((direct[:,::-1],direct),axis=1)  
-direct_speed, dsr, _ = calculate_speeds(direct)
+direct_speed, dsr = calculate_speeds(direct)
 directmax = direct[mask].max()
 direct /= directmax
 direct_speed /= direct_speed[dsr>50].max()
@@ -49,7 +49,7 @@ for q in Q:
 # reassemble
 onion = put_image_quadrants((AO[0],AO[1],AO[2],AO[3]),odd_size=False)
 print ("                   {:.1f} sec".format(time()-t0))
-onion_speed, osr, _ = calculate_speeds(onion)
+onion_speed, osr = calculate_speeds(onion)
 onionmax = onion[mask].max()  # excluding inner noise
 onion /= onionmax
 onion_speed /= onion_speed[osr>50].max()
@@ -59,7 +59,7 @@ print ("hansen law inverse ...")
 data = im.copy()
 t0 = time()
 hl = iabel_hansenlaw(data)   # hansenlaw takes care of image center
-hl_speed, hsr, _ = calculate_speeds(hl)
+hl_speed, hsr = calculate_speeds(hl)
 print ("                   {:.1f} sec".format(time()-t0))
 hlmax = hl[mask].max()       # excluding inner noise
 hl /= hlmax
@@ -67,30 +67,28 @@ hl /= hlmax
 hl_speed /= hl_speed[hsr>50].max()
 
 # basex  ------------------------------
-centre = (h2-0.5,w2+0.5) 
+center = (h2-0.5,w2+0.5) 
 print ("basex inverse ...")
 data = im.copy()
 t0 = time()
-basex = BASEX (data, centre, n=h)
-basex_speed, bsr, _ = calculate_speeds(basex)
+basex = BASEX (data, center, n=h, verbose=False)
+basex_speed, bsr = calculate_speeds(basex)
 print ("                   {:.1f} sec".format(time()-t0))
 basexmax = basex[mask].max()*2  # fix me! fudge factor
 basex  /= basexmax
 basex_speed /= basex_speed[bsr>50].max()
 
 # three_point  ------------------------------
-calc_dasch = False
-if calc_dasch:
-    im, _ = center_image_by_slice(im, r_range=(50,700))
-    print ("dasch three_point inverse ...")
-    data = im.copy()
-    t0 = time()
-    dasch = iabel_dasch_transform (data)
-    dasch_speed, ddsr, _ = calculate_speeds(dasch)
-    print ("                   {:.1f} sec".format(time()-t0))
-    daschmax = dasch[mask].max()
-    dasch  /= daschmax
-    dasch_speed /= dasch_speed[ddsr>50]
+center = (h2-0.5,w2+0.5) 
+print ("three_point inverse ...")
+data = im.copy()
+t0 = time()
+threept = iabel_three_point (data, center)
+threept_speed, tsr = calculate_speeds(threept)
+print ("                   {:.1f} sec".format(time()-t0))
+threeptmax = threept[mask].max()
+threept  /= threeptmax
+threept_speed /= threept_speed[tsr>50].max()
 
 
 # reassemble image, each quadrant a different method
@@ -114,10 +112,10 @@ plt.imshow(im,vmin=0,vmax=hlmax/2)
 
 plt.subplot(122)
 plt.plot (dsr,direct_speed,'k',label='direct')
-plt.plot (osr,onion_speed,'r',label='onion')
+plt.plot (osr,onion_speed,'r--',label='onion')
 plt.plot (bsr,basex_speed,'g',label='basex')
 plt.plot (hsr,hl_speed,'b',label='hansenlaw')
-if calc_dasch: plt.plot (ddsr,dasch_speed,'c',label='3 point')
+plt.plot (tsr,threept_speed,'m',label='3 point')
 
 plt.axis(ymin=-0.05,ymax=1.1,xmin=50,xmax=450)
 plt.legend(loc=0,labelspacing=0.1)
