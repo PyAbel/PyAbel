@@ -47,7 +47,7 @@ AIM = iabel_hansenlaw(IM, dr=1, use_quadrants=(True,True,True,True),
                                 horizontal_symmetry=False,
                                 verbose=True)
 
-speeds, r, theta = calculate_speeds (AIM)
+speeds, r = calculate_speeds (AIM)
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))
