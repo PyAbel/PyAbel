@@ -42,15 +42,7 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
     
     speeds = np.sum(polarIM, axis=1)
     
-    # Clip the data corresponding to the corners, since 
-    # these pixels contain incomplete information
-    n = np.min(np.shape(IM))//2     # find the shortest radial coordinate
-    if dr is not None:
-        n *= np.ceil(n/dr)
-
-    speeds = speeds[:n]             # clip the 1D data
-
-    return speeds, r, theta
+    return speeds, r
 
 
 def calculate_angular_distributions(IM, radial_ranges=None):

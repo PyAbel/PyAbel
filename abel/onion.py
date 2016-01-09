@@ -24,6 +24,10 @@ def iabel_onion_peeling(IM,sym_lr=False,sym_ud=False):
 
     # works only on the left side of an image.
     # i.e., for IM[i,j], the radial coordinate (r) increases with increasing j
+
+    print ("Warning: iabel_onion_peeling() is in early testing and may"
+           " not produce reasonable results")
+
     h,w = np.shape(IM)
 
     if w%2==1:  raise ValueError('Image width must be even')
