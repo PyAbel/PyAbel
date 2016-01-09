@@ -20,7 +20,7 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
       - IM: a rows x cols ndarray.
       - origin: tuple, image center coordinate 
                 defaults to (rows//2+rows%2,cols//2+cols%2)
-      - Jacobian: boolean, include sinθ in the angular sum (integration)
+      - Jacobian: boolean, include r*sinθ in the angular sum (integration)
       - dr: float, radial coordinate grid spacing, in pixels (default 1)
       - dt: float, theta coordinate grid spacing in degrees
             (default rows//2)
@@ -32,13 +32,16 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
       - theta: 1D array of theta coordinates
      """
     
-    polarIM, r, theta = reproject_image_into_polar(IM, origin, rmax='circle', dr=dr, dt=dt)
+    polarIM, r_grid, theta_grid = reproject_image_into_polar(IM, origin, 
+                                       Jacobian=Jacobian, rmax='circle', 
+                                                           dr=dr, dt=dt)
+    theta = theta_grid[0,:]  # theta coordinates
+    r = r_grid[:,0]          # radial coordinates
 
-    if Jacobian:  #  x r^2 sinθ    
+    if Jacobian:  #  x r sinθ    
         sintheta = np.abs(np.sin(theta))
         polarIM = polarIM*sintheta[np.newaxis, :]
-        r2 = r**2
-        polarIM = polarIM*r2[:,np.newaxis]
+        polarIM = polarIM*r[:,np.newaxis]
     
     speeds = np.sum(polarIM, axis=1)
     
@@ -70,7 +73,10 @@ def calculate_angular_distributions(IM, radial_ranges=None):
                      radial range
     """
 
-    polarIM, r, theta = reproject_image_into_polar(IM)
+    polarIM, r_grid, theta_grid = reproject_image_into_polar(IM)
+
+    theta = theta_grid[0,:]  # theta coordinates
+    r = r_grid[:,0]          # radial coordinates
 
     if radial_ranges is None:
         radial_ranges = [(0,r[-1]),]
@@ -296,7 +302,8 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
     return c_im
 
 
-def center_image_by_slice(IM, slice_width=10, r_range=(0,-1),
+def center_image_by_slice(IM, slice_width=10, radial_range=(0,-1),
+                          center_vertical=True, center_horizontal=True,
                           pixel_center=True):
     """
     Center image by comparing opposite side, vertical and
@@ -308,7 +315,9 @@ def center_image_by_slice(IM, slice_width=10, r_range=(0,-1),
       
       - slice_width : add together this number of rows (cols) to improve signal
       
-      - r_range(rmin,rmax): radial range [rmin,rmax] for slide profile comparison
+      - radial_range(rmin,rmax): radial range [rmin,rmax] for slide profile comparison
+      - center_vertical: boolean, find vertical center
+      - center_horizontal: boolean, find horizontal center
       - pixel_center: boolean, make center of image within a pixel
 
     """
@@ -331,7 +340,7 @@ def center_image_by_slice(IM, slice_width=10, r_range=(0,-1),
     bot   = IM[r2:, c2-sw2:c2+sw2].sum(axis=1)
 
     # reorient slices to the same direction, select region [rmin:rmax]
-    rmin, rmax = r_range
+    rmin, rmax = radial_range
     left  = left[::-1][rmin:rmax]   # flip same direction as 'right'
     right = right[rmin:rmax]
     top   = top[::-1][rmin:rmax]    # flip
@@ -340,8 +349,15 @@ def center_image_by_slice(IM, slice_width=10, r_range=(0,-1),
     # compare and determine shift to best overlap slice profiles
     # fix me! - should be consistent and use curve_fit()?
     shift0 = [0,]
-    horiz = minimize(align, shift0, args=(left, right))
-    vert  = minimize(align, shift0, args=(top, bot))
+    if center_horizontal:
+        horiz = minimize(align, shift0, args=(left, right))
+    else: 
+        horiz['x'] = 0.0
+   
+    if center_vertical:
+        vert  = minimize(align, shift0, args=(top, bot))
+    else:
+        vert['x'] = 0.0
 
     col_shift = horiz['x']
     row_shift = vert['x']
@@ -362,7 +378,8 @@ def center_image_by_slice(IM, slice_width=10, r_range=(0,-1),
 # http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
 # It is possible that there is a faster way to convert to polar coordinates.
 
-def reproject_image_into_polar(data, origin=None, rmax='corner', dr=1, dt=None):
+def reproject_image_into_polar(data, origin=None, Jacobian=False,
+                               rmax='corner', dr=1, dt=None):
     """Reprojects a 2D numpy array ("data") into a polar coordinate system.
     "origin" is a tuple of (x0, y0) and defaults to the center of the image.
     
@@ -370,6 +387,7 @@ def reproject_image_into_polar(data, origin=None, rmax='corner', dr=1, dt=None):
     ----------
      - data:   rowsxcolums numpy array
      - origin: tuple, the coordinate of the image center
+     - Jacobian: boolean, include r intensity scaling in the coordinate transform
      - rmax:   radius maximum, beyond which no projection is done
                'corner' => sqrt((rows//2)**2+(cols//2)**2)
                   - used to convert the whole cartesian image to polar
@@ -380,6 +398,12 @@ def reproject_image_into_polar(data, origin=None, rmax='corner', dr=1, dt=None):
      - dr: radial coordinate spacing for the grid interpolation
              tests show that there is not much point in going below 0.5
      - dt: angular coordinate spacing (in degrees)
+
+     Returns
+     -------
+      - output:     rows x cols  or row(col)xrow(col) numpy array, polar image
+      - r_grid:     meshgrid of radial coordinates
+      - theta_grid: meshgrid of theta coordinates
     """
     ny, nx = data.shape[:2]
     if origin is None:
@@ -410,13 +434,16 @@ def reproject_image_into_polar(data, origin=None, rmax='corner', dr=1, dt=None):
     # Project the r and theta grid back into pixel coordinates
     X, Y = polar2cart(r_grid, theta_grid)
     X += origin[0] # We need to shift the origin
-    Y += origin[1] # back to the lower-left corner...
+    Y += origin[1] # back to the top-left corner...
     xi, yi = X.flatten(), Y.flatten()
     coords = np.vstack((xi, yi)) # (map_coordinates requires a 2xn array)
 
     zi = map_coordinates(data, coords)
     output = zi.reshape((nr, nt))
-    return output, r_i, theta_i
+    if Jacobian:
+        output = output*r_i[:,np.newaxis]
+
+    return output, r_grid, theta_grid
 
 
 def index_coords(data, origin=None):
