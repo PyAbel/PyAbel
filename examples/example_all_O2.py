@@ -101,8 +101,6 @@ im[:h2,w2:] = np.tril(threept[:h2,w2:][::-1])[::-1] +\
               np.triu(onion[:h2,w2:][::-1])[::-1]
 im[h2:,:w2] = basex[h2:-1,:w2]    # Q2
 im[h2:,w2:] = hl[h2:,w2:]       # Q3
-for i in range(400,h2-3): 
-      im[h2-i, h2+i] = 0.5
 
 plt.subplot(121)
 plt.annotate("direct",(50,50),color="yellow")
