@@ -47,24 +47,15 @@ def sample_image_dribinski(n=361, origin=None):
     
         return 2000*(t0+t1+t2) + 200*(t3+t4+t5) + 50*(t6+t7+t8) + t9
 
-    # set up an dummy image 2D n x n numpy array shape 
-    im = np.arange(n*n).reshape((n,n))
+    # meshgrid @DanHickstein issue #67
 
-    if origin is None:
-        origin = (n//2+n%2, n//2+n%2)
-
-    # determine cartesian coordinates (x,y), for each pixel
-    x, y = index_coords(im, origin=origin)
-
-    # convert to the equivalent polar (r, theta), for each pixel
-    r, theta = cart2polar (x, y)
-
-    # generate an image with pixel intensities given by Eq. (16)
-    IM = I(r, theta)
+    x = np.arange(n)
+    n2 = n//2 + n%2
+    X, Y = np.meshgrid(x-n2, x-n2)
+    R, THETA = cart2polar(X, Y)
+    IM = I(R, THETA)
 
     return IM
-
-
 
 class BaseAnalytical(object):
 
