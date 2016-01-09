@@ -6,7 +6,7 @@ from __future__ import print_function
 import numpy as np
 from itertools import product
 
-def iabel_three_point_transform(IM):
+def iabel_three_point_transform(IM, basis_dir='.', verbose=False):
     """ Inverse Abel transformation using the algorithm of: 
         Dasch, Applied Optics, Vol. 31, No. 8, 1146-1152 (1992).
 
@@ -20,11 +20,7 @@ def iabel_three_point_transform(IM):
     """
     IM = np.atleast_2d(IM)
     row, col = IM.shape
-    D = np.zeros((col, col)) # Empty D_ij matrix
-
-    for i,j in product(range(col), range(col)):
-        D[i,j] = OP_D(i,j)
-
+    D = get_bs_three_point_cached(col, basis_dir , verbose)
     inv_IM = np.zeros_like(IM)
 
     for i, P in enumerate(IM):
@@ -93,7 +89,66 @@ def OP1(i,j):
         
     return I1
 
-def iabel_three_point(data, center, dr = 1.0):  
+def get_bs_three_point_cached(col, basis_dir='.', verbose=False):
+    """
+    Internal function.
+
+    Gets thre_point operator matrix corresponding to specified image size,
+    using the disk as a cache.
+    (i.e., load from disk if they exist, if not, calculate them and save a copy on disk)
+
+    Parameters:
+    ___________
+
+     - col: integer -
+                  Width of image to be inverted using three_point method. 
+                  Three_point operator matrix will be of size (col x col)
+     - basis_dir: string - 
+                  path to the directory for saving / loading the three_point operator matrix.
+                  If None, the operator matrix will not be saved to disk.
+     - verbose: True/False -
+                  Set to True to see more output for debugging
+
+    """
+    basis_name = "three_point_basis_{}_{}.npy".format(col, col)
+    
+    D = None
+    if basis_dir is not None:
+        path_to_basis_file = os.path.join(basis_dir, basis_name)
+        if os.path.exists(path_to_basis_file):
+            if verbose:
+                print("Loading three_point operator matrix...")
+                
+            try:
+                D = np.load(path_to_basis_file)
+            except ValueError:
+                raise
+            except:
+                raise
+    if D is None:
+        if verbose:
+            print("A suitable operator matrix was not found.",
+                  "A new operator matrix will be generated.",
+                  "This may take a few minutes.", end=" ")
+        if basis_dir is not None:
+            print("But don\'t worry, it will be saved to disk for future use.\n")
+        else:
+            pass
+        
+        D = np.zeros((col, col))
+
+        for i,j in product(range(col), range(col)):
+            D[i,j] = OP_D(i,j)
+            
+        if basis_dir is not None:
+            np.save(path_to_basis_file, D)
+            if verbose:
+                print("Operator matrix saved for later use to,")
+                print(' '*10 + '{}'.format(path_to_basis_file))
+    return D
+
+def iabel_three_point(data, center, 
+                      dr = 1.0, basis_dir='./', verbose=False):  
     """ This function splits the image into two halves, 
         sends each half to iabel_three_point_transform(), 
         stitches the output back together,
@@ -109,6 +164,11 @@ def iabel_three_point(data, center, dr = 1.0):
                     The center of the image in (x,y) format.
         - dr:     float - 
                   Size of one pixel in the radial direction
+        - basis_dir: string
+                  path to the directory for saving / loading the three_point operator matrix.
+                  If None, the operator matrix will not be saved to disk.
+        - verbose: True/False
+                  Set to True to see more output for debugging
     """
 
     # sanity checks for center
@@ -135,8 +195,8 @@ def iabel_three_point(data, center, dr = 1.0):
     left_half = np.fliplr(left_half)
 
     # transform both halves
-    inv_left = iabel_three_point_transform(left_half)
-    inv_right = iabel_three_point_transform(right_half)
+    inv_left = iabel_three_point_transform(left_half, basis_dir, verbose)
+    inv_right = iabel_three_point_transform(right_half, basis_dir, verbose)
 
     # undo mirroring of left half
     inv_left = np.fliplr(inv_left)
