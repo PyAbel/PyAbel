@@ -33,7 +33,7 @@ if cols%2 != 1:
    print ("HL: even pixel width image, re-adjust image centre")
    # re-center image based on horizontal and vertical slice profiles
    # covering the radial range [300:400] pixels from the center
-   IM = center_image_by_slice (IM,r_range=(300,400))[0]
+   IM = center_image_by_slice (IM,radial_range=(300,400))[0]
    rows,cols = IM.shape   # new image size
 
 c2 = cols//2   # half-image
