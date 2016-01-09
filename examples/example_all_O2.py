@@ -26,7 +26,7 @@ mask = np.zeros(data.shape,dtype=bool)
 mask[h2-40:h2,140:160] = True   # region of bright pixels for intensity normalization
 
 # direct ------------------------------
-print ("direct inverse ...")  
+print ("\ndirect inverse ...")  
 t0 = time()
 direct = iabel_direct (data[:,w2:])   # operates on 1/2 image, oriented [0,r]
 print ("                    {:.1f} sec".format(time()-t0))
@@ -37,14 +37,16 @@ direct /= directmax
 direct_speed /= direct_speed[dsr>50].max()
 
 # onion  ------------------------------
-print ("onion inverse ...")
+print ("\nonion inverse (one quadrant)...")
 data = im.copy()
 t0 = time()
 Q = get_image_quadrants(data,reorient=True)
 AO = []
 # flip quadrants to match pre 24 Dec 15 orientation definition 
-for q in Q:
-    AO.append(iabel_onion_peeling(q[:,::-1])[:,::-1]) #flip, flip-back
+#for q in Q:
+q = Q[0]
+AO.append(iabel_onion_peeling(q[:,::-1])[:,::-1]) #flip, flip-back
+for i in range(4): AO.append(AO[0])
 # only quadrant inversion available??
 # reassemble
 onion = put_image_quadrants((AO[0],AO[1],AO[2],AO[3]),odd_size=False)
@@ -55,7 +57,7 @@ onion /= onionmax
 onion_speed /= onion_speed[osr>50].max()
 
 # hansenlaw  ------------------------------
-print ("hansen law inverse ...")
+print ("\nhansen law inverse ...")
 data = im.copy()
 t0 = time()
 hl = iabel_hansenlaw(data)   # hansenlaw takes care of image center
@@ -68,7 +70,7 @@ hl_speed /= hl_speed[hsr>50].max()
 
 # basex  ------------------------------
 center = (h2-0.5,w2+0.5) 
-print ("basex inverse ...")
+print ("\nbasex inverse ...")
 data = im.copy()
 t0 = time()
 basex = BASEX (data, center, n=h, verbose=False)
@@ -80,7 +82,7 @@ basex_speed /= basex_speed[bsr>50].max()
 
 # three_point  ------------------------------
 center = (h2-0.5,w2+0.5) 
-print ("three_point inverse ...")
+print ("\nthree_point inverse ...")
 data = im.copy()
 t0 = time()
 threept = iabel_three_point (data, center)
@@ -95,13 +97,17 @@ threept_speed /= threept_speed[tsr>50].max()
 im = data.copy()
 direct = direct[:h2,:w2]
 im[:h2,:w2] = direct[:,:]   # Q1  
-im[:h2,w2:] = onion[:h2,w2:]    # Q0
+im[:h2,w2:] = np.tril(threept[:h2,w2:][::-1])[::-1] +\
+              np.triu(onion[:h2,w2:][::-1])[::-1]
 im[h2:,:w2] = basex[h2:-1,:w2]    # Q2
 im[h2:,w2:] = hl[h2:,w2:]       # Q3
+for i in range(400,h2-3): 
+      im[h2-i, h2+i] = 0.5
 
 plt.subplot(121)
 plt.annotate("direct",(50,50),color="yellow")
-plt.annotate("onion",(800,50),color="yellow")
+plt.annotate("onion",(870,210),color="yellow")
+plt.annotate("3pt",(600,60),color="yellow")
 plt.annotate("hansenlaw",(700,950),color="yellow")
 plt.annotate("basex",(50,950),color="yellow")
 plt.annotate("quadrant intensities normalized",
