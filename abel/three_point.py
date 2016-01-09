@@ -3,6 +3,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os.path
+
 import numpy as np
 from itertools import product
 
@@ -130,10 +132,10 @@ def get_bs_three_point_cached(col, basis_dir='.', verbose=False):
             print("A suitable operator matrix was not found.",
                   "A new operator matrix will be generated.",
                   "This may take a few minutes.", end=" ")
-        if basis_dir is not None:
-            print("But don\'t worry, it will be saved to disk for future use.\n")
-        else:
-            pass
+            if basis_dir is not None:
+                print("But don\'t worry, it will be saved to disk for future use.\n")
+            else:
+                pass
         
         D = np.zeros((col, col))
 
