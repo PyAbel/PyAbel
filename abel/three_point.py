@@ -26,13 +26,7 @@ def iabel_three_point_transform(IM, basis_dir='.', verbose=False):
     inv_IM = np.zeros_like(IM)
 
     for i, P in enumerate(IM):
-        F = np.zeros(col)
-        for j,k in product(range(col), range(col)):
-            # Deconvoluting projection data P to give field distribution F
-            # See Eq (1) in Dasch 1992.
-            F[j] += D[j,k] * P[k] 
-
-        inv_IM[i] = F
+        inv_IM[i] = np.dot(D, P)
 
     return inv_IM
 
