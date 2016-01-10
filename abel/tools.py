@@ -34,7 +34,7 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
     
     polarIM, r_grid, theta_grid = reproject_image_into_polar(IM, origin, 
                                        Jacobian=Jacobian, rmax='circle', 
-                                                           dr=dr, dt=dt)
+                                                          dr=dr, dt=dt)
     theta = theta_grid[0,:]  # theta coordinates
     r = r_grid[:,0]          # radial coordinates
 
@@ -418,8 +418,12 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
        nr = rmax 
     else:
        min_nxy = np.min((nx,ny))
-       rmax = min_nxy//2 + min_nxy%2 - 1 
-       nr = int((min_nxy//2 + min_nxy%2)/dr+0.5)
+       # Fix me!  not 1/2 image if dealing with quadrant
+       if origin[0] > 1:
+           rmax = min_nxy//2 + min_nxy%2 - 1 
+           nr = int((min_nxy//2 + min_nxy%2)/dr+0.5)
+       else:
+           nr = rmax = min_nxy
          
     if dt is not None:
        nt = int((theta.max()-theta.min())/(np.pi*dt/180)+0.5)
