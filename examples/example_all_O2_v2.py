@@ -35,6 +35,7 @@ def iabel_basex_transform(Q0):
     center = (rows//2+rows%2, cols//2+cols%2)
     # return only Q0, top-right quadrant
     return BASEX (IM, center, n=rows, verbose=False)[:center[0], center[1]:]     
+
 transforms = {\
 #"direct"      : iabel_direct_transform, 
 #"onion"       : iabel_onion_transform, 
@@ -84,11 +85,6 @@ for method in transforms.keys():
 
 # reassemble image, each quadrant a different method
 im = put_image_quadrants ((iabelQ0, iabelQ0, iabelQ0, iabelQ0), odd_size=True)
-#im[:h2,:w2] = iabelQ["direct"][::-1]   # Q0 -> Q1  
-#im[:h2,w2:] = np.tril(iabelQ["threept"][::-1])[::-1] +\
-#              np.triu(iabelQ["onion"][::-1])[::-1]  # Q0
-#im[h2:,:w2] = np.flipud(iabelQ["basex"][::-1])    # Q2
-#im[h2:,w2:] = np.flipud(iabelQ["hansenlaw"])       # Q3
 
 plt.subplot(121)
 #plt.annotate("direct",(50,50),color="yellow")
