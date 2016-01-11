@@ -66,9 +66,9 @@ speed = {}
 radial = {}
 for method in transforms.keys():
     Q0 = Q[0].copy()   # top-right quadrant
-    print ("\n{:s} inverse ...".format(method))  
 
     # inverse Abel transform of quadrant
+    print ("\n{:s} inverse ...".format(method))  
     iabelQ[method] = iabelQ0 = transforms[method](Q0)
 
     t0 = time()
@@ -79,7 +79,7 @@ for method in transforms.keys():
                       calculate_speeds(iabelQ0, origin=(0,0))
 
     # normalize image intensity and speed distribution
-    iabelQ0 /= iabelQ0[mask].max()
+    iabelQ0       /= iabelQ0[mask].max()  
     speed[method] /= speed[method][radial[method]>50].max()
 
 

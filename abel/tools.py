@@ -18,7 +18,7 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
      Parameters
      ----------
       - IM: a rows x cols ndarray.
-      - origin: tuple, image center coordinate 
+      - origin: tuple, image center coordinate relative to *bottom-left* corner
                 defaults to (rows//2+rows%2,cols//2+cols%2)
       - Jacobian: boolean, include r*sinθ in the angular sum (integration)
       - dr: float, radial coordinate grid spacing, in pixels (default 1)
@@ -381,12 +381,13 @@ def center_image_by_slice(IM, slice_width=10, radial_range=(0,-1),
 def reproject_image_into_polar(data, origin=None, Jacobian=False,
                                rmax='corner', dr=1, dt=None):
     """Reprojects a 2D numpy array ("data") into a polar coordinate system.
-    "origin" is a tuple of (x0, y0) and defaults to the center of the image.
+    "origin" is a tuple of (x0, y0) relative to the bottom-left image corner,
+    and defaults to the center of the image.
     
     Parameters
     ----------
      - data:   rowsxcolums numpy array
-     - origin: tuple, the coordinate of the image center
+     - origin: tuple, the coordinate of the image center, relative to bottom-left
      - Jacobian: boolean, include r intensity scaling in the coordinate transform
      - rmax:   radius maximum, beyond which no projection is done
                'corner' => sqrt((rows//2)**2+(cols//2)**2)
@@ -410,35 +411,38 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
         origin = (nx//2+nx%2, ny//2+ny%2)   # % handles odd size image
 
     # Determine that the min and max r and theta coords will be...
-    x, y = index_coords(data, origin=origin)
-    r, theta = cart2polar(x, y)   # convert (x,y) -> (r,θ)
+    x, y = index_coords(data, origin=origin)  # (x,y) coordinates of each pixel
+    r, theta = cart2polar(x, y)               # convert (x,y) -> (r,θ)
+                                              # note θ=0 is vertical
 
     if rmax == 'corner':
        rmax = r.max()
-       nr = rmax 
     else:
-       min_nxy = np.min((nx,ny))
-       # Fix me!  not 1/2 image if dealing with quadrant
-       if origin[0] > 1:
-           rmax = min_nxy//2 + min_nxy%2 - 1 
-           nr = int((min_nxy//2 + min_nxy%2)/dr+0.5)
-       else:
-           nr = rmax = min_nxy
+       # find largest circle that will fit into image
+       rmax = np.min(np.abs((nx-origin[0], ny-origin[1]))) - 1
+                                    # -1 as linspace includes endpoint
+
+    nr = np.round(rmax/dr)
          
     if dt is not None:
-       nt = int((theta.max()-theta.min())/(np.pi*dt/180)+0.5)
+       nt = np.round((theta.max()-theta.min())/(np.pi*dt/180))  # dt in degrees
     else:
-       nt = ny//2
+       if rmax == 'corner': 
+       # remap image to the same shape
+           nt = ny
+       else:
+           # save computation time, and usually I(θ) varies slowly
+           nt = ny//2
 
     # Make a regular (in polar space) grid based on the min and max r & theta
-    r_i = np.linspace(r.min(), rmax, nr)
+    r_i     = np.linspace(r.min(), rmax, nr)
     theta_i = np.linspace(theta.min(), theta.max(), nt)
     theta_grid, r_grid = np.meshgrid(theta_i, r_i)
 
     # Project the r and theta grid back into pixel coordinates
     X, Y = polar2cart(r_grid, theta_grid)
     X += origin[0] # We need to shift the origin
-    Y += origin[1] # back to the top-left corner...
+    Y += origin[1] # back to the bottom-left corner...
     xi, yi = X.flatten(), Y.flatten()
     coords = np.vstack((xi, yi)) # (map_coordinates requires a 2xn array)
 
@@ -453,7 +457,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
 def index_coords(data, origin=None):
     """Creates x & y coords for the indicies in a numpy array "data".
     "origin" defaults to the center of the image. Specify origin=(0,0)
-    to set the origin to the top left corner of the image.
+    to set the origin to the *bottom-left* corner of the image.
     """
     ny, nx = data.shape[:2]
     if origin is None:
