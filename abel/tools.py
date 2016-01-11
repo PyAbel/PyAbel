@@ -419,8 +419,10 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
        rmax = r.max()
     else:
        # find largest circle that will fit into image
-       rmax = np.min(np.abs((nx-origin[0], ny-origin[1]))) - 1
-                                    # -1 as linspace includes endpoint
+       rmax = np.min(np.abs((origin[0], nx-origin[0], origin[1], ny-origin[1])))
+       if rmax < 1:
+           # origin is (0,0)
+           rmax = np.min((nx, ny))
 
     nr = np.round(rmax/dr)
          
@@ -431,16 +433,17 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
        # remap image to the same shape
            nt = ny
        else:
-           # save computation time, and usually I(θ) varies slowly
+           # save computation time, usually I(θ) varies slowly
            nt = ny//2
 
     # Make a regular (in polar space) grid based on the min and max r & theta
-    r_i     = np.linspace(r.min(), rmax, nr)
+    r_i     = np.linspace(    r.min(), rmax,        nr)
     theta_i = np.linspace(theta.min(), theta.max(), nt)
     theta_grid, r_grid = np.meshgrid(theta_i, r_i)
 
     # Project the r and theta grid back into pixel coordinates
     X, Y = polar2cart(r_grid, theta_grid)
+
     X += origin[0] # We need to shift the origin
     Y += origin[1] # back to the bottom-left corner...
     xi, yi = X.flatten(), Y.flatten()
@@ -448,6 +451,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
 
     zi = map_coordinates(data, coords)
     output = zi.reshape((nr, nt))
+
     if Jacobian:
         output = output*r_i[:,np.newaxis]
 
