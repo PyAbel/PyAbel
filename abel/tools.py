@@ -42,9 +42,9 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
         polarIM = polarIM*sintheta[np.newaxis, :]
         polarIM = polarIM*r[:,np.newaxis]
     
-    speeds = np.sum(polarIM, axis=1)[:polarIM.shape[1]]  # trim to image width
+    speeds = np.sum(polarIM, axis=1)
     
-    return speeds, r
+    return speeds, r[:polarIM.shape[1]]   # width = image width
 
 
 def calculate_angular_distributions(IM, radial_ranges=None):
