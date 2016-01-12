@@ -47,7 +47,7 @@ def sample_image_dribinski(n=361, origin=None):
     
         return 2000*(t0+t1+t2) + 200*(t3+t4+t5) + 50*(t6+t7+t8) + t9
 
-    # meshgrid @DanHickstein issue #67
+    # meshgrid @DanHickstein suggestion see issue #67
 
     x = np.arange(n)
     n2 = n//2 + n%2

@@ -1,128 +1,131 @@
 #!/usr/bin/env python
-# rough comparison of direct, onion, hansenlaw, and basex inverse Abel transform
-# for the O2- data
+# -*- coding: utf-8 -*-
+
+# This example compares the available inverse Abel transform methods
+# currently - direct, onion, hansenlaw, and basex 
+# processing the O2- photoelectron velocity-map image
 #
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from abel.onion import *
-from abel.hansenlaw import *
-from abel.basex import *
-from abel.direct import *
+from abel.onion       import *
+from abel.hansenlaw   import *
+from abel.basex       import *
+from abel.direct      import *
 from abel.three_point import *
-from abel.tools import center_image_by_slice
+from abel.tools       import *
+
+import collections
 import matplotlib.pylab as plt
 from time import time
 
-data = np.loadtxt('data/O2-ANU1024.txt.bz2')
-im = data.copy()
-h,w  = np.shape(data)
-print ("image 'data/O2-ANU2048.txt' shape = {:d}x{:d}".format(h,w))
-h2 = h//2
-w2 = w//2
-mask = np.zeros(data.shape,dtype=bool)
-mask[h2-40:h2,140:160] = True   # region of bright pixels for intensity normalization
+# some wrapper functions --------------------------------
+# will be removed once method calls are standardized
 
-# direct ------------------------------
-print ("\ndirect inverse ...")  
-t0 = time()
-direct = iabel_direct (data[:,w2:])   # operates on 1/2 image, oriented [0,r]
-print ("                    {:.1f} sec".format(time()-t0))
-direct = np.concatenate((direct[:,::-1],direct),axis=1)  
-direct_speed, dsr = calculate_speeds(direct)
-directmax = direct[mask].max()
-direct /= directmax
-direct_speed /= direct_speed[dsr>50].max()
+def iabel_onion_transform(Q0):
+    # onion peel required Q1 oriented image
+    return iabel_onion_peeling(Q0[::-1])[::-1]
 
-# onion  ------------------------------
-print ("\nonion inverse (one quadrant)...")
-data = im.copy()
-t0 = time()
-Q = get_image_quadrants(data,reorient=True)
-AO = []
-# flip quadrants to match pre 24 Dec 15 orientation definition 
-#for q in Q:
-q = Q[0]
-AO.append(iabel_onion_peeling(q[:,::-1])[:,::-1]) #flip, flip-back
-for i in range(4): AO.append(AO[0])
-# only quadrant inversion available??
-# reassemble
-onion = put_image_quadrants((AO[0],AO[1],AO[2],AO[3]),odd_size=False)
-print ("                   {:.1f} sec".format(time()-t0))
-onion_speed, osr = calculate_speeds(onion)
-onionmax = onion[mask].max()  # excluding inner noise
-onion /= onionmax
-onion_speed /= onion_speed[osr>50].max()
+def iabel_basex_transform(Q0):
+    # basex requires a whole image
+    IM = put_image_quadrants(\
+      (Q0, np.fliplr(Q0), np.fliplr(np.flipud(Q0)), np.flipud(Q0)), odd_size=True)
+    rows, cols = IM.shape
+    center = (rows//2+rows%2, cols//2+cols%2)
+    # return only Q0, top-right quadrant
+    return BASEX (IM, center, n=rows, verbose=False)[:center[0], center[1]:]     
 
-# hansenlaw  ------------------------------
-print ("\nhansen law inverse ...")
-data = im.copy()
-t0 = time()
-hl = iabel_hansenlaw(data)   # hansenlaw takes care of image center
-hl_speed, hsr = calculate_speeds(hl)
-print ("                   {:.1f} sec".format(time()-t0))
-hlmax = hl[mask].max()       # excluding inner noise
-hl /= hlmax
-#hl[0:50,0:50] = 5  # tag image top-left corner
-hl_speed /= hl_speed[hsr>50].max()
+# inverse Abel transform methods -----------------------------
+# dictionary of method: function()
 
-# basex  ------------------------------
-center = (h2-0.5,w2+0.5) 
-print ("\nbasex inverse ...")
-data = im.copy()
-t0 = time()
-basex = BASEX (data, center, n=h, verbose=False)
-basex_speed, bsr = calculate_speeds(basex)
-print ("                   {:.1f} sec".format(time()-t0))
-basexmax = basex[mask].max()*2  # fix me! fudge factor
-basex  /= basexmax
-basex_speed /= basex_speed[bsr>50].max()
+transforms = {\
+  "direct"      : iabel_direct,      
+  #"onion"       : iabel_onion_transform, 
+  "hansenlaw"   : iabel_hansenlaw_transform,
+  #"basex"       : iabel_basex_transform,   
+  "three_point" : iabel_three_point_transform, 
+}
+# sort dictionary
+transforms = collections.OrderedDict(sorted(transforms.items()))
 
-# three_point  ------------------------------
-center = (h2-0.5,w2+0.5) 
-print ("\nthree_point inverse ...")
-data = im.copy()
-t0 = time()
-threept = iabel_three_point (data, center)
-threept_speed, tsr = calculate_speeds(threept)
-print ("                   {:.1f} sec".format(time()-t0))
-threeptmax = threept[mask].max()
-threept  /= threeptmax
-threept_speed /= threept_speed[tsr>50].max()
 
+# Image:   O2- VMI 1024x1024 pixel ------------------
+IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
+# this is even size, all methods except 'onion' require an odd-size
+
+# recenter the image to an odd size
+
+IModd, offset = center_image_by_slice (IM, radial_range=(300,400))
+np.savetxt("O2-ANU1023.txt", IModd)
+
+h, w = IModd.shape
+print ("centered image 'data/O2-ANU2048.txt' shape = {:d}x{:d}".format(h,w))
+
+Q0, Q1, Q2, Q3 = get_image_quadrants (IModd, reorient=True)
+print ("Image quadrant shape {}".format(Q0.shape))
+
+
+# quadrant image region of bright pixels for intensity normalization
+
+mask = np.zeros(Q0.shape,dtype=bool)
+mask[500:512, 358:365] = True   
+
+
+
+# process Q0 quadrant using each method --------------------
+
+iabelQ = {}  # inverse Abel transformed image
+speed = {}   # speed distribution
+radial = {}  # radial coordinate for the speed distribution
+
+Q0fresh = Q0.copy()
+quad_tuple = ()
+for q, method in enumerate(transforms.keys()):
+    Q0 = Q0fresh.copy()   # top-right quadrant
+
+    # inverse Abel transform of quadrant
+    print ("\n{:s} inverse ...".format(method))  
+    t0 = time()
+    iabelQ[method] = iabelQ0 = transforms[method](Q0)
+
+    print ("                    {:.1f} sec".format(time()-t0))
+
+    # origin=(0,0), quadrant must be flipped up/down to generate correct speed profile
+    speed[method], radial[method] = \
+                      calculate_speeds(np.flipud(iabelQ0), origin=(0,0))
+
+    # normalize image intensity and speed distribution
+    iabelQ0       /= iabelQ0[mask].max()  
+    speed[method] /= speed[method][radial[method]>50].max()
+    quad_tuple += (iabelQ0,)
+
+    # plots
+    plt.subplot(121)  # combined image
+    annot_angle = (w*0.9*np.cos(q*45*pi/180), h*0.9*np.sin(q*45*pi/180))
+    plt.annotate(method, annot_angle, color="yellow")
+
+    # speed plot
+    plt.subplot(122)
+    plt.plot (radial[method],speed[method],label=method)
 
 # reassemble image, each quadrant a different method
-im = data.copy()
-direct = direct[:h2,:w2]
-im[:h2,:w2] = direct[:,:]   # Q1  
-im[:h2,w2:] = np.tril(threept[:h2,w2:][::-1])[::-1] +\
-              np.triu(onion[:h2,w2:][::-1])[::-1]
-im[h2:,:w2] = basex[h2:-1,:w2]    # Q2
-im[h2:,w2:] = hl[h2:,w2:]       # Q3
+
+qsize = np.size(quad_tuple)
+if qsize < 4:
+    blank = zeros(iabelQ0.shape)
+    for i in range(qsize,4): quad_tuple += (blank,)
+
+im = put_image_quadrants (quad_tuple, odd_size=True)
 
 plt.subplot(121)
-plt.annotate("direct",(50,50),color="yellow")
-plt.annotate("onion",(870,210),color="yellow")
-plt.annotate("3pt",(600,60),color="yellow")
-plt.annotate("hansenlaw",(700,950),color="yellow")
-plt.annotate("basex",(50,950),color="yellow")
-plt.annotate("quadrant intensities normalized",
-             (100,1200),color='b',annotation_clip=False)   
-plt.annotate("speed intensity normalized $\\rightarrow$",
-             (200,1400),color='b',annotation_clip=False)   
-plt.imshow(im,vmin=0,vmax=hlmax/2)
+plt.imshow(im,vmin=0)
 
 plt.subplot(122)
-plt.plot (dsr,direct_speed,'k',label='direct')
-plt.plot (osr,onion_speed,'r--',label='onion')
-plt.plot (bsr,basex_speed,'g',label='basex')
-plt.plot (hsr,hl_speed,'b',label='hansenlaw')
-plt.plot (tsr,threept_speed,'m',label='3 point')
-
 plt.axis(ymin=-0.05,ymax=1.1,xmin=50,xmax=450)
 plt.legend(loc=0,labelspacing=0.1)
 plt.tight_layout()
-plt.savefig('All.png',dpi=100)
+plt.savefig('example_all_O2.png',dpi=100)
 plt.show()
