@@ -31,12 +31,11 @@ def iabel_onion_transform(Q0):
 
 def iabel_basex_transform(Q0):
     # basex requires a whole image
-    IM = put_image_quadrants(\
-      (Q0, np.fliplr(Q0), np.fliplr(np.flipud(Q0)), np.flipud(Q0)), odd_size=True)
+    IM = put_image_quadrants((Q0, Q0, Q0, Q0), odd_size=True)
     rows, cols = IM.shape
     center = (rows//2+rows%2, cols//2+cols%2)
-    # return only Q0, top-right quadrant
-    return BASEX (IM, center, n=rows, verbose=False)[:center[0], center[1]:]     
+    AIM = BASEX (IM, center, n=rows, verbose=False)
+    return get_image_quadrants(AIM)[0]  # only return Q0
 
 # inverse Abel transform methods -----------------------------
 # dictionary of method: function()
@@ -45,7 +44,7 @@ transforms = {\
   "direct"      : iabel_direct,      
   #"onion"       : iabel_onion_transform, 
   "hansenlaw"   : iabel_hansenlaw_transform,
-  #"basex"       : iabel_basex_transform,   
+  "basex"       : iabel_basex_transform,   
   "three_point" : iabel_three_point_transform, 
 }
 # sort dictionary
@@ -123,7 +122,7 @@ if qsize < 4:
 im = put_image_quadrants (quad_tuple, odd_size=True)
 
 plt.subplot(121)
-plt.imshow(im,vmin=0)
+plt.imshow(im,vmin=0,vmax=1)
 
 plt.subplot(122)
 plt.axis(ymin=-0.05,ymax=1.1,xmin=50,xmax=450)

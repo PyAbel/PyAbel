@@ -11,7 +11,7 @@ from abel.tools import calculate_speeds, get_image_quadrants,\
                        put_image_quadrants
 
 ################################################################################
-# hasenlaw - a recursive method forwrd/inverse Abel transform algorithm 
+# hasenlaw - a recursive method forword/inverse Abel transform algorithm 
 #
 # Stephen Gibson - Australian National University, Australia
 # Jason Gascooke - Flinders University, Australia
