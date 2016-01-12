@@ -26,6 +26,7 @@ class AbelTiming(object):
         from .hansenlaw import iabel_hansenlaw
         from timeit import Timer
         from .direct import fabel_direct, iabel_direct, cython_ext
+        from .three_point import iabel_three_point
 
 
         self.n = n
@@ -57,7 +58,8 @@ class AbelTiming(object):
 
             res_iabel['HansenLaw']['tr'].append(
                 Timer(lambda: iabel_hansenlaw(x, verbose=False)).timeit(number=NREPEAT)/NREPEAT)
-
+            res_iabel['Three_point']['tr'].append(
+                Timer(lambda: iabel_three_point(x)).timeit(number=NREPEAT)/NREPEAT)
             res_iabel['direct_Python']['tr'].append(
                 Timer(lambda: iabel_direct(x, correction=False, backend='Python')).timeit(number=NREPEAT)/NREPEAT)
             res_fabel['direct_Python']['tr'].append(
