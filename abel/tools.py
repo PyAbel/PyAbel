@@ -43,8 +43,9 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
         polarIM = polarIM*r[:,np.newaxis]
     
     speeds = np.sum(polarIM, axis=1)
+    n = speeds.shape[0]
     
-    return speeds, r[:IM.shape[1]]   # width = image width
+    return speeds, r[:n]   # width = image width
 
 
 def calculate_angular_distributions(IM, radial_ranges=None):
@@ -362,8 +363,8 @@ def center_image_by_slice(IM, slice_width=10, radial_range=(0,-1),
     row_shift = vert['x']
 
     if pixel_center: 
-        col_shift += 0.5
-        row_shift -= 0.5
+        col_shift = col_shift + 0.5
+        row_shift = row_shift - 0.5
 
     IM_centered = shift(IM,(row_shift,col_shift)) # center image
 
