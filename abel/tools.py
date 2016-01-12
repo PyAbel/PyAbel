@@ -42,9 +42,10 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
         polarIM = polarIM*sintheta[np.newaxis, :]
         polarIM = polarIM*r[:,np.newaxis]
     
-    speeds = np.sum(polarIM, axis=1)
+    speeds = np.sum(polarIM, axis=1)   # sum over theta axis
+    r = r[:speeds.shape[0]]               # trim to same length
     
-    return speeds, r[:IM.shape[1]]   # width = image width
+    return speeds, r
 
 
 def calculate_angular_distributions(IM, radial_ranges=None):
@@ -362,8 +363,8 @@ def center_image_by_slice(IM, slice_width=10, radial_range=(0,-1),
     row_shift = vert['x']
 
     if pixel_center: 
-        col_shift += 0.5
-        row_shift -= 0.5
+        col_shift = col_shift + 0.5
+        row_shift = row_shift - 0.5
 
     IM_centered = shift(IM,(row_shift,col_shift)) # center image
 
@@ -398,6 +399,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
       - r_grid:     meshgrid of radial coordinates
       - theta_grid: meshgrid of theta coordinates
     """
+
     ny, nx = data.shape[:2]
     if origin is None:
         origin = (nx//2+nx%2, ny//2+ny%2)   # % handles odd size image

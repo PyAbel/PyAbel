@@ -71,7 +71,7 @@ ax2.set_title('Hansen Law inverse Abel')
 
 # Plot the 1D speed distribution
 ax3.plot(r,speeds)
-ax3.axis(ymin=-50)
+ax3.axis(xmax=500, ymin=-50)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Intensity')
 ax3.set_title('Speed distribution')

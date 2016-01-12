@@ -105,7 +105,7 @@ setup(name='PyAbel',
       'Topic :: Scientific/Engineering :: Mathematics',
       'Topic :: Scientific/Engineering :: Physics',
       'Topic :: Scientific/Engineering :: Medical Science Apps.',
-      'Topic :: Software Development :: Libraries :: Python Modules'
+      'Topic :: Software Development :: Libraries :: Python Modules',
 
       # Pick your license as you wish (should match "license" above)
       'License :: OSI Approved :: MIT License',
