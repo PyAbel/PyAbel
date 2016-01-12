@@ -434,6 +434,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
 
     if Jacobian:
         output = output*r_i[:,np.newaxis]
+
     return output, r_grid, theta_grid
 
 

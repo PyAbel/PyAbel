@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# rough comparison of direct, onion, hansenlaw, and basex inverse Abel transform
+# rough comparison of direct, onion, hansenlaw, and basex 
+# inverse Abel transform
 # for the O2- photoelectron velocity-map image
-
+#
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -19,7 +20,7 @@ from abel.tools       import *
 import matplotlib.pylab as plt
 from time import time
 
-# some wrapper functions --- remove once all methods consistent
+# some wrapper functions
 def iabel_direct_transform(Q0):
     rows, cols = Q0.shape
     return iabel_direct(Q0, center=(rows,0))
@@ -74,7 +75,7 @@ for method in transforms.keys():
     t0 = time()
     print ("                    {:.1f} sec".format(time()-t0))
 
-    # NB origin=(0,0) relative to bottom-left corner
+    # as of 10Jan16 origin=(0,0) not (512,0)?
     speed[method], radial[method] = \
                       calculate_speeds(iabelQ0, origin=(0,0))
 
