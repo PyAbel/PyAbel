@@ -399,6 +399,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
       - r_grid:     meshgrid of radial coordinates
       - theta_grid: meshgrid of theta coordinates
     """
+
     ny, nx = data.shape[:2]
     if origin is None:
         origin = (nx//2+nx%2, ny//2+ny%2)   # % handles odd size image
@@ -433,6 +434,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
 
     if Jacobian:
         output = output*r_i[:,np.newaxis]
+
     return output, r_grid, theta_grid
 
 
