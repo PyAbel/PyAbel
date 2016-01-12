@@ -13,8 +13,10 @@ import matplotlib.pyplot as plt
 
 from abel.hansenlaw import *
 from abel.basex import BASEX 
+from abel.tools import *
 from abel.io import load_raw
 import scipy.misc
+from scipy.ndimage.interpolation import shift
 
 # This example demonstrates both Hansen and Law inverse Abel transform
 # and basex for an image obtained using a velocity map imaging (VMI) 
@@ -24,14 +26,6 @@ import scipy.misc
 # ANU / The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
-# Before you start, centre of the NxN numpy array should be the centre
-#  of image symmetry
-#   +----+----+
-#   |    |    |
-#   +----o----+
-#   |    |    |
-#   + ---+----+
-
 # Specify the path to the file
 filename = os.path.join('data', 'O2-ANU1024.txt.bz2')
 
@@ -40,26 +34,36 @@ base_dir, name = os.path.split(filename)
 name  = name.split('.')[0]
 output_image = name + '_inverse_Abel_transform_HansenLaw.png'
 output_text  = name + '_speeds_HansenLaw.dat'
-output_plot  = name + '_comparison_HansenLaw.pdf'
+output_plot  = name + '_comparison_HansenLaw.png'
 
 # Load an image file as a numpy array
 print('Loading ' + filename)
 im = np.loadtxt(filename)
-(n,m) = np.shape(im)
-n2 = n//2   # half-image
-print ('image size {:d}x{:d}'.format(n,m))
+(rows,cols) = np.shape(im)
+if cols%2 == 0:
+    print ("Even pixel image cols={:d}, adjusting image centre\n",
+           " center_image_by_slice ()")
+    im = center_image_by_slice (im,r_range=(300,400))[0]
+    #im = shift(im,(0.5,0.5))
+    #im = im[:-1, 1::]  # drop left col, bottom row
+    (rows,cols) = np.shape(im)
+
+c2 = cols//2   # half-image width
+r2 = rows//2   # half-image height
+print ('image size {:d}x{:d}'.format(rows,cols))
 
 # Hansen & Law inverse Abel transform
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
-reconH, speedsH = iabel_hansenlaw (im,quad=(False,False,False,False),verbose=True)
+reconH = iabel_hansenlaw (im, verbose=True)
+speedsH,rH = calculate_speeds(reconH)
 
 # Basex inverse Abel transform
 print('Performing basex inverse Abel transform:')
-center = (n2+.5,n2)
-reconB, speedsB = BASEX (im, center, n=n, basis_dir='./',
-                             verbose=True, calc_speeds=True)
+center = (r2,c2)
+reconB = BASEX (im, center, n=rows, basis_dir='./', verbose=True)
+speedsB, rB = calculate_speeds (reconB)
 
 # plot the results - VMI, inverse Abel transformed image, speed profiles
 # Set up some axes
@@ -76,20 +80,19 @@ ax1.set_ylabel('y (pixels)')
 ax1.set_title('velocity map image')
 
 # Plot the 2D transform
-reconB = reconB[:-1,:-1]  # fix temp basex (width+1,height+1) issue
-reconH2 = reconH[:,:n2]
-reconB2 = reconB[:,n2:] 
+reconH2 = reconH[:,:c2]
+reconB2 = reconB[:,c2:] 
 recon = np.concatenate((reconH2,reconB2),axis=1)
-im2 = ax2.imshow(recon,origin='lower',aspect='auto',vmin=0,vmax=recon[:n2-50,:n2-50].max())
+im2 = ax2.imshow(recon,origin='lower',aspect='auto',vmin=0,vmax=recon[:r2-50,:c2-50].max())
 fig.colorbar(im2,ax=ax2,fraction=.1,shrink=0.9,pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law | Basex',x=0.4)
 
 # Plot the 1D speed distribution - normalized
-ax3.plot(speedsB/speedsB[250:280].max(),'r-',label="Basex")
-ax3.plot(speedsH/speedsH[250:280].max(),'b-',label="Hansen Law")
-ax3.axis(xmax=n2-12,ymin=-0.1,ymax=1.5)
+ax3.plot(rB,speedsB/speedsB[250:280].max(),'r-',label="Basex")
+ax3.plot(rH,speedsH/speedsH[250:280].max(),'b-',label="Hansen Law")
+ax3.axis(xmax=c2-12,ymin=-0.1,ymax=1.5)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Intensity')
 ax3.set_title('Speed distribution')
