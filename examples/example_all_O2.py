@@ -96,9 +96,7 @@ for q, method in enumerate(transforms.keys()):
     iabelQ.append(IAQ0)  # store for plot
 
     # polar projection and speed profile
-    #    origin=(0,0), quadrant must be flipped up/down to generate correct 
-    flipud_IAQ0 = np.flipud(IAQ0)
-    speed, radial = calculate_speeds(flipud_IAQ0, origin=(0,0))
+    speed, radial = calculate_speeds(IAQ0, origin=(0,0))
 
     # normalize image intensity and speed distribution
     IAQ0  /= IAQ0[mask].max()  

@@ -399,6 +399,9 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
       - r_grid:     meshgrid of radial coordinates
       - theta_grid: meshgrid of theta coordinates
     """
+    # bottom-left coordinate system required numpy image to be np.flipud
+    data = np.flipud(data)
+
     ny, nx = data.shape[:2]
     if origin is None:
         origin = (nx//2+nx%2, ny//2+ny%2)   # % handles odd size image
