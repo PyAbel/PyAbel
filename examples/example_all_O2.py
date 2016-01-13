@@ -34,7 +34,7 @@ def iabel_basex_transform(Q0):
     IM = put_image_quadrants((Q0, Q0, Q0, Q0), odd_size=True)
     rows, cols = IM.shape
     center = (rows//2+rows%2, cols//2+cols%2)
-    AIM = BASEX (IM, center, n=rows, verbose=False)
+    AIM = BASEX (IM, center, n=rows, verbose=True)
     return get_image_quadrants(AIM)[0]  # only return Q0
 
 # inverse Abel transform methods -----------------------------
