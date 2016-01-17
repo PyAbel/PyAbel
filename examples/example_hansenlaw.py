@@ -4,11 +4,12 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from abel.hansenlaw import *
-from abel.tools import center_image_by_slice
+import numpy as np
+from abel.hansenlaw import iabel_hansenlaw
+from abel.tools.vmi import find_image_center_by_slice
+from abel.tools.vmi import calculate_speeds
 import scipy.misc
 import matplotlib.pylab as plt
-from scipy.ndimage.interpolation import shift
 
 # This example demonstrates Hansen and Law inverse Abel transform
 # of an image obtained using a velocity map imaging (VMI) photoelecton 
@@ -29,11 +30,11 @@ IM = np.loadtxt(filename)
 rows,cols = IM.shape    # image size
 
 # Image center should be mid-pixel, i.e. odd number of colums
-if cols%2 != 1: 
+if cols%2 == 0: 
    print ("HL: even pixel width image, re-adjust image centre")
    # re-center image based on horizontal and vertical slice profiles
    # covering the radial range [300:400] pixels from the center
-   IM = center_image_by_slice (IM, radial_range=(300,400))[0]
+   IM = find_image_center_by_slice (IM, radial_range=(300,400))[0]
    rows,cols = IM.shape   # new image size
 
 c2 = cols//2   # half-image
@@ -56,8 +57,8 @@ ax2 = plt.subplot(132)
 ax3 = plt.subplot(133)
 
 # Plot the raw data
-im1 = ax1.imshow(IM, origin='lower', aspect='auto')
-fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
+im1 = ax1.imshow(IM,origin='lower',aspect='auto')
+fig.colorbar(im1,ax=ax1,fraction=.1,shrink=0.9,pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
 ax1.set_title('velocity map image')

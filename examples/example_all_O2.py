@@ -12,12 +12,14 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from abel.onion       import *
-from abel.hansenlaw   import *
-from abel.basex       import *
-from abel.direct      import *
-from abel.three_point import *
-from abel.tools       import *
+import numpy as np
+from abel.onion import iabel_onion_peeling
+from abel.hansenlaw import iabel_hansenlaw_transform
+from abel.basex import BASEX
+from abel.direct import iabel_direct
+from abel.three_point import iabel_three_point_transform
+from abel.tools.vmi import calculate_speeds, find_image_center_by_slice
+from abel.tools.symmetry import get_image_quadrants, put_image_quadrants
 
 import collections
 import matplotlib.pylab as plt
@@ -28,11 +30,12 @@ from time import time
 
 def iabel_onion_transform(Q0):
     # onion peel requires Q1 oriented image
-    return iabel_onion_peeling(Q0[::-1])[::-1]
+    return iabel_onion_peeling(Q0[:,::-1])[:,::-1]
 
 def iabel_basex_transform(Q0):
     # basex requires a whole image
     IM = put_image_quadrants((Q0, Q0, Q0, Q0), odd_size=True)
+    print ("basex uses whole image reconstructed from Q0 shape ",IM.shape)
     rows, cols = IM.shape
     center = (rows//2+rows%2, cols//2+cols%2)
     AIM = BASEX (IM, center, n=rows, verbose=True)
@@ -52,13 +55,14 @@ transforms = {\
 transforms = collections.OrderedDict(sorted(transforms.items()))
 ntrans = np.size(transforms.keys())  # number of transforms
 
+
 # Image:   O2- VMI 1024x1024 pixel ------------------
 IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 # this is even size, all methods except 'onion' require an odd-size
 
 # recenter the image to an odd size
 
-IModd, offset = center_image_by_slice (IM, radial_range=(300,400))
+IModd, offset = find_image_center_by_slice (IM, radial_range=(300,400))
 np.savetxt("O2-ANU1023.txt", IModd)
 
 h, w = IModd.shape
@@ -75,41 +79,7 @@ print ("quadrant shape {}".format(Q0.shape))
 mask = np.zeros(Q0.shape,dtype=bool)
 mask[500:512, 358:365] = True   
 
-# process Q0 quadrant using each method --------------------
 
-iabelQ = {}  # inverse Abel transformed image
-speed = {}   # speed distribution
-radial = {}  # radial coordinate for the speed distribution
-
-Q0fresh = Q0.copy()
-quad_tuple = ()
-for q, method in enumerate(transforms.keys()):
-    Q0 = Q0fresh.copy()   # top-right quadrant
-
-    # inverse Abel transform of quadrant
-    print ("\n{:s} inverse ...".format(method))  
-    t0 = time()
-    iabelQ[method] = iabelQ0 = transforms[method](Q0)
-
-    print ("                    {:.1f} sec".format(time()-t0))
-
-    # origin=(0,0), quadrant must be flipped up/down to generate correct speed profile
-    speed[method], radial[method] = \
-                      calculate_speeds(np.flipud(iabelQ0), origin=(0,0))
-
-    # normalize image intensity and speed distribution
-    iabelQ0       /= iabelQ0[mask].max()  
-    speed[method] /= speed[method][radial[method]>50].max()
-    quad_tuple += (iabelQ0,)
-
-    # plots
-    plt.subplot(121)  # combined image
-    annot_angle = (w*0.9*np.cos(q*45*pi/180), h*0.9*np.sin(q*45*pi/180))
-    plt.annotate(method, annot_angle, color="yellow")
-
-    # speed plot
-    plt.subplot(122)
-    plt.plot (radial[method],speed[method],label=method)
 
 # process Q0 quadrant using each method --------------------
 
