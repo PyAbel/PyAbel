@@ -12,12 +12,14 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from abel.onion       import *
-from abel.hansenlaw   import *
-from abel.basex       import *
-from abel.direct      import *
-from abel.three_point import *
-from abel.tools       import *
+import numpy as np
+from abel.onion import iabel_onion_peeling
+from abel.hansenlaw import iabel_hansenlaw_transform
+from abel.basex import BASEX
+from abel.direct import iabel_direct
+from abel.three_point import iabel_three_point_transform
+from abel.tools.vmi import calculate_speeds, find_image_center_by_slice
+from abel.tools.symmetry import get_image_quadrants, put_image_quadrants
 
 import collections
 import matplotlib.pylab as plt
@@ -60,8 +62,9 @@ IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 
 # recenter the image to an odd size
 
-IModd, offset = center_image_by_slice (IM, radial_range=(300,400))
-np.savetxt("O2-ANU1023.txt", IModd)
+IModd, offset = find_image_center_by_slice (IM, radial_range=(300,400))
+print("-----",offset)
+#np.savetxt("O2-ANU1023.txt", IModd)
 
 h, w = IModd.shape
 print ("centered image 'data/O2-ANU2048.txt' shape = {:d}x{:d}".format(h,w))
