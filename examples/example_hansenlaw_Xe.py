@@ -46,13 +46,13 @@ im = plt.imread(filename)
 (rows,cols) = np.shape(im)
 print ('image size {:d}x{:d}'.format(rows,cols))
 
-im = center_image (im,(340,245),n=rows)
+im = center_image (im, (340,245), n=rows)
 
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon = iabel_hansenlaw (im,verbose=True)
-speeds, r, _ = calculate_speeds(recon)
+recon = iabel_hansenlaw (im, verbose=True)
+speeds, r = calculate_speeds(recon)
 
 
 # save the transform in 8-bit format:
@@ -70,15 +70,15 @@ ax2 = plt.subplot(132)
 ax3 = plt.subplot(133)
 
 # Plot the raw data
-im1 = ax1.imshow(im,origin='lower',aspect='auto')
-fig.colorbar(im1,ax=ax1,fraction=.1,shrink=0.9,pad=0.03)
+im1 = ax1.imshow(im, origin='lower', aspect='auto')
+fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
 ax1.set_title('velocity map image')
 
 # Plot the 2D transform
-im2 = ax2.imshow(recon,origin='lower',aspect='auto')
-fig.colorbar(im2,ax=ax2,fraction=.1,shrink=0.9,pad=0.03)
+im2 = ax2.imshow(recon, origin='lower', aspect='auto')
+fig.colorbar(im2, ax=ax2, fraction=.1, shrink=0.9, pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law inverse Abel')
@@ -91,10 +91,11 @@ ax3.set_title('Speed distribution')
 ax3.set_yscale('log')
 
 # Prettify the plot a little bit:
-plt.subplots_adjust(left=0.06,bottom=0.17,right=0.95,top=0.89,wspace=0.35,hspace=0.37)
+plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35,
+                    hspace=0.37)
 
 # Save a image of the plot
-plt.savefig(output_plot,dpi=150)
+plt.savefig(output_plot, dpi=150)
 
 # Show the plots
 plt.show()
