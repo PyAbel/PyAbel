@@ -17,7 +17,8 @@ from numpy.linalg import inv
 from scipy.ndimage import median_filter, gaussian_filter
 
 from ._version import __version__
-from .tools import calculate_speeds, center_image, center_image_asym
+from .vmi import calculate_speeds
+from .symmetry import center_image, center_image_asym
 
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
