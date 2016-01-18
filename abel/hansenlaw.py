@@ -244,13 +244,14 @@ def _abel_hansenlaw_transform_core(IM, dr=1, inverse=False):
 
     # special case for the end pixel
     AIM[:, 0] = AIM[:, 1]  
+    # for some reason shift by 1 pixel aligns? - Fix me!
+    if inverse:
+        AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
 
     if inverse:
-        # for some reason shift by 1 pixel aligns? - Fix me!
-        AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
         return AIM*np.pi/dr    # 1/dr - from derivative
     else:
         return -AIM*np.pi*dr   # forward still needs '-' sign
