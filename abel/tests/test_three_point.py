@@ -9,7 +9,7 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 from abel.three_point import iabel_three_point_transform, iabel_three_point, get_bs_three_point_cached
-from abel.analytical import GaussianAnalytical
+from abel.tools.analytical import GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')

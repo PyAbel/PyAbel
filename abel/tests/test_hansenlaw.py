@@ -9,7 +9,12 @@ from numpy.testing import assert_allclose
 
 from abel.hansenlaw import fabel_hansenlaw_transform, iabel_hansenlaw,\
                            iabel_hansenlaw_transform, fabel_hansenlaw
-from abel.analytical import GaussianAnalytical
+
+from abel.tools.analytical import sample_image_dribinski
+from abel.tools.symmetry import get_image_quadrants
+from abel.tools.vmi import calculate_speeds
+
+from abel.tools.analytical import GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
 
 # Curve A, Table 2, Fig 3. Abel transform pair  Hansen&Law JOSA A2 510 (1985)
@@ -111,3 +116,32 @@ def test_iabel_hansenlaw_transform_curveA():
     recon = iabel_hansenlaw_transform(proj, r[1]-r[0])  # inverse Abel 
                                                        # == f(r)
     assert_allclose(orig, recon, rtol=0, atol=0.01)
+
+
+def test_hansenlaw_with_dribinski_image():
+    """ Check fabel_hansenlaw_transform() and iabel_hansenlaw_transform()
+        using BASEX sample image, comparing speed distributions
+    """
+
+    # BASEX sample image
+    IM = sample_image_dribinski(n=361)
+
+    # core transform(s) use top-right quadrant, Q0
+    Q0, Q1, Q2, Q3 = get_image_quadrants(IM)
+
+    # forward Abel transform
+    fQ0 = fabel_hansenlaw_transform(Q0)
+
+    # inverse Abel transform
+    ifQ0 = iabel_hansenlaw_transform(fQ0)
+    
+    # speed distribution
+    orig_speed, orig_radial = calculate_speeds(Q0, origin=(0,0), Jacobian=True)
+
+    speed, radial_coords = calculate_speeds(ifQ0, origin=(0,0), Jacobian=True)
+
+    orig_speed /= orig_speed[50:125].max()
+    speed /= speed[50:125].max()
+    
+
+    assert np.allclose(orig_speed[50:125], speed[50:125], rtol=0.5, atol=0)

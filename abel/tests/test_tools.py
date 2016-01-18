@@ -7,7 +7,8 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
-from abel.tools import calculate_speeds, center_image
+from abel.tools.vmi import calculate_speeds
+from abel.tools.symmetry import  center_image
 from abel.benchmark import is_symmetric
 
 

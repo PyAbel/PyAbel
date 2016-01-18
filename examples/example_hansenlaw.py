@@ -38,33 +38,36 @@ if cols%2 == 0:
    IM, origin_shift = find_image_center_by_slice (IM, radial_range=(300,400))
    rows, cols = IM.shape   # new image size
 
-   #top, bottom, left, right = axis_slices(IM, radial_range=(200,500))
-   #plt.plot(top, 'r-', label="top")
-   #plt.plot(bottom, 'b-', label="bottom")
-   #plt.plot(left, 'g-', label="left")
-   #plt.plot(right, 'k-', label="right")
+   top, bottom, left, right = axis_slices(IM, radial_range=(200,500))
+   plt.plot(top, 'r-', label="top")
+   plt.plot(bottom, 'b-', label="bottom")
+   plt.plot(left, 'g-', label="left")
+   plt.plot(right, 'k-', label="right")
 
-   #plt.legend(fontsize=11)
-   #plt.show()
+   plt.legend(fontsize=11)
+   plt.show()
 
 c2 = cols//2   # half-image
 print ('image size {:d}x{:d}'.format(rows,cols))
 
 #Q0, Q1, Q2, Q3 = get_image_quadrants(IM, reorient=True)
 
-#AQ0 = iabel_hansenlaw_transform(Q0, dr=0.5)
+#AQ0 = iabel_hansenlaw_transform(Q0, dr=1)
 
-#speed, r = calculate_speeds(AQ0, origin=(0, 0), dr=0.5)
+#speed, r = calculate_speeds(AQ0, origin=(0, 0), dr=1)
+
+#plt.plot(r, speed)
+#plt.show()
 
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-AIM = iabel_hansenlaw(IM, dr=0.5, use_quadrants=(True,True,True,True),
+AIM = iabel_hansenlaw(IM, dr=1, use_quadrants=(True,True,True,True),
                                 vertical_symmetry=False,
                                 horizontal_symmetry=False,
                                 verbose=True)
 
-speeds, rs = calculate_speeds (AIM, dr=0.5)
+speeds, rs = calculate_speeds (AIM, dr=1)
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))
@@ -88,8 +91,8 @@ ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law inverse Abel')
 
 # Plot the 1D speed distribution
-ax3.plot(rs,speeds)
-ax3.axis(xmax=450, ymin=-50)
+ax3.plot(rs,speeds/speeds[200:].max())
+ax3.axis(xmax=500, ymin=-0.05, ymax=1.1)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Intensity')
 ax3.set_title('Speed distribution')

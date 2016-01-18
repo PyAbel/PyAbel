@@ -11,7 +11,7 @@ from abel.tools.vmi import calculate_speeds
 from abel.tools.symmetry import  get_image_quadrants, put_image_quadrants
 
 ###############################################################################
-# hansenlaw - a recursive method forword/inverse Abel transform algorithm 
+# hansenlaw - a recursive method forward/inverse Abel transform algorithm 
 #
 # Stephen Gibson - Australian National University, Australia
 # Jason Gascooke - Flinders University, Australia
@@ -242,13 +242,15 @@ def _abel_hansenlaw_transform_core(IM, dr=1, inverse=False):
                      h[k]*gamma(Nm, lam[k], n)*gp[:, n]  # Eq. (15 or 17)            
         AIM[:, n] = X.sum(axis=1)
 
-    # special case for the center pixel
+    # special case for the end pixel
     AIM[:, 0] = AIM[:, 1]  
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
 
     if inverse:
+        # for some reason shift by 1 pixel aligns? - Fix me!
+        AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
         return AIM*np.pi/dr    # 1/dr - from derivative
     else:
         return -AIM*np.pi*dr   # forward still needs '-' sign

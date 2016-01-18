@@ -31,17 +31,20 @@ def sample_image_dribinski(n=361, origin=None):
         return np.exp(-(r-r0)**2/sigma2)
 
     def I(r, theta):  # intensity function Eq. (16)
-        t0 = 7*Gauss(r, 10, 4)*np.sin(theta)**2
+        sinetheta2 = np.sin(theta)**2
+        cosinetheta2 = np.cos(theta)**2
+
+        t0 = 7*Gauss(r, 10, 4)*sinetheta2
         t1 = 3*Gauss(r, 15, 4)
-        t2 = 5*Gauss(r, 20, 4)*np.cos(theta)**2
+        t2 = 5*Gauss(r, 20, 4)*cosinetheta2
     
         t3 =   Gauss(r, 70, 4)
-        t4 = 2*Gauss(r, 85, 4)*np.cos(theta)**2
-        t5 =   Gauss(r, 100, 4)*np.sin(theta)**2
+        t4 = 2*Gauss(r, 85, 4)*cosinetheta2
+        t5 =   Gauss(r, 100, 4)*sinetheta2
 
-        t6 = 2*Gauss(r, 145, 4)*np.sin(theta)**2
+        t6 = 2*Gauss(r, 145, 4)*sinetheta2
         t7 =   Gauss(r, 150, 4)
-        t8 = 3*Gauss(r, 155, 4)*np.cos(theta)**2
+        t8 = 3*Gauss(r, 155, 4)*cosinetheta2
 
         t9 = 20*Gauss(r, 45, 3600)  # background under t3 to t5
     
