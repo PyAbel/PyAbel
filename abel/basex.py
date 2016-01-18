@@ -133,7 +133,7 @@ def BASEX(data, center, n,
                 print('Generating speed distribution...')
                 t1 = time()
 
-            speeds = calculate_speeds(recon)
+            speeds, r = calculate_speeds(recon)
 
             if verbose:
                 print('%.2f seconds' % (time() - t1))

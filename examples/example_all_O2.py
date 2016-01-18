@@ -63,7 +63,6 @@ IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 # recenter the image to an odd size
 
 IModd, offset = find_image_center_by_slice (IM, radial_range=(300,400))
-print("-----",offset)
 #np.savetxt("O2-ANU1023.txt", IModd)
 
 h, w = IModd.shape

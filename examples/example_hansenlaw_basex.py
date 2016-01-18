@@ -11,10 +11,9 @@ import os.path
 import numpy as np
 import matplotlib.pyplot as plt
 
-from abel.hansenlaw import *
+from abel.hansenlaw import iabel_hansenlaw
 from abel.basex import BASEX 
-from abel.tools import *
-from abel.io import load_raw
+from abel.tools.vmi import calculate_speeds, find_image_center_by_slice
 import scipy.misc
 from scipy.ndimage.interpolation import shift
 
@@ -42,8 +41,8 @@ im = np.loadtxt(filename)
 (rows,cols) = np.shape(im)
 if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
-           " center_image_by_slice ()")
-    im = center_image_by_slice (im, radial_range=(300,400))[0]
+           " find_image_center_by_slice ()")
+    im = find_image_center_by_slice (im, radial_range=(300,400))[0]
     # alternative
     #im = shift(im,(0.5,0.5))
     #im = im[:-1, 1::]  # drop left col, bottom row
@@ -92,8 +91,8 @@ ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law | Basex',x=0.4)
 
 # Plot the 1D speed distribution - normalized
-ax3.plot(rB, speedsB/speedsB[250:280].max(), 'r-', label="Basex")
-ax3.plot(rH, speedsH/speedsH[250:280].max(), 'b-', label="Hansen Law")
+ax3.plot(rB, speedsB/speedsB[350:].max(), 'r-', label="Basex")
+ax3.plot(rH, speedsH/speedsH[350:].max(), 'b-', label="Hansen Law")
 ax3.axis(xmax=c2-12, ymin=-0.1, ymax=1.5)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Intensity')

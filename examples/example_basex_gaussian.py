@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from abel.basex import BASEX
-from abel.analytical import GaussianAnalytical
+from abel.tools.analytical import GaussianAnalytical
 
 # This example performs a BASEX transform of a simple 1D Gaussian function and compares
 # this to the analytical inverse Abel transform 

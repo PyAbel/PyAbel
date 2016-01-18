@@ -39,13 +39,13 @@ if cols%2 == 0:
    rows, cols = IM.shape   # new image size
 
    top, bottom, left, right = axis_slices(IM, radial_range=(200,500))
-   plt.plot(top, 'r-', label="top")
-   plt.plot(bottom, 'b-', label="bottom")
-   plt.plot(left, 'g-', label="left")
-   plt.plot(right, 'k-', label="right")
+   #plt.plot(top, 'r-', label="top")
+   #plt.plot(bottom, 'b-', label="bottom")
+   #plt.plot(left, 'g-', label="left")
+   #plt.plot(right, 'k-', label="right")
 
-   plt.legend(fontsize=11)
-   plt.show()
+   #plt.legend(fontsize=11)
+   #plt.show()
 
 c2 = cols//2   # half-image
 print ('image size {:d}x{:d}'.format(rows,cols))

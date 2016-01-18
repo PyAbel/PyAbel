@@ -9,8 +9,9 @@ from __future__ import unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 
-from abel.hansenlaw import *
-from abel.tools import center_image
+from abel.hansenlaw import iabel_hansenlaw 
+from abel.tools.vmi import calculate_speeds
+from abel.tools.symmetry import center_image
 import scipy.misc
 
 # This example demonstrates Hansen and Law inverse Abel transform

@@ -37,7 +37,8 @@ _hansenlaw_header_docstring = \
     """ 
     Forward/Inverse Abel transformation using the algorithm of: 
     Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).
-                    
+    
+    ::                
                    ∞                
                    ⌠                
                -1  ⎮   g'(R)     
@@ -73,30 +74,35 @@ _hansenlaw_transform_docstring = \
 
     Use (f/i)abel_transform (IM) to transform a whole image
        
-    Parameters:
+    Parameters
     ----------
-     - IM: a rows x cols numpy array = one quadrant (or half) of the image
-                                        oriented rightside-top
-             +--------      +--------+              |
-             |      *       | *      |              |
-             |   *          |    *   |  <----------/
-             |  *           |     *  |         
-             +--------      o--------+
-             |  *           |     *  |
-             |   *          |    *   |
-             |     *        | *      |
-             +--------      +--------+
-                          
-      Image centre `o' should be within a pixel (i.e. an odd number of columns)
-      [Use abel.tool.center_image_by_slice () to transform] 
+    IM : 2D np.array
+        One quadrant (or half) of the image oriented top-right
+    
+>            +--------      +--------+              |
+>            |      *       | *      |              |
+>            |   *          |    *   |  <----------/
+>            |  *           |     *  |         
+>            +--------      o--------+
+>            |  *           |     *  |
+>            |   *          |    *   |
+>            |     *        | *      |
+>            +--------      +--------+
+>                         
+>            Image centre `o' should be within a pixel 
+>            (i.e. an odd number of columns)
+>            [Use abel.tools.vmi.find_image_center_by_slice () to transform] 
 
-     -  dr: float - sampling size (=1 for pixel images), 
-                    used for Jacobian scaling
-     - inverse: boolean: False = forward Abel transform
-                         True  = inverse Abel transform
-    Return:
+    dr : float
+        Sampling size (=1 for pixel images), used for Jacobian scaling
+
+    inverse: boolean 
+        forward (False) or inverse (True) Abel transform
+
+    Returns
     -------
-     - AIM: rows x cols numpy array, forward/inverse Abel transform image
+    AIM : 2D np.array
+        forward/inverse Abel transform image 
 
     """
 
@@ -108,47 +114,55 @@ _hansenlaw_docstring = \
            - select quadrants
            - combine quadrantsto improve signal
 
-    Parameters:
+    Parameters
     ----------
-     - IM: a rows x cols numpy array
-     - dr: float - sampling size (=1 for pixel images), used to scale result
-     - use_quadrants: boolean tuple, (Q0,Q1,Q2,Q3)
-             +--------+--------+                
-             | Q1   * | *   Q0 |
-             |   *    |    *   |                               
-             |  *     |     *  |                               AQ1 | AQ0
-             +--------o--------+ --(inverse Abel transform)--> ----o----
-             |  *     |     *  |                               AQ2 | AQ3 
-             |   *    |    *   |
-             | Q2  *  | *   Q3 |          AQi == inverse Abel transform  
-             +--------+--------+                 of quadrant Qi
+    IM: 2D np.array
+        Image data shape (rows, cols)
 
-       (1) vertical_symmetry = True
+    dr : float 
+        radial sampling size (=1 for pixel images), used to scale result
 
-           Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
-           inverse image   AQ01 | AQ01     
-                           -----o-----            
-                           AQ23 | AQ23
+    inverse: boolean 
+        forward (False) or inverse (True) Abel transform
 
-       (2) horizontal_symmetry = True
+    use_quadrants: boolean tuple (Q0,Q1,Q2,Q3)
+        select quardants to be used in the analysis
 
-           Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
-           inverse image   AQ12 | AQ03       
-                           -----o-----
-                           AQ12 | AQ03
+>            +--------+--------+                
+>            | Q1   * | *   Q0 |
+>            |   *    |    *   |                               
+>            |  *     |     *  |                               AQ1 | AQ0
+>            +--------o--------+ --(inverse Abel transform)--> ----o----
+>            |  *     |     *  |                               AQ2 | AQ3 
+>            |   *    |    *   |
+>            | Q2  *  | *   Q3 |          AQi == inverse Abel transform  
+>            +--------+--------+                 of quadrant Qi
+>
+>      (1) vertical_symmetry = True
+>
+>          Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
+>          inverse image   AQ01 | AQ01     
+>                          -----o-----            
+>                          AQ23 | AQ23
+>
+>      (2) horizontal_symmetry = True
+>
+>          Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
+>          inverse image   AQ12 | AQ03       
+>                          -----o-----
+>                          AQ12 | AQ03
+>
+>      (3) vertical_symmetry = True, horizontal = True
+>
+>
+>          Combine: Q = Q0 + Q1 + Q2 + Q3
+>          inverse image   AQ | AQ       
+>                          ---o---  all quadrants equivalent
+>                          AQ | AQ
+>
 
-       (3) vertical_symmetry = True, horizontal = True
-
-
-           Combine: Q = Q0 + Q1 + Q2 + Q3
-           inverse image   AQ | AQ       
-                           ---o---  all quadrants equivalent
-                           AQ | AQ
-
-
-      - verbose: boolean, more output, timings etc.
-      - inverse: boolean: False = forward Abel transform
-                          True  = inverse Abel transform
+    verbose: boolean
+        verbose output, timings etc.
 
     """  
 
@@ -244,7 +258,7 @@ def _abel_hansenlaw_transform_core(IM, dr=1, inverse=False):
 
     # special case for the end pixel
     AIM[:, 0] = AIM[:, 1]  
-    # for some reason shift by 1 pixel aligns? - Fix me!
+    # for some reason shift by 1 pixel aligns better? - FIX ME!
     if inverse:
         AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
 
@@ -288,41 +302,31 @@ def _abel_hansenlaw_core(IM, dr=1, inverse=True,
     t0 = time()
     
     # split image into quadrants
-    Q0, Q1, Q2, Q3 = get_image_quadrants(IM, reorient=True)
+    Q0, Q1, Q2, Q3 = get_image_quadrants(IM, reorient=True,
+                         vertical_symmetry=vertical_symmetry,
+                         horizontal_symmetry=horizontal_symmetry)
 
     verboseprint("HL: Calculating inverse Abel transform ... ")
 
-    if not vertical_symmetry and not horizontal_symmetry\
-       and np.all(use_quadrants):
-        # individual quadrant inverse Abel transform
+    # HL inverse Abel transform for quadrant 1
+    # all possibilities include Q1
+    AQ1 = _abel_hansenlaw_transform_core(Q1, dr, inverse) 
+
+    if vertical_symmetry:
+        AQ2 = _abel_hansenlaw_transform_core(Q2, dr, inverse)
+
+    if horizontal_symmetry:
         AQ0 = _abel_hansenlaw_transform_core(Q0, dr, inverse)
-        AQ1 = _abel_hansenlaw_transform_core(Q1, dr, inverse)
+
+    if not vertical_symmetry and not horizontal_symmetry:
+        AQ0 = _abel_hansenlaw_transform_core(Q0, dr, inverse)
         AQ2 = _abel_hansenlaw_transform_core(Q2, dr, inverse)
         AQ3 = _abel_hansenlaw_transform_core(Q3, dr, inverse)
 
-    else:  # combine selected quadrants according to assumed symmetry
-        if vertical_symmetry:   # co-add quadrants
-            Q0 = Q1 = Q0*use_quadrants[0]+Q1*use_quadrants[1] 
-            Q2 = Q3 = Q2*use_quadrants[2]+Q3*use_quadrants[3] 
-
-        if horizontal_symmetry:
-            Q1 = Q2 = Q1*use_quadrants[1]+Q2*use_quadrants[2] 
-            Q0 = Q3 = Q0*use_quadrants[0]+Q3*use_quadrants[3] 
-
-        # HL inverse Abel transform for quadrant 1
-        # all possibilities include Q1
-        AQ1 = _abel_hansenlaw_transform_core(Q1, dr, inverse) 
-
-        if vertical_symmetry:
-            AQ0 = AQ1
-            AQ3 = AQ2 = _abel_hansenlaw_transform_core(Q2, dr, inverse)
-
-        if horizontal_symmetry:
-            AQ2 = AQ1
-            AQ3 = AQ0 = _abel_hansenlaw_transform_core(Q0, dr, inverse)
-
     # reassemble image
-    recon = put_image_quadrants((AQ0, AQ1, AQ2, AQ3), odd_size=cols % 2)
+    recon = put_image_quadrants((AQ0, AQ1, AQ2, AQ3), odd_size=cols % 2,
+                                vertical_symmetry=vertical_symmetry,
+                                horizontal_symmetry=horizontal_symmetry)
 
     verboseprint("{:.2f} seconds".format(time()-t0))
 
