@@ -6,20 +6,21 @@ from __future__ import unicode_literals
 
 import numpy as np
 from abel.hansenlaw import iabel_hansenlaw
+from abel.hansenlaw import iabel_hansenlaw_transform
 from abel.tools.vmi import find_image_center_by_slice
 from abel.tools.vmi import calculate_speeds
+from abel.tools.vmi import axis_slices
+from abel.tools.symmetry import get_image_quadrants
 import scipy.misc
 import matplotlib.pylab as plt
 
-# This example demonstrates Hansen and Law inverse Abel transform
-# of an image obtained using a velocity map imaging (VMI) photoelecton 
-# spectrometer to record the photoelectron angular distribution resulting 
-# from photodetachement of O2- at 454 nm.
+# Hansen and Law inverse Abel transform of a velocity-map image 
+# O2- photodetachement at 454 nm.
 # The spectrum was recorded in 2010  
 # ANU / The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
-# image file
+# image file in examples/data
 filename = 'data/O2-ANU1024.txt.bz2'
 
 # Load as a numpy array
@@ -34,21 +35,36 @@ if cols%2 == 0:
    print ("HL: even pixel width image, re-adjust image centre")
    # re-center image based on horizontal and vertical slice profiles
    # covering the radial range [300:400] pixels from the center
-   IM = find_image_center_by_slice (IM, radial_range=(300,400))[0]
-   rows,cols = IM.shape   # new image size
+   IM, origin_shift = find_image_center_by_slice (IM, radial_range=(300,400))
+   rows, cols = IM.shape   # new image size
+
+   #top, bottom, left, right = axis_slices(IM, radial_range=(200,500))
+   #plt.plot(top, 'r-', label="top")
+   #plt.plot(bottom, 'b-', label="bottom")
+   #plt.plot(left, 'g-', label="left")
+   #plt.plot(right, 'k-', label="right")
+
+   #plt.legend(fontsize=11)
+   #plt.show()
 
 c2 = cols//2   # half-image
 print ('image size {:d}x{:d}'.format(rows,cols))
 
+#Q0, Q1, Q2, Q3 = get_image_quadrants(IM, reorient=True)
+
+#AQ0 = iabel_hansenlaw_transform(Q0, dr=0.5)
+
+#speed, r = calculate_speeds(AQ0, origin=(0, 0), dr=0.5)
+
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-AIM = iabel_hansenlaw(IM, dr=1, use_quadrants=(True,True,True,True),
+AIM = iabel_hansenlaw(IM, dr=0.5, use_quadrants=(True,True,True,True),
                                 vertical_symmetry=False,
                                 horizontal_symmetry=False,
                                 verbose=True)
 
-speeds, r = calculate_speeds (AIM)
+speeds, rs = calculate_speeds (AIM, dr=0.5)
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))
@@ -72,7 +88,7 @@ ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law inverse Abel')
 
 # Plot the 1D speed distribution
-ax3.plot(r,speeds)
+ax3.plot(rs,speeds)
 ax3.axis(xmax=450, ymin=-50)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Intensity')
