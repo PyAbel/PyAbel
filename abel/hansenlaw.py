@@ -36,9 +36,9 @@ from abel.tools.symmetry import  get_image_quadrants, put_image_quadrants
 _hansenlaw_header_docstring = \
     """ 
     Forward/Inverse Abel transformation using the algorithm of: 
-    Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).
+    Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).::
     
-    ::                
+                      
                    ∞                
                    ⌠                
                -1  ⎮   g'(R)     
@@ -77,21 +77,21 @@ _hansenlaw_transform_docstring = \
     Parameters
     ----------
     IM : 2D np.array
-        One quadrant (or half) of the image oriented top-right
+        One quadrant (or half) of the image oriented top-right::
     
->            +--------      +--------+              |
->            |      *       | *      |              |
->            |   *          |    *   |  <----------/
->            |  *           |     *  |         
->            +--------      o--------+
->            |  *           |     *  |
->            |   *          |    *   |
->            |     *        | *      |
->            +--------      +--------+
->                         
->            Image centre `o' should be within a pixel 
->            (i.e. an odd number of columns)
->            [Use abel.tools.vmi.find_image_center_by_slice () to transform] 
+             +--------      +--------+              |
+             |      *       | *      |              |
+             |   *          |    *   |  <----------/
+             |  *           |     *  |         
+             +--------      o--------+
+             |  *           |     *  |
+             |   *          |    *   |
+             |     *        | *      |
+             +--------      +--------+
+                          
+             Image centre `o' should be within a pixel 
+             (i.e. an odd number of columns)
+             [Use abel.tools.vmi.find_image_center_by_slice () to transform] 
 
     dr : float
         Sampling size (=1 for pixel images), used for Jacobian scaling
@@ -126,40 +126,46 @@ _hansenlaw_docstring = \
         forward (False) or inverse (True) Abel transform
 
     use_quadrants: boolean tuple (Q0,Q1,Q2,Q3)
-        select quardants to be used in the analysis
+        select quadrants to be used in the analysis::
 
->            +--------+--------+                
->            | Q1   * | *   Q0 |
->            |   *    |    *   |                               
->            |  *     |     *  |                               AQ1 | AQ0
->            +--------o--------+ --(inverse Abel transform)--> ----o----
->            |  *     |     *  |                               AQ2 | AQ3 
->            |   *    |    *   |
->            | Q2  *  | *   Q3 |          AQi == inverse Abel transform  
->            +--------+--------+                 of quadrant Qi
->
->      (1) vertical_symmetry = True
->
->          Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
->          inverse image   AQ01 | AQ01     
->                          -----o-----            
->                          AQ23 | AQ23
->
->      (2) horizontal_symmetry = True
->
->          Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
->          inverse image   AQ12 | AQ03       
->                          -----o-----
->                          AQ12 | AQ03
->
->      (3) vertical_symmetry = True, horizontal = True
->
->
->          Combine: Q = Q0 + Q1 + Q2 + Q3
->          inverse image   AQ | AQ       
->                          ---o---  all quadrants equivalent
->                          AQ | AQ
->
+             +--------+--------+                
+             | Q1   * | *   Q0 |
+             |   *    |    *   |                               
+             |  *     |     *  |                               AQ1 | AQ0
+             +--------o--------+ --(inverse Abel transform)--> ----o----
+             |  *     |     *  |                               AQ2 | AQ3 
+             |   *    |    *   |
+             | Q2  *  | *   Q3 |          AQi == inverse Abel transform  
+             +--------+--------+                 of quadrant Qi
+ 
+       ::
+
+       (1) vertical_symmetry = True 
+       ::
+ 
+           Combine:  `Q01 = Q1 + Q2, Q23 = Q2 + Q3`
+           inverse image   AQ01 | AQ01     
+                           -----o-----            
+                           AQ23 | AQ23
+       ::
+
+       (2) horizontal_symmetry = True
+       ::
+
+           Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
+           inverse image   AQ12 | AQ03       
+                           -----o-----
+                           AQ12 | AQ03
+       ::
+ 
+       (3) vertical_symmetry = True, horizontal = True
+       :: 
+        
+           Combine: Q = Q0 + Q1 + Q2 + Q3
+           inverse image   AQ | AQ       
+                           ---o---  all quadrants equivalent
+                           AQ | AQ
+ 
 
     verbose: boolean
         verbose output, timings etc.
