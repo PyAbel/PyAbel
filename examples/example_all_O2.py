@@ -28,28 +28,32 @@ from time import time
 # wrapper functions --------------------------------
 #   will be removed once method calls are standardized
 
+
 def iabel_onion_transform(Q0):
     # onion peel requires Q1 oriented image
-    return iabel_onion_peeling(Q0[:,::-1])[:,::-1]
+    return iabel_onion_peeling(Q0[:, ::-1])[:, ::-1]
+
 
 def iabel_basex_transform(Q0):
     # basex requires a whole image
     IM = put_image_quadrants((Q0, Q0, Q0, Q0), odd_size=True)
-    print ("basex processed a complete image, reconstructed from Q0 shape ",IM.shape)
+    print ("basex processed a complete image, reconstructed from Q0 shape ",
+           IM.shape)
     rows, cols = IM.shape
-    center = (rows//2+rows%2, cols//2+cols%2)
-    AIM = BASEX (IM, center, n=rows, verbose=True)
+    center = (rows//2 + rows % 2, cols//2 + cols % 2)
+    AIM = BASEX(IM, center, n=rows, verbose=True)
     return get_image_quadrants(AIM)[0]  # only return Q0
+
 
 # inverse Abel transform methods -----------------------------
 #   dictionary of method: function()
 
-transforms = {\
-  "direct"      : iabel_direct,      
-  "onion"       : iabel_onion_transform, 
-  "hansenlaw"   : iabel_hansenlaw_transform,
-  "basex"       : iabel_basex_transform,   
-  "three_point" : iabel_three_point_transform, 
+transforms = {
+  "direct": iabel_direct,      
+  "onion": iabel_onion_transform, 
+  "hansenlaw": iabel_hansenlaw_transform,
+  "basex": iabel_basex_transform,   
+  "three_point": iabel_three_point_transform, 
 }
 # sort dictionary 
 transforms = collections.OrderedDict(sorted(transforms.items()))
@@ -62,13 +66,13 @@ IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 
 # recenter the image to an odd size
 
-IModd, offset = find_image_center_by_slice (IM, radial_range=(300,400))
-#np.savetxt("O2-ANU1023.txt", IModd)
+IModd, offset = find_image_center_by_slice(IM, radial_range=(300, 400))
+# np.savetxt("O2-ANU1023.txt", IModd)
 
 h, w = IModd.shape
-print ("centered image 'data/O2-ANU2048.txt' shape = {:d}x{:d}".format(h,w))
+print("centered image 'data/O2-ANU2048.txt' shape = {:d}x{:d}".format(h, w))
 
-Q0, Q1, Q2, Q3 = get_image_quadrants (IModd, reorient=True)
+Q0, Q1, Q2, Q3 = get_image_quadrants(IModd, reorient=True)
 Q0fresh = Q0.copy()    # keep clean copy
 print ("quadrant shape {}".format(Q0.shape))
 
@@ -76,10 +80,8 @@ print ("quadrant shape {}".format(Q0.shape))
 # Intensity mask used for intensity normalization
 #   quadrant image region of bright pixels 
 
-mask = np.zeros(Q0.shape,dtype=bool)
+mask = np.zeros(Q0.shape, dtype=bool)
 mask[500:512, 358:365] = True   
-
-
 
 # process Q0 quadrant using each method --------------------
 
@@ -99,11 +101,11 @@ for q, method in enumerate(transforms.keys()):
     iabelQ.append(IAQ0)  # store for plot
 
     # polar projection and speed profile
-    speed, radial = calculate_speeds(IAQ0, origin=(0,0))
+    speed, radial = calculate_speeds(IAQ0, origin=(0, 0))
 
     # normalize image intensity and speed distribution
-    IAQ0  /= IAQ0[mask].max()  
-    speed /= speed[radial>50].max()
+    IAQ0 /= IAQ0[mask].max()  
+    speed /= speed[radial > 50].max()
 
     # plots    #121 whole image,   #122 speed distributions
     plt.subplot(121) 
@@ -111,14 +113,14 @@ for q, method in enumerate(transforms.keys()):
     # method label for each quadrant
     annot_angle = -(45+q*90)*np.pi/180  # -ve because numpy coords from top
     if q > 3: 
-       annot_angle += 50*np.pi/180    # shared quadrant - move the label  
-    annot_coord = ( h/2+(h*0.9)*np.cos(annot_angle)/2, 
-                    w/2+(w*0.9)*np.sin(annot_angle)/2 )
+        annot_angle += 50*np.pi/180    # shared quadrant - move the label  
+    annot_coord = (h/2+(h*0.9)*np.cos(annot_angle)/2, 
+                   w/2+(w*0.9)*np.sin(annot_angle)/2)
     plt.annotate(method, annot_coord, color="yellow")
 
     # plot speed distribution
     plt.subplot(122) 
-    plt.plot (radial, speed, label=method)
+    plt.plot(radial, speed, label=method)
 
 # reassemble image, each quadrant a different method
 
@@ -136,15 +138,15 @@ if ntrans == 5:
 # Fix me when > 5 images
  
 
-im = put_image_quadrants ((iabelQ[0],iabelQ[1],iabelQ[2],iabelQ[3]), 
-                           odd_size=True)
+im = put_image_quadrants((iabelQ[0], iabelQ[1], iabelQ[2], iabelQ[3]), 
+                         odd_size=True)
 
 plt.subplot(121)
-plt.imshow(im,vmin=0,vmax=0.8)
+plt.imshow(im, vmin=0, vmax=0.8)
 
 plt.subplot(122)
-plt.axis(ymin=-0.05,ymax=1.1,xmin=50,xmax=450)
-plt.legend(loc=0,labelspacing=0.1)
+plt.axis(ymin=-0.05, ymax=1.1, xmin=50, xmax=450)
+plt.legend(loc=0, labelspacing=0.1)
 plt.tight_layout()
-plt.savefig('example_all_O2.png',dpi=100)
+plt.savefig('example_all_O2.png', dpi=100)
 plt.show()
