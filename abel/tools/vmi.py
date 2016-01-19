@@ -250,7 +250,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     # limit shift to +- 20 pixels
     initial_shift = [0.1,]
 
-    if 0 in axis:
+    if axis == 0 or axis[0] == 0:
         fit = minimize(_align, initial_shift, args=(top, bottom),
                        bounds=((-50,50),), tol=0.1)
         if fit["success"]:
@@ -259,7 +259,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
             print("fit failure: axis = {:d}, zero shift set".format(ax))
             print(fit)
 
-    if 1 in axis:
+    if axis == 1 or axis[1] == 1:
         fit = minimize(_align, initial_shift, args=(left, right),
                        bounds=((-50,50),), tol=0.1)
 
