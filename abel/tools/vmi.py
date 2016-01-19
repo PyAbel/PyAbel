@@ -61,7 +61,7 @@ def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
     return speeds, r[:n]   # limit radial coordinates range to match speed
 
 
-def calculate_angular_distribution(IM, radial_ranges=None):
+def calculate_angular_distributions(IM, radial_ranges=None):
     """ Intensity variation in the angular coordinate, theta.
 
     This function is the theta-coordinate complement to 'calculate_speeds(IM)'
