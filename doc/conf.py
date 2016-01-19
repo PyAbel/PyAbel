@@ -14,16 +14,33 @@
 # serve to show the default.
 
 import sys
+import six
 import os
 import shlex
+
+from recommonmark.parser import CommonMarkParser
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
+# Scipy and Numpy packages cannot be installed in on readthedocs.org
+# https://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
+if six.PY3:
+    from unittest.mock import MagicMock
+else:
+    from mock import Mock as MagicMock
 
-from recommonmark.parser import CommonMarkParser
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+            return Mock()
+
+MOCK_MODULES = ['numpy', 'scipy']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+
 
 source_parsers = {
     '.md': CommonMarkParser,
