@@ -254,19 +254,20 @@ def _abel_hansenlaw_transform_core(IM, dr=1, inverse=False):
     # iterate along columns, starting outer edge (right side) 
     # toward the image center
 
-    for n in range(cols-1, 0, -1):       
+    for n in range(cols-2, 0, -1):       
         Nm = (n+1)/n          # R0/R
         
         for k in range(K):  # Iterate over k, the eigenvectors?
             X[:, k] = pow(Nm, lam[k])*X[:, k] +\
                      h[k]*gamma(Nm, lam[k], n)*gp[:, n]  # Eq. (15 or 17)            
-        AIM[:, n] = X.sum(axis=1)
+        AIM[:, n+1] = X.sum(axis=1)
 
     # special case for the end pixel
     AIM[:, 0] = AIM[:, 1]  
+
     # for some reason shift by 1 pixel aligns better? - FIX ME!
-    if inverse:
-        AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
+    #if inverse:
+    #    AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
