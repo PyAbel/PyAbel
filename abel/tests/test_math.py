@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 from numpy.testing import assert_allclose
-from abel.math import gradient
+from abel.tools.math import gradient
 
 
 def test_gradient():

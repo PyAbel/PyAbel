@@ -7,9 +7,9 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from abel.io import parse_matlab_basis_sets
+from abel.tools.io import parse_matlab_basis_sets
 from abel.basex import get_bs_basex_cached_asym, basex_transform_asym
-from abel.analytical import StepAnalytical, GaussianAnalytical
+from abel.tools.analytical import StepAnalytical, GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
 
 

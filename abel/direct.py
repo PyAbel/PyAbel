@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 import numpy as np
 import scipy.integrate
 
-from .math import gradient
+from .tools.math import gradient
 
 try:
     from .lib.direct import _cabel_direct_integral

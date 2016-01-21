@@ -6,7 +6,7 @@ from __future__ import print_function
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
-from abel.analytical import StepAnalytical, GaussianAnalytical
+from abel.tools.analytical import StepAnalytical, GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark, is_symmetric
 
 

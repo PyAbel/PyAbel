@@ -7,7 +7,8 @@ from __future__ import unicode_literals
 
 import numpy as np
 
-from .tools import get_image_quadrants, CythonExtensionsNotBuilt
+from .tools.symmetry import get_image_quadrants
+from .tools.polar import  CythonExtensionsNotBuilt
 
 class AbelTiming(object):
     def __init__(self, n=[201, 401], n_max_bs=500):

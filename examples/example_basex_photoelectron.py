@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from abel.basex import BASEX
-from abel.io import load_raw
+from abel.tools.io import load_raw
 import scipy.misc
 
 # This example demonstrates a BASEX transform of an image obtained using a 
@@ -56,10 +56,10 @@ recon, speeds = BASEX(raw_data, center, n=501, basis_dir='./',
 scipy.misc.imsave(output_image,recon)
 
 # save the speed distribution
-with open(output_text,'w') as outfile:
-    outfile.write('Pixel\tIntensity\n')
-    for pixel,intensity in enumerate(speeds):
-        outfile.write('%i\t%f\n'%(pixel,intensity))
+#with open(output_text,'w') as outfile:
+#    outfile.write('Pixel\tIntensity\n')
+#    for pixel,intensity in enumerate(speeds):
+#        outfile.write('%i\t%f\n'%(pixel,intensity))
 
 ## Finally, plot the original image, the BASEX transform, and the radial distribution
 

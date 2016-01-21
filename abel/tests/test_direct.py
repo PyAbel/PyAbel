@@ -2,12 +2,12 @@
 import time
 
 import numpy as np
-from abel.math import gradient
+from abel.tools.math import gradient
 import scipy.ndimage as nd
 from numpy.testing import assert_allclose
-from abel.analytical import GaussianAnalytical
+from abel.tools.analytical import GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
-from abel.tools import CythonExtensionsNotBuilt
+from abel.tools.polar import CythonExtensionsNotBuilt
 from unittest.case import SkipTest
 from abel.direct import fabel_direct, iabel_direct, cython_ext, simpson_rule_wrong
 import abel.direct

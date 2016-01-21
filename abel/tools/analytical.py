@@ -1,11 +1,64 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from abel.tools.polar import index_coords, cart2polar
 
 
 # This file includes functions that have a known analytical Abel transform.
-# They are used in unit testing as well for comparing different iAbel impementations.
+# They are used in unit testing as well for comparing different Abel impementations.
 # See BaseAnalytical class for more information.
 
+def sample_image_dribinski(n=361, origin=None):
+    """
+    Sample test image used in the BASEX paper Rev. Sci. Instrum. 73, 2634 (2002) 
+    9x Gaussian functions of half-width 4 pixel + 1 background width 3600
+      - anisotropy - ß = -1  for cosθ term
+                   - ß = +2  for sinθ term
+                   - ß =  0  isotropic, no angular variation
+    (there are some missing negative exponents in the publication)
+
+    Parameters
+    ----------
+     - n: integer (square) image width (height)
+     - origin: tuple,  (row, col) center of image
+
+    Returns
+    -------
+     - IM: 2D n x n numpy array image
+
+    """
+
+    def Gauss (r, r0, sigma2):
+        return np.exp(-(r-r0)**2/sigma2)
+
+    def I(r, theta):  # intensity function Eq. (16)
+        sinetheta2 = np.sin(theta)**2
+        cosinetheta2 = np.cos(theta)**2
+
+        t0 = 7*Gauss(r, 10, 4)*sinetheta2
+        t1 = 3*Gauss(r, 15, 4)
+        t2 = 5*Gauss(r, 20, 4)*cosinetheta2
+    
+        t3 =   Gauss(r, 70, 4)
+        t4 = 2*Gauss(r, 85, 4)*cosinetheta2
+        t5 =   Gauss(r, 100, 4)*sinetheta2
+
+        t6 = 2*Gauss(r, 145, 4)*sinetheta2
+        t7 =   Gauss(r, 150, 4)
+        t8 = 3*Gauss(r, 155, 4)*cosinetheta2
+
+        t9 = 20*Gauss(r, 45, 3600)  # background under t3 to t5
+    
+        return 2000*(t0+t1+t2) + 200*(t3+t4+t5) + 50*(t6+t7+t8) + t9
+
+    # meshgrid @DanHickstein issue #67
+
+    x = np.arange(n)
+    n2 = n//2 + n%2
+    X, Y = np.meshgrid(x-n2, x-n2)
+    R, THETA = cart2polar(X, Y)
+    IM = I(R, THETA)
+
+    return IM
 
 class BaseAnalytical(object):
 

@@ -17,7 +17,8 @@ from numpy.linalg import inv
 from scipy.ndimage import median_filter, gaussian_filter
 
 from ._version import __version__
-from .tools import calculate_speeds, center_image, center_image_asym
+from .tools.vmi import calculate_speeds
+from .tools.symmetry import center_image, center_image_asym
 
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
@@ -132,7 +133,7 @@ def BASEX(data, center, n,
                 print('Generating speed distribution...')
                 t1 = time()
 
-            speeds = calculate_speeds(recon)
+            speeds, r = calculate_speeds(recon)
 
             if verbose:
                 print('%.2f seconds' % (time() - t1))
