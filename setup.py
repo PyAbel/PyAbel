@@ -1,9 +1,26 @@
 import sys
 import re
+import os
 import os.path
 from setuptools import setup, find_packages, Extension
 from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
-import numpy as np
+
+# change behaviour of the setup.py on readthedocs.org
+# https://read-the-docs.readthedocs.org/en/latest/faq.html#how-do-i-change-behavior-for-read-the-docs
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if not on_rtd:
+    import numpy as np
+    install_requires=[
+          "numpy >= 1.6",
+          "setuptools >= 16.0",
+          "scipy >= 0.14",
+          ]
+else:
+    np = None
+    install_requires=[]
+
+
+
 
 try:
     from Cython.Distutils import build_ext
@@ -70,7 +87,7 @@ ext_modules=[
              **compile_args),
     ]
 
-if _cython_installed:
+if _cython_installed and not on_rtd:
     setup_args = {'cmdclass': {'build_ext': TryBuildExt},
                   'include_dirs': [ np.get_include() ],
                   'ext_modules': ext_modules}
@@ -85,12 +102,8 @@ setup(name='PyAbel',
       url='https://github.com/PyAbel/PyAbel',
       license='MIT',
       packages=find_packages(),
+      install_requires=install_requires,
       package_data={'abel': ['tests/data/*' ]},
-      install_requires=[
-              "numpy >= 1.6",
-              "setuptools >= 16.0",
-              "scipy >= 0.14",
-              ],
       test_suite="abel.tests.run_cli",
       classifiers=[
       # How mature is this project? Common values are

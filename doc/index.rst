@@ -15,7 +15,6 @@ Contents:
    abel
 
 
-
 Indices and tables
 ==================
 
