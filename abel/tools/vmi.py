@@ -11,6 +11,7 @@ from scipy.ndimage import map_coordinates
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize
 
+
 def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
     """ Angular integration of the image.
 
@@ -186,17 +187,19 @@ def axis_slices (IM, radial_range=(0,-1), slice_width=10):
     c2 = cols//2 + cols % 2
     sw2 = slice_width/2
 
-    # vertical slice
-    top = IM[:r2+rows%2, c2-sw2:c2+sw2].sum(axis=1)[::-1] # flipped
-    bottom = IM[r2:, c2-sw2:c2+sw2].sum(axis=1)
-
-    # horizontal slice
-    left = IM[r2-sw2:r2+sw2, :c2+cols%2].sum(axis=0)[::-1]  # flipped
-    right = IM[r2-sw2:r2+sw2, c2:].sum(axis=0)
-
     rmin, rmax = radial_range
 
-    return top[rmin:rmax], bottom[rmin:rmax], left[rmin:rmax], right[rmin:rmax] 
+    # vertical slice
+    top = IM[:r2, c2-sw2:c2+sw2].sum(axis=1)
+    bottom = IM[r2 - rows % 2:, c2-sw2:c2+sw2].sum(axis=1)
+
+    # horizontal slice
+    left = IM[r2-sw2:r2+sw2, :c2].sum(axis=0)
+    right = IM[r2-sw2:r2+sw2, c2 - cols % 2:].sum(axis=0)
+
+
+    return top[::-1][rmin:rmax], bottom[rmin:rmax],\
+           left[::-1][rmin:rmax], right[rmin:rmax]
 
 
 
@@ -262,7 +265,6 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     if (type(axis) is int and axis==1) or (type(axis) is tuple and axis[1]==1):
         fit = minimize(_align, initial_shift, args=(left, right),
                        bounds=((-50,50),), tol=0.1)
-
         if fit["success"]:
             xyoffset[1] = -float(fit['x'])/2   # x1/2 for image center shift
         else:

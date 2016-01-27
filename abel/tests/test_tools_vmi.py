@@ -24,7 +24,7 @@ def test_vmi_find_image_center():
 
     # find vertical center
     # radial range limits comparison to smaller radial range
-    IMy, offset = find_image_center_by_slice(IMx, radial_range=(5,120), axis=1)
+    IMy, offset = find_image_center_by_slice(IMx, radial_range=(1,120), axis=1)
 
     assert np.allclose(offset, (0,-2), rtol=0, atol=0.1)
 
