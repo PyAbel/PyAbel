@@ -11,7 +11,8 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize 
 
 def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
-                        horizontal_symmetry=False):
+                        horizontal_symmetry=False, 
+                        use_quadrants=(True, True, True, True)):
     """
     Given an image (m,n) return its 4 quadrants Q0, Q1, Q2, Q3
     as defined in abel.hansenlaw.iabel_hansenlaw
@@ -30,6 +31,9 @@ def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
     horizontal_symmerty : boolean
       Exploit image symmetry to combine quadrants. Co-add Q1+Q2, and Q0+Q3
 
+    use_quadrants : boolean tuple
+      Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
+
     Returns
     -------
     Q0, Q1, Q2, Q3 : tuple of 2D np.arrays
@@ -41,16 +45,15 @@ def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
 
     n, m = IM.shape
 
-    n_c = n//2 + n%2
-    m_c = m//2 + m%2
+    n_c = n // 2  + n % 2
+    m_c = m // 2  + m % 2
 
     # define 4 quadrants of the image
     # see definition in abel.hansenlaw.iabel_hansenlaw
+    Q0 = IM[:n_c, -m_c:]
     Q1 = IM[:n_c, :m_c]
     Q2 = IM[-n_c:, :m_c]
-    Q0 = IM[:n_c, -m_c:]
     Q3 = IM[-n_c:, -m_c:]
-
 
     if vertical_symmetry:   # co-add quadrants
         Q0 = Q1 = Q0*use_quadrants[0]+Q1*use_quadrants[1]
