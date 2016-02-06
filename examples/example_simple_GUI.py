@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-# cloned from http://matplotlib.org/examples/user_interfaces/embedding_in_tk.html
+# Illustrative GUI driving a small subset of PyAbel methods
+
+# code adapted from http://matplotlib.org/examples/user_interfaces/embedding_in_tk.html
 
 import numpy as np
 
