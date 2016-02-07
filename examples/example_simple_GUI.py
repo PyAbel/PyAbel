@@ -22,6 +22,7 @@ matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
                                               NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
+from matplotlib.pyplot import imread
 
 # ------------
 
@@ -43,7 +44,10 @@ def _display():
 def _getfilename():
     global IM
     fn = askopenfilename()
-    IM = np.loadtxt(fn)
+    if ".txt" in fn:
+        IM = np.loadtxt(fn)
+    else:
+        IM = imread(fn)
     _display()
 
 
@@ -58,7 +62,7 @@ def _transform():
     AIM = iabel_hansenlaw(IM)
     f.clf()
     a = f.add_subplot(111)
-    a.imshow(AIM, vmin=0, vmax=AIM.max()/2)
+    a.imshow(AIM, vmin=0, vmax=AIM.max()/5.0)
     canvas.show()
 
 
@@ -79,7 +83,7 @@ def _quit():
                     # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
 
-# buttons
+# buttons with callbacks
 tk.Button(master=root, text='Load image file', command=_getfilename)\
    .pack(anchor=tk.W)
 tk.Button(master=root, text='center image', command=_center).pack(anchor=tk.N)
