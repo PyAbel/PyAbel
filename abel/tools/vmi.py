@@ -104,7 +104,7 @@ def calculate_angular_distributions(IM, radial_ranges=None):
         # sum intensity across radius of spectral feature
         intensity_vs_theta_at_R.append(np.sum(polarIM[subr], axis=0))
 
-    return intensity_vs_theta_at_R, theta
+    return np.array(intensity_vs_theta_at_R), theta
 
 
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
