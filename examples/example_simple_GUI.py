@@ -8,10 +8,15 @@
 import numpy as np
 
 from abel.hansenlaw import iabel_hansenlaw
+from abel.basex import BASEX
+from abel.onion import iabel_onion_peeling
+from abel.direct import iabel_direct
+from abel.three_point import iabel_three_point
 from abel.tools.vmi import calculate_speeds
 from abel.tools.vmi import find_image_center_by_slice
 from abel.tools.vmi import calculate_angular_distributions
 from abel.tools.vmi import anisotropy_parameter
+from abel.tools.symmetry import get_image_quadrants, put_image_quadrants
 
 import sys
 if sys.version_info[0] < 3:
@@ -19,6 +24,7 @@ if sys.version_info[0] < 3:
 else:
     import tkinter as tk
 from tkFileDialog import askopenfilename
+import ttk
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -27,7 +33,27 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread
 
-# GUI window
+# wrapper functions ------------------
+#    will be removed once method calls are standardized
+
+
+def basex_wrapper(IM):
+    rows, cols = IM.shape
+    center = (rows//2 + rows % 2, cols//2 + cols % 2)
+    return BASEX(IM, center=center, n=rows) 
+
+def three_point_wrapper(IM):
+    rows, cols = IM.shape
+    center = (rows//2 + rows % 2, cols//2 + cols % 2)
+    return iabel_three_point(IM, center=center) 
+    
+
+Abel_methods = {'basex':basex_wrapper, 'direct':iabel_direct,
+                'hansenlaw':iabel_hansenlaw, 
+                'onion-peeling':iabel_onion_peeling, 
+                'three_point':three_point_wrapper}
+
+# GUI window -------------------
 
 root = tk.Tk()
 root.wm_title("Simple GUI PyAbel")
@@ -65,9 +91,10 @@ def _center():
 
 
 def _transform():
-    global IM, canvas
+    global IM, canvas, transform
     print("inverse Abel transform")
-    AIM = iabel_hansenlaw(IM)
+    method = Abel_methods[transform.get()]
+    AIM = method(IM)
     f.clf()
     a = f.add_subplot(111)
     a.imshow(AIM, vmin=0, vmax=AIM.max()/5.0)
@@ -75,8 +102,8 @@ def _transform():
 
 
 def _speed():
-    global IM, canvas
-    AIM = iabel_hansenlaw(IM)
+    global IM, canvas, transform
+    AIM = Abel_methods[transform.get()](IM)
     print("calculating speed distribution")
     speed, radial = calculate_speeds(AIM)
     f.clf()
@@ -86,7 +113,7 @@ def _speed():
     canvas.show()
 
 def _anisotropy():
-    global IM, canvas, rmin, rmax
+    global IM, canvas, rmin, rmax, transform
 
     def P2(x):   # 2nd order Legendre polynomial
         return (3*x*x-1)/2
@@ -97,7 +124,7 @@ def _anisotropy():
 
     rmx = (int(rmin.get()), int(rmax.get()))
     print("calculating anisotropy parameter pixel arange {:} to {:}".format(*rmx))
-    AIM = iabel_hansenlaw(IM)
+    AIM = Abel_methods[transform.get()](IM)
     intensity, theta = calculate_angular_distributions(AIM,\
                                 radial_ranges=[rmx,])
     beta, amp = anisotropy_parameter(theta, intensity[0])
@@ -130,6 +157,10 @@ tk.Button(master=root, text='raw image', command=_display).pack(anchor=tk.N)
 tk.Button(master=root, text='inverse Abel transform', command=_transform)\
    .pack(anchor=tk.N)
 
+transform = ttk.Combobox(master=root, values=Abel_methods.keys(), state="readonly", width=10, height=len(Abel_methods))
+transform.current(3)
+transform.place(anchor=tk.W, relx=0.67, rely=0.16)
+
 # speed
 tk.Button(master=root, text='speed distribution', command=_speed)\
    .pack(anchor=tk.N)
@@ -149,7 +180,8 @@ tk.Button(master=root, text='Quit', command=_quit).pack(anchor=tk.SW)
 
 # a tk.DrawingArea ---------------
 canvas = FigureCanvasTkAgg(f, master=root)
-a.annotate("load image file", (0.5, 0.5), horizontalalignment="center")
+a.annotate("load image file", (0.5, 0.6), horizontalalignment="center")
+a.annotate("e.g. data/O2-ANU1024.txt.bz2", (0.5, 0.5), horizontalalignment="center")
 canvas.show()
 canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
