@@ -88,7 +88,7 @@ tk.Button(master=root, text='Load image file', command=_getfilename)\
    .pack(anchor=tk.W)
 tk.Button(master=root, text='center image', command=_center).pack(anchor=tk.N)
 tk.Button(master=root, text='raw image', command=_display).pack(anchor=tk.N)
-tk.Button(master=root, text='inverse Abel tansform', command=_transform)\
+tk.Button(master=root, text='inverse Abel transform', command=_transform)\
    .pack(anchor=tk.N)
 tk.Button(master=root, text='speed distribution', command=_speed)\
    .pack(anchor=tk.N)
