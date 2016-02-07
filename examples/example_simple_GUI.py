@@ -66,7 +66,10 @@ a = f.add_subplot(111)
 # button call back functions
 
 def _display():
-    global IM, canvas
+    global IM, canvas, text
+
+    text.delete(1.0, tk.END)
+    text.insert(tk.END,"raw image\n")
     f.clf()
     a = f.add_subplot(111)
     a.imshow(IM, vmin=0)
@@ -74,9 +77,12 @@ def _display():
 
 
 def _getfilename():
-    global IM
-    print("reading image file")
+    global IM, text
     fn = askopenfilename()
+
+    text.delete(1.0, tk.END)
+    text.insert(tk.END, "reading image file {:s}\n".format(fn))
+    canvas.show()
     if ".txt" in fn:
         IM = np.loadtxt(fn)
     else:
@@ -85,15 +91,32 @@ def _getfilename():
 
 
 def _center():
-    global IM
+    global IM, text
+
+    text.delete(1.0, tk.END)
+    text.insert(tk.END, "centering image using abel.tools.vmi.find_image_center_by_slice()\n")
+    canvas.show()
+
     IM, offset = find_image_center_by_slice(IM)
     _display()
 
 
 def _transform():
-    global IM, canvas, transform
-    print("inverse Abel transform")
-    method = Abel_methods[transform.get()]
+    global IM, canvas, transform, text
+
+    funct = transform.get()
+    method = Abel_methods[funct]
+
+    text.delete(1.0, tk.END)
+    text.insert(tk.END,"inverse Abel transform: {:s}\n".format(funct))
+    if "basex" in funct:
+        text.insert(tk.END,"  calculation of the basis functions may take a while ...\n")
+    if "onion" in funct:
+       text.insert(tk.END,"   onion_peeling method is in early testing and may not produce reliable results")
+    if "direct" in funct:
+       text.insert(tk.END,"   calculation is slowed if Cython unavailable ...")
+    canvas.show()
+
     AIM = method(IM)
     f.clf()
     a = f.add_subplot(111)
@@ -102,9 +125,13 @@ def _transform():
 
 
 def _speed():
-    global IM, canvas, transform
+    global IM, canvas, transform, text
+
+    text.delete(1.0, tk.END)
+    text.insert(tk.END, "speed distribution\n")
+    canvas.show()
+
     AIM = Abel_methods[transform.get()](IM)
-    print("calculating speed distribution")
     speed, radial = calculate_speeds(AIM)
     f.clf()
     a = f.add_subplot(111)
@@ -113,7 +140,7 @@ def _speed():
     canvas.show()
 
 def _anisotropy():
-    global IM, canvas, rmin, rmax, transform
+    global IM, canvas, rmin, rmax, transform, text
 
     def P2(x):   # 2nd order Legendre polynomial
         return (3*x*x-1)/2
@@ -123,12 +150,17 @@ def _anisotropy():
         return amp*(1 + beta*P2(np.cos(theta)))
 
     rmx = (int(rmin.get()), int(rmax.get()))
-    print("calculating anisotropy parameter pixel arange {:} to {:}".format(*rmx))
+
+    text.delete(1.0, tk.END)
+    text.insert(tk.END,"anisotropy parameter pixel arange {:} to {:}\n".format(*rmx))
+    canvas.show()
+
     AIM = Abel_methods[transform.get()](IM)
     intensity, theta = calculate_angular_distributions(AIM,\
                                 radial_ranges=[rmx,])
     beta, amp = anisotropy_parameter(theta, intensity[0])
-    print("beta = {:g}+-{:g}".format(*beta))
+    text.insert(tk.END,"\nbeta = {:g}+-{:g}\n".format(*beta))
+
     f.clf()
     a = f.add_subplot(111)
     a.plot(theta, intensity[0], 'r-')
@@ -159,7 +191,7 @@ tk.Button(master=root, text='inverse Abel transform', command=_transform)\
 
 transform = ttk.Combobox(master=root, values=Abel_methods.keys(), state="readonly", width=10, height=len(Abel_methods))
 transform.current(3)
-transform.place(anchor=tk.W, relx=0.67, rely=0.16)
+transform.place(anchor=tk.W, relx=0.67, rely=0.14)
 
 # speed
 tk.Button(master=root, text='speed distribution', command=_speed)\
@@ -169,11 +201,11 @@ tk.Button(master=root, text='speed distribution', command=_speed)\
 tk.Button(master=root, text='anisotropy parameter', command=_anisotropy)\
    .pack(anchor=tk.N)
 rmin = tk.Entry(master=root, text='rmin')
-rmin.place(anchor=tk.W, relx=0.66, rely=0.24, width=40)
+rmin.place(anchor=tk.W, relx=0.66, rely=0.22, width=40)
 rmin.insert(0, 368)
-tk.Label(master=root, text="to").place(relx=0.74, rely=0.22)
+tk.Label(master=root, text="to").place(relx=0.74, rely=0.20)
 rmax = tk.Entry(master=root, text='rmax')
-rmax.place(anchor=tk.W, relx=0.78, rely=0.24, width=40)
+rmax.place(anchor=tk.W, relx=0.78, rely=0.22, width=40)
 rmax.insert(0, 389)
 
 tk.Button(master=root, text='Quit', command=_quit).pack(anchor=tk.SW)
@@ -188,6 +220,11 @@ canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 toolbar = NavigationToolbar2TkAgg(canvas, root)
 toolbar.update()
 canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+# text info box
+text = tk.Text(master=root, height=4, fg="blue")
+text.pack(fill=tk.X)
+text.insert(tk.END, "To start load an image data file using the `Load image file' button\n")
 
 
 tk.mainloop()
