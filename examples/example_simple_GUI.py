@@ -111,7 +111,7 @@ def _transform():
     text.delete(1.0, tk.END)
     text.insert(tk.END,"inverse Abel transform: {:s}\n".format(funct))
     if "basex" in funct:
-        text.insert(tk.END,"  calculation of the basis functions may take a while ...\n")
+        text.insert(tk.END,"  first time calculation of the basis functions may take a while ...\n")
     if "onion" in funct:
        text.insert(tk.END,"   onion_peeling method is in early testing and may not produce reliable results")
     if "direct" in funct:
