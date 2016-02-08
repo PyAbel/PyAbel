@@ -51,7 +51,7 @@ def three_point_wrapper(IM):
 
 def onion_peeling_wrapper(IM):
     # requires even size image
-    IMo = IM[1:,:-1]   # top row, right column
+    IMo = IM[1:,:-1]   # trim top row, right column
     # recenter
     IMoc, offset = find_image_center_by_slice(IMo)
     cols, rows = IMoc.shape
@@ -80,8 +80,10 @@ a = f.add_subplot(111)
 def _display():
     global IM, canvas, text
 
-    #text.delete(1.0, tk.END)
+    # update information text box
     text.insert(tk.END,"raw image\n")
+
+    # display image
     f.clf()
     a = f.add_subplot(111)
     a.imshow(IM, vmin=0)
@@ -92,30 +94,39 @@ def _getfilename():
     global IM, text
     fn = askopenfilename()
 
+    # update what is occurring text box
     text.delete(1.0, tk.END)
     text.insert(tk.END, "reading image file {:s}\n".format(fn))
     canvas.show()
+
+    # read image file
     if ".txt" in fn:
         IM = np.loadtxt(fn)
     else:
         IM = imread(fn)
+
+    # show the image
     _display()
 
 
 def _center():
     global IM, text
 
+    # update information text box
     text.delete(1.0, tk.END)
     text.insert(tk.END, "centering image using abel.tools.vmi.find_image_center_by_slice()\n")
     canvas.show()
 
+    # center image via horizontal (left, right), and vertical (top, bottom)
+    # intensity slices
     IM, offset = find_image_center_by_slice(IM)
     text.insert(tk.END, "center offset = {:}\n".format(offset))
+
     _display()
 
 
 def _transform():
-    global IM, canvas, transform, text
+    global IM, AIM, canvas, transform, text
 
     funct = transform.get()
     method = Abel_methods[funct]
@@ -125,12 +136,14 @@ def _transform():
     if "basex" in funct:
         text.insert(tk.END,"  first time calculation of the basis functions may take a while ...\n")
     if "onion" in funct:
-       text.insert(tk.END,"   onion_peeling method is in early testing and may not produce reliable results")
+       text.insert(tk.END,"   onion_peeling method is in early testing and may not produce reliable results\n")
     if "direct" in funct:
-       text.insert(tk.END,"   calculation is slowed if Cython unavailable ...")
+       text.insert(tk.END,"   calculation is slowed if Cython unavailable ...\n")
     canvas.show()
 
+    # inverse Abel transform of whole image
     AIM = method(IM)
+
     f.clf()
     a = f.add_subplot(111)
     a.imshow(AIM, vmin=0, vmax=AIM.max()/5.0)
@@ -138,14 +151,18 @@ def _transform():
 
 
 def _speed():
-    global IM, canvas, transform, text
+    global IM, AIM, canvas, transform, text
 
-    text.delete(1.0, tk.END)
+    # inverse Abel transform
+    _transform()
+
+    # update text box in case something breaks
     text.insert(tk.END, "speed distribution\n")
     canvas.show()
 
-    AIM = Abel_methods[transform.get()](IM)
+    # speed distribution
     speed, radial = calculate_speeds(AIM)
+
     f.clf()
     a = f.add_subplot(111)
     a.plot(radial, speed/speed[50:].max())
@@ -153,7 +170,7 @@ def _speed():
     canvas.show()
 
 def _anisotropy():
-    global IM, canvas, rmin, rmax, transform, text
+    global IM, AIM, canvas, rmin, rmax, transform, text
 
     def P2(x):   # 2nd order Legendre polynomial
         return (3*x*x-1)/2
@@ -162,17 +179,24 @@ def _anisotropy():
     def PAD(theta, beta, amp):
         return amp*(1 + beta*P2(np.cos(theta)))
 
+    # radial range over which to follow the intensity variation with angle
     rmx = (int(rmin.get()), int(rmax.get()))
 
     text.delete(1.0, tk.END)
     text.insert(tk.END,"anisotropy parameter pixel range {:} to {:}\n".format(*rmx))
     canvas.show()
 
-    AIM = Abel_methods[transform.get()](IM)
+    # inverse Abel transform
+    _transform()
+
+    # intensity vs angle
     intensity, theta = calculate_angular_distributions(AIM,\
                                 radial_ranges=[rmx,])
+
+    # fit to P2(cos theta)
     beta, amp = anisotropy_parameter(theta, intensity[0])
-    text.insert(tk.END,"\nbeta = {:g}+-{:g}\n".format(*beta))
+
+    text.insert(tk.END,"beta = {:g}+-{:g}\n".format(*beta))
 
     f.clf()
     a = f.add_subplot(111)
