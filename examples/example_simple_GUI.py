@@ -68,7 +68,7 @@ a = f.add_subplot(111)
 def _display():
     global IM, canvas, text
 
-    text.delete(1.0, tk.END)
+    #text.delete(1.0, tk.END)
     text.insert(tk.END,"raw image\n")
     f.clf()
     a = f.add_subplot(111)
@@ -98,6 +98,7 @@ def _center():
     canvas.show()
 
     IM, offset = find_image_center_by_slice(IM)
+    text.insert(tk.END, "center offset = {:}\n".format(offset))
     _display()
 
 
@@ -152,7 +153,7 @@ def _anisotropy():
     rmx = (int(rmin.get()), int(rmax.get()))
 
     text.delete(1.0, tk.END)
-    text.insert(tk.END,"anisotropy parameter pixel arange {:} to {:}\n".format(*rmx))
+    text.insert(tk.END,"anisotropy parameter pixel range {:} to {:}\n".format(*rmx))
     canvas.show()
 
     AIM = Abel_methods[transform.get()](IM)
