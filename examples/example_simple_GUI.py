@@ -42,15 +42,27 @@ def basex_wrapper(IM):
     center = (rows//2 + rows % 2, cols//2 + cols % 2)
     return BASEX(IM, center=center, n=rows) 
 
+
 def three_point_wrapper(IM):
     rows, cols = IM.shape
     center = (rows//2 + rows % 2, cols//2 + cols % 2)
     return iabel_three_point(IM, center=center) 
+
+
+def onion_peeling_wrapper(IM):
+    # requires even size image
+    IMo = IM[1:,:-1]   # top row, right column
+    # recenter
+    IMoc, offset = find_image_center_by_slice(IMo)
+    cols, rows = IMoc.shape
+    c2 = cols//2 + cols % 2
+    AIMleft = iabel_onion_peeling(IMoc[:, :c2])
+    return np.concatenate((AIMleft, AIMleft[:, ::-1]), axis=1)
     
 
 Abel_methods = {'basex':basex_wrapper, 'direct':iabel_direct,
                 'hansenlaw':iabel_hansenlaw, 
-                'onion-peeling':iabel_onion_peeling, 
+                'onion-peeling':onion_peeling_wrapper, 
                 'three_point':three_point_wrapper}
 
 # GUI window -------------------
