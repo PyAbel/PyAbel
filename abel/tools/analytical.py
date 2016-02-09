@@ -7,7 +7,7 @@ from abel.tools.polar import index_coords, cart2polar
 # They are used in unit testing as well for comparing different Abel impementations.
 # See BaseAnalytical class for more information.
 
-def sample_image_dribinski(n=361, origin=None):
+def sample_image_dribinski(n=361):
     """
     Sample test image used in the BASEX paper Rev. Sci. Instrum. 73, 2634 (2002) 
     9x Gaussian functions of half-width 4 pixel + 1 background width 3600
@@ -18,19 +18,20 @@ def sample_image_dribinski(n=361, origin=None):
 
     Parameters
     ----------
-     - n: integer (square) image width (height)
-     - origin: tuple,  (row, col) center of image
+    n: integer 
+      image size n rows x n cols
 
     Returns
     -------
-     - IM: 2D n x n numpy array image
+    IM: 2D np.array 
+      image
 
     """
 
     def Gauss (r, r0, sigma2):
         return np.exp(-(r-r0)**2/sigma2)
 
-    def I(r, theta):  # intensity function Eq. (16)
+    def intensity(r, theta):  # intensity function Eq. (16)
         sinetheta2 = np.sin(theta)**2
         cosinetheta2 = np.cos(theta)**2
 
@@ -50,13 +51,12 @@ def sample_image_dribinski(n=361, origin=None):
     
         return 2000*(t0+t1+t2) + 200*(t3+t4+t5) + 50*(t6+t7+t8) + t9
 
-    # meshgrid @DanHickstein issue #67
+    # meshgrid @DanHickstein issue #67, updated #70
 
-    x = np.arange(n)
-    n2 = n//2 + n%2
-    X, Y = np.meshgrid(x-n2, x-n2)
+    x = np.linspace(-180, 180, n)
+    X, Y = np.meshgrid(x, x)
     R, THETA = cart2polar(X, Y)
-    IM = I(R, THETA)
+    IM = intensity(R, THETA)
 
     return IM
 
