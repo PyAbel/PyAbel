@@ -38,7 +38,7 @@ if cols % 2 == 0:
     IM, origin_shift = find_image_center_by_slice(IM, radial_range=(300, 400))
     rows, cols = IM.shape   # new image size
 
-    top, bottom, left, right = axis_slices(IM, radial_range=(200, 500))
+    #top, bottom, left, right = axis_slices(IM, radial_range=(200, 500))
     # plt.plot(top, 'r-', label="top")
     # plt.plot(bottom, 'b-', label="bottom")
     # plt.plot(left, 'g-', label="left")
