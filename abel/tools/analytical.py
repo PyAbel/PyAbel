@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from abel.tools.polar import index_coords, cart2polar
+import scipy.constants as const
 
 
 # This file includes functions that have a known analytical Abel transform.
@@ -57,6 +58,49 @@ def sample_image_dribinski(n=361):
     X, Y = np.meshgrid(x, x)
     R, THETA = cart2polar(X, Y)
     IM = intensity(R, THETA)
+
+    return IM
+
+def sample_image_O(n=1001, sigma=3, temperature=200):
+    """
+    Simulate the photoelectron spectrum of O- photodetachment
+    3PJ <- 2P3/2,1/2
+
+    Parameters
+    ----------
+    n: integer
+        image size n rows x n columns
+
+    sigma: float
+        Gaussian 1/e width (pixels)
+
+    temperature: float
+        anion levels have Boltzmann population weight
+        (2J+1) exp(-177.1 h c 100/k/temperature) 
+    
+    """
+    n2 = n//2 + n % 2
+
+    x = np.linspace(-n2, n2, n)
+    X, Y = np.meshgrid(x, x)
+   
+    # 2D Gaussian intensity distribution
+    r = np.sqrt(X*X + Y*Y)
+
+    # 3P2 <- 2P3/2
+    IM = np.exp(-(r-341)**2/sigma**2)
+    # 3P1 <- 2P3/2
+    IM += 0.8*np.exp(-(r-285)**2/sigma**2)
+    # 3P0 <- 2P3/2
+    IM += 0.36*np.exp(-(r-257)**2/sigma**2)
+
+    boltzmann = 0.5*np.exp(-177.1*const.h*const.c*100/const.k/temperature)
+    # 3P2 <- 2P1/2
+    IM += 0.2*boltzmann*np.exp(-(r-394)**2/sigma**2)
+    # 3P1 <- 2P1/2
+    IM += 0.36*boltzmann*np.exp(-(r-348)**2/sigma**2)
+    # 3P0 <- 2P1/2
+    IM += 0.16*boltzmann*np.exp(-(r-324)**2/sigma**2)
 
     return IM
 
