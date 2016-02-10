@@ -15,4 +15,4 @@ examples/*.dat
 *.c
 *.so
 
-docs/_build/
+doc/_build/
