@@ -13,6 +13,7 @@ Contents:
 
    general_interface
    abel
+   examples
 
 
 Indices and tables
