@@ -37,8 +37,11 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
             return Mock()
 
-MOCK_MODULES = ['numpy', 'scipy', 'scipy.special', 'numpy.linalg', 'scipy.ndimage', 'scipy.ndimage.interpolation',
-        'scipy.linalg', 'scipy.integrate', 'scipy.optimize']
+# MOCK_MODULES = ['numpy', 'scipy', 'scipy.special', 'numpy.linalg', 'scipy.ndimage', 'scipy.ndimage.interpolation',
+#         'scipy.linalg', 'scipy.integrate', 'scipy.optimize']
+#
+MOCK_MODULES = []
+        
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
@@ -57,7 +60,8 @@ source_parsers = {
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode'
+    'sphinx.ext.viewcode',
+    'matplotlib.sphinxext.plot_directive'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
