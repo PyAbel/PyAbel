@@ -61,6 +61,7 @@ def sample_image_dribinski(n=361):
 
     return IM
 
+
 def sample_image_O(n=1001, sigma=3, temperature=200):
     """
     Simulate the photoelectron spectrum of O- photodetachment
@@ -87,20 +88,22 @@ def sample_image_O(n=1001, sigma=3, temperature=200):
     # 2D Gaussian intensity distribution
     r = np.sqrt(X*X + Y*Y)
 
+    rfact = n/1001.0
+
     # 3P2 <- 2P3/2
-    IM = np.exp(-(r-341)**2/sigma**2)
+    IM = np.exp(-(r-341*rfact)**2/sigma**2)
     # 3P1 <- 2P3/2
-    IM += 0.8*np.exp(-(r-285)**2/sigma**2)
+    IM += 0.8*np.exp(-(r-285*rfact)**2/sigma**2)
     # 3P0 <- 2P3/2
-    IM += 0.36*np.exp(-(r-257)**2/sigma**2)
+    IM += 0.36*np.exp(-(r-257*rfact)**2/sigma**2)
 
     boltzmann = 0.5*np.exp(-177.1*const.h*const.c*100/const.k/temperature)
     # 3P2 <- 2P1/2
-    IM += 0.2*boltzmann*np.exp(-(r-394)**2/sigma**2)
+    IM += 0.2*boltzmann*np.exp(-(r-394*rfact)**2/sigma**2)
     # 3P1 <- 2P1/2
-    IM += 0.36*boltzmann*np.exp(-(r-348)**2/sigma**2)
+    IM += 0.36*boltzmann*np.exp(-(r-348*rfact)**2/sigma**2)
     # 3P0 <- 2P1/2
-    IM += 0.16*boltzmann*np.exp(-(r-324)**2/sigma**2)
+    IM += 0.16*boltzmann*np.exp(-(r-324*rfact)**2/sigma**2)
 
     return IM
 
