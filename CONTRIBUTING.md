@@ -42,9 +42,14 @@ or, from any folder with,
     
     python  -c "import abel.tests; abel.tests.run_cli(coverage=True)"
 
-which performs an equivalent call. 
-  
+which performs an equivalent call.
 
+Note that this requires that you have [Nose](nose.readthedocs.org) and (optionally) [Coverage](coverage.readthedocs.org) installed. You can install these with:
+
+	pip install nose
+	pip install coverage
+	
+  
 ##### Dependencies
 
 The current list of dependencies can be found in [`setup.py`](https://github.com/PyAbel/PyAbel/blob/master/setup.py). Please refrain from adding new dependencies, unless it cannot be avoided.
