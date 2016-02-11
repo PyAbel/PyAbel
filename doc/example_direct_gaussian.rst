@@ -1,4 +1,4 @@
-Examples
+Example: Direct Gaussian
 ======================
 
 
