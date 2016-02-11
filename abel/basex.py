@@ -43,8 +43,15 @@ from .tools.symmetry import center_image, center_image_asym
 #
 #############################################################################
 
+# functions to conform to naming conventions: contributing.md ----------
 
-def BASEX(data, center, n, 
+def iabel_basex(IM, dr=1.0, **kwargs):
+    """
+    Inverse Abel transform for one-quadrant
+    """
+    return _abel_basex_core(IM, dr=dr, **kwargs)
+
+def _abel_basex_core(data, center='auto', n='auto', 
         nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=True, dr=1.0, verbose=True):
 
     """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
