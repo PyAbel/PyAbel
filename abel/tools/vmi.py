@@ -253,22 +253,24 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     # limit shift to +- 20 pixels
     initial_shift = [0.1,]
 
+    # y-axis
     if (type(axis) is int and axis==0) or (type(axis) is tuple and axis[0]==0):
         fit = minimize(_align, initial_shift, args=(top, bottom),
                        bounds=((-50,50),), tol=0.1)
         if fit["success"]:
             xyoffset[0] = -float(fit['x'])/2  # x1/2 for image center shift
         else:
-            print("fit failure: axis = {:d}, zero shift set".format(axis))
+            print("fit failure: axis = 0, zero shift set")
             print(fit)
-
+    
+    # x-axis
     if (type(axis) is int and axis==1) or (type(axis) is tuple and axis[1]==1):
         fit = minimize(_align, initial_shift, args=(left, right),
                        bounds=((-50,50),), tol=0.1)
         if fit["success"]:
             xyoffset[1] = -float(fit['x'])/2   # x1/2 for image center shift
         else:
-            print("fit failure: axis = {:d}, zero shift set".format(axis))
+            print("fit failure: axis = 1, zero shift set")
             print(fit)
 
     xyoffset = tuple(xyoffset)
