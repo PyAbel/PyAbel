@@ -13,7 +13,9 @@ Contents:
 
    general_interface
    abel
-   examples
+   example_direct_gaussian
+   example_hansenlaw
+   
 
 
 Indices and tables
