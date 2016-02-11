@@ -8,7 +8,7 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from abel.tools.analytical import sample_image_dribinski
+from abel.tools.analytical import sample_image
 from abel.tools.vmi import find_image_center_by_slice
 
 from scipy.ndimage.interpolation import shift
@@ -17,7 +17,7 @@ def test_vmi_find_image_center():
 
     # BASEX sample image, Gaussians at 10, 15, 20, 70,85, 100, 145, 150, 155
     # image width, height n = 361
-    IM = sample_image_dribinski()
+    IM = sample_image(n=361, name="dribinski")
     
     # artificially displace center
     IMx = shift(IM, (-1,2))

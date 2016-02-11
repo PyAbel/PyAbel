@@ -9,7 +9,7 @@ from numpy.testing import assert_allclose
 
 from abel.hansenlaw import iabel_hansenlaw, fabel_hansenlaw
 
-from abel.tools.analytical import sample_image_dribinski
+from abel.tools.analytical import sample_image
 from abel.tools.symmetry import get_image_quadrants
 from abel.tools.vmi import angular_integration
 
@@ -123,7 +123,7 @@ def test_hansenlaw_with_dribinski_image():
     """
 
     # BASEX sample image
-    IM = sample_image_dribinski(n=361)
+    IM = sample_image(n=361, name="dribinski")
 
     # core transform(s) use top-right quadrant, Q0
     Q0, Q1, Q2, Q3 = get_image_quadrants(IM)
