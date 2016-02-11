@@ -5,9 +5,9 @@ from __future__ import unicode_literals
 
 from ._version import __version__
 
-# from . import basex
-# from . import benchmark
-# from . import direct
-# from . import hansenlaw
-# from . import three_point
-# from . import tools
+from . import basex
+from . import benchmark
+from . import direct
+from . import hansenlaw
+from . import three_point
+from . import tools
