@@ -259,7 +259,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
         if fit["success"]:
             xyoffset[0] = -float(fit['x'])/2  # x1/2 for image center shift
         else:
-            print("fit failure: axis = {:d}, zero shift set".format(ax))
+            print("fit failure: axis = {:d}, zero shift set".format(axis))
             print(fit)
 
     if (type(axis) is int and axis==1) or (type(axis) is tuple and axis[1]==1):
@@ -268,7 +268,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
         if fit["success"]:
             xyoffset[1] = -float(fit['x'])/2   # x1/2 for image center shift
         else:
-            print("fit failure: axis = {:d}, zero shift set".format(ax))
+            print("fit failure: axis = {:d}, zero shift set".format(axis))
             print(fit)
 
     xyoffset = tuple(xyoffset)
