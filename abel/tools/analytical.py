@@ -77,24 +77,18 @@ def sample_image(n=361, name="dribinski", sigma=2, temperature=200):
 
         6 transitions, triplet neutral, and doublet anion
 
-        positions based on 812.5 nm ANU O- PES
-
-        intensities = fine-structure ratios
-
         """
         
+        # positions based on 812.5 nm ANU O- PES
         t1 = gauss(r, 341*rfact, sigma)  # 3P2 <- 2P3/2
-
         t2 = gauss(r, 285*rfact, sigma)  # 3P1 <- 2P3/2
-
         t3 = gauss(r, 257*rfact, sigma)  # 3P0 <- 2P3/2
-
         t4 = gauss(r, 394*rfact, sigma)  # 3P2 <- 2P1/2
-
         t5 = gauss(r, 348*rfact, sigma)  # 3P1 <- 2P1/2
-
         t6 = gauss(r, 324*rfact, sigma)  # 3P0 <- 2P1/2
 
+        # intensities = fine-structure known ratios
+        # 2P1/2 transtions scaled by temperature dependent Boltzmann factor 
         t = t1 + 0.8*t2 + 0.36*t3 + (0.2*t4 + 0.36*t5 + 0.16*t6)*boltzmann
 
         # anisotropy
