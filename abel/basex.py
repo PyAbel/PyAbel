@@ -43,8 +43,15 @@ from .tools.symmetry import center_image, center_image_asym
 #
 #############################################################################
 
+# functions to conform to naming conventions: contributing.md ----------
 
-def BASEX(data, center, n, 
+def iabel_basex(IM, dr=1.0, **kwargs):
+    """
+    Inverse Abel transform for one-quadrant
+    """
+    return _abel_basex_core(IM, dr=dr, **kwargs)
+
+def _abel_basex_core(data, center='auto', n='auto', 
         nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=True, dr=1.0, verbose=True):
 
     """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
@@ -58,14 +65,16 @@ def BASEX(data, center, n,
                 Abel inverse transform will be performed on a `n x n` area of the image
             * list in format [n_vert, n_horz] - 
                 Abel inverse transform will be performed on a `n[0] x n[1]` area of the image
+            * if n='auto', it is set to data.shape 
       - nbf: * integer - 
                 number of basis functions. If nbf='auto', it is set to (n//2 + 1).
              * list in format [nbf_vert, nbf_horz] -
-                If nbf='auto', it is set to [n_vert, n_horz//2 + 1]
+             * If nbf='auto', it is set to [n_vert, n_horz//2 + 1]
       - center: * integer - 
                     the center column of the image
                 * tuple (x,y) -
                     the center of the image in (x,y) format
+                * If center='auto', it is set to (data.shape[0]//2, data.shape[1]//2)
       - basis_dir: string
             path to the directory for saving / loading the basis set coefficients.
             If None, the basis set will not be saved to disk. 
@@ -83,6 +92,19 @@ def BASEX(data, center, n,
        if calc_speeds=True:  the processes images, arrays with the calculated speeds
 
     """
+
+    # make sure that the data is the right shape (1D must be converted to 2D)
+    data = np.atleast_2d(data) # if passed a 1D array convert it to 2D
+    if data.shape[0] == 1:
+        data_ndim = 1
+    elif data.shape[1] == 1:
+        raise ValueError('Wrong input shape for data {0}, should be  (N1, N2) or (1, N), not (N, 1)'.format(data.shape))
+    else:
+        data_ndim = 2
+
+    if n == 'auto': n = list(data.shape)
+    if center =='auto': center = (data.shape[0]//2, data.shape[1]//2)
+
     # make dimension-of-rawdata into list to account for rectangular n
     # Format of n -> n = [n_vert, n_horz]
     if type(n) is not list: 
@@ -94,15 +116,6 @@ def BASEX(data, center, n,
 
     # make sure n_horz is odd
     n[1] = 2 * (n[1] // 2) + 1 
-
-    # make sure that the data is the right shape (1D must be converted to 2D)
-    data = np.atleast_2d(data) # if passed a 1D array convert it to 2D
-    if data.shape[0] == 1:
-        data_ndim = 1
-    elif data.shape[1] == 1:
-        raise ValueError('Wrong input shape for data {0}, should be  (N1, N2) or (1, N), not (N, 1)'.format(data.shape))
-    else:
-        data_ndim = 2
 
     if vertical_symmetry:
         image = center_image(data, center=center, n=n[1], ndim=data_ndim)
