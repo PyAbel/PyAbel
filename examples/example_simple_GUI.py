@@ -51,6 +51,8 @@ def three_point_wrapper(IM):
 
 def onion_peeling_wrapper(IM):
     # requires even size image
+    if IM.shape[1] % 2 == 0: return IM
+
     IMo = IM[1:,:-1]   # trim top row, right column
     # recenter
     IMoc, offset = find_image_center_by_slice(IMo)
