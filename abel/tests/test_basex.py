@@ -7,27 +7,12 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from abel.tools.io import parse_matlab_basis_sets
 from abel.basex import *   #generate_basis_sets, get_bs_basex_cached, basex_transform
 from abel.tools.analytical import StepAnalytical, GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
 
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
-
-
-def test_basex_basis_set():
-    """
-    Check that the basis.py returns the same result as the BASIS1.m script
-    """
-    size = 101
-    M_ref, Mc_ref = parse_matlab_basis_sets(os.path.join(DATA_DIR, 'dan_basis100{}_1.bst.gz'))
-
-    M, Mc = generate_basis_sets(size, size//2, verbose=False)
-
-    yield assert_allclose, Mc_ref, Mc, 1e-7, 1e-100
-    yield assert_allclose, M_ref, M, 1e-7, 1e-100
-
 
 def test_basex_basis_sets_cache():
     n = 121
