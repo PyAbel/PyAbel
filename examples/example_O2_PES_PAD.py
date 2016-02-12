@@ -68,7 +68,7 @@ r_range = [(93, 111), (145, 162), (255, 280), (330, 350), (350, 370),
 intensities, theta = calculate_angular_distributions(AIM,
                                                      radial_ranges=r_range)
 
-print("radial-range      anisotropy parameter (β)")
+print("radial-range      anisotropy parameter (beta)")
 for rr, intensity in zip(r_range, intensities):
     # evaluate anisotropy parameter from least-squares fit to
     # intensity vs angle
@@ -140,7 +140,7 @@ plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89,
                     wspace=0.35, hspace=0.37)
 
 # Save a image of the plot
-plt.savefig(filename[:-7]+"png", dpi=150)
+# plt.savefig(filename[:-7]+"png", dpi=150)
 
 # Show the plots
 plt.show()

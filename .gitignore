@@ -14,5 +14,6 @@ examples/*.dat
 *.coverage
 *.c
 *.so
+*.png
 
-docs/_build/
+doc/_build/
