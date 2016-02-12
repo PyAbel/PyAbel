@@ -19,6 +19,7 @@ from scipy.ndimage import median_filter, gaussian_filter, center_of_mass
 from ._version import __version__
 from .tools.vmi import calculate_speeds
 from .tools.symmetry import center_image, center_image_asym
+from .tools.center import find_center
 
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
@@ -105,13 +106,9 @@ def _abel_basex_core(data, center='auto', n='auto',
         data_ndim = 2
 
     if n == 'auto': n = list(data.shape)
-    if center =='auto':
-        center = (data.shape[1]//2, data.shape[0]//2)
-    elif center == 'com':
-        com = np.around(center_of_mass(data))
-        center = (int(com[1]), int(com[0]))
-        if verbose:
-            print("Center of mass at ({0}, {1})".format(center[1], center[0]))
+
+    if isinstance(center, str):
+        center = find_center(data, method=center, verbose=verbose)
 
     # make dimension-of-rawdata into list to account for rectangular n
     # Format of n -> n = [n_vert, n_horz]
