@@ -99,7 +99,6 @@ class abel_transform(object):
         # in that case, we can: return self.IM - self.proj 
         
         
-        
 class fabel(abel_transform):
     def __init__(self, *args, **kwargs):
         super(fabel, self).__init__(*args,direction='forward', **kwargs)
@@ -107,7 +106,6 @@ class fabel(abel_transform):
 class iabel(abel_transform):
     def __init__(self, *args, **kwargs):
         super(iabel, self).__init__(*args,direction='inverse', **kwargs)
-        
         
         
 def main():
