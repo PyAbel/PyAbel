@@ -9,7 +9,7 @@ import abel
 import time
 
 class abel_transform(object):
-    def __init__(self,IM,direction=None,method='hansenlaw',integrate=True,verbose=True,
+    def __init__(self,IM,direction=None,method='three_point',integrate=True,verbose=True,
                  vertical_symmetry=True,horizontal_symmetry=True,use_quadrants=(True,True,True,True),
                  transform_options=()):
                         
@@ -36,11 +36,31 @@ class abel_transform(object):
                              vertical_symmetry=vertical_symmetry, horizontal_symmetry=horizontal_symmetry)
 
         def selected_transform(IM):
+            
             if method == 'hansenlaw':
                 if direction == 'forward':
                     return abel.hansenlaw.fabel_hansenlaw_transform(IM, *transform_options)
                 if direction == 'inverse':
                     return abel.hansenlaw.iabel_hansenlaw_transform(IM, *transform_options)
+            
+            if method == 'three_point':
+                if direction == 'forward':
+                    raise ValueError('Forward three-point not implemented')
+                if direction == 'inverse':
+                    return abel.three_point.iabel_three_point_transform(IM, *transform_options)
+            
+            if method == 'basex':
+                if direction == 'forward':
+                    raise ValueError('Forward basex not implemented')
+                if direction == 'inverse':
+                    raise ValueError('Coming soon...')
+            
+            if method == 'direct':
+                if direction == 'forward':
+                    raise ValueError('Coming soon...')
+                if direction == 'inverse':
+                    raise ValueError('Coming soon...')
+                    
 
         AQ0 = AQ1 = AQ2 = AQ3 = None
         # Inverse Abel transform for quadrant 1 (all include Q1)
@@ -93,7 +113,7 @@ class iabel(abel_transform):
 def main():
     import matplotlib.pyplot as plt
     IM0 = abel.tools.analytical.sample_image_dribinski(n=361)
-    trans1 = fabel(IM0)
+    trans1 = fabel(IM0,method='hansenlaw')
     IM1 = trans1.transform
     trans2 = iabel(IM1)
     IM2 = trans2.transform
@@ -104,7 +124,6 @@ def main():
     axs[0,1].imshow(IM1)
     axs[0,2].imshow(IM2)
     
-    print(trans1.angular_integration())
     axs[1,0].plot(*abel.tools.vmi.calculate_speeds(IM0)[::-1])
     axs[1,1].plot(*trans1.angular_integration())
     axs[1,2].plot(*trans2.angular_integration())
