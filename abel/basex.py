@@ -14,7 +14,7 @@ import sys
 import numpy as np
 from scipy.special import gammaln
 from numpy.linalg import inv
-from scipy.ndimage import median_filter, gaussian_filter
+from scipy.ndimage import median_filter, gaussian_filter, center_of_mass
 
 from ._version import __version__
 from .tools.vmi import calculate_speeds
@@ -65,7 +65,8 @@ def _abel_basex_core(data, center='auto', n='auto',
                 Abel inverse transform will be performed on a `n x n` area of the image
             * list in format [n_vert, n_horz] - 
                 Abel inverse transform will be performed on a `n[0] x n[1]` area of the image
-            * if n='auto', it is set to data.shape 
+            * if n='auto', it is set to data.shape
+
       - nbf: * integer - 
                 number of basis functions. If nbf='auto', it is set to (n//2 + 1).
              * list in format [nbf_vert, nbf_horz] -
@@ -74,7 +75,8 @@ def _abel_basex_core(data, center='auto', n='auto',
                     the center column of the image
                 * tuple (x,y) -
                     the center of the image in (x,y) format
-                * If center='auto', it is set to (data.shape[0]//2, data.shape[1]//2)
+                * If center='auto', it is set to (data.shape[1]//2, data.shape[0]//2)
+                * if n='com', it is set to the center of mass of data
       - basis_dir: string
             path to the directory for saving / loading the basis set coefficients.
             If None, the basis set will not be saved to disk. 
@@ -103,7 +105,13 @@ def _abel_basex_core(data, center='auto', n='auto',
         data_ndim = 2
 
     if n == 'auto': n = list(data.shape)
-    if center =='auto': center = (data.shape[0]//2, data.shape[1]//2)
+    if center =='auto':
+        center = (data.shape[1]//2, data.shape[0]//2)
+    elif center == 'com':
+        com = np.around(center_of_mass(data))
+        center = (int(com[1]), int(com[0]))
+        if verbose:
+            print("Center of mass at ({0}, {1})".format(center[1], center[0]))
 
     # make dimension-of-rawdata into list to account for rectangular n
     # Format of n -> n = [n_vert, n_horz]
