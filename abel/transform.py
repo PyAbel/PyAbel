@@ -9,9 +9,62 @@ import abel
 import time
 
 class AbelTransform(object):
-    def __init__(self,IM,direction=None,method='three_point',integrate=True,verbose=True,
+    """AbelTransform class
+    
+    This class provides a conveinent way to call all of transform functions
+    as well as the preprocessing (centering) and post processing 
+    (integration) functions. 
+    
+    
+    Attributes
+        ----------
+        IM : NxM numpy array
+            the original 2D image supplied
+        transform : NxM numpy array
+            the transformed (either forward or inverse) image
+        
+    
+
+    """
+    
+    def __init__(self,IM,direction=None,method='three_point',center=(None,None),verbose=True,
                  vertical_symmetry=True,horizontal_symmetry=True,use_quadrants=(True,True,True,True),
-                 transform_options=()):
+                 integrate=True,transform_options=()):
+        """__init__
+
+        This performs the forward or reverse Abel transform using a user selected method.
+        
+        Transform Methods
+        --------
+        # here we should provide a description of the various methods, complete with references.
+       
+
+        Parameters
+        ----------
+        IM : a NxM numpy array
+            This is the image to be transformed
+        direction : 'forward' or 'inverse'
+            The type of Abel transform to be performed. 
+            A 'forward' Abel transform takes a (2D) slice of a 3D image and returns the 2D projection.
+            An 'inverse' Abel transform takes a 2D projection and reconstructs a 2D slice of the 3D image.
+        method : str
+            The method specifies which numerical approximation to the Abel transform should be employed.
+            All the the methods should produce similar results, but depending on the level and type of noise
+            found in the image, certain methods may perform better than others.
+            The options are:
+            'hansenlaw' - the recursive algorithm described by Hansen and Law
+            'basex' - the Gaussian "basis set expansion" method of Dribinski et al.
+            'direct' - a naive implementation of the analytical formula by Roman Yurchuk. 
+            'three_point' - the three-point transform of Dasch and co-workers
+            
+        center : 
+        
+        ...will finish this later...
+    
+        
+
+        """
+    
                         
         verboseprint = print if verbose else lambda *a, **k: None
         
@@ -30,6 +83,8 @@ class AbelTransform(object):
                      'image size: {:d}x{:d}'.format(rows, cols))
         
         t0 = time.time()
+        
+        # add code to center the image here!!
 
         # split image into quadrants
         Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(IM, reorient=True,
