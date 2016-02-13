@@ -18,7 +18,7 @@ def sample_image(n=361, name="dribinski", sigma=2, temperature=200):
         image size n rows x n cols
 
     name: str
-        one of "dribinski" or "O-"
+        one of "dribinski" or "Ominus"
 
     sigma: float
         Gaussian 1/e width (pixels)

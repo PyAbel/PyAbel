@@ -7,16 +7,7 @@
 
 import numpy as np
 
-from abel.hansenlaw import iabel_hansenlaw
-import abel.basex
-from abel.onion import iabel_onion_peeling
-from abel.direct import iabel_direct
-from abel.three_point import iabel_three_point
-from abel.tools.vmi import calculate_speeds
-from abel.tools.vmi import find_image_center_by_slice
-from abel.tools.vmi import calculate_angular_distributions
-from abel.tools.vmi import anisotropy_parameter
-from abel.tools.symmetry import get_image_quadrants, put_image_quadrants
+import abel
 
 import sys
 if sys.version_info[0] < 3:
@@ -46,7 +37,7 @@ def basex_wrapper(IM):
 def three_point_wrapper(IM):
     rows, cols = IM.shape
     center = (rows//2 + rows % 2, cols//2 + cols % 2)
-    return iabel_three_point(IM, center=center) 
+    return abel.three_point.iabel_three_point(IM, center=center) 
 
 
 def onion_peeling_wrapper(IM):
@@ -58,12 +49,13 @@ def onion_peeling_wrapper(IM):
     IMoc, offset = find_image_center_by_slice(IMo)
     cols, rows = IMoc.shape
     c2 = cols//2 + cols % 2
-    AIMleft = iabel_onion_peeling(IMoc[:, :c2])
+    AIMleft = abel.onion.iabel_onion_peeling(IMoc[:, :c2])
     return np.concatenate((AIMleft, AIMleft[:, ::-1]), axis=1)
     
 
-Abel_methods = {'basex':basex_wrapper, 'direct':iabel_direct,
-                'hansenlaw':iabel_hansenlaw, 
+Abel_methods = {'basex':basex_wrapper, 
+                'direct':abel.direct.iabel_direct,
+                'hansenlaw':abel.hansenlaw.iabel_hansenlaw, 
                 'onion-peeling':onion_peeling_wrapper, 
                 'three_point':three_point_wrapper}
 
@@ -121,7 +113,7 @@ def _center():
 
     # center image via horizontal (left, right), and vertical (top, bottom)
     # intensity slices
-    IM, offset = find_image_center_by_slice(IM)
+    IM, offset = abel.tools.vmi.find_image_center_by_slice(IM)
     text.insert(tk.END, "center offset = {:}\n".format(offset))
 
     _display()
@@ -163,7 +155,7 @@ def _speed():
     canvas.show()
 
     # speed distribution
-    speed, radial = calculate_speeds(AIM)
+    speed, radial = abel.tools.vmi.calculate_speeds(AIM)
 
     f.clf()
     a = f.add_subplot(111)
@@ -192,11 +184,11 @@ def _anisotropy():
     _transform()
 
     # intensity vs angle
-    intensity, theta = calculate_angular_distributions(AIM,\
-                                radial_ranges=[rmx,])
+    intensity, theta = abel.tools.vmi.calculate_angular_distributions(AIM,\
+                                   radial_ranges=[rmx,])
 
     # fit to P2(cos theta)
-    beta, amp = anisotropy_parameter(theta, intensity[0])
+    beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity[0])
 
     text.insert(tk.END,"beta = {:g}+-{:g}\n".format(*beta))
 

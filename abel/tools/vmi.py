@@ -205,30 +205,30 @@ def axis_slices(IM, radial_range=(0,-1), slice_width=10):
 
 def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
                                axis=(0, 1)):
-    """ Center image by comparing opposite side, vertical (axis=1) and/or 
-        horizontal slice (axis=0) profiles, both axis=(0,1).. 
+    """ Center image by comparing opposite side, vertical (axis=0) and/or 
+        horizontal slice (axis=1) profiles, both axis=(0,1).. 
 
     Parameters
     ----------
     IM : 2D np.array
-         The image data.
+       The image data.
  
     slice_width : integer
-      Add together this number of rows (cols) to improve signal, default 10.
+       Sum together this number of rows (cols) to improve signal, default 10.
       
     radial_range: tuple
-      (rmin,rmax): radial range [rmin:rmax] for slice profile comparison
+       (rmin,rmax): radial range [rmin:rmax] for slice profile comparison.
 
     axis : integer or tuple 
-      Center with respect to axis = 0 (horizontal), or 1 (vertical), or (0,1).
+       Center with along axis = 0 (vertical), or 1 (horizontal), or both (0,1).
 
     Returns
     -------
     IMcenter : 2D np.array
-      Centered image
+       Centered image
 
     (vertical_shift, horizontal_shift) : tuple of floats
-      (axis=1 shift, axis=0 shift)
+       (axis=0 shift, axis=1 shift)
    
     """
 
@@ -242,8 +242,8 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     rows, cols = IM.shape
 
     if cols % 2 == 0:
-        # drop left most column, and bottom row to make odd size
-        IM = IM[:-1, 1:]
+        # drop rightside column, and bottom row to make odd size
+        IM = IM[:-1, :-1]
         rows, cols = IM.shape
 
     top, bottom, left, right = axis_slices (IM, radial_range, slice_width)
@@ -273,6 +273,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
             print("fit failure: axis = 1, zero shift set")
             print(fit)
 
+    # this is the (y, x) shift to align the slice profiles
     xyoffset = tuple(xyoffset)
 
     IM_centered = shift(IM, xyoffset)  # center image
