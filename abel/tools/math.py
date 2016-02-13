@@ -6,7 +6,11 @@
 
 import numpy as np
 from scipy.linalg import circulant
+from scipy.optimize import curve_fit, brentq
+from scipy.interpolate import interp1d
+from scipy.ndimage import gaussian_filter
 import scipy.ndimage as nd
+
 
 def gradient(f, x=None, dx=1, axis=-1):
     """
@@ -39,22 +43,51 @@ def gradient(f, x=None, dx=1, axis=-1):
       http://www.holoborodko.com/pavel/numerical-methods/numerical-derivative/smooth-low-noise-differentiators/
     """
     if x is None:
-        x = np.arange(f.shape[axis])*dx
+        x = np.arange(f.shape[axis]) * dx
     else:
         assert x.shape[0] == f.shape[axis]
     I = np.zeros(f.shape[axis])
-    I[:2] = np.array([0,-1])
+    I[:2] = np.array([0, -1])
     I[-1] = 1
     I = circulant(I)
-    I[0,0] = -1
-    I[-1,-1] = 1
-    I[0,-1] = 0
-    I[-1,0] = 0 
-    H = np.zeros((f.shape[axis],1))
-    H[1:-1,0] = x[2:]-x[:-2]
+    I[0, 0] = -1
+    I[-1, -1] = 1
+    I[0, -1] = 0
+    I[-1, 0] = 0
+    H = np.zeros((f.shape[axis], 1))
+    H[1:-1, 0] = x[2:] - x[:-2]
     H[0] = x[1] - x[0]
     H[-1] = x[-1] - x[-2]
-    if axis==0:
-        return np.dot(I/H, f)
+    if axis == 0:
+        return np.dot(I / H, f)
     else:
-        return np.dot(I/H, f.T).T
+        return np.dot(I / H, f.T).T
+
+
+def gaussian(x, a, mu, sigma, c):
+    return a * np.exp(-((x - mu) ** 2) / 2 / sigma ** 2) + c
+
+
+def guss_gaussian(x):
+    c_guess = (x[0] + x[-1]) / 2
+    a_guess = x.max() - c_guess
+    mu_guess = x.argmax()
+    x_inter = interp1d(range(len(x)), x)
+
+    def _(i):
+        return x_inter(i) - a_guess / 2 - c_guess
+
+    try:
+        sigma_l_guess = brentq(_, 0, mu_guess)
+    except:
+        sigma_l_guess = len(x) / 4
+    try:
+        sigma_r_guess = brentq(_, mu_guess, len(x) - 1)
+    except:
+        sigma_r_guess = 3 * len(x) / 4
+    return a_guess, mu_guess, (sigma_r_guess - sigma_l_guess) / 2.35482, c_guess
+
+
+def fit_gaussian(x):
+    p, q = curve_fit(gaussian, list(range(x.size)), x, p0=guss_gaussian(x))
+    return p
