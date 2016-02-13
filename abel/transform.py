@@ -32,7 +32,7 @@ class AbelTransform(object):
                  integrate=True,transform_options=()):
         """__init__
 
-        This performs the forward or reverse Abel transform using a user selected method.
+        This performs the forward or reverse Abel transform using a user-selected method.
         
         Transform Methods
         --------
@@ -57,11 +57,9 @@ class AbelTransform(object):
             'direct' - a naive implementation of the analytical formula by Roman Yurchuk. 
             'three_point' - the three-point transform of Dasch and co-workers
             
-        center : 
-        
-        ...will finish this later...
-    
-        
+        center : tuple or str
+            This specifies the image center in (x,y) format (if a tuple is provided)
+            or, if a string is provided, an automatic centering algorithm is used
 
         """
     
