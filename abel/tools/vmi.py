@@ -12,7 +12,7 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize
 
 
-def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
+def calculate_speeds(IM, origin=None, Jacobian=True, dr=1, dt=None):
     """ Angular integration of the image.
 
         Returning the one-dimentional intensity profile as a function of the 

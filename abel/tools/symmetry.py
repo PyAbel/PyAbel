@@ -54,6 +54,15 @@ def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
     Q1 = IM[:n_c, :m_c]
     Q2 = IM[-n_c:, :m_c]
     Q3 = IM[-n_c:, -m_c:]
+    
+    if reorient:
+        Q1 = np.fliplr(Q1)
+        Q3 = np.flipud(Q3)
+        Q2 = np.fliplr(np.flipud(Q2))
+    
+    if vertical_symmetry and horizontal_symmetry and not reorient:
+        raise ValueError('In order to add quadrants (i.e., to apply horizontal or vertical symmetry),' 
+                         'you must reorient the image.')
 
     if vertical_symmetry:   # co-add quadrants
         Q0 = Q1 = Q0*use_quadrants[0]+Q1*use_quadrants[1]
@@ -63,11 +72,6 @@ def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
         Q1 = Q2 = Q1*use_quadrants[1]+Q2*use_quadrants[2]
         Q0 = Q3 = Q0*use_quadrants[0]+Q3*use_quadrants[3]
 
-    if reorient:
-        Q1 = np.fliplr(Q1)
-        Q3 = np.flipud(Q3)
-        Q2 = np.fliplr(np.flipud(Q2))
-
     return Q0, Q1, Q2, Q3
 
 
@@ -75,8 +79,10 @@ def put_image_quadrants (Q, odd_size=True, vertical_symmetry=False,
                          horizontal_symmetry=False):
     """
     Reassemble image from 4 quadrants Q = (Q0, Q1, Q2, Q3)
-    The reverse process to get_image_quadrants()
+    The reverse process to get_image_quadrants(reorient=True)
     Qi defined in abel/hansenlaw.py
+    
+    Note: the quadrants should all be oriented as Q0, the upper right quadrant
     
     Parameters
     ----------
@@ -101,6 +107,8 @@ def put_image_quadrants (Q, odd_size=True, vertical_symmetry=False,
         Reassembled image of shape (rows, cols) 
     """
 
+    Q0, Q1, Q2, Q3 = Q
+    
     if vertical_symmetry:
         Q0 = Q1
         Q3 = Q2 
@@ -110,12 +118,12 @@ def put_image_quadrants (Q, odd_size=True, vertical_symmetry=False,
         Q3 = Q0 
 
     if not odd_size:
-        Top    = np.concatenate((np.fliplr(Q[1]), Q[0]), axis=1)
-        Bottom = np.flipud(np.concatenate((np.fliplr(Q[2]), Q[3]), axis=1))
+        Top    = np.concatenate((np.fliplr(Q0), Q1), axis=1)
+        Bottom = np.flipud(np.concatenate((np.fliplr(Q2), Q3), axis=1))
     else:
         # odd size image remove extra row/column added in get_image_quadrant()
-        Top    = np.concatenate((np.fliplr(Q[1][:-1,:-1]), Q[0][:-1,:]), axis=1)
-        Bottom = np.flipud(np.concatenate((np.fliplr(Q[2][:,:-1]), Q[3]), axis=1))
+        Top    = np.concatenate((np.fliplr(Q1[:-1,:-1]), Q0[:-1,:]), axis=1)
+        Bottom = np.flipud(np.concatenate((np.fliplr(Q2[:,:-1]), Q3), axis=1))
 
     IM = np.concatenate((Top,Bottom), axis=0)
 
