@@ -22,12 +22,12 @@ class AbelTransform(object):
             the original 2D image supplied
         transform : NxM numpy array
             the transformed (either forward or inverse) image
-        
-    
 
     """
-    
-    def __init__(self,IM,direction=None,method='three_point',center=(None,None),verbose=True,
+    def __init__ (self, IM):
+        self.IM = IM
+        
+    def doTransform(self,direction=None,method='three_point',center=(None,None),verbose=True,
                  vertical_symmetry=True,horizontal_symmetry=True,use_quadrants=(True,True,True,True),
                  integrate=True,transform_options=()):
         """__init__
@@ -66,16 +66,15 @@ class AbelTransform(object):
                         
         verboseprint = print if verbose else lambda *a, **k: None
         
-        self.IM = IM
-    
-        if IM.ndim == 1 or np.shape(IM)[0] <= 2:
+        
+        if self.IM.ndim == 1 or np.shape(self.IM)[0] <= 2:
                 raise ValueError('Data must be 2-dimensional.'
                                  'To transform a single row, use'
                                  'iabel_hansenlaw_transform().')
 
         if not np.any(use_quadrants): raise ValueError('No image quadrants selected to use')
         
-        rows, cols = np.shape(IM)
+        rows, cols = np.shape(self.IM)
         
         verboseprint('Calculating {0} Abel transform using {1} method -'.format(direction,method),
                      'image size: {:d}x{:d}'.format(rows, cols))
@@ -85,7 +84,7 @@ class AbelTransform(object):
         # add code to center the image here!!
 
         # split image into quadrants
-        Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(IM, reorient=True,
+        Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(self.IM, reorient=True,
                              vertical_symmetry=vertical_symmetry, horizontal_symmetry=horizontal_symmetry)
 
         def selected_transform(IM):
@@ -153,11 +152,15 @@ class AbelTransform(object):
     
     @classmethod
     def iabel(cls, *args, **kwargs):
-        return cls(*args,direction='inverse', **kwargs)
+        trans=cls(*args)
+        trans.doTransform(direction='inverse', **kwargs)
+        return trans
     
     @classmethod
     def fabel(cls, *args, **kwargs):
-        return cls(*args,direction='forward', **kwargs)
+        trans=cls(*args)
+        trans.doTransform(direction='forward', **kwargs)
+        return trans
 
 
 iabel = AbelTransform.iabel
