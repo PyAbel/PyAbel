@@ -1,15 +1,31 @@
 import numpy as np
-from scipy.special import round
+import scipy.special
 from scipy.ndimage import center_of_mass
 from .math import fit_gaussian
 
 
 def find_center_by_center_of_mass(data, verbose=True, **kwargs):
+    try:
+        round = kwargs["round"]
+    except KeyError:
+        round = True
+
     com = center_of_mass(data)
-    com_round = (int(round(com[1])), int(round(com[0])))
+    center = com[1], com[0]
+    
     if verbose:
-        print("Center of mass at ({0}, {1}) ... round to ({2}, {3})".format(com[1], com[0], com_round[1], com_round[0]))
-    return com_round
+        to_print = "Center of mass at ({0}, {1})".format(center[0], center[1])
+    
+    if round:
+        center = scipy.special.round(center)
+        center = (int(center[0]), int(center[1]))
+        if verbose:
+            to_print += " ... round to ({0}, {1})".format(center[0], center[1])
+
+    if verbose:
+        print(to_print) 
+
+    return center
 
 
 def find_center_by_center_of_image(data, verbose=True, **kwargs):
@@ -17,15 +33,30 @@ def find_center_by_center_of_image(data, verbose=True, **kwargs):
 
 
 def find_center_by_fit_gaussian(data, verbose=True, **kwargs):
+    try:
+        round = kwargs["round"]
+    except KeyError:
+        round = True
+    
     x = np.sum(data, axis=0)
     y = np.sum(data, axis=1)
     xc = fit_gaussian(x)[1]
     yc = fit_gaussian(y)[1]
-    center = (int(round(xc)), int(round(yc)))
+    center = (xc, yc)
+    
     if verbose:
-        print("Gaussian center at ({0}, {1}) ... round to ({2}, {3})".format(xc, yc, center[1], center[0]))
-    return center
+        to_print = "Gaussian center at ({0}, {1})".format(center[0], center[1])
+    
+    if round:
+        center = scipy.special.round(center)
+        center = (int(center[0]), int(center[1]))
+        if verbose:
+            to_print += " ... round to ({0}, {1})".format(center[0], center[1])
 
+    if verbose:
+        print(to_print) 
+
+    return center
 
 func_method = {
     "auto": find_center_by_center_of_image,
