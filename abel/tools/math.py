@@ -65,10 +65,20 @@ def gradient(f, x=None, dx=1, axis=-1):
 
 
 def gaussian(x, a, mu, sigma, c):
+    """
+    Gaussian function
+    
+    a * exp(-((x - mu) ** 2) / 2 / sigma ** 2) + c
+
+    """
     return a * np.exp(-((x - mu) ** 2) / 2 / sigma ** 2) + c
 
 
 def guss_gaussian(x):
+    """
+    Find a set of better starting parameters for Gaussian function fitting
+    
+    """
     c_guess = (x[0] + x[-1]) / 2
     a_guess = x.max() - c_guess
     mu_guess = x.argmax()
@@ -89,5 +99,8 @@ def guss_gaussian(x):
 
 
 def fit_gaussian(x):
+    """
+    Fit Gaussian function and return its parameter 
+    """
     p, q = curve_fit(gaussian, list(range(x.size)), x, p0=guss_gaussian(x))
     return p
