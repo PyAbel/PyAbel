@@ -70,6 +70,29 @@ def gaussian(x, a, mu, sigma, c):
     
     a * exp(-((x - mu) ** 2) / 2 / sigma ** 2) + c
 
+    ref: https://en.wikipedia.org/wiki/Gaussian_function
+
+    Parameters
+    ----------
+    x: 1D np.array
+        coordinate
+
+    a:  float
+        the height of the curve's peak
+
+    mu: float
+        the position of the center of the peak
+
+    sigma: float
+        the standard deviation, sometimes called the Gaussian RMS width
+
+    c: float
+        non-zero background
+
+    Returns
+    -------
+    out: 1D np.array
+        the Gaussian profile
     """
     return a * np.exp(-((x - mu) ** 2) / 2 / sigma ** 2) + c
 
@@ -77,7 +100,16 @@ def gaussian(x, a, mu, sigma, c):
 def guss_gaussian(x):
     """
     Find a set of better starting parameters for Gaussian function fitting
-    
+
+    Parameters
+    ----------
+    x: 1D np.array
+        1D profile of your data
+
+    Returns
+    -------
+    out: tuple of float
+        estimated value of (a, mu, sigma, c)
     """
     c_guess = (x[0] + x[-1]) / 2
     a_guess = x.max() - c_guess
@@ -100,7 +132,17 @@ def guss_gaussian(x):
 
 def fit_gaussian(x):
     """
-    Fit Gaussian function and return its parameter 
+    Fit Gaussian function and return its parameter
+
+    Parameters
+    ----------
+    x: 1D np.array
+        1D profile of your data
+
+    Returns
+    -------
+    out: tuple of float
+        (a, mu, sigma, c)
     """
     p, q = curve_fit(gaussian, list(range(x.size)), x, p0=guss_gaussian(x))
     return p
