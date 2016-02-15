@@ -106,76 +106,6 @@ _hansenlaw_transform_docstring = \
 
     """
 
-_hansenlaw_docstring = \
-    """ 
-    # THIS DOCSTRING IS NO LONGER USED. BUT, IT HAS A NICE IMAGE OF THE QUADRANTS AND SHOULD BE MOVED TO SOMEWHERE ELSE
-    inverse Abel transform image
-
-    options to exploit image symmetry 
-           - select quadrants
-           - combine quadrantsto improve signal
-
-    Parameters
-    ----------
-    IM: 2D np.array
-        Image data shape (rows, cols)
-
-    dr : float 
-        radial sampling size (=1 for pixel images), used to scale result
-
-    inverse: boolean 
-        forward (False) or inverse (True) Abel transform
-
-    use_quadrants: boolean tuple (Q0,Q1,Q2,Q3)
-        select quadrants to be used in the analysis::
-
-             +--------+--------+                
-             | Q1   * | *   Q0 |
-             |   *    |    *   |                               
-             |  *     |     *  |                               AQ1 | AQ0
-             +--------o--------+ --(inverse Abel transform)--> ----o----
-             |  *     |     *  |                               AQ2 | AQ3 
-             |   *    |    *   |
-             | Q2  *  | *   Q3 |          AQi == inverse Abel transform  
-             +--------+--------+                 of quadrant Qi
- 
-       ::
-
-       (1) vertical_symmetry = True 
-       ::
- 
-           Combine:  `Q01 = Q1 + Q2, Q23 = Q2 + Q3`
-           inverse image   AQ01 | AQ01     
-                           -----o-----            
-                           AQ23 | AQ23
-       ::
-
-       (2) horizontal_symmetry = True
-       ::
-
-           Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
-           inverse image   AQ12 | AQ03       
-                           -----o-----
-                           AQ12 | AQ03
-       ::
- 
-       (3) vertical_symmetry = True, horizontal = True
-       :: 
-        
-           Combine: Q = Q0 + Q1 + Q2 + Q3
-           inverse image   AQ | AQ       
-                           ---o---  all quadrants equivalent
-                           AQ | AQ
- 
-
-    verbose: boolean
-        verbose output, timings etc.
-
-    """  
-
-
-# functions to conform to naming conventions: contributing.md ------------
-
 def fabel_hansenlaw(IM, dr=1):
     """
     Forward Abel transform for one-quadrant
@@ -188,8 +118,6 @@ def iabel_hansenlaw(IM, dr=1):
     Inverse Abel transform for one-quadrant
     """
     return hansenlaw_transform(IM, dr=dr, inverse=True)
-
-# ----- end naming ---------------
 
 
 def hansenlaw_transform(IM, dr=1, inverse=False):
@@ -266,16 +194,8 @@ def hansenlaw_transform(IM, dr=1, inverse=False):
     else:
         return -AIM*np.pi*dr   # forward still needs '-' sign
 
-    # ---- end abel_hansenlaw_transform ----
-
-
 
 # append the same docstring to all functions - borrowed from @rth
-iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_docstring
-fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring +\
-                           _hansenlaw_docstring.replace('AQ', 'fQ')\
-                           .replace('(inverse', '(forward')\
-                           .replace('== inverse', '== forward')\
-                           .replace('inverse image', 'forward image')
-#_abel_hansenlaw_transform_core.__doc__ += _hansenlaw_header_docstring +\
-#                                          _hansenlaw_transform_docstring
+iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
+fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
+hansenlaw_transform.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
