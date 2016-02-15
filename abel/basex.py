@@ -52,7 +52,7 @@ def iabel_basex(IM, dr=1.0, **kwargs):
     """
     return _abel_basex_core(IM, dr=dr, **kwargs)
 
-def _abel_basex_core(data, center='auto', n='auto', 
+def _abel_basex_core(data, center='image_center', n='auto', 
         nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=False, dr=1.0, verbose=True):
 
     """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
