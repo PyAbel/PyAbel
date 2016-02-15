@@ -5,8 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from abel.hansenlaw import iabel_hansenlaw
-from abel.hansenlaw import iabel_hansenlaw_transform
+import abel
 from abel.tools.vmi import find_image_center_by_slice
 from abel.tools.vmi import calculate_speeds
 from abel.tools.vmi import axis_slices
@@ -38,14 +37,14 @@ if cols % 2 == 0:
     IM, origin_shift = find_image_center_by_slice(IM, radial_range=(300, 400))
     rows, cols = IM.shape   # new image size
 
-    #top, bottom, left, right = axis_slices(IM, radial_range=(200, 500))
-    # plt.plot(top, 'r-', label="top")
-    # plt.plot(bottom, 'b-', label="bottom")
-    # plt.plot(left, 'g-', label="left")
-    # plt.plot(right, 'k-', label="right")
+    top, bottom, left, right = axis_slices(IM, radial_range=(200, 500))
+    plt.plot(top, 'r-', label="top")
+    plt.plot(bottom, 'b-', label="bottom")
+    plt.plot(left, 'g-', label="left")
+    plt.plot(right, 'k-', label="right")
  
-    # plt.legend(fontsize=11)
-    # plt.show()
+    plt.legend(fontsize=11)
+    plt.show()
 
 c2 = cols//2   # half-image
 print('image size {:d}x{:d}'.format(rows, cols))
@@ -62,9 +61,9 @@ print('image size {:d}x{:d}'.format(rows, cols))
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-AIM = iabel_hansenlaw(IM, dr=1, use_quadrants=(True, True, True, True),
+AIM = abel.iabel(IM, method='hansenlaw', use_quadrants=(True, True, True, True),
                       vertical_symmetry=False, horizontal_symmetry=False,
-                      verbose=True)
+                      verbose=True).transform
 
 speeds, rs = calculate_speeds(AIM, dr=1)
 

@@ -46,11 +46,11 @@ def find_center_by_fit_gaussian(data, verbose=True, round_output=True, **kwargs)
     return center
 
 func_method = {
-    "auto": find_center_by_center_of_image,
+    "image_center": find_center_by_center_of_image,
     "com": find_center_by_center_of_mass,
     "gaussian": find_center_by_fit_gaussian,
 }
 
 
-def find_center(data, method="auto", verbose=True, **kwargs):
+def find_center(data, method='image_center', verbose=True, **kwargs):
     return func_method[method](data, verbose=verbose, **kwargs)

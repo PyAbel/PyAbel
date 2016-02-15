@@ -12,7 +12,7 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize
 
 
-def calculate_speeds(IM, origin=None, Jacobian=False, dr=1, dt=None):
+def calculate_speeds(IM, origin=None, Jacobian=True, dr=1, dt=None):
     """ Angular integration of the image.
 
         Returning the one-dimentional intensity profile as a function of the 
@@ -161,7 +161,7 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     return (beta, error_beta), (amplitude, error_amplitude)
 
 
-def axis_slices (IM, radial_range=(0,-1), slice_width=10):
+def axis_slices(IM, radial_range=(0,-1), slice_width=10):
     """returns vertical and horizontal slice profiles, summed across slice_width.
 
     Paramters
