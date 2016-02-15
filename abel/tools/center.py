@@ -27,7 +27,7 @@ def find_center_by_center_of_mass(data, verbose=True, **kwargs):
 
 
 def find_center_by_center_of_image(data, verbose=True, **kwargs):
-    return (data.shape[1] // 2, data.shape[0] // 2)
+    return (data.shape[1] // 2 + data.shape[1]%2, data.shape[0] // 2 + data.shape[0]%2)
 
 
 def find_center_by_fit_gaussian(data, verbose=True, **kwargs):
