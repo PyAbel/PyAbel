@@ -161,7 +161,7 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     return (beta, error_beta), (amplitude, error_amplitude)
 
 
-def axis_slices (IM, radial_range=(0,-1), slice_width=10):
+def axis_slices(IM, radial_range=(0,-1), slice_width=10):
     """returns vertical and horizontal slice profiles, summed across slice_width.
 
     Paramters

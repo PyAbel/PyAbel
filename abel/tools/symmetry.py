@@ -33,6 +33,49 @@ def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
 
     use_quadrants : boolean tuple
       Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
+      
+
+               +--------+--------+                
+               | Q1   * | *   Q0 |
+               |   *    |    *   |                               
+               |  *     |     *  |                               AQ1 | AQ0
+               +--------o--------+ --(inverse Abel transform)--> ----o----
+               |  *     |     *  |                               AQ2 | AQ3 
+               |   *    |    *   |
+               | Q2  *  | *   Q3 |          AQi == inverse Abel transform  
+               +--------+--------+                 of quadrant Qi
+ 
+         ::
+
+         (1) vertical_symmetry = True 
+         ::
+ 
+             Combine:  `Q01 = Q1 + Q2, Q23 = Q2 + Q3`
+             inverse image   AQ01 | AQ01     
+                             -----o-----            
+                             AQ23 | AQ23
+         ::
+
+         (2) horizontal_symmetry = True
+         ::
+
+             Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
+             inverse image   AQ12 | AQ03       
+                             -----o-----
+                             AQ12 | AQ03
+         ::
+ 
+         (3) vertical_symmetry = True, horizontal = True
+         :: 
+        
+             Combine: Q = Q0 + Q1 + Q2 + Q3
+             inverse image   AQ | AQ       
+                             ---o---  all quadrants equivalent
+                             AQ | AQ
+ 
+
+      verbose: boolean
+          verbose output, timings etc.
 
     Returns
     -------
