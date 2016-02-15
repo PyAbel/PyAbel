@@ -1,14 +1,9 @@
 import numpy as np
 from scipy.ndimage import center_of_mass
 from .math import fit_gaussian
+import warnings
 
-
-def find_center_by_center_of_mass(data, verbose=True, **kwargs):
-    try:
-        round_output = kwargs["round_output"]
-    except KeyError:
-        round_output = True
-
+def find_center_by_center_of_mass(data, verbose=True, round_output=True, **kwargs):
     com = center_of_mass(data)
     center = com[1], com[0]
     
@@ -30,12 +25,7 @@ def find_center_by_center_of_image(data, verbose=True, **kwargs):
     return (data.shape[1] // 2 + data.shape[1]%2, data.shape[0] // 2 + data.shape[0]%2)
 
 
-def find_center_by_fit_gaussian(data, verbose=True, **kwargs):
-    try:
-        round_output = kwargs["round_output"]
-    except KeyError:
-        round_output = True
-    
+def find_center_by_fit_gaussian(data, verbose=True, round_output=True, **kwargs):
     x = np.sum(data, axis=0)
     y = np.sum(data, axis=1)
     xc = fit_gaussian(x)[1]
