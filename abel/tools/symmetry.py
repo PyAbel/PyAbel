@@ -275,3 +275,28 @@ def _symmetrize_rawdata(IM, center_row, crop=False):
         averaged_IM[index] = 0.5*(IM[index] + IM[row - index - 1])
  
     return averaged_IM
+
+def _new_symmetrize_rawdata(IM, center_row='auto', crop=True): 
+    if isinstance(center_row, str):
+        center_row, center_column = find_center(IM, center)
+
+    IM = np.atleast_2d(IM)    
+    row, col = IM.shape
+    odd_shape = row % 2
+
+    # give proper shape to IM
+    distance_from_center = round(center_row) - (row-1)/2
+    trim = distance_from_center*2
+    # distance between "true center" and "shape center"
+
+    if trim < 0: 
+        symmetric_IM = IM[:trim]
+    else:
+        symmetric_IM = IM[trim:]
+
+    # To average top and bottom of IM
+    # take the mean of IM and np.flipud(IM)
+    averaged_IM = (symmetric_IM + np.flipud(symmetric_IM)) / 2.0
+
+
+    return averaged_IM
