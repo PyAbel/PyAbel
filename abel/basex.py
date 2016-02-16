@@ -97,21 +97,26 @@ def _abel_basex_core(data, center='image_center', n='auto',
     """
 
     # make sure that the data is the right shape (1D must be converted to 2D)
-    data = np.atleast_2d(data) # if passed a 1D array convert it to 2D
-    if data.shape[0] == 1:
-        data_ndim = 1
+    data = np.atleast_2d(data)
+    if data.shape[0] == 1: data_ndim = 1
     elif data.shape[1] == 1:
         raise ValueError('Wrong input shape for data {0}, should be  (N1, N2) or (1, N), not (N, 1)'.format(data.shape))
-    else:
-        data_ndim = 2
+    else: data_ndim = 2
 
-    if n == 'auto': n = list(data.shape)
-
+    # If center is any of the special options ('image_center', 'com', etc.)
     if type(center) == str or type(center) == unicode:
         center = find_center(data, method=center, verbose=verbose)
 
+    if type(center) == tuple: cx, cy = center
+    elif type(center) == int: cx, cy = center, "image_center"
+    else: raise ValueError("Center specified incorrectly. Must be tuple (x,y) or integer (column)")
+
+    if vertical_symmetry: # Average top and bottom halves of rawdata
+        data = updown_symmetry_rawdata(data, center_row = cy)
+
     # make dimension-of-rawdata into list to account for rectangular n
     # Format of n -> n = [n_vert, n_horz]
+    if n == 'auto': n = list(data.shape)
     if type(n) is not list: 
         if type(n) is int: n = [ n ] 
         else: n = list(n)
