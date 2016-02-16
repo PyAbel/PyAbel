@@ -277,7 +277,7 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
 
     return c_im
 
-def _symmetrize_rawdata(IM, center_row='auto', crop=True): 
+def _updown_symmetrize_rawdata(IM, center_row='auto', crop=True): 
     if isinstance(center_row, str):
         center_row, center_column = find_center(IM, center)
     
