@@ -277,9 +277,9 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
 
     return c_im
 
-def _updown_symmetrize_rawdata(IM, center_row='auto', **kwargs): 
-    if type(center) == str or type(center) == unicode:
-        center_row, center_column = find_center(IM, method=center, verbose=verbose)
+def updown_symmetry_rawdata(IM, center_row='auto', **kwargs): 
+    if type(center_row) == str or type(center_row) == unicode:
+        center_row, center_column = find_center(IM, method=center_row, verbose=verbose)
     
     IM = np.atleast_2d(IM)    
     row, col = IM.shape
@@ -295,6 +295,4 @@ def _updown_symmetrize_rawdata(IM, center_row='auto', **kwargs):
     else: symmetric_IM = IM[trim:]
 
     # To average top and bottom, take the mean of IM and np.flipud(IM)
-    averaged_IM = (symmetric_IM + np.flipud(symmetric_IM)) / 2.0
-
-    return averaged_IM
+    return (symmetric_IM + np.flipud(symmetric_IM)) / 2.0
