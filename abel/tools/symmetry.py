@@ -226,77 +226,24 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
 
     return c_im
 
-
-def _symmetrize_rawdata(IM, center_row, crop=False):
-    # if crop:
-    #     pad = False
-    # else:
-    #     pad = True
- 
-    # Sanity checks
-    # 1.    center_row must be int
-    # 2.    center_row must be < # rows in IM
-    # 3.    center_row must be >= 0
-   
-    IM = np.atleast_2d(IM)    
-    row, col = IM.shape
-   
-    odd_shape = True
-    if row % 2 == 0:
-        odd_shape = False
- 
-    distance_from_center = center_row - (row-1)/2
-    # distance between ''true center'' and ''shape center''
-    if odd_shape:
-        trim = distance_from_center*2
-    else:
-        if distance_from_center < 0:
-            trim = (distance_from_center + 0.5)*2
-        elif distance_from_center > 0:
-            trim = (distance_from_center - 0.5)*2
-        else:
-            raise(ValueError)
- 
-    if trim < 0:
-        symmetric_IM = IM[:trim]
-    else:
-        symmetric_IM = IM[trim:]
- 
-    averaged_IM = np.zeros_like(IM)
-    # symmetrized image must be same size as original
- 
-    # if odd_shape:
-    #     # check if real_center == shape_center
- 
-    # else:
-    #     # check if abs(real_center - shape_center) < 1
- 
-    for index in range(row):
-        averaged_IM[index] = 0.5*(IM[index] + IM[row - index - 1])
- 
-    return averaged_IM
-
-def _new_symmetrize_rawdata(IM, center_row='auto', crop=True): 
+def _symmetrize_rawdata(IM, center_row='auto', crop=True): 
     if isinstance(center_row, str):
         center_row, center_column = find_center(IM, center)
-
+    
     IM = np.atleast_2d(IM)    
     row, col = IM.shape
-    odd_shape = row % 2
+    if row == 1: # Convert row into columnar array
+        IM = IM.T 
+        row, col = IM.shape
 
-    # give proper shape to IM
+    # distance between "true center" and "shape center"
     distance_from_center = round(center_row) - (row-1)/2
     trim = distance_from_center*2
-    # distance between "true center" and "shape center"
+       
+    if trim < 0: symmetric_IM = IM[:trim]
+    else: symmetric_IM = IM[trim:]
 
-    if trim < 0: 
-        symmetric_IM = IM[:trim]
-    else:
-        symmetric_IM = IM[trim:]
-
-    # To average top and bottom of IM
-    # take the mean of IM and np.flipud(IM)
+    # To average top and bottom, take the mean of IM and np.flipud(IM)
     averaged_IM = (symmetric_IM + np.flipud(symmetric_IM)) / 2.0
-
 
     return averaged_IM
