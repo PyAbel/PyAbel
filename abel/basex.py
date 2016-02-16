@@ -14,11 +14,12 @@ import sys
 import numpy as np
 from scipy.special import gammaln
 from numpy.linalg import inv
-from scipy.ndimage import median_filter, gaussian_filter
+from scipy.ndimage import median_filter, gaussian_filter, center_of_mass
 
 from ._version import __version__
 from .tools.vmi import calculate_speeds
 from .tools.symmetry import center_image, center_image_asym
+from .tools.center import find_center
 
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
@@ -51,8 +52,8 @@ def iabel_basex(IM, dr=1.0, **kwargs):
     """
     return _abel_basex_core(IM, dr=dr, **kwargs)
 
-def _abel_basex_core(data, center='auto', n='auto', 
-        nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=True, dr=1.0, verbose=True):
+def _abel_basex_core(data, center='image_center', n='auto', 
+        nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=False, dr=1.0, verbose=True):
 
     """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
         and (optionally) calculates the radial integration of the image (calc_speeds)
@@ -65,7 +66,8 @@ def _abel_basex_core(data, center='auto', n='auto',
                 Abel inverse transform will be performed on a `n x n` area of the image
             * list in format [n_vert, n_horz] - 
                 Abel inverse transform will be performed on a `n[0] x n[1]` area of the image
-            * if n='auto', it is set to data.shape 
+            * if n='auto', it is set to data.shape
+
       - nbf: * integer - 
                 number of basis functions. If nbf='auto', it is set to (n//2 + 1).
              * list in format [nbf_vert, nbf_horz] -
@@ -74,7 +76,8 @@ def _abel_basex_core(data, center='auto', n='auto',
                     the center column of the image
                 * tuple (x,y) -
                     the center of the image in (x,y) format
-                * If center='auto', it is set to (data.shape[0]//2, data.shape[1]//2)
+                * If center='auto', it is set to (data.shape[1]//2, data.shape[0]//2)
+                * if center='com', it is set to the center of mass of data
       - basis_dir: string
             path to the directory for saving / loading the basis set coefficients.
             If None, the basis set will not be saved to disk. 
@@ -103,7 +106,9 @@ def _abel_basex_core(data, center='auto', n='auto',
         data_ndim = 2
 
     if n == 'auto': n = list(data.shape)
-    if center =='auto': center = (data.shape[0]//2, data.shape[1]//2)
+
+    if type(center) == str or type(center) == unicode:
+        center = find_center(data, method=center, verbose=verbose)
 
     # make dimension-of-rawdata into list to account for rectangular n
     # Format of n -> n = [n_vert, n_horz]

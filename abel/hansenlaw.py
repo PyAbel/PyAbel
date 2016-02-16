@@ -8,7 +8,7 @@ import numpy as np
 from time import time
 from math import exp, log, pow, pi
 from abel.tools.vmi import calculate_speeds
-from abel.tools.symmetry import  get_image_quadrants, put_image_quadrants
+from abel.tools.symmetry import get_image_quadrants, put_image_quadrants
 
 ###############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm 
@@ -106,108 +106,21 @@ _hansenlaw_transform_docstring = \
 
     """
 
-_hansenlaw_docstring = \
-    """ 
-    inverse Abel transform image
-
-    options to exploit image symmetry 
-           - select quadrants
-           - combine quadrantsto improve signal
-
-    Parameters
-    ----------
-    IM: 2D np.array
-        Image data shape (rows, cols)
-
-    dr : float 
-        radial sampling size (=1 for pixel images), used to scale result
-
-    inverse: boolean 
-        forward (False) or inverse (True) Abel transform
-
-    use_quadrants: boolean tuple (Q0,Q1,Q2,Q3)
-        select quadrants to be used in the analysis::
-
-             +--------+--------+                
-             | Q1   * | *   Q0 |
-             |   *    |    *   |                               
-             |  *     |     *  |                               AQ1 | AQ0
-             +--------o--------+ --(inverse Abel transform)--> ----o----
-             |  *     |     *  |                               AQ2 | AQ3 
-             |   *    |    *   |
-             | Q2  *  | *   Q3 |          AQi == inverse Abel transform  
-             +--------+--------+                 of quadrant Qi
- 
-       ::
-
-       (1) vertical_symmetry = True 
-       ::
- 
-           Combine:  `Q01 = Q1 + Q2, Q23 = Q2 + Q3`
-           inverse image   AQ01 | AQ01     
-                           -----o-----            
-                           AQ23 | AQ23
-       ::
-
-       (2) horizontal_symmetry = True
-       ::
-
-           Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
-           inverse image   AQ12 | AQ03       
-                           -----o-----
-                           AQ12 | AQ03
-       ::
- 
-       (3) vertical_symmetry = True, horizontal = True
-       :: 
-        
-           Combine: Q = Q0 + Q1 + Q2 + Q3
-           inverse image   AQ | AQ       
-                           ---o---  all quadrants equivalent
-                           AQ | AQ
- 
-
-    verbose: boolean
-        verbose output, timings etc.
-
-    """  
-
-
-# functions to conform to naming conventions: contributing.md ------------
-
-def fabel_hansenlaw_transform(IM, dr=1):
+def fabel_hansenlaw(IM, dr=1):
     """
     Forward Abel transform for one-quadrant
     """
-    return _abel_hansenlaw_transform_core(IM, dr=dr, inverse=False)
+    return hansenlaw_transform(IM, dr=dr, inverse=False)
 
 
-def iabel_hansenlaw_transform(IM, dr=1):
+def iabel_hansenlaw(IM, dr=1):
     """
     Inverse Abel transform for one-quadrant
     """
-    return _abel_hansenlaw_transform_core(IM, dr=dr, inverse=True)
+    return hansenlaw_transform(IM, dr=dr, inverse=True)
 
 
-def fabel_hansenlaw(IM, dr=1, **args):
-    """
-    Helper function - splits image into quadrants for processing by
-    fabel_hansenlaw_transform
-    """
-    return _abel_hansenlaw_core(IM, dr=dr, inverse=False, **args)
-
-
-def iabel_hansenlaw(IM, dr=1, **args):
-    """
-    Helper function - splits image into quadrants for processing by
-    iabel_hansenlaw_transform
-    """
-    return _abel_hansenlaw_core(IM, dr=dr, inverse=True, **args) 
-
-# ----- end naming ---------------
-
-
-def _abel_hansenlaw_transform_core(IM, dr=1, inverse=False):
+def hansenlaw_transform(IM, dr=1, inverse=False):
     """
     Hansen and Law JOSA A2 510 (1985) forward and inverse Abel transform
     for right half (or right-top quadrant) of an image.
@@ -281,79 +194,8 @@ def _abel_hansenlaw_transform_core(IM, dr=1, inverse=False):
     else:
         return -AIM*np.pi*dr   # forward still needs '-' sign
 
-    # ---- end abel_hansenlaw_transform ----
-
-
-def _abel_hansenlaw_core(IM, dr=1, inverse=True, 
-                         use_quadrants=(True, True, True, True), 
-                         vertical_symmetry=False, horizontal_symmetry=False, 
-                         verbose=False):
-    """
-    Returns the forward or the inverse Abel transform of a function
-    using the Hansen and Law algorithm
-
-    """
-
-    verboseprint = print if verbose else lambda *a, **k: None
-    
-    if IM.ndim == 1 or np.shape(IM)[0] <= 2:
-            raise ValueError('Data must be 2-dimensional.'
-                             'To transform a single row, use'
-                             'iabel_hansenlaw_transform().')
-
-    rows, cols = np.shape(IM)
-
-    if not np.any(use_quadrants):
-        verboseprint("HL: Error: no image quadrants selected to use")
-        return np.zeros((rows, cols))
-        
-    verboseprint("HL: Calculating inverse Abel transform:",
-                 " image size {:d}x{:d}".format(rows, cols))
-
-    t0 = time()
-    
-    # split image into quadrants
-    Q0, Q1, Q2, Q3 = get_image_quadrants(IM, reorient=True,
-                         vertical_symmetry=vertical_symmetry,
-                         horizontal_symmetry=horizontal_symmetry)
-
-    verboseprint("HL: Calculating inverse Abel transform ... ")
-
-    # HL inverse Abel transform for quadrant 1
-    # all possibilities include Q1
-    AQ1 = _abel_hansenlaw_transform_core(Q1, dr, inverse) 
-
-    if vertical_symmetry:
-        AQ2 = _abel_hansenlaw_transform_core(Q2, dr, inverse)
-
-    if horizontal_symmetry:
-        AQ0 = _abel_hansenlaw_transform_core(Q0, dr, inverse)
-
-    if not vertical_symmetry and not horizontal_symmetry:
-        AQ0 = _abel_hansenlaw_transform_core(Q0, dr, inverse)
-        AQ2 = _abel_hansenlaw_transform_core(Q2, dr, inverse)
-        AQ3 = _abel_hansenlaw_transform_core(Q3, dr, inverse)
-
-    # reassemble image
-    recon = put_image_quadrants((AQ0, AQ1, AQ2, AQ3), odd_size=cols % 2,
-                                vertical_symmetry=vertical_symmetry,
-                                horizontal_symmetry=horizontal_symmetry)
-
-    verboseprint("{:.2f} seconds".format(time()-t0))
-
-    return recon
-
 
 # append the same docstring to all functions - borrowed from @rth
-iabel_hansenlaw_transform.__doc__ += _hansenlaw_header_docstring +\
-                                     _hansenlaw_transform_docstring
-fabel_hansenlaw_transform.__doc__ += _hansenlaw_header_docstring +\
-                                     _hansenlaw_transform_docstring
-iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_docstring
-fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring +\
-                           _hansenlaw_docstring.replace('AQ', 'fQ')\
-                           .replace('(inverse', '(forward')\
-                           .replace('== inverse', '== forward')\
-                           .replace('inverse image', 'forward image')
-#_abel_hansenlaw_transform_core.__doc__ += _hansenlaw_header_docstring +\
-#                                          _hansenlaw_transform_docstring
+iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
+fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
+hansenlaw_transform.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring

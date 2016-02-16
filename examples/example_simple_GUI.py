@@ -8,7 +8,7 @@
 import numpy as np
 
 from abel.hansenlaw import iabel_hansenlaw
-from abel.basex import BASEX
+import abel.basex
 from abel.onion import iabel_onion_peeling
 from abel.direct import iabel_direct
 from abel.three_point import iabel_three_point
@@ -40,7 +40,7 @@ from matplotlib.pyplot import imread
 def basex_wrapper(IM):
     rows, cols = IM.shape
     center = (rows//2 + rows % 2, cols//2 + cols % 2)
-    return BASEX(IM, center=center, n=rows) 
+    return abel.basex.basex_iabel(IM, center=center, n=rows) 
 
 
 def three_point_wrapper(IM):

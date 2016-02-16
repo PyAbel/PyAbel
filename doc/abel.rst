@@ -53,22 +53,6 @@ abel.hansenlaw module
     :undoc-members:
     :show-inheritance:
 
-abel.io module
---------------
-
-.. automodule:: abel.io
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-abel.math module
-----------------
-
-.. automodule:: abel.math
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 abel.three_point module
 -----------------------
 
@@ -77,11 +61,37 @@ abel.three_point module
     :undoc-members:
     :show-inheritance:
 
-abel.tools module
+abel.tools.io module
 -----------------
 
-.. automodule:: abel.tools
+.. automodule:: abel.tools.io
     :members:
+    :undoc-members:
+    :show-inheritance:
+	
+abel.tools.math module
+-----------------
+
+.. automodule:: abel.tools.math
+    :members:
+    :undoc-members:
+    :show-inheritance:
+	
+abel.transform module
+-----------------
+
+.. automodule:: abel.transform
+    :members:
+    :special-members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.transform.AbelTransform class
+-----------------
+
+.. autoclass:: abel.transform.AbelTransform
+    :members:
+    :special-members:
     :undoc-members:
     :show-inheritance:
 
