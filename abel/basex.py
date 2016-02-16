@@ -126,46 +126,46 @@ def _abel_basex_core(data, center='image_center', n='auto',
     # make sure n_horz is odd
     n[1] = 2 * (n[1] // 2) + 1 
 
-        image = center_image_asym(data, center_column = cx, n_vert = n[0], n_horz = n[1], verbose = verbose)
+    image = center_image_asym(data, center_column = cx, n_vert = n[0], n_horz = n[1], verbose = verbose)
 
-        if verbose:
-            t1 = time()
+    if verbose:
+        t1 = time()
 
     M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right = get_bs_basex_cached(n_vert = n[0], n_horz = n[1], nbf = nbf, basis_dir = basis_dir, verbose = verbose)
 
-        if verbose:
-            print('{:.2f} seconds'.format((time() - t1)))
+    if verbose:
+        print('{:.2f} seconds'.format((time() - t1)))
 
-        #Do the actual transform
-        if verbose:
-            print('Reconstructing image...         ')
-            t1 = time()
+    #Do the actual transform
+    if verbose:
+        print('Reconstructing image...         ')
+        t1 = time()
 
     recon = basex_transform(image, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr)
 
-        if verbose:
-            print('%.2f seconds' % (time() - t1))
+    if verbose:
+        print('%.2f seconds' % (time() - t1))
 
     if data_ndim == 1: # taking the middle row, since the rest are zeroes
         recon = recon[recon.shape[0] - recon.shape[0]//2 - 1] 
 
-        # -------------------------------------------------
-        # asymmetric speeds calculation not implemented yet
-        # -------------------------------------------------
-        # if calc_speeds:
-        #     if verbose:
-        #         print('Generating speed distribution...')
-        #         t1 = time()
+    # -------------------------------------------------
+    # asymmetric speeds calculation not implemented yet
+    # -------------------------------------------------
+    # if calc_speeds:
+    #     if verbose:
+    #         print('Generating speed distribution...')
+    #         t1 = time()
 
-        #     speeds = calculate_speeds(recon, n)
+    #     speeds = calculate_speeds(recon, n)
 
-        #     if verbose:
-        #         print('%.2f seconds' % (time() - t1))
-        #     return recon, speeds
-        # else:
-        #     return recon
+    #     if verbose:
+    #         print('%.2f seconds' % (time() - t1))
+    #     return recon, speeds
+    # else:
+    #     return recon
 
-        return recon
+    return recon
 
 def basex_transform(rawdata, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr=1.0):
     """ This is the internal function that does the actual BASEX transform for the no-up/down-symmetry case.
