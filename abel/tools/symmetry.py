@@ -277,9 +277,9 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
 
     return c_im
 
-def _updown_symmetrize_rawdata(IM, center_row='auto', crop=True): 
-    if isinstance(center_row, str):
-        center_row, center_column = find_center(IM, center)
+def _updown_symmetrize_rawdata(IM, center_row='auto', **kwargs): 
+    if type(center) == str or type(center) == unicode:
+        center_row, center_column = find_center(IM, method=center, verbose=verbose)
     
     IM = np.atleast_2d(IM)    
     row, col = IM.shape
