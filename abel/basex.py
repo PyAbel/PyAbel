@@ -75,7 +75,7 @@ def _abel_basex_core(data, center='image_center', n='auto',
                     the center column of the image
                 * tuple (x,y) -
                     the center of the image in (x,y) format
-                * If center='auto', it is set to (data.shape[1]//2, data.shape[0]//2)
+                * If center='image_center', it is set to (data.shape[1]//2, data.shape[0]//2)
                 * if center='com', it is set to the center of mass of data
       - basis_dir: string
             path to the directory for saving / loading the basis set coefficients.
