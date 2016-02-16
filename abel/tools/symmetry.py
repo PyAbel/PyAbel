@@ -277,7 +277,7 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
 
     return c_im
 
-def updown_symmetry_rawdata(IM, center_row='auto', **kwargs): 
+def updown_symmetry_rawdata(IM, center_row='image_center', **kwargs): 
     if type(center_row) == str or type(center_row) == unicode:
         center_row, center_column = find_center(IM, method=center_row, verbose=verbose)
     
