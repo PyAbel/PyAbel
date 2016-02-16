@@ -18,7 +18,7 @@ from scipy.ndimage import median_filter, gaussian_filter, center_of_mass
 
 from ._version import __version__
 from .tools.vmi import calculate_speeds
-from .tools.symmetry import center_image, center_image_asym
+from .tools.symmetry import center_image_asym, updown_symmetry_rawdata
 from .tools.center import find_center
 
 #############################################################################
@@ -54,7 +54,6 @@ def iabel_basex(IM, dr=1.0, **kwargs):
 
 def _abel_basex_core(data, center='image_center', n='auto', 
         nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=False, dr=1.0, verbose=True):
-
     """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
         and (optionally) calculates the radial integration of the image (calc_speeds)
 
@@ -142,13 +141,13 @@ def _abel_basex_core(data, center='image_center', n='auto',
             print('Reconstructing image...         ')
             t1 = time()
 
-        recon = basex_transform_asym(image, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr)
+    recon = basex_transform(image, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr)
 
         if verbose:
             print('%.2f seconds' % (time() - t1))
 
-        if data_ndim == 1:
-            recon = recon[recon.shape[0] - recon.shape[0]//2 - 1] # taking the middle row, since the rest are zeroes
+    if data_ndim == 1: # taking the middle row, since the rest are zeroes
+        recon = recon[recon.shape[0] - recon.shape[0]//2 - 1] 
 
         # -------------------------------------------------
         # asymmetric speeds calculation not implemented yet
@@ -254,10 +253,10 @@ def get_bs_basex_cached(n_vert, n_horz, nbf='auto', basis_dir='.', verbose=False
     """
 
     # Sanitize nbf
-    nbf = _nbf_default_asym(n_vert, n_horz, nbf)
+    nbf = _nbf_default(n_vert, n_horz, nbf)
     nbf_vert, nbf_horz = nbf[0], nbf[1]
 
-    basis_name = "basex_asymm_basis_{}_{}_{}_{}.npy".format(n_vert, n_horz, nbf_vert, nbf_horz)
+    basis_name = "basex_basis_{}_{}_{}_{}.npy".format(n_vert, n_horz, nbf_vert, nbf_horz)
 
     M_horz = None
     if basis_dir is not None:
@@ -281,8 +280,8 @@ def get_bs_basex_cached(n_vert, n_horz, nbf='auto', basis_dir='.', verbose=False
             else:
                 print(' ')
 
-        M_vert, M_horz, Mc_vert, Mc_horz  = _bs_basex_asym(n_vert, n_horz, nbf_vert, nbf_horz, verbose=verbose)
-        vert_left, horz_right = _get_left_right_matrices_asym(M_vert, M_horz, Mc_vert, Mc_horz)
+        M_vert, M_horz, Mc_vert, Mc_horz  = _bs_basex(n_vert, n_horz, nbf_vert, nbf_horz, verbose=verbose)
+        vert_left, horz_right = _get_left_right_matrices(M_vert, M_horz, Mc_vert, Mc_horz)
 
         if basis_dir is not None:
             np.save(path_to_basis_file,
