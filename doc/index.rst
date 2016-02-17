@@ -17,6 +17,8 @@ Contents:
    example_hansenlaw
    example_O2_PES_PAD
    example_hansenlaw_Xe
+   example_basex_gaussian
+   example_basex_photoelectron
    
 
 

@@ -11,7 +11,7 @@ from abel.hansenlaw import iabel_hansenlaw, fabel_hansenlaw
 
 from abel.tools.analytical import sample_image_dribinski
 from abel.tools.symmetry import get_image_quadrants
-from abel.tools.vmi import calculate_speeds
+from abel.tools.vmi import angular_integration
 
 from abel.tools.analytical import GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
@@ -135,9 +135,9 @@ def test_hansenlaw_with_dribinski_image():
     ifQ0 = iabel_hansenlaw(fQ0)
     
     # speed distribution
-    orig_speed, orig_radial = calculate_speeds(Q0, origin=(0,0), Jacobian=True)
+    orig_speed, orig_radial = angular_integration(Q0, origin=(0,0), Jacobian=True)
 
-    speed, radial_coords = calculate_speeds(ifQ0, origin=(0,0), Jacobian=True)
+    speed, radial_coords = angular_integration(ifQ0, origin=(0,0), Jacobian=True)
 
     orig_speed /= orig_speed[50:125].max()
     speed /= speed[50:125].max()

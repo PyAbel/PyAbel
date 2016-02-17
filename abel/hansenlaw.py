@@ -7,8 +7,6 @@ from __future__ import unicode_literals
 import numpy as np
 from time import time
 from math import exp, log, pow, pi
-from abel.tools.vmi import calculate_speeds
-from abel.tools.symmetry import get_image_quadrants, put_image_quadrants
 
 ###############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm 

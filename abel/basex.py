@@ -17,9 +17,6 @@ from numpy.linalg import inv
 from scipy.ndimage import median_filter, gaussian_filter, center_of_mass
 
 from ._version import __version__
-from .tools.vmi import calculate_speeds
-from .tools.symmetry import center_image_asym, updown_symmetry_rawdata
-from .tools.center import find_center
 
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
@@ -28,6 +25,9 @@ from .tools.center import find_center
 # V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, and H. Reisler,
 # Review of Scientific Instruments 73, 2634 (2002).
 #
+# Version 0.7 - 2016-02-17
+#   Major reformatting - removed up/down symmetic version and 
+#   made basex work with only one quadrant.
 # Version 0.6 - 2015-12-01
 #   Another major code reformatting
 # Version 0.5 - 2015-11-16
@@ -44,144 +44,72 @@ from .tools.center import find_center
 #
 #############################################################################
 
-# functions to conform to naming conventions: contributing.md ----------
-
-def iabel_basex(IM, dr=1.0, **kwargs):
-    """
-    Inverse Abel transform for top-left quadrant
-    """
-    IM = np.atleast_2d(IM)
-    h, w = IM.shape
-    full_image = np.hstack((np.fliplr(IM), IM[:,1:]))
-    full_recon = _abel_basex_core(full_image, center=w-1, dr=dr, **kwargs)
-    if h == 1: return full_recon[w-1:]
-    else: return full_recon[:,w-1:]
-
-def _abel_basex_core(data, center='image_center', n='auto', 
-        nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=False, dr=1.0, verbose=True):
+def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True):
     """ This function that centers the image, performs the BASEX transform (loads or generates basis sets), 
         and (optionally) calculates the radial integration of the image (calc_speeds)
 
-    Parameters:
-    -----------
-      - data:  a NxM numpy array
-            If data is smaller than the size of the basis set, zeros will be padded on the edges.
-      - n:  * odd integer -
-                Abel inverse transform will be performed on a `n x n` area of the image
-            * list in format [n_vert, n_horz] - 
-                Abel inverse transform will be performed on a `n[0] x n[1]` area of the image
-            * if n='auto', it is set to data.shape
 
-      - nbf: * integer - 
-                number of basis functions. If nbf='auto', it is set to (n//2 + 1).
-             * list in format [nbf_vert, nbf_horz] -
-             * If nbf='auto', it is set to [n_vert, n_horz//2 + 1]
-      - center: * integer - 
-                    the center column of the image
-                * tuple (x,y) -
-                    the center of the image in (x,y) format
-                * If center='image_center', it is set to (data.shape[1]//2, data.shape[0]//2)
-                * if center='com', it is set to the center of mass of data
-      - basis_dir: string
-            path to the directory for saving / loading the basis set coefficients.
-            If None, the basis set will not be saved to disk. 
-      - dr: float
-            size of one pixel in the radial direction
-      - calc_speeds: True/False
-            determines if the speed distribution should be calculated
-      - vertical_symmetry: True/False
-            determines if the data has up/down symmetry 
-      - verbose: True/False
-            Set to True to see more output for debugging
-
-    Returns:
-       if calc_speeds=False: the processed image
-       if calc_speeds=True:  the processes images, arrays with the calculated speeds
+    Parameters
+    --------
+    data : a NxM numpy array
+        If data is smaller than the size of the basis set, zeros will be padded on the edges.
+    nbf : str or list
+        number of basis functions. If nbf='auto', it is set to (n//2 + 1).
+        This is what you should use, since basex does not work reliable in other situations
+        In the future, you could use
+        list, in format [nbf_vert, nbf_horz]
+    basis_dir : str
+        path to the directory for saving / loading the basis set coefficients.
+        If None, the basis set will not be saved to disk. 
+    dr : float
+        size of one pixel in the radial direction
+    verbose : boolean
+        Determins if statements should be printed.
+            
+            
+    Returns
+    --------
+       recon : NxN numpy array
+            the transformed image
 
     """
-
     # make sure that the data is the right shape (1D must be converted to 2D)
     data = np.atleast_2d(data)
+    h, w = data.shape
+    
+
     if data.shape[0] == 1: data_ndim = 1
     elif data.shape[1] == 1:
         raise ValueError('Wrong input shape for data {0}, should be  (N1, N2) or (1, N), not (N, 1)'.format(data.shape))
     else: data_ndim = 2
 
-    # If center is any of the special options ('image_center', 'com', etc.)
-    if type(center) == str or type(center) == unicode:
-        center = find_center(data, method=center, verbose=verbose)
+    full_image = np.hstack((np.fliplr(data), data[:,1:]))
+    n = full_image.shape
 
-    if type(center) == tuple: cx, cy = center
-    elif type(center) == int or type(center) == long: 
-        cx, cy = center, "image_center"
-    else: raise ValueError("Center specified incorrectly. Must be tuple (x,y) or integer (column)")
-
-    if vertical_symmetry: # Average top and bottom halves of rawdata
-        data = updown_symmetry_rawdata(data, center_row = cy)
-
-    # make dimension-of-rawdata into list to account for rectangular n
-    # Format of n -> n = [n_vert, n_horz]
-    if n == 'auto': n = list(data.shape)
-    if type(n) is not list: 
-        if type(n) is int: n = [ n ] 
-        else: n = list(n)
-
-    # duplicate elements of n if n is single-valued (rawdata is square)
-    if len(n) < 2: n = n*2
-
-    # make sure n_horz is odd
-    n[1] = 2 * (n[1] // 2) + 1 
-
-    image = center_image_asym(data, center_column = cx, n_vert = n[0], n_horz = n[1], verbose = verbose)
-
-    if verbose:
-        t1 = time()
-
+    # load the basis sets:
     M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right = get_bs_basex_cached(n_vert = n[0], n_horz = n[1], nbf = nbf, basis_dir = basis_dir, verbose = verbose)
-
-    if verbose:
-        print('{:.2f} seconds'.format((time() - t1)))
-
-    #Do the actual transform
-    if verbose:
-        print('Reconstructing image...         ')
-        t1 = time()
-
-    recon = basex_transform(image, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr)
-
-    if verbose:
-        print('%.2f seconds' % (time() - t1))
+    
+    #Do the actual transform:
+    recon = basex_transform(full_image, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr)
 
     if data_ndim == 1: # taking the middle row, since the rest are zeroes
         recon = recon[recon.shape[0] - recon.shape[0]//2 - 1] 
-
-    # -------------------------------------------------
-    # asymmetric speeds calculation not implemented yet
-    # -------------------------------------------------
-    # if calc_speeds:
-    #     if verbose:
-    #         print('Generating speed distribution...')
-    #         t1 = time()
-
-    #     speeds = calculate_speeds(recon, n)
-
-    #     if verbose:
-    #         print('%.2f seconds' % (time() - t1))
-    #     return recon, speeds
-    # else:
-    #     return recon
-
-    return recon
+    
+    if h == 1: 
+        return recon[w-1:]
+    else: 
+        return recon[:,w-1:]
 
 def basex_transform(rawdata, M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right, dr=1.0):
     """ This is the internal function that does the actual BASEX transform for the no-up/down-symmetry case.
      Parameters
      ----------
-      - rawdata: 
-            a N_vert x N_horz numpy array of the raw image.
-      - M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right: 
-            2D arrays given by the basis set calculation function
-      - dr: float: pixel size
+      rawdata : NxM numpy array 
+          the raw image.
+      M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right : 
+          2D arrays given by the basis set calculation function
+      dr : float
+          pixel size. This only affects the absolute scaling of the output.
 
      Returns
      -------
@@ -342,7 +270,7 @@ def _bs_basex(n_vert=1001, n_horz = 501,
     gammaln_0o5 = gammaln(0.5) 
 
     if verbose:
-        print('Generating horizontal BASEX basis sets for n_horz = {}, nbf_horz = {}:\n'.format(n_horz, nbf_horz))
+        print('Generating horizontal BASEX basis sets for n_horz = {}, nbf_vert = {}:\n'.format(n_horz, nbf_vert))
         sys.stdout.write('0')
         sys.stdout.flush()
 
