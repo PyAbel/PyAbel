@@ -11,7 +11,7 @@ import warnings
 
 def transform(IM, direction='inverse', method='three_point', center='none', verbose=True,
               vertical_symmetry=True, horizontal_symmetry=True, use_quadrants=(True,True,True,True),
-              transform_options=(), center_options=()):
+              transform_options={}, center_options={}):
     """transform - the go-to function for all of your Abel transform needs!!
 
     This performs the forward or reverse Abel transform using a user-selected method.
@@ -242,9 +242,9 @@ def main():
     axs[0,1].imshow(IM1)
     axs[0,2].imshow(IM2)
     
-    axs[1,0].plot(*abel.tools.vmi.angular_integration(IM0)[::-1])
-    axs[1,1].plot(*abel.tools.vmi.angular_integration(IM1)[::-1])
-    axs[1,2].plot(*abel.tools.vmi.angular_integration(IM2)[::-1])
+    axs[1,0].plot(*abel.tools.vmi.angular_integration(IM0))
+    axs[1,1].plot(*abel.tools.vmi.angular_integration(IM1))
+    axs[1,2].plot(*abel.tools.vmi.angular_integration(IM2))
     
     plt.show()
     
