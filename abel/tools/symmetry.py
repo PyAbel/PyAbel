@@ -276,3 +276,23 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
         raise ValueError('Input data dimensions incompatible with chosen basis set.')
 
     return c_im
+
+def updown_symmetry_rawdata(IM, center_row='image_center', **kwargs): 
+    if type(center_row) == str or type(center_row) == unicode:
+        center_row, center_column = find_center(IM, method=center_row, verbose=verbose)
+    
+    IM = np.atleast_2d(IM)    
+    row, col = IM.shape
+    if row == 1: # Convert row into columnar array
+        IM = IM.T 
+        row, col = IM.shape
+
+    # distance between "true center" and "shape center"
+    distance_from_center = round(center_row) - (row-1)/2
+    trim = distance_from_center*2
+       
+    if trim < 0: symmetric_IM = IM[:trim]
+    else: symmetric_IM = IM[trim:]
+
+    # To average top and bottom, take the mean of IM and np.flipud(IM)
+    return (symmetric_IM + np.flipud(symmetric_IM)) / 2.0
