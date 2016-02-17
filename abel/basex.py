@@ -150,7 +150,7 @@ def _nbf_default(n_vert, n_horz, nbf):
         # nbf_vert = n_vert (if relevant)
         # nbf_horz = n_horz//2 + 1
         nbf = [n_vert, n_horz//2 + 1]
-    elif type(nbf) == int:
+    elif isinstance(nbf, (int, long)):
         if nbf != n_horz//2 +1:
             print('Warning: the number of basis functions nbf = {} != (n//2 + 1)  = {}\n'.format(nbf, n_horz//2 +1),
                     '    This behaviour is currently not tested and should not be used\
