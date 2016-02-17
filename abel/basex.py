@@ -48,9 +48,14 @@ from .tools.center import find_center
 
 def iabel_basex(IM, dr=1.0, **kwargs):
     """
-    Inverse Abel transform for one-quadrant
+    Inverse Abel transform for top-left quadrant
     """
-    return _abel_basex_core(IM, dr=dr, **kwargs)
+    IM = np.atleast_2d(IM)
+    h, w = IM.shape
+    full_image = np.hstack((np.fliplr(IM), IM[:,1:]))
+    full_recon = _abel_basex_core(full_image, center=w-1, dr=dr, **kwargs)
+    if h == 1: return full_recon[w-1:]
+    else: return full_recon[:,w-1:]
 
 def _abel_basex_core(data, center='image_center', n='auto', 
         nbf='auto',  basis_dir='./', calc_speeds=False, vertical_symmetry=False, dr=1.0, verbose=True):
@@ -107,7 +112,8 @@ def _abel_basex_core(data, center='image_center', n='auto',
         center = find_center(data, method=center, verbose=verbose)
 
     if type(center) == tuple: cx, cy = center
-    elif type(center) == int: cx, cy = center, "image_center"
+    elif type(center) == int or type(center) == long: 
+        cx, cy = center, "image_center"
     else: raise ValueError("Center specified incorrectly. Must be tuple (x,y) or integer (column)")
 
     if vertical_symmetry: # Average top and bottom halves of rawdata
