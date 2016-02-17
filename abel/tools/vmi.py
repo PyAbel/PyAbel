@@ -59,7 +59,7 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     speeds = np.sum(polarIM, axis=1)
     n = speeds.shape[0]   
 
-    return speeds, r[:n]   # limit radial coordinates range to match speed
+    return r[:n], speeds   # limit radial coordinates range to match speed
 
 
 def calculate_angular_distributions(IM, radial_ranges=None):

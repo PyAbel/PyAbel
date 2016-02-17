@@ -4,7 +4,8 @@ from .math import fit_gaussian
 import warnings
 import scipy.ndimage
 
-def center_image(data, center = 'com', verbose=False):
+def center_image(data, center='com', verbose=False):
+    # center is in y,x (row column) format!
     if isinstance(center, str) or isinstance(center, unicode):
         center = find_center(data, center, verbose=verbose)
     
@@ -41,7 +42,7 @@ def find_center(data, method='image_center', verbose=True, **kwargs):
 
 def find_center_by_center_of_mass(data, verbose=True, round_output=False, **kwargs):
     com = center_of_mass(data)
-    center = com[1], com[0]
+    center = com[0], com[1]
     
     if verbose:
         to_print = "Center of mass at ({0}, {1})".format(center[0], center[1])
@@ -66,7 +67,7 @@ def find_center_by_gaussian_fit(data, verbose=True, round_output=True, **kwargs)
     y = np.sum(data, axis=1)
     xc = fit_gaussian(x)[1]
     yc = fit_gaussian(y)[1]
-    center = (xc, yc)
+    center = (yc, xc)
     
     if verbose:
         to_print = "Gaussian center at ({0}, {1})".format(center[0], center[1])

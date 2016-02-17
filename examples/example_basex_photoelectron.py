@@ -7,13 +7,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os.path
-
 import numpy as np
 import matplotlib.pyplot as plt
-
-from abel.basex import BASEX
-from abel.tools.io import load_raw
-import scipy.misc
+import abel
 
 # This example demonstrates a BASEX transform of an image obtained using a 
 # velocity map imaging (VMI) photoelecton spectrometer to record the 
@@ -38,30 +34,22 @@ output_plot  = filename[:-4] + '_comparison.pdf'
 
 # Step 1: Load an image file as a numpy array
 print('Loading ' + filename)
-raw_data = plt.imread(filename)
+raw_data = plt.imread(filename).astype('float64')
 
-# Step 2: Specify the center in x,y (horiz,vert) format
-center = (340,245)
+# Step 2: Specify the center in y,x (vert,horiz) format
+center = (245,340)
+# or, use automatic centering
+# center = 'com'
+# center = 'gaussian'
 
 # Step 3: perform the BASEX transform!
 print('Performing the inverse Abel transform:')
 
-recon, speeds = BASEX(raw_data, center, n=501, basis_dir='./',
-                      verbose=True, calc_speeds=True)
-
-# # save the transform in 16-bits (recommended, but requires pyPNG)
-# save16bitPNG('Xenon_800_transformed.png',recon)
-
-# save the transform in 8-bit format:
-scipy.misc.imsave(output_image,recon)
-
-# save the speed distribution
-#with open(output_text,'w') as outfile:
-#    outfile.write('Pixel\tIntensity\n')
-#    for pixel,intensity in enumerate(speeds):
-#        outfile.write('%i\t%f\n'%(pixel,intensity))
-
-## Finally, plot the original image, the BASEX transform, and the radial distribution
+recon = abel.transform(raw_data, direction='inverse', method='basex',
+                       center=center, transform_options={'basis_dir':'./'},
+                       verbose=True)['transform']
+                      
+speeds = abel.tools.vmi.angular_integration(recon)
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))
@@ -76,24 +64,21 @@ ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
 
 # Plot the 2D transform
-im2 = ax2.imshow(recon,origin='lower',aspect='auto')
+im2 = ax2.imshow(recon,origin='lower',aspect='auto',clim=(0,2000))
 fig.colorbar(im2,ax=ax2,fraction=.1,shrink=0.9,pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
 
 # Plot the 1D speed distribution
-ax3.plot(speeds)
+
+ax3.plot(*speeds)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Yield (log)')
 ax3.set_yscale('log')
+ax3.set_ylim(1e6,1e10)
 
 # Prettify the plot a little bit:
 plt.subplots_adjust(left=0.06,bottom=0.17,right=0.95,top=0.89,wspace=0.35,hspace=0.37)
 
-# Save a image of the plot
-plt.savefig(output_plot,dpi=150)
-
 # Show the plots
 plt.show()
-
-# Hey, that was fun!

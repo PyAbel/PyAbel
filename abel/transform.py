@@ -163,14 +163,9 @@ def transform(IM, direction='inverse', method='three_point', center='none', verb
         if rows%2 != 1: 
             raise ValueError('Image must have an odd number of columns. Use a centering method.')
         
-    elif center == 'com' or center == 'image_center':
-        # automatic centering
-        IM = abel.center_image(IM,center)
-        
     else:
-        # manual centering
-        raise ValueError('Manual centering not currently supported.')
-        # set center to y,x value
+        IM = abel.center_image(IM,center)
+
     #########################
     
      
@@ -187,21 +182,21 @@ def transform(IM, direction='inverse', method='three_point', center='none', verb
     def selected_transform(Z):
         if method == 'hansenlaw':
             if direction == 'forward':
-                return abel.hansenlaw.fabel_hansenlaw(Z, *transform_options)
+                return abel.hansenlaw.fabel_hansenlaw(Z, **transform_options)
             elif direction == 'inverse':
-                return abel.hansenlaw.iabel_hansenlaw(Z, *transform_options)
+                return abel.hansenlaw.iabel_hansenlaw(Z, **transform_options)
         
         elif method == 'three_point':
             if direction == 'forward':
                 raise ValueError('Forward three-point not implemented')
             elif direction == 'inverse':
-                return abel.three_point.iabel_three_point_transform(Z, *transform_options)
+                return abel.three_point.iabel_three_point_transform(Z, **transform_options)
         
         elif method == 'basex':
             if direction == 'forward':
                 raise ValueError('Forward basex not implemented')
             elif direction == 'inverse':
-                return abel.basex.iabel_basex(Z, *transform_options)
+                return abel.basex.iabel_basex(Z, **transform_options)
         
         elif method == 'direct':
             if direction == 'forward':

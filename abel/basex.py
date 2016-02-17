@@ -272,7 +272,7 @@ def _bs_basex(n_vert=1001, n_horz = 501,
     gammaln_0o5 = gammaln(0.5) 
 
     if verbose:
-        print('Generating horizontal BASEX basis sets for n_horz = {}, nbf_horz = {}:\n'.format(n_horz, nbf_horz))
+        print('Generating horizontal BASEX basis sets for n_horz = {}, nbf_vert = {}:\n'.format(n_horz, nbf_vert))
         sys.stdout.write('0')
         sys.stdout.flush()
 
