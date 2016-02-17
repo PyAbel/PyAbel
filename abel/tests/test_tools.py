@@ -7,7 +7,7 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
-from abel.tools.vmi import calculate_speeds
+from abel.tools.vmi import angular_integration
 from abel.tools.symmetry import  center_image
 from abel.benchmark import is_symmetric
 
@@ -20,14 +20,14 @@ def assert_allclose_msg(x, y, message, rtol=1e-5):
 
 
 def test_speeds():
-    # This very superficial test checks that calculate_speeds is able to
+    # This very superficial test checks that angular_integration is able to
     # execute (no syntax errors)
 
     n = 101
 
     IM = np.random.randn(n, n)
 
-    calculate_speeds(IM)
+    angular_integration(IM)
 
 
 def test_centering_function_shape():
@@ -72,4 +72,4 @@ def test_speeds_non_integer_center():
     # ensures that the rest speeds function can work with a non-integer center
     n  = 101
     IM = np.random.randn(n, n)
-    calculate_speeds(IM, origin=(50.5, 50.5))
+    angular_integration(IM, origin=(50.5, 50.5))

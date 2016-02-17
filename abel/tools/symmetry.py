@@ -174,7 +174,9 @@ def put_image_quadrants (Q, odd_size=True, vertical_symmetry=False,
 
 
 def center_image(data, center, n, ndim=2):
-    """ This centers the image at the given center and makes it of size n by n"""
+    """ This centers the image at the given center and makes it of size n by n
+        THIS FUNCTION IS DEPRECIATED. All centering functions should be moves to abel.tools.center"""
+
     
     Nh,Nw = data.shape
     n_2 = n//2
@@ -210,7 +212,8 @@ def center_image(data, center, n, ndim=2):
 
 
 def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
-    """ This centers a (rectangular) image at the given center_column and makes it of size n_vert by n_horz"""
+    """ This centers a (rectangular) image at the given center_column and makes it of size n_vert by n_horz
+    THIS FUNCTION IS DEPRECIATED. All centering functions should be moves to abel.tools.center"""
 
     if data.ndim > 2:
         raise ValueError("Array to be centered must be 1- or 2-dimensional")
@@ -277,7 +280,9 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
 
     return c_im
 
-def updown_symmetry_rawdata(IM, center_row='image_center', **kwargs): 
+def updown_symmetry_rawdata(IM, center_row='image_center', **kwargs):
+    """
+    This function is probably not necessary. This should be taken care of by the quadrant function."""
     if type(center_row) == str or type(center_row) == unicode:
         center_row, center_column = find_center(IM, method=center_row, verbose=verbose)
     
