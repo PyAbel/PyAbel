@@ -7,8 +7,7 @@ from __future__ import unicode_literals
 import numpy as np
 import abel
 
-import scipy.misc
-import matplotlib.pyplot as plt
+import matplotlib.pylab as plt
 from scipy.ndimage.interpolation import shift
 
 # This example demonstrates Hansen and Law inverse Abel transform
@@ -25,18 +24,14 @@ filename = 'data/O2-ANU1024.txt.bz2'
 # Load image as a numpy array
 print('Loading ' + filename)
 IM = np.loadtxt(filename)   
-# use plt.imread(filename) to load image formats (.png, .jpg, etc)
+# use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
 
 rows, cols = IM.shape    # image size
 
 # Image center should be mid-pixel, i.e. odd number of colums
 if cols % 2 != 1: 
     print ("HL: even pixel width image, re-adjusting image centre")
-    # re-center image based on horizontal and vertical slice profiles
-    # covering the radial range [300:400] pixels from the center
-    # IM = find_image_center_by_slice(IM, radial_range=(300, 400))[0]
-    IM = shift(IM, (-1/2, 1/2))
-    IM = IM[:-1, :-1]
+    IM = shift(IM, (-1/2, -1/2))[:-1, :-1]
     rows, cols = IM.shape   # new image size
 
 r2 = rows//2   # half-height image size
@@ -46,12 +41,13 @@ print ('image size {:d}x{:d}'.format(rows, cols))
 # Hansen & Law inverse Abel transform
 print('Performing Hansen and Law inverse Abel transform:')
 
-AIM = abel.hansenlaw.iabel_hansenlaw(IM) 
+AIM = abel.transform(IM, method="hansenlaw", direction="inverse",
+                    vertical_symmetry=False, horizontal_symmetry=False)['transform']
 
 # PES - photoelectron speed distribution  -------------
 print('Calculating speed distribution:')
 
-speed, r = abel.tools.vmi.calculate_speeds(AIM)
+r, speed  = abel.tools.vmi.angular_integration(AIM)
 
 # normalize to max intensity peak
 speed /= speed[200:].max()  # exclude transform noise near centerline of image
@@ -97,11 +93,11 @@ beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity)
 
 # Prettify the plot a little bit:
 # Plot the raw data
-im1 = ax1.imshow(JIM, aspect='auto', vmin=0, vmax=vmax)
+im1 = ax1.imshow(JIM, origin='lower', aspect='auto', vmin=0, vmax=vmax)
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('velocity-map image | inverse Abel        ')
+ax1.set_title('velocity map image| inverse Abel             ')
 
 # Plot the 1D speed distribution
 ax2.plot(speed)

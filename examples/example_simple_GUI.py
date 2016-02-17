@@ -9,6 +9,8 @@ import numpy as np
 
 import abel
 
+from scipy.ndimage.interpolation import shift
+
 import sys
 if sys.version_info[0] < 3:
     import Tkinter as tk
@@ -24,40 +26,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread
 
-# wrapper functions ------------------
-#    will be removed once method calls are standardized
-
-
-def basex_wrapper(IM):
-    rows, cols = IM.shape
-    center = (rows//2 + rows % 2, cols//2 + cols % 2)
-    return abel.basex.basex_iabel(IM, center=center, n=rows) 
-
-
-def three_point_wrapper(IM):
-    rows, cols = IM.shape
-    center = (rows//2 + rows % 2, cols//2 + cols % 2)
-    return abel.three_point.iabel_three_point(IM, center=center) 
-
-
-def onion_peeling_wrapper(IM):
-    # requires even size image
-    if IM.shape[1] % 2 == 0: return IM
-
-    IMo = IM[1:,:-1]   # trim top row, right column
-    # recenter
-    IMoc, offset = find_image_center_by_slice(IMo)
-    cols, rows = IMoc.shape
-    c2 = cols//2 + cols % 2
-    AIMleft = abel.onion.iabel_onion_peeling(IMoc[:, :c2])
-    return np.concatenate((AIMleft, AIMleft[:, ::-1]), axis=1)
-    
-
-Abel_methods = {'basex':basex_wrapper, 
-                'direct':abel.direct.iabel_direct,
-                'hansenlaw':abel.hansenlaw.iabel_hansenlaw, 
-                'onion-peeling':onion_peeling_wrapper, 
-                'three_point':three_point_wrapper}
+Abel_methods = ['basex', 'direct', 'hansenlaw', #'onion-peeling'
+                'three_point']
 
 # GUI window -------------------
 
@@ -99,6 +69,10 @@ def _getfilename():
     else:
         IM = imread(fn)
 
+    if IM.shape[0] % 2 == 0:
+        text.insert(tk.END, "make image odd size")
+        IM = shift(IM, (-0.5, -0.5))[:-1,:-1]
+
     # show the image
     _display()
 
@@ -122,21 +96,21 @@ def _center():
 def _transform():
     global IM, AIM, canvas, transform, text
 
-    funct = transform.get()
-    method = Abel_methods[funct]
+    method = transform.get()
 
     text.delete(1.0, tk.END)
-    text.insert(tk.END,"inverse Abel transform: {:s}\n".format(funct))
-    if "basex" in funct:
+    text.insert(tk.END,"inverse Abel transform: {:s}\n".format(method))
+    if "basex" in method:
         text.insert(tk.END,"  first time calculation of the basis functions may take a while ...\n")
-    if "onion" in funct:
+    if "onion" in method:
        text.insert(tk.END,"   onion_peeling method is in early testing and may not produce reliable results\n")
-    if "direct" in funct:
+    if "direct" in method:
        text.insert(tk.END,"   calculation is slowed if Cython unavailable ...\n")
     canvas.show()
 
     # inverse Abel transform of whole image
-    AIM = method(IM)
+    AIM = abel.transform(IM, method=method, direction="inverse",
+                         vertical_symmetry=False, horizontal_symmetry=False)['transform']
 
     f.clf()
     a = f.add_subplot(111)
@@ -155,7 +129,7 @@ def _speed():
     canvas.show()
 
     # speed distribution
-    speed, radial = abel.tools.vmi.calculate_speeds(AIM)
+    radial, speed  = abel.tools.vmi.angular_integration(AIM)
 
     f.clf()
     a = f.add_subplot(111)
@@ -185,7 +159,7 @@ def _anisotropy():
 
     # intensity vs angle
     intensity, theta = abel.tools.vmi.calculate_angular_distributions(AIM,\
-                                   radial_ranges=[rmx,])
+                                                  radial_ranges=[rmx,])
 
     # fit to P2(cos theta)
     beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity[0])
@@ -220,8 +194,8 @@ tk.Button(master=root, text='raw image', command=_display).pack(anchor=tk.N)
 tk.Button(master=root, text='inverse Abel transform', command=_transform)\
    .pack(anchor=tk.N)
 
-transform = ttk.Combobox(master=root, values=Abel_methods.keys(), state="readonly", width=10, height=len(Abel_methods))
-transform.current(3)
+transform = ttk.Combobox(master=root, values=Abel_methods, state="readonly", width=10, height=len(Abel_methods))
+transform.current(2)
 transform.place(anchor=tk.W, relx=0.67, rely=0.14)
 
 # speed
