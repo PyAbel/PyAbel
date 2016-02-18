@@ -30,7 +30,7 @@ if cols % 2 == 0:
     print ("HL: even pixel width image, re-adjust image centre")
     # re-center image based on horizontal and vertical slice profiles
     # covering the radial range [300:400] pixels from the center
-    IM, origin_shift = abel.tools.vmi.find_image_center_by_slice(IM, radial_range=(300, 400))
+    IM, origin_shift = abel.tools.center.find_image_center_by_slice(IM, radial_range=(300, 400))
     rows, cols = IM.shape   # new image size
 
 c2 = cols//2   # half-image

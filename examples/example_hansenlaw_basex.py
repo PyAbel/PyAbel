@@ -41,7 +41,7 @@ im = np.loadtxt(filename)
 if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
            " find_image_center_by_slice ()")
-    im = abel.tools.vmi.find_image_center_by_slice (im, radial_range=(300,400))[0]
+    im = abel.tools.center.find_image_center_by_slice (im, radial_range=(300,400))[0]
     # alternative
     #im = shift(im,(0.5,0.5))
     #im = im[:-1, 1::]  # drop left col, bottom row
