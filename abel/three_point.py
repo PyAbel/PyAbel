@@ -83,8 +83,8 @@ def OP1(i, j):
     elif j == i:
         I1 = ((2*j+1)**2 - 4*i**2)**0.5/(2*np.pi) - 2*j*OP0(i, j)
     elif j > i:
-        I1 = (((2*j+1)**2 - 4*i**2)**0.5 - ((2*j-1)**2 - 4*i**2)**0.5)/
-        (2*np.pi) - 2*j*OP0(i, j)
+        I1 = (((2*j+1)**2 - 4*i**2)**0.5 -
+              ((2*j-1)**2 - 4*i**2)**0.5)/(2*np.pi) - 2*j*OP0(i, j)
     else:
         raise(ValueError)
     return I1
