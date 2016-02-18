@@ -62,7 +62,7 @@ abel.three_point module
     :show-inheritance:
 
 abel.tools.io module
------------------
+--------------------
 
 .. automodule:: abel.tools.io
     :members:
@@ -70,7 +70,7 @@ abel.tools.io module
     :show-inheritance:
 	
 abel.tools.math module
------------------
+----------------------
 
 .. automodule:: abel.tools.math
     :members:
@@ -78,7 +78,7 @@ abel.tools.math module
     :show-inheritance:
 	
 abel.transform module
------------------
+---------------------
 
 .. automodule:: abel.transform
     :members:
@@ -87,7 +87,7 @@ abel.transform module
     :show-inheritance:
 
 abel.transform.AbelTransform class
------------------
+----------------------------------
 
 .. autoclass:: abel.transform.AbelTransform
     :members:
