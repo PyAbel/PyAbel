@@ -9,9 +9,7 @@ from __future__ import unicode_literals
 import numpy as np
 import matplotlib.pyplot as plt
 
-from abel.hansenlaw import iabel_hansenlaw 
-from abel.tools.vmi import calculate_speeds
-from abel.tools.symmetry import center_image
+import abel
 import scipy.misc
 
 # This example demonstrates Hansen and Law inverse Abel transform
@@ -47,20 +45,22 @@ im = plt.imread(filename)
 (rows,cols) = np.shape(im)
 print ('image size {:d}x{:d}'.format(rows,cols))
 
-im = center_image (im, (340,245), n=rows)
+#im = abel.tools.center.center_image (im, (340,245))
 
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon = iabel_hansenlaw (im, verbose=True)
-speeds, r = calculate_speeds(recon)
+recon = abel.transform(im, method="hansenlaw", direction="inverse", 
+                       vertical_symmetry=False, horizontal_symmetry=False,
+                       verbose=True)['transform']
+r, speeds = abel.tools.vmi.angular_integration(recon)
 
 
 # save the transform in 8-bit format:
-scipy.misc.imsave(output_image,recon)
+#scipy.misc.imsave(output_image,recon)
 
 # save the speed distribution
-np.savetxt(output_text,speeds)
+#np.savetxt(output_text,speeds)
 
 ## Finally, let's plot the data
 
@@ -89,7 +89,7 @@ ax3.plot(speeds)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Yield (log)')
 ax3.set_title('Speed distribution')
-ax3.set_yscale('log')
+#ax3.set_yscale('log')
 
 # Prettify the plot a little bit:
 plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35,
