@@ -165,8 +165,8 @@ def put_image_quadrants (Q, odd_size=True, vertical_symmetry=False,
         Bottom = np.flipud(np.concatenate((np.fliplr(Q2), Q3), axis=1))
     else:
         # odd size image remove extra row/column added in get_image_quadrant()
-        Top    = np.concatenate((np.fliplr(Q1[:-1,:-1]), Q0[:-1,:]), axis=1)
-        Bottom = np.flipud(np.concatenate((np.fliplr(Q2[:,:-1]), Q3), axis=1))
+        Top    = np.concatenate((np.fliplr(Q[1])[:-1,:-1], Q[0][:-1,:]), axis=1)
+        Bottom = np.flipud(np.concatenate((np.fliplr(Q[2])[:,:-1], Q[3]), axis=1))
 
     IM = np.concatenate((Top,Bottom), axis=0)
 
