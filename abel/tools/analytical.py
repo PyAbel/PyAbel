@@ -104,12 +104,14 @@ def sample_image(n=361, name="dribinski", sigma=2, temperature=200):
     X, Y = np.meshgrid(x, x)
     R, THETA = cart2polar(X, Y)
     
-    if name in ["dribinski"]:
+    if name == "dribinski":
         IM = dribinski(R, THETA, sigma=sigma)
-    else:
+    elif name == "Ominus":
         boltzmann = 0.5*np.exp(-177.1*const.h*const.c*100/const.k/temperature)
         rfact = n/1001.0
         IM = Ominus(R, THETA, sigma=sigma, boltzmann=boltzmann, rfact=rfact)
+    else:
+        raise ValueError('sample image name not recognized')
 
     return IM
 
