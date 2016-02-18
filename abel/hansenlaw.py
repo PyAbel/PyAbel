@@ -93,7 +93,7 @@ _hansenlaw_transform_docstring = \
 
              Image centre `o' should be within a pixel
              (i.e. an odd number of columns)
-             [Use abel.tools.vmi.find_image_center_by_slice () to transform]
+             [Use abel.tools.center.find_image_center_by_slice () to transform] 
 
     dr : float
         Sampling size (=1 for pixel images), used for Jacobian scaling
@@ -198,6 +198,6 @@ def hansenlaw_transform(IM, dr=1, inverse=False):
         return -AIM*np.pi*dr   # forward still needs '-' sign
 
 # append the same docstring to all functions - borrowed from @rth
-iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring+_hansenlaw_transform_docstring
-fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring+_hansenlaw_transform_docstring
-hansenlaw_transform.__doc__ += _hansenlaw_header_docstring+_hansenlaw_transform_docstring
+iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
+fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
+hansenlaw_transform.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
