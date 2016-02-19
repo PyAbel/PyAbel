@@ -199,8 +199,8 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
     left = IM[r2-sw2:r2+sw2, :c2].sum(axis=0)
     right = IM[r2-sw2:r2+sw2, c2 - cols % 2:].sum(axis=0)
 
-    return top[::-1][rmin:rmax], bottom[rmin:rmax],
-    left[::-1][rmin:rmax], right[rmin:rmax]
+    return (top[::-1][rmin:rmax], bottom[rmin:rmax],
+            left[::-1][rmin:rmax], right[rmin:rmax])
 
 
 def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
