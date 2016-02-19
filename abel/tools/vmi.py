@@ -160,5 +160,3 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     error_beta, error_amplitude = np.sqrt(np.diag(pcov))
 
     return (beta, error_beta), (amplitude, error_amplitude)
-
-
