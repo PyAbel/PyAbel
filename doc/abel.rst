@@ -86,15 +86,6 @@ abel.transform module
     :undoc-members:
     :show-inheritance:
 
-abel.transform.AbelTransform class
-----------------------------------
-
-.. autoclass:: abel.transform.AbelTransform
-    :members:
-    :special-members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------
