@@ -234,15 +234,19 @@ class GaussianAnalytical(BaseAnalytical):
 
 def abel_step_analytical(r, A0, r0, r1):
     """
-    Direct Abel transform of a step function located between r0 and r1,
+    Directed Abel transform of a step function located between r0 and r1,
     with a height A0
 
-    A0 +                  +-------------+
-       |                  |             |
-       |                  |             |
-     0 | -----------------+             +-------------
-       +------------------+-------------+------------>
-       0                  r0            r1           r axis
+    ::
+
+        A0 +                  +-------------+
+           |                  |             |
+           |                  |             |
+         0 | -----------------+             +-------------
+           +------------------+-------------+------------>
+           0                  r0            r1           r axis
+
+    ::
 
     This function is mostly used for unit testing the inverse Abel transform
 

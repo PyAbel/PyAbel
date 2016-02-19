@@ -12,22 +12,6 @@ Subpackages
 Submodules
 ----------
 
-abel.analytical module
-----------------------
-
-.. automodule:: abel.analytical
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-abel.basex module
------------------
-
-.. automodule:: abel.basex
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 abel.benchmark module
 ---------------------
 
@@ -57,6 +41,22 @@ abel.three_point module
 -----------------------
 
 .. automodule:: abel.three_point
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.basex module
+-----------------------
+
+.. automodule:: abel.basex
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.tools.analytical module
+----------------------------
+
+.. automodule:: abel.tools.analytical
     :members:
     :undoc-members:
     :show-inheritance:
