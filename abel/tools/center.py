@@ -1,8 +1,16 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import numpy as np
-from scipy.ndimage import center_of_mass
 from .math import fit_gaussian
 import warnings
-import scipy.ndimage
+from scipy.ndimage import center_of_mass
+from scipy.ndimage.interpolation import shift
+from scipy.optimize import minimize
+
 
 
 def center_image(data, center='com', verbose=False):
@@ -27,7 +35,7 @@ def set_center(data, center, crop='maintain_size', verbose=True):
     old_center = data.shape[0]/2.0, data.shape[1]/2.0
     delta0 = old_center[0] - center[0]
     delta1 = old_center[1] - center[1]
-    centered_data = scipy.ndimage.interpolation.shift(data, (delta0, delta1))
+    centered_data = shift(data, (delta0, delta1))
 
     if crop == 'maintain_size':
         return centered_data
@@ -49,10 +57,10 @@ def find_center_by_center_of_mass(data, verbose=True,
                                   round_output=False, **kwargs):
     com = center_of_mass(data)
     center = com[0], com[1]
-
+    
     if verbose:
         to_print = "Center of mass at ({0}, {1})".format(center[0], center[1])
-
+    
     if round_output:
         center = (round(center[0]), round(center[1]))
         if verbose:
@@ -95,3 +103,122 @@ func_method = {
     "com": find_center_by_center_of_mass,
     "gaussian": find_center_by_gaussian_fit,
 }
+
+
+def axis_slices(IM, radial_range=(0, -1), slice_width=10):
+    """returns vertical and horizontal slice profiles, summed across slice_width.
+
+    Paramters
+    ---------
+    IM : 2D np.array
+      image data
+
+    radial_range: tuple floats
+      (rmin, rmax) range to limit data
+
+    slice_width : integer
+      width of the image slice, default 10 pixels
+
+    Returns
+    -------
+    top, bottom, left, right : 1D np.arrays shape (rmin:rmax, 1)
+      image slices oriented in the same direction
+
+    """
+    rows, cols = IM.shape   # image size
+
+    r2 = rows//2 + rows % 2
+    c2 = cols//2 + cols % 2
+    sw2 = slice_width/2
+
+    rmin, rmax = radial_range
+
+    # vertical slice
+    top = IM[:r2, c2-sw2:c2+sw2].sum(axis=1)
+    bottom = IM[r2 - rows % 2:, c2-sw2:c2+sw2].sum(axis=1)
+
+    # horizontal slice
+    left = IM[r2-sw2:r2+sw2, :c2].sum(axis=0)
+    right = IM[r2-sw2:r2+sw2, c2 - cols % 2:].sum(axis=0)
+
+
+    return top[::-1][rmin:rmax], bottom[rmin:rmax],\
+           left[::-1][rmin:rmax], right[rmin:rmax]
+
+
+def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
+                               axis=(0, 1)):
+    """ Center image by comparing opposite side, vertical (axis=0) and/or 
+        horizontal slice (axis=1) profiles, both axis=(0,1).. 
+
+    Parameters
+    ----------
+    IM : 2D np.array
+       The image data.
+ 
+    slice_width : integer
+       Sum together this number of rows (cols) to improve signal, default 10.
+      
+    radial_range: tuple
+       (rmin,rmax): radial range [rmin:rmax] for slice profile comparison.
+
+    axis : integer or tuple 
+       Center with along axis = 0 (vertical), or 1 (horizontal), or both (0,1).
+
+    Returns
+    -------
+    IMcenter : 2D np.array
+       Centered image
+
+    (vertical_shift, horizontal_shift) : tuple of floats
+       (axis=0 shift, axis=1 shift)
+   
+    """
+
+    def _align(offset, sliceA, sliceB):
+        """intensity difference between an axial slice and its shifted opposite.
+        """
+        diff = shift(sliceA, offset) - sliceB
+        fvec = (diff**2).sum()
+        return fvec
+
+    rows, cols = IM.shape
+
+    if cols % 2 == 0:
+        # drop rightside column, and bottom row to make odd size
+        IM = IM[:-1, :-1]
+        rows, cols = IM.shape
+
+    top, bottom, left, right = axis_slices(IM, radial_range, slice_width)
+
+    xyoffset = [0.0, 0.0]
+    # determine shift to align both slices
+    # limit shift to +- 20 pixels
+    initial_shift = [0.1, ]
+
+    # y-axis
+    if (type(axis) is int and axis==0) or (type(axis) is tuple and axis[0]==0):
+        fit = minimize(_align, initial_shift, args=(top, bottom),
+                       bounds=((-50, 50), ), tol=0.1)
+        if fit["success"]:
+            xyoffset[0] = -float(fit['x'])/2  # x1/2 for image center shift
+        else:
+            print("fit failure: axis = 0, zero shift set")
+            print(fit)
+
+    # x-axis
+    if (type(axis) is int and axis==1) or (type(axis) is tuple and axis[1]==1):
+        fit = minimize(_align, initial_shift, args=(left, right),
+                       bounds=((-50, 50), ), tol=0.1)
+        if fit["success"]:
+            xyoffset[1] = -float(fit['x'])/2   # x1/2 for image center shift
+        else:
+            print("fit failure: axis = 1, zero shift set")
+            print(fit)
+
+    # this is the (y, x) shift to align the slice profiles
+    xyoffset = tuple(xyoffset)
+
+    IM_centered = shift(IM, xyoffset)  # center image
+
+    return IM_centered, xyoffset
