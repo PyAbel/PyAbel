@@ -12,6 +12,14 @@ Subpackages
 Submodules
 ----------
 
+abel.basex module
+-----------------
+
+.. automodule:: abel.basex
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 abel.benchmark module
 ---------------------
 
@@ -44,12 +52,13 @@ abel.three_point module
     :members:
     :undoc-members:
     :show-inheritance:
+    
+abel.transform module
+---------------------
 
-abel.basex module
------------------------
-
-.. automodule:: abel.basex
+.. automodule:: abel.transform
     :members:
+    :special-members:
     :undoc-members:
     :show-inheritance:
 
@@ -57,6 +66,14 @@ abel.tools.analytical module
 ----------------------------
 
 .. automodule:: abel.tools.analytical
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    
+abel.tools.center module
+------------------------
+
+.. automodule:: abel.tools.center
     :members:
     :undoc-members:
     :show-inheritance:
@@ -76,15 +93,7 @@ abel.tools.math module
     :members:
     :undoc-members:
     :show-inheritance:
-	
-abel.transform module
----------------------
 
-.. automodule:: abel.transform
-    :members:
-    :special-members:
-    :undoc-members:
-    :show-inheritance:
 
 
 Module contents
