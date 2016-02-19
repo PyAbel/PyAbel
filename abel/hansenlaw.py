@@ -47,16 +47,20 @@ _hansenlaw_header_docstring = \
                    ⌡
                    r
 
-    where f(r) = reconstructed image (source) function
-          g'(R) = derivative of the projection (measured) function
+
+    f(r)
+        is reconstructed image (source) function
+    g'(R)
+        is derivative of the projection (measured) function
 
     Evaluation via Eq. (15 or 17), using (16a), (16b), and (16c or 18)
 
-         f = iabel_hansenlaw(g) - inverse Abel transform of image g
-         g = fabel_hansenlaw(f) - forward Abel transform of image f
-
-         (f/i)abel_hansenlaw_transform() - core algorithm
-
+    f = iabel_hansenlaw(g)
+        inverse Abel transform of image g
+    g = fabel_hansenlaw(f)
+        forward Abel transform of image f
+    (f/i)abel_hansenlaw_transform()
+        core algorithm
     """
 
 _hansenlaw_transform_docstring = \
@@ -94,7 +98,7 @@ _hansenlaw_transform_docstring = \
     dr : float
         Sampling size (=1 for pixel images), used for Jacobian scaling
 
-    inverse: boolean
+    inverse : boolean
         forward (False) or inverse (True) Abel transform
 
     Returns

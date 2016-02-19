@@ -243,11 +243,12 @@ def abel_step_analytical(r, A0, r0, r1):
      0 | -----------------+             +-------------
        +------------------+-------------+------------>
        0                  r0            r1           r axis
+
     This function is mostly used for unit testing the inverse Abel transform
 
     Parameters
     ----------
-    r : 1D array,
+    r1 : 1D array,
         vecor of positions along the r axis. Must start with 0.
     r0, r1 : floats,
         positions of the step along the r axis

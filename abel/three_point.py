@@ -148,7 +148,7 @@ def get_bs_three_point_cached(col, basis_dir='.', verbose=False):
 
 def iabel_three_point(data, center,
                       dr=1.0, basis_dir='./', verbose=False):
-    """ 
+    """
     This function splits the image into two halves,
     sends each half to iabel_three_point_transform(),
     stitches the output back together,
