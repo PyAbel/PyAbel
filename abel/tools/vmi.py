@@ -15,49 +15,49 @@ from scipy.optimize import curve_fit, minimize
 def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     """ Angular integration of the image.
 
-        Returning the one-dimentional intensity profile as a function of the 
-        radial coordinate. 
-        
+        Returning the one-dimentional intensity profile as a function of the
+        radial coordinate.
+
      Parameters
      ----------
      IM : rows x cols 2D np.array
        The data image.
 
-     origin : tuple 
+     origin : tuple
        Image center coordinate relative to *bottom-left* corner
        defaults to (rows//2+rows%2,cols//2+cols%2).
 
-     Jacobian : boolean 
+     Jacobian : boolean
        Include r*sinθ in the angular sum (integration).
 
-     dr : float 
+     dr : float
        Radial coordinate grid spacing, in pixels (default 1).
 
      dt : float
        Theta coordinate grid spacing in degrees, defaults to rows//2.
-      
+
      Returns
      -------
-     speeds : 1D np.array 
+     speeds : 1D np.array
        Integrated intensity array (vs radius).
 
-      r : 1D np.array 
+      r : 1D np.array
        radial coordinates
 
      """
 
-    polarIM, r_grid, theta_grid = reproject_image_into_polar(IM, origin,
-                                              Jacobian=Jacobian, dr=dr, dt=dt)
+    polarIM, r_grid, theta_grid = reproject_image_into_polar(
+        IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)
     theta = theta_grid[0, :]   # theta coordinates
     r = r_grid[:, 0]           # radial coordinates
 
-    if Jacobian:   #  x r sinθ    
+    if Jacobian:  # x r sinθ
         sintheta = np.abs(np.sin(theta))
         polarIM = polarIM*sintheta[np.newaxis, :]
         polarIM = polarIM*r[:, np.newaxis]
 
     speeds = np.sum(polarIM, axis=1)
-    n = speeds.shape[0]   
+    n = speeds.shape[0]
 
     return r[:n], speeds   # limit radial coordinates range to match speed
 
@@ -72,19 +72,20 @@ def calculate_angular_distributions(IM, radial_ranges=None):
 
     Parameters
     ----------
-    IM : 2D np.array 
-     Image data
+    IM : 2D np.array
+        Image data
 
     radial_ranges : list of tuples
-     [(r0, r1), (r2, r3), ...] 
-     Evaluate the intensity vs angle for the radial ranges r0_r1, r2_r3, etc. 
+        [(r0, r1), (r2, r3), ...]
+        Evaluate the intensity vs angle
+        for the radial ranges r0_r1, r2_r3, etc.
 
     Returns
-    --------
-    intensity_vs_theta: 2D np.array 
+    -------
+    intensity_vs_theta: 2D np.array
        Intensity vs angle distribution for each selected radial range.
 
-    theta: 1D np.array 
+    theta: 1D np.array
        Angle coordinates, referenced to vertical direction.
 
     """
@@ -109,11 +110,11 @@ def calculate_angular_distributions(IM, radial_ranges=None):
 
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
     """ Evaluate anisotropy parameter beta, for I vs theta data.
-    
+
          I = xs_total/4pi [ 1 + beta P2(cos theta) ]     Eq. (1)
 
      where P2(x)=(3x^2-1)/2 is a 2nd order Legendre polynomial.
-    
+
     Cooper and Zare "Angular distribution of photoelectrons"
     J Chem Phys 48, 942-943 (1968) doi:10.1063/1.1668742
 
@@ -124,12 +125,12 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
        Angle coordinates, referenced to the vertical direction.
 
     intensity: 1D np.array
-       Intensity variation (with angle)  
+       Intensity variation (with angle)
 
-    theta_ranges: list of tuples 
+    theta_ranges: list of tuples
        Angular ranges over which to fit  [(theta1, theta2), (theta3, theta4)].
        Allows data to be excluded from fit
-                     
+
     Returns:
     --------
     (beta, error_beta) : tuple of floats
@@ -147,12 +148,12 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     if theta_ranges is not None:
         subtheta = np.ones(len(theta), dtype=bool)
         for rt in theta_ranges:
-            subtheta = np.logical_and(subtheta,
-                       np.logical_and(theta >= rt[0], theta <= rt[1]))
+            subtheta = np.logical_and(
+                subtheta, np.logical_and(theta >= rt[0], theta <= rt[1]))
         theta = theta[subtheta]
         intensity = intensity[subtheta]
 
-    # fit angular intensity distribution 
+    # fit angular intensity distribution
     popt, pcov = curve_fit(PAD, theta, intensity)
 
     beta, amplitude = popt
@@ -161,8 +162,9 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     return (beta, error_beta), (amplitude, error_amplitude)
 
 
-def axis_slices(IM, radial_range=(0,-1), slice_width=10):
-    """returns vertical and horizontal slice profiles, summed across slice_width.
+def axis_slices(IM, radial_range=(0, -1), slice_width=10):
+    """
+    returns vertical and horizontal slice profiles, summed across slice_width.
 
     Paramters
     ---------
@@ -197,29 +199,28 @@ def axis_slices(IM, radial_range=(0,-1), slice_width=10):
     left = IM[r2-sw2:r2+sw2, :c2].sum(axis=0)
     right = IM[r2-sw2:r2+sw2, c2 - cols % 2:].sum(axis=0)
 
-
-    return top[::-1][rmin:rmax], bottom[rmin:rmax],\
-           left[::-1][rmin:rmax], right[rmin:rmax]
-
+    return top[::-1][rmin:rmax], bottom[rmin:rmax],
+    left[::-1][rmin:rmax], right[rmin:rmax]
 
 
 def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
                                axis=(0, 1)):
-    """ Center image by comparing opposite side, vertical (axis=0) and/or 
-        horizontal slice (axis=1) profiles, both axis=(0,1).. 
+    """
+    Center image by comparing opposite side, vertical (axis=0) and/or
+    horizontal slice (axis=1) profiles, both axis=(0,1)..
 
     Parameters
     ----------
     IM : 2D np.array
        The image data.
- 
+
     slice_width : integer
        Sum together this number of rows (cols) to improve signal, default 10.
-      
+
     radial_range: tuple
        (rmin,rmax): radial range [rmin:rmax] for slice profile comparison.
 
-    axis : integer or tuple 
+    axis : integer or tuple
        Center with along axis = 0 (vertical), or 1 (horizontal), or both (0,1).
 
     Returns
@@ -229,7 +230,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
 
     (vertical_shift, horizontal_shift) : tuple of floats
        (axis=0 shift, axis=1 shift)
-   
+
     """
 
     def _align(offset, sliceA, sliceB):
@@ -246,27 +247,29 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
         IM = IM[:-1, :-1]
         rows, cols = IM.shape
 
-    top, bottom, left, right = axis_slices (IM, radial_range, slice_width)
+    top, bottom, left, right = axis_slices(IM, radial_range, slice_width)
 
     xyoffset = [0.0, 0.0]
     # determine shift to align both slices
     # limit shift to +- 20 pixels
-    initial_shift = [0.1,]
+    initial_shift = [0.1, ]
 
     # y-axis
-    if (type(axis) is int and axis==0) or (type(axis) is tuple and axis[0]==0):
+    if (type(axis) is int and axis == 0) or \
+            (type(axis) is tuple and axis[0] == 0):
         fit = minimize(_align, initial_shift, args=(top, bottom),
-                       bounds=((-50,50),), tol=0.1)
+                       bounds=((-50, 50),), tol=0.1)
         if fit["success"]:
             xyoffset[0] = -float(fit['x'])/2  # x1/2 for image center shift
         else:
             print("fit failure: axis = 0, zero shift set")
             print(fit)
-    
+
     # x-axis
-    if (type(axis) is int and axis==1) or (type(axis) is tuple and axis[1]==1):
+    if (type(axis) is int and axis == 1) or \
+            (type(axis) is tuple and axis[1] == 1):
         fit = minimize(_align, initial_shift, args=(left, right),
-                       bounds=((-50,50),), tol=0.1)
+                       bounds=((-50, 50),), tol=0.1)
         if fit["success"]:
             xyoffset[1] = -float(fit['x'])/2   # x1/2 for image center shift
         else:
