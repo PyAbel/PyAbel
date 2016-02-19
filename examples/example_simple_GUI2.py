@@ -83,12 +83,12 @@ def _center():
 
     # update information text box
     text.delete(1.0, tk.END)
-    text.insert(tk.END, "centering image using abel.tools.vmi.find_image_center_by_slice()\n")
+    text.insert(tk.END, "centering image using abel.tools.center.find_image_center_by_slice()\n")
     canvas.show()
 
     # center image via horizontal (left, right), and vertical (top, bottom)
     # intensity slices
-    IM, offset = abel.tools.vmi.find_image_center_by_slice(IM)
+    IM, offset = abel.tools.center.find_image_center_by_slice(IM)
     text.insert(tk.END, "center offset = {:}\n".format(offset))
 
     _display()

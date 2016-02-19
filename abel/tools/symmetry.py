@@ -15,7 +15,7 @@ def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
                         use_quadrants=(True, True, True, True)):
     """
     Given an image (m,n) return its 4 quadrants Q0, Q1, Q2, Q3
-    as defined in abel.hansenlaw.iabel_hansenlaw
+    as defined below.
 
     Parameters
     ----------
