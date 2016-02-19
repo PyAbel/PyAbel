@@ -99,19 +99,17 @@ def get_bs_three_point_cached(col, basis_dir='.', verbose=False):
     (i.e., load from disk if they exist, if not, calculate them
     and save a copy on disk)
 
-    Parameters:
-    ___________
-
-     - col: integer -
-                  Width of image to be inverted using three_point method.
-                  Three_point operator matrix will be of size (col x col)
-     - basis_dir: string -
-                  path to the directory for saving / loading
-                  the three_point operator matrix.
-                  If None, the operator matrix will not be saved to disk.
-     - verbose: True/False -
-                  Set to True to see more output for debugging
-
+    Parameters
+    ----------
+    col : integer
+        Width of image to be inverted using three_point method.
+        Three_point operator matrix will be of size (col x col)
+    basis_dir : string
+        path to the directory for saving / loading
+        the three_point operator matrix.
+        If None, the operator matrix will not be saved to disk.
+    verbose : True/False
+        Set to True to see more output for debugging
     """
     basis_name = "three_point_basis_{}_{}.npy".format(col, col)
     D = None
@@ -150,29 +148,34 @@ def get_bs_three_point_cached(col, basis_dir='.', verbose=False):
 
 def iabel_three_point(data, center,
                       dr=1.0, basis_dir='./', verbose=False):
-    """ This function splits the image into two halves,
-        sends each half to iabel_three_point_transform(),
-        stitches the output back together,
-        and returns the full transform to the user.
+    """ 
+    This function splits the image into two halves,
+    sends each half to iabel_three_point_transform(),
+    stitches the output back together,
+    and returns the full transform to the user.
 
-    Parameters:
+    Parameters
     -----------
-        - data:   NxM numpy array
-                  The raw data is presumed to be symmetric
-                  about the vertical axis.
-        - center: * integer -
-                    The location of the symmetry axis
-                    (center column index of the image).
-                  * tuple (x,y) -
-                    The center of the image in (x,y) format.
-        - dr:     float -
-                  Size of one pixel in the radial direction
-        - basis_dir: string
-                  path to the directory for saving / loading the three_point
-                  operator matrix.
-                  If None, the operator matrix will not be saved to disk.
-        - verbose: True/False
-                  Set to True to see more output for debugging
+    data : NxM numpy array
+        The raw data is presumed to be symmetric
+        about the vertical axis.
+    center : integer or tuple (x,y)
+        The location of the symmetry axis
+        (center column index of the image) or
+        the center of the image in (x,y) format.
+    dr : float
+        Size of one pixel in the radial direction
+    basis_dir : string
+        path to the directory for saving / loading the three_point
+        operator matrix.
+        If None, the operator matrix will not be saved to disk.
+    verbose : True/False
+        Set to True to see more output for debugging
+
+    Returns
+    -------
+    inv_IM : numpy array
+        Abel inversion of IM - a rows x cols array
     """
 
     # sanity checks for center
