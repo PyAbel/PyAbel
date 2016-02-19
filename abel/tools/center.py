@@ -24,12 +24,43 @@ def set_center(data, center, crop='maintain_size', verbose=True):
     old_shape  = data.shape
     old_center = data.shape[0]/2.0, data.shape[1]/2.0
     delta0 = old_center[0] - center[0] 
-    delta1 = old_center[1] - center[1] 
+    delta1 = old_center[1] - center[1]
+
+    if crop == 'maintain_data':
+        # pad the image so that the center can be moved without losing any of the original data
+        # we need to pad the image with zeros before using the shift() function
+        shift0, shift1 = (None, None)
+        if delta0 != 0:
+            shift0 = 1 + int(np.abs(delta0))
+        if delta1 != 0:
+            shift1 = 1 + int(np.abs(delta1))
+
+        container = np.zeros((data.shape[0]+shift0, data.shape[1]+shift1),
+                              dtype = data.dtype)
+
+        area = container[:,:]
+        if shift0:
+            if delta0 > 0:
+                area = area[:-shift0,:]
+            else:
+                area = area[shift0:,:]
+        if shift1:
+           if delta1 > 0:
+                area = area[:,:-shift1]
+           else:
+                area = area[:,shift1:]
+        area[:,:] = data[:,:]
+        data = container
+        delta0 += np.sign(delta0)*shift0/2.0
+        delta1 += np.sign(delta1)*shift1/2.0
     if verbose:
         print("delta = ({0}, {1})".format(delta0, delta1))
+
     centered_data = scipy.ndimage.interpolation.shift(data, (delta0,delta1))
-    
-    if crop == 'maintain_size':
+
+    if crop == 'maintain_data':
+        return centered_data
+    elif crop == 'maintain_size':
         return centered_data
     elif crop == 'valid_region':
         # crop to region containing data
@@ -39,10 +70,8 @@ def set_center(data, center, crop='maintain_size', verbose=True):
         if delta1 != 0:
             shift1 = 1 + int(np.abs(delta1))
         return centered_data[shift0:-shift0, shift1:-shift1]
-    elif crop == 'maintain_data':
-        # pad the image so that the center can be moved without losing any of the original data
-        # we need to pad the image with zeros before using the shift() function
-        raise ValueError('Not implemented')
+    else:
+        raise ValueError("Invalid crop method!!")
 
 def find_center(data, method='image_center', verbose=True, **kwargs):
     return func_method[method](data, verbose=verbose, **kwargs)
