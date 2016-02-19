@@ -92,7 +92,8 @@ def transform(
 
        ::
 
-       (1) vertical_symmetry = True
+        (1) vertical_symmetry = True
+
        ::
 
            Combine:  `Q01 = Q1 + Q2, Q23 = Q2 + Q3`
@@ -101,7 +102,8 @@ def transform(
                            AQ23 | AQ23
        ::
 
-       (2) horizontal_symmetry = True
+        (2) horizontal_symmetry = True
+
        ::
 
            Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
@@ -110,7 +112,8 @@ def transform(
                            AQ12 | AQ03
        ::
 
-       (3) vertical_symmetry = True, horizontal = True
+        (3) vertical_symmetry = True, horizontal = True
+
        ::
 
            Combine: Q = Q0 + Q1 + Q2 + Q3
