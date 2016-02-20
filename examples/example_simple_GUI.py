@@ -148,9 +148,13 @@ class PyAbel:  #(tk.Tk):
         self.rmax.delete(0, tk.END)
         self.rmax.insert(0, self.rmx[1])
 
+        self.load = tk.Button(master=self.top_frame, text="load image",
+                              command=self._getfilename)
+        self.load.grid(row=1, column=0, sticky="w")
+
         self.quit = tk.Button(master=self.top_frame, text="quit",
                               command=self._quit)
-        self.quit.grid(row=1, column=0, sticky="w")
+        self.quit.grid(row=2, column=0, sticky="w")
 
         blankrow = tk.Label(master=self.top_frame, text="   ", width=4)
         blankrow.grid(row=3, column=0, columnspan=5)
@@ -159,7 +163,7 @@ class PyAbel:  #(tk.Tk):
     def _plot_canvas(self):
         # matplotlib canvas --------------------------
         self.canvas = FigureCanvasTkAgg(self.f, master=self.parent)
-        self.a.annotate("load image file using 'raw image' button ", (0.5, 0.6), 
+        self.a.annotate("load image file using 'load image' button ", (0.5, 0.6), 
                         horizontalalignment="center")
         self.a.annotate("e.g. data/O2-ANU1024.txt.bz2", (0.5, 0.5), 
                         horizontalalignment="center")
