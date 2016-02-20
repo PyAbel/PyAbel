@@ -120,6 +120,7 @@ def transform(
            inverse image   AQ | AQ
                            ---o---  all quadrants equivalent
                            AQ | AQ
+       ::
 
     transform_options : tuple
         Additional arguments passed to the individual transform functions.

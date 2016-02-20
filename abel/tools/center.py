@@ -183,6 +183,7 @@ func_method = {
     "image_center": find_center_by_center_of_image,
     "com": find_center_by_center_of_mass,
     "gaussian": find_center_by_gaussian_fit,
+    "slice": find_image_center_by_slice
 }
 
 

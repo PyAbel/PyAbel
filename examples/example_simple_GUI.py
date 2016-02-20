@@ -1,15 +1,10 @@
 #!/usr/bin/env python
+# -*- coding: iso-8859-1 -*-
 
 # Illustrative GUI driving a small subset of PyAbel methods
 
-# tkinter code adapted from
-# http://matplotlib.org/examples/user_interfaces/embedding_in_tk.html
-
 import numpy as np
-
 import abel
-
-from scipy.ndimage.interpolation import shift
 
 import sys
 if sys.version_info[0] < 3:
@@ -24,212 +19,344 @@ matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
                                               NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
-from matplotlib.pyplot import imread
+from matplotlib.pyplot import imread, colorbar
+
+from scipy.ndimage.interpolation import shift
 
 Abel_methods = ['basex', 'direct', 'hansenlaw', #'onion-peeling'
                 'three_point']
 
-# GUI window -------------------
 
-root = tk.Tk()
-root.wm_title("Simple GUI PyAbel")
+class PyAbel:  #(tk.Tk):
 
-# matplotlib figure
+    def __init__(self, parent):
+#        tk.Tk.__init__(self, parent)
+        self.parent = parent
+        self.initialize()
 
-f = Figure(figsize=(5, 4), dpi=100)
-a = f.add_subplot(111)
+    def initialize(self):
+        self.fn = None
+        self.old_fn = None
+        self.old_method = None
+        self.AIM = None
+        self.rmx = (368, 393)
 
-# button call back functions
+        # matplotlib figure
+        self.f = Figure(figsize=(5, 4))
+        self.a = self.f.add_subplot(111)
 
-def _display():
-    global IM, canvas, text
+        self.main_container = tk.Frame(self.parent)#, background="bisque")
+        self.main_container.pack(side="top", fill="both", expand=True)
 
-    # update information text box
-    text.insert(tk.END,"raw image\n")
+        self.top_frame = tk.Frame(self.main_container)#, background="green")
+        self.middle_frame = tk.Frame(self.main_container)#, background="blue")
+        self.bottom_frame = tk.Frame(self.main_container)#, background="yellow")
 
-    # display image
-    f.clf()
-    a = f.add_subplot(111)
-    a.imshow(IM, vmin=0)
-    canvas.show()
+        self.top_frame.pack(side="top", fill="x", expand=False)
+        self.middle_frame.pack(side="left", fill="both", expand=True)
+        self.bottom_frame.pack(side="bottom", fill="x", expand=False)
 
+        self._menus()
+        #ttk.Separator(master=self.parent, orient=tk.HORIZONTAL).grid(row=3,
+        #              columnspan=5)
+        self._button_area()
+        self._plot_canvas()
+        self._text_info_box()
 
-def _getfilename():
-    global IM, text
-    fn = askopenfilename()
+    def _menus(self):
+        # menus and buttons with callbacks ----------------
+        self.menubar = tk.Menu(self.parent)
+        self.transform_method = tk.IntVar()
+        self.filemenu = tk.Menu(self.menubar, tearoff=0)
+        self.filemenu.add_command(label="Load image file",
+                                  command=self._getfilename)
+        self.filemenu.add_separator()
+        self.filemenu.add_command(label="Exit", command=self._quit)
+        self.menubar.add_cascade(label="File", menu=self.filemenu)
 
-    # update what is occurring text box
-    text.delete(1.0, tk.END)
-    text.insert(tk.END, "reading image file {:s}\n".format(fn))
-    canvas.show()
+        self.processmenu = tk.Menu(self.menubar, tearoff=0)
+        self.processmenu.add_command(label="Center image", command=self._center)
+        self.submenu=tk.Menu(self.processmenu)
+        for method in Abel_methods:
+            self.submenu.add_radiobutton(label=method,
+                 var=self.transform_method, val=Abel_methods.index(method),
+                 command=self._transform)
+        self.processmenu.add_cascade(label="Inverse Abel transform",
+                 menu=self.submenu, underline=0)
 
-    # read image file
-    if ".txt" in fn:
-        IM = np.loadtxt(fn)
-    else:
-        IM = imread(fn)
-
-    if IM.shape[0] % 2 == 0:
-        text.insert(tk.END, "make image odd size")
-        IM = shift(IM, (-0.5, -0.5))[:-1,:-1]
-
-    # show the image
-    _display()
-
-
-def _center():
-    global IM, text
-
-    # update information text box
-    text.delete(1.0, tk.END)
-    text.insert(tk.END, "centering image using abel.tools.center.find_image_center_by_slice()\n")
-    canvas.show()
-
-    # center image via horizontal (left, right), and vertical (top, bottom)
-    # intensity slices
-    IM, offset = abel.tools.center.find_image_center_by_slice(IM)
-    text.insert(tk.END, "center offset = {:}\n".format(offset))
-
-    _display()
-
-
-def _transform():
-    global IM, AIM, canvas, transform, text
-
-    method = transform.get()
-
-    text.delete(1.0, tk.END)
-    text.insert(tk.END,"inverse Abel transform: {:s}\n".format(method))
-    if "basex" in method:
-        text.insert(tk.END,"  first time calculation of the basis functions may take a while ...\n")
-    if "onion" in method:
-       text.insert(tk.END,"   onion_peeling method is in early testing and may not produce reliable results\n")
-    if "direct" in method:
-       text.insert(tk.END,"   calculation is slowed if Cython unavailable ...\n")
-    canvas.show()
-
-    # inverse Abel transform of whole image
-    AIM = abel.transform(IM, method=method, direction="inverse",
-                         vertical_symmetry=False, horizontal_symmetry=False)['transform']
-
-    f.clf()
-    a = f.add_subplot(111)
-    a.imshow(AIM, vmin=0, vmax=AIM.max()/5.0)
-    canvas.show()
+        self.processmenu.add_command(label="Speed distribution",
+                                     command=self._speed)
+        self.processmenu.add_command(label="Angular distribution",
+                                     command=self._anisotropy)
+        self.angmenu=tk.Menu(self.processmenu)
+        self.menubar.add_cascade(label="Processing", menu=self.processmenu)
+    
+        self.viewmenu = tk.Menu(self.menubar, tearoff=0)
+        self.viewmenu.add_command(label="Raw image", command=self._display)
+        self.viewmenu.add_command(label="Inverse Abel transformed image",
+                                  command=self._transform)
+        self.menubar.add_cascade(label="View", menu=self.viewmenu)
 
 
-def _speed():
-    global IM, AIM, canvas, transform, text
+    def _button_area(self):
+        self.rawimg = tk.Button(master=self.top_frame, text="raw image",
+                                command=self._display)
+        self.rawimg.grid(row=0, column=0)
 
-    # inverse Abel transform
-    _transform()
+        self.center = tk.Button(master=self.top_frame, text="center image",
+                                state="disabled", command=self._center)
+        self.center.grid(row=0, column=1)
+        self.center_method = ttk.Combobox(master=self.top_frame,
+                         values=["com", "slice", "gaussian", "image_center"],
+                         state="disable", width=5, height=4)
+        self.center_method.current(1)
+        self.center_method.grid(row=1, column=1)
 
-    # update text box in case something breaks
-    text.insert(tk.END, "speed distribution\n")
-    canvas.show()
+        self.recond = tk.Button(master=self.top_frame,
+                                text="reconstructed image",
+                                state="disabled",
+                                command=self._transform)
+        self.recond.grid(row=0,column=2)
 
-    # speed distribution
-    radial, speed  = abel.tools.vmi.angular_integration(AIM)
+        self.transform = ttk.Combobox(master=self.top_frame,
+                         values=Abel_methods,
+                         state="disable", width=10, height=len(Abel_methods))
+        self.transform.current(2)
+        self.transform.grid(row=1, column=2)
 
-    f.clf()
-    a = f.add_subplot(111)
-    a.plot(radial, speed/speed[50:].max())
-    a.axis(xmax=500, ymin=-0.05)
-    canvas.show()
-
-def _anisotropy():
-    global IM, AIM, canvas, rmin, rmax, transform, text
-
-    def P2(x):   # 2nd order Legendre polynomial
-        return (3*x*x-1)/2
-
-
-    def PAD(theta, beta, amp):
-        return amp*(1 + beta*P2(np.cos(theta)))
-
-    # radial range over which to follow the intensity variation with angle
-    rmx = (int(rmin.get()), int(rmax.get()))
-
-    text.delete(1.0, tk.END)
-    text.insert(tk.END,"anisotropy parameter pixel range {:} to {:}\n".format(*rmx))
-    canvas.show()
-
-    # inverse Abel transform
-    _transform()
-
-    # intensity vs angle
-    intensity, theta = abel.tools.vmi.calculate_angular_distributions(AIM,\
-                                                  radial_ranges=[rmx,])
-
-    # fit to P2(cos theta)
-    beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity[0])
-
-    text.insert(tk.END,"beta = {:g}+-{:g}\n".format(*beta))
-
-    f.clf()
-    a = f.add_subplot(111)
-    a.plot(theta, intensity[0], 'r-')
-    a.plot(theta, PAD(theta, beta[0], amp[0]), 'b-', lw=2)
-    a.annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*rmx+beta), (-np.pi/2,-2))
-    canvas.show()
-
-def _quit():
-    root.quit()     # stops mainloop
-    root.destroy()  # this is necessary on Windows to prevent
-                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+        blk = tk.Label(master=self.top_frame, text="   ", width=4)
+        blk.grid(row=0, column=3, columnspan=2)
 
 
-# buttons with callbacks ----------------
-# file input
-tk.Button(master=root, text='Load image file', command=_getfilename)\
-   .pack(anchor=tk.W)
+        self.speed = tk.Button(master=self.top_frame, text="speed",
+                               state="disabled", command=self._speed)
+        self.speed.grid(row=0, column=5)
 
-# image centering
-tk.Button(master=root, text='center image', command=_center).pack(anchor=tk.N)
+        self.aniso = tk.Button(master=self.top_frame, text="anisotropy",
+                               state="disabled", command=self._anisotropy)
+        self.aniso.grid(row=0, column=6)
 
-# display raw input image
-tk.Button(master=root, text='raw image', command=_display).pack(anchor=tk.N)
+        self.subframe = tk.Frame(self.top_frame)
+        self.subframe.grid(row=1, column=6)
+        self.rmin = tk.Entry(master=self.subframe, text='rmin', width=3,
+                             state="disabled") 
+        self.rmin.grid(row=0, column=0)
+        self.rmin.select_clear()
+        self.rmin.insert(0, self.rmx[0])
+        self.lbl = tk.Label(master=self.subframe, text="to", state="disabled")
+        self.lbl.grid(row=0, column=1)
+        self.rmax = tk.Entry(master=self.subframe, text='rmax', width=3,
+                             state="disabled")
+        self.rmax.grid(row=0, column=2)
+        self.rmax.select_clear()
+        self.rmax.insert(0, self.rmx[1])
 
-# Abel transform
-tk.Button(master=root, text='inverse Abel transform', command=_transform)\
-   .pack(anchor=tk.N)
+        self.quit = tk.Button(master=self.top_frame, text="quit",
+                              command=self._quit)
+        self.quit.grid(row=1, column=0, sticky="w")
 
-transform = ttk.Combobox(master=root, values=Abel_methods, state="readonly", width=10, height=len(Abel_methods))
-transform.current(2)
-transform.place(anchor=tk.W, relx=0.67, rely=0.14)
+       
+    def _plot_canvas(self):
+        # matplotlib canvas --------------------------
+        self.canvas = FigureCanvasTkAgg(self.f, master=self.parent)
+        self.a.annotate("load image file using 'raw image' button ", (0.5, 0.6), 
+                        horizontalalignment="center")
+        self.a.annotate("e.g. data/O2-ANU1024.txt.bz2", (0.5, 0.5), 
+                        horizontalalignment="center")
+        #self.canvas.show()
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-# speed
-tk.Button(master=root, text='speed distribution', command=_speed)\
-   .pack(anchor=tk.N)
+        self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.parent)
+        self.toolbar.update()
+        self.canvas._tkcanvas.pack(anchor=tk.W, side=tk.TOP, fill=tk.BOTH, expand=1)
 
-# anisotropy
-tk.Button(master=root, text='anisotropy parameter', command=_anisotropy)\
-   .pack(anchor=tk.N)
-rmin = tk.Entry(master=root, text='rmin')
-rmin.place(anchor=tk.W, relx=0.66, rely=0.22, width=40)
-rmin.insert(0, 368)
-tk.Label(master=root, text="to").place(relx=0.74, rely=0.20)
-rmax = tk.Entry(master=root, text='rmax')
-rmax.place(anchor=tk.W, relx=0.78, rely=0.22, width=40)
-rmax.insert(0, 389)
-
-tk.Button(master=root, text='Quit', command=_quit).pack(anchor=tk.SW)
-
-# a tk.DrawingArea ---------------
-canvas = FigureCanvasTkAgg(f, master=root)
-a.annotate("load image file", (0.5, 0.6), horizontalalignment="center")
-a.annotate("e.g. data/O2-ANU1024.txt.bz2", (0.5, 0.5), horizontalalignment="center")
-canvas.show()
-canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-
-toolbar = NavigationToolbar2TkAgg(canvas, root)
-toolbar.update()
-canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-
-# text info box
-text = tk.Text(master=root, height=4, fg="blue")
-text.pack(fill=tk.X)
-text.insert(tk.END, "To start load an image data file using the `Load image file' button\n")
+    def _text_info_box(self):
+        # text info box ---------------------
+        self.text = tk.Text(master=self.bottom_frame, height=4, fg="blue")
+        self.text.pack(fill=tk.X)
+        self.text.insert(tk.END, "To start load an image data file using"
+                         " menu File->`load image file`\n")
 
 
-tk.mainloop()
+    # call back functions
+    def _display(self):
+        if self.fn is None:
+            self._getfilename()
+        # update information text box
+        self.text.insert(tk.END,"raw image\n")
+
+        # display image
+        self.f.clf()
+        self.a = self.f.add_subplot(111)
+        self.a.imshow(self.IM, vmin=0)
+        self.f.colorbar(self.a.get_children()[2], ax=self.f.gca())
+        self.canvas.show()
+
+
+    def _getfilename(self):
+        self.fn = askopenfilename()
+
+        # update what is occurring text box
+        self.text.delete(1.0, tk.END)
+        self.text.insert(tk.END, "reading image file {:s}\n".format(self.fn))
+        self.canvas.show()
+
+        # read image file
+        if ".txt" in self.fn:
+            self.IM = np.loadtxt(self.fn)
+        else:
+            self.IM = imread(self.fn)
+
+        # if even size image, make odd
+        if self.IM.shape[0] % 2 == 0:
+            self.text.insert(tk.END, "make image odd size")
+            self.IM = shift(self.IM, (-0.5, -0.5))[:-1,:-1]
+    
+        self.old_method = None
+        self.AIM = None
+        self.action = "file"
+        self.center.config(state="active")
+        self.center_method.config(state="active")
+        self.recond.config(state="active")
+        self.transform.config(state="active")
+        self.speed.config(state="disable")
+        self.aniso.config(state="disable")
+        self.rmin.config(state="disable")
+        self.lbl.config(state="disable")
+        self.rmax.config(state="disable")
+
+        # show the image
+        self._display()
+    
+
+    def _center(self):
+        self.action = "center"
+
+        center_method = self.center_method.get()
+        # update information text box
+        self.text.delete(1.0, tk.END)
+        self.text.insert(tk.END, "centering image using {:s}\n".format(center_method))
+        self.canvas.show()
+    
+        # center image via horizontal (left, right), and vertical (top, bottom)
+        # intensity slices
+        self.IM, self.offset = abel.tools.center.find_center(self.IM,
+                               method=center_method)
+        self.text.insert(tk.END, "center offset = {:}\n".format(self.offset))
+    
+        self._display()
+    
+    
+    def _transform(self):
+        #self.method = Abel_methods[self.transform_method.get()]
+        self.method = self.transform.get()
+    
+        if self.method != self.old_method:
+            # inverse Abel transform of whole image
+            self.text.delete(1.0, tk.END)
+            self.text.insert(tk.END,"inverse Abel transform: {:s}\n".format(self.method))
+            if "basex" in self.method:
+                self.text.insert(tk.END,"  first time calculation of the basis functions may take a while ...\n")
+            if "onion" in self.method:
+               self.text.insert(tk.END,"   onion_peeling method is in early testing and may not produce reliable results\n")
+            if "direct" in self.method:
+               self.text.insert(tk.END,"   calculation is slowed if Cython unavailable ...\n")
+            self.canvas.show()
+    
+            self.AIM = abel.transform(self.IM, method=self.method, 
+                                      direction="inverse",
+                                      vertical_symmetry=False,
+                                      horizontal_symmetry=False)['transform']
+            self.old_method = self.method
+            self.speed.config(state="active")
+            self.aniso.config(state="active")
+            self.rmin.config(state="normal")
+            self.rmin.select_clear()
+            self.rmin.insert(0, self.rmx[0])
+            self.lbl.config(state="normal")
+            self.rmax.config(state="normal")
+            self.rmax.select_clear()
+            self.rmax.insert(0, self.rmx[1])
+    
+        if self.action not in ["speed", "anisotropy"]:
+            self.f.clf()
+            self.a = self.f.add_subplot(111)
+            self.a.imshow(self.AIM, vmin=0, vmax=self.AIM.max()/5.0)
+            self.f.colorbar(self.a.get_children()[2], ax=self.f.gca())
+
+        self.canvas.show()
+    
+    def _speed(self):
+        self.action = "speed"
+        # inverse Abel transform
+        self._transform()
+        # update text box in case something breaks
+        self.text.insert(tk.END, "speed distribution\n")
+        self.canvas.show()
+    
+        # speed distribution
+        self.radial, self.speed_dist = abel.tools.vmi.angular_integration(self.AIM)
+    
+        self.f.clf()
+        self.a = self.f.add_subplot(111)
+        self.a.plot(self.radial, self.speed_dist/self.speed_dist[50:].max())
+        self.a.axis(xmax=500, ymin=-0.05)
+        self.a.set_xlabel("pixel radius")
+        self.a.set_ylabel("normalized intensity")
+        self.a.set_title("radial speed distribution")
+        self.canvas.show()
+    
+    def _anisotropy(self):
+
+        def P2(x):   # 2nd order Legendre polynomial
+            return (3*x*x-1)/2
+    
+    
+        def PAD(theta, beta, amp):
+            return amp*(1 + beta*P2(np.cos(theta)))
+    
+        self.action = "anisotropy"
+        self._transform()
+        # radial range over which to follow the intensity variation with angle
+        self.rmx = (int(self.rmin.get()), int(self.rmax.get()))
+    
+        self.text.delete(1.0, tk.END)
+        self.text.insert(tk.END,"anisotropy parameter pixel range {:} to {:}\n".format(*self.rmx))
+        self.canvas.show()
+    
+        # inverse Abel transform
+        self._transform()
+    
+        # intensity vs angle
+        self.intensity, self.theta = abel.tools.vmi.calculate_angular_distributions(self.AIM,\
+                                       radial_ranges=[self.rmx,])
+    
+        # fit to P2(cos theta)
+        self.beta, self.amp = abel.tools.vmi.anisotropy_parameter(self.theta, self.intensity[0])
+    
+        self.text.insert(tk.END,"beta = {:g}+-{:g}\n".format(*self.beta))
+    
+        self.f.clf()
+        self.a = self.f.add_subplot(111)
+        self.a.plot(self.theta, self.intensity[0], 'r-')
+        self.a.plot(self.theta, PAD(self.theta, self.beta[0], self.amp[0]), 'b-', lw=2)
+        self.a.annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*self.rmx+self.beta), (-np.pi/2,-2))
+        self.a.set_title("anisotropy")
+        self.a.set_xlabel("angle")
+        self.a.set_ylabel("intensity")
+        self.canvas.show()
+    
+    def _quit(self):
+        self.parent.quit()     # stops mainloop
+        self.parent.destroy()  # this is necessary on Windows to prevent
+                        # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+    
+        
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    pyabel = PyAbel(root)
+    root.title("PyAbel simple GUI")
+    root.config(menu=pyabel.menubar)
+    root.mainloop()
