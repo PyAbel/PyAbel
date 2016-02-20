@@ -16,7 +16,7 @@ def transform(
         horizontal_symmetry=True, use_quadrants=(True, True, True, True),
         transform_options={}, center_options={}):
     """
-    transform - the go-to function for all of your Abel transform needs!!
+    transform() is the go-to function for all of your Abel transform needs!!
 
     This performs the forward or reverse Abel transform
     using a user-selected method.
@@ -29,25 +29,26 @@ def transform(
     direction : str
         The type of Abel transform to be performed.
 
-        'forward' :
-            A 'forward' Abel transform takes a (2D) slice of a 3D image
-            and returns the 2D projection.
-        'inverse' :
-            An 'inverse' Abel transform takes a 2D projection and reconstructs
-            a 2D slice of the 3D image.
+        'forward'
+                    A 'forward' Abel transform takes a (2D) slice of a 3D image
+                    and returns the 2D projection.
+        'inverse'
+                    An 'inverse' Abel transform takes a 2D projection and reconstructs
+                    a 2D slice of the 3D image.
+
         The default is 'inverse'.
     method : str
         specifies which numerical approximation to the Abel transform
         should be employed (see below). The options are
 
-        'hansenlaw' :
-            the recursive algorithm described by Hansen and Law
-        'basex' :
-            the Gaussian "basis set expansion" method of Dribinski et al.
-        'direct' :
-            a naive implementation of the analytical formula by Roman Yurchuk.
-        'three_point' :
-            the three-point transform of Dasch and co-workers
+        'hansenlaw'
+                    the recursive algorithm described by Hansen and Law
+        'basex'
+                    the Gaussian "basis set expansion" method of Dribinski et al.
+        'direct'
+                    a naive implementation of the analytical formula by Roman Yurchuk.
+        'three_point'
+                    the three-point transform of Dasch and co-workers
     center : tuple or str
         If a tuple (float, float) is provided, this specifies
         the image center in (y,x) (row, column) format.
@@ -56,20 +57,20 @@ def transform(
         for example 'center=(None, 250)'.
         If a string is provided, an automatic centering algorithm is used
 
-        'image_center' :
-            center is assumed to be the center of the image.
-        'by_slice' :
-            (whatever this does)
-        'com' :
-            the center is calculated as the center of mass
-        'none' :
-             No centering is performed. An image with an odd
-             number of columns must be provided.
-        The default is 'none'.
+        'image_center'
+                    center is assumed to be the center of the image.
+        'by_slice'
+                    (whatever this does)
+        'com'
+                    the center is calculated as the center of mass
+        'none'
+                     (Default)
+                     No centering is performed. An image with an odd
+                     number of columns must be provided.
     verbose : boolean
         True/False to determine if non-critical output should be printed.
     vertical_symmetry : boolean
-        Symmetrize the image in the up/down direction?
+        Symmetrize the image in the up/down direction
         (The first axis is the vertical axis.)
     horizontal_symmetry : boolean
         Symmetrize the image in the left/right direction?
@@ -90,37 +91,33 @@ def transform(
              | Q2  *  | *   Q3 |          AQi == inverse Abel transform
              +--------+--------+                 of quadrant Qi
 
-       ::
 
         (1) vertical_symmetry = True
 
-       ::
+        ::
 
            Combine:  `Q01 = Q1 + Q2, Q23 = Q2 + Q3`
            inverse image   AQ01 | AQ01
                            -----o-----
                            AQ23 | AQ23
-       ::
 
         (2) horizontal_symmetry = True
 
-       ::
+        ::
 
            Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
            inverse image   AQ12 | AQ03
                            -----o-----
                            AQ12 | AQ03
-       ::
 
         (3) vertical_symmetry = True, horizontal = True
 
-       ::
+        ::
 
            Combine: Q = Q0 + Q1 + Q2 + Q3
            inverse image   AQ | AQ
                            ---o---  all quadrants equivalent
                            AQ | AQ
-       ::
 
     transform_options : tuple
         Additional arguments passed to the individual transform functions.
@@ -187,11 +184,12 @@ def transform(
     results : dict
         The transform function returns a dictionary of results
         depending on the options selected
-            - results['transform']
+        
+        'results['transform']'
                 (always returned) is the 2D forward/reverse Abel transform
-            - results['radial_intensity']
+        'results['radial_intensity']'
                 is not currently implemented
-            - results['residual']
+        'results['residual']'
                 is not currently implemented
     """
 

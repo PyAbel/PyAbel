@@ -159,17 +159,23 @@ class StepAnalytical(BaseAnalytical):
         Abel transform. See examples/example_step.py
 
         Parameters
-           - n : int: number of points along the r axis
-           - r_max: float: range of the symmetric r interval
-           - symmetric: if True the r interval is [-r_max, r_max]
-                        (and n should be odd)
-                        otherwise the r interval is [0, r_max]
-           - r1, r2: floats: bounds of the step function if r > 0
-                    (symetic function is constructed for r < 0)
-           - A0: float: height of the step
-           - ratio_valid_step: float: in the benchmark take only the
-                central ratio*100% of the step
-                (exclude possible artefacts on the edges)
+        ----------
+        n : int
+            number of points along the r axis
+        r_max: float
+            range of the symmetric r interval
+        symmetric: if True
+            the r interval is [-r_max, r_max]
+            (and n should be odd)
+            otherwise the r interval is [0, r_max]
+        r1, r2: floats
+            bounds of the step function if r > 0
+            (symetic function is constructed for r < 0)
+        A0: float
+            height of the step
+        ratio_valid_step: float
+            in the benchmark take only the central ratio*100% of the step
+            (exclude possible artefacts on the edges)
 
         see https://github.com/PyAbel/PyAbel/pull/16
 
@@ -202,16 +208,22 @@ class GaussianAnalytical(BaseAnalytical):
         Abel transform. See examples/example_gaussian.py
 
         Parameters
-           - n : int: number of points along the r axis
-           - r_max: float: range of the symmetric r interval
-           - symmetric: if True the r interval is [-r_max, r_max]
-                        (and n should be odd)
-                        otherwise the r interval is [0, r_max]
-           - sigma: floats: sigma parameter for the gaussian
-           - A0: float: amplitude of the gaussian
-           - ratio_valid_sigma: float: in the benchmark ta
-                        0 < r < ration_valid_sigma * sigma
-                        (exclude possible artefacts on the axis, and )
+        n : int
+            number of points along the r axis
+        r_max: float
+            range of the symmetric r interval
+        symmetric: if True
+            the r interval is [-r_max, r_max]
+            (and n should be odd)
+            otherwise the r interval is [0, r_max]
+        sigma: floats
+            sigma parameter for the gaussian
+        A0: float
+            amplitude of the gaussian
+        ratio_valid_sigma: float
+            in the benchmark ta
+            0 < r < ration_valid_sigma * sigma
+            (exclude possible artefacts on the axis, and )
 
         Source: http://mathworld.wolfram.com/AbelTransform.html
         """
@@ -245,8 +257,6 @@ def abel_step_analytical(r, A0, r0, r1):
          0 | -----------------+             +-------------
            +------------------+-------------+------------>
            0                  r0            r1           r axis
-
-    ::
 
     This function is mostly used for unit testing the inverse Abel transform
 
