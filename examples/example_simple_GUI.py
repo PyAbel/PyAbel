@@ -18,6 +18,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
                                               NavigationToolbar2TkAgg
+from matplotlib.backend_bases import MouseEvent
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread, colorbar
 
@@ -37,6 +38,7 @@ class PyAbel:  #(tk.Tk):
         self.fn = None
         self.old_fn = None
         self.old_method = None
+        self.old_fi = None
         self.AIM = None
         self.rmx = (368, 393)
 
@@ -45,12 +47,12 @@ class PyAbel:  #(tk.Tk):
         self.a = self.f.add_subplot(111)
 
         # tkinter frames top (buttons), middle (info text), bottom (canvas)
-        self.main_container = tk.Frame(self.parent)#, background="bisque")
+        self.main_container = tk.Frame(self.parent)
         self.main_container.pack(side="top", fill="both", expand=True)
 
-        self.top_frame = tk.Frame(self.main_container)#, background="green")
-        self.middle_frame = tk.Frame(self.main_container)#, background="blue")
-        self.bottom_frame = tk.Frame(self.main_container)#, background="yellow")
+        self.top_frame = tk.Frame(self.main_container)
+        self.middle_frame = tk.Frame(self.main_container)
+        self.bottom_frame = tk.Frame(self.main_container)
 
         self.top_frame.pack(side="top", fill="x", expand=False)
         self.middle_frame.pack(side="left", fill="both", expand=True)
@@ -199,6 +201,7 @@ class PyAbel:  #(tk.Tk):
     def _plot_canvas(self):
         # matplotlib canvas --------------------------
         self.canvas = FigureCanvasTkAgg(self.f, master=self.parent)
+        self.cid = self.canvas.mpl_connect('button_press_event', self._onclick)
         self.a.annotate("load image file using 'load image' button ", (0.5, 0.6), 
                         horizontalalignment="center")
         self.a.annotate("e.g. data/O2-ANU1024.txt.bz2", (0.5, 0.5), 
@@ -216,6 +219,10 @@ class PyAbel:  #(tk.Tk):
         self.text.pack(fill=tk.X)
         self.text.insert(tk.END, "To start load an image data file using"
                          " menu File->`load image file`\n")
+
+    def _onclick(self,event):
+        print('button={:d}, x={:f}, y={:f}, xdata={:f}, ydata={:f}'.format(
+        event.button, event.x, event.y, event.xdata, event.ydata))
 
 
     # call back functions -----------------------
@@ -263,8 +270,12 @@ class PyAbel:  #(tk.Tk):
         self.speed.config(state=tk.ACTIVE)
         self.aniso.config(state=tk.ACTIVE)
         self.rmin.config(state=tk.NORMAL)
+        self.rmin.delete(0, tk.END)
+        self.rmin.insert(0, self.rmx[0])
         self.lbl.config(state=tk.NORMAL)
         self.rmax.config(state=tk.NORMAL)
+        self.rmax.delete(0, tk.END)
+        self.rmax.insert(0, self.rmx[1])
 
         # show the image
         self._display()
@@ -276,7 +287,8 @@ class PyAbel:  #(tk.Tk):
         center_method = self.center_method.get()
         # update information text box
         self.text.delete(1.0, tk.END)
-        self.text.insert(tk.END, "centering image using {:s}\n".format(center_method))
+        self.text.insert(tk.END, "centering image using {:s}\n".\
+                         format(center_method))
         self.canvas.show()
     
         # center image via chosen method
@@ -290,22 +302,26 @@ class PyAbel:  #(tk.Tk):
     def _transform(self):
         #self.method = Abel_methods[self.transform_method.get()]
         self.method = self.transform.get()
-        self.direction = self.direction.get()
+        self.fi = self.direction.get()
     
-        if self.method != self.old_method:
-            # inverse Abel transform of whole image
+        if self.method != self.old_method or self.fi != self.old_fi:
+            # Abel transform of whole image
             self.text.delete(1.0, tk.END)
-            self.text.insert(tk.END,"inverse Abel transform: {:s}\n".format(self.method))
+            self.text.insert(tk.END,"{:s} {:s} Abel transform:\n".\
+                             format(self.method, self.fi))
             if "basex" in self.method:
-                self.text.insert(tk.END,"  first time calculation of the basis functions may take a while ...\n")
+                self.text.insert(tk.END,"  first time calculation of the basis"
+                              " functions may take a while ...\n")
             if "onion" in self.method:
-               self.text.insert(tk.END,"   onion_peeling method is in early testing and may not produce reliable results\n")
+               self.text.insert(tk.END,"   onion_peeling method is in early i"
+                              "testing and may not produce reliable results\n")
             if "direct" in self.method:
-               self.text.insert(tk.END,"   calculation is slowed if Cython unavailable ...\n")
+               self.text.insert(tk.END,"   calculation is slowed if Cython"
+                                       " unavailable ...\n")
             self.canvas.show()
     
             self.AIM = abel.transform(self.IM, method=self.method, 
-                                      direction=self.direction,
+                                      direction=self.fi,
                                       vertical_symmetry=False,
                                       horizontal_symmetry=False)['transform']
             self.speed.config(state=tk.ACTIVE)
@@ -318,16 +334,17 @@ class PyAbel:  #(tk.Tk):
             self.rmax.delete(0, tk.END)
             self.rmax.insert(0, self.rmx[1])
     
-        if self.old_method != self.method or \
+        if self.old_method != self.method or self.fi != self.old_fi or\
            self.action not in ["speed", "anisotropy"]:
             self.f.clf()
             self.a = self.f.add_subplot(111)
-            self.a.set_title(self.method+" {:s} Abel transform".format(self.direction))
+            self.a.set_title(self.method+" {:s} Abel transform".format(self.fi))
             self.a.imshow(self.AIM, vmin=0, vmax=self.AIM.max()/5.0)
             self.f.colorbar(self.a.get_children()[2], ax=self.f.gca())
             self.text.insert(tk.END, "{:s} inverse Abel transformed image".format(self.method))
 
         self.old_method = self.method
+        self.old_fi = self.fi
         self.canvas.show()
     
     def _speed(self):
