@@ -175,7 +175,7 @@ def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
     Parameters
     ----------
     analytical : one of the classes from abel.analytical, initialized
-    
+
     recon : 1D ndarray
         a reconstruction (i.e. inverse abel)
         given by some PyAbel implementation

@@ -33,8 +33,8 @@ def transform(
                     A 'forward' Abel transform takes a (2D) slice of a 3D image
                     and returns the 2D projection.
         'inverse'
-                    An 'inverse' Abel transform takes a 2D projection and reconstructs
-                    a 2D slice of the 3D image.
+                    An 'inverse' Abel transform takes a 2D projection
+                    and reconstructs a 2D slice of the 3D image.
 
         The default is 'inverse'.
     method : str
@@ -44,9 +44,11 @@ def transform(
         'hansenlaw'
                     the recursive algorithm described by Hansen and Law
         'basex'
-                    the Gaussian "basis set expansion" method of Dribinski et al.
+                    the Gaussian "basis set expansion" method
+                    of Dribinski et al.
         'direct'
-                    a naive implementation of the analytical formula by Roman Yurchuk.
+                    a naive implementation of the analytical
+                    formula by Roman Yurchuk.
         'three_point'
                     the three-point transform of Dasch and co-workers
     center : tuple or str
@@ -184,7 +186,7 @@ def transform(
     results : dict
         The transform function returns a dictionary of results
         depending on the options selected
-        
+
         'results['transform']'
                 (always returned) is the 2D forward/reverse Abel transform
         'results['radial_intensity']'
