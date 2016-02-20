@@ -322,7 +322,7 @@ class PyAbel:  #(tk.Tk):
            self.action not in ["speed", "anisotropy"]:
             self.f.clf()
             self.a = self.f.add_subplot(111)
-            self.a.set_title(self.method+" inverse Abel transform")
+            self.a.set_title(self.method+" {:s} Abel transform".format(self.direction))
             self.a.imshow(self.AIM, vmin=0, vmax=self.AIM.max()/5.0)
             self.f.colorbar(self.a.get_children()[2], ax=self.f.gca())
             self.text.insert(tk.END, "{:s} inverse Abel transformed image".format(self.method))
