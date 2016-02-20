@@ -44,6 +44,7 @@ class PyAbel:  #(tk.Tk):
         self.f = Figure(figsize=(5, 4))
         self.a = self.f.add_subplot(111)
 
+        # tkinter frames top (buttons), middle (info text), bottom (canvas)
         self.main_container = tk.Frame(self.parent)#, background="bisque")
         self.main_container.pack(side="top", fill="both", expand=True)
 
@@ -61,7 +62,8 @@ class PyAbel:  #(tk.Tk):
         self._text_info_box()
 
     def _menus(self):
-        # menus and buttons with callbacks ----------------
+        # menus with callback ----------------
+        # duplicates the button interface
         self.menubar = tk.Menu(self.parent)
         self.transform_method = tk.IntVar()
         self.filemenu = tk.Menu(self.menubar, tearoff=0)
@@ -150,11 +152,16 @@ class PyAbel:  #(tk.Tk):
 
         self.load = tk.Button(master=self.top_frame, text="load image",
                               command=self._getfilename)
-        self.load.grid(row=1, column=0, sticky="w")
+        self.load.grid(row=1, column=0, sticky=tk.W)
 
         self.quit = tk.Button(master=self.top_frame, text="quit",
                               command=self._quit)
-        self.quit.grid(row=2, column=0, sticky="w")
+        self.quit.grid(row=2, column=0, sticky=tk.W)
+
+        self.nobuttons = tk.Button(master=self.top_frame, text="no buttons",
+                              command=self._nobuttons)
+        self.nobuttons.grid(row=2, column=4, sticky=tk.E)
+
 
         blankrow = tk.Label(master=self.top_frame, text="   ", width=4)
         blankrow.grid(row=3, column=0, columnspan=5)
@@ -284,6 +291,7 @@ class PyAbel:  #(tk.Tk):
            self.action not in ["speed", "anisotropy"]:
             self.f.clf()
             self.a = self.f.add_subplot(111)
+            self.a.set_title(self.method+" inverse Abel transform")
             self.a.imshow(self.AIM, vmin=0, vmax=self.AIM.max()/5.0)
             self.f.colorbar(self.a.get_children()[2], ax=self.f.gca())
             self.text.insert(tk.END, "{:s} inverse Abel transformed image".format(self.method))
@@ -355,14 +363,15 @@ class PyAbel:  #(tk.Tk):
 
         self.action = None
         self.canvas.show()
+
+    def _nobuttons(self):
+        self.top_frame.destroy()
     
     def _quit(self):
         self.parent.quit()     # stops mainloop
         self.parent.destroy()  # this is necessary on Windows to prevent
                         # Fatal Python Error: PyEval_RestoreThread: NULL tstate
     
-        
-
 
 if __name__ == "__main__":
     root = tk.Tk()
