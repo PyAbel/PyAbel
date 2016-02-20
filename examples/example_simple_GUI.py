@@ -30,7 +30,6 @@ Abel_methods = ['basex', 'direct', 'hansenlaw', #'onion-peeling'
 class PyAbel:  #(tk.Tk):
 
     def __init__(self, parent):
-#        tk.Tk.__init__(self, parent)
         self.parent = parent
         self.initialize()
 
@@ -104,23 +103,23 @@ class PyAbel:  #(tk.Tk):
         self.rawimg.grid(row=0, column=0)
 
         self.center = tk.Button(master=self.top_frame, text="center image",
-                                state="disabled", command=self._center)
+                                state=tk.DISABLED, command=self._center)
         self.center.grid(row=0, column=1)
         self.center_method = ttk.Combobox(master=self.top_frame,
                          values=["com", "slice", "gaussian", "image_center"],
-                         state="disable", width=5, height=4)
+                         state=tk.DISABLED, width=5, height=4)
         self.center_method.current(1)
         self.center_method.grid(row=1, column=1)
 
         self.recond = tk.Button(master=self.top_frame,
                                 text="reconstructed image",
-                                state="disabled",
+                                state=tk.DISABLED,
                                 command=self._transform)
         self.recond.grid(row=0,column=2)
 
         self.transform = ttk.Combobox(master=self.top_frame,
                          values=Abel_methods,
-                         state="disable", width=10, height=len(Abel_methods))
+                         state=tk.DISABLED, width=10, height=len(Abel_methods))
         self.transform.current(2)
         self.transform.grid(row=1, column=2)
 
@@ -129,26 +128,26 @@ class PyAbel:  #(tk.Tk):
 
 
         self.speed = tk.Button(master=self.top_frame, text="speed",
-                               state="disabled", command=self._speed)
+                               state=tk.DISABLED, command=self._speed)
         self.speed.grid(row=0, column=5)
 
         self.aniso = tk.Button(master=self.top_frame, text="anisotropy",
-                               state="disabled", command=self._anisotropy)
+                               state=tk.DISABLED, command=self._anisotropy)
         self.aniso.grid(row=0, column=6)
 
         self.subframe = tk.Frame(self.top_frame)
         self.subframe.grid(row=1, column=6)
         self.rmin = tk.Entry(master=self.subframe, text='rmin', width=3,
-                             state="disabled") 
+                             state=tk.DISABLED) 
         self.rmin.grid(row=0, column=0)
-        self.rmin.select_clear()
+        self.rmin.delete(0, tk.END)
         self.rmin.insert(0, self.rmx[0])
-        self.lbl = tk.Label(master=self.subframe, text="to", state="disabled")
+        self.lbl = tk.Label(master=self.subframe, text="to", state=tk.DISABLED)
         self.lbl.grid(row=0, column=1)
         self.rmax = tk.Entry(master=self.subframe, text='rmax', width=3,
-                             state="disabled")
+                             state=tk.DISABLED)
         self.rmax.grid(row=0, column=2)
-        self.rmax.select_clear()
+        self.rmax.delete(0, tk.END)
         self.rmax.insert(0, self.rmx[1])
 
         self.quit = tk.Button(master=self.top_frame, text="quit",
@@ -163,7 +162,7 @@ class PyAbel:  #(tk.Tk):
                         horizontalalignment="center")
         self.a.annotate("e.g. data/O2-ANU1024.txt.bz2", (0.5, 0.5), 
                         horizontalalignment="center")
-        #self.canvas.show()
+
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
         self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.parent)
@@ -178,7 +177,7 @@ class PyAbel:  #(tk.Tk):
                          " menu File->`load image file`\n")
 
 
-    # call back functions
+    # call back functions -----------------------
     def _display(self):
         if self.fn is None:
             self._getfilename()
@@ -215,15 +214,15 @@ class PyAbel:  #(tk.Tk):
         self.old_method = None
         self.AIM = None
         self.action = "file"
-        self.center.config(state="active")
-        self.center_method.config(state="active")
-        self.recond.config(state="active")
-        self.transform.config(state="active")
-        self.speed.config(state="disable")
-        self.aniso.config(state="disable")
-        self.rmin.config(state="disable")
-        self.lbl.config(state="disable")
-        self.rmax.config(state="disable")
+        self.center.config(state=tk.ACTIVE)
+        self.center_method.config(state=tk.ACTIVE)
+        self.recond.config(state=tk.ACTIVE)
+        self.transform.config(state=tk.ACTIVE)
+        self.speed.config(state=tk.DISABLED)
+        self.aniso.config(state=tk.DISABLED)
+        self.rmin.config(state=tk.DISABLED)
+        self.lbl.config(state=tk.DISABLED)
+        self.rmax.config(state=tk.DISABLED)
 
         # show the image
         self._display()
@@ -238,8 +237,7 @@ class PyAbel:  #(tk.Tk):
         self.text.insert(tk.END, "centering image using {:s}\n".format(center_method))
         self.canvas.show()
     
-        # center image via horizontal (left, right), and vertical (top, bottom)
-        # intensity slices
+        # center image via chosen method
         self.IM, self.offset = abel.tools.center.find_center(self.IM,
                                method=center_method)
         self.text.insert(tk.END, "center offset = {:}\n".format(self.offset))
@@ -268,14 +266,14 @@ class PyAbel:  #(tk.Tk):
                                       vertical_symmetry=False,
                                       horizontal_symmetry=False)['transform']
             self.old_method = self.method
-            self.speed.config(state="active")
-            self.aniso.config(state="active")
-            self.rmin.config(state="normal")
-            self.rmin.select_clear()
+            self.speed.config(state=tk.ACTIVE)
+            self.aniso.config(state=tk.ACTIVE)
+            self.rmin.config(state=tk.NORMAL)
+            self.rmin.delete(0, tk.END)
             self.rmin.insert(0, self.rmx[0])
-            self.lbl.config(state="normal")
-            self.rmax.config(state="normal")
-            self.rmax.select_clear()
+            self.lbl.config(state=tk.NORMAL)
+            self.rmax.config(state=tk.NORMAL)
+            self.rmax.delete(0, tk.END)
             self.rmax.insert(0, self.rmx[1])
     
         if self.action not in ["speed", "anisotropy"]:
