@@ -54,18 +54,25 @@ class PyAbel:  #(tk.Tk):
 
         self.top_frame.pack(side="top", fill="x", expand=False)
         self.middle_frame.pack(side="left", fill="both", expand=True)
-        self.bottom_frame.pack(side="bottom", fill="x", expand=False)
+        self.bottom_frame.pack(side="top", fill="x", expand=False)
 
         self._menus()
         self._button_area()
         self._plot_canvas()
         self._text_info_box()
 
+    def _top_frame(self):
+        self.top_frame = tk.Frame(self.main_container)#, background="green")
+        self.top_frame.pack(side="top", fill="x", expand=False)
+        self._menus()
+
     def _menus(self):
         # menus with callback ----------------
         # duplicates the button interface
         self.menubar = tk.Menu(self.parent)
         self.transform_method = tk.IntVar()
+
+        # File - menu
         self.filemenu = tk.Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(label="Load image file",
                                   command=self._getfilename)
@@ -73,6 +80,7 @@ class PyAbel:  #(tk.Tk):
         self.filemenu.add_command(label="Exit", command=self._quit)
         self.menubar.add_cascade(label="File", menu=self.filemenu)
 
+        # Process - menu
         self.processmenu = tk.Menu(self.menubar, tearoff=0)
         self.processmenu.add_command(label="Center image", command=self._center)
         self.submenu=tk.Menu(self.processmenu)
@@ -90,18 +98,24 @@ class PyAbel:  #(tk.Tk):
         self.angmenu=tk.Menu(self.processmenu)
         self.menubar.add_cascade(label="Processing", menu=self.processmenu)
     
+        # view - menu
         self.viewmenu = tk.Menu(self.menubar, tearoff=0)
         self.viewmenu.add_command(label="Raw image", command=self._display)
         self.viewmenu.add_command(label="Inverse Abel transformed image",
                                   command=self._transform)
+        self.viewmenu.add_command(label="view buttons",
+                                  command=self._on_buttons)
         self.menubar.add_cascade(label="View", menu=self.viewmenu)
 
 
     def _button_area(self):
+        # grid layout 
+        # raw image button
         self.rawimg = tk.Button(master=self.top_frame, text="raw image",
                                 command=self._display)
         self.rawimg.grid(row=0, column=0)
-
+   
+        # center image
         self.center = tk.Button(master=self.top_frame, text="center image",
                                 state=tk.DISABLED, command=self._center)
         self.center.grid(row=0, column=1)
@@ -111,8 +125,9 @@ class PyAbel:  #(tk.Tk):
         self.center_method.current(1)
         self.center_method.grid(row=1, column=1)
 
+        # Abel transform image
         self.recond = tk.Button(master=self.top_frame,
-                                text="reconstructed image",
+                                text="Abel transform image",
                                 state=tk.DISABLED,
                                 command=self._transform)
         self.recond.grid(row=0,column=2)
@@ -123,14 +138,24 @@ class PyAbel:  #(tk.Tk):
         self.transform.current(2)
         self.transform.grid(row=1, column=2)
 
+        self.direction = ttk.Combobox(master=self.top_frame,
+                         values=["inverse", "forward"],
+                         state=tk.DISABLED, width=8, height=2)
+        self.direction.current(0)
+        self.direction.grid(row=2, column=2)
+
+
+        # blank space
         blank = tk.Label(master=self.top_frame, text="   ", width=4)
         blank.grid(row=0, column=3, columnspan=2)
 
 
+        # speed button
         self.speed = tk.Button(master=self.top_frame, text="speed",
                                state=tk.DISABLED, command=self._speed)
         self.speed.grid(row=0, column=5)
 
+        # anisotropy button
         self.aniso = tk.Button(master=self.top_frame, text="anisotropy",
                                state=tk.DISABLED, command=self._anisotropy)
         self.aniso.grid(row=0, column=6)
@@ -150,19 +175,23 @@ class PyAbel:  #(tk.Tk):
         self.rmax.delete(0, tk.END)
         self.rmax.insert(0, self.rmx[1])
 
+        # load image file button
         self.load = tk.Button(master=self.top_frame, text="load image",
                               command=self._getfilename)
         self.load.grid(row=1, column=0, sticky=tk.W)
 
+        # quit
         self.quit = tk.Button(master=self.top_frame, text="quit",
                               command=self._quit)
         self.quit.grid(row=2, column=0, sticky=tk.W)
 
-        self.nobuttons = tk.Button(master=self.top_frame, text="no buttons",
-                              command=self._nobuttons)
-        self.nobuttons.grid(row=2, column=4, sticky=tk.E)
+        # turn off button interface
+        self.hide_buttons = tk.Button(master=self.top_frame,
+                                      text="hide buttons",
+                                      command=self._hide_buttons)
+        self.hide_buttons.grid(row=2, column=6, sticky=tk.E)
 
-
+        # blank separator row
         blankrow = tk.Label(master=self.top_frame, text="   ", width=4)
         blankrow.grid(row=3, column=0, columnspan=5)
 
@@ -230,6 +259,7 @@ class PyAbel:  #(tk.Tk):
         self.center_method.config(state=tk.ACTIVE)
         self.recond.config(state=tk.ACTIVE)
         self.transform.config(state=tk.ACTIVE)
+        self.direction.config(state=tk.ACTIVE)
         self.speed.config(state=tk.ACTIVE)
         self.aniso.config(state=tk.ACTIVE)
         self.rmin.config(state=tk.NORMAL)
@@ -260,6 +290,7 @@ class PyAbel:  #(tk.Tk):
     def _transform(self):
         #self.method = Abel_methods[self.transform_method.get()]
         self.method = self.transform.get()
+        self.direction = self.direction.get()
     
         if self.method != self.old_method:
             # inverse Abel transform of whole image
@@ -274,7 +305,7 @@ class PyAbel:  #(tk.Tk):
             self.canvas.show()
     
             self.AIM = abel.transform(self.IM, method=self.method, 
-                                      direction="inverse",
+                                      direction=self.direction,
                                       vertical_symmetry=False,
                                       horizontal_symmetry=False)['transform']
             self.speed.config(state=tk.ACTIVE)
@@ -344,8 +375,9 @@ class PyAbel:  #(tk.Tk):
         self._transform()
     
         # intensity vs angle
-        self.intensity, self.theta = abel.tools.vmi.calculate_angular_distributions(self.AIM,\
-                                       radial_ranges=[self.rmx,])
+        self.intensity, self.theta = abel.tools.vmi.\
+                                     calculate_angular_distributions(self.AIM,\
+                                     radial_ranges=[self.rmx,])
     
         # fit to P2(cos theta)
         self.beta, self.amp = abel.tools.vmi.anisotropy_parameter(self.theta, self.intensity[0])
@@ -364,8 +396,11 @@ class PyAbel:  #(tk.Tk):
         self.action = None
         self.canvas.show()
 
-    def _nobuttons(self):
+    def _hide_buttons(self):
         self.top_frame.destroy()
+
+    def _on_buttons(self):
+        self._top_frame()
     
     def _quit(self):
         self.parent.quit()     # stops mainloop
