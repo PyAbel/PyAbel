@@ -179,13 +179,6 @@ def find_center_by_gaussian_fit(IM, verbose=True, round_output=False,
 
     return center
 
-func_method = {
-    "image_center": find_center_by_center_of_image,
-    "com": find_center_by_center_of_mass,
-    "gaussian": find_center_by_gaussian_fit,
-    "slice": find_image_center_by_slice
-}
-
 
 def axis_slices(IM, radial_range=(0, -1), slice_width=10):
     """returns vertical and horizontal slice profiles, summed across slice_width.
@@ -285,8 +278,9 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
         if fit["success"]:
             xyoffset[0] = -float(fit['x'])/2  # x1/2 for image center shift
         else:
-            print("fit failure: axis = 0, zero shift set")
-            print(fit)
+            if verbose:
+                print("fit failure: axis = 0, zero shift set")
+                print(fit)
 
     # x-axis
     if (type(axis) is int and axis == 1) or \
@@ -296,8 +290,9 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
         if fit["success"]:
             xyoffset[1] = -float(fit['x'])/2   # x1/2 for image center shift
         else:
-            print("fit failure: axis = 1, zero shift set")
-            print(fit)
+            if verbose:
+                print("fit failure: axis = 1, zero shift set")
+                print(fit)
 
     # this is the (y, x) shift to align the slice profiles
     xyoffset = tuple(xyoffset)
@@ -305,3 +300,11 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     IM_centered = shift(IM, xyoffset)  # center image
 
     return IM_centered, xyoffset
+ 
+
+func_method = {
+    "image_center": find_center_by_center_of_image,
+    "com": find_center_by_center_of_mass,
+    "gaussian": find_center_by_gaussian_fit,
+    "slice": find_image_center_by_slice
+}

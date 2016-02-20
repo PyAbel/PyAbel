@@ -56,8 +56,6 @@ class PyAbel:  #(tk.Tk):
         self.bottom_frame.pack(side="bottom", fill="x", expand=False)
 
         self._menus()
-        #ttk.Separator(master=self.parent, orient=tk.HORIZONTAL).grid(row=3,
-        #              columnspan=5)
         self._button_area()
         self._plot_canvas()
         self._text_info_box()
@@ -123,8 +121,8 @@ class PyAbel:  #(tk.Tk):
         self.transform.current(2)
         self.transform.grid(row=1, column=2)
 
-        blk = tk.Label(master=self.top_frame, text="   ", width=4)
-        blk.grid(row=0, column=3, columnspan=2)
+        blank = tk.Label(master=self.top_frame, text="   ", width=4)
+        blank.grid(row=0, column=3, columnspan=2)
 
 
         self.speed = tk.Button(master=self.top_frame, text="speed",
@@ -154,6 +152,9 @@ class PyAbel:  #(tk.Tk):
                               command=self._quit)
         self.quit.grid(row=1, column=0, sticky="w")
 
+        blankrow = tk.Label(master=self.top_frame, text="   ", width=4)
+        blankrow.grid(row=3, column=0, columnspan=5)
+
        
     def _plot_canvas(self):
         # matplotlib canvas --------------------------
@@ -171,7 +172,7 @@ class PyAbel:  #(tk.Tk):
 
     def _text_info_box(self):
         # text info box ---------------------
-        self.text = tk.Text(master=self.bottom_frame, height=4, fg="blue")
+        self.text = tk.Text(master=self.bottom_frame, height=3, fg="mediumblue")
         self.text.pack(fill=tk.X)
         self.text.insert(tk.END, "To start load an image data file using"
                          " menu File->`load image file`\n")
@@ -218,11 +219,11 @@ class PyAbel:  #(tk.Tk):
         self.center_method.config(state=tk.ACTIVE)
         self.recond.config(state=tk.ACTIVE)
         self.transform.config(state=tk.ACTIVE)
-        self.speed.config(state=tk.DISABLED)
-        self.aniso.config(state=tk.DISABLED)
-        self.rmin.config(state=tk.DISABLED)
-        self.lbl.config(state=tk.DISABLED)
-        self.rmax.config(state=tk.DISABLED)
+        self.speed.config(state=tk.ACTIVE)
+        self.aniso.config(state=tk.ACTIVE)
+        self.rmin.config(state=tk.NORMAL)
+        self.lbl.config(state=tk.NORMAL)
+        self.rmax.config(state=tk.NORMAL)
 
         # show the image
         self._display()
@@ -265,7 +266,6 @@ class PyAbel:  #(tk.Tk):
                                       direction="inverse",
                                       vertical_symmetry=False,
                                       horizontal_symmetry=False)['transform']
-            self.old_method = self.method
             self.speed.config(state=tk.ACTIVE)
             self.aniso.config(state=tk.ACTIVE)
             self.rmin.config(state=tk.NORMAL)
@@ -276,12 +276,15 @@ class PyAbel:  #(tk.Tk):
             self.rmax.delete(0, tk.END)
             self.rmax.insert(0, self.rmx[1])
     
-        if self.action not in ["speed", "anisotropy"]:
+        if self.old_method != self.method or \
+           self.action not in ["speed", "anisotropy"]:
             self.f.clf()
             self.a = self.f.add_subplot(111)
             self.a.imshow(self.AIM, vmin=0, vmax=self.AIM.max()/5.0)
             self.f.colorbar(self.a.get_children()[2], ax=self.f.gca())
+            self.text.insert(tk.END, "{:s} inverse Abel transformed image".format(self.method))
 
+        self.old_method = self.method
         self.canvas.show()
     
     def _speed(self):
@@ -289,6 +292,7 @@ class PyAbel:  #(tk.Tk):
         # inverse Abel transform
         self._transform()
         # update text box in case something breaks
+        self.text.delete(1.0, tk.END)
         self.text.insert(tk.END, "speed distribution\n")
         self.canvas.show()
     
@@ -302,6 +306,8 @@ class PyAbel:  #(tk.Tk):
         self.a.set_xlabel("pixel radius")
         self.a.set_ylabel("normalized intensity")
         self.a.set_title("radial speed distribution")
+
+        self.action = None
         self.canvas.show()
     
     def _anisotropy(self):
@@ -342,6 +348,8 @@ class PyAbel:  #(tk.Tk):
         self.a.set_title("anisotropy")
         self.a.set_xlabel("angle")
         self.a.set_ylabel("intensity")
+
+        self.action = None
         self.canvas.show()
     
     def _quit(self):
