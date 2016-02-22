@@ -1,10 +1,10 @@
-abel.lib package
-================
+abel.tests package
+==================
 
 Module contents
 ---------------
 
-.. automodule:: abel.lib
+.. automodule:: abel.tests
     :members:
     :undoc-members:
     :show-inheritance:
