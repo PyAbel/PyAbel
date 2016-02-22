@@ -41,7 +41,7 @@ IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 
 # recenter the image to an odd size
 
-IModd, offset = abel.tools.vmi.find_image_center_by_slice(IM, 
+IModd, offset = abel.tools.center.find_image_center_by_slice(IM, 
                                            radial_range=(300, 400))
 # np.savetxt("O2-ANU1023.txt", IModd)
 
