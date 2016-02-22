@@ -23,7 +23,7 @@ from recommonmark.parser import CommonMarkParser
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../'))
 
 # Scipy and Numpy packages cannot be installed in on readthedocs.org
 # https://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
@@ -37,8 +37,11 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
             return Mock()
 
-MOCK_MODULES = ['numpy', 'scipy', 'scipy.special', 'numpy.linalg', 'scipy.ndimage', 
-        'scipy.linalg', 'scipy.integrate']
+# MOCK_MODULES = ['numpy', 'scipy', 'scipy.special', 'numpy.linalg', 'scipy.ndimage', 'scipy.ndimage.interpolation',
+#         'scipy.linalg', 'scipy.integrate', 'scipy.optimize']
+#
+MOCK_MODULES = []
+        
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
@@ -57,7 +60,9 @@ source_parsers = {
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode'
+    'numpydoc',
+    'sphinx.ext.viewcode',
+    'matplotlib.sphinxext.plot_directive'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -165,7 +170,7 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -310,3 +315,7 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+required_symlinks = [
+    ('examples', '../examples/')
+    ]

@@ -10,9 +10,12 @@ examples/*.pdf
 examples/*.png
 examples/*basex_basis*
 examples/*.dat
-*basex_basis*
+*basis*
 *.coverage
 *.c
 *.so
+*.png
 
-docs/_build/
+doc/_build/
+abel/tools/center.py.orig
+abel/tools/vmi.py.orig

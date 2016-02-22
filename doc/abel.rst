@@ -12,14 +12,6 @@ Subpackages
 Submodules
 ----------
 
-abel.analytical module
-----------------------
-
-.. automodule:: abel.analytical
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 abel.basex module
 -----------------
 
@@ -53,22 +45,6 @@ abel.hansenlaw module
     :undoc-members:
     :show-inheritance:
 
-abel.io module
---------------
-
-.. automodule:: abel.io
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-abel.math module
-----------------
-
-.. automodule:: abel.math
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 abel.three_point module
 -----------------------
 
@@ -76,14 +52,48 @@ abel.three_point module
     :members:
     :undoc-members:
     :show-inheritance:
+    
+abel.transform module
+---------------------
 
-abel.tools module
------------------
+.. automodule:: abel.transform
+    :members:
+    :special-members:
+    :undoc-members:
+    :show-inheritance:
 
-.. automodule:: abel.tools
+abel.tools.analytical module
+----------------------------
+
+.. automodule:: abel.tools.analytical
     :members:
     :undoc-members:
     :show-inheritance:
+    
+abel.tools.center module
+------------------------
+
+.. automodule:: abel.tools.center
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.tools.io module
+--------------------
+
+.. automodule:: abel.tools.io
+    :members:
+    :undoc-members:
+    :show-inheritance:
+	
+abel.tools.math module
+----------------------
+
+.. automodule:: abel.tools.math
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 
 Module contents

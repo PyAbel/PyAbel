@@ -5,12 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from abel.hansenlaw import iabel_hansenlaw
-from abel.hansenlaw import iabel_hansenlaw_transform
-from abel.tools.vmi import find_image_center_by_slice
-from abel.tools.vmi import calculate_speeds
-from abel.tools.vmi import axis_slices
-from abel.tools.symmetry import get_image_quadrants
+import abel
 import scipy.misc
 import matplotlib.pylab as plt
 
@@ -35,38 +30,21 @@ if cols % 2 == 0:
     print ("HL: even pixel width image, re-adjust image centre")
     # re-center image based on horizontal and vertical slice profiles
     # covering the radial range [300:400] pixels from the center
-    IM, origin_shift = find_image_center_by_slice(IM, radial_range=(300, 400))
+    IM, origin_shift = abel.tools.center.find_image_center_by_slice(IM, radial_range=(300, 400))
     rows, cols = IM.shape   # new image size
-
-    #top, bottom, left, right = axis_slices(IM, radial_range=(200, 500))
-    # plt.plot(top, 'r-', label="top")
-    # plt.plot(bottom, 'b-', label="bottom")
-    # plt.plot(left, 'g-', label="left")
-    # plt.plot(right, 'k-', label="right")
- 
-    # plt.legend(fontsize=11)
-    # plt.show()
 
 c2 = cols//2   # half-image
 print('image size {:d}x{:d}'.format(rows, cols))
 
-# Q0, Q1, Q2, Q3 = get_image_quadrants(IM, reorient=True)
-
-# AQ0 = iabel_hansenlaw_transform(Q0, dr=1)
-
-# speed, r = calculate_speeds(AQ0, origin=(0, 0), dr=1)
-
-# plt.plot(r, speed)
-# plt.show()
-
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-AIM = iabel_hansenlaw(IM, dr=1, use_quadrants=(True, True, True, True),
-                      vertical_symmetry=False, horizontal_symmetry=False,
-                      verbose=True)
+AIM = abel.transform(IM, method='hansenlaw',
+                     use_quadrants=(True, True, True, True),
+                     vertical_symmetry=False, horizontal_symmetry=False,
+                     verbose=True)['transform']
 
-speeds, rs = calculate_speeds(AIM, dr=1)
+rs, speeds  = abel.tools.vmi.angular_integration(AIM, dr=1)
 
 # Set up some axes
 fig = plt.figure(figsize=(15, 4))

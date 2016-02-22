@@ -10,7 +10,7 @@ from time import time
 import sys
 
 from abel.direct import fabel_direct, iabel_direct
-from abel.analytical import GaussianAnalytical
+from abel.tools.analytical import GaussianAnalytical
 
 
 n = 101

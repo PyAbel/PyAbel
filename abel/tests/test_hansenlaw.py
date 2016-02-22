@@ -7,12 +7,11 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from abel.hansenlaw import fabel_hansenlaw_transform, iabel_hansenlaw,\
-                           iabel_hansenlaw_transform, fabel_hansenlaw
+from abel.hansenlaw import iabel_hansenlaw, fabel_hansenlaw
 
-from abel.tools.analytical import sample_image_dribinski
+from abel.tools.analytical import sample_image
 from abel.tools.symmetry import get_image_quadrants
-from abel.tools.vmi import calculate_speeds
+from abel.tools.vmi import angular_integration
 
 from abel.tools.analytical import GaussianAnalytical
 from abel.benchmark import absolute_ratio_benchmark
@@ -37,7 +36,7 @@ def test_hansenlaw_shape():
     n = 21
     x = np.ones((n, n), dtype='float32')
 
-    recon = iabel_hansenlaw(x, verbose=False)
+    recon = iabel_hansenlaw(x)
 
     assert recon.shape == (n, n) 
 
@@ -46,19 +45,19 @@ def test_hansenlaw_zeros():
     n = 21
     x = np.zeros((n, n), dtype='float32')
 
-    recon = iabel_hansenlaw(x, verbose=False)
+    recon = iabel_hansenlaw(x)
 
     assert_allclose(recon, 0)
 
 
-def test_fabel_hansenlaw_transform_gaussian():
+def test_fabel_hansenlaw_gaussian():
     """Check fabel_hansenlaw with a Gaussian function"""
     n = 1001
     r_max = 501   # more points better fit
 
     ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=200)
 
-    recon = fabel_hansenlaw_transform(ref.func, ref.dr)
+    recon = fabel_hansenlaw(ref.func, ref.dr)
 
     ratio = absolute_ratio_benchmark(ref, recon, kind='direct')
 
@@ -70,7 +69,7 @@ def test_iabel_hansenlaw_gaussian():
     n = 1001   # better with a larger number of points
     r_max = 501
 
-    ref = GaussianAnalytical(n, r_max, symmetric=True,  sigma=200)
+    ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=200)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
     recon = iabel_hansenlaw(tr, ref.dr)
@@ -81,7 +80,7 @@ def test_iabel_hansenlaw_gaussian():
     assert_allclose(ratio, 1.0, rtol=1e-1, atol=0)
 
 
-def test_fabel_hansenlaw_transform_curveA():
+def test_fabel_hansenlaw_curveA():
     """ Check fabel_hansenlaw_transform() curve A
     """
     delta = 0.01  # sample size
@@ -94,7 +93,7 @@ def test_fabel_hansenlaw_transform_curveA():
     orig = np.concatenate((f(rl),f(rr)), axis=0)   # f(r)
     proj = np.concatenate((g(rl),g(rr)), axis=0)   # g(r)
 
-    Aproj = fabel_hansenlaw_transform(orig, delta)  # forward Abel 
+    Aproj = fabel_hansenlaw(orig, delta)  # forward Abel 
                                                        # == g(r)
     assert_allclose(proj, Aproj, rtol=0, atol=6.0e-2)
 
@@ -113,7 +112,7 @@ def test_iabel_hansenlaw_transform_curveA():
     orig = np.concatenate((f(rl),f(rr)), axis=0)   # f(r)
     proj = np.concatenate((g(rl),g(rr)), axis=0)   # g(r)
 
-    recon = iabel_hansenlaw_transform(proj, r[1]-r[0])  # inverse Abel 
+    recon = iabel_hansenlaw(proj, r[1]-r[0])  # inverse Abel 
                                                        # == f(r)
     assert_allclose(orig, recon, rtol=0, atol=0.01)
 
@@ -124,21 +123,21 @@ def test_hansenlaw_with_dribinski_image():
     """
 
     # BASEX sample image
-    IM = sample_image_dribinski(n=361)
+    IM = sample_image(n=361, name="dribinski")
 
     # core transform(s) use top-right quadrant, Q0
     Q0, Q1, Q2, Q3 = get_image_quadrants(IM)
 
     # forward Abel transform
-    fQ0 = fabel_hansenlaw_transform(Q0)
+    fQ0 = fabel_hansenlaw(Q0)
 
     # inverse Abel transform
-    ifQ0 = iabel_hansenlaw_transform(fQ0)
+    ifQ0 = iabel_hansenlaw(fQ0)
     
     # speed distribution
-    orig_speed, orig_radial = calculate_speeds(Q0, origin=(0,0), Jacobian=True)
+    orig_speed, orig_radial = angular_integration(Q0, origin=(0,0), Jacobian=True)
 
-    speed, radial_coords = calculate_speeds(ifQ0, origin=(0,0), Jacobian=True)
+    speed, radial_coords = angular_integration(ifQ0, origin=(0,0), Jacobian=True)
 
     orig_speed /= orig_speed[50:125].max()
     speed /= speed[50:125].max()

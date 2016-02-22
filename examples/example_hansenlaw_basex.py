@@ -11,9 +11,8 @@ import os.path
 import numpy as np
 import matplotlib.pyplot as plt
 
-from abel.hansenlaw import iabel_hansenlaw
-from abel.basex import BASEX 
-from abel.tools.vmi import calculate_speeds, find_image_center_by_slice
+import abel
+
 import scipy.misc
 from scipy.ndimage.interpolation import shift
 
@@ -42,7 +41,7 @@ im = np.loadtxt(filename)
 if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
            " find_image_center_by_slice ()")
-    im = find_image_center_by_slice (im, radial_range=(300,400))[0]
+    im = abel.tools.center.find_image_center_by_slice (im, radial_range=(300,400))[0]
     # alternative
     #im = shift(im,(0.5,0.5))
     #im = im[:-1, 1::]  # drop left col, bottom row
@@ -56,14 +55,17 @@ print ('image size {:d}x{:d}'.format(rows,cols))
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
-reconH = iabel_hansenlaw (im, verbose=True)
-speedsH, rH = calculate_speeds(reconH)
+reconH = abel.transform (im, method="hansenlaw", direction="inverse", 
+                         verbose=True, vertical_symmetry=False, 
+                         horizontal_symmetry=False)['transform']
+rH, speedsH = abel.tools.vmi.angular_integration(reconH)
 
 # Basex inverse Abel transform
 print('Performing basex inverse Abel transform:')
-center = (r2,c2)
-reconB = BASEX (im, center, n=rows, basis_dir='./', verbose=True)
-speedsB, rB = calculate_speeds (reconB)
+reconB = abel.transform (im, method="basex", direction="inverse", 
+                         verbose=True, vertical_symmetry=False, 
+                         horizontal_symmetry=False)['transform']
+rB, speedsB = abel.tools.vmi.angular_integration(reconB)
 
 # plot the results - VMI, inverse Abel transformed image, speed profiles
 # Set up some axes

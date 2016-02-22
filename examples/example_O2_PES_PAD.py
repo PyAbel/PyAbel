@@ -4,13 +4,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from abel.hansenlaw import *
-from abel.tools.vmi import find_image_center_by_slice
-from abel.tools.vmi import calculate_speeds
-from abel.tools.vmi import calculate_angular_distributions
-from abel.tools.vmi import anisotropy_parameter
+import numpy as np
+import abel
 
-import scipy.misc
 import matplotlib.pylab as plt
 from scipy.ndimage.interpolation import shift
 
@@ -28,16 +24,14 @@ filename = 'data/O2-ANU1024.txt.bz2'
 # Load image as a numpy array
 print('Loading ' + filename)
 IM = np.loadtxt(filename)   
-# use plt.imread(filename) to load image formats (.png, .jpg, etc)
+# use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
 
 rows, cols = IM.shape    # image size
 
 # Image center should be mid-pixel, i.e. odd number of colums
 if cols % 2 != 1: 
     print ("HL: even pixel width image, re-adjusting image centre")
-    # re-center image based on horizontal and vertical slice profiles
-    # covering the radial range [300:400] pixels from the center
-    IM = find_image_center_by_slice(IM, radial_range=(300, 400))[0]
+    IM = shift(IM, (-1/2, -1/2))[:-1, :-1]
     rows, cols = IM.shape   # new image size
 
 r2 = rows//2   # half-height image size
@@ -47,12 +41,13 @@ print ('image size {:d}x{:d}'.format(rows, cols))
 # Hansen & Law inverse Abel transform
 print('Performing Hansen and Law inverse Abel transform:')
 
-AIM = iabel_hansenlaw(IM) 
+AIM = abel.transform(IM, method="hansenlaw", direction="inverse",
+                    vertical_symmetry=False, horizontal_symmetry=False)['transform']
 
 # PES - photoelectron speed distribution  -------------
 print('Calculating speed distribution:')
 
-speed, r = calculate_speeds(AIM)
+r, speed  = abel.tools.vmi.angular_integration(AIM)
 
 # normalize to max intensity peak
 speed /= speed[200:].max()  # exclude transform noise near centerline of image
@@ -65,14 +60,14 @@ r_range = [(93, 111), (145, 162), (255, 280), (330, 350), (350, 370),
            (370, 390), (390, 410), (410, 430)]
 
 # map to intensity vs theta for each radial range
-intensities, theta = calculate_angular_distributions(AIM,
+intensities, theta = abel.tools.vmi.calculate_angular_distributions(AIM,
                                                      radial_ranges=r_range)
 
-print("radial-range      anisotropy parameter (β)")
+print("radial-range      anisotropy parameter (beta)")
 for rr, intensity in zip(r_range, intensities):
     # evaluate anisotropy parameter from least-squares fit to
     # intensity vs angle
-    beta, amp = anisotropy_parameter(theta, intensity)
+    beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity)
     result = "    {:3d}-{:3d}        {:+.2f}+-{:.2f}".format(*rr+beta)
     print(result)
 
@@ -88,7 +83,7 @@ AIM *= vmax/AIM[:, c2+100:].max()
 JIM = np.concatenate((IM[:, :c2], AIM[:, c2:]), axis=1)
 rr = r_range[-3]
 intensity = intensities[-3]
-beta, amp = anisotropy_parameter(theta, intensity) 
+beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity) 
 # draw a 1/2 circle representing this radial range
 # for rw in range(rows):
 #   for cl in range(c2,cols):
@@ -102,7 +97,7 @@ im1 = ax1.imshow(JIM, origin='lower', aspect='auto', vmin=0, vmax=vmax)
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('velocity map image| inverse Abel')
+ax1.set_title('velocity map image| inverse Abel             ')
 
 # Plot the 1D speed distribution
 ax2.plot(speed)
@@ -140,7 +135,7 @@ plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89,
                     wspace=0.35, hspace=0.37)
 
 # Save a image of the plot
-plt.savefig(filename[:-7]+"png", dpi=150)
+# plt.savefig(filename[:-7]+"png", dpi=150)
 
 # Show the plots
 plt.show()

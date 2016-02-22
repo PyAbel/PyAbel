@@ -42,12 +42,27 @@ or, from any folder with,
     
     python  -c "import abel.tests; abel.tests.run_cli(coverage=True)"
 
-which performs an equivalent call. 
-  
+which performs an equivalent call.
 
+Note that this requires that you have [Nose](nose.readthedocs.org) and (optionally) [Coverage](coverage.readthedocs.org) installed. You can install these with:
+
+	pip install nose
+	pip install coverage
+	
+  
 ##### Dependencies
 
 The current list of dependencies can be found in [`setup.py`](https://github.com/PyAbel/PyAbel/blob/master/setup.py). Please refrain from adding new dependencies, unless it cannot be avoided.
+
+
+##### Documentation
+
+PyAbel uses Sphinx and [Napoleon](http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html) to process Numpy style docstrings, and is synchronized to [pyabel.readthedocs.org](http://pyabel.readthedocs.org/). To build the documentation locally, you will need Sphinx, the [`recommonmark`](https://github.com/rtfd/recommonmark) package, and the [`sphinx_rtd_theme`](https://github.com/snide/sphinx_rtd_theme/). Then, you can build the documentation using
+
+	 cd PyAbel/doc/
+	 make html
+ 
+See the discussion on [PR #69](https://github.com/PyAbel/PyAbel/pull/69) for more information. 
 
 
 ##### Before merging
