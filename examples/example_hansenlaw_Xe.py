@@ -51,8 +51,7 @@ print ('image size {:d}x{:d}'.format(rows,cols))
 print('Performing Hansen and Law inverse Abel transform:')
 
 recon = abel.transform(im, method="hansenlaw", direction="inverse", 
-                       vertical_symmetry=False, horizontal_symmetry=False,
-                       verbose=True)['transform']
+                       symmetry_axis=None, verbose=True)['transform']
 r, speeds = abel.tools.vmi.angular_integration(recon)
 
 

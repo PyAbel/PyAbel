@@ -324,8 +324,7 @@ class PyAbel:  #(tk.Tk):
     
             self.AIM = abel.transform(self.IM, method=self.method, 
                                       direction=self.fi,
-                                      vertical_symmetry=False,
-                                      horizontal_symmetry=False)['transform']
+                                      symmetry_axis=None)['transform']
             self.speed.config(state=tk.ACTIVE)
             self.aniso.config(state=tk.ACTIVE)
             self.rmin.config(state=tk.NORMAL)

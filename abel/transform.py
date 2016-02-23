@@ -271,7 +271,7 @@ def transform(
     if 1 in symmetry_axis:
         AQ0 = selected_transform(Q0)
 
-    if symmetry_axis is None:
+    if None in symmetry_axis:
         AQ0 = selected_transform(Q0)
         AQ2 = selected_transform(Q2)
         AQ3 = selected_transform(Q3)

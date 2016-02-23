@@ -42,6 +42,8 @@ def get_image_quadrants(IM, reorient=False, symmetry_axis=None,
         +--------+--------+                 
 
 
+       symmetry_axis = None - individual quadrants
+
        symmetry_axis = 0 (vertical) - average Q0+Q1, and Q2+Q3
 
        symmetry_axis = 1 (horizonat) - average Q1+Q2, and Q0+Q3
@@ -145,7 +147,7 @@ def get_image_quadrants(IM, reorient=False, symmetry_axis=None,
     return Q0, Q1, Q2, Q3
 
 
-def put_image_quadrants(Q, odd_size=True, symmetry_axis = None):
+def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
     """
     Reassemble image from 4 quadrants Q = (Q0, Q1, Q2, Q3)
     The reverse process to get_image_quadrants(reorient=True)

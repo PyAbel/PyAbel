@@ -41,7 +41,7 @@ print('Performing Hansen and Law inverse Abel transform:')
 
 AIM = abel.transform(IM, method='hansenlaw',
                      use_quadrants=(True, True, True, True),
-                     vertical_symmetry=False, horizontal_symmetry=False,
+                     symmetry_axis=None,
                      verbose=True)['transform']
 
 rs, speeds  = abel.tools.vmi.angular_integration(AIM, dr=1)
