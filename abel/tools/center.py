@@ -154,6 +154,7 @@ def find_center_by_center_of_image(data, verbose=True, **kwargs):
 
 
 
+
 def find_center_by_gaussian_fit(IM, verbose=True, round_output=False,
                                 **kwargs):
     """
