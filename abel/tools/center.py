@@ -86,6 +86,8 @@ def set_center(data, center, crop='maintain_size', verbose=True):
     centered_data = shift(data, (delta0, delta1))
 
     if crop == 'maintain_data':
+        # pad the image so that the center can be moved
+        # without losing any of the original data
         return centered_data
     elif crop == 'maintain_size':
         return centered_data
@@ -99,6 +101,7 @@ def set_center(data, center, crop='maintain_size', verbose=True):
         return centered_data[shift0:-shift0, shift1:-shift1]
     else:
         raise ValueError("Invalid crop method!!")
+
 
 
 def find_center(IM, method='image_center', verbose=True, **kwargs):
@@ -130,24 +133,25 @@ def find_center_by_center_of_mass(IM, verbose=True, round_output=False,
     """
     com = center_of_mass(IM)
     center = com[0], com[1]
-    
+
     if verbose:
         to_print = "Center of mass at ({0}, {1})".format(center[0], center[1])
-    
+
     if round_output:
         center = (round(center[0]), round(center[1]))
         if verbose:
             to_print += " ... round to ({0}, {1})".format(center[0], center[1])
 
     if verbose:
-        print(to_print) 
+        print(to_print)
 
     return center
 
 
 def find_center_by_center_of_image(data, verbose=True, **kwargs):
-    return (data.shape[1] // 2 + data.shape[1] % 2, 
+    return (data.shape[1] // 2 + data.shape[1] % 2,
             data.shape[0] // 2 + data.shape[0] % 2)
+
 
 
 def find_center_by_gaussian_fit(IM, verbose=True, round_output=False,
@@ -160,17 +164,17 @@ def find_center_by_gaussian_fit(IM, verbose=True, round_output=False,
     xc = fit_gaussian(x)[1]
     yc = fit_gaussian(y)[1]
     center = (yc, xc)
-    
+
     if verbose:
         to_print = "Gaussian center at ({0}, {1})".format(center[0], center[1])
-    
+
     if round_output:
         center = (round(center[0]), round(center[1]))
         if verbose:
             to_print += " ... round to ({0}, {1})".format(center[0], center[1])
 
     if verbose:
-        print(to_print) 
+        print(to_print)
 
     return center
 
@@ -217,28 +221,27 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
     left = IM[r2-sw2:r2+sw2, :c2].sum(axis=0)
     right = IM[r2-sw2:r2+sw2, c2 - cols % 2:].sum(axis=0)
 
-
-    return top[::-1][rmin:rmax], bottom[rmin:rmax],\
-           left[::-1][rmin:rmax], right[rmin:rmax]
+    return (top[::-1][rmin:rmax], bottom[rmin:rmax],
+            left[::-1][rmin:rmax], right[rmin:rmax])
 
 
 def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
                                axis=(0, 1)):
-    """ Center image by comparing opposite side, vertical (axis=0) and/or 
-        horizontal slice (axis=1) profiles, both axis=(0,1).. 
+    """ Center image by comparing opposite side, vertical (axis=0) and/or
+        horizontal slice (axis=1) profiles, both axis=(0,1)..
 
     Parameters
     ----------
     IM : 2D np.array
        The image data.
- 
+
     slice_width : integer
        Sum together this number of rows (cols) to improve signal, default 10.
-      
+
     radial_range: tuple
        (rmin,rmax): radial range [rmin:rmax] for slice profile comparison.
 
-    axis : integer or tuple 
+    axis : integer or tuple
        Center with along axis = 0 (vertical), or 1 (horizontal), or both (0,1).
 
     Returns
@@ -248,7 +251,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
 
     (vertical_shift, horizontal_shift) : tuple of floats
        (axis=0 shift, axis=1 shift)
-   
+
     """
 
     def _align(offset, sliceA, sliceB):
@@ -273,7 +276,8 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     initial_shift = [0.1, ]
 
     # y-axis
-    if (type(axis) is int and axis==0) or (type(axis) is tuple and axis[0]==0):
+    if (type(axis) is int and axis == 0) or \
+            (type(axis) is tuple and axis[0] == 0):
         fit = minimize(_align, initial_shift, args=(top, bottom),
                        bounds=((-50, 50), ), tol=0.1)
         if fit["success"]:
@@ -283,7 +287,8 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
             print(fit)
 
     # x-axis
-    if (type(axis) is int and axis==1) or (type(axis) is tuple and axis[1]==1):
+    if (type(axis) is int and axis == 1) or \
+            (type(axis) is tuple and axis[1] == 1):
         fit = minimize(_align, initial_shift, args=(left, right),
                        bounds=((-50, 50), ), tol=0.1)
         if fit["success"]:

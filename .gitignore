@@ -17,3 +17,5 @@ examples/*.dat
 *.png
 
 doc/_build/
+abel/tools/center.py.orig
+abel/tools/vmi.py.orig

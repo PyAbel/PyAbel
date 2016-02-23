@@ -16,31 +16,32 @@ def gradient(f, x=None, dx=1, axis=-1):
     """
     Return the gradient of 1 or 2-dimensional array.
     The gradient is computed using central differences in the interior
-    and first differences at the boundaries. 
+    and first differences at the boundaries.
 
     Irregular sampling is supported (it isn't supported by np.gradient)
 
     Parameters
     ----------
-    f: 1d or 2d numpy array
-       Input array.
-    x: array_like, optional
+    f : 1d or 2d numpy array
+        Input array.
+    x : array_like, optional
        Points where the function f is evaluated. It must be of the same
        length as f.shape[axis].
        If None, regular sampling is assumed (see dx)
-    dx: float, optional
+    dx : float, optional
        If `x` is None, spacing given by `dx` is assumed. Default is 1.
-    axis: int, optional
+    axis : int, optional
        The axis along which the difference is taken.
 
     Returns
     -------
-    out: array_like
-        Returns the gradient along the given axis. 
+    out : array_like
+        Returns the gradient along the given axis.
 
-    To do:
-      implement smooth noise-robust differentiators for use on experimental data.
-      http://www.holoborodko.com/pavel/numerical-methods/numerical-derivative/smooth-low-noise-differentiators/
+    To do
+    -----
+    implement smooth noise-robust differentiators for use on experimental data.
+    http://www.holoborodko.com/pavel/numerical-methods/numerical-derivative/smooth-low-noise-differentiators/
     """
     if x is None:
         x = np.arange(f.shape[axis]) * dx
@@ -67,31 +68,31 @@ def gradient(f, x=None, dx=1, axis=-1):
 def gaussian(x, a, mu, sigma, c):
     """
     Gaussian function
-    
+
     a * exp(-((x - mu) ** 2) / 2 / sigma ** 2) + c
 
     ref: https://en.wikipedia.org/wiki/Gaussian_function
 
     Parameters
     ----------
-    x: 1D np.array
+    x : 1D np.array
         coordinate
 
-    a:  float
+    a : float
         the height of the curve's peak
 
-    mu: float
+    mu : float
         the position of the center of the peak
 
-    sigma: float
+    sigma : float
         the standard deviation, sometimes called the Gaussian RMS width
 
-    c: float
+    c : float
         non-zero background
 
     Returns
     -------
-    out: 1D np.array
+    out : 1D np.array
         the Gaussian profile
     """
     return a * np.exp(-((x - mu) ** 2) / 2 / sigma ** 2) + c
@@ -103,12 +104,12 @@ def guss_gaussian(x):
 
     Parameters
     ----------
-    x: 1D np.array
+    x : 1D np.array
         1D profile of your data
 
     Returns
     -------
-    out: tuple of float
+    out : tuple of float
         estimated value of (a, mu, sigma, c)
     """
     c_guess = (x[0] + x[-1]) / 2
@@ -127,7 +128,8 @@ def guss_gaussian(x):
         sigma_r_guess = brentq(_, mu_guess, len(x) - 1)
     except:
         sigma_r_guess = 3 * len(x) / 4
-    return a_guess, mu_guess, (sigma_r_guess - sigma_l_guess) / 2.35482, c_guess
+    return a_guess, mu_guess, (sigma_r_guess -
+                               sigma_l_guess) / 2.35482, c_guess
 
 
 def fit_gaussian(x):
@@ -136,12 +138,12 @@ def fit_gaussian(x):
 
     Parameters
     ----------
-    x: 1D np.array
+    x : 1D np.array
         1D profile of your data
 
     Returns
     -------
-    out: tuple of float
+    out : tuple of float
         (a, mu, sigma, c)
     """
     p, q = curve_fit(gaussian, list(range(x.size)), x, p0=guss_gaussian(x))
