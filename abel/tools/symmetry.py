@@ -46,7 +46,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
 
        symmetry_axis = 0 (vertical) - average Q0+Q1, and Q2+Q3
 
-       symmetry_axis = 1 (horizonat) - average Q1+Q2, and Q0+Q3
+       symmetry_axis = 1 (horizontal) - average Q1+Q2, and Q0+Q3
     
        symmetry_axis = (0, 1) (both) - combine and average all 4 quadrants
     
