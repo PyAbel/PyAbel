@@ -45,7 +45,8 @@ from ._version import __version__
 #############################################################################
 
 
-def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True):
+def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
+                direction='inverse'):
     """
     This function that centers the image,
     performs the BASEX transform (loads or generates basis sets),
@@ -71,6 +72,9 @@ def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True):
         size of one pixel in the radial direction
     verbose : boolean
         Determins if statements should be printed.
+    direction : str
+        The type of Abel transform to be performed.
+        Currently only accepts value 'inverse'
 
 
     Returns
@@ -80,6 +84,10 @@ def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True):
 
     """
     # make sure that the data is the right shape (1D must be converted to 2D)
+
+    if direction != 'inverse':
+        raise ValueError('Forward BASEX transform not implemented')
+
     data = np.atleast_2d(data)
     h, w = data.shape
 
@@ -134,6 +142,7 @@ def basex_transform(rawdata, M_vert, M_horz, Mc_vert,
     IM : NxM numpy array
         The abel-transformed image, a slice of the 3D distribution
     """
+
     # Reconstructing image  - This is where the magic happens
     Ci = vert_left.dot(rawdata).dot(horz_right)
 
