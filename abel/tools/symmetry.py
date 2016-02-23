@@ -11,7 +11,7 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize
 
 
-def get_image_quadrants(IM, reorient=False, symmetry_axis=None,
+def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
                         use_quadrants=(True, True, True, True)):
     """
     Given an image (m,n) return its 4 quadrants Q0, Q1, Q2, Q3
