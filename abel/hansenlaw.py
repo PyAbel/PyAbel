@@ -98,8 +98,8 @@ _hansenlaw_transform_docstring = \
     dr : float
         Sampling size (=1 for pixel images), used for Jacobian scaling
 
-    inverse : boolean
-        forward (False) or inverse (True) Abel transform
+    direction : string
+        'forward' or 'inverse' Abel transform
 
     Returns
     -------
@@ -113,17 +113,17 @@ def fabel_hansenlaw(IM, dr=1):
     """
     Forward Abel transform for one-quadrant
     """
-    return hansenlaw_transform(IM, dr=dr, inverse=False)
+    return hansenlaw_transform(IM, dr=dr, direction="forward")
 
 
 def iabel_hansenlaw(IM, dr=1):
     """
     Inverse Abel transform for one-quadrant
     """
-    return hansenlaw_transform(IM, dr=dr, inverse=True)
+    return hansenlaw_transform(IM, dr=dr, direction="inverse")
 
 
-def hansenlaw_transform(IM, dr=1, inverse=False):
+def hansenlaw_transform(IM, dr=1, direction="inverse"):
     """
     Hansen and Law JOSA A2 510 (1985) forward and inverse Abel transform
     for right half (or right-top quadrant) of an image.
@@ -154,7 +154,7 @@ def hansenlaw_transform(IM, dr=1, inverse=False):
         else:
             return -np.log(Nm)/pi
 
-    if inverse:   # inverse transform
+    if direction == "inverse":   # inverse transform
         gamma = igamma
         # g' - derivative of the intensity profile
         if rows > 1:
@@ -181,18 +181,14 @@ def hansenlaw_transform(IM, dr=1, inverse=False):
     # special case for the end pixel
     AIM[:, 0] = AIM[:, 1]
 
-    # for some reason shift by 1 pixel aligns? - Fix me!
-    if inverse:
-        AIM = np.c_[AIM[:, 1:], AIM[:, -1]]
-
-    # for some reason shift by 1 pixel aligns better? - FIX ME!
-    # if inverse:
-    #    AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
+    #for some reason shift by 1 pixel aligns better? - FIX ME!
+    if direction == "inverse":
+        AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
 
-    if inverse:
+    if direction == "inverse":
         return AIM*np.pi/dr    # 1/dr - from derivative
     else:
         return -AIM*np.pi*dr   # forward still needs '-' sign
