@@ -206,6 +206,8 @@ class PyAbel:  #(tk.Tk):
                         horizontalalignment="center")
         self.a.annotate("e.g. data/O2-ANU1024.txt.bz2", (0.5, 0.5), 
                         horizontalalignment="center")
+        self.a.annotate("work in progress, some features may be incomplete",
+                       (0.5, 0.8), horizontalalignment="center")
 
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 

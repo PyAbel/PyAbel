@@ -11,8 +11,7 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize
 
 
-def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
-                        horizontal_symmetry=False,
+def get_image_quadrants(IM, reorient=False, symmetry_axis=None,
                         use_quadrants=(True, True, True, True)):
     """
     Given an image (m,n) return its 4 quadrants Q0, Q1, Q2, Q3
@@ -21,71 +20,93 @@ def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
     Parameters
     ----------
     IM : 2D np.array
-      Image data shape (rows, cols)
+        Image data shape (rows, cols)
 
     reorient : boolean
-      Reorient quadrants to match the orientation of Q0 (top-right)
+        Reorient quadrants to match the orientation of Q0 (top-right)
 
-    vertical_symmetry : boolean
-      Exploit image symmetry to combine quadrants. Co-add Q0+Q1, and Q2+Q3
+    symmetry_axis : int or tuple
+        Identify axis (int value) or axes of image symmetry ((0, 1) tuple).
+        Exploit image symmetry to combine quadrants. 
 
-    horizontal_symmerty : boolean
-      Exploit image symmetry to combine quadrants. Co-add Q1+Q2, and Q0+Q3
+    ::
+
+        +--------+--------+
+        | Q1   * | *   Q0 |
+        |   *    |    *   |
+        |  *     |     *  |               cQ1 | cQ0
+        +--------o--------+ --(output) -> ----o----
+        |  *     |     *  |               cQ2 | cQ3
+        |   *    |    *   |
+        | Q2  *  | *   Q3 |          cQi == averaged combined quadrants
+        +--------+--------+                 
+
+
+       symmetry_axis = 0 (vertical) - average Q0+Q1, and Q2+Q3
+
+       symmetry_axis = 1 (horizonat) - average Q1+Q2, and Q0+Q3
+    
+       symmetry_axis = (0, 1) (both) - combine and average all 4 quadrants
+    
+
+    ::
 
     use_quadrants : boolean tuple
-      Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
+       Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
+       and final image
 
-
-               +--------+--------+
-               | Q1   * | *   Q0 |
-               |   *    |    *   |
-               |  *     |     *  |                               AQ1 | AQ0
-               +--------o--------+ --(inverse Abel transform)--> ----o----
-               |  *     |     *  |                               AQ2 | AQ3
-               |   *    |    *   |
-               | Q2  *  | *   Q3 |          AQi == inverse Abel transform
-               +--------+--------+                 of quadrant Qi
-
-         ::
-
-         (1) vertical_symmetry = True
-         ::
-
-             Combine:  `Q01 = Q1 + Q2, Q23 = Q2 + Q3`
-             inverse image   AQ01 | AQ01
-                             -----o-----
-                             AQ23 | AQ23
-         ::
-
-         (2) horizontal_symmetry = True
-         ::
-
-             Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
-             inverse image   AQ12 | AQ03
-                             -----o-----
-                             AQ12 | AQ03
-         ::
-
-         (3) vertical_symmetry = True, horizontal = True
-         ::
-
-             Combine: Q = Q0 + Q1 + Q2 + Q3
-             inverse image   AQ | AQ
-                             ---o---  all quadrants equivalent
-                             AQ | AQ
-
-
-      verbose: boolean
-          verbose output, timings etc.
 
     Returns
     -------
     Q0, Q1, Q2, Q3 : tuple of 2D np.arrays
       shape (rows//2+rows%2, cols//2+cols%2)
-      reoriented to Q0 if True
+      all oriented in the same direction as Q0 if True
+         (0) symmetry_axis = None
+         ::
+             
+             returned image   Q1 | Q0
+                             ----o----
+                              Q2 | Q3
+
+         ::
+
+         (1) symmetry_axis = 0
+         ::
+
+             Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
+             returned image    Q01 | Q01
+                              -----o-----
+                               Q23 | Q23
+         ::
+
+         (2) symmetry_axis = 1
+         ::
+
+             Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
+             returned image   Q12 | Q03
+                             -----o-----
+                              Q12 | Q03
+         ::
+
+         (3) symmetry_axis = (0, 1)
+         ::
+
+             Combine all quadrants: Q = Q0 + Q1 + Q2 + Q3
+             returned image   Q | Q
+                             ---o---  all quadrants equivalent
+                              Q | Q
+
+
+      verbose: boolean
+          verbose output, timings etc.
+
 
     """
     IM = np.atleast_2d(IM)
+
+    if not isinstance(symmetry_axis, (list, tuple)):
+        # if the user supplies an int, make it into a 1-element list:
+        symmetry_axis = [symmetry_axis]
 
     n, m = IM.shape
 
@@ -93,7 +114,7 @@ def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
     m_c = m // 2 + m % 2
 
     # define 4 quadrants of the image
-    # see definition in abel.hansenlaw.iabel_hansenlaw
+    # see definition above
     Q0 = IM[:n_c, -m_c:]
     Q1 = IM[:n_c, :m_c]
     Q2 = IM[-n_c:, :m_c]
@@ -104,28 +125,30 @@ def get_image_quadrants(IM, reorient=False, vertical_symmetry=False,
         Q3 = np.flipud(Q3)
         Q2 = np.fliplr(np.flipud(Q2))
 
-    if vertical_symmetry and horizontal_symmetry and not reorient:
+    if isinstance(symmetry_axis, tuple) and not reorient:
         raise ValueError(
             'In order to add quadrants (i.e., to apply horizontal or \
             vertical symmetry), you must reorient the image.')
 
-    if vertical_symmetry:   # co-add quadrants
-        Q0 = Q1 = Q0*use_quadrants[0]+Q1*use_quadrants[1]
-        Q2 = Q3 = Q2*use_quadrants[2]+Q3*use_quadrants[3]
+    if 0 in symmetry_axis:   #  vertical axis image symmetry
+        Q0 = Q1 = (Q0*use_quadrants[0]+Q1*use_quadrants[1])/\
+                  (use_quadrants[0] + use_quadrants[1])
+        Q2 = Q3 = (Q2*use_quadrants[2]+Q3*use_quadrants[3])/\
+                  (use_quadrants[2] + use_quadrants[3])
 
-    if horizontal_symmetry:
-        Q1 = Q2 = Q1*use_quadrants[1]+Q2*use_quadrants[2]
-        Q0 = Q3 = Q0*use_quadrants[0]+Q3*use_quadrants[3]
+    if 1 in symmetry_axis:  # horizontal axis image symmetry
+        Q1 = Q2 = (Q1*use_quadrants[1]+Q2*use_quadrants[2])/\
+                  (use_quadrants[1] + use_quadrants[2])
+        Q0 = Q3 = (Q0*use_quadrants[0]+Q3*use_quadrants[3])/\
+                  (use_quadrants[0] + use_quadrants[3])
 
     return Q0, Q1, Q2, Q3
 
 
-def put_image_quadrants(Q, odd_size=True, vertical_symmetry=False,
-                        horizontal_symmetry=False):
+def put_image_quadrants(Q, odd_size=True, symmetry_axis = None):
     """
     Reassemble image from 4 quadrants Q = (Q0, Q1, Q2, Q3)
     The reverse process to get_image_quadrants(reorient=True)
-    Qi defined in abel/hansenlaw.py
 
     Note: the quadrants should all be oriented as Q0, the upper right quadrant
 
@@ -135,30 +158,57 @@ def put_image_quadrants(Q, odd_size=True, vertical_symmetry=False,
        Image quadrants all oriented as Q0
        shape (rows//2+rows%2, cols//2+cols%2)
 
-    even_size: boolean
-       Whether final image is even or odd pixel size
+    ::
+
+        +--------+--------+
+        | Q1   * | *   Q0 |
+        |   *    |    *   |
+        |  *     |     *  |
+        +--------o--------+ 
+        |  *     |     *  |  
+        |   *    |    *   |
+        | Q2  *  | *   Q3 | 
+        +--------+--------+                 
+
+
+    odd__size: boolean
+       Whether final image is odd or even pixel size
        odd size will trim 1 row from Q1, Q0, and 1 column from Q1, Q2
 
-    vertical_symmetry : boolean
-       Image symmetric about the vertical axis => Q0 == Q1, Q3 == Q2
+    symmetry_axis : int or tuple
+       impose image symmetry
+       
+       symmetry_axis = 0 (vertical) - Q0 == Q1 and Q3 == Q2
 
-    horizontal_symmerty : boolean
-       Image symmetric about horizontal axis => Q2 == Q1, Q3 == Q0
+       symmetry_axis = 1 (horizonat) -  Q2 == Q1 and Q3 == Q0
 
 
     Returns
     -------
     IM : np.array
         Reassembled image of shape (rows, cols)
+
+    ::
+      symmetry_axis =
+         None             0              1           (0,1)
+
+        Q1 | Q0        Q1 | Q1        Q1 | Q0       Q1 | Q1
+       ----o----  or  ----o----  or  ----o----  or ----o----
+        Q2 | Q3        Q2 | Q2        Q1 | Q0       Q1 | Q1
+
     """
 
     Q0, Q1, Q2, Q3 = Q
 
-    if vertical_symmetry:
+    if not isinstance(symmetry_axis, (list, tuple)):
+        # if the user supplies an int, make it into a 1-element list:
+        symmetry_axis = [symmetry_axis]
+
+    if 0 in symmetry_axis:
         Q0 = Q1
         Q3 = Q2
 
-    if horizontal_symmetry:
+    if 1 in symmetry_axis:
         Q2 = Q1
         Q3 = Q0
 
