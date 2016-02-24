@@ -108,5 +108,13 @@ https://github.com/PyAbel/PyAbel/pulls
 
 https://github.com/PyAbel/PyAbel/blob/master/CONTRIBUTING.md has more information on how to contribute, such as how to run the unit tests and how to build the documentation.
 
+License
+-------
+PyAble is licensed under the oh-so-liberating MIT license, so it can be used for pretty much whatever you want! However, it is provided "as is" with absolutely no warrenty.
+
+Citation
+--------
+If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. [DOI coming soon!]
+
 
 Have fun!
