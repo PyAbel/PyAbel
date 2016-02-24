@@ -62,7 +62,8 @@ Numerous examples are located in the examples directory: https://github.com/PyAb
 .. highlight:: python
    :linenothreshold: 5
 
-Using PyAbel is simple ::
+Using PyAbel is simple:
+.. code:: python
 
 	import abel
 	original     = abel.tools.analytical.sample_image()
@@ -87,11 +88,11 @@ In the above, note that the `abel.transform()` function returns a Python `dict` 
 
 Documentation
 -------------
-General information about the various Abel transforms available in PyAbel is available in the [PyAbel wiki](https://github.com/PyAbel/PyAbel/wiki). The complete documentation for all of the methods in PyAbel is hosted at [pyabel.readthedocs.org](https://pyabel.readthedocs.org/en/latest/).
+General information about the various Abel transforms available in PyAbel is available at the PyAbel Wiki: https://github.com/PyAbel/PyAbel/wiki. The complete documentation for all of the methods in PyAbel is hosted at https://pyabel.readthedocs.org.
 
 Support
 -------
-If you have a question or suggestion about PyAbel, the best way to contact the PyAbel Developers Team is to open a new issue here: [https://github.com/PyAbel/PyAbel/issues](https://github.com/PyAbel/PyAbel/issues).
+If you have a question or suggestion about PyAbel, the best way to contact the PyAbel Developers Team is to open a new issue here: https://github.com/PyAbel/PyAbel/issues.
 
 Contributing
 ------------
