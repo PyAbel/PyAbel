@@ -5,8 +5,13 @@ PyAbel
     :target: https://travis-ci.org/PyAbel/PyAbel
 .. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
     :target: https://ci.appveyor.com/project/PyAbel/PyAbel
-	
-<img align="right" src="https://cloud.githubusercontent.com/assets/1107796/13302896/7c7e74e2-db09-11e5-9683-a8f2c523af94.png" width="450">
+
+.. raw:: html
+
+    <embed>
+	  <img align="right" src="https://cloud.githubusercontent.com/assets/1107796/13302896/7c7e74e2-db09-11e5-9683-a8f2c523af94.png" width="450">
+      
+    </embed>
 
 .. image:: https://cloud.githubusercontent.com/assets/1107796/13302896/7c7e74e2-db09-11e5-9683-a8f2c523af94.png
    :width: 450px
