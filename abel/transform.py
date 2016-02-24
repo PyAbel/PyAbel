@@ -12,8 +12,8 @@ import warnings
 
 def transform(
     IM, direction='inverse', method='three_point', center='none',
-        verbose=True, vertical_symmetry=True,
-        horizontal_symmetry=True, use_quadrants=(True, True, True, True),
+        verbose=True, symmetry_axis=None,
+        use_quadrants=(True, True, True, True),
         transform_options={}, center_options={}):
     """
     transform() is the go-to function for all of your Abel transform needs!!
@@ -26,6 +26,7 @@ def transform(
     ----------
     IM : a NxM numpy array
         This is the image to be transformed
+
     direction : str
         The type of Abel transform to be performed.
 
@@ -37,6 +38,7 @@ def transform(
                     and reconstructs a 2D slice of the 3D image.
 
         The default is 'inverse'.
+
     method : str
         specifies which numerical approximation to the Abel transform
         should be employed (see below). The options are
@@ -51,6 +53,7 @@ def transform(
                     formula by Roman Yurchuk.
         'three_point'
                     the three-point transform of Dasch and co-workers
+
     center : tuple or str
         If a tuple (float, float) is provided, this specifies
         the image center in (y,x) (row, column) format.
@@ -71,13 +74,14 @@ def transform(
                      number of columns must be provided.
     verbose : boolean
         True/False to determine if non-critical output should be printed.
-    vertical_symmetry : boolean
-        Symmetrize the image in the up/down direction
-        (The first axis is the vertical axis.)
-    horizontal_symmetry : boolean
-        Symmetrize the image in the left/right direction?
+
+    symmetry_axis : int or tuple
+        Symmetrize the image about the numpy axis 
+        0 (vertical), 1 (horizontal), (0,1) (both axes)
+        
     use_quadrants : boolean tuple (Q0,Q1,Q2,Q3)
         select quadrants to be used in the analysis.
+
         The quadrants are numbered starting from
         Q0 in the upper right and proceeding counter-clockwise:
 
@@ -94,16 +98,16 @@ def transform(
              +--------+--------+                 of quadrant Qi
 
 
-        (1) vertical_symmetry = True
+        (1) symmetry_axis = 0  (vertical)
 
         ::
 
-           Combine:  `Q01 = Q1 + Q2, Q23 = Q2 + Q3`
+           Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
            inverse image   AQ01 | AQ01
                            -----o-----
                            AQ23 | AQ23
 
-        (2) horizontal_symmetry = True
+        (2) symmetry_axis = 1 (horizontal)
 
         ::
 
@@ -112,7 +116,7 @@ def transform(
                            -----o-----
                            AQ12 | AQ03
 
-        (3) vertical_symmetry = True, horizontal = True
+        (3) symmetry_axis = (0, 1) (both)
 
         ::
 
@@ -120,10 +124,12 @@ def transform(
            inverse image   AQ | AQ
                            ---o---  all quadrants equivalent
                            AQ | AQ
+       ::
 
     transform_options : tuple
         Additional arguments passed to the individual transform functions.
         See the documentation for the individual transform method for options.
+
     center_options : tuple
         Additional arguments to be passed to the centering function.
 
@@ -206,6 +212,10 @@ def transform(
         raise ValueError('No image quadrants selected to use')
     rows, cols = np.shape(IM)
 
+    if not isinstance(symmetry_axis, (list, tuple)):
+        # if the user supplies an int, make it into a 1-element list:
+        symmetry_axis = [symmetry_axis]
+
     # centering:
     if center == 'none':  # no centering
         if rows % 2 != 1:
@@ -223,8 +233,7 @@ def transform(
 
     # split image into quadrants
     Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(
-      IM, reorient=True, vertical_symmetry=vertical_symmetry,
-      horizontal_symmetry=horizontal_symmetry)
+                     IM, reorient=True, symmetry_axis=symmetry_axis)
 
     def selected_transform(Z):
         if method == 'hansenlaw':
@@ -256,13 +265,13 @@ def transform(
     # Inverse Abel transform for quadrant 1 (all include Q1)
     AQ1 = selected_transform(Q1)
 
-    if vertical_symmetry:
+    if 0 in symmetry_axis:
         AQ2 = selected_transform(Q2)
 
-    if horizontal_symmetry:
+    if 1 in symmetry_axis:
         AQ0 = selected_transform(Q0)
 
-    if not vertical_symmetry and not horizontal_symmetry:
+    if None in symmetry_axis:
         AQ0 = selected_transform(Q0)
         AQ2 = selected_transform(Q2)
         AQ3 = selected_transform(Q3)
@@ -270,9 +279,8 @@ def transform(
     # reassemble image
     results = {}
     results['transform'] = abel.tools.symmetry.put_image_quadrants(
-      (AQ0, AQ1, AQ2, AQ3), odd_size=cols % 2,
-      vertical_symmetry=vertical_symmetry,
-      horizontal_symmetry=horizontal_symmetry)
+                           (AQ0, AQ1, AQ2, AQ3), odd_size=cols % 2,
+                            symmetry_axis=symmetry_axis)
 
     verboseprint("{:.2f} seconds".format(time.time()-t0))
 

@@ -73,3 +73,6 @@ def test_speeds_non_integer_center():
     n  = 101
     IM = np.random.randn(n, n)
     angular_integration(IM, origin=(50.5, 50.5))
+
+if __name__ == "__main()__":
+   test_centering_function()

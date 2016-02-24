@@ -78,24 +78,6 @@ abel.tools.center module
     :undoc-members:
     :show-inheritance:
 
-abel.tools.io module
---------------------
-
-.. automodule:: abel.tools.io
-    :members:
-    :undoc-members:
-    :show-inheritance:
-	
-abel.tools.math module
-----------------------
-
-.. automodule:: abel.tools.math
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-
 Module contents
 ---------------
 
