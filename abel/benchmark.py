@@ -149,7 +149,7 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
     for the defintion of a center of the image.
     """
 
-    Q0, Q1, Q2, Q3 = get_image_quadrants(arr)
+    Q0, Q1, Q2, Q3 = get_image_quadrants(arr, reorient=False)
 
     if i_sym and not j_sym:
         valid_flag = [np.allclose(np.fliplr(Q1), Q0),
