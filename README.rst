@@ -15,6 +15,10 @@ PyAbel
 
 Inverse Abel transforms play an important role in analyzing the projections of angle-resolved photoelectron/photoion spectra, plasma plumes, flames, and solar occultation.
 
+
+Transform methods
+-----------------
+
 The numerical Abel transform is computationally intensive, and a basic numerical integration of the analytical equations does not reliably converge. Consequently, numerous algorithms have been developed in order to approximate the Abel transform in a reliable and efficient manner. So far, PyAbel includes the following transform methods:
 
 1. ```*``` The ``BASEX`` method of Dribinski and co-workers, which uses a Gaussian basis set to provide a quick, robust transform. This is one of the de facto standard methods in photoelectron/photoion spectroscopy. https://github.com/PyAbel/PyAbel/wiki/BASEX-Transform
@@ -115,6 +119,5 @@ PyAble is licensed under the oh-so-liberating MIT license, so it can be used for
 Citation
 --------
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. [DOI coming soon!]
-
 
 Have fun!
