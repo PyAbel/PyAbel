@@ -62,9 +62,7 @@ Numerous examples are located in the examples directory: <https://github.com/PyA
 .. highlight:: python
    :linenothreshold: 5
 
-Using PyAbel is simple:
-.. code-block:: python
-   :emphasize-lines: 1,3,4
+Using PyAbel is simple ::
 
 	import abel
 	original     = abel.tools.analytical.sample_image()
