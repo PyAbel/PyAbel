@@ -5,7 +5,7 @@
 
 <img align="right" src="https://cloud.githubusercontent.com/assets/1107796/13302896/7c7e74e2-db09-11e5-9683-a8f2c523af94.png" width="450">
 
-PyAbel provides functions for the forward and inverse [Abel transforms](https://en.wikipedia.org/wiki/Abel_transform) in Python. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
+PyAbel is a Python package that provides functions for the forward and inverse [Abel transforms](https://en.wikipedia.org/wiki/Abel_transform). The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
 
 Inverse Abel transforms play an important role in analyzing the projections of [angle-resolved photoelectron/photoion spectra](https://en.wikipedia.org/wiki/Photofragment-ion_imaging), plasma plumes, flames, and solar occultation.
 
@@ -26,9 +26,6 @@ The numerical Abel transform is computationally intensive, and a basic numerical
 7. (Planned implementation) The [``POP``](https://github.com/PyAbel/PyAbel/wiki/Polar-onion-peeling) (polar onion peeling) method. POP projects the image onto a basis set of Legendre polynomial-based functions, which can greatly reduce the noise in the reconstruction. However, this method only applies to images that contain features at constant radii. I.e., it works for the spherical shells seen in photoelectron/ion spectra, but not for flames.
 
 `*` Methods marked with an asterisk require the generation of basis sets. The first time each method is run for a specific image size, a basis set must be generated, which can take several seconds or minutes. However, this basis set is saved to disk (generally to the current directory) and can be reused, making subsequent transforms very efficient. Users who are transforming numerous images using these methods will want to keep this in mind and specify the directory containing the basis sets.
-
-Examples of use can be found [here](https://github.com/PyAbel/PyAbel/tree/master/examples).
-
 
 ## Installation
 
@@ -72,8 +69,10 @@ Using PyAbel is simple:
 
 	plt.show()
 
+In the above, note that the `abel.transform()` function returns a Python `dict` object, where the 2D Abel transform is accessed through the `'transform'` key.
+
 ## Documentation
-General information about the various Abel transforms available in PyAbel is available in the [PyAbel wiki](https://github.com/PyAbel/PyAbel/wiki). The complete documentation for PyAbel is hosted at [pyabel.readthedocs.org](https://pyabel.readthedocs.org/en/latest/)
+General information about the various Abel transforms available in PyAbel is available in the [PyAbel wiki](https://github.com/PyAbel/PyAbel/wiki). The complete documentation for all of the methods in PyAbel is hosted at [pyabel.readthedocs.org](https://pyabel.readthedocs.org/en/latest/).
 
 ## Support
 If you have a question or suggestion about PyAbel, the best way to contact the PyAbel Developers Team is to open a new issue here: [https://github.com/PyAbel/PyAbel/issues](https://github.com/PyAbel/PyAbel/issues).
@@ -83,5 +82,6 @@ If you have a question or suggestion about PyAbel, the best way to contact the P
 We welcome suggestions for improvement! Either [open a new Issue](https://github.com/PyAbel/PyAbel/issues) or make a [Pull Request](https://github.com/PyAbel/PyAbel/pulls). 
 
 [CONTRIBUTING.md](https://github.com/PyAbel/PyAbel/blob/master/CONTRIBUTING.md) has more information on how to contribute, such as how to run the unit tests and how to build the documentation.
+
 
 Have fun!
