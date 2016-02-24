@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/PyAbel/PyAbel.svg?branch=master)](https://travis-ci.org/PyAbel/PyAbel)
 [![Appveyor Status](https://ci.appveyor.com/api/projects/status/github/PyAbel/PyAbel?branch=master&svg=true)](https://ci.appveyor.com/project/PyAbel/PyAbel)
 
-<img align="right" src="https://cloud.githubusercontent.com/assets/1107796/13302896/7c7e74e2-db09-11e5-9683-a8f2c523af94.png" width="250">
+<img align="right" src="https://cloud.githubusercontent.com/assets/1107796/13302896/7c7e74e2-db09-11e5-9683-a8f2c523af94.png" width="450">
 
 PyAbel provides functions for the forward and inverse [Abel transforms](https://en.wikipedia.org/wiki/Abel_transform) in Python. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
 
