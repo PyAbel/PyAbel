@@ -49,7 +49,7 @@ def test_inverse_direct_gaussian():
 
     ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='inverse')
 
-    # FIX ME! - requires scalefactor!
+    # FIX ME! - requires scalefactor!  stggh 25Feb16
     scalefactor = recon[0]/ref.func[0]
     ratio *= scalefactor
 

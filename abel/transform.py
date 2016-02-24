@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 from __future__ import division
@@ -201,6 +202,13 @@ def transform(
                 is not currently implemented
     """
 
+    abel_transform = {\
+      "basex" : abel.basex.basex_transform,
+      "direct" : abel.direct.direct_transform,
+      "hansenlaw" : abel.hansenlaw.hansenlaw_transform,
+      "three_point" : abel.three_point.three_point_transform,
+    }
+
     verboseprint = print if verbose else lambda *a, **k: None
 
     if IM.ndim == 1 or np.shape(IM)[0] <= 2:
@@ -235,44 +243,26 @@ def transform(
     Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(
                      IM, reorient=True, symmetry_axis=symmetry_axis)
 
-    def selected_transform(Z):
-        if method == 'hansenlaw':
-            return abel.hansenlaw.hansenlaw_transform(Z, direction=direction,
-                                                      **transform_options)
-
-        elif method == 'three_point':
-            if direction == 'forward':
-                raise ValueError('Forward three-point not implemented')
-            elif direction == 'inverse':
-                return abel.three_point.three_point_transform(
-                  Z, **transform_options)
-
-        elif method == 'basex':
-            if direction == 'forward':
-                raise ValueError('Forward basex not implemented')
-            elif direction == 'inverse':
-                return abel.basex.basex_transform(Z, **transform_options)
-
-        elif method == 'direct':
-            if direction == 'forward':
-                raise ValueError('Coming soon...')
-            elif direction == 'inverse':
-                raise ValueError('Coming soon...')
-
     AQ0 = AQ1 = AQ2 = AQ3 = None
+
     # Inverse Abel transform for quadrant 1 (all include Q1)
-    AQ1 = selected_transform(Q1)
+    AQ1 = abel_transform[method](Q1, direction=direction, **transform_options)
 
     if 0 in symmetry_axis:
-        AQ2 = selected_transform(Q2)
+        AQ2 = abel_transform[method](Q2, direction=direction, 
+                                     **transform_options)
 
     if 1 in symmetry_axis:
-        AQ0 = selected_transform(Q0)
+        AQ0 = abel_transform[method](Q0, direction=direction, 
+                                     **transform_options)
 
     if None in symmetry_axis:
-        AQ0 = selected_transform(Q0)
-        AQ2 = selected_transform(Q2)
-        AQ3 = selected_transform(Q3)
+        AQ0 = abel_transform[method](Q0, direction=direction, 
+                                     **transform_options)
+        AQ2 = abel_transform[method](Q2, direction=direction,
+                                     **transform_options)
+        AQ3 = abel_transform[method](Q3, direction=direction,
+                                     **transform_options)
 
     # reassemble image
     results = {}
@@ -287,7 +277,7 @@ def transform(
 
 def main():
     import matplotlib.pyplot as plt
-    IM0 = abel.tools.analytical.sample_image_dribinski(n=201)
+    IM0 = abel.tools.analytical.sample_image(n=201, name="dribinski")
     IM1 = transform(IM0, direction='forward', center='com',
                     method='hansenlaw')['transform']
     IM2 = transform(IM1, direction='inverse', method='basex')['transform']
