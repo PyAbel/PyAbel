@@ -65,14 +65,14 @@ Numerous examples are located in the examples directory: https://github.com/PyAb
 Using PyAbel is simple:
 
 .. code-block:: python
+   :emphasize-lines: 1,3,4
 
 	import abel
 	original     = abel.tools.analytical.sample_image()
 	forward_abel = abel.transform(original,     direction='forward', method='hansenlaw'  )['transform']
 	inverse_abel = abel.transform(forward_abel, direction='inverse', method='three_point')['transform']
 
-
-	# plot the original and transform
+	# plot the original and transform:
 	import matplotlib.pyplot as plt
 	import numpy as np
 	fig, axs = plt.subplots(1,2,figsize=(7,5))
