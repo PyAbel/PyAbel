@@ -64,11 +64,7 @@ Numerous examples are located in the examples directory: https://github.com/PyAb
 
 Using PyAbel is simple:
 
-.. highlight:: python
-   :linenothreshold: 5
-
 .. code-block:: python
-   :emphasize-lines: 1,3,4
 
 	import abel
 	original     = abel.tools.analytical.sample_image()
