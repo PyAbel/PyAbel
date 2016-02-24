@@ -63,7 +63,8 @@ source_parsers = {
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
-    'numpydoc',
+    # 'numpydoc',
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'matplotlib.sphinxext.plot_directive'
 ]
