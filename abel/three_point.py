@@ -147,7 +147,8 @@ def get_bs_three_point_cached(col, basis_dir='.', verbose=False):
 
 
 def iabel_three_point(data, center,
-                      dr=1.0, basis_dir='./', verbose=False):
+                      dr=1.0, basis_dir='./', verbose=False,
+                      direction='inverse'):
     """
     This function splits the image into two halves,
     sends each half to iabel_three_point_transform(),
@@ -171,12 +172,18 @@ def iabel_three_point(data, center,
         If None, the operator matrix will not be saved to disk.
     verbose : True/False
         Set to True to see more output for debugging
+    direction : str
+        The type of Abel transform to be performed.
+        Currently only accepts value 'inverse'
 
     Returns
     -------
     inv_IM : numpy array
         Abel inversion of IM - a rows x cols array
     """
+
+    if direction != 'inverse':
+        raise ValueError('Forward three_point transform not implemented')
 
     # sanity checks for center
     # 1. If center is tuple, only take the second value inside it

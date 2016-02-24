@@ -12,12 +12,29 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import minimize
 
 
-def center_image(data, center='com', verbose=False):
+def center_image(IM, center='com', verbose=False):
+    """ Center image with the custom value or by several methods provided in `find_center` function
+
+    Parameters
+    ----------
+    IM : 2D np.array
+       The image data.
+
+    center : (float, float) or
+       - (float, float): coordinate of the center of the image in the (y,x) format (row, column)
+       - str: use provided method in `find_center` function to determine the center of the image
+
+    Returns
+    -------
+    out : 2D np.array
+       Centered image
+    """
+
     # center is in y,x (row column) format!
     if isinstance(center, str) or isinstance(center, unicode):
-        center = find_center(data, center, verbose=verbose)
+        center = find_center(IM, center, verbose=verbose)
 
-    centered_data = set_center(data, center, verbose=verbose)
+    centered_data = set_center(IM, center, verbose=verbose)
     return centered_data
 
 
@@ -32,29 +49,89 @@ def set_center(data, center, crop='maintain_size', verbose=True):
 
     old_shape = data.shape
     old_center = data.shape[0]/2.0, data.shape[1]/2.0
+
     delta0 = old_center[0] - center[0]
     delta1 = old_center[1] - center[1]
+
+    if crop == 'maintain_data':
+        # pad the image so that the center can be moved without losing any of the original data
+        # we need to pad the image with zeros before using the shift() function
+        shift0, shift1 = (None, None)
+        if delta0 != 0:
+            shift0 = 1 + int(np.abs(delta0))
+        if delta1 != 0:
+            shift1 = 1 + int(np.abs(delta1))
+
+        container = np.zeros((data.shape[0]+shift0, data.shape[1]+shift1),
+                              dtype = data.dtype)
+
+        area = container[:,:]
+        if shift0:
+            if delta0 > 0:
+                area = area[:-shift0,:]
+            else:
+                area = area[shift0:,:]
+        if shift1:
+           if delta1 > 0:
+                area = area[:,:-shift1]
+           else:
+                area = area[:,shift1:]
+        area[:,:] = data[:,:]
+        data = container
+        delta0 += np.sign(delta0)*shift0/2.0
+        delta1 += np.sign(delta1)*shift1/2.0
+    if verbose:
+        print("delta = ({0}, {1})".format(delta0, delta1))
+
     centered_data = shift(data, (delta0, delta1))
 
-    if crop == 'maintain_size':
+    if crop == 'maintain_data':
+        # pad the image so that the center can be moved
+        # without losing any of the original data
+        return centered_data
+    elif crop == 'maintain_size':
         return centered_data
     elif crop == 'valid_region':
         # crop to region containing data
-        raise ValueError('Not implemented')
-    elif crop == 'maintain_data':
-        # pad the image so that the center can be moved
-        # without losing any of the original data
-        # we need to pad the image with zeros before using the shift() function
-        raise ValueError('Not implemented')
+        shift0, shift1 = (None, None)
+        if delta0 != 0:
+            shift0 = 1 + int(np.abs(delta0))
+        if delta1 != 0:
+            shift1 = 1 + int(np.abs(delta1))
+        return centered_data[shift0:-shift0, shift1:-shift1]
+    else:
+        raise ValueError("Invalid crop method!!")
 
 
-def find_center(data, method='image_center', verbose=True, **kwargs):
-    return func_method[method](data, verbose=verbose, **kwargs)
+
+def find_center(IM, method='image_center', verbose=True, **kwargs):
+    """
+    Paramters
+    ---------
+    IM : 2D np.array
+      image data
+
+    method: str
+      valid method:
+        - image_center
+        - com
+        - gaussian
+
+    Returns
+    -------
+    out: (float, float)
+      coordinate of the center of the image in the (y,x) format (row, column)
+
+    """
+    return func_method[method](IM, verbose=verbose, **kwargs)
 
 
-def find_center_by_center_of_mass(data, verbose=True,
-                                  round_output=False, **kwargs):
-    com = center_of_mass(data)
+def find_center_by_center_of_mass(IM, verbose=True, round_output=False,
+                                  **kwargs):
+    """
+    Find image center by calculating its center of mass
+    """
+    com = center_of_mass(IM)
     center = com[0], com[1]
 
     if verbose:
@@ -76,10 +153,15 @@ def find_center_by_center_of_image(data, verbose=True, **kwargs):
             data.shape[0] // 2 + data.shape[0] % 2)
 
 
-def find_center_by_gaussian_fit(
-        data, verbose=True, round_output=True, **kwargs):
-    x = np.sum(data, axis=0)
-    y = np.sum(data, axis=1)
+
+
+def find_center_by_gaussian_fit(IM, verbose=True, round_output=False,
+                                **kwargs):
+    """
+    Find image center by fitting the summation along x and y axis of the data to two 1D Gaussian function
+    """
+    x = np.sum(IM, axis=0)
+    y = np.sum(IM, axis=1)
     xc = fit_gaussian(x)[1]
     yc = fit_gaussian(y)[1]
     center = (yc, xc)
@@ -96,12 +178,6 @@ def find_center_by_gaussian_fit(
         print(to_print)
 
     return center
-
-func_method = {
-    "image_center": find_center_by_center_of_image,
-    "com": find_center_by_center_of_mass,
-    "gaussian": find_center_by_gaussian_fit,
-}
 
 
 def axis_slices(IM, radial_range=(0, -1), slice_width=10):
@@ -202,8 +278,9 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
         if fit["success"]:
             xyoffset[0] = -float(fit['x'])/2  # x1/2 for image center shift
         else:
-            print("fit failure: axis = 0, zero shift set")
-            print(fit)
+            if verbose:
+                print("fit failure: axis = 0, zero shift set")
+                print(fit)
 
     # x-axis
     if (type(axis) is int and axis == 1) or \
@@ -213,8 +290,9 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
         if fit["success"]:
             xyoffset[1] = -float(fit['x'])/2   # x1/2 for image center shift
         else:
-            print("fit failure: axis = 1, zero shift set")
-            print(fit)
+            if verbose:
+                print("fit failure: axis = 1, zero shift set")
+                print(fit)
 
     # this is the (y, x) shift to align the slice profiles
     xyoffset = tuple(xyoffset)
@@ -222,3 +300,11 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     IM_centered = shift(IM, xyoffset)  # center image
 
     return IM_centered, xyoffset
+ 
+
+func_method = {
+    "image_center": find_center_by_center_of_image,
+    "com": find_center_by_center_of_mass,
+    "gaussian": find_center_by_gaussian_fit,
+    "slice": find_image_center_by_slice
+}
