@@ -57,7 +57,16 @@ The current list of dependencies can be found in [`setup.py`](https://github.com
 
 ##### Documentation
 
-PyAbel uses Sphinx and [Napoleon](http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html) to process Numpy style docstrings, and is synchronized to [pyabel.readthedocs.org](http://pyabel.readthedocs.org/). To build the documentation locally, you will need Sphinx, the [`recommonmark`](https://github.com/rtfd/recommonmark) package, and the [`sphinx_rtd_theme`](https://github.com/snide/sphinx_rtd_theme/). Then, you can build the documentation using
+PyAbel uses Sphinx and [Napoleon](http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html) to process Numpy style docstrings, and is synchronized to [pyabel.readthedocs.org](http://pyabel.readthedocs.org/). 
+
+To build the documentation locally, you will need Sphinx, the [`recommonmark`](https://github.com/rtfd/recommonmark) package, the [`sphinx_rtd_theme`](https://github.com/snide/sphinx_rtd_theme/), and the [`numpydoc`](https://pypi.python.org/pypi/numpydoc) package. So, type
+
+	 pip install sphinx
+	 pip install recommonmark
+	 pip install sphinx_rtd_theme
+	 pip install numpydoc
+
+Once you have all that installed, you can build the documentation:
 
 	 cd PyAbel/doc/
 	 make html

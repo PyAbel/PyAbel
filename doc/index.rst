@@ -11,7 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   general_interface
+   ../README
    abel
    example_direct_gaussian
    example_hansenlaw

@@ -4,36 +4,83 @@
 [![Appveyor Status](https://ci.appveyor.com/api/projects/status/github/PyAbel/PyAbel?branch=master&svg=true)](https://ci.appveyor.com/project/PyAbel/PyAbel)
 
 
-PyAbel is a Python package for performing Abel and (primarily) inverse Abel transforms. The Abel transform takes a cylindrically symmetric 3D object and finds the 2D projection of that object. The more difficult problem -- the inverse Abel transform -- takes the 2D projection and finds the central slice of the 3D object by assuming cylindrical symmetry in the vertical direction.
+PyAbel provides functions for the forward and inverse [Abel transforms](https://en.wikipedia.org/wiki/Abel_transform) in Python. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
 
-The PyAbel package offers several options for completing the inverse Abel transform:
+Inverse Abel transforms play an important role in analyzing the projections of [angle-resolved photoelectron/photoion spectra](https://en.wikipedia.org/wiki/Photofragment-ion_imaging), plasma plumes, flames, and solar occultation.
 
- 1. The BASEX algorithm creared by Dribinski, Ossadtchi, Mandelshtam, and Reisler [[Rev. Sci. Instrum. 73 2634, (2002)](http://dx.doi.org/10.1063/1.1482156)]. The BASEX implementation uses Gaussian basis functions to find the transform instead of analytically solving the inverse Abel transform.
+The numerical Abel transform is computationally intensive, and a basic numerical integration of the analytical equations does not reliably converge. Consequently, numerous algorithms have been developed in order to approximate the Abel transform in a reliable and efficient manner. So far, PyAbel includes the following transform methods:
 
- 2. The "Hansen and Law" recursive method described in [[J. Opt. Soc. Am A 2 (4) 510 (1985)](dx.doi.org/10.1364/JOSAA.2.000510)]
+1. `*` The [``BASEX``](https://github.com/PyAbel/PyAbel/wiki/BASEX-Transform) method of Dribinski and co-workers, which uses a Gaussian basis set to provide a quick, robust transform. This is one of the de facto standard methods in photoelectron/photoion spectroscopy.
 
- 3. In the future, we hope to have more options for the forward and inverse abel transforms.
+2. The [``hansenlaw``](https://github.com/PyAbel/PyAbel/wiki/Hansen%E2%80%93Law-transform) recursive method of Hansen and Law, which provides an extremely fast transform with low centerline noise.
 
-### Symmetry
+3. The [``direct``](https://github.com/PyAbel/PyAbel/wiki/Direct-transform) numerical integration of the analytical Abel transform equations, which is implemented in Cython for efficiency. In general, while the forward Abel transform is useful, the inverse Abel transform requires very fine sampling of features (lots of pixels in the image) for good convergence to the analytical result, and is included mainly for completeness and for comparison purposes. For the inverse Abel transform, other methods are generally more reliable. 
 
-In this code, the axis of cylindrical symmetry is in assumed to be in the vertical direction. If this is not the case for your data, the `numpy.rot90` function can be used to rotate your dataset.
+4. `*` The [``three_point``](https://github.com/PyAbel/PyAbel/wiki/Three-point-transform) method of Dasch and co-workers, which provides a fast and robust transform by exploiting the observation that underlying radial distribution is primarily determined from changes in the line-of-sight projection data in the neighborhood of each radial data point. This technique works very well in cases where the real difference between adjacent projections is much greater than the noise in the projections (i.e. where the raw data is not oversampled).
 
-### Installation notes
+5. (Planned implementation) The ``fourierhankel`` method, which is computationally efficient, but contains significant centerline noise and is known to introduce artifacts.
 
-This module requires Python 2.7 or 3.3-3.5. It can be installed with
+6. (Planned implementation) The [``onionpeeling``](https://github.com/PyAbel/PyAbel/wiki/Onion-peeling) method.
 
-    python setup.py install --user
+7. (Planned implementation) The [``POP``](https://github.com/PyAbel/PyAbel/wiki/Polar-onion-peeling) (polar onion peeling) method. POP projects the image onto a basis set of Legendre polynomial-based functions, which can greatly reduce the noise in the reconstruction. However, this method only applies to images that contain features at constant radii. I.e., it works for the spherical shells seen in photoelectron/ion spectra, but not for flames.
+
+`*` Methods marked with an asterisk require the generation of basis sets. The first time each method is run for a specific image size, a basis set must be generated, which can take several seconds or minutes. However, this basis set is saved to disk (generally to the current directory) and can be reused, making subsequent transforms very efficient. Users who are transforming numerous images using these methods will want to keep this in mind and specify the directory containing the basis sets.
+
+Examples of use can be found [here](https://github.com/PyAbel/PyAbel/tree/master/examples).
+
+
+## Installation
+
+#### With pip
+
+PyAbel requires Python 2.7 or 3.3-3.5. The latest release can be installed from PyPi with
+
+    pip install PyAbel
+
+#### With setuptools
+
+If you prefer the development version from GitHub, download it here, `cd` to the PyAbel directory, and use
+
+    python setup.py install
 
 Or, if you wish to edit the PyAbel code without re-installing each time (advanced users):
 
     python setup.py develop
 
-### Example of use
+## Example of use
 
-See several example in `examples` folder.
+Numerous examples are located in the [`examples`](https://github.com/PyAbel/PyAbel/tree/master/examples) folder, as well as at [https://pyabel.readthedocs.org](https://pyabel.readthedocs.org).
 
-### Contributing
+Using PyAbel is simple:
 
-We welcome new implementations of the inverse Abel transform or other code improvements. Please feel free to submit an issue or make a pull request.
+	import abel
+	original     = abel.tools.analytical.sample_image()
+	forward_abel = abel.transform(original,     direction='forward', method='hansenlaw'  )['transform']
+	inverse_abel = abel.transform(forward_abel, direction='inverse', method='three_point')['transform']
+
+
+	# plot the original and transform
+	import matplotlib.pyplot as plt
+	import numpy as np
+	fig, axs = plt.subplots(1,2,figsize=(7,5))
+	axs[0].imshow(forward_abel,clim=(0,np.max(forward_abel)*0.3))
+	axs[1].imshow(inverse_abel,clim=(0,np.max(inverse_abel)*0.3))
+
+	axs[0].set_title('Forward Abel Transform')
+	axs[1].set_title('Inverse Abel Transform')
+
+	plt.show()
+
+## Documentation
+General information about the various Abel transforms available in PyAbel is available in the [PyAbel wiki](https://github.com/PyAbel/PyAbel/wiki). The complete documentation for PyAbel is hosted at [pyabel.readthedocs.org](https://pyabel.readthedocs.org/en/latest/)
+
+## Support
+If you have a question or suggestion about PyAbel, the best way to contact the PyAbel Developers Team is to open a new issue here: [https://github.com/PyAbel/PyAbel/issues](https://github.com/PyAbel/PyAbel/issues).
+
+## Contributing
+
+We welcome suggestions for improvement! Either [open a new Issue](https://github.com/PyAbel/PyAbel/issues) or make a [Pull Request](https://github.com/PyAbel/PyAbel/pulls). 
+
+[CONTRIBUTING.md](https://github.com/PyAbel/PyAbel/blob/master/CONTRIBUTING.md) has more information on how to contribute, such as how to run the unit tests and how to build the documentation.
 
 Have fun!
