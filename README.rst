@@ -63,7 +63,8 @@ Numerous examples are located in the examples directory: https://github.com/PyAb
    :linenothreshold: 5
 
 Using PyAbel is simple:
-.. code:: python
+
+.. code-block:: python
 
 	import abel
 	original     = abel.tools.analytical.sample_image()
