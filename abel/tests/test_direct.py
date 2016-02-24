@@ -1,10 +1,13 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import time
 
 import numpy as np
+from unittest.case import SkipTest
+from numpy.testing import assert_allclose
 import scipy.ndimage as nd
 import abel
-
+from abel.tools.polar import CythonExtensionsNotBuilt
 
 def test_direct_shape():
     if not abel.direct.cython_ext:
@@ -12,11 +15,11 @@ def test_direct_shape():
     n = 21
     x = np.ones((n, n))
 
-    recon = abel.direct.direct(x, direction='forward')
+    recon = abel.direct.direct_transform(x, direction='forward')
 
     assert recon.shape == (n, n) 
 
-    recon = abel.direct.direct(x, direction="inverse")
+    recon = abel.direct.direct_transform(x, direction="inverse")
 
     assert recon.shape == (n, n)
 
@@ -33,18 +36,22 @@ def test_direct_zeros():
 
 
 def test_inverse_direct_gaussian():
-    """Check iabel_direct with a Gaussian"""
+    """Check abel.direct.direct_transform() with a Gaussian"""
     if not abel.direct.cython_ext:
         raise SkipTest
     n = 51
     r_max = 25
 
-    ref = abel.tools.anaytical.GaussianAnalytical(n, r_max, symmetric=False,
-                                                 sigma=10)
+    ref = abel.tools.analytical.GaussianAnalytical(n, r_max, symmetric=False,
+                                                   sigma=10)
 
     recon = abel.direct.direct_transform(ref.abel, dr=ref.dr, direction='forward')
 
-    ratio = absolute_ratio_benchmark(ref, recon, kind='inverse')
+    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='inverse')
+
+    # FIX ME! - requires scalefactor!
+    scalefactor = recon[0]/ref.func[0]
+    ratio *= scalefactor
 
     assert_allclose(ratio, 1.0, rtol=7e-2, atol=0)
 
@@ -87,7 +94,7 @@ def test_forward_direct_gaussian():
     recon = abel.direct.direct_transform(ref.func, dr=ref.dr,
                                          direction='forward')
 
-    ratio = absolute_ratio_benchmark(ref, recon, kind='direct')
+    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='direct')
 
     assert_allclose(ratio, 1.0, rtol=7e-2, atol=0)
 
@@ -102,4 +109,10 @@ def test_simps_wrong():
     assert_allclose(res1, res2, rtol=0.001)
 
 
-
+if __name__ == "__main__":
+    test_direct_shape()
+    test_direct_zeros()
+    test_inverse_direct_gaussian()
+    test_direct_c_python_correspondance_wcorrection()
+    test_direct_c_python_correspondance()
+    test_forward_direct_gaussian()

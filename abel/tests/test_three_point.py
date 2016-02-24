@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
@@ -34,10 +35,14 @@ def test_three_point_step_ratio():
     ref = abel.tools.analytical.GaussianAnalytical(n, r_max, symmetric=True,  sigma=10)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
-    recon = abel.three_point.three_point_transform(tr, 25, basis_dir=None, 
+    recon = abel.three_point.three_point(tr, 25, basis_dir=None, 
             direction='inverse',verbose=False)
     recon1d = recon[n//2 + n%2]
 
     ratio = absolute_ratio_benchmark(ref, recon1d)
 
     assert_allclose( ratio , 1.0, rtol=3e-2, atol=0)
+
+if __name__ == "__main__":
+    test_three_point_basis_sets_cache_asym()
+    test_three_point_step_ratio()

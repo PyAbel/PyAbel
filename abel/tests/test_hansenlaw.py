@@ -1,14 +1,12 @@
+#!/usr/bin/env python
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
-import os.path
 
 import numpy as np
 from numpy.testing import assert_allclose
 
 import abel
-from abel.benchmark import absolute_ratio_benchmark
 
 # Curve A, Table 2, Fig 3. Abel transform pair  Hansen&Law JOSA A2 510 (1985)
 def f(r):
@@ -44,8 +42,8 @@ def test_hansenlaw_zeros():
     assert_allclose(recon, 0)
 
 
-def test_fabel_hansenlaw_gaussian():
-    """Check fabel_hansenlaw with a Gaussian function"""
+def test_hansenlaw_forward_tansform_gaussian():
+    """Check hansenlaw forward tansform with a Gaussian function"""
     n = 1001
     r_max = 501   # more points better fit
 
@@ -55,30 +53,30 @@ def test_fabel_hansenlaw_gaussian():
     recon = abel.hansenlaw.hansenlaw_transform(ref.func, ref.dr,
                                                direction='forward')
 
-    ratio = absolute_ratio_benchmark(ref, recon, kind='direct')
+    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='direct')
 
     assert_allclose(ratio, 1.0, rtol=7e-2, atol=0)
 
 
-def test_iabel_hansenlaw_gaussian():
-    """Check iabel_hansenlaw with a Gaussian function"""
+def test_hansenlaw_inverse_transform_gaussian():
+    """Check hansenlaw inverse transform with a Gaussian function"""
     n = 1001   # better with a larger number of points
     r_max = 501
 
-    ref = abel.tools.analyticalGaussianAnalytical(n, r_max, 
+    ref = abel.tools.analytical.GaussianAnalytical(n, r_max, 
           symmetric=False,  sigma=200)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
     recon = abel.hansenlaw.hansenlaw_transform(tr, ref.dr, direction='inverse')
     recon1d = recon[n//2 + n%2]  # centre row
 
-    ratio = absolute_ratio_benchmark(ref, recon1d)
+    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)
 
     assert_allclose(ratio, 1.0, rtol=1e-1, atol=0)
 
 
-def test_fabel_hansenlaw_curveA():
-    """ Check fabel_hansenlaw_transform() curve A
+def test_hansenlaw_forward_curveA():
+    """ Check hansenlaw forward transform with 'curve A'
     """
     delta = 0.01  # sample size
 
@@ -97,9 +95,8 @@ def test_fabel_hansenlaw_curveA():
     assert_allclose(proj, Aproj, rtol=0, atol=6.0e-2)
 
 
-
-def test_iabel_hansenlaw_transform_curveA():
-    """ Check iabel_hansenlaw_transform() curve A
+def test_hansenlaw_inverse_transform_curveA():
+    """ Check hansenlaw inverse transform() 'curve A'
     """
     delta = 0.001 # sample size, smaller the better inversion
 
@@ -118,13 +115,13 @@ def test_iabel_hansenlaw_transform_curveA():
     assert_allclose(orig, recon, rtol=0, atol=0.01)
 
 
-def test_hansenlaw_with_dribinski_image():
-    """ Check fabel_hansenlaw_transform() and iabel_hansenlaw_transform()
+def test_hansenlaw_forward_dribinski_image():
+    """ Check hansenlaw forward/inverse transform
         using BASEX sample image, comparing speed distributions
     """
 
     # BASEX sample image
-    IM = abel.tools.analytical.sample_image(n=361, name="dribinski")
+    IM = abel.tools.analytical.sample_image(n=1001, name="dribinski")
 
     # core transform(s) use top-right quadrant, Q0
     Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(IM)
@@ -147,3 +144,12 @@ def test_hansenlaw_with_dribinski_image():
     
 
     assert np.allclose(orig_speed[50:125], speed[50:125], rtol=0.5, atol=0)
+
+if __name__ == "__main__":
+    test_hansenlaw_shape()
+    test_hansenlaw_zeros()
+    test_hansenlaw_forward_tansform_gaussian()
+    test_hansenlaw_inverse_transform_gaussian()
+    test_hansenlaw_forward_curveA()
+    test_hansenlaw_inverse_transform_curveA()
+    test_hansenlaw_forward_dribinski_image()
