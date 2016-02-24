@@ -86,23 +86,6 @@ def simpson_rule_wrong(f, x=None, dx=None, axis=1, **args):
     return res*dx/3
 
 
-def iabel_direct(fr, dr=None, r=None, **args):
-    """
-    Returns the inverse Abel transform
-
-    """
-    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=True, **args)
-
-
-def fabel_direct(fr, dr=None, r=None, **args):
-    """
-    Returns the direct Abel transform of a function
-    sampled at discrete points.
-
-    """
-    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=False, **args)
-
-
 def _construct_r_grid(n, dr=None, r=None):
     """ Internal function to construct a 1D spatial grid """
     if dr is None and r is None:
@@ -128,10 +111,10 @@ def _construct_r_grid(n, dr=None, r=None):
     return r, dr
 
 
-def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
-                            derivative=gradient,
-                            int_func=simpson_rule_wrong,
-                            correction=True, backend='C'):
+def direct_transform(fr, dr=None, r=None, direction='inverse',
+                     derivative=gradient,
+                     int_func=simpson_rule_wrong,
+                     correction=True, backend='C'):
     """
     Returns the forward or the inverse Abel transform of a function
     sampled using direct integration.
@@ -144,12 +127,12 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
 
     r, dr = _construct_r_grid(f.shape[1], dr=dr, r=r)
 
-    if inverse:
+    if direction == "inverse":
         # a derivative function must be provided
         f = derivative(f)/dr
         # setting the derivative at the origin to 0
         # f[:,0] = 0
-    if inverse:
+    if direction == "inverse":
         f *= - 1./np.pi
     else:
         f *= 2*r[None, :]
@@ -240,9 +223,9 @@ def _pyabel_direct_integral(f, r, correction, int_func=simpson_rule_wrong):
 
 
 # append the same docstring to all functions
-iabel_direct.__doc__ += _direct_doctsting
-fabel_direct.__doc__ += _direct_doctsting
-_abel_transform_wrapper.__doc__ += _direct_doctsting
+#iabel_direct.__doc__ += _direct_doctsting
+#fabel_direct.__doc__ += _direct_doctsting
+direct_transform.__doc__ += _direct_doctsting
 
 
 def is_uniform_sampling(r):

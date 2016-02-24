@@ -24,11 +24,11 @@ from time import time
 #   dictionary of method: function()
 
 transforms = {
-  "direct": abel.direct.iabel_direct,      
+  "direct": abel.direct.direct_transform,      
   #"onion": iabel_onion_transform, 
-  "hansenlaw": abel.hansenlaw.iabel_hansenlaw,
-  "basex": abel.basex.iabel_basex,   
-  "three_point": abel.three_point.iabel_three_point_transform,
+  "hansenlaw": abel.hansenlaw.hansenlaw_transform,
+  "basex": abel.basex.basex_transform,   
+  "three_point": abel.three_point.three_point_transform,
 }
 # sort dictionary 
 transforms = collections.OrderedDict(sorted(transforms.items()))
@@ -70,7 +70,8 @@ for q, method in enumerate(transforms.keys()):
     print ("\n------- {:s} inverse ...".format(method))  
     t0 = time()
 
-    IAQ0 = transforms[method](Q0)   # inverse Abel transform using 'method'
+    # inverse Abel transform using 'method'
+    IAQ0 = transforms[method](Q0, direction="inverse") 
 
     print ("                    {:.1f} sec".format(time()-t0))
 

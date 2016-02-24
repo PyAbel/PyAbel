@@ -237,23 +237,21 @@ def transform(
 
     def selected_transform(Z):
         if method == 'hansenlaw':
-            if direction == 'forward':
-                return abel.hansenlaw.fabel_hansenlaw(Z, **transform_options)
-            elif direction == 'inverse':
-                return abel.hansenlaw.iabel_hansenlaw(Z, **transform_options)
+            return abel.hansenlaw.hansenlaw_transform(Z, direction=direction,
+                                                      **transform_options)
 
         elif method == 'three_point':
             if direction == 'forward':
                 raise ValueError('Forward three-point not implemented')
             elif direction == 'inverse':
-                return abel.three_point.iabel_three_point_transform(
+                return abel.three_point.three_point_transform(
                   Z, **transform_options)
 
         elif method == 'basex':
             if direction == 'forward':
                 raise ValueError('Forward basex not implemented')
             elif direction == 'inverse':
-                return abel.basex.iabel_basex(Z, **transform_options)
+                return abel.basex.basex_transform(Z, **transform_options)
 
         elif method == 'direct':
             if direction == 'forward':

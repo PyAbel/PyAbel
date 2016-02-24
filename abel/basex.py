@@ -45,8 +45,8 @@ from ._version import __version__
 #############################################################################
 
 
-def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
-                direction='inverse'):
+def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
+                    direction='inverse'):
     """
     This function that centers the image,
     performs the BASEX transform (loads or generates basis sets),
@@ -109,8 +109,8 @@ def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
             n_vert=n[0], n_horz=n[1], nbf=nbf, basis_dir=basis_dir,
             verbose=verbose)
     # Do the actual transform:
-    recon = basex_transform(full_image, M_vert, M_horz,
-                            Mc_vert, Mc_horz, vert_left, horz_right, dr)
+    recon = basex_core_transform(full_image, M_vert, M_horz,
+                                  Mc_vert, Mc_horz, vert_left, horz_right, dr)
     if data_ndim == 1:  # taking the middle row, since the rest are zeroes
         recon = recon[recon.shape[0] - recon.shape[0]//2 - 1]
     if h == 1:
@@ -119,8 +119,8 @@ def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
         return recon[:, w-1:]
 
 
-def basex_transform(rawdata, M_vert, M_horz, Mc_vert,
-                    Mc_horz, vert_left, horz_right, dr=1.0):
+def basex_core_transform(rawdata, M_vert, M_horz, Mc_vert,
+                         Mc_horz, vert_left, horz_right, dr=1.0):
     """
     This is the internal function
     that does the actual BASEX transform

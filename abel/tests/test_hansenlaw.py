@@ -7,13 +7,7 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-from abel.hansenlaw import iabel_hansenlaw, fabel_hansenlaw
-
-from abel.tools.analytical import sample_image
-from abel.tools.symmetry import get_image_quadrants
-from abel.tools.vmi import angular_integration
-
-from abel.tools.analytical import GaussianAnalytical
+import abel
 from abel.benchmark import absolute_ratio_benchmark
 
 # Curve A, Table 2, Fig 3. Abel transform pair  Hansen&Law JOSA A2 510 (1985)
@@ -36,7 +30,7 @@ def test_hansenlaw_shape():
     n = 21
     x = np.ones((n, n), dtype='float32')
 
-    recon = iabel_hansenlaw(x)
+    recon = abel.hansenlaw.hansenlaw_transform(x, direction='inverse')
 
     assert recon.shape == (n, n) 
 
@@ -45,7 +39,7 @@ def test_hansenlaw_zeros():
     n = 21
     x = np.zeros((n, n), dtype='float32')
 
-    recon = iabel_hansenlaw(x)
+    recon = abel.hansenlaw.hansenlaw_transform(x, direction="inverse")
 
     assert_allclose(recon, 0)
 
@@ -55,9 +49,11 @@ def test_fabel_hansenlaw_gaussian():
     n = 1001
     r_max = 501   # more points better fit
 
-    ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=200)
+    ref = abel.tools.analytical.GaussianAnalytical(n, 
+          r_max, symmetric=False,  sigma=200)
 
-    recon = fabel_hansenlaw(ref.func, ref.dr)
+    recon = abel.hansenlaw.hansenlaw_transform(ref.func, ref.dr,
+                                               direction='forward')
 
     ratio = absolute_ratio_benchmark(ref, recon, kind='direct')
 
@@ -69,10 +65,11 @@ def test_iabel_hansenlaw_gaussian():
     n = 1001   # better with a larger number of points
     r_max = 501
 
-    ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=200)
+    ref = abel.tools.analyticalGaussianAnalytical(n, r_max, 
+          symmetric=False,  sigma=200)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
-    recon = iabel_hansenlaw(tr, ref.dr)
+    recon = abel.hansenlaw.hansenlaw_transform(tr, ref.dr, direction='inverse')
     recon1d = recon[n//2 + n%2]  # centre row
 
     ratio = absolute_ratio_benchmark(ref, recon1d)
@@ -93,7 +90,9 @@ def test_fabel_hansenlaw_curveA():
     orig = np.concatenate((f(rl),f(rr)), axis=0)   # f(r)
     proj = np.concatenate((g(rl),g(rr)), axis=0)   # g(r)
 
-    Aproj = fabel_hansenlaw(orig, delta)  # forward Abel 
+    # forward Abel 
+    Aproj = abel.hansenlaw.hansenlaw_transform(orig, delta,
+                                               direction='forward')  
                                                        # == g(r)
     assert_allclose(proj, Aproj, rtol=0, atol=6.0e-2)
 
@@ -112,7 +111,9 @@ def test_iabel_hansenlaw_transform_curveA():
     orig = np.concatenate((f(rl),f(rr)), axis=0)   # f(r)
     proj = np.concatenate((g(rl),g(rr)), axis=0)   # g(r)
 
-    recon = iabel_hansenlaw(proj, r[1]-r[0])  # inverse Abel 
+    # inverse Abel 
+    recon = abel.hansenlaw.hansenlaw_transform(proj, r[1]-r[0],
+                                               direction='inverse') 
                                                        # == f(r)
     assert_allclose(orig, recon, rtol=0, atol=0.01)
 
@@ -123,21 +124,23 @@ def test_hansenlaw_with_dribinski_image():
     """
 
     # BASEX sample image
-    IM = sample_image(n=361, name="dribinski")
+    IM = abel.tools.analytical.sample_image(n=361, name="dribinski")
 
     # core transform(s) use top-right quadrant, Q0
-    Q0, Q1, Q2, Q3 = get_image_quadrants(IM)
+    Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(IM)
 
     # forward Abel transform
-    fQ0 = fabel_hansenlaw(Q0)
+    fQ0 = abel.hansenlaw.hansenlaw_transform(Q0, direction='forward')
 
     # inverse Abel transform
-    ifQ0 = iabel_hansenlaw(fQ0)
+    ifQ0 = abel.hansenlaw.hansenlaw_transform(fQ0, direction='inverse')
     
     # speed distribution
-    orig_speed, orig_radial = angular_integration(Q0, origin=(0,0), Jacobian=True)
+    orig_speed, orig_radial = abel.tools.vmi.angular_integration(Q0, 
+                              origin=(0,0), Jacobian=True)
 
-    speed, radial_coords = angular_integration(ifQ0, origin=(0,0), Jacobian=True)
+    speed, radial_coords = abel.tools.vmi.angular_integration(ifQ0,
+                           origin=(0,0), Jacobian=True)
 
     orig_speed /= orig_speed[50:125].max()
     speed /= speed[50:125].max()

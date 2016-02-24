@@ -55,18 +55,20 @@ _hansenlaw_header_docstring = \
 
     Evaluation via Eq. (15 or 17), using (16a), (16b), and (16c or 18)
 
-    f = iabel_hansenlaw(g)
+    f = abel.transform(g, direction="inverse", method="hansenlaw")["transform"]
         inverse Abel transform of image g
-    g = fabel_hansenlaw(f)
+
+    g = abel.transform(r, direction="forward", method="hansenlaw")["transform"]
         forward Abel transform of image f
-    (f/i)abel_hansenlaw_transform()
-        core algorithm
+
     """
 
 _hansenlaw_transform_docstring = \
     """
 
-    Core Hansen and Law Abel transform
+    Core Hansen and Law Abel transform e.g.
+
+      Qtrans = abel.hansenlaw.hansenlaw_transform(Q, direction="inverse")
 
     Recursion method proceeds from the outer edge of the image
     toward the image centre (origin). i.e. when n=N-1, R=Rmax, and
@@ -74,7 +76,9 @@ _hansenlaw_transform_docstring = \
     quadrant (chosen orientation to be rightside-top), or one right-half
     image at a time.
 
-    Use (f/i)abel_transform (IM) to transform a whole image
+    Use AIM = abel.transform(IM, method="hansenlaw", 
+                             direction="inverse")["transform"]
+    to transform a whole image
 
     Parameters
     ----------
@@ -107,20 +111,6 @@ _hansenlaw_transform_docstring = \
         forward/inverse Abel transform image
 
     """
-
-
-def fabel_hansenlaw(IM, dr=1):
-    """
-    Forward Abel transform for one-quadrant
-    """
-    return hansenlaw_transform(IM, dr=dr, direction="forward")
-
-
-def iabel_hansenlaw(IM, dr=1):
-    """
-    Inverse Abel transform for one-quadrant
-    """
-    return hansenlaw_transform(IM, dr=dr, direction="inverse")
 
 
 def hansenlaw_transform(IM, dr=1, direction="inverse"):
@@ -194,6 +184,6 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
         return -AIM*np.pi*dr   # forward still needs '-' sign
 
 # append the same docstring to all functions - borrowed from @rth
-iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
-fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
-hansenlaw_transform.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
+#iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
+#fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
+#hansenlaw_transform.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
