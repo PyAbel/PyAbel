@@ -62,7 +62,7 @@ Numerous examples are located in the examples directory: https://github.com/PyAb
 .. highlight:: python
    :linenothreshold: 5
 
-Using PyAbel is simple:
+Using PyAbel can be simple. The following Python code imports the PyAbel package, generates a sample image, performs a forward transform, and then a reverse transform:
 
 .. code-block:: python
 
@@ -70,6 +70,11 @@ Using PyAbel is simple:
 	original     = abel.tools.analytical.sample_image()
 	forward_abel = abel.transform(original,     direction='forward', method='hansenlaw'  )['transform']
 	inverse_abel = abel.transform(forward_abel, direction='inverse', method='three_point')['transform']
+
+
+and this code can be used to plot the images using matplotlib:
+
+.. code-block:: python
 
 	# plot the original and transform:
 	import matplotlib.pyplot as plt
