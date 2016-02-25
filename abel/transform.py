@@ -102,7 +102,7 @@ def transform(
 
         ::
 
-           Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
+           Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
            inverse image   AQ01 | AQ01
                            -----o-----
                            AQ23 | AQ23
