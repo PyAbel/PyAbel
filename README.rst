@@ -26,7 +26,7 @@ Transform methods
 
 The numerical Abel transform is computationally intensive, and a basic numerical integration of the analytical equations does not reliably converge. Consequently, numerous algorithms have been developed in order to approximate the Abel transform in a reliable and efficient manner. So far, PyAbel includes the following transform methods:
 
-1. ``*`` The ` ``BASEX`` <https://github.com/PyAbel/PyAbel/wiki/BASEX-Transform>`_ method of Dribinski and co-workers, which uses a Gaussian basis set to provide a quick, robust transform. This is one of the de facto standard methods in photoelectron/photoion spectroscopy. 
+1. ``*`` The ` BASEX <https://github.com/PyAbel/PyAbel/wiki/BASEX-Transform>`_ method of Dribinski and co-workers, which uses a Gaussian basis set to provide a quick, robust transform. This is one of the de facto standard methods in photoelectron/photoion spectroscopy. 
 
 2. The ``hansenlaw`` recursive method of Hansen and Law, which provides an extremely fast transform with low centerline noise. https://github.com/PyAbel/PyAbel/wiki/Hansen%E2%80%93Law-transform
 
