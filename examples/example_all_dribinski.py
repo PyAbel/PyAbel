@@ -66,7 +66,7 @@ for q, method in enumerate(transforms.keys()):
     iabelQ.append(IAQ0)  # store for plot
 
     # polar projection and speed profile
-    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(0, 0))
+    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(0, 0), Jacobian=False)
 
     # normalize image intensity and speed distribution
     IAQ0 /= IAQ0.max()  
