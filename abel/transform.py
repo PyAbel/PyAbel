@@ -121,11 +121,12 @@ def transform(
         
         1. symmetry_axis = 0 (vertical): ::
 
-            Combine:  Q01 = Q0 + Q2, Q23 = Q2 + Q3
-            inverse image   AQ01 | AQ01
-                            -----o----- (left and right equivalent)
-                            AQ23 | AQ23
-                        
+           Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
+           inverse image   AQ01 | AQ01
+                           -----o-----
+                           AQ23 | AQ23
+
+        (2) symmetry_axis = 1 (horizontal)
 
         2. symmetry_axis = 1 (horizontal): ::
 
