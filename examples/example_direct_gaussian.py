@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
@@ -9,7 +10,7 @@ import matplotlib.pyplot as plt
 from time import time
 import sys
 
-from abel.direct import fabel_direct, iabel_direct
+from abel.direct import direct_transform
 from abel.tools.analytical import GaussianAnalytical
 
 
@@ -26,17 +27,27 @@ ax[1].set_title('Inverse transform of a Gaussian')
 
 ax[0].plot(ref.r, ref.abel, 'b', label='Analytical transform')
 
-recon = fabel_direct(ref.func, dr=ref.dr, correction=True, backend='C')
+recon = direct_transform(ref.func, dr=ref.dr, direction="forward",
+                        correction=True, backend='C')
+
 ax[0].plot(ref.r, recon , '--o',c='red', label='direct')
-recon = fabel_direct(ref.func, dr=ref.dr, correction=True, backend='Python')
+
+recon = direct_transform(ref.func, dr=ref.dr, direction="forward",
+                        correction=True, backend='Python')
+
 ax[0].plot(ref.r, recon , ':d', c='k', label='direct naive')
 
 
 ax[1].plot(ref.r, ref.func, 'b', label='Original function')
 
-recon = iabel_direct(ref.abel, dr=ref.dr, correction=True)
+recon = direct_transform(ref.abel, dr=ref.dr, direction="inverse",
+                         correction=True)
+
 ax[1].plot(ref.r, recon , '--o', c='red', label='direct')
-recon = iabel_direct(ref.abel, dr=ref.dr, correction=False)
+
+recon = direct_transform(ref.abel, dr=ref.dr, direction="inverse",
+                         correction=False)
+
 ax[1].plot(ref.r, recon , ':d', c='k', label='direct - naive')
 
 for axi in ax:

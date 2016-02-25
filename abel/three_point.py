@@ -9,7 +9,8 @@ import numpy as np
 from itertools import product
 
 
-def iabel_three_point_transform(IM, basis_dir='.', verbose=False):
+def three_point_transform(IM, basis_dir='.', direction="inverse", 
+                          verbose=False):
     """
     Inverse Abel transformation using the algorithm of:
     Dasch, Applied Optics, Vol. 31, No. 8, 1146-1152 (1992).
@@ -146,12 +147,12 @@ def get_bs_three_point_cached(col, basis_dir='.', verbose=False):
     return D
 
 
-def iabel_three_point(data, center,
+def three_point(data, center,
                       dr=1.0, basis_dir='./', verbose=False,
                       direction='inverse'):
     """
     This function splits the image into two halves,
-    sends each half to iabel_three_point_transform(),
+    sends each half to three_point_transform(),
     stitches the output back together,
     and returns the full transform to the user.
 
@@ -209,8 +210,8 @@ def iabel_three_point(data, center,
     left_half = np.fliplr(left_half)
 
     # transform both halves
-    inv_left = iabel_three_point_transform(left_half, basis_dir, verbose)
-    inv_right = iabel_three_point_transform(right_half, basis_dir, verbose)
+    inv_left = three_point_transform(left_half, basis_dir, verbose)
+    inv_right = three_point_transform(right_half, basis_dir, verbose)
 
     # undo mirroring of left half
     inv_left = np.fliplr(inv_left)

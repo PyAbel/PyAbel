@@ -42,7 +42,7 @@ print ('image size {:d}x{:d}'.format(rows, cols))
 print('Performing Hansen and Law inverse Abel transform:')
 
 AIM = abel.transform(IM, method="hansenlaw", direction="inverse",
-                    vertical_symmetry=False, horizontal_symmetry=False)['transform']
+                     symmetry_axis=None)['transform']
 
 # PES - photoelectron speed distribution  -------------
 print('Calculating speed distribution:')
