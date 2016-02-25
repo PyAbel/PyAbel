@@ -15,7 +15,7 @@ def transform(
     IM, direction='inverse', method='three_point', center='none',
         verbose=True, symmetry_axis=None,
         use_quadrants=(True, True, True, True),
-        transform_options={}, center_options={}):
+        transform_options=dict(), center_options=dict()):
     """
     transform() is the go-to function for all of your Abel transform needs!!
 
@@ -103,7 +103,7 @@ def transform(
 
         ::
 
-           Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
+           Combine:  Q01 = Q0 + Q2, Q23 = Q2 + Q3
            inverse image   AQ01 | AQ01
                            -----o-----
                            AQ23 | AQ23
@@ -243,26 +243,25 @@ def transform(
     Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(
                      IM, reorient=True, symmetry_axis=symmetry_axis)
 
+    def selected_transform(Z):
+        return abel_transform[method](Z, direction=direction, 
+                                      **transform_options)
+
     AQ0 = AQ1 = AQ2 = AQ3 = None
 
     # Inverse Abel transform for quadrant 1 (all include Q1)
-    AQ1 = abel_transform[method](Q1, direction=direction, **transform_options)
+    AQ1 = selected_transform(Q1)
 
     if 0 in symmetry_axis:
-        AQ2 = abel_transform[method](Q2, direction=direction, 
-                                     **transform_options)
+        AQ2 = selected_transform(Q2)
 
     if 1 in symmetry_axis:
-        AQ0 = abel_transform[method](Q0, direction=direction, 
-                                     **transform_options)
+        AQ0 = selected_transform(Q0)
 
     if None in symmetry_axis:
-        AQ0 = abel_transform[method](Q0, direction=direction, 
-                                     **transform_options)
-        AQ2 = abel_transform[method](Q2, direction=direction,
-                                     **transform_options)
-        AQ3 = abel_transform[method](Q3, direction=direction,
-                                     **transform_options)
+        AQ0 = selected_transform(Q0)
+        AQ2 = selected_transform(Q2)
+        AQ3 = selected_transform(Q3)
 
     # reassemble image
     results = {}

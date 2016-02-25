@@ -8,30 +8,31 @@ import numpy as np
 from time import time
 from math import exp, log, pow, pi
 
-"""
-hansenlaw - a recursive method forward/inverse Abel transform algorithm
+#############################################################################
+# hansenlaw - a recursive method forward/inverse Abel transform algorithm
+# 
+# Stephen Gibson - Australian National University, Australia
+# Jason Gascooke - Flinders University, Australia
+# 
+# This algorithm is adapted by Jason Gascooke from the article
+#   E. W. Hansen and P-L. Law
+#  "Recursive methods for computing the Abel transform and its inverse"
+#   J. Opt. Soc. Am A2, 510-520 (1985) doi: 10.1364/JOSAA.2.000510
+# 
+#  J. R. Gascooke PhD Thesis:
+#   "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals
+#    Molecule Dissociation", Flinders University, 2000.
+# 
+# Implemented in Python, with image quadrant co-adding, by Steve Gibson
+# 2015-12-16: Modified to calculate the forward Abel transform
+# 2015-12-03: Vectorization and code improvements Dan Hickstein and Roman Yurchak
+#             Previously the algorithm iterated over the rows of the image
+#             now all of the rows are calculated simultaneously, which provides
+#             the same result, but speeds up processing considerably.
+#############################################################################
 
-Stephen Gibson - Australian National University, Australia
-Jason Gascooke - Flinders University, Australia
 
-This algorithm is adapted by Jason Gascooke from the article
-  E. W. Hansen and P-L. Law
- "Recursive methods for computing the Abel transform and its inverse"
-  J. Opt. Soc. Am A2, 510-520 (1985) doi: 10.1364/JOSAA.2.000510
-
- J. R. Gascooke PhD Thesis:
-  "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals
-   Molecule Dissociation", Flinders University, 2000.
-
-Implemented in Python, with image quadrant co-adding, by Steve Gibson
-2015-12-16: Modified to calculate the forward Abel transform
-2015-12-03: Vectorization and code improvements Dan Hickstein and Roman Yurchak
-            Previously the algorithm iterated over the rows of the image
-            now all of the rows are calculated simultaneously, which provides
-            the same result, but speeds up processing considerably.
-"""
-
-_hansenlaw_header_docstring = \
+def hansenlaw_transform(IM, dr=1, direction="inverse"):
     """
     Forward/Inverse Abel transformation using the algorithm of:
     Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).::
@@ -61,10 +62,7 @@ _hansenlaw_header_docstring = \
     g = abel.transform(r, direction="forward", method="hansenlaw")["transform"]
         forward Abel transform of image f
 
-    """
 
-_hansenlaw_transform_docstring = \
-    """
 
     Core Hansen and Law Abel transform e.g.
 
@@ -79,6 +77,9 @@ _hansenlaw_transform_docstring = \
     Use AIM = abel.transform(IM, method="hansenlaw", 
                              direction="inverse")["transform"]
     to transform a whole image
+
+
+
 
     Parameters
     ----------
@@ -113,11 +114,6 @@ _hansenlaw_transform_docstring = \
     """
 
 
-def hansenlaw_transform(IM, dr=1, direction="inverse"):
-    """
-    Hansen and Law JOSA A2 510 (1985) forward and inverse Abel transform
-    for right half (or right-top quadrant) of an image.
-    """
 
     IM = np.atleast_2d(IM)
     N = np.shape(IM)         # shape of input quadrant (half)
@@ -182,8 +178,3 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
         return AIM*np.pi/dr    # 1/dr - from derivative
     else:
         return -AIM*np.pi*dr   # forward still needs '-' sign
-
-# append the same docstring to all functions - borrowed from @rth
-#iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
-#fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring
-#hansenlaw_transform.__doc__ += _hansenlaw_header_docstring + _hansenlaw_transform_docstring

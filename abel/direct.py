@@ -29,46 +29,6 @@ except (ImportError, UnicodeDecodeError):
 ###########################################################################
 
 
-_direct_doctsting = \
-    """
-    This algorithm does a direct computation of the Abel transform
-
-      * integration near the singular value is done analytically
-      * integration further from the singular value with the Simpson
-        rule.
-
-    Parameters
-    ----------
-
-    fr : 1d or 2d numpy array
-        input array to which direct/inversed Abel transform will be applied.
-        For a 2d array, the first dimension is assumed to be the z axis and
-        the second the r axis.
-    dr : float
-        spatial mesh resolution           (optional, default to 1.0)
-    f : 1D ndarray
-        the spatial mesh (optional)
-    derivative : callable
-        a function that can return the derivative of the fr array
-        with respect to r
-        (only used in the inverse Abel transform).
-    inverse : boolean
-        If True inverse Abel transform is applied,
-        otherwise use a forward Abel transform.
-    correction : boolean
-        if False integration is performed with the Simpson rule,
-        the pixel where the weighting function has a singular value is ignored
-        if True in addition to the integration with the Simpson rule,
-        integration near the singular value is done analytically,
-        assuming a piecewise linear data.
-
-    Returns
-    -------
-    out : 1d or 2d numpy array of the same shape as fr
-        with either the direct or the inverse abel transform.
-    """
-
-
 def simpson_rule_wrong(f, x=None, dx=None, axis=1, **args):
     """
     This function computes the Simpson rule
@@ -116,10 +76,43 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
                      int_func=simpson_rule_wrong,
                      correction=True, backend='C'):
     """
-    Returns the forward or the inverse Abel transform of a function
-    sampled using direct integration.
+    This algorithm does a direct computation of the Abel transform
 
+      * integration near the singular value is done analytically
+      * integration further from the singular value with the Simpson
+        rule.
+
+    Parameters
+    ----------
+
+    fr : 1d or 2d numpy array
+        input array to which direct/inversed Abel transform will be applied.
+        For a 2d array, the first dimension is assumed to be the z axis and
+        the second the r axis.
+    dr : float
+        spatial mesh resolution           (optional, default to 1.0)
+    f : 1D ndarray
+        the spatial mesh (optional)
+    derivative : callable
+        a function that can return the derivative of the fr array
+        with respect to r
+        (only used in the inverse Abel transform).
+    inverse : boolean
+        If True inverse Abel transform is applied,
+        otherwise use a forward Abel transform.
+    correction : boolean
+        if False integration is performed with the Simpson rule,
+        the pixel where the weighting function has a singular value is ignored
+        if True in addition to the integration with the Simpson rule,
+        integration near the singular value is done analytically,
+        assuming a piecewise linear data.
+
+    Returns
+    -------
+    out : 1d or 2d numpy array of the same shape as fr
+        with either the direct or the inverse abel transform.
     """
+
     backend = backend.lower()
     if backend not in ['c', 'python']:
         raise ValueError
@@ -220,12 +213,6 @@ def _pyabel_direct_integral(f, r, correction, int_func=simpson_rule_wrong):
                     + np.arccosh(r[1:]/r[:-1])*(row[:-1] - f_r[i]*r[:-1])
 
     return out
-
-
-# append the same docstring to all functions
-#iabel_direct.__doc__ += _direct_doctsting
-#fabel_direct.__doc__ += _direct_doctsting
-direct_transform.__doc__ += _direct_doctsting
 
 
 def is_uniform_sampling(r):
