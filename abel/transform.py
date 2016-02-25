@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 from __future__ import division
@@ -14,7 +15,7 @@ def transform(
     IM, direction='inverse', method='three_point', center='none',
         verbose=True, symmetry_axis=None,
         use_quadrants=(True, True, True, True),
-        transform_options={}, center_options={}):
+        transform_options=dict(), center_options=dict()):
     """
     transform() is the go-to function for all of your Abel transform needs!!
 
@@ -201,6 +202,13 @@ def transform(
                 is not currently implemented
     """
 
+    abel_transform = {\
+      "basex" : abel.basex.basex_transform,
+      "direct" : abel.direct.direct_transform,
+      "hansenlaw" : abel.hansenlaw.hansenlaw_transform,
+      "three_point" : abel.three_point.three_point_transform,
+    }
+
     verboseprint = print if verbose else lambda *a, **k: None
 
     if IM.ndim == 1 or np.shape(IM)[0] <= 2:
@@ -236,32 +244,11 @@ def transform(
                      IM, reorient=True, symmetry_axis=symmetry_axis)
 
     def selected_transform(Z):
-        if method == 'hansenlaw':
-            if direction == 'forward':
-                return abel.hansenlaw.fabel_hansenlaw(Z, **transform_options)
-            elif direction == 'inverse':
-                return abel.hansenlaw.iabel_hansenlaw(Z, **transform_options)
-
-        elif method == 'three_point':
-            if direction == 'forward':
-                raise ValueError('Forward three-point not implemented')
-            elif direction == 'inverse':
-                return abel.three_point.iabel_three_point_transform(
-                  Z, **transform_options)
-
-        elif method == 'basex':
-            if direction == 'forward':
-                raise ValueError('Forward basex not implemented')
-            elif direction == 'inverse':
-                return abel.basex.iabel_basex(Z, **transform_options)
-
-        elif method == 'direct':
-            if direction == 'forward':
-                raise ValueError('Coming soon...')
-            elif direction == 'inverse':
-                raise ValueError('Coming soon...')
+        return abel_transform[method](Z, direction=direction, 
+                                      **transform_options)
 
     AQ0 = AQ1 = AQ2 = AQ3 = None
+
     # Inverse Abel transform for quadrant 1 (all include Q1)
     AQ1 = selected_transform(Q1)
 
@@ -289,7 +276,7 @@ def transform(
 
 def main():
     import matplotlib.pyplot as plt
-    IM0 = abel.tools.analytical.sample_image_dribinski(n=201)
+    IM0 = abel.tools.analytical.sample_image(n=201, name="dribinski")
     IM1 = transform(IM0, direction='forward', center='com',
                     method='hansenlaw')['transform']
     IM2 = transform(IM1, direction='inverse', method='basex')['transform']

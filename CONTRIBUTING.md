@@ -14,8 +14,7 @@ In order to allow a consistent user experience between different implementations
 
 The implementation named `<implementation>`, located under `abel/<implementation>.py` should use the following naming system for top-level functions,
 
- -  `fabel_<implemenation>`  :  forward transform (when defined)
- -  `iabel_<implemenation>` :  inverse implementation (when defined)
+ -  `<implemenation>_transform`  :  core transform (when defined)
  -  `_bs_<implementation>` :  function that generates  the basis sets (if necessary)
  -  `bs_<implementation>_cached` : function that loads the basis sets from disk, and generates them if they are not found (if necessary).
 
