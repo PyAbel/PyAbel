@@ -12,7 +12,7 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import minimize
 
 
-def center_image(IM, center='com', verbose=False):
+def center_image(IM, center='com', odd_size=True, verbose=False):
     """ Center image with the custom value or by several methods provided in `find_center` function
 
     Parameters
@@ -20,15 +20,26 @@ def center_image(IM, center='com', verbose=False):
     IM : 2D np.array
        The image data.
 
-    center : (float, float) or
-       - (float, float): coordinate of the center of the image in the (y,x) format (row, column)
-       - str: use provided method in `find_center` function to determine the center of the image
+    center : tuple or str
+        (float, float) coordinate of the center of the image in the (y,x) 
+        format (row, column)
+
+        str: method in which to determine the center of the image
+        'image_center' - 
+        'com' - center of mass using scipy.ndimage.center_of_mass
+        'gaussian'
+        'slice'
 
     Returns
     -------
     out : 2D np.array
        Centered image
     """
+
+    if odd_size and cols % 2 == 0:
+        # drop rightside column
+        IM = IM[:, :-1]
+        rows, cols = IM.shape
 
     # center is in y,x (row column) format!
     if isinstance(center, str) or isinstance(center, unicode):
@@ -39,6 +50,23 @@ def center_image(IM, center='com', verbose=False):
 
 
 def set_center(data, center, crop='maintain_size', verbose=True):
+    """ Move image center to mid-point of image
+        
+    Paramters
+    ---------
+    data : 2D np.array
+        The image data
+    
+    center : tuple
+        image pixel coordinate center (row, col)
+
+    crop : str
+        'maintain_size' : return image of the same size
+        'valid_region'  : ?
+
+    verbose: boolean
+        True: print diagnostics
+    """
     c0, c1 = center
     if isinstance(c0, (int, long)) and isinstance(c1, (int, long)):
         warnings.warn('Integer center detected, but not respected.'
@@ -262,11 +290,8 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
 
     rows, cols = IM.shape
 
-    if cols % 2 == 0:
-        # drop rightside column, and bottom row to make odd size
-        IM = IM[:-1, :-1]
-        rows, cols = IM.shape
-
+    r2 = rows/2.0
+    c2 = cols/2.0
     top, bottom, left, right = axis_slices(IM, radial_range, slice_width)
 
     xyoffset = [0.0, 0.0]
@@ -299,9 +324,10 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     # this is the (y, x) shift to align the slice profiles
     xyoffset = tuple(xyoffset)
 
-    IM_centered = shift(IM, xyoffset)  # center image
+    #IM_centered = shift(IM, xyoffset)  # center image
 
-    return IM_centered, xyoffset
+    #return IM_centered, xyoffset
+    return xyoffset[0]+r2, yxoffset[1]+c2
  
 
 func_method = {
