@@ -11,49 +11,11 @@ from scipy.ndimage import center_of_mass
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import minimize
 
-
-def center_image(IM, center='com', odd_size=True, verbose=False):
-    """ Center image with the custom value or by several methods provided in `find_center` function
-
-    Parameters
-    ----------
-    IM : 2D np.array
-       The image data.
-
-    center : tuple or str
-        (float, float) coordinate of the center of the image in the (y,x) 
-        format (row, column)
-
-        str: method in which to determine the center of the image
-        'image_center' - 
-        'com' - center of mass using scipy.ndimage.center_of_mass
-        'gaussian'
-        'slice'
-
-    Returns
-    -------
-    out : 2D np.array
-       Centered image
-    """
-
-    if odd_size and cols % 2 == 0:
-        # drop rightside column
-        IM = IM[:, :-1]
-        rows, cols = IM.shape
-
-    # center is in y,x (row column) format!
-    if isinstance(center, str) or isinstance(center, unicode):
-        center = find_center(IM, center, verbose=verbose)
-
-    centered_data = set_center(IM, center, verbose=verbose)
-    return centered_data
-
-
-def set_center(data, center, crop='maintain_size', verbose=True):
+def set_center(data, center, crop='maintain_size', verbose=False):
     """ Move image center to mid-point of image
         
-    Paramters
-    ---------
+    Parameters
+    ----------
     data : 2D np.array
         The image data
     
@@ -132,7 +94,7 @@ def set_center(data, center, crop='maintain_size', verbose=True):
 
 
 
-def find_center(IM, method='image_center', verbose=True, **kwargs):
+def find_center(IM, method='image_center', verbose=False, **kwargs):
     """
     Paramters
     ---------
@@ -154,7 +116,7 @@ def find_center(IM, method='image_center', verbose=True, **kwargs):
     return func_method[method](IM, verbose=verbose, **kwargs)
 
 
-def find_center_by_center_of_mass(IM, verbose=True, round_output=False,
+def find_center_by_center_of_mass(IM, verbose=False, round_output=False,
                                   **kwargs):
     """
     Find image center by calculating its center of mass
@@ -176,14 +138,14 @@ def find_center_by_center_of_mass(IM, verbose=True, round_output=False,
     return center
 
 
-def find_center_by_center_of_image(data, verbose=True, **kwargs):
+def find_center_by_center_of_image(data, verbose=False, **kwargs):
     return (data.shape[1] // 2 + data.shape[1] % 2,
             data.shape[0] // 2 + data.shape[0] % 2)
 
 
 
 
-def find_center_by_gaussian_fit(IM, verbose=True, round_output=False,
+def find_center_by_gaussian_fit(IM, verbose=False, round_output=False,
                                 **kwargs):
     """
     Find image center by fitting the summation along x and y axis of the data to two 1D Gaussian function
@@ -336,3 +298,41 @@ func_method = {
     "gaussian": find_center_by_gaussian_fit,
     "slice": find_image_center_by_slice
 }
+
+def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
+    """ Center image with the custom value or by several methods provided in `find_center` function
+
+    Parameters
+    ----------
+    IM : 2D np.array
+       The image data.
+
+    center : tuple or str
+        (float, float) coordinate of the center of the image in the (y,x) 
+        format (row, column)
+
+        str: method in which to determine the center of the image
+        'image_center' - 
+        'com' - center of mass using scipy.ndimage.center_of_mass
+        'gaussian'
+        'slice'
+
+    Returns
+    -------
+    out : 2D np.array
+       Centered image
+    """
+
+    rows, cols = IM.shape
+
+    if odd_size and cols % 2 == 0:
+        # drop rightside column
+        IM = IM[:, :-1]
+        rows, cols = IM.shape
+
+    # center is in y,x (row column) format!
+    if isinstance(center, str) or isinstance(center, unicode):
+        center = find_center(IM, center, verbose=verbose, *kwargs)
+
+    centered_data = set_center(IM, center, verbose=verbose)
+    return centered_data
