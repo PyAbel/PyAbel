@@ -13,6 +13,8 @@ else:
     import tkinter as tk
 from tkFileDialog import askopenfilename
 import ttk
+import tkFont
+from ScrolledText import *
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -21,6 +23,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread, colorbar
+from matplotlib import gridspec
 
 from scipy.ndimage.interpolation import shift
 
@@ -43,29 +46,48 @@ class PyAbel:  #(tk.Tk):
         self.rmx = (368, 393)
 
         # matplotlib figure
-        self.f = Figure(figsize=(5, 4))
-        self.a = self.f.add_subplot(111)
+        self.f = Figure(figsize=(2, 4))
+        self.gs = gridspec.GridSpec(2, 2, width_ratios=[1, 2])
+        self.gs.update(wspace=0.2, hspace=0.5)
 
-        # tkinter frames top (buttons), middle (info text), bottom (canvas)
-        self.main_container = tk.Frame(self.parent)
+        self.plt = []
+        self.plt.append(self.f.add_subplot(self.gs[0]))
+        self.plt.append(self.f.add_subplot(self.gs[1]))
+        self.plt.append(self.f.add_subplot(self.gs[2], sharex=self.plt[0],
+                        sharey=self.plt[0]))
+        self.plt.append(self.f.add_subplot(self.gs[3]))
+        for i in [0, 2]:
+            self.plt[i].set_adjustable('box-forced')
+
+        # hide until have data
+        for i in range(4):
+            self.plt[i].axis("off")
+
+        # tkinter 
+        # set default font size for buttons
+        self.font = tkFont.Font(size=11)
+        self.fontB = tkFont.Font(size=12, weight='bold')
+
+        #frames top (buttons), text, matplotlib (canvas)
+        self.main_container = tk.Frame(self.parent, height=10, width=100)
         self.main_container.pack(side="top", fill="both", expand=True)
 
-        self.top_frame = tk.Frame(self.main_container)
-        self.middle_frame = tk.Frame(self.main_container)
-        self.bottom_frame = tk.Frame(self.main_container)
+        self.button_frame = tk.Frame(self.main_container)
+        #self.info_frame = tk.Frame(self.main_container)
+        self.matplotlib_frame = tk.Frame(self.main_container)
 
-        self.top_frame.pack(side="top", fill="x", expand=False)
-        self.middle_frame.pack(side="left", fill="both", expand=True)
-        self.bottom_frame.pack(side="top", fill="x", expand=False)
+        self.button_frame.pack(side="top", fill="x", expand=True)
+        #self.info_frame.pack(side="top", fill="x", expand=True)
+        self.matplotlib_frame.pack(side="top", fill="both", expand=True)
 
         self._menus()
         self._button_area()
         self._plot_canvas()
         self._text_info_box()
 
-    def _top_frame(self):
-        self.top_frame = tk.Frame(self.main_container)#, background="green")
-        self.top_frame.pack(side="top", fill="x", expand=False)
+    def _button_frame(self):
+        self.button_frame = tk.Frame(self.main_container)
+        self.button_frame.pack(side="top", fill="x", expand=True)
         self._menus()
 
     def _menus(self):
@@ -77,7 +99,7 @@ class PyAbel:  #(tk.Tk):
         # File - menu
         self.filemenu = tk.Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(label="Load image file",
-                                  command=self._getfilename)
+                                  command=self._loadimage)
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Exit", command=self._quit)
         self.menubar.add_cascade(label="File", menu=self.filemenu)
@@ -111,103 +133,126 @@ class PyAbel:  #(tk.Tk):
 
 
     def _button_area(self):
-        # grid layout 
-        # raw image button
-        self.rawimg = tk.Button(master=self.top_frame, text="raw image",
-                                command=self._display)
-        self.rawimg.grid(row=0, column=0)
+        # grid layout  
+        # make expandable
+        for col in range(5):
+            self.button_frame.columnconfigure(col, weight=1)
+            self.button_frame.rowconfigure(col, weight=1)
+
+        # column 0 ---------
+        # load image file button
+        self.load = tk.Button(master=self.button_frame, text="load image",
+                              font=self.fontB,
+                              command=self._loadimage)
+        self.load.grid(row=0, column=0, sticky=tk.W, padx=(5, 10), pady=(5, 0))
+        self.sample_image = ttk.Combobox(master=self.button_frame,
+                         font=self.font,
+                         values=["from file", "from transform", "sample dribinski", "sample Ominus"],
+                         width=14, height=4)
+        self.sample_image.current(0)
+        self.sample_image.grid(row=1, column=0, padx=(5, 10))
+
+        # quit
+        self.quit = tk.Button(master=self.button_frame, text="quit",
+                              font=self.fontB,
+                              command=self._quit)
+        self.quit.grid(row=3, column=0, sticky=tk.W, padx=(5, 10), pady=(0, 5))
    
+        # column 1 -----------
         # center image
-        self.center = tk.Button(master=self.top_frame, text="center image",
-                                state=tk.DISABLED, command=self._center)
-        self.center.grid(row=0, column=1)
-        self.center_method = ttk.Combobox(master=self.top_frame,
+        self.center = tk.Button(master=self.button_frame, text="center image",
+                                anchor=tk.W, 
+                                font=self.fontB,
+                                command=self._center)
+        self.center.grid(row=0, column=1, padx=(0, 20), pady=(5, 0))
+        self.center_method = ttk.Combobox(master=self.button_frame,
+                         font=self.font,
                          values=["com", "slice", "gaussian", "image_center"],
-                         state=tk.DISABLED, width=5, height=4)
+                         width=10, height=4)
         self.center_method.current(1)
-        self.center_method.grid(row=1, column=1)
+        self.center_method.grid(row=1, column=1, padx=(0, 20))
 
+        # column 2 -----------
         # Abel transform image
-        self.recond = tk.Button(master=self.top_frame,
+        self.recond = tk.Button(master=self.button_frame,
                                 text="Abel transform image",
-                                state=tk.DISABLED,
+                                font=self.fontB,
                                 command=self._transform)
-        self.recond.grid(row=0,column=2)
+        self.recond.grid(row=0, column=2, padx=(0, 10), pady=(5, 0))
 
-        self.transform = ttk.Combobox(master=self.top_frame,
+        self.transform = ttk.Combobox(master=self.button_frame,
                          values=Abel_methods,
-                         state=tk.DISABLED, width=10, height=len(Abel_methods))
+                         font=self.font,
+                         width=10, height=len(Abel_methods))
         self.transform.current(2)
-        self.transform.grid(row=1, column=2)
+        self.transform.grid(row=1, column=2, padx=(0, 20))
 
-        self.direction = ttk.Combobox(master=self.top_frame,
+        self.direction = ttk.Combobox(master=self.button_frame,
                          values=["inverse", "forward"],
-                         state=tk.DISABLED, width=8, height=2)
+                         font=self.font,
+                         width=8, height=2)
         self.direction.current(0)
-        self.direction.grid(row=2, column=2)
+        self.direction.grid(row=2, column=2, padx=(0, 20))
 
 
-        # blank space
-        blank = tk.Label(master=self.top_frame, text="   ", width=4)
-        blank.grid(row=0, column=3, columnspan=2)
-
-
+        # column 3 -----------
         # speed button
-        self.speed = tk.Button(master=self.top_frame, text="speed",
-                               state=tk.DISABLED, command=self._speed)
-        self.speed.grid(row=0, column=5)
+        self.speed = tk.Button(master=self.button_frame, text="speed",
+                               font=self.fontB,
+                               command=self._speed)
+        self.speed.grid(row=0, column=5, padx=20, pady=(5, 0))
+        
+        self.speedclr = tk.Button(master=self.button_frame, text="clear plot",
+                                  font=self.font, command=self._speed_clr)
+        self.speedclr.grid(row=1, column=5, padx=20)
 
+        # column 4 -----------
         # anisotropy button
-        self.aniso = tk.Button(master=self.top_frame, text="anisotropy",
-                               state=tk.DISABLED, command=self._anisotropy)
-        self.aniso.grid(row=0, column=6)
+        self.aniso = tk.Button(master=self.button_frame, text="anisotropy",
+                               font=self.fontB,
+                               command=self._anisotropy)
+        self.aniso.grid(row=0, column=6, pady=(5, 0))
 
-        self.subframe = tk.Frame(self.top_frame)
+        self.subframe = tk.Frame(self.button_frame)
         self.subframe.grid(row=1, column=6)
         self.rmin = tk.Entry(master=self.subframe, text='rmin', width=3,
-                             state=tk.DISABLED) 
+                               font=self.font)
         self.rmin.grid(row=0, column=0)
         self.rmin.delete(0, tk.END)
         self.rmin.insert(0, self.rmx[0])
-        self.lbl = tk.Label(master=self.subframe, text="to", state=tk.DISABLED)
+        self.lbl = tk.Label(master=self.subframe, text="to", font=self.font)
         self.lbl.grid(row=0, column=1)
         self.rmax = tk.Entry(master=self.subframe, text='rmax', width=3,
-                             state=tk.DISABLED)
+                             font=self.font)
         self.rmax.grid(row=0, column=2)
         self.rmax.delete(0, tk.END)
         self.rmax.insert(0, self.rmx[1])
 
-        # load image file button
-        self.load = tk.Button(master=self.top_frame, text="load image",
-                              command=self._getfilename)
-        self.load.grid(row=1, column=0, sticky=tk.W)
-
-        # quit
-        self.quit = tk.Button(master=self.top_frame, text="quit",
-                              command=self._quit)
-        self.quit.grid(row=2, column=0, sticky=tk.W)
 
         # turn off button interface
-        self.hide_buttons = tk.Button(master=self.top_frame,
+        self.hide_buttons = tk.Button(master=self.button_frame,
                                       text="hide buttons",
+                                      font=self.fontB,
                                       command=self._hide_buttons)
-        self.hide_buttons.grid(row=2, column=6, sticky=tk.E)
+        self.hide_buttons.grid(row=3, column=6, sticky=tk.E, pady=(0, 20))
 
-        # blank separator row
-        blankrow = tk.Label(master=self.top_frame, text="   ", width=4)
-        blankrow.grid(row=3, column=0, columnspan=5)
+    def _text_info_box(self):
+        # text info box ---------------------
+        self.text = ScrolledText(master=self.button_frame, height=4, 
+                            fg="mediumblue",
+                            bd=1, relief=tk.SUNKEN)
+        self.text.insert(tk.END, "Work in progress, some features may"
+                         " be incomplete\n\n")
+        self.text.insert(tk.END, "To start load an image data file using"
+                         " 'load image' button (or file menu)\n")
+        self.text.insert(tk.END, "e.g. data/O2-ANU1024.txt.bz2\n")
+        self.text.grid(row=3, column=1, columnspan=3, padx=5)
 
-       
+
     def _plot_canvas(self):
         # matplotlib canvas --------------------------
-        self.canvas = FigureCanvasTkAgg(self.f, master=self.parent)
-        self.cid = self.canvas.mpl_connect('button_press_event', self._onclick)
-        self.a.annotate("load image file using 'load image' button ", (0.5, 0.6), 
-                        horizontalalignment="center")
-        self.a.annotate("e.g. data/O2-ANU1024.txt.bz2", (0.5, 0.5), 
-                        horizontalalignment="center")
-        self.a.annotate("work in progress, some features may be incomplete",
-                       (0.5, 0.8), horizontalalignment="center")
+        self.canvas = FigureCanvasTkAgg(self.f, master=self.matplotlib_frame) 
+        #self.cid = self.canvas.mpl_connect('button_press_event', self._onclick)
 
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -215,12 +260,6 @@ class PyAbel:  #(tk.Tk):
         self.toolbar.update()
         self.canvas._tkcanvas.pack(anchor=tk.W, side=tk.TOP, fill=tk.BOTH, expand=1)
 
-    def _text_info_box(self):
-        # text info box ---------------------
-        self.text = tk.Text(master=self.bottom_frame, height=3, fg="mediumblue")
-        self.text.pack(fill=tk.X)
-        self.text.insert(tk.END, "To start load an image data file using"
-                         " menu File->`load image file`\n")
 
     def _onclick(self,event):
         print('button={:d}, x={:f}, y={:f}, xdata={:f}, ydata={:f}'.format(
@@ -230,52 +269,68 @@ class PyAbel:  #(tk.Tk):
     # call back functions -----------------------
     def _display(self):
         if self.fn is None:
-            self._getfilename()
-        # update information text box
-        self.text.insert(tk.END,"raw image\n")
+            self._loadimage()
 
         # display image
-        self.f.clf()
-        self.a = self.f.add_subplot(111)
-        self.a.imshow(self.IM, vmin=0)
-        self.f.colorbar(self.a.get_children()[2], ax=self.f.gca())
+        self.plt[0].imshow(self.IM, vmin=0)
+        #rows, cols = self.IM.shape
+        #r2 = rows/2
+        #c2 = cols/2
+        #self.a.plot((r2, r2), (0, cols), 'r--', lw=0.1)
+        #self.a.plot((0, rows), (c2, c2),'r--', lw=0.1)
+        #self.f.colorbar(self.a.get_children()[2], ax=self.f.gca())
+        self.plt[0].set_title("raw image", fontsize=10)
         self.canvas.show()
 
 
-    def _getfilename(self):
-        self.fn = askopenfilename()
+    def _loadimage(self):
 
+        if self.fn is not None:
+            # clear old plot
+            for i in range(4):
+                self._clr_plt(i)
+                self.plt[i].axis("off")
+
+        self.fn = self.sample_image.get()
         # update what is occurring text box
-        self.text.delete(1.0, tk.END)
-        self.text.insert(tk.END, "reading image file {:s}\n".format(self.fn))
+        self.text.insert(tk.END, "\nloading image file {:s}".format(self.fn))
+        self.text.see(tk.END)
         self.canvas.show()
 
-        # read image file
-        if ".txt" in self.fn:
-            self.IM = np.loadtxt(self.fn)
+        if self.fn == "from file":
+            self.fn = askopenfilename()
+            # read image file
+            if ".txt" in self.fn:
+                self.IM = np.loadtxt(self.fn)
+            else:
+                self.IM = imread(self.fn)
+        elif self.fn == "from transform":
+            self.IM = self.AIM
+            self.AIM = None
+            for i in range(1,4):
+                self._clr_plt(i)
+                self.plt[i].axis("off")
+            self.direction.current(0)
         else:
-            self.IM = imread(self.fn)
+            self.fn = self.fn.split(' ')[-1]
+            self.IM = abel.tools.analytical.sample_image(n=1001, name=self.fn)
+            self.direction.current(1) # raw images require 'forward' transform
+            self.text.insert(tk.END,"\nsample image: (1) Abel transform 'forward', ")
+            self.text.insert(tk.END,"              (2) load 'from transform', ") 
+            self.text.insert(tk.END,"              (3) Abel transform 'inverse', ")
+            self.text.insert(tk.END,"              (4) Speed")
+            self.text.see(tk.END)
+
 
         # if even size image, make odd
         if self.IM.shape[0] % 2 == 0:
-            self.text.insert(tk.END, "make image odd size")
             self.IM = shift(self.IM, (-0.5, -0.5))[:-1,:-1]
     
         self.old_method = None
         self.AIM = None
         self.action = "file"
-        self.center.config(state=tk.ACTIVE)
-        self.center_method.config(state=tk.ACTIVE)
-        self.recond.config(state=tk.ACTIVE)
-        self.transform.config(state=tk.ACTIVE)
-        self.direction.config(state=tk.ACTIVE)
-        self.speed.config(state=tk.ACTIVE)
-        self.aniso.config(state=tk.ACTIVE)
-        self.rmin.config(state=tk.NORMAL)
         self.rmin.delete(0, tk.END)
         self.rmin.insert(0, self.rmx[0])
-        self.lbl.config(state=tk.NORMAL)
-        self.rmax.config(state=tk.NORMAL)
         self.rmax.delete(0, tk.END)
         self.rmax.insert(0, self.rmx[1])
 
@@ -288,15 +343,15 @@ class PyAbel:  #(tk.Tk):
 
         center_method = self.center_method.get()
         # update information text box
-        self.text.delete(1.0, tk.END)
-        self.text.insert(tk.END, "centering image using {:s}\n".\
+        self.text.insert(tk.END, "\ncentering image using {:s}".\
                          format(center_method))
         self.canvas.show()
     
         # center image via chosen method
         self.IM, self.offset = abel.tools.center.find_center(self.IM,
                                method=center_method)
-        self.text.insert(tk.END, "center offset = {:}\n".format(self.offset))
+        self.text.insert(tk.END, "\ncenter offset = {:}".format(self.offset))
+        self.text.see(tk.END)
     
         self._display()
     
@@ -308,42 +363,37 @@ class PyAbel:  #(tk.Tk):
     
         if self.method != self.old_method or self.fi != self.old_fi:
             # Abel transform of whole image
-            self.text.delete(1.0, tk.END)
-            self.text.insert(tk.END,"{:s} {:s} Abel transform:\n".\
+            self.text.insert(tk.END,"\n{:s} {:s} Abel transform:".\
                              format(self.method, self.fi))
             if "basex" in self.method:
-                self.text.insert(tk.END,"  first time calculation of the basis"
-                              " functions may take a while ...\n")
+                self.text.insert(tk.END,
+                              "\nbasex: first time calculation of the basis"
+                              " functions may take a while ...")
             if "onion" in self.method:
-               self.text.insert(tk.END,"   onion_peeling method is in early i"
-                              "testing and may not produce reliable results\n")
+               self.text.insert(tk.END,"\nonion_peeling: method is in early "
+                              "testing and may not produce reliable results")
             if "direct" in self.method:
-               self.text.insert(tk.END,"   calculation is slowed if Cython"
-                                       " unavailable ...\n")
+               self.text.insert(tk.END,"\ndirect: calculation is slowed if Cython"
+                                       " unavailable ...")
             self.canvas.show()
     
             self.AIM = abel.transform(self.IM, method=self.method, 
                                       direction=self.fi,
                                       symmetry_axis=None)['transform']
-            self.speed.config(state=tk.ACTIVE)
-            self.aniso.config(state=tk.ACTIVE)
-            self.rmin.config(state=tk.NORMAL)
             self.rmin.delete(0, tk.END)
             self.rmin.insert(0, self.rmx[0])
-            self.lbl.config(state=tk.NORMAL)
-            self.rmax.config(state=tk.NORMAL)
             self.rmax.delete(0, tk.END)
             self.rmax.insert(0, self.rmx[1])
     
         if self.old_method != self.method or self.fi != self.old_fi or\
            self.action not in ["speed", "anisotropy"]:
-            self.f.clf()
-            self.a = self.f.add_subplot(111)
-            self.a.set_title(self.method+" {:s} Abel transform".format(self.fi))
-            self.a.imshow(self.AIM, vmin=0, vmax=self.AIM.max()/5.0)
-            self.f.colorbar(self.a.get_children()[2], ax=self.f.gca())
-            self.text.insert(tk.END, "{:s} inverse Abel transformed image".format(self.method))
+            self.plt[2].set_title(self.method+" {:s} Abel transform".format(self.fi),
+                            fontsize=10)
+            self.plt[2].imshow(self.AIM, vmin=0, vmax=self.AIM.max()/5.0)
+            #self.f.colorbar(self.c.get_children()[2], ax=self.f.gca())
+            #self.text.insert(tk.END, "{:s} inverse Abel transformed image".format(self.method))
 
+        self.text.see(tk.END)
         self.old_method = self.method
         self.old_fi = self.fi
         self.canvas.show()
@@ -353,22 +403,31 @@ class PyAbel:  #(tk.Tk):
         # inverse Abel transform
         self._transform()
         # update text box in case something breaks
-        self.text.delete(1.0, tk.END)
-        self.text.insert(tk.END, "speed distribution\n")
+        self.text.insert(tk.END, "\nspeed distribution")
+        self.text.see(tk.END)
         self.canvas.show()
     
         # speed distribution
         self.radial, self.speed_dist = abel.tools.vmi.angular_integration(self.AIM)
     
-        self.f.clf()
-        self.a = self.f.add_subplot(111)
-        self.a.plot(self.radial, self.speed_dist/self.speed_dist[50:].max())
-        self.a.axis(xmax=500, ymin=-0.05)
-        self.a.set_xlabel("pixel radius")
-        self.a.set_ylabel("normalized intensity")
-        self.a.set_title("radial speed distribution")
+        self.plt[1].axis("on")
+        self.plt[1].plot(self.radial, self.speed_dist/self.speed_dist[10:].max(),
+                         label=self.method)
+        self.plt[1].axis(xmax=500, ymin=-0.05)
+        self.plt[1].set_xlabel("radius (pixels)", fontsize=9)
+        self.plt[1].set_ylabel("normalized intensity")
+        self.plt[1].set_title("radial speed distribution", fontsize=12)
+        self.plt[1].legend(fontsize=9)
 
         self.action = None
+        self.canvas.show()
+
+    def _speed_clr(self):
+        self._clr_plt(1)
+
+    def _clr_plt(self, i):
+        self.f.delaxes(self.plt[i])
+        self.plt[i] = self.f.add_subplot(self.gs[i]) 
         self.canvas.show()
     
     def _anisotropy(self):
@@ -385,8 +444,8 @@ class PyAbel:  #(tk.Tk):
         # radial range over which to follow the intensity variation with angle
         self.rmx = (int(self.rmin.get()), int(self.rmax.get()))
     
-        self.text.delete(1.0, tk.END)
-        self.text.insert(tk.END,"anisotropy parameter pixel range {:} to {:}\n".format(*self.rmx))
+        self.text.insert(tk.END,"\nanisotropy parameter pixel range {:} to {:}: "\
+                               .format(*self.rmx))
         self.canvas.show()
     
         # inverse Abel transform
@@ -400,25 +459,26 @@ class PyAbel:  #(tk.Tk):
         # fit to P2(cos theta)
         self.beta, self.amp = abel.tools.vmi.anisotropy_parameter(self.theta, self.intensity[0])
     
-        self.text.insert(tk.END,"beta = {:g}+-{:g}\n".format(*self.beta))
+        self.text.insert(tk.END," beta = {:g}+-{:g}".format(*self.beta))
     
-        self.f.clf()
-        self.a = self.f.add_subplot(111)
-        self.a.plot(self.theta, self.intensity[0], 'r-')
-        self.a.plot(self.theta, PAD(self.theta, self.beta[0], self.amp[0]), 'b-', lw=2)
-        self.a.annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*self.rmx+self.beta), (-np.pi/2,-2))
-        self.a.set_title("anisotropy")
-        self.a.set_xlabel("angle")
-        self.a.set_ylabel("intensity")
+        self._clr_plt(3)
+        self.plt[3].axis("on")
+        
+        self.plt[3].plot(self.theta, self.intensity[0], 'r-')
+        self.plt[3].plot(self.theta, PAD(self.theta, self.beta[0], self.amp[0]), 'b-', lw=2)
+        self.plt[3].annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*self.rmx+self.beta), (-np.pi/2,-2))
+        self.plt[3].set_title("anisotropy", fontsize=12)
+        self.plt[3].set_xlabel("angle", fontsize=9)
+        self.plt[3].set_ylabel("intensity")
 
         self.action = None
         self.canvas.show()
 
     def _hide_buttons(self):
-        self.top_frame.destroy()
+        self.button_frame.destroy()
 
     def _on_buttons(self):
-        self._top_frame()
+        self._button_frame()
     
     def _quit(self):
         self.parent.quit()     # stops mainloop

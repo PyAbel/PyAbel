@@ -221,7 +221,7 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
 
 
 def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
-                               axis=(0, 1)):
+                               axis=(0, 1), verbose=False):
     """ Center image by comparing opposite side, vertical (axis=0) and/or
         horizontal slice (axis=1) profiles, both axis=(0,1)..
 
@@ -256,6 +256,10 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
         fvec = (diff**2).sum()
         return fvec
 
+    if not isinstance(axis, (list, tuple)):
+        # if the user supplies an int, make it into a 1-element list:
+       axis = [axis]
+
     rows, cols = IM.shape
 
     if cols % 2 == 0:
@@ -270,9 +274,8 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     # limit shift to +- 20 pixels
     initial_shift = [0.1, ]
 
-    # y-axis
-    if (type(axis) is int and axis == 0) or \
-            (type(axis) is tuple and axis[0] == 0):
+    # vertical-axis
+    if 0 in axis:
         fit = minimize(_align, initial_shift, args=(top, bottom),
                        bounds=((-50, 50), ), tol=0.1)
         if fit["success"]:
@@ -282,9 +285,8 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
                 print("fit failure: axis = 0, zero shift set")
                 print(fit)
 
-    # x-axis
-    if (type(axis) is int and axis == 1) or \
-            (type(axis) is tuple and axis[1] == 1):
+    # horizontal-axis
+    if 1 in axis:
         fit = minimize(_align, initial_shift, args=(left, right),
                        bounds=((-50, 50), ), tol=0.1)
         if fit["success"]:
