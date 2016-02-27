@@ -47,7 +47,7 @@ def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
         center = find_center(IM, center, verbose=verbose, *kwargs)
 
     centered_data = set_center(IM, center, verbose=verbose)
-    return centered_data
+    return centered_data, center
 
 
 def set_center(data, center, crop='maintain_size', verbose=False):
@@ -328,7 +328,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     #IM_centered = shift(IM, xyoffset)  # center image
 
     #return IM_centered, xyoffset
-    return xyoffset[0]+r2, yxoffset[1]+c2
+    return r2-xyoffset[0], c2-xyoffset[1]
  
 
 func_method = {
