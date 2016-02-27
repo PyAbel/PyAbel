@@ -226,7 +226,7 @@ def transform(
 
     # centering:
     if center == 'none':  # no centering
-        if rows % 2 != 1:
+        if cols % 2 != 1:
             raise ValueError('Image must have an odd number of columns. \
                               Use a centering method.')
     else:

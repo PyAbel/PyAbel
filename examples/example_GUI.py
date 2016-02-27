@@ -348,8 +348,8 @@ class PyAbel:  #(tk.Tk):
         self.canvas.show()
     
         # center image via chosen method
-        self.IM, self.offset = abel.tools.center.find_center(self.IM,
-                               method=center_method)
+        self.IM = abel.tools.center.center_image(self.IM, method=center_method,
+                                  odd_size=True)
         self.text.insert(tk.END, "\ncenter offset = {:}".format(self.offset))
         self.text.see(tk.END)
     
