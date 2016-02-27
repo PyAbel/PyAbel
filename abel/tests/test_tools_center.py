@@ -20,33 +20,21 @@ def test_center_image():
     # artificially displace center
     IMx = shift(IM, (-1,2))
 
-    # find vertical center
-    # radial range limits comparison to smaller radial range
-    IMy, offset = abel.tools.center.center_image(IMx, center="slice", 
-                               odd_size=True, radial_range=(1,120), axis=1)
+    # find_center using 'slice' method
+    center = abel.tools.center.find_center(IMx, method="slice", axis=(0,1)) 
 
-    assert np.allclose(offset, (0,-2), rtol=0, atol=0.1)
+    assert np.allclose(center, (179, 182), rtol=0, atol=0.1)
 
-    # horizontal center 
-    IMy, offset = abel.tools.center.center_image(IMx, center="slice",
-                               odd_size=True, radial_range=(5,120), axis=0)
-
-    assert np.allclose(offset, (1,0), rtol=0, atol=0.2)
-
-    # find both
-    IMy, offset = abel.tool.center.center_image(IMx, center="slice",
-                               odd_size=True, radial_range=(5,120),
-                               axis=(0, 1))
-
-    assert np.allclose(offset, (1,-2), rtol=0, atol=0.2)
+    # find_center using 'com' method
+    center = abel.tools.center.find_center(IMx, method="com")
+   
+    assert np.allclose(center, (179, 182), rtol=0, atol=0.4)
 
     # check even image size returns odd
     IM = IM[:, :-1]
     m, n = IM.shape
 
-    IMy, offset = abel.tools.center.center_image(IM, center="slice",
-                               odd_size=True, radial_range=(5,120),
-                               axis=0)
+    IMy = abel.tools.center.center_image(IM, center="slice", odd_size=True)
 
     assert IMy.shape == (m, n-1)
 

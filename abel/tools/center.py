@@ -11,6 +11,28 @@ from scipy.ndimage import center_of_mass
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import minimize
 
+def find_center(IM, method='image_center', verbose=False, **kwargs):
+    """
+    Paramters
+    ---------
+    IM : 2D np.array
+      image data
+
+    method: str
+      valid method:
+        - image_center
+        - com
+        - gaussian
+
+    Returns
+    -------
+    out: (float, float)
+      coordinate of the center of the image in the (y,x) format (row, column)
+
+    """
+    return func_method[method](IM, verbose=verbose, **kwargs)
+
+
 def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
     """ Center image with the custom value or by several methods provided in `find_center` function
 
@@ -44,10 +66,10 @@ def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
 
     # center is in y,x (row column) format!
     if isinstance(center, str) or isinstance(center, unicode):
-        center = find_center(IM, center, verbose=verbose, *kwargs)
+        center = find_center(IM, center, verbose=verbose, **kwargs)
 
     centered_data = set_center(IM, center, verbose=verbose)
-    return centered_data, center
+    return centered_data
 
 
 def set_center(data, center, crop='maintain_size', verbose=False):
@@ -130,30 +152,6 @@ def set_center(data, center, crop='maintain_size', verbose=False):
         return centered_data[shift0:-shift0, shift1:-shift1]
     else:
         raise ValueError("Invalid crop method!!")
-
-
-
-def find_center(IM, method='image_center', verbose=False, **kwargs):
-    """
-    Paramters
-    ---------
-    IM : 2D np.array
-      image data
-
-    method: str
-      valid method:
-        - image_center
-        - com
-        - gaussian
-
-    Returns
-    -------
-    out: (float, float)
-      coordinate of the center of the image in the (y,x) format (row, column)
-
-    """
-    return func_method[method](IM, verbose=verbose, **kwargs)
-
 
 def find_center_by_center_of_mass(IM, verbose=False, round_output=False,
                                   **kwargs):
@@ -291,8 +289,8 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
 
     rows, cols = IM.shape
 
-    r2 = rows/2.0
-    c2 = cols/2.0
+    r2 = rows//2
+    c2 = cols//2
     top, bottom, left, right = axis_slices(IM, radial_range, slice_width)
 
     xyoffset = [0.0, 0.0]
@@ -329,7 +327,6 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
 
     #return IM_centered, xyoffset
     return r2-xyoffset[0], c2-xyoffset[1]
- 
 
 func_method = {
     "image_center": find_center_by_center_of_image,
