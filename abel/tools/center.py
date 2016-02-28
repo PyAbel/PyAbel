@@ -91,7 +91,7 @@ def set_center(data, center, crop='maintain_size', verbose=False):
         True: print diagnostics
     """
     c0, c1 = center
-    if isinstance(c0, int) and isinstance(c1, int)):
+    if isinstance(c0, int) and isinstance(c1, int):
         warnings.warn('Integer center detected, but not respected.'
                       'treating center as float and interpolating!')
         # need to include code here to treat integer centers
