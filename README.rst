@@ -79,6 +79,7 @@ Using PyAbel can be simple. The following Python code imports the PyAbel package
 	forward_abel = abel.transform(original,     direction='forward', method='hansenlaw'  )['transform']
 	inverse_abel = abel.transform(forward_abel, direction='inverse', method='three_point')['transform']
 
+Note: the ``abel.transform()`` function returns a Python ``dict`` object, where the 2D Abel transform is accessed through the ``'transform'`` key.
 
 The results can then be plotted using Matplotlib:
 
@@ -97,13 +98,13 @@ The results can then be plotted using Matplotlib:
 
 	plt.tight_layout()
 	plt.show()
-	
-.. image:: https://cloud.githubusercontent.com/assets/1107796/13399210/60c4ab22-debf-11e5-85eb-9311b304aca0.png
+
+Output: 
+
+.. image:: https://cloud.githubusercontent.com/assets/1107796/13401302/d89aed7e-dec8-11e5-944f-fcafa1b75328.png
    :width: 400px
    :alt: example abel transform
-   :align: left
-
-In the above, note that the ``abel.transform()`` function returns a Python ``dict`` object, where the 2D Abel transform is accessed through the ``'transform'`` key.
+   
 
 
 Documentation
