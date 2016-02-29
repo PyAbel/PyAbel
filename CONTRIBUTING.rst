@@ -33,7 +33,7 @@ PyAbel uses Sphinx and `Napoleon <http://sphinxcontrib-napoleon.readthedocs.org/
 
 	pip install sphinx
 	pip install recommonmark
-	pip isnstall sphinx_rtd_theme
+	pip install sphinx_rtd_theme
 
 Once you have that installed, then you can build the documentation using ::
 
