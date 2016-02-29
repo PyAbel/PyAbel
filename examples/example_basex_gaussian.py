@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
 import abel
@@ -23,7 +24,8 @@ center = n//2
 
 # BASEX Transform: 
 # Calculate the inverse abel transform for the centered data
-recon = abel.basex.iabel_basex(ref.abel, verbose=True, basis_dir=None, dr=ref.dr)
+recon = abel.basex.basex_transform(ref.abel, verbose=True, basis_dir=None, 
+        dr=ref.dr, direction='inverse')
 
 ax.plot(ref.r, recon , 'o',color='red', label='Inverse transform [BASEX]', ms=5, mec='none',alpha=0.5)
 
