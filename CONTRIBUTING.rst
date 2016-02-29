@@ -94,14 +94,13 @@ Unit tests
 ~~~~~~~~~~
 To detect issues early, the submitted implementation should have the following properties and pass the corresponding unit tests,
 
-  1. The reconstruction has the same shape as the original image. Currently all transform methods operate with odd-width images and should raise an exception if provided with an even-width image.
+1. The reconstruction has the same shape as the original image. Currently all transform methods operate with odd-width images and should raise an exception if provided with an even-width image.
 
-  2. Given an array of 0 elements, the reconstruction should also be a 0 array.
+2. Given an array of 0 elements, the reconstruction should also be a 0 array.
   
-  3. The implementation should be able to calculated the inverse (or forward) transform of a Gaussian function defined by a standard deviation ``sigma``, with better than a ``10 %`` relative error with respect to the analytical solution for ``0 > r > 2*sigma``.
+3. The implementation should be able to calculated the inverse (or forward) transform of a Gaussian function defined by a standard deviation ``sigma``, with better than a ``10 %`` relative error with respect to the analytical solution for ``0 > r > 2*sigma``.
 
-
- Unit tests for a given implementation are located under ``abel/tests/test_<implemenation>.py``, which should contain at least the following 3 functions ``test_<implementation>_shape``, ``test_<implementation>_zeros``, ``test_<implementation>_gaussian``. See ``abel/tests/test_basex.py`` for a concrete example.
+Unit tests for a given implementation are located under ``abel/tests/test_<implemenation>.py``, which should contain at least the following 3 functions ``test_<implementation>_shape``, ``test_<implementation>_zeros``, ``test_<implementation>_gaussian``. See ``abel/tests/test_basex.py`` for a concrete example.
  
 
 Dependencies
