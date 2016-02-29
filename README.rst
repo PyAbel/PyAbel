@@ -127,7 +127,7 @@ We welcome suggestions for improvement! Either open a new `Issue <https://github
 
 License
 -------
-PyAble is licensed under the `MIT license`, so it can be used for pretty much whatever you want! However, it is provided "as is" with absolutely no warrenty.
+PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE>`_, so it can be used for pretty much whatever you want! However, it is provided "as is" with absolutely no warrenty.
 
 
 Citation
