@@ -98,7 +98,7 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
              Image centre `o' should be within a pixel
              (i.e. an odd number of columns)
-             [Use abel.tools.center.find_image_center_by_slice () to transform] 
+             [Use abel.tools.center.center_image(IM, method='com', odd_size=True)] 
 
     dr : float
         Sampling size (=1 for pixel images), used for Jacobian scaling
