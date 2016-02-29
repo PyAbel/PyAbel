@@ -51,6 +51,7 @@ sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 source_parsers = {
     '.md': CommonMarkParser,
 }
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -62,7 +63,8 @@ source_parsers = {
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
-    'numpydoc',
+    # 'numpydoc',
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'matplotlib.sphinxext.plot_directive'
 ]
