@@ -319,3 +319,5 @@ texinfo_documents = [
 required_symlinks = [
     ('examples', '../examples/')
     ]
+    
+autodoc_member_order = 'bysource'
