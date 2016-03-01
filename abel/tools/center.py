@@ -13,8 +13,8 @@ from scipy.optimize import minimize
 
 def find_center(IM, method='image_center', verbose=False, **kwargs):
     """
-    Paramters
-    ---------
+    Parameters
+    ----------
     IM : 2D np.array
       image data
 
@@ -210,8 +210,8 @@ def find_center_by_gaussian_fit(IM, verbose=False, round_output=False,
 def axis_slices(IM, radial_range=(0, -1), slice_width=10):
     """returns vertical and horizontal slice profiles, summed across slice_width.
 
-    Paramters
-    ---------
+    Parameters
+    ----------
     IM : 2D np.array
       image data
 
