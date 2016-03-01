@@ -211,7 +211,7 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
     """returns vertical and horizontal slice profiles, summed across slice_width.
 
     Parameters
-    ---------
+    ----------
     IM : 2D np.array
       image data
 
