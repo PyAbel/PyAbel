@@ -14,7 +14,7 @@ import warnings
 def transform(
     IM, direction='inverse', method='three_point', center='none',
         verbose=True, symmetry_axis=None,
-        use_quadrants=(True, True, True, True),
+        use_quadrants=(True, True, True, True), recast_as_float64=True,
         transform_options=dict(), center_options=dict()):
     """This is the main function of PyAbel, providing both forward
     and inverse abel transforms for full images. In addition,
@@ -84,6 +84,12 @@ def transform(
         Quadrants are numbered counter-clockwide from upper right.
         See note below for description of quadrants. 
         Default is ``(True, True, True, True)``, which uses all quadrants.
+        
+    recast_as_float64 : boolean
+        True/False that determines if the input image should be recast to float64. 
+        Many images are imported in other formats (such as ``uint8`` or ``unit15``)
+        and this does not always play well with the transorm algorithms. This should
+        probably always be set to True. (Default is True.)
 
     transform_options : tuple
         Additional arguments passed to the individual transform functions.
@@ -230,7 +236,9 @@ def transform(
     if not isinstance(symmetry_axis, (list, tuple)):
         # if the user supplies an int, make it into a 1-element list:
         symmetry_axis = [symmetry_axis]
-
+    
+    if recast_as_float64:
+        IM = IM.astype('float64')
     # centering:
     if center == 'none':  # no centering
         if cols % 2 != 1:
