@@ -134,7 +134,7 @@ def basex_core_transform(rawdata, M_vert, M_horz, Mc_vert,
     This is the internal function
     that does the actual BASEX transform. It requires 
     that the matrices of basis set coefficients be passed. 
-
+    
 
     Parameters
     ----------
