@@ -157,7 +157,7 @@ def three_point(data, center,
     and returns the full transform to the user.
 
     Parameters
-    -----------
+    ----------
     data : NxM numpy array
         The raw data is presumed to be symmetric
         about the vertical axis.

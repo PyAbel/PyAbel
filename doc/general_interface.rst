@@ -1,4 +1,0 @@
-General interface in PyAbel
-===========================
-
-

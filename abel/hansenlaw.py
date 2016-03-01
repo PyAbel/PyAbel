@@ -33,72 +33,46 @@ from math import exp, log, pow, pi
 
 
 def hansenlaw_transform(IM, dr=1, direction="inverse"):
-    """
-    Forward/Inverse Abel transformation using the algorithm of:
-    Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).::
+    r"""
+    Forward/Inverse Abel transformation using the algorithm of
+    `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985) 
+    <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a: 
+    
+    
+    .. math:: f(r) = \frac{1}{\pi} \int_{r}^{\inf} \frac{g^\prime(R)}{\sqrt{R^2-r^2}} dR,
+    
+    where 
 
+    :math:`f(r)` is the reconstructed image (source) function,
+    :math:`g'(R)` is the derivative of the projection (measured) function
 
-                   ∞
-                   ⌠
-               -1  ⎮   g'(R)
-       f(r) =  ─── ⎮ ──────────── dR      Eq. (2a)
-                π  ⎮    _________
-                   ⎮   ╱  2    2
-                   ⎮ ╲╱  R  - r
-                   ⌡
-                   r
+    Evaluation follows Eqs. (15 or 17), using (16a), (16b), and (16c or 18) of the Hansen 
+    and Law paper. For the full image transform, use ``abel.transform``.
 
+    For the inverse Abel transform of image g: ::
+    
+        f = abel.transform(g, direction="inverse", method="hansenlaw")["transform"]
+        
+    For the forward Abel transform of image f: ::
+    
+        g = abel.transform(r, direction="forward", method="hansenlaw")["transform"]
+        
+    This function performs the Hansen-Law transform on only one "right-side" image, 
+    typically one quadrant of the full image: ::
 
-    f(r)
-        is reconstructed image (source) function
-    g'(R)
-        is derivative of the projection (measured) function
-
-    Evaluation via Eq. (15 or 17), using (16a), (16b), and (16c or 18)
-
-    f = abel.transform(g, direction="inverse", method="hansenlaw")["transform"]
-        inverse Abel transform of image g
-
-    g = abel.transform(r, direction="forward", method="hansenlaw")["transform"]
-        forward Abel transform of image f
-
-
-
-    Core Hansen and Law Abel transform e.g.
-
-      Qtrans = abel.hansenlaw.hansenlaw_transform(Q, direction="inverse")
+        Qtrans = abel.hansenlaw.hansenlaw_transform(Q, direction="inverse")
 
     Recursion method proceeds from the outer edge of the image
-    toward the image centre (origin). i.e. when n=N-1, R=Rmax, and
-    when n=0, R=0. This fits well with processing the image one
+    toward the image centre (origin). i.e. when ``n=N-1``, ``R=Rmax``, and
+    when ``n=0``, ``R=0``. This fits well with processing the image one
     quadrant (chosen orientation to be rightside-top), or one right-half
     image at a time.
-
-    Use AIM = abel.transform(IM, method="hansenlaw", 
-                             direction="inverse")["transform"]
-    to transform a whole image
-
-
 
 
     Parameters
     ----------
     IM : 2D np.array
-        One quadrant (or half) of the image oriented top-right::
-
-             +--------      +--------+              |
-             |      *       | *      |              |
-             |   *          |    *   |  <----------/
-             |  *           |     *  |
-             +--------      o--------+
-             |  *           |     *  |
-             |   *          |    *   |
-             |     *        | *      |
-             +--------      +--------+
-
-             Image centre `o' should be within a pixel
-             (i.e. an odd number of columns)
-             [Use abel.tools.center.find_image_center_by_slice () to transform] 
+        One quadrant (or half) of the image oriented top-right.
 
     dr : float
         Sampling size (=1 for pixel images), used for Jacobian scaling
@@ -108,9 +82,24 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
     Returns
     -------
-    AIM : 2D np.array
+    AIM : 2D numpy array
         forward/inverse Abel transform image
-
+        
+        
+    .. note::  Image should be a right-side image, like this: ::  
+         
+        .         +--------      +--------+              
+        .         |      *       | *      |              
+        .         |   *          |    *   |  <---------- IM
+        .         |  *           |     *  |
+        .         +--------      o--------+
+        .         |  *           |     *  |
+        .         |   *          |    *   |
+        .         |     *        | *      |
+        .         +--------      +--------+
+          
+        Image centre ``o`` should be within a pixel (i.e. an odd number of columns)
+        Use ``abel.tools.center.center_image(IM, method='com', odd_size=True)`` 
     """
 
 

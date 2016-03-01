@@ -40,8 +40,8 @@ im = np.loadtxt(filename)
 (rows,cols) = np.shape(im)
 if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
-           " find_image_center_by_slice ()".format(cols))
-    im = abel.tools.center.find_image_center_by_slice (im, radial_range=(300,400))[0]
+           " center_image()".format(cols))
+    im = abel.tools.center.center_image(im, center="com", odd_size=True)
     # alternative
     #im = shift(im,(0.5,0.5))
     #im = im[:-1, 1::]  # drop left col, bottom row

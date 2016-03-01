@@ -58,8 +58,6 @@ abel.transform module
 
 .. automodule:: abel.transform
     :members:
-    :special-members:
-    :undoc-members:
     :show-inheritance:
 
 abel.tools.analytical module

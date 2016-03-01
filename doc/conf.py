@@ -46,8 +46,6 @@ MOCK_MODULES = []
         
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
-
-
 source_parsers = {
     '.md': CommonMarkParser,
 }
@@ -62,7 +60,7 @@ source_parsers = {
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
-    'numpydoc',
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'matplotlib.sphinxext.plot_directive'
 ]
@@ -321,3 +319,5 @@ texinfo_documents = [
 required_symlinks = [
     ('examples', '../examples/')
     ]
+    
+autodoc_member_order = 'bysource'
