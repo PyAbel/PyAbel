@@ -7,8 +7,7 @@ Introduction
 
 BASEX (Basis set expansion method) transform utilizes well-behaved functions (i.e., functions which have a known analytic Abel inverse) to transform images. 
 In the current iteration of PyAbel, these functions (called basis functions) are modified Gaussian-type functions.
-This technique was developed by `Dribinski et al, 2002 (Rev. Sci. Instrum. 73, 2634) <http://dx.doi.org/10.1063/1.1482156>`_, (`pdf <http://www-bcf.usc.edu/~reisler/assets/pdf/67.pdf>`_).
-
+This technique was developed by Dribinski et al [1].
 
 How it works
 ------------
@@ -29,19 +28,30 @@ According to Dribinski et al. BASEX has several advantages:
 
 2. BASEX is computationally cheap and only requires matrix multiplication once the basis sets have been generated and saved to disk.
 
-3. The current basis set is composed of the modified Gaussian functions which are highly localized, uniform in coverage, and sufficiently narrow. 
-This allows for resolution of very sharp features in the raw data with the basis functions. 
-Moreover, the reconstruction procedure does not contribute to noise in the reconstructed image; noise appears in the image only when it exists in the projection.
+3. The current basis set is composed of the modified Gaussian functions which are highly localized, uniform in coverage, and sufficiently narrow. This allows for resolution of very sharp features in the raw data with the basis functions. Moreover, the reconstruction procedure does not contribute to noise in the reconstructed image; noise appears in the image only when it exists in the projection.
 
-4. Resolution of images reconstructed with BASEX are superior to those obtained with the Fourier-Hankel method, particularly for noisy projections. 
-However, to obtain maximum resolution, it is important to properly center the projections prior to transforming with BASEX.
+4. Resolution of images reconstructed with BASEX are superior to those obtained with the Fourier-Hankel method, particularly for noisy projections. However, to obtain maximum resolution, it is important to properly center the projections prior to transforming with BASEX.
 
 5. BASEX reconstructed images have an exact analytical expression, which allows for an analytical, higher resolution, calculation of the speed distribution, without increasing computation time.
 
-**Example**
 
-*Todo*
+How to use it
+-------------
 
-**Notes**
-Good information about interpreting the equations in the paper and implementing the up/down asymmetric transform:
-https://github.com/PyAbel/PyAbel/pull/54#issuecomment-164898116
+The recommended way to complete the inverse Abel transform using the BASEX algorithm for a full image is to use the :func:`abel.transform` function: ::
+
+	abel.transform(myImage, method='basex', direction='inverse')
+
+Note that the forwrad BASEX transform is not yet implemented in PyAbel. 
+
+If you would like to access the BASEX algorithm directly (to transform a right-side half-image), you can use :func:`abel.basex.basex_transform`.
+
+
+Notes
+-----
+More information about interpreting the equations in the paper and implementing the up/down asymmetric transform is discussed in `PyAbel Issue #54 <https://github.com/PyAbel/PyAbel/pull/54#issuecomment-164898116>`_
+
+
+Citation
+--------
+[1] `Dribinski et al, 2002 (Rev. Sci. Instrum. 73, 2634) <http://dx.doi.org/10.1063/1.1482156>`_, (`pdf <http://www-bcf.usc.edu/~reisler/assets/pdf/67.pdf>`_)
