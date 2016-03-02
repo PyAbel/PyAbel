@@ -18,17 +18,14 @@ class AbelTiming(object):
 
         Parameters
         ----------
-          - n: a list of arrays sizes for the benchmark (assuming 2D
-            square arrays (n,n) )
-          - n_max_bs: since the basis sets generation takes a long time,
+        n: integer
+            a list of arrays sizes for the benchmark (assuming 2D square arrays (n,n))
+        n_max_bs: integer
+            since the basis sets generation takes a long time,
             do not run this benchmark for implementations that use basis sets
             for n > n_max_bs
         """
-        # from basex import get_bs_basex_cached, basex_core_transform
-        # from .hansenlaw import hansenlaw_transform
         from timeit import Timer
-        # from .direct import direct_transform, cython_ext
-        # from .three_point import three_point_transform
 
         self.n = n
 
@@ -66,6 +63,8 @@ class AbelTiming(object):
             else:
                 res_iabel['BASEX']['bs'].append(np.nan)
                 res_iabel['BASEX']['tr'].append(np.nan)
+                res_iabel['Three_point']['bs'].append(np.nan)
+                res_iabel['Three_point']['tr'].append(np.nan)
 
             res_fabel['HansenLaw']['tr'].append(
                 Timer(lambda: abel.hansenlaw.hansenlaw_transform(
@@ -73,25 +72,22 @@ class AbelTiming(object):
             res_iabel['HansenLaw']['tr'].append(
                 Timer(lambda: abel.hansenlaw.hansenlaw_transform(x,
                       x, direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
-            res_iabel['Three_point']['tr'].append(
-                Timer(lambda: abel.three_point.three_point_transform(
-                      x, direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
             res_iabel['direct_Python']['tr'].append(
                 Timer(lambda: abel.direct.direct_transform(
-                      x, correction=False, backend='Python',
+                      x, backend='Python',
                       direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
             res_fabel['direct_Python']['tr'].append(
                 Timer(lambda: abel.direct.direct_transform(
-                      x, correction=False, backend='Python',
+                      x, backend='Python',
                       direction='forward')).timeit(number=NREPEAT)/NREPEAT)
             if abel.direct.cython_ext:
                 res_iabel['direct_C']['tr'].append(
                     Timer(lambda: abel.direct.direct_transform(
-                        x, correction=False, backend='C',
+                        x, backend='C',
                         direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
                 res_fabel['direct_C']['tr'].append(
                     Timer(lambda: abel.direct.direct_transform(
-                        x, correction=False, backend='C',
+                        x, backend='C',
                         direction='forward')).timeit(number=NREPEAT)/NREPEAT)
 
         self.fabel = res_fabel
@@ -105,11 +101,11 @@ class AbelTiming(object):
         out += ['PyAbel benchmark run on {}\n'.format(platform.processor())]
 
         LABEL_FORMAT = '|'.join([' Implementation '] +
-                                ['    n = {:<12} '.
+                                ['    n = {:<8} '.
                                 format(ni) for ni in self.n])
-        TR_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:8.1e}            ']\
+        TR_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:.4f}          ']\
                                  * len(self.n))
-        BS_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:8.1e} ({:8.1e}) ']\
+        BS_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:.4f} ({:.4f}) ']\
                                  * len(self.n))
         SEP_ROW = ' ' + '-'*(22 + (17+1)*len(self.n))
 
@@ -206,7 +202,7 @@ def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
 
 def main():
     # run some benchmarks!!
-    time = AbelTiming()
+    time = AbelTiming(n=[201], n_max_bs=101)
     print(time)
 
 
