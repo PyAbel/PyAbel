@@ -11,10 +11,10 @@ The "Three Point" Abel transform method exploits the observation that the value 
 How it works
 ------------
 
-The projection data (raw data **P**) is expanded as a quadratic function of *r - r<sub>j</sub>* in the neighborhood of each data point in **P**. 
-In other words, *P'(r) = dP/dr* is estimated using a 3-point approximation (to the derivative), similar to central differencing.
-Doing so enables an analytical integration of the inverse Abel integral around each point *r<sub>j</sub>*. 
-The result of this integration is expressed as a linear operator **D**, operating on the projection data **P** to give the underlying radial distribution **F**.
+The projection data (raw data :math:`\mathbf{P}`) is expanded as a quadratic function of :math:`r - r_{j*}` in the neighborhood of each data point in :math:`\mathbf{P}`. 
+In other words, :math:`\mathbf{P}'(r) = dP/dr` is estimated using a 3-point approximation (to the derivative), similar to central differencing.
+Doing so enables an analytical integration of the inverse Abel integral around each point :math:`r_j`. 
+The result of this integration is expressed as a linear operator :math:`\mathbf{D}`, operating on the projection data :math:`\mathbf{P}` to give the underlying radial distribution :math:`\mathbf{F}`.
 
 
 
@@ -22,7 +22,7 @@ When to use it
 --------------
 
 Dasch recommends this method based on its speed of implementation, robustness in the presence of sharp edges, and low noise.
-He also notes that this technique works best for cases where the real difference between adjacent projections is much greater than the noise in the projections. This is important, because if the projections are oversampled (raw data **P** taken with data points very close to each other), the spacing between adjacent projections is decreased, and the real difference between them becomes comparable with the noise in the projections. In such situations, the deconvolution is highly inaccurate, and the projection data **P** must be smoothed before this technique is used.
+He also notes that this technique works best for cases where the real difference between adjacent projections is much greater than the noise in the projections. This is important, because if the projections are oversampled (raw data :math:`\mathbf{P}` taken with data points very close to each other), the spacing between adjacent projections is decreased, and the real difference between them becomes comparable with the noise in the projections. In such situations, the deconvolution is highly inaccurate, and the projection data :math:`\mathbf{P}` must be smoothed before this technique is used. (Consider smoothing with `scipy.ndimage.filters.gaussian_filter <http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.ndimage.filters.gaussian_filter.html>`_.)
 
 
 How to use it
