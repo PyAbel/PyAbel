@@ -9,7 +9,7 @@ import numpy as np
 from itertools import product
 
 
-def three_point_transform(IM, basis_dir='.', direction="inverse", 
+def three_point_transform(IM, basis_dir='.', direction="inverse",
                           verbose=False):
     """
     Inverse Abel transformation using the algorithm of:
@@ -28,6 +28,18 @@ def three_point_transform(IM, basis_dir='.', direction="inverse",
     IM = np.atleast_2d(IM)
     row, col = IM.shape
     D = get_bs_three_point_cached(col, basis_dir, verbose)
+    inv_IM = three_point_core_transform(IM, D)
+    return inv_IM
+
+
+def three_point_core_transform(IM, D):
+    """
+    This is the internal function
+    that performs the actual three_point transform.
+    It requires that the matrix of basis set coefficients,
+    D,
+    be passed as a parameter.
+    """
     inv_IM = np.zeros_like(IM)
 
     for i, P in enumerate(IM):
@@ -147,9 +159,8 @@ def get_bs_three_point_cached(col, basis_dir='.', verbose=False):
     return D
 
 
-def three_point(data, center,
-                      dr=1.0, basis_dir='./', verbose=False,
-                      direction='inverse'):
+def three_point(data, center, dr=1.0, basis_dir='./', verbose=False,
+                direction='inverse'):
     """
     This function splits the image into two halves,
     sends each half to three_point_transform(),
