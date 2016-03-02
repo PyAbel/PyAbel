@@ -8,9 +8,6 @@ from __future__ import unicode_literals
 import numpy as np
 
 
-# from abel.tools.symmetry import get_image_quadrants
-# from abel.tools.polar import CythonExtensionsNotBuilt
-
 import abel
 
 
@@ -159,7 +156,7 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
     for the defintion of a center of the image.
     """
 
-    Q0, Q1, Q2, Q3 = abel.symmetry.get_image_quadrants(arr, reorient=False)
+    Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(arr, reorient=False)
 
     if i_sym and not j_sym:
         valid_flag = [np.allclose(np.fliplr(Q1), Q0),
@@ -190,12 +187,12 @@ def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
         a reconstruction (i.e. inverse abel)
         given by some PyAbel implementation
     """
-    mask = abel.analytical.mask_valid
+    mask = analytical.mask_valid
 
     if kind == 'inverse':
-        func = abel.analytical.func
+        func = analytical.func
     elif kind == 'direct':
-        func = abel.analytical.abel
+        func = analytical.abel
 
     err = func[mask]/recon[mask]
     return err
