@@ -200,7 +200,8 @@ def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
 
 def main():
     # run some benchmarks!!
-    print(AbelTiming(n=[51, 101, 501]) )
+    time = AbelTiming(n=[501]) 
+    print(time)
     
 
 

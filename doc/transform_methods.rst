@@ -10,3 +10,5 @@ Contents:
    transform_methods/comparison
    transform_methods/basex
    transform_methods/direct
+   transform_methods/hansenlaw
+   transform_methods/three_point

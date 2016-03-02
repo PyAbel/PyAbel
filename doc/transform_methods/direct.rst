@@ -28,7 +28,7 @@ To complete the forward or inverse transform of a full image with the direct met
 	abel.transform(myImage, method='direct', direction='inverse')
 	
 
-If you would like to access the BASEX algorithm directly (to transform a right-side half-image), you can use :func:`abel.basex.direct_transform`.
+If you would like to access the Direct algorithm directly (to transform a right-side half-image), you can use :func:`abel.direct.direct_transform`.
 
 
 Citation
