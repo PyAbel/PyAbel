@@ -42,7 +42,7 @@ The recommended way to complete the inverse Abel transform using the BASEX algor
 
 	abel.transform(myImage, method='basex', direction='inverse')
 
-Note that the forwrad BASEX transform is not yet implemented in PyAbel. 
+Note that the forward BASEX transform is not yet implemented in PyAbel. 
 
 If you would like to access the BASEX algorithm directly (to transform a right-side half-image), you can use :func:`abel.basex.basex_transform`.
 
