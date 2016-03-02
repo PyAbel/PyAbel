@@ -12,3 +12,4 @@ Contents:
    example_hansenlaw_Xe
    example_basex_gaussian
    example_basex_photoelectron
+   example_all_dribinski

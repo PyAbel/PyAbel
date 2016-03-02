@@ -17,7 +17,6 @@ sigma = 10
 ref = abel.tools.analytical.GaussianAnalytical(n, r_max, sigma,symmetric=False)
 
 ax.plot(ref.r, ref.func, 'b', label='Original signal')
-
 ax.plot(ref.r, ref.abel*0.05, 'r', label='Direct Abel transform x0.05 [analytical]')
 
 center = n//2
