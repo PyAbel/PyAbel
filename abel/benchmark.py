@@ -34,12 +34,12 @@ class AbelTiming(object):
 
         NREPEAT = 5
 
-        res_fabel = {}
-        res_iabel = {'BASEX':      {'bs': [], 'tr': []},
-                     'Three_point':{'bs': [], 'tr': []},
-                     'HansenLaw': {'tr': []}}
-        res_fabel['direct_Python'] = {'tr': []}
-        res_iabel['direct_Python'] = {'tr': []}
+        res_fabel = {'HansenLaw':     {'tr': []},
+                     'direct_Python': {'tr': []}}
+        res_iabel = {'BASEX':         {'bs': [], 'tr': []},
+                     'Three_point':   {'bs': [], 'tr': []},
+                     'HansenLaw':     {'tr': []},
+                     'direct_Python': {'tr': []}}
         if abel.direct.cython_ext:
             res_fabel['direct_C'] = {'tr': []}
             res_iabel['direct_C'] = {'tr': []}
@@ -53,41 +53,46 @@ class AbelTiming(object):
                     Timer(lambda: abel.basex.get_bs_basex_cached(ni, ni)).
                     timeit(number=1))
                 res_iabel['BASEX']['tr'].append(
-                    Timer(lambda: abel.basex.basex_core_transform(x, *bs)).timeit(
-                        number=NREPEAT)/NREPEAT)
+                    Timer(lambda: abel.basex.basex_core_transform(x, *bs)).
+                    timeit(number=NREPEAT)/NREPEAT)
                 res_iabel['Three_point']['bs'].append(
-                    Timer(lambda: abel.three_point.get_bs_three_point_cached( ni)).
-                    timeit(number=1))
-                res_iabel['Three_point']['tr'].append( # currently this is wrong because it also generated the basis sets!  
-                    Timer(lambda: abel.three_point.three_point_transform(x)).timeit(
-                        number=NREPEAT)/NREPEAT)
+                    Timer(lambda: abel.three_point.
+                          get_bs_three_point_cached(ni)).timeit(number=1))
+                res_iabel['Three_point']['tr'].append(
+                    # currently this is wrong because it also generated 
+                    # the basis sets!
+                    Timer(lambda: abel.three_point.three_point_transform(x)).
+                          timeit(number=NREPEAT)/NREPEAT)
             else:
                 res_iabel['BASEX']['bs'].append(np.nan)
                 res_iabel['BASEX']['tr'].append(np.nan)
 
+            res_fabel['HansenLaw']['tr'].append(
+                Timer(lambda: abel.hansenlaw.hansenlaw_transform(
+                      x, direction='forward')).timeit(number=NREPEAT)/NREPEAT)
             res_iabel['HansenLaw']['tr'].append(
-                Timer(lambda: abel.hansenlaw.hansenlaw_transform(x, direction='inverse')).timeit(
-                    number=NREPEAT)/NREPEAT)
+                Timer(lambda: abel.hansenlaw.hansenlaw_transform(x,
+                      x, direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
             res_iabel['Three_point']['tr'].append(
-                Timer(lambda: abel.three_point.three_point_transform(x, direction='inverse')).timeit(
-                    number=NREPEAT)/NREPEAT)
+                Timer(lambda: abel.three_point.three_point_transform(
+                      x, direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
             res_iabel['direct_Python']['tr'].append(
                 Timer(lambda: abel.direct.direct_transform(
-                    x, correction=False, backend='Python', direction='inverse')).timeit(
-                        number=NREPEAT)/NREPEAT)
+                      x, correction=False, backend='Python',
+                      direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
             res_fabel['direct_Python']['tr'].append(
                 Timer(lambda: abel.direct.direct_transform(
-                    x, correction=False, backend='Python', direction='forward')).timeit(
-                        number=NREPEAT)/NREPEAT)
+                      x, correction=False, backend='Python',
+                      direction='forward')).timeit(number=NREPEAT)/NREPEAT)
             if abel.direct.cython_ext:
                 res_iabel['direct_C']['tr'].append(
                     Timer(lambda: abel.direct.direct_transform(
-                        x, correction=False, backend='C', direction='inverse')).timeit(
-                            number=NREPEAT)/NREPEAT)
+                        x, correction=False, backend='C',
+                        direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
                 res_fabel['direct_C']['tr'].append(
                     Timer(lambda: abel.direct.direct_transform(
-                        x, correction=False, backend='C', direction='forward')).timeit(
-                            number=NREPEAT)/NREPEAT)
+                        x, correction=False, backend='C',
+                        direction='forward')).timeit(number=NREPEAT)/NREPEAT)
 
         self.fabel = res_fabel
         self.iabel = res_iabel
@@ -102,15 +107,15 @@ class AbelTiming(object):
         LABEL_FORMAT = '|'.join([' Implementation '] +
                                 ['    n = {:<12} '.
                                 format(ni) for ni in self.n])
-        TR_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:8.1e} \
-                                ']*len(self.n))
-        BS_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:8.1e} \
-                                ({:8.1e}) ']*len(self.n))
+        TR_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:8.1e}            ']\
+                                 * len(self.n))
+        BS_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:8.1e} ({:8.1e}) ']\
+                                 * len(self.n))
         SEP_ROW = ' ' + '-'*(22 + (17+1)*len(self.n))
 
         HEADER_ROW = ' ========= {:>10} Abel implementations ==========\n' \
-                     'time to solution [s] -> transform \
-                        (basis sets generation)\n'
+                     'time to solution [s] -> transform'\
+                     ' (basis sets generation)\n'
 
         def print_benchmark(name, res):
             out = [HEADER_ROW.format(name)]
@@ -156,7 +161,8 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
     for the defintion of a center of the image.
     """
 
-    Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(arr, reorient=False)
+    Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(
+                                                 arr, reorient=False)
 
     if i_sym and not j_sym:
         valid_flag = [np.allclose(np.fliplr(Q1), Q0),
@@ -196,15 +202,13 @@ def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
 
     err = func[mask]/recon[mask]
     return err
-    
+
 
 def main():
     # run some benchmarks!!
-    time = AbelTiming(n=[501]) 
+    time = AbelTiming(n=[301, 501])
     print(time)
-    
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
-    
