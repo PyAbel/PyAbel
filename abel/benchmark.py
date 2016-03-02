@@ -159,7 +159,7 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
     for the defintion of a center of the image.
     """
 
-    Q0, Q1, Q2, Q3 = get_image_quadrants(arr, reorient=False)
+    Q0, Q1, Q2, Q3 = abel.symmetry.get_image_quadrants(arr, reorient=False)
 
     if i_sym and not j_sym:
         valid_flag = [np.allclose(np.fliplr(Q1), Q0),
@@ -190,12 +190,12 @@ def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
         a reconstruction (i.e. inverse abel)
         given by some PyAbel implementation
     """
-    mask = analytical.mask_valid
+    mask = abel.analytical.mask_valid
 
     if kind == 'inverse':
-        func = analytical.func
+        func = abel.analytical.func
     elif kind == 'direct':
-        func = analytical.abel
+        func = abel.analytical.abel
 
     err = func[mask]/recon[mask]
     return err
