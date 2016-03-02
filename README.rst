@@ -109,7 +109,7 @@ Output:
 
 Documentation
 -------------
-General information about the various Abel transforms available in PyAbel is available at the `PyAbel Wiki <https://github.com/PyAbel/PyAbel/wiki>`_. The complete documentation for all of the methods in PyAbel is hosted at https://pyabel.readthedocs.org.
+General information about the various Abel transforms available in PyAbel is available at the links above. The complete documentation for all of the methods in PyAbel is hosted at https://pyabel.readthedocs.org.
 
 
 Support
@@ -132,6 +132,8 @@ PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob
 
 Citation
 --------
+First and foremost, please cite the paper(s) corresponding to the implementation of the Abel Transform that you use in your work. The references can be found at the links above.
+
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. [DOI coming soon!]
 
 Have fun!

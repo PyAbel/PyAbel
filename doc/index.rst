@@ -14,6 +14,7 @@ Contents:
    readme_link
    contributing_link
    abel
+   transform_methods
    examples
    
 
