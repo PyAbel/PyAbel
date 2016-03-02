@@ -12,7 +12,7 @@ import abel
 
 
 class AbelTiming(object):
-    def __init__(self, n=[201, 401], n_max_bs=700):
+    def __init__(self, n=[301, 501], n_max_bs=700):
         """
         Benchmark performance of different iAbel/fAbel implementations.
 
@@ -206,7 +206,7 @@ def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
 
 def main():
     # run some benchmarks!!
-    time = AbelTiming(n=[301, 501])
+    time = AbelTiming()
     print(time)
 
 
