@@ -41,18 +41,17 @@ output_plot  = name + '_comparison_HansenLaw.pdf'
 # Step 1: Load an image file as a numpy array
 print('Loading ' + filename)
 #im = np.loadtxt(filename)
-im = plt.imread(filename)
+im = plt.imread(filename) 
 (rows,cols) = np.shape(im)
 print ('image size {:d}x{:d}'.format(rows,cols))
 
-#im = abel.tools.center.center_image (im, (340,245))
 
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
 recon = abel.transform(im, method="hansenlaw", direction="inverse", 
-                       vertical_symmetry=False, horizontal_symmetry=False,
-                       verbose=True)['transform']
+                       symmetry_axis=None, verbose=True, center=(240,340))['transform']
+                       
 r, speeds = abel.tools.vmi.angular_integration(recon)
 
 

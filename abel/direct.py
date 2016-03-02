@@ -29,7 +29,52 @@ except (ImportError, UnicodeDecodeError):
 ###########################################################################
 
 
-_direct_doctsting = \
+def simpson_rule_wrong(f, x=None, dx=None, axis=1, **args):
+    """
+    This function computes the Simpson rule
+    https://en.wikipedia.org/wiki/Simpson%27s_rule#Python
+    both in the cases of odd and even intervals which is not technically valid
+    """
+    if x is not None:
+        raise NotImplementedError
+    if axis != 1:
+        raise NotImplementedError
+
+    res = f[:, 0] + f[:, -1]
+    res += 2*f[:, 1:-1:2].sum(axis=axis)
+    res += 4*f[:, 2:-1:2].sum(axis=axis)
+    return res*dx/3
+
+
+def _construct_r_grid(n, dr=None, r=None):
+    """ Internal function to construct a 1D spatial grid """
+    if dr is None and r is None:
+        # default value, we don't care about the scaling
+        # since the mesh size was not provided
+        dr = 1.0
+
+    if dr is not None and r is not None:
+        raise ValueError('Both r and dr input parameters cannot be specified \
+                            at the same time')
+    elif dr is None and r is not None:
+        if r.ndim != 1 or r.shape[0] != n:
+            raise ValueError('The input parameter r should be a 1D array'
+                             'of shape = ({},), got shape = {}'.format(
+                                                                n, r.shape))
+        # not so sure about this, needs verification
+        dr = np.gradient(r)
+
+    else:
+        if isinstance(dr, np.ndarray):
+            raise NotImplementedError
+        r = (np.arange(n) + 0.5)*dr
+    return r, dr
+
+
+def direct_transform(fr, dr=None, r=None, direction='inverse',
+                     derivative=gradient,
+                     int_func=simpson_rule_wrong,
+                     correction=True, backend='C'):
     """
     This algorithm does a direct computation of the Abel transform
 
@@ -68,75 +113,6 @@ _direct_doctsting = \
         with either the direct or the inverse abel transform.
     """
 
-
-def simpson_rule_wrong(f, x=None, dx=None, axis=1, **args):
-    """
-    This function computes the Simpson rule
-    https://en.wikipedia.org/wiki/Simpson%27s_rule#Python
-    both in the cases of odd and even intervals which is not technically valid
-    """
-    if x is not None:
-        raise NotImplementedError
-    if axis != 1:
-        raise NotImplementedError
-
-    res = f[:, 0] + f[:, -1]
-    res += 2*f[:, 1:-1:2].sum(axis=axis)
-    res += 4*f[:, 2:-1:2].sum(axis=axis)
-    return res*dx/3
-
-
-def iabel_direct(fr, dr=None, r=None, **args):
-    """
-    Returns the inverse Abel transform
-
-    """
-    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=True, **args)
-
-
-def fabel_direct(fr, dr=None, r=None, **args):
-    """
-    Returns the direct Abel transform of a function
-    sampled at discrete points.
-
-    """
-    return _abel_transform_wrapper(fr, dr=dr, r=r, inverse=False, **args)
-
-
-def _construct_r_grid(n, dr=None, r=None):
-    """ Internal function to construct a 1D spatial grid """
-    if dr is None and r is None:
-        # default value, we don't care about the scaling
-        # since the mesh size was not provided
-        dr = 1.0
-
-    if dr is not None and r is not None:
-        raise ValueError('Both r and dr input parameters cannot be specified \
-                            at the same time')
-    elif dr is None and r is not None:
-        if r.ndim != 1 or r.shape[0] != n:
-            raise ValueError('The input parameter r should be a 1D array'
-                             'of shape = ({},), got shape = {}'.format(
-                                                                n, r.shape))
-        # not so sure about this, needs verification
-        dr = np.gradient(r)
-
-    else:
-        if isinstance(dr, np.ndarray):
-            raise NotImplementedError
-        r = (np.arange(n) + 0.5)*dr
-    return r, dr
-
-
-def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
-                            derivative=gradient,
-                            int_func=simpson_rule_wrong,
-                            correction=True, backend='C'):
-    """
-    Returns the forward or the inverse Abel transform of a function
-    sampled using direct integration.
-
-    """
     backend = backend.lower()
     if backend not in ['c', 'python']:
         raise ValueError
@@ -144,12 +120,12 @@ def _abel_transform_wrapper(fr, dr=None, r=None, inverse=False,
 
     r, dr = _construct_r_grid(f.shape[1], dr=dr, r=r)
 
-    if inverse:
+    if direction == "inverse":
         # a derivative function must be provided
         f = derivative(f)/dr
         # setting the derivative at the origin to 0
         # f[:,0] = 0
-    if inverse:
+    if direction == "inverse":
         f *= - 1./np.pi
     else:
         f *= 2*r[None, :]
@@ -237,12 +213,6 @@ def _pyabel_direct_integral(f, r, correction, int_func=simpson_rule_wrong):
                     + np.arccosh(r[1:]/r[:-1])*(row[:-1] - f_r[i]*r[:-1])
 
     return out
-
-
-# append the same docstring to all functions
-iabel_direct.__doc__ += _direct_doctsting
-fabel_direct.__doc__ += _direct_doctsting
-_abel_transform_wrapper.__doc__ += _direct_doctsting
 
 
 def is_uniform_sampling(r):

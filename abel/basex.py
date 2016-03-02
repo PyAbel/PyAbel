@@ -45,21 +45,28 @@ from ._version import __version__
 #############################################################################
 
 
-def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True):
-    """
-    This function that centers the image,
-    performs the BASEX transform (loads or generates basis sets),
-    and (optionally) calculates the radial
-    integration of the image (calc_speeds)
+def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
+                    direction='inverse'):
+    """ This function performs the BASEX (BAsis Set EXpansion) Abel Transform. 
+    It works on a "right side" image. I.e., it works on just half of a cylindrically symmetric
+    object and data[0,0] should correspond to a central pixel. To perform a BASEX transorm on 
+    a whole image, use ::
+    
+        abel.transform(image, method='basex')
 
+    It only works with images that have an odd-integer width.
+    
+    Only the inverse transform is currently implemented.
+    
+    
 
     Parameters
     ----------
     data : a NxM numpy array
-        If data is smaller than the size of the basis set,
-        zeros will be padded on the edges.
+        The image to be inverse transformed. The width (M) must be odd and ``data[:,0]``
+        should correspond to the central column of the image. 
     nbf : str or list
-        number of basis functions. If nbf='auto', it is set to (n//2 + 1).
+        number of basis functions. If ``nbf='auto'``, it is set to ``(n//2 + 1)``.
         This is what you should use,
         since basex does not work reliably in other situations
         In the future, you could use
@@ -68,18 +75,26 @@ def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True):
         path to the directory for saving / loading the basis set coefficients.
         If None, the basis set will not be saved to disk.
     dr : float
-        size of one pixel in the radial direction
+        size of one pixel in the radial direction. 
+        This only affects the absolute scaling of the transformed image.
     verbose : boolean
-        Determins if statements should be printed.
+        Determines if statements should be printed.
+    direction : str
+        The type of Abel transform to be performed.
+        Currently only accepts value 'inverse'
 
 
     Returns
     -------
     recon : NxN numpy array
-        the transformed image
+        the transformed (half) image
 
     """
-    # make sure that the data is the right shape (1D must be converted to 2D)
+    
+    if direction != 'inverse':
+        raise ValueError('Forward BASEX transform not implemented')
+
+    # make sure that the data is the right shape (1D must be converted to 2D):
     data = np.atleast_2d(data)
     h, w = data.shape
 
@@ -100,9 +115,11 @@ def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True):
         Mc_horz, vert_left, horz_right = get_bs_basex_cached(
             n_vert=n[0], n_horz=n[1], nbf=nbf, basis_dir=basis_dir,
             verbose=verbose)
+            
     # Do the actual transform:
-    recon = basex_transform(full_image, M_vert, M_horz,
-                            Mc_vert, Mc_horz, vert_left, horz_right, dr)
+    recon = basex_core_transform(full_image, M_vert, M_horz,
+                                  Mc_vert, Mc_horz, vert_left, horz_right, dr)
+                                  
     if data_ndim == 1:  # taking the middle row, since the rest are zeroes
         recon = recon[recon.shape[0] - recon.shape[0]//2 - 1]
     if h == 1:
@@ -111,19 +128,19 @@ def iabel_basex(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True):
         return recon[:, w-1:]
 
 
-def basex_transform(rawdata, M_vert, M_horz, Mc_vert,
-                    Mc_horz, vert_left, horz_right, dr=1.0):
+def basex_core_transform(rawdata, M_vert, M_horz, Mc_vert,
+                         Mc_horz, vert_left, horz_right, dr=1.0):
     """
     This is the internal function
-    that does the actual BASEX transform
-    for the no-up/down-symmetry case.
-
+    that does the actual BASEX transform. It requires 
+    that the matrices of basis set coefficients be passed. 
+    
 
     Parameters
     ----------
     rawdata : NxM numpy array
         the raw image.
-    M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right : Numpy arrays
+    M_vert_etc. : Numpy arrays
         2D arrays given by the basis set calculation function
     dr : float
         pixel size. This only affects the absolute scaling of the output.
@@ -134,6 +151,7 @@ def basex_transform(rawdata, M_vert, M_horz, Mc_vert,
     IM : NxM numpy array
         The abel-transformed image, a slice of the 3D distribution
     """
+
     # Reconstructing image  - This is where the magic happens
     Ci = vert_left.dot(rawdata).dot(horz_right)
 
@@ -207,8 +225,8 @@ def get_bs_basex_cached(n_vert, n_horz,
     (i.e. load from disk if they exist,
     if not calculate them and save a copy on disk).
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     n_vert, n_horz : integer
         Abel inverse transform will be performed on a
         `n_vert x n_horz` area of the image
@@ -218,8 +236,8 @@ def get_bs_basex_cached(n_vert, n_horz,
                 the basis set coefficients.
                 If None, the basis sets will not be saved to disk.
 
-    Returns:
-    --------
+    Returns
+    -------
       - M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right: numpy arrays
     """
 

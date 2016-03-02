@@ -82,12 +82,12 @@ def _center():
 
     # update information text box
     text.delete(1.0, tk.END)
-    text.insert(tk.END, "centering image using abel.tools.center.find_image_center_by_slice()\n")
+    text.insert(tk.END, "centering image using abel.tools.center_image()\n")
     canvas.show()
 
     # center image via horizontal (left, right), and vertical (top, bottom)
     # intensity slices
-    IM, offset = abel.tools.center.find_image_center_by_slice(IM)
+    IM, offset = abel.tools.center.center_image(IM, center='com', odd_size=True)
     text.insert(tk.END, "center offset = {:}\n".format(offset))
 
     _display()
@@ -110,7 +110,7 @@ def _transform():
 
     # inverse Abel transform of whole image
     AIM = abel.transform(IM, method=method, direction="inverse",
-                         vertical_symmetry=False, horizontal_symmetry=False)['transform']
+                         symmetry_axis=None)['transform']
 
     f.clf()
     a = f.add_subplot(111)

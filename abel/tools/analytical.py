@@ -8,7 +8,7 @@ import scipy.constants as const
 # impementations.
 
 
-def sample_image(n=361, name="dribinski", sigma=2, temperature=200):
+def sample_image(n=361, name="dribinski", sigma=3, temperature=200):
     """
     Sample images, made up of Gaussian functions
 
@@ -64,7 +64,7 @@ def sample_image(n=361, name="dribinski", sigma=2, temperature=200):
         t9 = 20*gauss(r, 45, 3600)  # background under t3 to t5
         return 2000*(t0+t1+t2) + 200*(t3+t4+t5) + 50*(t6+t7+t8) + t9
 
-    def Ominus(r, theta, sigma, boltzmann, rfact):
+    def Ominus(r, theta, sigma, boltzmann, rfact=1):
         """
         Simulate the photoelectron spectrum of O- photodetachment
         3PJ <- 2P3/2,1/2
@@ -91,8 +91,14 @@ def sample_image(n=361, name="dribinski", sigma=2, temperature=200):
 
     n2 = n//2
 
-    # meshgrid @DanHickstein issue #67, updated #70
+    
     x = np.linspace(-n2, n2, n)
+    
+    if name=='dribinski': 
+        x = x * 180/n2
+    elif name=='Ominus':
+        x = x * 501/n2
+    
 
     X, Y = np.meshgrid(x, x)
     R, THETA = cart2polar(X, Y)
@@ -100,8 +106,7 @@ def sample_image(n=361, name="dribinski", sigma=2, temperature=200):
         IM = dribinski(R, THETA, sigma=sigma)
     elif name == "Ominus":
         boltzmann = 0.5*np.exp(-177.1*const.h*const.c*100/const.k/temperature)
-        rfact = n/1001.0
-        IM = Ominus(R, THETA, sigma=sigma, boltzmann=boltzmann, rfact=rfact)
+        IM = Ominus(R, THETA, sigma=sigma, boltzmann=boltzmann)
     else:
         raise ValueError('sample image name not recognized')
 

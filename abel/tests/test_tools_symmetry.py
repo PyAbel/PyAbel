@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -32,7 +31,7 @@ def test_symmetry_get_put_quadrants(verbose=False):
             print("\nreoriented quadrant Q{:d}".format(i))
             print(qi)
 
-    r = abel.tools.symmetry.put_image_quadrants(q)
+    r = abel.tools.symmetry.put_image_quadrants(q, odd_size=True)
 
     if verbose:
         print("\nreassembled image")

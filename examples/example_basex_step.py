@@ -1,6 +1,7 @@
+#!/usr/bin/env python
 import matplotlib.pyplot as plt
-from abel.basex import BASEX
-from abel.analytical import StepAnalytical
+from abel.basex import basex_transform
+from abel.tools.analytical import StepAnalytical
 
 # This example calculates the BASEX transform of a step function and 
 # compares with the analtical result.
@@ -23,8 +24,8 @@ ax.plot(st.r, st.abel*0.05, 'r', label='Direct Abel transform x0.05 [analytical]
 center = n//2
 # BASEX Transform: 
 # Calculate the inverse abel transform for the centered data
-recon = BASEX(st.abel, center, n=n, basis_dir='./', dr=st.dr,
-                                    verbose=True, calc_speeds=False)
+recon = basex_transform(st.abel, basis_dir='./', dr=st.dr,
+                                 verbose=True)
 
 
 plt.plot(st.r, recon , '--o',c='red', label='Inverse transform x10 [BASEX]')

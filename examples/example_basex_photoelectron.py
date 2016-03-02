@@ -75,7 +75,7 @@ ax3.plot(*speeds)
 ax3.set_xlabel('Speed (pixel)')
 ax3.set_ylabel('Yield (log)')
 ax3.set_yscale('log')
-ax3.set_ylim(1e6,1e10)
+ax3.set_ylim(1e2,1e5)
 
 # Prettify the plot a little bit:
 plt.subplots_adjust(left=0.06,bottom=0.17,right=0.95,top=0.89,wspace=0.35,hspace=0.37)

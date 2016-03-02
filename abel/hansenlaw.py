@@ -8,126 +8,101 @@ import numpy as np
 from time import time
 from math import exp, log, pow, pi
 
-"""
-hansenlaw - a recursive method forward/inverse Abel transform algorithm
-
-Stephen Gibson - Australian National University, Australia
-Jason Gascooke - Flinders University, Australia
-
-This algorithm is adapted by Jason Gascooke from the article
-  E. W. Hansen and P-L. Law
- "Recursive methods for computing the Abel transform and its inverse"
-  J. Opt. Soc. Am A2, 510-520 (1985) doi: 10.1364/JOSAA.2.000510
-
- J. R. Gascooke PhD Thesis:
-  "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals
-   Molecule Dissociation", Flinders University, 2000.
-
-Implemented in Python, with image quadrant co-adding, by Steve Gibson
-2015-12-16: Modified to calculate the forward Abel transform
-2015-12-03: Vectorization and code improvements Dan Hickstein and Roman Yurchak
-            Previously the algorithm iterated over the rows of the image
-            now all of the rows are calculated simultaneously, which provides
-            the same result, but speeds up processing considerably.
-"""
-
-_hansenlaw_header_docstring = \
-    """
-    Forward/Inverse Abel transformation using the algorithm of:
-    Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985).::
+#############################################################################
+# hansenlaw - a recursive method forward/inverse Abel transform algorithm
+# 
+# Stephen Gibson - Australian National University, Australia
+# Jason Gascooke - Flinders University, Australia
+# 
+# This algorithm is adapted by Jason Gascooke from the article
+#   E. W. Hansen and P-L. Law
+#  "Recursive methods for computing the Abel transform and its inverse"
+#   J. Opt. Soc. Am A2, 510-520 (1985) doi: 10.1364/JOSAA.2.000510
+# 
+#  J. R. Gascooke PhD Thesis:
+#   "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals
+#    Molecule Dissociation", Flinders University, 2000.
+# 
+# Implemented in Python, with image quadrant co-adding, by Steve Gibson
+# 2015-12-16: Modified to calculate the forward Abel transform
+# 2015-12-03: Vectorization and code improvements Dan Hickstein and Roman Yurchak
+#             Previously the algorithm iterated over the rows of the image
+#             now all of the rows are calculated simultaneously, which provides
+#             the same result, but speeds up processing considerably.
+#############################################################################
 
 
-                   ∞
-                   ⌠
-               -1  ⎮   g'(R)
-       f(r) =  ─── ⎮ ──────────── dR      Eq. (2a)
-                π  ⎮    _________
-                   ⎮   ╱  2    2
-                   ⎮ ╲╱  R  - r
-                   ⌡
-                   r
+def hansenlaw_transform(IM, dr=1, direction="inverse"):
+    r"""
+    Forward/Inverse Abel transformation using the algorithm of
+    `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985) 
+    <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a: 
+    
+    
+    .. math:: f(r) = \frac{1}{\pi} \int_{r}^{\inf} \frac{g^\prime(R)}{\sqrt{R^2-r^2}} dR,
+    
+    where 
 
+    :math:`f(r)` is the reconstructed image (source) function,
+    :math:`g'(R)` is the derivative of the projection (measured) function
 
-    f(r)
-        is reconstructed image (source) function
-    g'(R)
-        is derivative of the projection (measured) function
+    Evaluation follows Eqs. (15 or 17), using (16a), (16b), and (16c or 18) of the Hansen 
+    and Law paper. For the full image transform, use ``abel.transform``.
 
-    Evaluation via Eq. (15 or 17), using (16a), (16b), and (16c or 18)
+    For the inverse Abel transform of image g: ::
+    
+        f = abel.transform(g, direction="inverse", method="hansenlaw")["transform"]
+        
+    For the forward Abel transform of image f: ::
+    
+        g = abel.transform(r, direction="forward", method="hansenlaw")["transform"]
+        
+    This function performs the Hansen-Law transform on only one "right-side" image, 
+    typically one quadrant of the full image: ::
 
-    f = iabel_hansenlaw(g)
-        inverse Abel transform of image g
-    g = fabel_hansenlaw(f)
-        forward Abel transform of image f
-    (f/i)abel_hansenlaw_transform()
-        core algorithm
-    """
-
-_hansenlaw_transform_docstring = \
-    """
-
-    Core Hansen and Law Abel transform
+        Qtrans = abel.hansenlaw.hansenlaw_transform(Q, direction="inverse")
 
     Recursion method proceeds from the outer edge of the image
-    toward the image centre (origin). i.e. when n=N-1, R=Rmax, and
-    when n=0, R=0. This fits well with processing the image one
+    toward the image centre (origin). i.e. when ``n=N-1``, ``R=Rmax``, and
+    when ``n=0``, ``R=0``. This fits well with processing the image one
     quadrant (chosen orientation to be rightside-top), or one right-half
     image at a time.
 
-    Use (f/i)abel_transform (IM) to transform a whole image
 
     Parameters
     ----------
     IM : 2D np.array
-        One quadrant (or half) of the image oriented top-right::
-
-             +--------      +--------+              |
-             |      *       | *      |              |
-             |   *          |    *   |  <----------/
-             |  *           |     *  |
-             +--------      o--------+
-             |  *           |     *  |
-             |   *          |    *   |
-             |     *        | *      |
-             +--------      +--------+
-
-             Image centre `o' should be within a pixel
-             (i.e. an odd number of columns)
-             [Use abel.tools.vmi.find_image_center_by_slice () to transform]
+        One quadrant (or half) of the image oriented top-right.
 
     dr : float
         Sampling size (=1 for pixel images), used for Jacobian scaling
 
-    inverse : boolean
-        forward (False) or inverse (True) Abel transform
+    direction : string
+        'forward' or 'inverse' Abel transform
 
     Returns
     -------
-    AIM : 2D np.array
+    AIM : 2D numpy array
         forward/inverse Abel transform image
-
+        
+        
+    .. note::  Image should be a right-side image, like this: ::  
+         
+        .         +--------      +--------+              
+        .         |      *       | *      |              
+        .         |   *          |    *   |  <---------- IM
+        .         |  *           |     *  |
+        .         +--------      o--------+
+        .         |  *           |     *  |
+        .         |   *          |    *   |
+        .         |     *        | *      |
+        .         +--------      +--------+
+          
+        Image centre ``o`` should be within a pixel (i.e. an odd number of columns)
+        Use ``abel.tools.center.center_image(IM, method='com', odd_size=True)`` 
     """
 
 
-def fabel_hansenlaw(IM, dr=1):
-    """
-    Forward Abel transform for one-quadrant
-    """
-    return hansenlaw_transform(IM, dr=dr, inverse=False)
-
-
-def iabel_hansenlaw(IM, dr=1):
-    """
-    Inverse Abel transform for one-quadrant
-    """
-    return hansenlaw_transform(IM, dr=dr, inverse=True)
-
-
-def hansenlaw_transform(IM, dr=1, inverse=False):
-    """
-    Hansen and Law JOSA A2 510 (1985) forward and inverse Abel transform
-    for right half (or right-top quadrant) of an image.
-    """
 
     IM = np.atleast_2d(IM)
     N = np.shape(IM)         # shape of input quadrant (half)
@@ -154,7 +129,7 @@ def hansenlaw_transform(IM, dr=1, inverse=False):
         else:
             return -np.log(Nm)/pi
 
-    if inverse:   # inverse transform
+    if direction == "inverse":   # inverse transform
         gamma = igamma
         # g' - derivative of the intensity profile
         if rows > 1:
@@ -181,23 +156,14 @@ def hansenlaw_transform(IM, dr=1, inverse=False):
     # special case for the end pixel
     AIM[:, 0] = AIM[:, 1]
 
-    # for some reason shift by 1 pixel aligns? - Fix me!
-    if inverse:
-        AIM = np.c_[AIM[:, 1:], AIM[:, -1]]
-
-    # for some reason shift by 1 pixel aligns better? - FIX ME!
-    # if inverse:
-    #    AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
+    #for some reason shift by 1 pixel aligns better? - FIX ME!
+    if direction == "inverse":
+        AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
 
-    if inverse:
+    if direction == "inverse":
         return AIM*np.pi/dr    # 1/dr - from derivative
     else:
         return -AIM*np.pi*dr   # forward still needs '-' sign
-
-# append the same docstring to all functions - borrowed from @rth
-iabel_hansenlaw.__doc__ += _hansenlaw_header_docstring+_hansenlaw_transform_docstring
-fabel_hansenlaw.__doc__ += _hansenlaw_header_docstring+_hansenlaw_transform_docstring
-hansenlaw_transform.__doc__ += _hansenlaw_header_docstring+_hansenlaw_transform_docstring

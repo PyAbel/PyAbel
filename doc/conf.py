@@ -18,6 +18,8 @@ import six
 import os
 import shlex
 
+import sphinx_rtd_theme
+
 from recommonmark.parser import CommonMarkParser
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -44,8 +46,6 @@ MOCK_MODULES = []
         
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
-
-
 source_parsers = {
     '.md': CommonMarkParser,
 }
@@ -60,7 +60,7 @@ source_parsers = {
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
-    'numpydoc',
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'matplotlib.sphinxext.plot_directive'
 ]
@@ -149,7 +149,7 @@ html_theme = 'sphinx_rtd_theme'
 #html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -319,3 +319,5 @@ texinfo_documents = [
 required_symlinks = [
     ('examples', '../examples/')
     ]
+    
+autodoc_member_order = 'bysource'

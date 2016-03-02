@@ -40,8 +40,8 @@ im = np.loadtxt(filename)
 (rows,cols) = np.shape(im)
 if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
-           " find_image_center_by_slice ()")
-    im = abel.tools.center.find_image_center_by_slice (im, radial_range=(300,400))[0]
+           " center_image()".format(cols))
+    im = abel.tools.center.center_image(im, center="com", odd_size=True)
     # alternative
     #im = shift(im,(0.5,0.5))
     #im = im[:-1, 1::]  # drop left col, bottom row
@@ -56,15 +56,13 @@ print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
 reconH = abel.transform (im, method="hansenlaw", direction="inverse", 
-                         verbose=True, vertical_symmetry=False, 
-                         horizontal_symmetry=False)['transform']
+                         verbose=True, symmetry_axis=None)['transform']
 rH, speedsH = abel.tools.vmi.angular_integration(reconH)
 
 # Basex inverse Abel transform
 print('Performing basex inverse Abel transform:')
 reconB = abel.transform (im, method="basex", direction="inverse", 
-                         verbose=True, vertical_symmetry=False, 
-                         horizontal_symmetry=False)['transform']
+                         verbose=True, symmetry_axis=None)['transform']
 rB, speedsB = abel.tools.vmi.angular_integration(reconB)
 
 # plot the results - VMI, inverse Abel transformed image, speed profiles

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 from __future__ import division
@@ -12,45 +13,47 @@ import warnings
 
 def transform(
     IM, direction='inverse', method='three_point', center='none',
-        verbose=True, vertical_symmetry=True,
-        horizontal_symmetry=True, use_quadrants=(True, True, True, True),
-        transform_options={}, center_options={}):
-    """
-    transform() is the go-to function for all of your Abel transform needs!!
-
-    This performs the forward or reverse Abel transform
-    using a user-selected method.
+        verbose=True, symmetry_axis=None,
+        use_quadrants=(True, True, True, True), recast_as_float64=True,
+        transform_options=dict(), center_options=dict()):
+    """This is the main function of PyAbel, providing both forward
+    and inverse abel transforms for full images. In addition,
+    this function can perform image centering and symmetrization.
 
 
     Parameters
     ----------
     IM : a NxM numpy array
         This is the image to be transformed
+
     direction : str
         The type of Abel transform to be performed.
 
-        'forward'
-                    A 'forward' Abel transform takes a (2D) slice of a 3D image
-                    and returns the 2D projection.
-        'inverse'
-                    An 'inverse' Abel transform takes a 2D projection
-                    and reconstructs a 2D slice of the 3D image.
+        ``'forward'``
+            A 'forward' Abel transform takes a (2D) slice of a 3D image
+            and returns the 2D projection.
+            
+        ``'inverse'``
+            An 'inverse' Abel transform takes a 2D projection
+            and reconstructs a 2D slice of the 3D image.
 
-        The default is 'inverse'.
+        The default is ``'inverse'``.
+
     method : str
         specifies which numerical approximation to the Abel transform
         should be employed (see below). The options are
 
-        'hansenlaw'
+        ``'hansenlaw'``
                     the recursive algorithm described by Hansen and Law
-        'basex'
+        ``'basex'``
                     the Gaussian "basis set expansion" method
                     of Dribinski et al.
-        'direct'
+        ``'direct'``
                     a naive implementation of the analytical
                     formula by Roman Yurchuk.
-        'three_point'
+        ``'three_point'``
                     the three-point transform of Dasch and co-workers
+
     center : tuple or str
         If a tuple (float, float) is provided, this specifies
         the image center in (y,x) (row, column) format.
@@ -59,126 +62,85 @@ def transform(
         for example 'center=(None, 250)'.
         If a string is provided, an automatic centering algorithm is used
 
-        'image_center'
+        ``'image_center'``
                     center is assumed to be the center of the image.
-        'by_slice'
+        ``'by_slice'``
                     (whatever this does)
-        'com'
+        ``'com'``
                     the center is calculated as the center of mass
-        'none'
+        ``'none'``
                      (Default)
                      No centering is performed. An image with an odd
                      number of columns must be provided.
     verbose : boolean
         True/False to determine if non-critical output should be printed.
-    vertical_symmetry : boolean
-        Symmetrize the image in the up/down direction
-        (The first axis is the vertical axis.)
-    horizontal_symmetry : boolean
-        Symmetrize the image in the left/right direction?
-    use_quadrants : boolean tuple (Q0,Q1,Q2,Q3)
-        select quadrants to be used in the analysis.
-        The quadrants are numbered starting from
-        Q0 in the upper right and proceeding counter-clockwise:
 
-        ::
-
-             +--------+--------+
-             | Q1   * | *   Q0 |
-             |   *    |    *   |
-             |  *     |     *  |                               AQ1 | AQ0
-             +--------o--------+ --(inverse Abel transform)--> ----o----
-             |  *     |     *  |                               AQ2 | AQ3
-             |   *    |    *   |
-             | Q2  *  | *   Q3 |          AQi == inverse Abel transform
-             +--------+--------+                 of quadrant Qi
-
-
-        (1) vertical_symmetry = True
-
-        ::
-
-           Combine:  `Q01 = Q1 + Q2, Q23 = Q2 + Q3`
-           inverse image   AQ01 | AQ01
-                           -----o-----
-                           AQ23 | AQ23
-
-        (2) horizontal_symmetry = True
-
-        ::
-
-           Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
-           inverse image   AQ12 | AQ03
-                           -----o-----
-                           AQ12 | AQ03
-
-        (3) vertical_symmetry = True, horizontal = True
-
-        ::
-
-           Combine: Q = Q0 + Q1 + Q2 + Q3
-           inverse image   AQ | AQ
-                           ---o---  all quadrants equivalent
-                           AQ | AQ
+    symmetry_axis : int or tuple
+        Symmetrize the image about the numpy axis 
+        0 (vertical), 1 (horizontal), (0,1) (both axes)
+        
+    use_quadrants : tuple of 4 booleans
+        select quadrants to be used in the analysis: (Q0,Q1,Q2,Q3).
+        Quadrants are numbered counter-clockwide from upper right.
+        See note below for description of quadrants. 
+        Default is ``(True, True, True, True)``, which uses all quadrants.
+        
+    recast_as_float64 : boolean
+        True/False that determines if the input image should be recast to float64. 
+        Many images are imported in other formats (such as ``uint8`` or ``unit15``)
+        and this does not always play well with the transorm algorithms. This should
+        probably always be set to True. (Default is True.)
 
     transform_options : tuple
         Additional arguments passed to the individual transform functions.
         See the documentation for the individual transform method for options.
+
     center_options : tuple
         Additional arguments to be passed to the centering function.
+        
+        
+    .. note:: Quadrant averaging 
+         The quadrants can be averaged using the 
+         ``use_quadrants`` keyword in order to provide better data quality.
+         
+         The quadrants are numbered starting from
+         Q0 in the upper right and proceeding counter-clockwise: ::
 
-    Transform Methods
-    -----------------
-    As mentioned above, PyAbel offers several different approximations
-    to the the exact abel transform.
-    All the the methods should produce similar results, but
-    depending on the level and type of noise found in the image,
-    certain methods may perform better than others.
+              +--------+--------+
+              | Q1   * | *   Q0 |
+              |   *    |    *   |
+              |  *     |     *  |                               AQ1 | AQ0
+              +--------o--------+ --(inverse Abel transform)--> ----o----
+              |  *     |     *  |                               AQ2 | AQ3
+              |   *    |    *   |
+              | Q2  *  | *   Q3 |          AQi == inverse Abel transform
+              +--------+--------+                 of quadrant Qi
+              
+    
+        Three cases are possible: 
+        
+        1. symmetry_axis = 0 (vertical): ::
 
-    'hansenlaw' - This "recursive algorithm" produces reliable results
-        and is quite fast (~0.1 sec for a 1001x1001 image).
-        It makes no assumptions about the data
-        (apart from cylindrical symmetry). It tends to require that the data
-        is finely sampled for good convergence.
+            Combine:  Q01 = Q0 + Q2, Q23 = Q2 + Q3
+            inverse image   AQ01 | AQ01
+                            -----o----- (left and right equivalent)
+                            AQ23 | AQ23
+                        
 
-        E. W. Hansen and P.-L. Law "Recursive methods for computing
-        the Abel transform and its inverse"
-        J. Opt. Soc. A*2, 510-520 (1985)
-        http://dx.doi.org/10.1364/JOSAA.2.000510
+        2. symmetry_axis = 1 (horizontal): ::
 
-    'basex'* - The "basis set exapansion" algorithm describes the data in terms
-        of gaussian functions, which themselves can be abel transformed
-        analytically. Because the gaussian functions are approximately the size
-        of each pixel, this method also does not make any assumption about
-        the shape of the data. This method is one of the de-facto standards in
-        photoelectron/photoion imaging.
+            Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
+            inverse image   AQ12 | AQ03
+                            -----o----- (top and bottom equivalent)
+                            AQ12 | AQ03
+                        
 
-         Dribinski et al, 2002 (Rev. Sci. Instrum. 73, 2634)
-         http://dx.doi.org/10.1063/1.1482156
+        3. symmetry_axis = (0, 1) (both): ::
 
-    'direct' - This method attempts a direct integration of the Abel
-        transform integral. It makes no assumptions about the data
-        (apart from cylindrical symmetry),
-        but it typically requires fine sampling to converge.
-        Such methods are typically inefficient,
-        but thanks to this Cython implementation (by Roman Yurchuk),
-        this 'direct' method is competitive with the other methods.
-
-    'three_point'* - The "Three Point" Abel transform method
-        exploits the observation that the value of the Abel inverted data
-        at any radial position r is primarily determined from changes
-        in the projection data in the neighborhood of r.
-        This method is also very efficient
-        once it has generated the basis sets.
-
-        Dasch, 1992 (Applied Optics, Vol 31, No 8, March 1992, Pg 1146-1152).
-
-    *   The methods marked with a * indicate methods that generate basis sets.
-        The first time they are run for a new image size,
-        it takes seconds to minutes to generate the basis set.
-        However, this basis set is saved to disk can can be reloaded,
-        meaning that future transforms are performed
-        much more quickly.
+            Combine: Q = Q0 + Q1 + Q2 + Q3
+            inverse image   AQ | AQ
+                            ---o---  (all quadrants equivalent)
+                            AQ | AQ
 
 
     Returns
@@ -193,7 +155,72 @@ def transform(
                 is not currently implemented
         'results['residual']'
                 is not currently implemented
+    
+    Notes
+    -----
+    As mentioned above, PyAbel offers several different approximations
+    to the the exact abel transform.
+    All the the methods should produce similar results, but
+    depending on the level and type of noise found in the image,
+    certain methods may perform better than others.
+
+    ``'hansenlaw'`` 
+        This "recursive algorithm" produces reliable results
+        and is quite fast (~0.1 sec for a 1001x1001 image).
+        It makes no assumptions about the data
+        (apart from cylindrical symmetry). It tends to require that the data
+        is finely sampled for good convergence.
+
+        E. W. Hansen and P.-L. Law "Recursive methods for computing
+        the Abel transform and its inverse"
+        J. Opt. Soc. A*2, 510-520 (1985)
+        http://dx.doi.org/10.1364/JOSAA.2.000510
+
+    ``'basex'`` * 
+        The "basis set exapansion" algorithm describes the data in terms
+        of gaussian functions, which themselves can be abel transformed
+        analytically. Because the gaussian functions are approximately the size
+        of each pixel, this method also does not make any assumption about
+        the shape of the data. This method is one of the de-facto standards in
+        photoelectron/photoion imaging.
+
+         Dribinski et al, 2002 (Rev. Sci. Instrum. 73, 2634)
+         http://dx.doi.org/10.1063/1.1482156
+
+    ``'direct'``
+        This method attempts a direct integration of the Abel
+        transform integral. It makes no assumptions about the data
+        (apart from cylindrical symmetry),
+        but it typically requires fine sampling to converge.
+        Such methods are typically inefficient,
+        but thanks to this Cython implementation (by Roman Yurchuk),
+        this 'direct' method is competitive with the other methods.
+
+    ``'three_point'`` *
+        The "Three Point" Abel transform method
+        exploits the observation that the value of the Abel inverted data
+        at any radial position r is primarily determined from changes
+        in the projection data in the neighborhood of r.
+        This method is also very efficient
+        once it has generated the basis sets.
+
+        Dasch, 1992 (Applied Optics, Vol 31, No 8, March 1992, Pg 1146-1152).
+
+    ``*``
+        The methods marked with a * indicate methods that generate basis sets.
+        The first time they are run for a new image size,
+        it takes seconds to minutes to generate the basis set.
+        However, this basis set is saved to disk can can be reloaded,
+        meaning that future transforms are performed
+        much more quickly.
     """
+
+    abel_transform = {\
+      "basex" : abel.basex.basex_transform,
+      "direct" : abel.direct.direct_transform,
+      "hansenlaw" : abel.hansenlaw.hansenlaw_transform,
+      "three_point" : abel.three_point.three_point_transform,
+    }
 
     verboseprint = print if verbose else lambda *a, **k: None
 
@@ -206,9 +233,15 @@ def transform(
         raise ValueError('No image quadrants selected to use')
     rows, cols = np.shape(IM)
 
+    if not isinstance(symmetry_axis, (list, tuple)):
+        # if the user supplies an int, make it into a 1-element list:
+        symmetry_axis = [symmetry_axis]
+    
+    if recast_as_float64:
+        IM = IM.astype('float64')
     # centering:
     if center == 'none':  # no centering
-        if rows % 2 != 1:
+        if cols % 2 != 1:
             raise ValueError('Image must have an odd number of columns. \
                               Use a centering method.')
     else:
@@ -223,46 +256,24 @@ def transform(
 
     # split image into quadrants
     Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(
-      IM, reorient=True, vertical_symmetry=vertical_symmetry,
-      horizontal_symmetry=horizontal_symmetry)
+                     IM, reorient=True, symmetry_axis=symmetry_axis)
 
     def selected_transform(Z):
-        if method == 'hansenlaw':
-            if direction == 'forward':
-                return abel.hansenlaw.fabel_hansenlaw(Z, **transform_options)
-            elif direction == 'inverse':
-                return abel.hansenlaw.iabel_hansenlaw(Z, **transform_options)
-
-        elif method == 'three_point':
-            if direction == 'forward':
-                raise ValueError('Forward three-point not implemented')
-            elif direction == 'inverse':
-                return abel.three_point.iabel_three_point_transform(
-                  Z, **transform_options)
-
-        elif method == 'basex':
-            if direction == 'forward':
-                raise ValueError('Forward basex not implemented')
-            elif direction == 'inverse':
-                return abel.basex.iabel_basex(Z, **transform_options)
-
-        elif method == 'direct':
-            if direction == 'forward':
-                raise ValueError('Coming soon...')
-            elif direction == 'inverse':
-                raise ValueError('Coming soon...')
+        return abel_transform[method](Z, direction=direction, 
+                                      **transform_options)
 
     AQ0 = AQ1 = AQ2 = AQ3 = None
+
     # Inverse Abel transform for quadrant 1 (all include Q1)
     AQ1 = selected_transform(Q1)
 
-    if vertical_symmetry:
+    if 0 in symmetry_axis:
         AQ2 = selected_transform(Q2)
 
-    if horizontal_symmetry:
+    if 1 in symmetry_axis:
         AQ0 = selected_transform(Q0)
 
-    if not vertical_symmetry and not horizontal_symmetry:
+    if None in symmetry_axis:
         AQ0 = selected_transform(Q0)
         AQ2 = selected_transform(Q2)
         AQ3 = selected_transform(Q3)
@@ -270,9 +281,8 @@ def transform(
     # reassemble image
     results = {}
     results['transform'] = abel.tools.symmetry.put_image_quadrants(
-      (AQ0, AQ1, AQ2, AQ3), odd_size=cols % 2,
-      vertical_symmetry=vertical_symmetry,
-      horizontal_symmetry=horizontal_symmetry)
+                           (AQ0, AQ1, AQ2, AQ3), odd_size=cols % 2,
+                            symmetry_axis=symmetry_axis)
 
     verboseprint("{:.2f} seconds".format(time.time()-t0))
 
@@ -281,7 +291,7 @@ def transform(
 
 def main():
     import matplotlib.pyplot as plt
-    IM0 = abel.tools.analytical.sample_image_dribinski(n=201)
+    IM0 = abel.tools.analytical.sample_image(n=201, name="dribinski")
     IM1 = transform(IM0, direction='forward', center='com',
                     method='hansenlaw')['transform']
     IM2 = transform(IM1, direction='inverse', method='basex')['transform']

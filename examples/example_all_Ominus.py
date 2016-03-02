@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # This example compares the available inverse Abel transform methods
-# currently - direct, hansenlaw, and basex 
-# processing the O2- photoelectron velocity-map image
+# for the Ominus sample image
 #
 # Note it transforms only the Q0 (top-right) quadrant
 # using the fundamental transform code
@@ -36,27 +35,17 @@ ntrans = np.size(transforms.keys())  # number of transforms
 
 
 # Image:   O2- VMI 1024x1024 pixel ------------------
-IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
-# this is even size, all methods except 'onion' require an odd-size
+IM = abel.tools.analytical.sample_image(n=501, name="Ominus")
 
-# recenter the image to an odd size
+h, w = IM.shape
 
-IModd = abel.tools.center.center_image(IM, center="com", odd_size=True)
-# np.savetxt("O2-ANU1023.txt", IModd)
+# forward transform
+fIM = abel.transform(IM, direction="forward", method="hansenlaw")['transform']
 
-h, w = IModd.shape
-print("centered image 'data/O2-ANU2048.txt' shape = {:d}x{:d}".format(h, w))
-
-Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(IModd, reorient=True)
+Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(fIM, reorient=True)
 
 Q0fresh = Q0.copy()    # keep clean copy
 print ("quadrant shape {}".format(Q0.shape))
-
-# Intensity mask used for intensity normalization
-#   quadrant image region of bright pixels 
-
-mask = np.zeros(Q0.shape, dtype=bool)
-mask[500:512, 358:365] = True   
 
 # process Q0 quadrant using each method --------------------
 
@@ -80,7 +69,7 @@ for q, method in enumerate(transforms.keys()):
     radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(0, 0))
 
     # normalize image intensity and speed distribution
-    IAQ0 /= IAQ0[mask].max()  
+    IAQ0 /= IAQ0.max()  
     speed /= speed[radial > 50].max()
 
     # plots    #121 whole image,   #122 speed distributions
@@ -122,8 +111,9 @@ plt.subplot(121)
 plt.imshow(im, vmin=0, vmax=0.8)
 
 plt.subplot(122)
-plt.axis(ymin=-0.05, ymax=1.1, xmin=50, xmax=450)
+plt.title("Ominus sample image")
+plt.axis(ymin=-0.05, ymax=1.1, xmin=200, xmax=450)
 plt.legend(loc=0, labelspacing=0.1)
 plt.tight_layout()
-plt.savefig('example_all_O2.png', dpi=100)
+plt.savefig('example_all_Ominus.png', dpi=100)
 plt.show()
