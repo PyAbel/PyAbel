@@ -45,21 +45,21 @@ class AbelTiming(object):
             x = np.random.randn(ni, ni)
             # direct implementations
             if ni <= n_max_bs:
+                # evaluate basis sets, saved for later re-use
                 bs = abel.basex.get_bs_basex_cached(ni, ni)
+                tbs = abel.three_point.get_bs_three_point_cached(ni)
                 res_iabel['BASEX']['bs'].append(
                     Timer(lambda: abel.basex.get_bs_basex_cached(ni, ni)).
-                    timeit(number=1))
+                    timeit(number=1)*1000)
                 res_iabel['BASEX']['tr'].append(
                     Timer(lambda: abel.basex.basex_core_transform(x, *bs)).
-                    timeit(number=NREPEAT)/NREPEAT)
+                    timeit(number=NREPEAT)*1000/NREPEAT)
                 res_iabel['Three_point']['bs'].append(
-                    Timer(lambda: abel.three_point.
-                          get_bs_three_point_cached(ni)).timeit(number=1))
+                    Timer(lambda: abel.three_point.get_bs_three_point_cached(ni)).
+                    timeit(number=1)*1000)
                 res_iabel['Three_point']['tr'].append(
-                    # currently this is wrong because it also generated 
-                    # the basis sets!
-                    Timer(lambda: abel.three_point.three_point_transform(x)).
-                          timeit(number=NREPEAT)/NREPEAT)
+                    Timer(lambda: abel.three_point.three_point_core_transform(x, tbs)).
+                          timeit(number=NREPEAT)*1000/NREPEAT)
             else:
                 res_iabel['BASEX']['bs'].append(np.nan)
                 res_iabel['BASEX']['tr'].append(np.nan)
@@ -68,27 +68,30 @@ class AbelTiming(object):
 
             res_fabel['HansenLaw']['tr'].append(
                 Timer(lambda: abel.hansenlaw.hansenlaw_transform(
-                      x, direction='forward')).timeit(number=NREPEAT)/NREPEAT)
+                      x, direction='forward')).timeit(number=NREPEAT)*1000/NREPEAT)
             res_iabel['HansenLaw']['tr'].append(
-                Timer(lambda: abel.hansenlaw.hansenlaw_transform(x,
-                      x, direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
+                Timer(lambda: abel.hansenlaw.hansenlaw_transform(
+                      x, direction='inverse')).timeit(number=NREPEAT)*1000/NREPEAT)
+            res_iabel['Three_point']['bs'].append(
+                Timer(lambda: abel.three_point.three_point_transform(
+                      x, direction="inverse")).timeit(number=1)*1000)
             res_iabel['direct_Python']['tr'].append(
                 Timer(lambda: abel.direct.direct_transform(
                       x, backend='Python',
-                      direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
+                      direction='inverse')).timeit(number=NREPEAT)*1000/NREPEAT)
             res_fabel['direct_Python']['tr'].append(
                 Timer(lambda: abel.direct.direct_transform(
                       x, backend='Python',
-                      direction='forward')).timeit(number=NREPEAT)/NREPEAT)
+                      direction='forward')).timeit(number=NREPEAT)*1000/NREPEAT)
             if abel.direct.cython_ext:
                 res_iabel['direct_C']['tr'].append(
                     Timer(lambda: abel.direct.direct_transform(
                         x, backend='C',
-                        direction='inverse')).timeit(number=NREPEAT)/NREPEAT)
+                        direction='inverse')).timeit(number=NREPEAT)*1000/NREPEAT)
                 res_fabel['direct_C']['tr'].append(
                     Timer(lambda: abel.direct.direct_transform(
                         x, backend='C',
-                        direction='forward')).timeit(number=NREPEAT)/NREPEAT)
+                        direction='forward')).timeit(number=NREPEAT)*1000/NREPEAT)
 
         self.fabel = res_fabel
         self.iabel = res_iabel
@@ -101,16 +104,16 @@ class AbelTiming(object):
         out += ['PyAbel benchmark run on {}\n'.format(platform.processor())]
 
         LABEL_FORMAT = '|'.join([' Implementation '] +
-                                ['    n = {:<8} '.
+                                ['    n = {:<12} '.
                                 format(ni) for ni in self.n])
-        TR_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:.4f}          ']\
+        TR_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:8.1f}            ']\
                                  * len(self.n))
-        BS_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:.4f} ({:.4f}) ']\
+        BS_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:8.1f} ({:8.1f}) ']\
                                  * len(self.n))
         SEP_ROW = ' ' + '-'*(22 + (17+1)*len(self.n))
 
         HEADER_ROW = ' ========= {:>10} Abel implementations ==========\n' \
-                     'time to solution [s] -> transform'\
+                     'time to solution [milli-sec (=sec/1000)] -> transform'\
                      ' (basis sets generation)\n'
 
         def print_benchmark(name, res):
