@@ -104,7 +104,7 @@ def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
         rows, cols = IM.shape
 
     # center is in y,x (row column) format!
-    if isinstance(s, string_types):
+    if isinstance(center, string_types):
         center = find_center(IM, center, verbose=verbose, **kwargs)
 
     centered_data = set_center(IM, center, verbose=verbose)
