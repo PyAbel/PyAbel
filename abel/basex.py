@@ -69,7 +69,7 @@ def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
         should correspond to the central column of the image. 
     nbf : str or list
         number of basis functions. If ``nbf='auto'``, it is set to ``(n//2 + 1)``.
-        *This is what you should alwasy use*,
+        *This is what you should always use*,
         since this BASEX implementation does not work reliably in other situations!
         In the future, you could use
         list, in format [nbf_vert, nbf_horz]

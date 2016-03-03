@@ -28,7 +28,8 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     symmetry_axis : int or tuple
         can have values of ``None``, ``0``, ``1``, or ``(0,1)`` and specifies 
         no symmetry, vertical symmetry axis, horizontal symmetry axis, and both vertical
-        and horizontal symmetry axes. See Note. 
+        and horizontal symmetry axes. Quadrants are averaged.
+        See Note. 
 
     use_quadrants : boolean tuple
        Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
@@ -72,7 +73,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
                         
         (1) symmetry_axis = 0
 
-            Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
+            Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
             returned image    Q01 | Q01
                              -----o-----
                               Q23 | Q23

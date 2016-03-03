@@ -90,7 +90,7 @@ def transform(
         
     recast_as_float64 : boolean
         True/False that determines if the input image should be recast to ``float64``. 
-        Many images are imported in other formats (such as ``uint8`` or ``unit16``)
+        Many images are imported in other formats (such as ``uint8`` or ``uint16``)
         and this does not always play well with the transorm algorithms. This should
         probably always be set to True. (Default is True.)
 
