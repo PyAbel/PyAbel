@@ -17,10 +17,18 @@ abel.basex module
     :undoc-members:
     :show-inheritance:
 	
-abel.benchmark module
+abel.hansenlaw module
 ---------------------
 
-.. automodule:: abel.benchmark
+.. automodule:: abel.hansenlaw
+    :members:
+    :undoc-members:
+    :show-inheritance:
+	
+abel.three_point module
+-----------------------
+
+.. automodule:: abel.three_point
     :members:
     :undoc-members:
     :show-inheritance:
@@ -33,23 +41,6 @@ abel.direct module
     :undoc-members:
     :show-inheritance:
 
-
-abel.hansenlaw module
----------------------
-
-.. automodule:: abel.hansenlaw
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-abel.three_point module
------------------------
-
-.. automodule:: abel.three_point
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 abel.tools.analytical module
 ----------------------------
 
@@ -57,7 +48,7 @@ abel.tools.analytical module
     :members:
     :undoc-members:
     :show-inheritance:
-    
+
 abel.tools.center module
 ------------------------
 
@@ -66,18 +57,52 @@ abel.tools.center module
     :undoc-members:
     :show-inheritance:
 
-abel.tests module
------------------
+abel.tools.math module
+------------------------
+
+.. automodule:: abel.tools.math
+    :members:
+    :undoc-members:
+    :show-inheritance:
+	
+abel.tools.polar module
+------------------------
+
+.. automodule:: abel.tools.polar
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.tools.symmetry module
+------------------------
+
+.. automodule:: abel.tools.symmetry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+	
+abel.tools.vmi module
+------------------------
+
+.. automodule:: abel.tools.vmi
+    :members:
+    :undoc-members:
+    :show-inheritance:
+	
+abel.benchmark module
+---------------------
+
+.. automodule:: abel.benchmark
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.tests.run module
+---------------------
 
 .. automodule:: abel.tests
     :members:
     :undoc-members:
     :show-inheritance:
 
-Module contents
----------------
 
-.. automodule:: abel
-    :members:
-    :undoc-members:
-    :show-inheritance:
