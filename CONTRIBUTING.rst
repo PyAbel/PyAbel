@@ -40,6 +40,25 @@ Once you have that installed, then you can build the documentation using ::
 	 cd PyAbel/doc/
 	 make html
 
+Then you can open ``doc/_build/hmtl/index.html`` to look at the documentation. Sometimes you need to use ::
+
+	make clean
+	make html
+
+to clear out the old documentation and get things to re-build properly.
+
+When you get tired of typing ``make html`` every time you make a change to the documentation, it's nice to use use `sphix-autobuild <https://pypi.python.org/pypi/sphinx-autobuild>`_ to automatically update the documentation in your browser for you. So, install sphinx-autobuild using ::
+	
+	pip install sphinx-autobuild
+
+Now you should be able to ::
+	
+	cd PyAbel/doc/
+	make livehtml
+
+which should launch a browser window displaying the docs. When you save a change to any of the docs, the re-build should happen automatically and the docs should update in a matter of a few seconds. 
+
+Alternatively, `restview <https://pypi.python.org/pypi/restview>`_ is a nice way to preview the ``.rst`` files.
 
 Before merging
 --------------

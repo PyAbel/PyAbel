@@ -8,7 +8,7 @@ import scipy.constants as const
 # impementations.
 
 
-def sample_image(n=361, name="dribinski", sigma=3, temperature=200):
+def sample_image(n=361, name="dribinski", sigma=2, temperature=200):
     """
     Sample images, made up of Gaussian functions
 

@@ -15,6 +15,7 @@ import abel
 
 import scipy.misc
 from scipy.ndimage.interpolation import shift
+from scipy.ndimage import zoom
 
 # This example demonstrates both Hansen and Law inverse Abel transform
 # and basex for an image obtained using a velocity map imaging (VMI) 
@@ -37,6 +38,7 @@ output_plot  = name + '_comparison_HansenLaw.png'
 # Load an image file as a numpy array
 print('Loading ' + filename)
 im = np.loadtxt(filename)
+im = zoom(im, 0.5)
 (rows,cols) = np.shape(im)
 if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",

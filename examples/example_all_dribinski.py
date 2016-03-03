@@ -19,27 +19,28 @@ import collections
 import matplotlib.pylab as plt
 from time import time
 
+fig, (ax1,ax2) = plt.subplots(1, 2, figsize=(8,4))
+
 # inverse Abel transform methods -----------------------------
 #   dictionary of method: function()
 
 transforms = {
   "direct": abel.direct.direct_transform,      
-  #"onion": iabel_onion_transform, 
   "hansenlaw": abel.hansenlaw.hansenlaw_transform,
   "basex": abel.basex.basex_transform,   
   "three_point": abel.three_point.three_point_transform,
 }
-# sort dictionary 
+
+# sort dictionary:
 transforms = collections.OrderedDict(sorted(transforms.items()))
-ntrans = np.size(transforms.keys())  # number of transforms
-
-
-# Image:   O2- VMI 1024x1024 pixel ------------------
-IM = abel.tools.analytical.sample_image(n=1001, name="dribinski")
+# number of transforms:
+ntrans = np.size(transforms.keys())
+  
+IM = abel.tools.analytical.sample_image(n=301, name="dribinski")
 
 h, w = IM.shape
 
-# forward transform
+# forward transform:
 fIM = abel.transform(IM, direction="forward", method="hansenlaw")['transform']
 
 Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(fIM, reorient=True)
@@ -61,7 +62,7 @@ for q, method in enumerate(transforms.keys()):
     # inverse Abel transform using 'method'
     IAQ0 = transforms[method](Q0, direction="inverse") 
 
-    print ("                    {:.1f} sec".format(time()-t0))
+    print ("                    {:.4f} sec".format(time()-t0))
 
     iabelQ.append(IAQ0)  # store for plot
 
@@ -72,20 +73,16 @@ for q, method in enumerate(transforms.keys()):
     IAQ0 /= IAQ0.max()  
     speed /= speed.max()
 
-    # plots    #121 whole image,   #122 speed distributions
-    plt.subplot(121) 
-
     # method label for each quadrant
     annot_angle = -(45+q*90)*np.pi/180  # -ve because numpy coords from top
     if q > 3: 
         annot_angle += 50*np.pi/180    # shared quadrant - move the label  
-    annot_coord = (h/2+(h*0.9)*np.cos(annot_angle)/2, 
+    annot_coord = (h/2+(h*0.9)*np.cos(annot_angle)/2 -50, 
                    w/2+(w*0.9)*np.sin(annot_angle)/2)
-    plt.annotate(method, annot_coord, color="yellow")
+    ax1.annotate(method, annot_coord, color="yellow")
 
     # plot speed distribution
-    plt.subplot(122) 
-    plt.plot(radial, speed, label=method)
+    ax2.plot(radial, speed, label=method)
 
 # reassemble image, each quadrant a different method
 
@@ -100,20 +97,25 @@ if ntrans == 5:
     tmp_img = np.tril(np.flipud(iabelQ[-2])) +\
               np.triu(np.flipud(iabelQ[-1]))
     iabelQ[3] = np.flipud(tmp_img)
-# Fix me when > 5 images
  
-
 im = abel.tools.symmetry.put_image_quadrants((iabelQ[0], iabelQ[1],
                                               iabelQ[2], iabelQ[3]), 
                                               odd_size=True)
 
-plt.subplot(121)
-plt.imshow(im, vmin=0, vmax=0.1)
+ax1.imshow(im, vmin=0, vmax=0.15)
+ax1.set_title('Inverse Abel comparison')
 
-plt.subplot(122)
-plt.title("dribinski sample image")
-plt.axis(ymin=-0.05, ymax=0.5, xmin=0, xmax=200)
-plt.legend(loc=0, labelspacing=0.1)
+
+ax2.set_xlim(0, 200)
+ax2.set_ylim(-0.5,2)
+ax2.legend(loc=0, labelspacing=0.1, frameon=False)
+ax2.set_title('Angular integration')
+ax2.set_xlabel('Radial coordinate (pixel)')
+ax2.set_ylabel('Integrated intensity')
+
+
+plt.suptitle('Dribinski sample image')
+
 plt.tight_layout()
 plt.savefig('example_all_dribinski.png', dpi=100)
 plt.show()
