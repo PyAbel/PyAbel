@@ -12,7 +12,7 @@ import abel
 
 
 class AbelTiming(object):
-    def __init__(self, n=[301, 501], n_max_bs=700):
+    def __init__(self, n=[301, 501], n_max_bs=700, transform_repeat=1):
         """
         Benchmark performance of different iAbel/fAbel implementations.
 
@@ -29,7 +29,6 @@ class AbelTiming(object):
 
         self.n = n
 
-        NREPEAT = 5
 
         res_fabel = {'HansenLaw':     {'tr': []},
                      'direct_Python': {'tr': []}}
@@ -49,17 +48,17 @@ class AbelTiming(object):
                 bs = abel.basex.get_bs_basex_cached(ni, ni)
                 tbs = abel.three_point.get_bs_three_point_cached(ni)
                 res_iabel['BASEX']['bs'].append(
-                    Timer(lambda: abel.basex.get_bs_basex_cached(ni, ni)).
+                    Timer(lambda: abel.basex.get_bs_basex_cached(ni, ni, basis_dir=None)).
                     timeit(number=1)*1000)
                 res_iabel['BASEX']['tr'].append(
                     Timer(lambda: abel.basex.basex_core_transform(x, *bs)).
-                    timeit(number=NREPEAT)*1000/NREPEAT)
+                    timeit(number=transform_repeat)*1000/transform_repeat)
                 res_iabel['Three_point']['bs'].append(
-                    Timer(lambda: abel.three_point.get_bs_three_point_cached(ni)).
+                    Timer(lambda: abel.three_point.get_bs_three_point_cached(ni, basis_dir=None)).
                     timeit(number=1)*1000)
                 res_iabel['Three_point']['tr'].append(
                     Timer(lambda: abel.three_point.three_point_core_transform(x, tbs)).
-                          timeit(number=NREPEAT)*1000/NREPEAT)
+                          timeit(number=transform_repeat)*1000/transform_repeat)
             else:
                 res_iabel['BASEX']['bs'].append(np.nan)
                 res_iabel['BASEX']['tr'].append(np.nan)
@@ -68,30 +67,32 @@ class AbelTiming(object):
 
             res_fabel['HansenLaw']['tr'].append(
                 Timer(lambda: abel.hansenlaw.hansenlaw_transform(
-                      x, direction='forward')).timeit(number=NREPEAT)*1000/NREPEAT)
+                      x, direction='forward')).timeit(number=transform_repeat)*1000/transform_repeat)
+                      
             res_iabel['HansenLaw']['tr'].append(
                 Timer(lambda: abel.hansenlaw.hansenlaw_transform(
-                      x, direction='inverse')).timeit(number=NREPEAT)*1000/NREPEAT)
-            res_iabel['Three_point']['bs'].append(
-                Timer(lambda: abel.three_point.three_point_transform(
-                      x, direction="inverse")).timeit(number=1)*1000)
+                      x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+                      
             res_iabel['direct_Python']['tr'].append(
                 Timer(lambda: abel.direct.direct_transform(
                       x, backend='Python',
-                      direction='inverse')).timeit(number=NREPEAT)*1000/NREPEAT)
+                      direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+                      
             res_fabel['direct_Python']['tr'].append(
                 Timer(lambda: abel.direct.direct_transform(
                       x, backend='Python',
-                      direction='forward')).timeit(number=NREPEAT)*1000/NREPEAT)
+                      direction='forward')).timeit(number=transform_repeat)*1000/transform_repeat)
+                      
             if abel.direct.cython_ext:
                 res_iabel['direct_C']['tr'].append(
                     Timer(lambda: abel.direct.direct_transform(
                         x, backend='C',
-                        direction='inverse')).timeit(number=NREPEAT)*1000/NREPEAT)
+                        direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+                        
                 res_fabel['direct_C']['tr'].append(
                     Timer(lambda: abel.direct.direct_transform(
                         x, backend='C',
-                        direction='forward')).timeit(number=NREPEAT)*1000/NREPEAT)
+                        direction='forward')).timeit(number=transform_repeat)*1000/transform_repeat)
 
         self.fabel = res_fabel
         self.iabel = res_iabel
