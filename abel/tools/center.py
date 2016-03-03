@@ -296,7 +296,7 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
 
 
 def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
-                               axis=(0, 1), verbose=False):
+                               axis=(0, 1)):
     """ 
     Center image by comparing opposite side, vertical (``axis=0``) and/or
     horizontal slice (``axis=1``) profiles. To center along both axis, use
@@ -364,9 +364,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
         if fit["success"]:
             xyoffset[1] = -float(fit['x'])/2   # x1/2 for image center shift
         else:
-            if verbose:
-                print("fit failure: axis = 1, zero shift set")
-                print(fit)
+            raise RuntimeError("fit failure: axis = 1, zero shift set", fit)
 
     # this is the (y, x) shift to align the slice profiles
     xyoffset = tuple(xyoffset)
