@@ -10,7 +10,7 @@ If you would like to make a Pull Request, the following information may be usefu
 Unit tests
 ----------
 
-Before submitting at Pull Request, be sure toe run the unit tests. The test suite can be run from within the PyAbel package with ::
+Before submitting at Pull Request, be sure to run the unit tests. The test suite can be run from within the PyAbel package with ::
   
     nosetests  abel/tests/  --verbosity=2  --with-coverage --cover-package=abel
 
@@ -29,7 +29,7 @@ Note that this requires that you have `Nose <nose.readthedocs.org>`_ and (option
 Documentation
 -------------
 
-PyAbel uses Sphinx and `Napoleon <http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html>`_ to process Numpy style docstrings, and is synchronized to `pyabel.readthedocs.org <http://pyabel.readthedocs.org>`_. To build the documentation locally, you will need Sphinx, the `recommonmark <https://github.com/rtfd/recommonmark>`_ package, and the `sphinx_rtd_theme <https://github.com/snide/sphinx_rtd_theme/>`_. You can install all this this using ::
+PyAbel uses Sphinx and `Napoleon <http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html>`_ to process Numpy style docstrings, and is synchronized to `pyabel.readthedocs.org <http://pyabel.readthedocs.org>`_. To build the documentation locally, you will need `Sphinx <http://www.sphinx-doc.org/>`_, the `recommonmark <https://github.com/rtfd/recommonmark>`_ package, and the `sphinx_rtd_theme <https://github.com/snide/sphinx_rtd_theme/>`_. You can install all this this using ::
 
 	pip install sphinx
 	pip install recommonmark

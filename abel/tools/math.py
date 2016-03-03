@@ -26,7 +26,7 @@ def gradient(f, x=None, dx=1, axis=-1):
         Input array.
     x : array_like, optional
        Points where the function f is evaluated. It must be of the same
-       length as f.shape[axis].
+       length as ``f.shape[axis]``.
        If None, regular sampling is assumed (see dx)
     dx : float, optional
        If `x` is None, spacing given by `dx` is assumed. Default is 1.
@@ -38,11 +38,12 @@ def gradient(f, x=None, dx=1, axis=-1):
     out : array_like
         Returns the gradient along the given axis.
 
-    To do
+    Notes
     -----
-    implement smooth noise-robust differentiators for use on experimental data.
+    To-Do: implement smooth noise-robust differentiators for use on experimental data.
     http://www.holoborodko.com/pavel/numerical-methods/numerical-derivative/smooth-low-noise-differentiators/
     """
+    
     if x is None:
         x = np.arange(f.shape[axis]) * dx
     else:
@@ -69,7 +70,7 @@ def gaussian(x, a, mu, sigma, c):
     """
     Gaussian function
 
-    a * exp(-((x - mu) ** 2) / 2 / sigma ** 2) + c
+    :math:`f(x)=a e^{-(x - \mu)^2 / (2 \\sigma^2)} + c`
 
     ref: https://en.wikipedia.org/wiki/Gaussian_function
 
@@ -134,7 +135,7 @@ def guss_gaussian(x):
 
 def fit_gaussian(x):
     """
-    Fit Gaussian function and return its parameter
+    Fit a Gaussian function to x and return its parameters
 
     Parameters
     ----------

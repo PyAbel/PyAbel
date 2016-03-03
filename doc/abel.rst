@@ -58,7 +58,7 @@ abel.tools.center module
     :show-inheritance:
 
 abel.tools.math module
-------------------------
+----------------------
 
 .. automodule:: abel.tools.math
     :members:
@@ -66,7 +66,7 @@ abel.tools.math module
     :show-inheritance:
 	
 abel.tools.polar module
-------------------------
+-----------------------
 
 .. automodule:: abel.tools.polar
     :members:
@@ -74,7 +74,7 @@ abel.tools.polar module
     :show-inheritance:
 
 abel.tools.symmetry module
-------------------------
+--------------------------
 
 .. automodule:: abel.tools.symmetry
     :members:
@@ -82,7 +82,7 @@ abel.tools.symmetry module
     :show-inheritance:
 	
 abel.tools.vmi module
-------------------------
+---------------------
 
 .. automodule:: abel.tools.vmi
     :members:
@@ -97,10 +97,10 @@ abel.benchmark module
     :undoc-members:
     :show-inheritance:
 
-abel.tests.run module
----------------------
+abel.tests module
+-----------------
 
-.. automodule:: abel.tests
+.. automodule:: abel.tests.run
     :members:
     :undoc-members:
     :show-inheritance:

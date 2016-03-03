@@ -13,59 +13,65 @@ from scipy.optimize import curve_fit
 
 
 def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None):
-    """ Angular integration of the image.
+    """ 
+    Angular integration of the image.
 
-        Returning the one-dimentional intensity profile as a function of the
-        radial coordinate.
+    Returns the one-dimentional intensity profile as a function of the
+    radial coordinate.
 
-     Parameters
-     ----------
-     IM : rows x cols 2D np.array
-       The data image.
+    Parameters
+    ----------
+    IM : 2D np.array
+        The data image.
 
-     origin : tuple
-       Image center coordinate relative to *bottom-left* corner
-       defaults to (rows//2+rows%2,cols//2+cols%2).
+    origin : tuple
+        Image center coordinate relative to *bottom-left* corner
+        defaults to ``rows//2+rows%2,cols//2+cols%2``.
 
-     Jacobian : boolean
-       Include r*sinθ in the angular sum (integration).
+    Jacobian : boolean
+        Include :math:`r\sin(\\theta)` in the angular sum (integration).
+        Also, ``Jacobian=True`` is passed to 
+        :func:`abel.tools.polar.reproject_image_into_polar`,
+        which includes another value of ``r``, thus providing the appropriate 
+        total Jacobian of :math:`r^2\sin(\\theta)`.
 
-     dr : float
-       Radial coordinate grid spacing, in pixels (default 1).
+    dr : float
+        Radial coordinate grid spacing, in pixels (default 1).
 
-     dt : float
-       Theta coordinate grid spacing in degrees, defaults to rows//2.
+    dt : float
+        Theta coordinate grid spacing in degrees. 
+        if ``dt=None``, dt will be set such that the number of theta values
+        is equal to the height of the image (which should typically ensure
+        good sampling.)
 
-     Returns
-     -------
-     speeds : 1D np.array
-       Integrated intensity array (vs radius).
 
-      r : 1D np.array
-       radial coordinates
+    Returns
+    -------
+    r : 1D np.array
+         radial coordinates
+
+    speeds : 1D np.array
+         Integrated intensity array (vs radius).
 
      """
 
-    polarIM, r_grid, theta_grid = reproject_image_into_polar(
-        IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)
-    theta = theta_grid[0, :]   # theta coordinates
-    r = r_grid[:, 0]           # radial coordinates
+    polarIM, R, T = reproject_image_into_polar(
+        IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)    
 
     if Jacobian:  # x r sinθ
-        sintheta = np.abs(np.sin(theta))
-        polarIM = polarIM*sintheta[np.newaxis, :]
-        polarIM = polarIM*r[:, np.newaxis]
+        polarIM = polarIM * R * np.abs(np.sin(T))
 
     speeds = np.sum(polarIM, axis=1)
     n = speeds.shape[0]
 
-    return r[:n], speeds   # limit radial coordinates range to match speed
+    return R[:n, 0], speeds   # limit radial coordinates range to match speed
 
 
 def calculate_angular_distributions(IM, radial_ranges=None):
     """ Intensity variation in the angular coordinate, theta.
 
-    This function is the theta-coordinate complement to 'calculate_speeds(IM)'
+    This function is the theta-coordinate complement to 
+    :func:`abel.tools.vmi.angular_integration`
 
     (optionally and more useful) returning intensity vs angle for defined
     radial ranges.
@@ -76,9 +82,9 @@ def calculate_angular_distributions(IM, radial_ranges=None):
         Image data
 
     radial_ranges : list of tuples
-        [(r0, r1), (r2, r3), ...]
+        ``[(r0, r1), (r2, r3), ...]``
         Evaluate the intensity vs angle
-        for the radial ranges r0_r1, r2_r3, etc.
+        for the radial ranges ``r0_r1``, ``r2_r3``, etc.
 
     Returns
     -------
@@ -109,18 +115,19 @@ def calculate_angular_distributions(IM, radial_ranges=None):
 
 
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
-    """ Evaluate anisotropy parameter beta, for I vs theta data.
+    """ 
+    Evaluate anisotropy parameter beta, for I vs theta data.
 
-         I = xs_total/4pi [ 1 + beta P2(cos theta) ]     Eq. (1)
+    ``I = xs_total/4pi [ 1 + beta P2(cos theta) ]     Eq. (1)``
 
-     where P2(x)=(3x^2-1)/2 is a 2nd order Legendre polynomial.
+    where ``P2(x)=(3x^2-1)/2`` is a 2nd order Legendre polynomial.
 
-    Cooper and Zare "Angular distribution of photoelectrons"
-    J Chem Phys 48, 942-943 (1968) doi:10.1063/1.1668742
+    `Cooper and Zare "Angular distribution of photoelectrons"
+    J Chem Phys 48, 942-943 (1968) <http://dx.doi.org/10.1063/1.1668742>`_
 
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     theta: 1D np.array
        Angle coordinates, referenced to the vertical direction.
 
@@ -128,14 +135,16 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
        Intensity variation (with angle)
 
     theta_ranges: list of tuples
-       Angular ranges over which to fit  [(theta1, theta2), (theta3, theta4)].
+       Angular ranges over which to fit ``[(theta1, theta2), (theta3, theta4)]``.
        Allows data to be excluded from fit
 
-    Returns:
-    --------
+    Returns
+    -------
     (beta, error_beta) : tuple of floats
+        The anisotropy parameters and the errors associated with each one.
     (amplitude, error_amplitude) : tuple of floats
-       Fit parameters: (beta, error_beta), (amplitude, error_amplitude)
+       Amplitude of signal and an error for each amplitude. 
+       Compare this with the data to check the fit.
 
     """
     def P2(x):   # 2nd order Legendre polynomial

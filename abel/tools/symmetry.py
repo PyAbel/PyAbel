@@ -26,82 +26,70 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         Reorient quadrants to match the orientation of Q0 (top-right)
 
     symmetry_axis : int or tuple
-        Identify axis (int value) or axes of image symmetry ((0, 1) tuple).
-        Exploit image symmetry to combine quadrants. 
-
-    ::
-
-        +--------+--------+
-        | Q1   * | *   Q0 |
-        |   *    |    *   |
-        |  *     |     *  |               cQ1 | cQ0
-        +--------o--------+ --(output) -> ----o----
-        |  *     |     *  |               cQ2 | cQ3
-        |   *    |    *   |
-        | Q2  *  | *   Q3 |          cQi == averaged combined quadrants
-        +--------+--------+                 
-
-
-       symmetry_axis = None - individual quadrants
-
-       symmetry_axis = 0 (vertical) - average Q0+Q1, and Q2+Q3
-
-       symmetry_axis = 1 (horizontal) - average Q1+Q2, and Q0+Q3
-    
-       symmetry_axis = (0, 1) (both) - combine and average all 4 quadrants
-    
-
-    ::
+        can have values of ``None``, ``0``, ``1``, or ``(0,1)`` and specifies 
+        no symmetry, vertical symmetry axis, horizontal symmetry axis, and both vertical
+        and horizontal symmetry axes. See Note. 
 
     use_quadrants : boolean tuple
        Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
        and final image
 
-
     Returns
     -------
     Q0, Q1, Q2, Q3 : tuple of 2D np.arrays
-      shape (rows//2+rows%2, cols//2+cols%2)
-      all oriented in the same direction as Q0 if True
-         (0) symmetry_axis = None
-         ::
-             
-             returned image   Q1 | Q0
-                             ----o----
-                              Q2 | Q3
+      shape: (``rows//2+rows%2, cols//2+cols%2``)
+      all oriented in the same direction as Q0 if ``reorient=True``
 
-         ::
+    
+    Notes
+    -----
+     
+    The symmetry_axis keyword averages quadrants like this: ::
 
-         (1) symmetry_axis = 0
-         ::
+         +--------+--------+
+         | Q1   * | *   Q0 |
+         |   *    |    *   |
+         |  *     |     *  |               cQ1 | cQ0
+         +--------o--------+ --(output) -> ----o----
+         |  *     |     *  |               cQ2 | cQ3
+         |   *    |    *   |
+         | Q2  *  | *   Q3 |          cQi == averaged combined quadrants
+         +--------+--------+                 
 
-             Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
-             returned image    Q01 | Q01
-                              -----o-----
-                               Q23 | Q23
-         ::
+        symmetry_axis = None - individual quadrants
+        symmetry_axis = 0 (vertical) - average Q0+Q1, and Q2+Q3
+        symmetry_axis = 1 (horizontal) - average Q1+Q2, and Q0+Q3
+        symmetry_axis = (0, 1) (both) - combine and average all 4 quadrants
+    
 
-         (2) symmetry_axis = 1
-         ::
+    The end results look like this: ::
+    
+        (0) symmetry_axis = None
+        
+            returned image   Q1 | Q0
+                            ----o----
+                             Q2 | Q3
+                        
+        (1) symmetry_axis = 0
 
-             Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
-             returned image   Q12 | Q03
+            Combine:  Q01 = Q1 + Q2, Q23 = Q2 + Q3
+            returned image    Q01 | Q01
                              -----o-----
-                              Q12 | Q03
-         ::
+                              Q23 | Q23
+                          
+        (2) symmetry_axis = 1
 
-         (3) symmetry_axis = (0, 1)
-         ::
+            Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
+            returned image   Q12 | Q03
+                            -----o-----
+                             Q12 | Q03
 
-             Combine all quadrants: Q = Q0 + Q1 + Q2 + Q3
-             returned image   Q | Q
-                             ---o---  all quadrants equivalent
-                              Q | Q
+        (3) symmetry_axis = (0, 1)
 
-
-      verbose: boolean
-          verbose output, timings etc.
-
+            Combine all quadrants: Q = Q0 + Q1 + Q2 + Q3
+            returned image   Q | Q
+                            ---o---  all quadrants equivalent
+                             Q | Q
 
     """
     IM = np.atleast_2d(IM)
@@ -158,22 +146,19 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
     ----------
     Q: tuple of np.array  (Q0, Q1, Q2, Q3)
        Image quadrants all oriented as Q0
-       shape (rows//2+rows%2, cols//2+cols%2)
+       shape (rows//2+rows%2, cols//2+cols%2) ::
 
-    ::
+            +--------+--------+
+            | Q1   * | *   Q0 |
+            |   *    |    *   |
+            |  *     |     *  |
+            +--------o--------+ 
+            |  *     |     *  |  
+            |   *    |    *   |
+            | Q2  *  | *   Q3 | 
+            +--------+--------+                 
 
-        +--------+--------+
-        | Q1   * | *   Q0 |
-        |   *    |    *   |
-        |  *     |     *  |
-        +--------o--------+ 
-        |  *     |     *  |  
-        |   *    |    *   |
-        | Q2  *  | *   Q3 | 
-        +--------+--------+                 
-
-
-    odd__size: boolean
+    odd_size: boolean
        Whether final image is odd or even pixel size
        odd size will trim 1 row from Q1, Q0, and 1 column from Q1, Q2
 
@@ -188,15 +173,15 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
     Returns
     -------
     IM : np.array
-        Reassembled image of shape (rows, cols)
+        Reassembled image of shape (rows, cols): ::
+        
+            symmetry_axis =
 
-    ::
-      symmetry_axis =
-         None             0              1           (0,1)
+             None             0              1           (0,1)
 
-        Q1 | Q0        Q1 | Q1        Q1 | Q0       Q1 | Q1
-       ----o----  or  ----o----  or  ----o----  or ----o----
-        Q2 | Q3        Q2 | Q2        Q1 | Q0       Q1 | Q1
+            Q1 | Q0        Q1 | Q1        Q1 | Q0       Q1 | Q1
+            ----o----  or  ----o----  or  ----o----  or ----o----
+            Q2 | Q3        Q2 | Q2        Q1 | Q0       Q1 | Q1
 
     """
 
@@ -232,6 +217,7 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
 def center_image(data, center, n, ndim=2):
     """
     This centers the image at the given center and makes it of size n by n
+    
     THIS FUNCTION IS DEPRECIATED.
     All centering functions should be moves to abel.tools.center
     """
@@ -273,6 +259,7 @@ def center_image_asym(data, center_column, n_vert, n_horz, verbose=False):
     """
     This centers a (rectangular) image at the given center_column
     and makes it of size n_vert by n_horz
+    
     THIS FUNCTION IS DEPRECIATED.
     All centering functions should be moved to abel.tools.center
     """

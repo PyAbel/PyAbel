@@ -1,4 +1,3 @@
-.. _transform_methods:
 Transform Methods
 =================
 
