@@ -1,16 +1,13 @@
 abel package
 ============
 
-Subpackages
------------
+    
+abel.transform module
+---------------------
 
-.. toctree::
-
-    abel.lib
-    abel.tests
-
-Submodules
-----------
+.. automodule:: abel.transform
+    :members:
+    :show-inheritance:
 
 abel.basex module
 -----------------
@@ -52,13 +49,6 @@ abel.three_point module
     :members:
     :undoc-members:
     :show-inheritance:
-    
-abel.transform module
----------------------
-
-.. automodule:: abel.transform
-    :members:
-    :show-inheritance:
 
 abel.tools.analytical module
 ----------------------------
@@ -72,6 +62,14 @@ abel.tools.center module
 ------------------------
 
 .. automodule:: abel.tools.center
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.tests module
+-----------------
+
+.. automodule:: abel.tests
     :members:
     :undoc-members:
     :show-inheritance:
