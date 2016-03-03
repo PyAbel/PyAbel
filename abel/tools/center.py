@@ -10,6 +10,7 @@ import warnings
 from scipy.ndimage import center_of_mass
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import minimize
+from six import string_types # testing stings with Python 2 and 3 compatibility
 
 def find_center(IM, method='image_center', verbose=False, **kwargs):
     """
@@ -103,7 +104,7 @@ def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
         rows, cols = IM.shape
 
     # center is in y,x (row column) format!
-    if isinstance(center, str) or isinstance(center, unicode):
+    if isinstance(s, string_types):
         center = find_center(IM, center, verbose=verbose, **kwargs)
 
     centered_data = set_center(IM, center, verbose=verbose)
