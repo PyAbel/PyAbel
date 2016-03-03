@@ -29,29 +29,29 @@ def transform(
     direction : str
         The type of Abel transform to be performed.
 
-        ``'forward'``
+        ``forward``
             A 'forward' Abel transform takes a (2D) slice of a 3D image
             and returns the 2D projection.
             
-        ``'inverse'``
+        ``inverse``
             An 'inverse' Abel transform takes a 2D projection
             and reconstructs a 2D slice of the 3D image.
 
-        The default is ``'inverse'``.
+        The default is ``inverse``.
 
     method : str
         specifies which numerical approximation to the Abel transform
         should be employed (see below). The options are
 
-        ``'hansenlaw'``
+        ``hansenlaw``
                     the recursive algorithm described by Hansen and Law
-        ``'basex'``
+        ``basex``
                     the Gaussian "basis set expansion" method
                     of Dribinski et al.
-        ``'direct'``
+        ``direct``
                     a naive implementation of the analytical
                     formula by Roman Yurchuk.
-        ``'three_point'``
+        ``three_point``
                     the three-point transform of Dasch and co-workers
 
     center : tuple or str
@@ -62,16 +62,19 @@ def transform(
         for example 'center=(None, 250)'.
         If a string is provided, an automatic centering algorithm is used
 
-        ``'image_center'``
-                    center is assumed to be the center of the image.
-        ``'by_slice'``
-                    (whatever this does)
-        ``'com'``
-                    the center is calculated as the center of mass
-        ``'none'``
-                     (Default)
-                     No centering is performed. An image with an odd
-                     number of columns must be provided.
+        ``image_center``
+            center is assumed to be the center of the image.
+        ``slice``
+            the center is found my comparing slices in the horizontal and vertical directions
+        ``com``
+            the center is calculated as the center of mass
+        ``gaussian``
+            the center is found using a fit to a Gaussian function. This
+            only makes sense if your data looks like a Gaussian.
+        ``none``
+            (Default)
+            No centering is performed. An image with an odd
+            number of columns must be provided.
     verbose : boolean
         True/False to determine if non-critical output should be printed.
 

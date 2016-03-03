@@ -146,7 +146,7 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
     ----------
     Q: tuple of np.array  (Q0, Q1, Q2, Q3)
        Image quadrants all oriented as Q0
-       shape (rows//2+rows%2, cols//2+cols%2) ::
+       shape (``rows//2+rows%2, cols//2+cols%2``) ::
 
             +--------+--------+
             | Q1   * | *   Q0 |
@@ -165,9 +165,8 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
     symmetry_axis : int or tuple
        impose image symmetry
        
-       symmetry_axis = 0 (vertical) - Q0 == Q1 and Q3 == Q2
-
-       symmetry_axis = 1 (horizonat) -  Q2 == Q1 and Q3 == Q0
+           ``symmetry_axis = 0 (vertical)   - Q0 == Q1 and Q3 == Q2``
+           ``symmetry_axis = 1 (horizontal) - Q2 == Q1 and Q3 == Q0``
 
 
     Returns
