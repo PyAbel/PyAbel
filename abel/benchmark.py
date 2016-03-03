@@ -73,10 +73,6 @@ class AbelTiming(object):
                 Timer(lambda: abel.hansenlaw.hansenlaw_transform(
                       x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
                       
-            res_iabel['Three_point']['bs'].append(
-                Timer(lambda: abel.three_point.three_point_transform(
-                      x, direction="inverse")).timeit(number=1)*1000)
-                      
             res_iabel['direct_Python']['tr'].append(
                 Timer(lambda: abel.direct.direct_transform(
                       x, backend='Python',
