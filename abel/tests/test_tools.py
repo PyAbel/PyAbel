@@ -58,10 +58,10 @@ def test_centering_function():
 
         res = center_image(arr, (n_c, n_c), odd_size=False)
         # The print statements  below can be commented after we fix the centering issue
-        print('Original array')
-        print(arr)
-        print('Centered array')
-        print(res)
+        # print('Original array')
+        # print(arr)
+        # print('Centered array')
+        # print(res)
 
         assert_equal( is_symmetric(res), True,\
             'Validating the centering function for ni={}, n_c={}'.format(ni, n_c))
