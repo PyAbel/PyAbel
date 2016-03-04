@@ -1,5 +1,5 @@
-PyAbel
-======
+PyAbel README
+=============
 
 .. image:: https://travis-ci.org/PyAbel/PyAbel.svg?branch=master
     :target: https://travis-ci.org/PyAbel/PyAbel
@@ -49,19 +49,21 @@ Installation
 
 PyAbel requires Python 2.7 or 3.3-3.5. Numpy and Scipy are also required, and Matplotlib is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
 
-**With pip:**
+With pip
+~~~~~~~~
 
- The latest release can be installed from PyPi with ::
+The latest release can be installed from PyPi with ::
 
     pip install PyAbel
 
-**With setuptools:**
+With setuptools
+~~~~~~~~~~~~~~~
 
 If you prefer the development version from GitHub, download it here, `cd` to the PyAbel directory, and use ::
 
     python setup.py install
 
-Or, if you wish to edit the PyAbel code without re-installing each time (advanced users) ::
+Or, if you wish to edit the PyAbel source code without re-installing each time ::
 
     python setup.py develop
 
@@ -128,7 +130,7 @@ We welcome suggestions for improvement! Either open a new `Issue <https://github
 
 License
 -------
-PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE>`_, so it can be used for pretty much whatever you want! However, it is provided "as is" with absolutely no warrenty.
+PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE>`_, so it can be used for pretty much whatever you want! Of course, it is provided "as is" with absolutely no warrenty.
 
 
 Citation
@@ -137,4 +139,5 @@ First and foremost, please cite the paper(s) corresponding to the implementation
 
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. [DOI coming soon!]
 
-Have fun!
+
+**Have fun!**

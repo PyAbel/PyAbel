@@ -7,20 +7,20 @@ from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatfo
 
 # change behaviour of the setup.py on readthedocs.org
 # https://read-the-docs.readthedocs.org/en/latest/faq.html#how-do-i-change-behavior-for-read-the-docs
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if not on_rtd:
-    import numpy as np
-    install_requires=[
-          "numpy >= 1.6",
-          "setuptools >= 16.0",
-          "scipy >= 0.14",
-          "six >= 1.10.0"
-          ]
-else:
-    np = None
-    install_requires=[]
+# on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+# if not on_rtd:
+#     import numpy as np
+#
+# else:
+#     np = None
+#     install_requires=[]
 
-
+install_requires=[
+      "numpy >= 1.6",
+      "setuptools >= 16.0",
+      "scipy >= 0.14",
+      "six >= 1.10.0"
+      ]
 
 
 try:
