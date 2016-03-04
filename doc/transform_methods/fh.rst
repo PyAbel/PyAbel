@@ -1,5 +1,3 @@
-.. _fh:
-
 Fourier-Hankel
 ==============
 

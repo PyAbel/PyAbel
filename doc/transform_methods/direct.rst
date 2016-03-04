@@ -1,6 +1,6 @@
 Direct
 ======
-.. _direct:
+
 
 Introduction
 ------------

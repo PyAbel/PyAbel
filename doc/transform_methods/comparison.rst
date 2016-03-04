@@ -1,6 +1,5 @@
 Comparison of Abel Transform Methods
 ====================================
-.. _comparison:
 
 
 Introduction

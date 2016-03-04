@@ -1,6 +1,5 @@
 Hansen-Law
 ==========
-.. _hansenlaw:
 
 
 Introduction

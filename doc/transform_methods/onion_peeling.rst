@@ -1,6 +1,5 @@
 Onion Peeling (not implemented)
 ===============================
-.. _onion_peeling:
 
 
 Introduction

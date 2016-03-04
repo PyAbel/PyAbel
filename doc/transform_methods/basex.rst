@@ -1,6 +1,6 @@
 BASEX
 =====
-.. _basex:
+
 
 Introduction
 ------------

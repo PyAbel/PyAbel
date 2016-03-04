@@ -1,6 +1,5 @@
 Three Point
 ===========
-.. _three_point:
 
 
 Introduction
