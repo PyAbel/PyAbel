@@ -22,7 +22,6 @@ else:
 
 
 
-
 try:
     from Cython.Distutils import build_ext
     import Cython.Compiler.Options
