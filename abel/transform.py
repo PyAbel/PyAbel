@@ -246,7 +246,7 @@ def transform(
             raise ValueError('Image must have an odd number of columns. \
                               Use a centering method.')
     else:
-        IM = abel.center_image(IM, center)
+        IM = abel.center_image(IM, center, **center_options)
 
     #########################
 
