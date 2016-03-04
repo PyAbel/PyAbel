@@ -26,19 +26,19 @@ Transform methods
 
 The numerical Abel transform is computationally intensive, and a basic numerical integration of the analytical equations does not reliably converge. Consequently, numerous algorithms have been developed in order to approximate the Abel transform in a reliable and efficient manner. So far, PyAbel includes the following transform methods:
 
-1. ``*`` The `BASEX <https://github.com/PyAbel/PyAbel/wiki/BASEX-Transform>`_ method of Dribinski and co-workers, which uses a Gaussian basis set to provide a quick, robust transform. This is one of the de facto standard methods in photoelectron/photoion spectroscopy. 
+1. ``*`` The :ref:`BASEX <basex>` method of Dribinski and co-workers, which uses a Gaussian basis set to provide a quick, robust transform. This is one of the de facto standard methods in photoelectron/photoion spectroscopy. 
 
-2. The `hansenlaw <https://github.com/PyAbel/PyAbel/wiki/Hansen%E2%80%93Law-transform>`_ recursive method of Hansen and Law, which provides an extremely fast transform with low centerline noise. 
+2. The :ref:`Hansen–Law <hansenlaw>` recursive method of Hansen and Law, which provides an extremely fast transform with low centerline noise. 
 
-3. The `direct <https://github.com/PyAbel/PyAbel/wiki/Direct-transform>`_ numerical integration of the analytical Abel transform equations, which is implemented in Cython for efficiency. In general, while the forward Abel transform is useful, the inverse Abel transform requires very fine sampling of features (lots of pixels in the image) for good convergence to the analytical result, and is included mainly for completeness and for comparison purposes. For the inverse Abel transform, other methods are generally more reliable. 
+3. The :ref:`Direct <direct>` numerical integration of the analytical Abel transform equations, which is implemented in Cython for efficiency. In general, while the forward Abel transform is useful, the inverse Abel transform requires very fine sampling of features (lots of pixels in the image) for good convergence to the analytical result, and is included mainly for completeness and for comparison purposes. For the inverse Abel transform, other methods are generally more reliable. 
 
-4. ``*`` The `three_point <https://github.com/PyAbel/PyAbel/wiki/Three-point-transform>`_ method of Dasch and co-workers, which provides a fast and robust transform by exploiting the observation that underlying radial distribution is primarily determined from changes in the line-of-sight projection data in the neighborhood of each radial data point. This technique works very well in cases where the real difference between adjacent projections is much greater than the noise in the projections (i.e. where the raw data is not oversampled). 
+4. ``*`` The :ref:`Three Point <three_point>` method of Dasch and co-workers, which provides a fast and robust transform by exploiting the observation that underlying radial distribution is primarily determined from changes in the line-of-sight projection data in the neighborhood of each radial data point. This technique works very well in cases where the real difference between adjacent projections is much greater than the noise in the projections (i.e. where the raw data is not oversampled). 
 
-5. (Planned implementation) The `fourierhankel <https://github.com/PyAbel/PyAbel/wiki/Fourier%E2%80%93Hankel>`_ method, which is computationally efficient, but contains significant centerline noise and is known to introduce artifacts. 
+5. (Planned implementation) The :ref:`Fourier–Hankel <fh>` method, which is computationally efficient, but contains significant centerline noise and is known to introduce artifacts. 
 
-6. (Planned implementation) The `onionpeeling <https://github.com/PyAbel/PyAbel/wiki/Onion-peeling>`_ method. 
+6. (Planned implementation) The :ref:`Onion Peeling <onion_peeling>` method. 
 
-7. (Planned implementation) The `POP <https://github.com/PyAbel/PyAbel/wiki/Polar-onion-peeling>`_ (polar onion peeling) method. POP projects the image onto a basis set of Legendre polynomial-based functions, which can greatly reduce the noise in the reconstruction. However, this method only applies to images that contain features at constant radii. I.e., it works for the spherical shells seen in photoelectron/ion spectra, but not for flames.
+7. (Planned implementation) The :ref:`POP <pop>` (polar onion peeling) method. POP projects the image onto a basis set of Legendre polynomial-based functions, which can greatly reduce the noise in the reconstruction. However, this method only applies to images that contain features at constant radii. I.e., it works for the spherical shells seen in photoelectron/ion spectra, but not for flames.
 
 ``*`` Methods marked with an asterisk require the generation of basis sets. The first time each method is run for a specific image size, a basis set must be generated, which can take several seconds or minutes. However, this basis set is saved to disk (generally to the current directory) and can be reused, making subsequent transforms very efficient. Users who are transforming numerous images using these methods will want to keep this in mind and specify the directory containing the basis sets.
 

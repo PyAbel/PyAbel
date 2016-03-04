@@ -1,6 +1,6 @@
 Polar Onion Peeling (not implemented)
 =====================================
-
+.. _pop:
 
 Introduction
 ------------

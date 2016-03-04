@@ -13,3 +13,4 @@ Contents:
    transform_methods/three_point
    transform_methods/onion_peeling
    transform_methods/pop
+   transform_methods/fh

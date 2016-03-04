@@ -1,6 +1,6 @@
 Three Point
 ===========
-
+.. _three_point:
 
 
 Introduction
@@ -39,8 +39,6 @@ If you would like to access the Three Point algorithm directly (to transform a r
 
 Example
 -------
-
-Note: this does not currently work:
 
 .. plot:: ../examples/example_three_point.py
 	:include-source:

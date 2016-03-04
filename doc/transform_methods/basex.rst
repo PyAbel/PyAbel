@@ -1,13 +1,13 @@
 BASEX
 =====
-
+.. _basex:
 
 Introduction
 ------------
 
 BASEX (Basis set expansion method) transform utilizes well-behaved functions (i.e., functions which have a known analytic Abel inverse) to transform images. 
 In the current iteration of PyAbel, these functions (called basis functions) are modified Gaussian-type functions.
-This technique was developed by Dribinski et al [1].
+This technique was developed in 2002 at UCLA by Dribinski, Ossadtchi, Mandelshtam, and Reisler [Dribinski2002]_.
 
 How it works
 ------------
@@ -54,4 +54,4 @@ More information about interpreting the equations in the paper and implementing 
 
 Citation
 --------
-[1] `Dribinski et al, 2002 (Rev. Sci. Instrum. 73, 2634) <http://dx.doi.org/10.1063/1.1482156>`_, (`pdf <http://www-bcf.usc.edu/~reisler/assets/pdf/67.pdf>`_)
+.. [Dribinski2002] `Dribinski et al, 2002 (Rev. Sci. Instrum. 73, 2634) <http://dx.doi.org/10.1063/1.1482156>`_, (`pdf <http://www-bcf.usc.edu/~reisler/assets/pdf/67.pdf>`_)
