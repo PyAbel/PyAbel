@@ -68,7 +68,7 @@ def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
     if isinstance(center, str) or isinstance(center, unicode):
         center = find_center(IM, center, verbose=verbose, **kwargs)
 
-    centered_data = set_center(IM, center, verbose=verbose)
+    centered_data = set_center(IM, center, verbose=verbose, **kwargs)
     return centered_data
 
 
