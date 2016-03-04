@@ -71,8 +71,6 @@ Or, if you wish to edit the PyAbel source code without re-installing each time :
 Example of use
 --------------
 
-Numerous examples are located in the `examples directory <https://github.com/PyAbel/PyAbel/tree/master/examples>`_, as well as at https://pyabel.readthedocs.org.
-
 Using PyAbel can be simple. The following Python code imports the PyAbel package, generates a sample image, performs a forward transform using the Hansen–Law method, and then a reverse transform using the Three Point method:
 
 .. code-block:: python
@@ -108,6 +106,7 @@ Output:
    :width: 400px
    :alt: example abel transform
    
+.. note:: Additional examples can be viewed on the :doc:`PyAbel examples <examples>` page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`_ directory.
 
 
 Documentation
