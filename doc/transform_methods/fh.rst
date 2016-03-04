@@ -1,6 +1,7 @@
+.. _fh:
+
 Fourier-Hankel
 ==============
-.. _fh:
 
 
 Introduction
