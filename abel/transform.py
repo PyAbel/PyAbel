@@ -29,29 +29,29 @@ def transform(
     direction : str
         The type of Abel transform to be performed.
 
-        ``'forward'``
+        ``forward``
             A 'forward' Abel transform takes a (2D) slice of a 3D image
             and returns the 2D projection.
             
-        ``'inverse'``
+        ``inverse``
             An 'inverse' Abel transform takes a 2D projection
             and reconstructs a 2D slice of the 3D image.
 
-        The default is ``'inverse'``.
+        The default is ``inverse``.
 
     method : str
         specifies which numerical approximation to the Abel transform
         should be employed (see below). The options are
 
-        ``'hansenlaw'``
+        ``hansenlaw``
                     the recursive algorithm described by Hansen and Law
-        ``'basex'``
+        ``basex``
                     the Gaussian "basis set expansion" method
                     of Dribinski et al.
-        ``'direct'``
+        ``direct``
                     a naive implementation of the analytical
                     formula by Roman Yurchuk.
-        ``'three_point'``
+        ``three_point``
                     the three-point transform of Dasch and co-workers
 
     center : tuple or str
@@ -62,16 +62,19 @@ def transform(
         for example 'center=(None, 250)'.
         If a string is provided, an automatic centering algorithm is used
 
-        ``'image_center'``
-                    center is assumed to be the center of the image.
-        ``'by_slice'``
-                    (whatever this does)
-        ``'com'``
-                    the center is calculated as the center of mass
-        ``'none'``
-                     (Default)
-                     No centering is performed. An image with an odd
-                     number of columns must be provided.
+        ``image_center``
+            center is assumed to be the center of the image.
+        ``slice``
+            the center is found my comparing slices in the horizontal and vertical directions
+        ``com``
+            the center is calculated as the center of mass
+        ``gaussian``
+            the center is found using a fit to a Gaussian function. This
+            only makes sense if your data looks like a Gaussian.
+        ``none``
+            (Default)
+            No centering is performed. An image with an odd
+            number of columns must be provided.
     verbose : boolean
         True/False to determine if non-critical output should be printed.
 
@@ -86,8 +89,8 @@ def transform(
         Default is ``(True, True, True, True)``, which uses all quadrants.
         
     recast_as_float64 : boolean
-        True/False that determines if the input image should be recast to float64. 
-        Many images are imported in other formats (such as ``uint8`` or ``unit15``)
+        True/False that determines if the input image should be recast to ``float64``. 
+        Many images are imported in other formats (such as ``uint8`` or ``uint16``)
         and this does not always play well with the transorm algorithms. This should
         probably always be set to True. (Default is True.)
 
@@ -119,29 +122,28 @@ def transform(
     
         Three cases are possible: 
         
-        1. symmetry_axis = 0 (vertical): ::
+        1) symmetry_axis = 0 (vertical): ::
 
-           Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
-           inverse image   AQ01 | AQ01
-                           -----o-----
-                           AQ23 | AQ23
+                Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
+                inverse image   AQ01 | AQ01
+                               -----o-----
+                               AQ23 | AQ23
 
-        (2) symmetry_axis = 1 (horizontal)
 
-        2. symmetry_axis = 1 (horizontal): ::
+        2) symmetry_axis = 1 (horizontal): ::
 
-            Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
-            inverse image   AQ12 | AQ03
-                            -----o----- (top and bottom equivalent)
-                            AQ12 | AQ03
+                Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
+                inverse image   AQ12 | AQ03
+                                -----o----- (top and bottom equivalent)
+                                AQ12 | AQ03
                         
 
-        3. symmetry_axis = (0, 1) (both): ::
+        3) symmetry_axis = (0, 1) (both): ::
 
-            Combine: Q = Q0 + Q1 + Q2 + Q3
-            inverse image   AQ | AQ
-                            ---o---  (all quadrants equivalent)
-                            AQ | AQ
+                Combine: Q = Q0 + Q1 + Q2 + Q3
+                inverse image   AQ | AQ
+                                ---o---  (all quadrants equivalent)
+                                AQ | AQ
 
 
     Returns
@@ -150,11 +152,11 @@ def transform(
         The transform function returns a dictionary of results
         depending on the options selected
 
-        'results['transform']'
+        ``results['transform']``
                 (always returned) is the 2D forward/reverse Abel transform
-        'results['radial_intensity']'
+        ``results['radial_intensity']``
                 is not currently implemented
-        'results['residual']'
+        ``results['residual']``
                 is not currently implemented
     
     Notes
@@ -163,9 +165,10 @@ def transform(
     to the the exact abel transform.
     All the the methods should produce similar results, but
     depending on the level and type of noise found in the image,
-    certain methods may perform better than others.
+    certain methods may perform better than others. Please see the "Transform Methods"
+    section of the documentation for complete information.
 
-    ``'hansenlaw'`` 
+    ``hansenlaw`` 
         This "recursive algorithm" produces reliable results
         and is quite fast (~0.1 sec for a 1001x1001 image).
         It makes no assumptions about the data
@@ -177,7 +180,7 @@ def transform(
         J. Opt. Soc. A*2, 510-520 (1985)
         http://dx.doi.org/10.1364/JOSAA.2.000510
 
-    ``'basex'`` * 
+    ``basex`` * 
         The "basis set exapansion" algorithm describes the data in terms
         of gaussian functions, which themselves can be abel transformed
         analytically. Because the gaussian functions are approximately the size
@@ -188,7 +191,7 @@ def transform(
          Dribinski et al, 2002 (Rev. Sci. Instrum. 73, 2634)
          http://dx.doi.org/10.1063/1.1482156
 
-    ``'direct'``
+    ``direct``
         This method attempts a direct integration of the Abel
         transform integral. It makes no assumptions about the data
         (apart from cylindrical symmetry),
@@ -197,7 +200,7 @@ def transform(
         but thanks to this Cython implementation (by Roman Yurchuk),
         this 'direct' method is competitive with the other methods.
 
-    ``'three_point'`` *
+    ``three_point`` *
         The "Three Point" Abel transform method
         exploits the observation that the value of the Abel inverted data
         at any radial position r is primarily determined from changes

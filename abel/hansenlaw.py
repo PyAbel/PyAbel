@@ -77,8 +77,8 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
     dr : float
         Sampling size (=1 for pixel images), used for Jacobian scaling
 
-    direction : string
-        'forward' or 'inverse' Abel transform
+    direction : string ('forward' or 'inverse')
+        ``forward`` or ``inverse`` Abel transform
 
     Returns
     -------

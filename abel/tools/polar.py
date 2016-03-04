@@ -11,14 +11,10 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit, minimize
 
 
-# The next two functions are adapted from
-# http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
-# It is possible that there is a faster way to convert to polar coordinates.
-
 def reproject_image_into_polar(data, origin=None, Jacobian=False,
                                dr=1, dt=None):
     """
-    Reprojects a 2D numpy array ("data") into a polar coordinate system.
+    Reprojects a 2D numpy array (``data``) into a polar coordinate system.
     "origin" is a tuple of (x0, y0) relative to the bottom-left image corner,
     and defaults to the center of the image.
 
@@ -28,21 +24,31 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     origin : tuple
         The coordinate of the image center, relative to bottom-left
     Jacobian : boolean
-        Include r intensity scaling in the coordinate transform
+        Include ``r`` intensity scaling in the coordinate transform. 
+        This should be included to account for the changing pixel size that 
+        occurs during the transform.
     dr : float
         Radial coordinate spacing for the grid interpolation
         tests show that there is not much point in going below 0.5
     dt : float
         Angular coordinate spacing (in degrees)
+        if ``dt=None``, dt will be set such that the number of theta values
+        is equal to the height of the image.
 
     Returns
     -------
-    output : np.array
-        The polar image rows x cols  or row(col)xrow(col)
-    r_grid : np.array
+    output : 2D np.array
+        The polar image (r, theta)
+    r_grid : 2D np.array
         meshgrid of radial coordinates
-    theta_grid : np.array
+    theta_grid : 2D np.array
         meshgrid of theta coordinates
+        
+    Notes
+    -----
+    Adapted from: 
+    http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
+    
     """
     # bottom-left coordinate system requires numpy image to be np.flipud
     data = np.flipud(data)
@@ -87,9 +93,19 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
 
 def index_coords(data, origin=None):
     """
-    Creates x & y coords for the indicies in a numpy array "data".
-    "origin" defaults to the center of the image. Specify origin=(0,0)
-    to set the origin to the *bottom-left* corner of the image.
+    Creates x & y coords for the indicies in a numpy array
+    
+    Parameters
+    ----------
+    data : numpy array
+        2D data
+    origin : (x,y) tuple
+        defaults to the center of the image. Specify origin=(0,0)
+        to set the origin to the *bottom-left* corner of the image.
+    
+    Returns
+    -------
+        x, y : arrays
     """
     ny, nx = data.shape[:2]
     if origin is None:
@@ -106,7 +122,18 @@ def index_coords(data, origin=None):
 
 def cart2polar(x, y):
     """
-    Transform carthesian coordinates to polar
+    Transform Cartesian coordinates to polar
+    
+    Parameters
+    ----------
+    x, y : floats or arrays
+        Cartesian coordinates
+    
+    Returns
+    -------
+    r, theta : floats or arrays
+        Polar coordinates
+        
     """
     r = np.sqrt(x**2 + y**2)
     theta = np.arctan2(x, y)  # θ referenced to vertical
@@ -115,7 +142,17 @@ def cart2polar(x, y):
 
 def polar2cart(r, theta):
     """
-    Transform polar coordinates to carthesian
+    Transform polar coordinates to Cartesian
+    
+    Parameters
+    -------
+    r, theta : floats or arrays
+        Polar coordinates
+        
+    Returns
+    ----------
+    x, y : floats or arrays
+        Cartesian coordinates
     """
     y = r * np.sin(theta)   # θ referenced to vertical
     x = r * np.cos(theta)
@@ -125,7 +162,7 @@ def polar2cart(r, theta):
 class CythonExtensionsNotBuilt(Exception):
     pass
 
-
+# why is this here??
 CythonExtensionsNotBuilt_msg = CythonExtensionsNotBuilt(
     "Cython extensions were not propery built.\n"
     "Either the complilation failed at the setup phase"

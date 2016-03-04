@@ -5,6 +5,9 @@ import os
 _base_dir, _ = os.path.split(__file__)
 
 def run(coverage=False):
+    """
+    This runs the complete set of PyAbel tests.
+    """
     import nose
     argv=['', '-s', '--where={}'.format(_base_dir), '--verbosity=2']
     if coverage:
@@ -14,6 +17,10 @@ def run(coverage=False):
     return status
 
 def run_cli(coverage=False):
+    """
+    This also runs the complete set of PyAbel tests.
+    But uses sys.exit(status) instead of simply returning the status.
+    """
     status = run(coverage=coverage)
     print('Exit status: {}'.format(status))
     sys.exit(status)

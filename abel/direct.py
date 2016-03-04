@@ -216,6 +216,10 @@ def _pyabel_direct_integral(f, r, correction, int_func=simpson_rule_wrong):
 
 
 def is_uniform_sampling(r):
+    """
+    Returns True if the array is uniformly spaced to within 1e-13.
+    Otherwise False.
+    """
     dr = np.diff(r)
     ddr = np.diff(dr)
     return np.allclose(ddr, 0, atol=1e-13)

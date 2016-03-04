@@ -8,7 +8,7 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
 from abel.tools.vmi import angular_integration
-from abel.tools.symmetry import  center_image
+from abel.tools.center import  center_image
 from abel.benchmark import is_symmetric
 
 
@@ -33,32 +33,30 @@ def test_speeds():
 def test_centering_function_shape():
     # ni -> original shape
     # n  -> result of the centering function
-    for (ni, n) in [(20, 10), # crop image
-                    (20, 11),
-                    (4, 10),  # pad image
+    for (y, x) in  [(20, 11), # crop image
+                    (21, 11),
+                    (5, 11),  # pad image
                     (4, 11)]:
-        data = np.zeros((ni, ni))
-        res = center_image(data, (ni//2, ni//2), n)
-        assert_equal( res.shape, (n, n),
-                    'Centering preserves shapes for ni={}, n={}'.format(ni, n))
+        data = np.zeros((y, x))
+        res = center_image(data, (y//2, x//2))
+        assert_equal( res.shape, (y, x),
+                    'Centering preserves shapes for ni={}, n={}'.format(y, x))
 
 
 def test_centering_function():
     # ni -> original shape of the data is (ni, ni)
     # n_c  -> the image center is (n_c, n_c)
-    # n  -> after the centering function, the array has a shape (n, n)
 
-    for (ni, n_c, n) in [(9, 5, 3),
-                         (9, 5, 4),
+    for (ni, n_c) in [(10, 5),
+                         (10,  5),
                          ]:
         arr = np.zeros((ni, ni))
 
-        if n % 2 == 1:
-            arr[n_c-1:n_c+2,n_c-1:n_c+2] = 1
-        else:
-            arr[n_c-1:n_c+1,n_c-1:n_c+1] = 1
+        # arr[n_c-1:n_c+2,n_c-1:n_c+2] = 1
+        # # else:
+        arr[n_c-1:n_c+1,n_c-1:n_c+1] = 1.0
 
-        res = center_image(arr, (n_c, n_c), n)
+        res = center_image(arr, (n_c, n_c), odd_size=False)
         # The print statements  below can be commented after we fix the centering issue
         # print('Original array')
         # print(arr)
@@ -66,7 +64,7 @@ def test_centering_function():
         # print(res)
 
         assert_equal( is_symmetric(res), True,\
-            'Validating the centering function for ni={}, n_c={}, n={}'.format(ni, n_c, n))
+            'Validating the centering function for ni={}, n_c={}'.format(ni, n_c))
 
 def test_speeds_non_integer_center():  
     # ensures that the rest speeds function can work with a non-integer center
