@@ -60,7 +60,7 @@ r_range = [(93, 111), (145, 162), (255, 280), (330, 350), (350, 370),
            (370, 390), (390, 410), (410, 430)]
 
 # map to intensity vs theta for each radial range
-intensities, theta = abel.tools.vmi.calculate_angular_distributions(AIM,
+intensities, theta = abel.tools.vmi.radial_integration(AIM,
                                                      radial_ranges=r_range)
 
 print("radial-range      anisotropy parameter (beta)")

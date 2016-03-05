@@ -158,7 +158,7 @@ def _anisotropy():
     _transform()
 
     # intensity vs angle
-    intensity, theta = abel.tools.vmi.calculate_angular_distributions(AIM,\
+    intensity, theta = abel.tools.vmi.radial_integration(AIM,\
                                                   radial_ranges=[rmx,])
 
     # fit to P2(cos theta)

@@ -29,14 +29,15 @@ def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None):
         defaults to ``rows//2+rows%2,cols//2+cols%2``.
 
     Jacobian : boolean
-        Include :math:`r\sin(\\theta)` in the angular sum (integration).
+        Include :math:`r\sin\\theta` in the angular sum (integration).
         Also, ``Jacobian=True`` is passed to 
         :func:`abel.tools.polar.reproject_image_into_polar`,
         which includes another value of ``r``, thus providing the appropriate 
-        total Jacobian of :math:`r^2\sin(\\theta)`.
+        total Jacobian of :math:`r^2\sin\\theta`.
 
     dr : float
-        Radial coordinate grid spacing, in pixels (default 1).
+        Radial coordinate grid spacing, in pixels (default 1). `dr=0.5` may 
+        reduce pixel granularity of the speed profile.
 
     dt : float
         Theta coordinate grid spacing in degrees. 
@@ -67,14 +68,16 @@ def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None):
     return R[:n, 0], speeds   # limit radial coordinates range to match speed
 
 
-def calculate_angular_distributions(IM, radial_ranges=None):
-    """ Intensity variation in the angular coordinate, theta.
+def radial_integration(IM, radial_ranges=None):
+    """ Intensity variation in the angular coordinate.
 
-    This function is the theta-coordinate complement to 
+    This function is the :math:`\\theta`-coordinate complement to 
     :func:`abel.tools.vmi.angular_integration`
 
     (optionally and more useful) returning intensity vs angle for defined
-    radial ranges.
+    radial ranges, to evaluate the anisotropy parameter.
+
+    See :doc:`examples/example_O2_PES_PAD.py <examples>`
 
     Parameters
     ----------
@@ -82,6 +85,7 @@ def calculate_angular_distributions(IM, radial_ranges=None):
         Image data
 
     radial_ranges : list of tuples
+        integration ranges
         ``[(r0, r1), (r2, r3), ...]``
         Evaluate the intensity vs angle
         for the radial ranges ``r0_r1``, ``r2_r3``, etc.
@@ -116,11 +120,14 @@ def calculate_angular_distributions(IM, radial_ranges=None):
 
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
     """ 
-    Evaluate anisotropy parameter beta, for I vs theta data.
+    Evaluate anisotropy parameter :math:`\\beta`, for :math:`I` vs :math:`\\theta` data.
 
-    ``I = xs_total/4pi [ 1 + beta P2(cos theta) ]     Eq. (1)``
+    .. math::
 
-    where ``P2(x)=(3x^2-1)/2`` is a 2nd order Legendre polynomial.
+        I = \\frac{\sigma_\\text{total}}{4\pi} [ 1 + \\beta P_2(\cos\\theta) ]   
+
+
+    where :math:`P_2(x)=\\frac{3x^2-1}{2}` is a 2nd order Legendre polynomial.
 
     `Cooper and Zare "Angular distribution of photoelectrons"
     J Chem Phys 48, 942-943 (1968) <http://dx.doi.org/10.1063/1.1668742>`_

@@ -453,7 +453,7 @@ class PyAbel:  #(tk.Tk):
     
         # intensity vs angle
         self.intensity, self.theta = abel.tools.vmi.\
-                                     calculate_angular_distributions(self.AIM,\
+                                     radial_integration(self.AIM,\
                                      radial_ranges=[self.rmx,])
     
         # fit to P2(cos theta)

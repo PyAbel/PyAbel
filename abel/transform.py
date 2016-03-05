@@ -78,7 +78,7 @@ def transform(
     verbose : boolean
         True/False to determine if non-critical output should be printed.
 
-    symmetry_axis : int or tuple
+    symmetry_axis : None, int or tuple
         Symmetrize the image about the numpy axis 
         0 (vertical), 1 (horizontal), (0,1) (both axes)
         
