@@ -38,8 +38,9 @@ output_plot  = name + '_comparison_HansenLaw.png'
 # Load an image file as a numpy array
 print('Loading ' + filename)
 im = np.loadtxt(filename)
+print("scaling image x1/2 to reduce the time of the basis set calculation")
 im = zoom(im, 0.5)
-(rows,cols) = np.shape(im)
+(rows, cols) = np.shape(im)
 if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
            " center_image()".format(cols))
@@ -79,7 +80,7 @@ im1 = ax1.imshow(im, origin='lower', aspect='auto')
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('velocity map image')
+ax1.set_title('velocity map image: size {:d}x{:d}'.format(rows, cols))
 
 # Plot the 2D transform
 reconH2 = reconH[:,:c2]
@@ -93,12 +94,12 @@ ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law | Basex',x=0.4)
 
 # Plot the 1D speed distribution - normalized
-ax3.plot(rB, speedsB/speedsB[350:].max(), 'r-', label="Basex")
-ax3.plot(rH, speedsH/speedsH[350:].max(), 'b-', label="Hansen Law")
-ax3.axis(xmax=c2-12, ymin=-0.1, ymax=1.5)
-ax3.set_xlabel('Speed (pixel)')
-ax3.set_ylabel('Intensity')
-ax3.set_title('Speed distribution')
+ax3.plot(rB, speedsB/speedsB[150:].max(), 'r-', label="Basex")
+ax3.plot(rH, speedsH/speedsH[150:].max(), 'b-', label="Hansen Law")
+ax3.axis(xmax=250, ymin=-0.1, ymax=1.5)
+ax3.set_xlabel('speed (pixel)')
+ax3.set_ylabel('intensity')
+ax3.set_title('speed distribution')
 ax3.legend(labelspacing=0.1, fontsize='small')
 
 # Prettify the plot a little bit:

@@ -57,7 +57,7 @@ im1 = ax1.imshow(IM, origin='lower', aspect='auto')
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('velocity map image')
+ax1.set_title('velocity map image: size {:d}x{:d}'.format(rows, cols))
 
 # Plot the 2D transform
 im2 = ax2.imshow(AIM, origin='lower', aspect='auto', vmin=0, 
@@ -70,9 +70,9 @@ ax2.set_title('Hansen Law inverse Abel')
 # Plot the 1D speed distribution
 ax3.plot(rs, speeds/speeds[200:].max())
 ax3.axis(xmax=500, ymin=-0.05, ymax=1.1)
-ax3.set_xlabel('Speed (pixel)')
-ax3.set_ylabel('Intensity')
-ax3.set_title('Speed distribution')
+ax3.set_xlabel('speed (pixel)')
+ax3.set_ylabel('intensity')
+ax3.set_title('speed distribution')
 
 # Prettify the plot a little bit:
 plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35,
