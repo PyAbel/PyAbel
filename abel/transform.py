@@ -285,7 +285,7 @@ def transform(
     # reassemble image
     results = {}
     results['transform'] = abel.tools.symmetry.put_image_quadrants(
-                           (AQ0, AQ1, AQ2, AQ3), odd_size=cols % 2,
+                           (AQ0, AQ1, AQ2, AQ3), original_image_shape = IM.shape,
                             symmetry_axis=symmetry_axis)
 
     verboseprint("{:.2f} seconds".format(time.time()-t0))

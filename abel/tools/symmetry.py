@@ -6,10 +6,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy.ndimage import map_coordinates
-from scipy.ndimage.interpolation import shift
-from scipy.optimize import curve_fit, minimize
-
 
 def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
                         use_quadrants=(True, True, True, True)):
@@ -101,6 +97,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
 
     n, m = IM.shape
 
+    # odd size increased by 1
     n_c = n // 2 + n % 2
     m_c = m // 2 + m % 2
 
@@ -139,7 +136,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     return Q0, Q1, Q2, Q3
 
 
-def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
+def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
     """
     Reassemble image from 4 quadrants Q = (Q0, Q1, Q2, Q3)
     The reverse process to get_image_quadrants(reorient=True)
@@ -162,8 +159,8 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
             | Q2  *  | *   Q3 | 
             +--------+--------+                 
 
-    odd_size: boolean
-       Whether final image is odd or even pixel size
+    original_image_shape: tuple
+       (rows, cols)
        odd size will trim 1 row from Q1, Q0, and 1 column from Q1, Q2
 
     symmetry_axis : int or tuple
@@ -202,15 +199,18 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
         Q2 = Q1
         Q3 = Q0
 
-    if not odd_size:
-        Top = np.concatenate((np.fliplr(Q0), Q1), axis=1)
-        Bottom = np.flipud(np.concatenate((np.fliplr(Q2), Q3), axis=1))
-    else:
-        # odd size image remove extra row/column added in get_image_quadrant()
-        Top = np.concatenate(
-                    (np.fliplr(Q[1])[:-1, :-1], Q[0][:-1, :]), axis=1)
-        Bottom = np.flipud(
-                    np.concatenate((np.fliplr(Q[2])[:, :-1], Q[3]), axis=1))
+    if original_image_shape[0] % 2 == 1:
+        # odd-rows => remove duplicate bottom row of Q1, Q0
+        Q0 = Q0[:-1, :]
+        Q1 = Q1[:-1, :]
+
+    if original_image_shape[1] % 2 == 1:
+        # odd-columns => remove duplicate first column of Q1, Q2
+        Q1 = Q1[:, 1:]
+        Q2 = Q2[:, 1:]
+
+    Top = np.concatenate((np.fliplr(Q1), Q0), axis=1)
+    Bottom = np.flipud(np.concatenate((np.fliplr(Q2), Q3), axis=1))
 
     IM = np.concatenate((Top, Bottom), axis=0)
 

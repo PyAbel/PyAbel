@@ -105,7 +105,7 @@ if ntrans == 5:
 
 im = abel.tools.symmetry.put_image_quadrants((iabelQ[0], iabelQ[1],
                                               iabelQ[2], iabelQ[3]), 
-                                              odd_size=True)
+                                              original_image_shape=IM.shape)
 
 plt.subplot(121)
 plt.imshow(im, vmin=0, vmax=0.8)

@@ -9,16 +9,16 @@ from numpy.testing import assert_allclose
 
 import abel
 
-def test_symmetry_get_put_quadrants(verbose=False):
+def test_symmetry_get_put_quadrants(n=5, verbose=False):
     
-    z = np.zeros((5, 5))
-    z[0,0] = 1
-    z[-1,0] = 2
-    z[-1,-1] = 3
-    z[1, 1] = 1
-    z[1, -2] = 1
-    z[-2, 1] = 1
-    z[-2, -2]= 1
+    z = np.ones((n, n))*(-1)     # axes tagged with '-1'
+    c2 = n//2 
+    r2 = n//2 
+    # tag each quadrant with its number
+    z[:r2, -c2:] = 0
+    z[:r2, :c2] = 1
+    z[-r2:, :c2] = 2
+    z[-r2:, -c2:] = 3 
 
     if verbose:
         print("test image")
@@ -31,7 +31,7 @@ def test_symmetry_get_put_quadrants(verbose=False):
             print("\nreoriented quadrant Q{:d}".format(i))
             print(qi)
 
-    r = abel.tools.symmetry.put_image_quadrants(q, odd_size=True)
+    r = abel.tools.symmetry.put_image_quadrants(q, original_image_shape=(n,n))
 
     if verbose:
         print("\nreassembled image")
@@ -42,4 +42,4 @@ def test_symmetry_get_put_quadrants(verbose=False):
 
 
 if __name__ == "__main__":
-  test_symmetry_get_put_quadrants(verbose=True)
+  test_symmetry_get_put_quadrants(n=5, verbose=True)
