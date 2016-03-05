@@ -21,12 +21,12 @@ def test_center_image():
     IMx = shift(IM, (-1,2))
 
     # find_center using 'slice' method
-    center = abel.tools.center.find_center(IMx, method="slice", axis=(0,1)) 
+    center = abel.tools.center.find_center(IMx, center="slice", axis=(0,1)) 
 
     assert np.allclose(center, (179, 182), rtol=0, atol=0.1)
 
     # find_center using 'com' method
-    center = abel.tools.center.find_center(IMx, method="com")
+    center = abel.tools.center.find_center(IMx, center="com")
    
     assert np.allclose(center, (179, 182), rtol=0, atol=0.4)
 
