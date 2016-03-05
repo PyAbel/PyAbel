@@ -38,8 +38,8 @@ output_plot  = name + '_comparison_HansenLaw.png'
 # Load an image file as a numpy array
 print('Loading ' + filename)
 im = np.loadtxt(filename)
-print("scaling image x1/2 to reduce the time of the basis set calculation")
-im = zoom(im, 0.5)
+print("scaling image to size 501 reduce the time of the basis set calculation")
+im = zoom(im, 0.4892578125)
 (rows, cols) = np.shape(im)
 if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
