@@ -161,7 +161,12 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
 
     original_image_shape: tuple
        (rows, cols)
-       odd size will trim 1 row from Q1, Q0, and 1 column from Q1, Q2
+
+       reverses the padding added by `get_image_quadrants()` for odd-axis sizes
+
+       odd row trims 1 row from Q1, Q0
+
+       odd column trims 1 column from Q1, Q2
 
     symmetry_axis : int or tuple
        impose image symmetry
