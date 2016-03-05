@@ -9,10 +9,11 @@ from numpy.testing import assert_allclose
 
 import abel
 
-def test_symmetry_get_put_quadrants(n=5, verbose=False):
+def test_symmetry_get_put_quadrants(image_shape=(5,5), verbose=False):
     
-    z = np.ones((n, n))*(-1)     # axes tagged with '-1'
-    c2 = n//2 
+    n, m = image_shape
+    z = np.ones((n, m))*(-1)     # odd-image axes tagged with '-1'
+    c2 = m//2 
     r2 = n//2 
     # tag each quadrant with its number
     z[:r2, -c2:] = 0
@@ -21,7 +22,9 @@ def test_symmetry_get_put_quadrants(n=5, verbose=False):
     z[-r2:, -c2:] = 3 
 
     if verbose:
-        print("test image")
+        print("test image of shape ", z.shape)
+        if n % 2 or m % 2:
+            print(" odd-size axes tagged with '-1'")
         print(z)
 
     q = abel.tools.symmetry.get_image_quadrants(z, reorient=True)
@@ -31,10 +34,10 @@ def test_symmetry_get_put_quadrants(n=5, verbose=False):
             print("\nreoriented quadrant Q{:d}".format(i))
             print(qi)
 
-    r = abel.tools.symmetry.put_image_quadrants(q, original_image_shape=(n,n))
+    r = abel.tools.symmetry.put_image_quadrants(q, original_image_shape=z.shape)
 
     if verbose:
-        print("\nreassembled image")
+        print("\nreassembled image, shape = ", r.shape)
         print(r)
 
 
@@ -42,4 +45,4 @@ def test_symmetry_get_put_quadrants(n=5, verbose=False):
 
 
 if __name__ == "__main__":
-  test_symmetry_get_put_quadrants(n=5, verbose=True)
+  test_symmetry_get_put_quadrants(image_shape=(4, 5), verbose=True)

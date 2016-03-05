@@ -199,13 +199,13 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
         Q2 = Q1
         Q3 = Q0
 
-    if original_image_shape[0] % 2 == 1:
-        # odd-rows => remove duplicate bottom row of Q1, Q0
+    if original_image_shape[0] % 2:
+        # odd-rows => remove duplicate bottom row from Q1, Q0
         Q0 = Q0[:-1, :]
         Q1 = Q1[:-1, :]
 
-    if original_image_shape[1] % 2 == 1:
-        # odd-columns => remove duplicate first column of Q1, Q2
+    if original_image_shape[1] % 2:
+        # odd-columns => remove duplicate first column from Q1, Q2
         Q1 = Q1[:, 1:]
         Q2 = Q2[:, 1:]
 
