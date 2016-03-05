@@ -126,12 +126,15 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
                   (use_quadrants[0] + use_quadrants[1])
         Q2 = Q3 = (Q2*use_quadrants[2]+Q3*use_quadrants[3])/\
                   (use_quadrants[2] + use_quadrants[3])
+        # quadrants now all valid
+        use_quadrants = (True, True, True, True)
 
     if 1 in symmetry_axis:  # horizontal axis image symmetry
         Q1 = Q2 = (Q1*use_quadrants[1]+Q2*use_quadrants[2])/\
                   (use_quadrants[1] + use_quadrants[2])
         Q0 = Q3 = (Q0*use_quadrants[0]+Q3*use_quadrants[3])/\
                   (use_quadrants[0] + use_quadrants[3])
+
 
     return Q0, Q1, Q2, Q3
 
@@ -180,7 +183,7 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
              None             0              1           (0,1)
 
             Q1 | Q0        Q1 | Q1        Q1 | Q0       Q1 | Q1
-            ----o----  or  ----o----  or  ----o----  or ----o----
+           ----o----  or  ----o----  or  ----o----  or ----o----
             Q2 | Q3        Q2 | Q2        Q1 | Q0       Q1 | Q1
 
     """
