@@ -14,23 +14,26 @@ From the abstract:
 
 *... new family of algorithms, principally for Abel inversion, that are 
 recursive and hence computationally efficient. The methods are based on a 
-linear, space-variant, state-variable model of the Abel transform. The model 
+linear, space-variant, state-variable model of the Abel transform. The modl 
 is the basis for deterministic algorithms, applicable when data are noise free, 
 and least-squares estimation (Kalman filter) algorithms, which accommodate 
 the noisy data case.*
 
-The key advantage of the algorithm is its computational simplicity that amounts to only a few lines of code. 
+The key advantage of the algorithm is its computational simplicity that 
+amounts to only a few lines of code. 
 
 
 
 How it works
 ------------
 
-.. image:: https://cloud.githubusercontent.com/assets/10932229/13543157/c83d3796-e2bc-11e5-9210-12be6d24b8fc.png
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/13543157/c83d3796-e2bc-11e5-9210-12be6d24b8fc.png
    :width: 200px
    :alt: projection diag
    :align: right
+   :figclass: align-center
 
+   Projection geometry (Fig. 1 [1])
 
 image function |nbsp|  :math:`f(r)`, |nbsp| projected function |nbsp|  :math:`g(R)`
 
@@ -51,6 +54,15 @@ equations. In this framework the forward Abel transform :math:`g(R)` is
 the solution of a differential equation with :math:`f(r)` as its driving 
 function.
 
+.. figure:: https://cloud.githubusercontent.com/assets/10932229/13544803/13bf0d0e-e2cf-11e5-97d5-bece1e61d904.png 
+   :width: 350px
+   :alt: recursion
+   :align: right
+   :figclass: align-center
+
+   Recursion inner-pixel generated from outer
+
+
 forward transform
 
 .. math:: 
@@ -67,38 +79,49 @@ inverse transform
 
   f_n &= \tilde{C} x_n
 
-Note the only difference between the *forward* and *inverse* algorithms is only
+
+Note the only difference between the *forward* and *inverse* algorithms is 
 the exchange of :math:`f_n` with :math:`g^\prime_n` (or :math:`g_n`).
+
 :math:`\Phi_n` and :math:`\Gamma_n` are functions with predetermined 
 parameter constants, all listed in [1].
 
+
 The algorithm iterates along each individual row of the image, starting at 
-the out edge, and ending at the center. This provides for efficient code 
+the out edge, ending at the center-line. This provides for efficient code 
 parallelization.
+
 
 
 When to use it
 --------------
 
-The Hansen-Law algorithm offers one of the fastest, most robust methods for both the forward and inverse transforms. It requires reasonably fine sampling of the data to provide exact agreement with the analytical result, but otherwise this method is a hidden gem of the field.
+The Hansen-Law algorithm offers one of the fastest, most robust methods for 
+both the forward and inverse transforms. It requires reasonably fine sampling 
+of the data to provide exact agreement with the analytical result, but otherwise
+this method is a hidden gem of the field.
 
 
 How to use it
 -------------
 
-To complete the forward or inverse transform of a full image with the ``hansenlaw method``, simply use the :func:`abel.transform` function: ::
+To complete the forward or inverse transform of a full image with the 
+``hansenlaw method``, simply use the :func:`abel.transform` function: ::
 
 	abel.transform(myImage, method='hansenlaw', direction='forward')
 	abel.transform(myImage, method='hansenlaw', direction='inverse')
 	
 
-If you would like to access the Hansen-Law algorithm directly (to transform a right-side half-image), you can use :func:`abel.hansenlaw.hansenlaw_transform`.
+If you would like to access the Hansen-Law algorithm directly (to transform a 
+right-side half-image), you can use :func:`abel.hansenlaw.hansenlaw_transform`.
 
 
 Historical Note
 ---------------
 
-The Hansen and Law algorithm was almost lost to the scientific community. It was rediscovered by Jason Gascooke (Flinders University, South Australia) for use in his velocity-map image analysis and written up in his PhD thesis: 
+The Hansen and Law algorithm was almost lost to the scientific community. It was 
+rediscovered by Jason Gascooke (Flinders University, South Australia) for use in 
+his velocity-map image analysis, and written up in his PhD thesis: 
 
 J. R. Gascooke, PhD Thesis: *"Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation"*, Flinders University (2000).
 Unfortunately, not available in electronic format.
