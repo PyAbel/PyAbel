@@ -1,3 +1,6 @@
+.. |nbsp| unicode:: 0xA0 
+   :trim:
+
 Hansen-Law
 ==========
 
@@ -9,7 +12,12 @@ The Hansen and Law transform is the work of E. W. Hansen and P.-L. Law [1].
 
 From the abstract:
 
-... new family of algorithms, principally for Abel inversion, that are recursive and hence computationally efficient. The methods are based on a linear, space-variant, state-variable model of the Abel transform. The model is the basis for deterministic algorithms, applicable when data are noise free, and least-squares estimation (Kalman filter) algorithms, which accommodate the noisy data case.
+*... new family of algorithms, principally for Abel inversion, that are 
+recursive and hence computationally efficient. The methods are based on a 
+linear, space-variant, state-variable model of the Abel transform. The model 
+is the basis for deterministic algorithms, applicable when data are noise free, 
+and least-squares estimation (Kalman filter) algorithms, which accommodate 
+the noisy data case.*
 
 The key advantage of the algorithm is its computational simplicity that amounts to only a few lines of code. 
 
@@ -18,19 +26,55 @@ The key advantage of the algorithm is its computational simplicity that amounts 
 How it works
 ------------
 
-.. image:: https://cloud.githubusercontent.com/assets/10932229/13250293/40a333c2-da7d-11e5-9647-d8404a12626a.png
-   :width: 650px
-   :alt: Path of integration
+.. image:: https://cloud.githubusercontent.com/assets/10932229/13543157/c83d3796-e2bc-11e5-9210-12be6d24b8fc.png
+   :width: 200px
+   :alt: projection diag
+   :align: right
 
-The Hansen and Law method makes use of a coordinate transformation, which is used to model the Abel transform, and derive *reconstruction* filters. The Abel transform is treated as a system modeled by a set of linear differential equations. 
 
-.. image:: https://cloud.githubusercontent.com/assets/10932229/13251144/88f7a1d0-da82-11e5-8c09-7bf2dc4be830.png
-   :width: 550px
-   :alt: hansenlaw-iteration
+image function |nbsp|  :math:`f(r)`, |nbsp| projected function |nbsp|  :math:`g(R)`
 
-The algorithm iterates along each row of the image, starting at the out edge, and ending at the center.
+forward Abel transform 
 
-to be continued...
+.. math:: g(R) = 2 \int_R^\infty \frac{f(r) r}{\sqrt{r^2 - R^2}} dr 
+
+inverse Abel transform 
+
+.. math:: f(r) = -\frac{1}{\pi}  \int_r^\infty \frac{g^\prime(R)}{\sqrt{R^2 - r^2}} dR
+
+
+
+The Hansen and Law method makes use of a coordinate transformation, which is 
+used to model the Abel transform, and derive *reconstruction* filters. The Abel
+transform is treated as a system modeled by a set of linear differential 
+equations. In this framework the forward Abel transform :math:`g(R)` is 
+the solution of a differential equation with :math:`f(r)` as its driving 
+function.
+
+forward transform
+
+.. math:: 
+
+  x_{n+1} &= \Phi_n x_n + \Gamma_n f_n 
+
+  g_n &= \tilde{C} x_n
+
+inverse transform
+
+.. math:: 
+
+  x_{n+1} &= \Phi_n x_n + \Gamma_n g^\prime_n 
+
+  f_n &= \tilde{C} x_n
+
+Note the only difference between the *forward* and *inverse* algorithms is only
+the exchange of :math:`f_n` with :math:`g^\prime_n` (or :math:`g_n`).
+:math:`\Phi_n` and :math:`\Gamma_n` are functions with predetermined 
+parameter constants, all listed in [1].
+
+The algorithm iterates along each individual row of the image, starting at 
+the out edge, and ending at the center. This provides for efficient code 
+parallelization.
 
 
 When to use it
