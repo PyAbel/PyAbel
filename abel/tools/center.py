@@ -13,7 +13,9 @@ from scipy.optimize import minimize
 from six import string_types # testing stings with Python 2 and 3 compatibility
 
 def find_center(IM, center='image_center', verbose=False, **kwargs):
-    """
+    """Find the coordinates of image center, using the method 
+       specified by the `center` parameter.
+
     Parameters
     ----------
     IM : 2D np.array
@@ -105,9 +107,9 @@ def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
 
     # center is in y,x (row column) format!
     if isinstance(center, string_types):
-        center = find_center(IM, center, verbose=verbose, **kwargs)
+        center = find_center(IM, center=center, verbose=verbose, **kwargs)
 
-    centered_data = set_center(IM, center, verbose=verbose, **kwargs)
+    centered_data = set_center(IM, center=center, verbose=verbose, **kwargs)
     return centered_data
 
 
