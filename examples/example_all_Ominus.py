@@ -39,7 +39,7 @@ IM = abel.tools.analytical.sample_image(n=501, name="Ominus")
 
 h, w = IM.shape
 
-# forward transform
+# forward transform (whole image)
 fIM = abel.transform(IM, direction="forward", method="hansenlaw")['transform']
 
 Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(fIM, reorient=True)
@@ -59,7 +59,7 @@ for q, method in enumerate(transforms.keys()):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    IAQ0 = transforms[method](Q0, direction="inverse") 
+    IAQ0 = transforms[method](Q0, direction="inverse")
 
     print ("                    {:.1f} sec".format(time()-t0))
 
@@ -70,7 +70,7 @@ for q, method in enumerate(transforms.keys()):
 
     # normalize image intensity and speed distribution
     IAQ0 /= IAQ0.max()  
-    speed /= speed[radial > 50].max()
+    speed /= speed.max()
 
     # plots    #121 whole image,   #122 speed distributions
     plt.subplot(121) 
@@ -112,7 +112,7 @@ plt.imshow(im, vmin=0, vmax=0.8)
 
 plt.subplot(122)
 plt.title("Ominus sample image")
-plt.axis(ymin=-0.05, ymax=1.1, xmin=200, xmax=450)
+plt.axis(ymin=-0.05, ymax=1.1)
 plt.legend(loc=0, labelspacing=0.1)
 plt.tight_layout()
 plt.savefig('example_all_Ominus.png', dpi=100)
