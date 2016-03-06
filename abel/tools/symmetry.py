@@ -24,7 +24,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     symmetry_axis : int or tuple
         can have values of ``None``, ``0``, ``1``, or ``(0,1)`` and specifies 
         no symmetry, vertical symmetry axis, horizontal symmetry axis, and both vertical
-        and horizontal symmetry axes. Quadrants are averaged.
+        and horizontal symmetry axes. Quadrants are added.
         See Note. 
 
     use_quadrants : boolean tuple
@@ -41,7 +41,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     Notes
     -----
      
-    The symmetry_axis keyword averages quadrants like this: ::
+    The symmetry_axis keyword adds quadrants like this: ::
 
          +--------+--------+
          | Q1   * | *   Q0 |
@@ -50,13 +50,13 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
          +--------o--------+ --(output) -> ----o----
          |  *     |     *  |               cQ2 | cQ3
          |   *    |    *   |
-         | Q2  *  | *   Q3 |          cQi == averaged combined quadrants
+         | Q2  *  | *   Q3 |          cQi == combined quadrants
          +--------+--------+                 
 
         symmetry_axis = None - individual quadrants
-        symmetry_axis = 0 (vertical) - average Q0+Q1, and Q2+Q3
-        symmetry_axis = 1 (horizontal) - average Q1+Q2, and Q0+Q3
-        symmetry_axis = (0, 1) (both) - combine and average all 4 quadrants
+        symmetry_axis = 0 (vertical) - sum Q0+Q1, and Q2+Q3
+        symmetry_axis = 1 (horizontal) - sum Q1+Q2, and Q0+Q3
+        symmetry_axis = (0, 1) (both) - combine and sum all 4 quadrants
     
 
     The end results look like this: ::
@@ -103,10 +103,10 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
 
     # define 4 quadrants of the image
     # see definition above
-    Q0 = IM[:n_c, -m_c:]
-    Q1 = IM[:n_c, :m_c]
-    Q2 = IM[-n_c:, :m_c]
-    Q3 = IM[-n_c:, -m_c:]
+    Q0 = IM[:n_c, -m_c:]*use_quadrants[0]
+    Q1 = IM[:n_c, :m_c]*use_quadrants[1]
+    Q2 = IM[-n_c:, :m_c]*use_quadrants[2]
+    Q3 = IM[-n_c:, -m_c:]*use_quadrants[3]
 
     if reorient:
         Q1 = np.fliplr(Q1)
@@ -119,19 +119,12 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
             vertical symmetry), you must reorient the image.')
 
     if 0 in symmetry_axis:   #  vertical axis image symmetry
-        Q0 = Q1 = (Q0*use_quadrants[0]+Q1*use_quadrants[1])/\
-                  (use_quadrants[0] + use_quadrants[1])
-        Q2 = Q3 = (Q2*use_quadrants[2]+Q3*use_quadrants[3])/\
-                  (use_quadrants[2] + use_quadrants[3])
-        # quadrants now all valid
-        use_quadrants = (True, True, True, True)
+        Q0 = Q1 = Q0 + Q1
+        Q2 = Q3 = Q2 + Q3
 
-    if 1 in symmetry_axis:  # horizontal axis image symmetry
-        Q1 = Q2 = (Q1*use_quadrants[1]+Q2*use_quadrants[2])/\
-                  (use_quadrants[1] + use_quadrants[2])
-        Q0 = Q3 = (Q0*use_quadrants[0]+Q3*use_quadrants[3])/\
-                  (use_quadrants[0] + use_quadrants[3])
-
+    if 1 in symmetry_axis:   # horizontal axis image symmetry
+        Q1 = Q2 = Q1 + Q2
+        Q0 = Q3 = Q0 + Q3
 
     return Q0, Q1, Q2, Q3
 
