@@ -109,7 +109,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         (symmetry_axis == [1] and use_quadrants[0]==False and 
                                   use_quadrants[3]==False)    # right empty
                                                                 or
-        (symmetry_axis == (0, 1) and not np.all(use_quadrants))
+        (symmetry_axis == (0, 1) and not np.any(use_quadrants))
         ): 
         raise ValueError('At least one quadrant would be empty.'
                          ' Please check symmetry_axis and use_quadrant'
