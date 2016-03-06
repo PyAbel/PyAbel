@@ -92,7 +92,7 @@ parameter constants, all listed in [1].
 
 
 The algorithm iterates along each individual row of the image, starting at 
-the out edge, ending at the center-line. Since all rows in a column can be 
+the out edge, ending at the center-line. Since all rows in an image can be 
 processed simultaneously, the operation can be easily vectorized and is 
 therefore numerically efficient.
 
