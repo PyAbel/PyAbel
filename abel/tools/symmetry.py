@@ -41,7 +41,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     Notes
     -----
      
-    The symmetry_axis keyword adds quadrants like this: ::
+    The symmetry_axis keyword averages quadrants like this: ::
 
          +--------+--------+
          | Q1   * | *   Q0 |
@@ -54,9 +54,9 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
          +--------+--------+                 
 
         symmetry_axis = None - individual quadrants
-        symmetry_axis = 0 (vertical) - sum Q0+Q1, and Q2+Q3
-        symmetry_axis = 1 (horizontal) - sum Q1+Q2, and Q0+Q3
-        symmetry_axis = (0, 1) (both) - combine and sum all 4 quadrants
+        symmetry_axis = 0 (vertical) - average Q0+Q1, and Q2+Q3
+        symmetry_axis = 1 (horizontal) - average Q1+Q2, and Q0+Q3
+        symmetry_axis = (0, 1) (both) - combine and average all 4 quadrants
     
 
     The end results look like this: ::
@@ -95,6 +95,27 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         # if the user supplies an int, make it into a 1-element list:
         symmetry_axis = [symmetry_axis]
 
+    if ((symmetry_axis == [None] and (use_quadrants[0]==False
+                                   or use_quadrants[1]==False 
+                                   or use_quadrants[2]==False
+                                   or use_quadrants[3]==False)) or 
+        # at least one empty
+        (symmetry_axis == [0] and use_quadrants[0]==False and 
+                                  use_quadrants[1]==False) or # top empty
+        (symmetry_axis == [0] and use_quadrants[2]==False and 
+                                  use_quadrants[3]==False) or # bot empty
+        (symmetry_axis == [1] and use_quadrants[1]==False and
+                                  use_quadrants[2]==False) or # left empty
+        (symmetry_axis == [1] and use_quadrants[0]==False and 
+                                  use_quadrants[3]==False)    # right empty
+                                                                or
+        (symmetry_axis == (0, 1) and not np.all(use_quadrants))
+        ): 
+        raise ValueError('At least one quadrant would be empty.'
+                         ' Please check symmetry_axis and use_quadrant'
+                         ' values to ensure that all quadrants will have a'
+                         ' defined value.')
+
     n, m = IM.shape
 
     # odd size increased by 1
@@ -118,13 +139,17 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
             'In order to add quadrants (i.e., to apply horizontal or \
             vertical symmetry), you must reorient the image.')
 
+    if symmetry_axis==(0, 1):
+        Q = (Q0 + Q1 + Q2 + Q3)/np.sum(use_quadrants)
+        return Q, Q, Q, Q
+
     if 0 in symmetry_axis:   #  vertical axis image symmetry
-        Q0 = Q1 = Q0 + Q1
-        Q2 = Q3 = Q2 + Q3
+        Q0 = Q1 = (Q0 + Q1)/(use_quadrants[0] + use_quadrants[1])
+        Q2 = Q3 = (Q2 + Q3)/(use_quadrants[2] + use_quadrants[3])
 
     if 1 in symmetry_axis:   # horizontal axis image symmetry
-        Q1 = Q2 = Q1 + Q2
-        Q0 = Q3 = Q0 + Q3
+        Q1 = Q2 = (Q1 + Q2)/(use_quadrants[1] + use_quadrants[2])
+        Q0 = Q3 = (Q0 + Q3)/(use_quadrants[0] + use_quadrants[3])
 
     return Q0, Q1, Q2, Q3
 

@@ -103,7 +103,7 @@ def transform(
         
         
     .. note:: Quadrant combining 
-         The quadrants can be combined (summed) using the 
+         The quadrants can be combined (averaged) using the 
          ``use_quadrants`` keyword in order to provide better data quality.
          
          The quadrants are numbered starting from
