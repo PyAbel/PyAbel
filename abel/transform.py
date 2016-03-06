@@ -102,7 +102,7 @@ def transform(
         Additional arguments to be passed to the centering function.
         
         
-    .. note:: Quadrant averaging 
+    .. note:: Quadrant combining 
          The quadrants can be combined (summed) using the 
          ``use_quadrants`` keyword in order to provide better data quality.
          
