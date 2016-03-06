@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
@@ -24,6 +23,8 @@ from scipy.ndimage import zoom
 # This spectrum was recorded in 2010  
 # ANU / The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
+#
+# Note the image zoomed to reduce calculation time
 
 # Specify the path to the file
 filename = os.path.join('data', 'O2-ANU1024.txt.bz2')
@@ -44,7 +45,7 @@ im = zoom(im, 0.4892578125)
 if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
            " center_image()".format(cols))
-    im = abel.tools.center.center_image(im, center="com", odd_size=True)
+    im = abel.tools.center.center_image(im, center="slice", odd_size=True)
     # alternative
     #im = shift(im,(0.5,0.5))
     #im = im[:-1, 1::]  # drop left col, bottom row

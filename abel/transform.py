@@ -253,8 +253,9 @@ def transform(
 
     #########################
 
-    verboseprint('Calculating {0} Abel transform using {1} method -'.format(
-      direction, method), 'image size: {:d}x{:d}'.format(rows, cols))
+    verboseprint('Calculating {0} Abel transform using {1} method -'\
+                 .format(direction, method), 
+                 '\n    image size: {:d}x{:d}'.format(rows, cols))
 
     t0 = time.time()
 

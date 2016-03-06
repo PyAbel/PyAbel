@@ -52,7 +52,8 @@ used to model the Abel transform, and derive *reconstruction* filters. The Abel
 transform is treated as a system modeled by a set of linear differential 
 equations. In this framework the forward Abel transform :math:`g(R)` is 
 the solution of a differential equation with :math:`f(r)` as its driving 
-function.
+function. Similarly, the Abel inversion :math:`f(r)` is a solution of a 
+differential equation with :math:`g^\prime(R)` as its driving function. 
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/13544803/13bf0d0e-e2cf-11e5-97d5-bece1e61d904.png 
    :width: 350px
@@ -60,7 +61,7 @@ function.
    :align: right
    :figclass: align-center
 
-   Recursion inner-pixel generated from outer
+   Recursion: pixel value from adjacent outer-pixel
 
 
 forward transform
@@ -82,6 +83,9 @@ inverse transform
 
 Note the only difference between the *forward* and *inverse* algorithms is 
 the exchange of :math:`f_n` with :math:`g^\prime_n` (or :math:`g_n`).
+
+|
+|
 
 :math:`\Phi_n` and :math:`\Gamma_n` are functions with predetermined 
 parameter constants, all listed in [1].
@@ -114,6 +118,12 @@ To complete the forward or inverse transform of a full image with the
 
 If you would like to access the Hansen-Law algorithm directly (to transform a 
 right-side half-image), you can use :func:`abel.hansenlaw.hansenlaw_transform`.
+
+
+Example
+-------
+
+.. plot:: ../examples/example_O2_PES_PAD.py
 
 
 Historical Note

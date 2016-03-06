@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # This example compares the available inverse Abel transform methods
@@ -41,7 +40,7 @@ IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 
 # recenter the image to an odd size
 
-IModd = abel.tools.center.center_image(IM, center="com", odd_size=True)
+IModd = abel.tools.center.center_image(IM, center="slice", odd_size=True)
 # np.savetxt("O2-ANU1023.txt", IModd)
 
 h, w = IModd.shape

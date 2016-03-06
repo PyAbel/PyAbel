@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Illustrative GUI driving a small subset of PyAbel methods
 
 # tkinter code adapted from
