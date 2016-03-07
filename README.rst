@@ -105,7 +105,7 @@ Output:
    :width: 400px
    :alt: example abel transform
    
-.. note:: Additional examples can be viewed on the :doc:`PyAbel examples <examples>` page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`_ directory.
+.. note:: Additional examples can be viewed on the `PyAbel examples <http://pyabel.readthedocs.org/en/latest/examples.html>`_ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`_ directory.
 
 
 Documentation
