@@ -51,10 +51,15 @@ else:
 
 
 if sys.platform != 'win32':
-    compile_args =  dict( extra_compile_args=['-O2', '-march=native'],
-                 extra_link_args=['-O2', '-march=native'])
+    compile_args =  dict( extra_compile_args=['-O2', '-march=native',
+                                              '-Wno-unused-function', 
+                                              '-Wno-unneeded-internal-declaration',
+                                              '-Wno-#warnings'],
+                             extra_link_args=['-O2', '-march=native'])
 else:
-    compile_args = {}
+    compile_args = {dict( extra_compile_args=['-Wunused-function', 
+                                              '-Wunneeded-internal-declaration',
+                                              '-Wno-#warnings'])}
 
 # Optional compilation of Cython modules adapted from
 # https://github.com/bsmurphy/PyKrige which was itself adapted from a StackOverflow post
