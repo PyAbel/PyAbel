@@ -45,8 +45,7 @@ The outcome of the numerical Abel Transform depends on the exact method used. So
 
 
 .. |transform methods| raw:: html
-
-   <a href="<http://pyabel.readthedocs.org/en/latest/transform_methods.html>" target="_blank">transform methods</a>
+	<a href="<http://pyabel.readthedocs.org/en/latest/transform_methods.html>" target="_blank">transform methods</a>
 
 
 Installation
