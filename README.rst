@@ -26,7 +26,7 @@ PyAbel provides efficient implementations of several Abel transform algorithms, 
 Transform Methods
 -----------------
 
-The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following `transform methods <http://pyabel.readthedocs.org/en/latest/transform_methods.html>`_:
+The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following |transform methods|:
 
 	1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
 
@@ -41,6 +41,12 @@ The outcome of the numerical Abel Transform depends on the exact method used. So
 	6. ``onion`` - onion peeling method (not yet implemented).
 	
 	7. ``pop`` - polar onion peeling method (not yet implemented).
+	
+
+
+.. |transform methods| raw:: html
+
+   <a href="<http://pyabel.readthedocs.org/en/latest/transform_methods.html>" target="_blank">transform methods</a>
 
 
 Installation
