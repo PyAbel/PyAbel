@@ -6,7 +6,7 @@ PyAbel README
 .. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
     :target: https://ci.appveyor.com/project/PyAbel/PyAbel
 	
-**Note: This readme is best viewed as part of the `PyAbel Documentation <http://pyabel.readthedocs.org/en/latest/readme_link.html>`_.**
+**Note:** This readme is best viewed as part of the `PyAbel Documentation <http://pyabel.readthedocs.org/en/latest/readme_link.html>`_.
 
 Introduction
 ------------
