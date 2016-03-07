@@ -78,7 +78,7 @@ def transform(
     verbose : boolean
         True/False to determine if non-critical output should be printed.
 
-    symmetry_axis : int or tuple
+    symmetry_axis : None, int or tuple
         Symmetrize the image about the numpy axis 
         0 (vertical), 1 (horizontal), (0,1) (both axes)
         
@@ -102,8 +102,8 @@ def transform(
         Additional arguments to be passed to the centering function.
         
         
-    .. note:: Quadrant averaging 
-         The quadrants can be averaged using the 
+    .. note:: Quadrant combining 
+         The quadrants can be combined (averaged) using the 
          ``use_quadrants`` keyword in order to provide better data quality.
          
          The quadrants are numbered starting from
@@ -126,8 +126,8 @@ def transform(
 
                 Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
                 inverse image   AQ01 | AQ01
-                               -----o-----
-                               AQ23 | AQ23
+                                -----o-----
+                                AQ23 | AQ23
 
 
         2) symmetry_axis = 1 (horizontal): ::
@@ -253,8 +253,9 @@ def transform(
 
     #########################
 
-    verboseprint('Calculating {0} Abel transform using {1} method -'.format(
-      direction, method), 'image size: {:d}x{:d}'.format(rows, cols))
+    verboseprint('Calculating {0} Abel transform using {1} method -'\
+                 .format(direction, method), 
+                 '\n    image size: {:d}x{:d}'.format(rows, cols))
 
     t0 = time.time()
 
@@ -285,7 +286,7 @@ def transform(
     # reassemble image
     results = {}
     results['transform'] = abel.tools.symmetry.put_image_quadrants(
-                           (AQ0, AQ1, AQ2, AQ3), odd_size=cols % 2,
+                           (AQ0, AQ1, AQ2, AQ3), original_image_shape = IM.shape,
                             symmetry_axis=symmetry_axis)
 
     verboseprint("{:.2f} seconds".format(time.time()-t0))

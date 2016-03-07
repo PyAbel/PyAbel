@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
@@ -24,6 +23,8 @@ from scipy.ndimage import zoom
 # This spectrum was recorded in 2010  
 # ANU / The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
+#
+# Note the image zoomed to reduce calculation time
 
 # Specify the path to the file
 filename = os.path.join('data', 'O2-ANU1024.txt.bz2')
@@ -38,12 +39,13 @@ output_plot  = name + '_comparison_HansenLaw.png'
 # Load an image file as a numpy array
 print('Loading ' + filename)
 im = np.loadtxt(filename)
-im = zoom(im, 0.5)
-(rows,cols) = np.shape(im)
+print("scaling image to size 501 reduce the time of the basis set calculation")
+im = zoom(im, 0.4892578125)
+(rows, cols) = np.shape(im)
 if cols%2 == 0:
     print ("Even pixel image cols={:d}, adjusting image centre\n",
            " center_image()".format(cols))
-    im = abel.tools.center.center_image(im, center="com", odd_size=True)
+    im = abel.tools.center.center_image(im, center="slice", odd_size=True)
     # alternative
     #im = shift(im,(0.5,0.5))
     #im = im[:-1, 1::]  # drop left col, bottom row
@@ -79,7 +81,7 @@ im1 = ax1.imshow(im, origin='lower', aspect='auto')
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('velocity map image')
+ax1.set_title('velocity map image: size {:d}x{:d}'.format(rows, cols))
 
 # Plot the 2D transform
 reconH2 = reconH[:,:c2]
@@ -93,12 +95,12 @@ ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law | Basex',x=0.4)
 
 # Plot the 1D speed distribution - normalized
-ax3.plot(rB, speedsB/speedsB[350:].max(), 'r-', label="Basex")
-ax3.plot(rH, speedsH/speedsH[350:].max(), 'b-', label="Hansen Law")
-ax3.axis(xmax=c2-12, ymin=-0.1, ymax=1.5)
-ax3.set_xlabel('Speed (pixel)')
-ax3.set_ylabel('Intensity')
-ax3.set_title('Speed distribution')
+ax3.plot(rB, speedsB/speedsB[150:].max(), 'r-', label="Basex")
+ax3.plot(rH, speedsH/speedsH[150:].max(), 'b-', label="Hansen Law")
+ax3.axis(xmax=250, ymin=-0.1, ymax=1.5)
+ax3.set_xlabel('speed (pixel)')
+ax3.set_ylabel('intensity')
+ax3.set_title('speed distribution')
 ax3.legend(labelspacing=0.1, fontsize='small')
 
 # Prettify the plot a little bit:

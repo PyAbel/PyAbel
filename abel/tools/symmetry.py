@@ -6,10 +6,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy.ndimage import map_coordinates
-from scipy.ndimage.interpolation import shift
-from scipy.optimize import curve_fit, minimize
-
 
 def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
                         use_quadrants=(True, True, True, True)):
@@ -28,7 +24,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     symmetry_axis : int or tuple
         can have values of ``None``, ``0``, ``1``, or ``(0,1)`` and specifies 
         no symmetry, vertical symmetry axis, horizontal symmetry axis, and both vertical
-        and horizontal symmetry axes. Quadrants are averaged.
+        and horizontal symmetry axes. Quadrants are added.
         See Note. 
 
     use_quadrants : boolean tuple
@@ -54,7 +50,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
          +--------o--------+ --(output) -> ----o----
          |  *     |     *  |               cQ2 | cQ3
          |   *    |    *   |
-         | Q2  *  | *   Q3 |          cQi == averaged combined quadrants
+         | Q2  *  | *   Q3 |          cQi == combined quadrants
          +--------+--------+                 
 
         symmetry_axis = None - individual quadrants
@@ -99,17 +95,39 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         # if the user supplies an int, make it into a 1-element list:
         symmetry_axis = [symmetry_axis]
 
+    if ((symmetry_axis == [None] and (use_quadrants[0]==False
+                                   or use_quadrants[1]==False 
+                                   or use_quadrants[2]==False
+                                   or use_quadrants[3]==False)) or 
+        # at least one empty
+        (symmetry_axis == [0] and use_quadrants[0]==False and 
+                                  use_quadrants[1]==False) or # top empty
+        (symmetry_axis == [0] and use_quadrants[2]==False and 
+                                  use_quadrants[3]==False) or # bot empty
+        (symmetry_axis == [1] and use_quadrants[1]==False and
+                                  use_quadrants[2]==False) or # left empty
+        (symmetry_axis == [1] and use_quadrants[0]==False and 
+                                  use_quadrants[3]==False)    # right empty
+                                                                or
+        (symmetry_axis == (0, 1) and not np.any(use_quadrants))
+        ): 
+        raise ValueError('At least one quadrant would be empty.'
+                         ' Please check symmetry_axis and use_quadrant'
+                         ' values to ensure that all quadrants will have a'
+                         ' defined value.')
+
     n, m = IM.shape
 
+    # odd size increased by 1
     n_c = n // 2 + n % 2
     m_c = m // 2 + m % 2
 
     # define 4 quadrants of the image
     # see definition above
-    Q0 = IM[:n_c, -m_c:]
-    Q1 = IM[:n_c, :m_c]
-    Q2 = IM[-n_c:, :m_c]
-    Q3 = IM[-n_c:, -m_c:]
+    Q0 = IM[:n_c, -m_c:]*use_quadrants[0]
+    Q1 = IM[:n_c, :m_c]*use_quadrants[1]
+    Q2 = IM[-n_c:, :m_c]*use_quadrants[2]
+    Q3 = IM[-n_c:, -m_c:]*use_quadrants[3]
 
     if reorient:
         Q1 = np.fliplr(Q1)
@@ -121,22 +139,22 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
             'In order to add quadrants (i.e., to apply horizontal or \
             vertical symmetry), you must reorient the image.')
 
-    if 0 in symmetry_axis:   #  vertical axis image symmetry
-        Q0 = Q1 = (Q0*use_quadrants[0]+Q1*use_quadrants[1])/\
-                  (use_quadrants[0] + use_quadrants[1])
-        Q2 = Q3 = (Q2*use_quadrants[2]+Q3*use_quadrants[3])/\
-                  (use_quadrants[2] + use_quadrants[3])
+    if symmetry_axis==(0, 1):
+        Q = (Q0 + Q1 + Q2 + Q3)/np.sum(use_quadrants)
+        return Q, Q, Q, Q
 
-    if 1 in symmetry_axis:  # horizontal axis image symmetry
-        Q1 = Q2 = (Q1*use_quadrants[1]+Q2*use_quadrants[2])/\
-                  (use_quadrants[1] + use_quadrants[2])
-        Q0 = Q3 = (Q0*use_quadrants[0]+Q3*use_quadrants[3])/\
-                  (use_quadrants[0] + use_quadrants[3])
+    if 0 in symmetry_axis:   #  vertical axis image symmetry
+        Q0 = Q1 = (Q0 + Q1)/(use_quadrants[0] + use_quadrants[1])
+        Q2 = Q3 = (Q2 + Q3)/(use_quadrants[2] + use_quadrants[3])
+
+    if 1 in symmetry_axis:   # horizontal axis image symmetry
+        Q1 = Q2 = (Q1 + Q2)/(use_quadrants[1] + use_quadrants[2])
+        Q0 = Q3 = (Q0 + Q3)/(use_quadrants[0] + use_quadrants[3])
 
     return Q0, Q1, Q2, Q3
 
 
-def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
+def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
     """
     Reassemble image from 4 quadrants Q = (Q0, Q1, Q2, Q3)
     The reverse process to get_image_quadrants(reorient=True)
@@ -159,9 +177,14 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
             | Q2  *  | *   Q3 | 
             +--------+--------+                 
 
-    odd_size: boolean
-       Whether final image is odd or even pixel size
-       odd size will trim 1 row from Q1, Q0, and 1 column from Q1, Q2
+    original_image_shape: tuple
+       (rows, cols)
+
+       reverses the padding added by `get_image_quadrants()` for odd-axis sizes
+
+       odd row trims 1 row from Q1, Q0
+
+       odd column trims 1 column from Q1, Q2
 
     symmetry_axis : int or tuple
        impose image symmetry
@@ -180,7 +203,7 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
              None             0              1           (0,1)
 
             Q1 | Q0        Q1 | Q1        Q1 | Q0       Q1 | Q1
-            ----o----  or  ----o----  or  ----o----  or ----o----
+           ----o----  or  ----o----  or  ----o----  or ----o----
             Q2 | Q3        Q2 | Q2        Q1 | Q0       Q1 | Q1
 
     """
@@ -199,15 +222,18 @@ def put_image_quadrants(Q, odd_size=True, symmetry_axis=None):
         Q2 = Q1
         Q3 = Q0
 
-    if not odd_size:
-        Top = np.concatenate((np.fliplr(Q0), Q1), axis=1)
-        Bottom = np.flipud(np.concatenate((np.fliplr(Q2), Q3), axis=1))
-    else:
-        # odd size image remove extra row/column added in get_image_quadrant()
-        Top = np.concatenate(
-                    (np.fliplr(Q[1])[:-1, :-1], Q[0][:-1, :]), axis=1)
-        Bottom = np.flipud(
-                    np.concatenate((np.fliplr(Q[2])[:, :-1], Q[3]), axis=1))
+    if original_image_shape[0] % 2:
+        # odd-rows => remove duplicate bottom row from Q1, Q0
+        Q0 = Q0[:-1, :]
+        Q1 = Q1[:-1, :]
+
+    if original_image_shape[1] % 2:
+        # odd-columns => remove duplicate first column from Q1, Q2
+        Q1 = Q1[:, 1:]
+        Q2 = Q2[:, 1:]
+
+    Top = np.concatenate((np.fliplr(Q1), Q0), axis=1)
+    Bottom = np.flipud(np.concatenate((np.fliplr(Q2), Q3), axis=1))
 
     IM = np.concatenate((Top, Bottom), axis=0)
 

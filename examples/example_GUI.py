@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 
 # Illustrative GUI driving a small subset of PyAbel methods
@@ -453,7 +452,7 @@ class PyAbel:  #(tk.Tk):
     
         # intensity vs angle
         self.intensity, self.theta = abel.tools.vmi.\
-                                     calculate_angular_distributions(self.AIM,\
+                                     radial_integration(self.AIM,\
                                      radial_ranges=[self.rmx,])
     
         # fit to P2(cos theta)

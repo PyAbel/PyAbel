@@ -12,14 +12,16 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import minimize
 from six import string_types # testing stings with Python 2 and 3 compatibility
 
-def find_center(IM, method='image_center', verbose=False, **kwargs):
-    """
+def find_center(IM, center='image_center', verbose=False, **kwargs):
+    """Find the coordinates of image center, using the method 
+       specified by the `center` parameter.
+
     Parameters
     ----------
     IM : 2D np.array
       image data
 
-    method : str
+    center : str
         this determines how the center should be found. The options are:
         
         ``image_center``
@@ -39,7 +41,7 @@ def find_center(IM, method='image_center', verbose=False, **kwargs):
       coordinate of the center of the image in the (y,x) format (row, column)
 
     """
-    return func_method[method](IM, verbose=verbose, **kwargs)
+    return func_method[center](IM, verbose=verbose, **kwargs)
 
 
 def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
@@ -105,9 +107,9 @@ def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
 
     # center is in y,x (row column) format!
     if isinstance(center, string_types):
-        center = find_center(IM, center, verbose=verbose, **kwargs)
+        center = find_center(IM, center=center, verbose=verbose, **kwargs)
 
-    centered_data = set_center(IM, center, verbose=verbose, **kwargs)
+    centered_data = set_center(IM, center=center, verbose=verbose, **kwargs)
     return centered_data
 
 
