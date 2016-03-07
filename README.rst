@@ -6,8 +6,7 @@ PyAbel README
 .. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
     :target: https://ci.appveyor.com/project/PyAbel/PyAbel
 	
-
-# Note: This readme is best viewed  `PyAbel Documentation <http://pyabel.readthedocs.org/en/latest/readme_link.html>`_. 
+Note: This readme is best viewed as part of the `PyAbel Documentation <http://pyabel.readthedocs.org/en/latest/readme_link.html>`_. 
 
 Introduction
 ------------
@@ -18,7 +17,10 @@ Inverse Abel transforms play an important role in analyzing the projections of a
 
 PyAbel provides efficient implementations of several Abel transform algorithms, as well as related tools for centering images, symmetrizing images, and calculating properties such as the radial intensity distribution and the anisotropy parameters.
 
-So far, PyAbel includes the following transform methods:
+Transform Methods
+-----------------
+
+The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following transform methods:
 
 	1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers
 
