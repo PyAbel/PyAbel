@@ -17,10 +17,16 @@ Inverse Abel transforms play an important role in analyzing the projections of a
 
 PyAbel provides efficient implementations of several Abel transform algorithms, as well as related tools for centering images, symmetrizing images, and calculating properties such as the radial intensity distribution and the anisotropy parameters.
 
+.. image:: https://cloud.githubusercontent.com/assets/1107796/13302896/7c7e74e2-db09-11e5-9683-a8f2c523af94.png
+   :width: 430px
+   :alt: PyAbel
+   :align: right
+   
+
 Transform Methods
 -----------------
 
-The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following :doc:`transform methods <transform_methods>`:
+The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following `transform methods <http://pyabel.readthedocs.org/en/latest/transform_methods.html>`_:
 
 	1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
 
@@ -35,11 +41,6 @@ The outcome of the numerical Abel Transform depends on the exact method used. So
 	6. ``onion`` - onion peeling method (not yet implemented).
 	
 	7. ``pop`` - polar onion peeling method (not yet implemented).
-
-.. image:: https://cloud.githubusercontent.com/assets/1107796/13302896/7c7e74e2-db09-11e5-9683-a8f2c523af94.png
-   :width: 430px
-   :alt: PyAbel
-   :align: right
 
 
 Installation
