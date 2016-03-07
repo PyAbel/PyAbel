@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import matplotlib.pyplot as plt
 from abel.basex import basex_transform
 from abel.tools.analytical import StepAnalytical

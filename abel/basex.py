@@ -47,17 +47,19 @@ from ._version import __version__
 
 def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
                     direction='inverse'):
-    """ This function performs the BASEX (BAsis Set EXpansion) Abel Transform. 
-    It works on a "right side" image. I.e., it works on just half of a cylindrically symmetric
-    object and data[0,0] should correspond to a central pixel. To perform a BASEX transorm on 
+    """ 
+    This function performs the BASEX (BAsis Set EXpansion) 
+    Abel Transform. It works on a "right side" image. I.e., 
+    it works on just half of a cylindrically symmetric
+    object and ``data[0,0]`` should correspond to a central pixel. 
+    To perform a BASEX transorm on 
     a whole image, use ::
     
         abel.transform(image, method='basex')
 
-    It only works with images that have an odd-integer width.
+    This BASEX implementation only works with images that have an odd-integer width.
     
-    Only the inverse transform is currently implemented.
-    
+    Note: only the inverse transform is currently implemented.
     
 
     Parameters
@@ -67,8 +69,8 @@ def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
         should correspond to the central column of the image. 
     nbf : str or list
         number of basis functions. If ``nbf='auto'``, it is set to ``(n//2 + 1)``.
-        This is what you should use,
-        since basex does not work reliably in other situations
+        *This is what you should always use*,
+        since this BASEX implementation does not work reliably in other situations!
         In the future, you could use
         list, in format [nbf_vert, nbf_horz]
     basis_dir : str
@@ -81,12 +83,12 @@ def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
         Determines if statements should be printed.
     direction : str
         The type of Abel transform to be performed.
-        Currently only accepts value 'inverse'
+        Currently only accepts value ``'inverse'``.
 
 
     Returns
     -------
-    recon : NxN numpy array
+    recon : NxM numpy array
         the transformed (half) image
 
     """
@@ -221,24 +223,28 @@ def get_bs_basex_cached(n_vert, n_horz,
     """
     Internal function.
 
-    Get up/down-asymmetric basis sets, using the disk as a cache
+    Gets BASEX basis sets, using the disk as a cache
     (i.e. load from disk if they exist,
     if not calculate them and save a copy on disk).
+    To prevent saving the basis sets to disk, set ``basis_dir=None``.
 
     Parameters
     ----------
-    n_vert, n_horz : integer
+    n_vert, n_horz : int
         Abel inverse transform will be performed on a
-        `n_vert x n_horz` area of the image
-    nbf : integer or list
-        number of basis functions. If nbf='auto', n_horz is set to (n//2 + 1).
-    basis_dir : path to the directory for saving / loading
-                the basis set coefficients.
-                If None, the basis sets will not be saved to disk.
+        ``n_vert x n_horz`` area of the image
+    nbf : int or list
+        number of basis functions. If ``nbf='auto'``, 
+        ``n_horz`` is set to ``(n//2 + 1)``.
+    basis_dir : str
+        path to the directory for saving / loading
+        the basis set coefficients.
+        If None, the basis sets will not be saved to disk.
 
     Returns
     -------
-      - M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right: numpy arrays
+    M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right: numpy arrays
+        the matrices that compose the basis set.
     """
 
     # Sanitize nbf

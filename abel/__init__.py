@@ -12,5 +12,6 @@ from . import hansenlaw
 from . import three_point
 from . import tools
 from . import transform
+from . import tests
 from .transform import transform
 from .tools.center import center_image

@@ -14,11 +14,11 @@ if not on_rtd:
           "numpy >= 1.6",
           "setuptools >= 16.0",
           "scipy >= 0.14",
+          "six >= 1.10.0"
           ]
 else:
     np = None
     install_requires=[]
-
 
 
 

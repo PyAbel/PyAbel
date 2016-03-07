@@ -2,7 +2,6 @@ Onion Peeling (not implemented)
 ===============================
 
 
-
 Introduction
 ------------
 
@@ -13,7 +12,7 @@ See the discussion here: https://github.com/PyAbel/PyAbel/issues/56
 How it works
 ------------
 
-It doesn't really work yet.
+It doesn't quite work reliably yet.
 
 
 When to use it
@@ -25,13 +24,11 @@ Probably not until sombody finished it.
 How to use it
 -------------
 
-Don't
+Fix the bugs!
 
 
 Example
 -------
-
-Nope.
 
 
 

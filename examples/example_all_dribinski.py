@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # This example compares the available inverse Abel transform methods
@@ -100,7 +99,7 @@ if ntrans == 5:
  
 im = abel.tools.symmetry.put_image_quadrants((iabelQ[0], iabelQ[1],
                                               iabelQ[2], iabelQ[3]), 
-                                              odd_size=True)
+                                              original_image_shape=IM.shape)
 
 ax1.imshow(im, vmin=0, vmax=0.15)
 ax1.set_title('Inverse Abel comparison')

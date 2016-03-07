@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # This example compares the available inverse Abel transform methods
@@ -41,7 +40,7 @@ IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 
 # recenter the image to an odd size
 
-IModd = abel.tools.center.center_image(IM, center="com", odd_size=True)
+IModd = abel.tools.center.center_image(IM, center="slice", odd_size=True)
 # np.savetxt("O2-ANU1023.txt", IModd)
 
 h, w = IModd.shape
@@ -116,7 +115,7 @@ if ntrans == 5:
 
 im = abel.tools.symmetry.put_image_quadrants((iabelQ[0], iabelQ[1],
                                               iabelQ[2], iabelQ[3]), 
-                                              odd_size=True)
+                                              original_image_shape=IModd.shape)
 
 plt.subplot(121)
 plt.imshow(im, vmin=0, vmax=0.8)

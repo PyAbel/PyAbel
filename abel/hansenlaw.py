@@ -39,7 +39,7 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a: 
     
     
-    .. math:: f(r) = \frac{1}{\pi} \int_{r}^{\inf} \frac{g^\prime(R)}{\sqrt{R^2-r^2}} dR,
+    .. math:: f(r) = -\frac{1}{\pi} \int_{r}^{\infty} \frac{g^\prime(R)}{\sqrt{R^2-r^2}} dR,
     
     where 
 
@@ -77,8 +77,8 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
     dr : float
         Sampling size (=1 for pixel images), used for Jacobian scaling
 
-    direction : string
-        'forward' or 'inverse' Abel transform
+    direction : string ('forward' or 'inverse')
+        ``forward`` or ``inverse`` Abel transform
 
     Returns
     -------
