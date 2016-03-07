@@ -26,7 +26,7 @@ PyAbel provides efficient implementations of several Abel transform algorithms, 
 Transform Methods
 -----------------
 
-The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following |transform methods|:
+The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following |transform_methods|:
 
 	1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
 
@@ -44,7 +44,7 @@ The outcome of the numerical Abel Transform depends on the exact method used. So
 	
 
 
-.. |transform methods| raw:: html
+.. |transform_methods| raw:: html
 	<a href="<http://pyabel.readthedocs.org/en/latest/transform_methods.html>" target="_blank">transform methods</a>
 
 
