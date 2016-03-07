@@ -7,7 +7,7 @@ PyAbel README
     :target: https://ci.appveyor.com/project/PyAbel/PyAbel
 	
 
-.. note:: not all links work when this README is viewed on GitHub. Please read it as part of the `PyAbel Documentation <http://pyabel.readthedocs.org/en/latest/readme_link.html>`_. 
+# Note: This readme is best viewed  `PyAbel Documentation <http://pyabel.readthedocs.org/en/latest/readme_link.html>`_. 
 
 Introduction
 ------------
