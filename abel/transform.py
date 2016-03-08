@@ -6,10 +6,14 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-import abel
 import time
 import warnings
 
+from . import basex
+from . import hansenlaw
+from . import direct
+from . import three_point
+from . import tools
 
 def transform(
     IM, direction='inverse', method='three_point', center='none',
@@ -220,10 +224,10 @@ def transform(
     """
 
     abel_transform = {\
-      "basex" : abel.basex.basex_transform,
-      "direct" : abel.direct.direct_transform,
-      "hansenlaw" : abel.hansenlaw.hansenlaw_transform,
-      "three_point" : abel.three_point.three_point_transform,
+      "basex" : basex.basex_transform,
+      "direct" : direct.direct_transform,
+      "hansenlaw" : hansenlaw.hansenlaw_transform,
+      "three_point" : three_point.three_point_transform,
     }
 
     verboseprint = print if verbose else lambda *a, **k: None
@@ -249,7 +253,7 @@ def transform(
             raise ValueError('Image must have an odd number of columns. \
                               Use a centering method.')
     else:
-        IM = abel.center_image(IM, center, **center_options)
+        IM = center_image(IM, center, **center_options)
 
     #########################
 
@@ -260,7 +264,7 @@ def transform(
     t0 = time.time()
 
     # split image into quadrants
-    Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(
+    Q0, Q1, Q2, Q3 = tools.symmetry.get_image_quadrants(
                      IM, reorient=True, symmetry_axis=symmetry_axis)
 
     def selected_transform(Z):
@@ -285,7 +289,7 @@ def transform(
 
     # reassemble image
     results = {}
-    results['transform'] = abel.tools.symmetry.put_image_quadrants(
+    results['transform'] = tools.symmetry.put_image_quadrants(
                            (AQ0, AQ1, AQ2, AQ3), original_image_shape = IM.shape,
                             symmetry_axis=symmetry_axis)
 
@@ -296,7 +300,7 @@ def transform(
 
 def main():
     import matplotlib.pyplot as plt
-    IM0 = abel.tools.analytical.sample_image(n=201, name="dribinski")
+    IM0 = tools.analytical.sample_image(n=201, name="dribinski")
     IM1 = transform(IM0, direction='forward', center='com',
                     method='hansenlaw')['transform']
     IM2 = transform(IM1, direction='inverse', method='basex')['transform']
@@ -307,9 +311,9 @@ def main():
     axs[0, 1].imshow(IM1)
     axs[0, 2].imshow(IM2)
 
-    axs[1, 0].plot(*abel.tools.vmi.angular_integration(IM0))
-    axs[1, 1].plot(*abel.tools.vmi.angular_integration(IM1))
-    axs[1, 2].plot(*abel.tools.vmi.angular_integration(IM2))
+    axs[1, 0].plot(*tools.vmi.angular_integration(IM0))
+    axs[1, 1].plot(*tools.vmi.angular_integration(IM1))
+    axs[1, 2].plot(*tools.vmi.angular_integration(IM2))
 
     plt.show()
 
