@@ -6,6 +6,7 @@ from __future__ import print_function
 import os.path
 
 import numpy as np
+import scipy
 from itertools import product
 
 
@@ -56,7 +57,7 @@ def three_point_core_transform(IM, D):
     inv_IM = np.zeros_like(IM)
 
     for i, P in enumerate(IM):
-        inv_IM[i] = np.dot(D, P)
+        inv_IM[i] = scipy.dot(D, P)
     return inv_IM
 
 

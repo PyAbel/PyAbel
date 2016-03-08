@@ -6,6 +6,8 @@
 Welcome to PyAbel's documentation!
 ==================================
 
+Start by having a look at the :doc:`README <readme_link>`.
+
 Contents:
 
 .. toctree::
