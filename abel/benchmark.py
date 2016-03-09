@@ -115,7 +115,7 @@ class AbelTiming(object):
         SEP_ROW = '' + '-'*(22 + (17+1)*len(self.n))
 
         HEADER_ROW = '\n========= {:>10} Abel implementations ==========\n' \
-                     'time to solution (sec)\n'
+                     'time to solution (millisec)\n'
 
         def print_benchmark(name, res):
             out = [HEADER_ROW.format(name)]
