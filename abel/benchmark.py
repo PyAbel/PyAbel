@@ -30,18 +30,10 @@ class AbelTiming(object):
             the "direct_python" implementation.
         """
         from timeit import Timer
+        import time
 
         self.n = n
 
-
-        # res_fabel = {'HansenLaw':     {'tr': []},
-        #              'direct_Python': {'tr': []}}
-        # res_iabel = {'BASEX':         {'bs': [], 'tr': []},
-        #              'Three_point':   {'bs': [], 'tr': []},
-        #              'HansenLaw':     {'tr': []},
-        #              'direct_Python': {'tr': []}}
-
-        
         res_fabel = {'hansenlaw':      [],
                      'direct_python':  [] }
         res_iabel = {'basex':          [],
@@ -60,14 +52,16 @@ class AbelTiming(object):
             
             if ni <= n_max_bs:
                 # evaluate basis sets, saved for later re-use
-                bs = basex.get_bs_basex_cached(ni, ni)
-                tbs = three_point.get_bs_three_point_cached(ni)
-                res_iabel['basex_bs'].append(Timer(
-                    lambda: basex.get_bs_basex_cached(ni, ni, basis_dir=None)).timeit(number=1)*1000)
+                t = time.time()
+                bs = basex.get_bs_basex_cached(ni, ni, basis_dir=None)
+                res_iabel['basex_bs'].append((time.time()-t)*1000)
+                
+                t = time.time()
+                tbs = three_point.get_bs_three_point_cached(ni, basis_dir=None)
+                res_iabel['three_point_bs'].append((time.time()-t)*1000)
+               
                 res_iabel['basex'   ].append(Timer(
                     lambda: basex.basex_core_transform(x, *bs)).timeit(number=transform_repeat)*1000/transform_repeat)
-                res_iabel['three_point_bs'].append(Timer(
-                    lambda: three_point.get_bs_three_point_cached(ni, basis_dir=None)).timeit(number=1)*1000)
                 res_iabel['three_point'].append(Timer(
                     lambda: three_point.three_point_core_transform(x, tbs)).timeit(number=transform_repeat)*1000/transform_repeat)
             else:
