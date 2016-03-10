@@ -253,7 +253,7 @@ def transform(
             raise ValueError('Image must have an odd number of columns. \
                               Use a centering method.')
     else:
-        IM = center_image(IM, center, **center_options)
+        IM = tools.center.center_image(IM, center, **center_options)
 
     #########################
 
