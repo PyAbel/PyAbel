@@ -92,6 +92,10 @@ def transform(
         See note below for description of quadrants. 
         Default is ``(True, True, True, True)``, which uses all quadrants.
 
+    angular_integration: boolean
+        integrate the image over angle to give the radial (speed) intensity
+        distribution
+
     transform_options : tuple
         Additional arguments passed to the individual transform functions.
         See the documentation for the individual transform method for options.
@@ -165,7 +169,7 @@ def transform(
         ``results['transform']``
                 (always returned) is the 2D forward/reverse Abel transform
         ``results['angular_integration']``
-                tuple: radial coordinates, speed distribution
+                tuple: radial coordinates, radial intensity (speed) distribution
         ``results['residual']``
                 is not currently implemented
     
