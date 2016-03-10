@@ -17,9 +17,11 @@ from . import tools
 
 def transform(
     IM, direction='inverse', method='three_point', center='none',
-        verbose=True, symmetry_axis=None,
-        use_quadrants=(True, True, True, True), recast_as_float64=True,
-        transform_options=dict(), center_options=dict()):
+        symmetry_axis=None, use_quadrants=(True, True, True, True), 
+        angular_integration=False,
+        transform_options=dict(), center_options=dict(),
+        angular_integration_options=dict(),
+        recast_as_float64=True, verbose=False):
     """This is the main function of PyAbel, providing both forward
     and inverse abel transforms for full images. In addition,
     this function can perform image centering and symmetrization.
@@ -79,8 +81,6 @@ def transform(
             (Default)
             No centering is performed. An image with an odd
             number of columns must be provided.
-    verbose : boolean
-        True/False to determine if non-critical output should be printed.
 
     symmetry_axis : None, int or tuple
         Symmetrize the image about the numpy axis 
@@ -91,12 +91,6 @@ def transform(
         Quadrants are numbered counter-clockwide from upper right.
         See note below for description of quadrants. 
         Default is ``(True, True, True, True)``, which uses all quadrants.
-        
-    recast_as_float64 : boolean
-        True/False that determines if the input image should be recast to ``float64``. 
-        Many images are imported in other formats (such as ``uint8`` or ``uint16``)
-        and this does not always play well with the transorm algorithms. This should
-        probably always be set to True. (Default is True.)
 
     transform_options : tuple
         Additional arguments passed to the individual transform functions.
@@ -149,6 +143,18 @@ def transform(
                                 ---o---  (all quadrants equivalent)
                                 AQ | AQ
 
+    angular_integration_options: tuple (or dict)
+        Additional arguments passed to the angular_integration transform 
+        functions.  See the documentation for angular_integration for options.
+
+    recast_as_float64 : boolean
+        True/False that determines if the input image should be recast to ``float64``. 
+        Many images are imported in other formats (such as ``uint8`` or ``uint16``)
+        and this does not always play well with the transorm algorithms. This should
+        probably always be set to True. (Default is True.)
+
+    verbose : boolean
+        True/False to determine if non-critical output should be printed.
 
     Returns
     -------
@@ -158,8 +164,8 @@ def transform(
 
         ``results['transform']``
                 (always returned) is the 2D forward/reverse Abel transform
-        ``results['radial_intensity']``
-                is not currently implemented
+        ``results['angular_integration']``
+                tuple: radial coordinates, speed distribution
         ``results['residual']``
                 is not currently implemented
     
@@ -289,11 +295,18 @@ def transform(
 
     # reassemble image
     results = {}
-    results['transform'] = tools.symmetry.put_image_quadrants(
-                           (AQ0, AQ1, AQ2, AQ3), original_image_shape = IM.shape,
+    AIM = tools.symmetry.put_image_quadrants((AQ0, AQ1, AQ2, AQ3), 
+                            original_image_shape = IM.shape,
                             symmetry_axis=symmetry_axis)
 
+    results['transform'] = AIM
     verboseprint("{:.2f} seconds".format(time.time()-t0))
+
+
+    if angular_integration:
+        results['angular_integration'] = tools.vmi.angular_integration(AIM, 
+                                         **angular_integration_options)
+        
 
     return results
 
