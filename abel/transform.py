@@ -307,7 +307,12 @@ def transform(
     verboseprint("{:.2f} seconds".format(time.time()-t0))
 
 
+    # radial intensity distribution
     if angular_integration:
+        if 'dr' in transform_options:
+            # must have common grid
+            angular_integration_options['dr'] = transform_options['dr']
+
         results['angular_integration'] = tools.vmi.angular_integration(AIM, 
                                          **angular_integration_options)
         
