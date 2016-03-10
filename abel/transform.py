@@ -318,26 +318,3 @@ def transform(
         
 
     return results
-
-
-def main():
-    import matplotlib.pyplot as plt
-    IM0 = tools.analytical.sample_image(n=201, name="dribinski")
-    IM1 = transform(IM0, direction='forward', center='com',
-                    method='hansenlaw')['transform']
-    IM2 = transform(IM1, direction='inverse', method='basex')['transform']
-
-    fig, axs = plt.subplots(2, 3, figsize=(10, 6))
-
-    axs[0, 0].imshow(IM0)
-    axs[0, 1].imshow(IM1)
-    axs[0, 2].imshow(IM2)
-
-    axs[1, 0].plot(*tools.vmi.angular_integration(IM0))
-    axs[1, 1].plot(*tools.vmi.angular_integration(IM1))
-    axs[1, 2].plot(*tools.vmi.angular_integration(IM2))
-
-    plt.show()
-
-if __name__ == "__main__":
-    main()
