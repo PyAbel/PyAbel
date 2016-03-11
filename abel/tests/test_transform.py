@@ -30,11 +30,11 @@ def test_transform_shape():
         pass
 
     iZ = abel.transform(Zodd) 
-    # check odd width
+    # check odd width returned with default transform
     assert iZ['transform'].shape[1] % 2 == 1
 
     iZ = abel.transform(Zeven, center="com")
-    # check odd width
+    # check odd width returned for even image, centered using 'com'
     assert iZ['transform'].shape[1] % 2 == 1
 
 
