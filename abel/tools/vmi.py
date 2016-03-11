@@ -62,7 +62,7 @@ def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None):
     if Jacobian:  # x r sinθ
         polarIM = polarIM * R * np.abs(np.sin(T))
 
-    speeds = np.sum(polarIM, axis=1)
+    speeds = np.sum(polarIM, axis=1)*dr
     n = speeds.shape[0]
 
     return R[:n, 0], speeds   # limit radial coordinates range to match speed

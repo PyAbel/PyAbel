@@ -157,17 +157,3 @@ def polar2cart(r, theta):
     y = r * np.sin(theta)   # θ referenced to vertical
     x = r * np.cos(theta)
     return x, y
-
-
-class CythonExtensionsNotBuilt(Exception):
-    pass
-
-# why is this here??
-CythonExtensionsNotBuilt_msg = CythonExtensionsNotBuilt(
-    "Cython extensions were not propery built.\n"
-    "Either the complilation failed at the setup phase"
-    " (no complier, compiller not found etc),\n"
-    "or you are using Windows 64bit with Anaconda that has a known issue"
-    " with Cython\n"
-    "https://groups.google.com/a/continuum.io/forum/#!topic/anaconda/\
-    3ES7VyW4t3I\n")

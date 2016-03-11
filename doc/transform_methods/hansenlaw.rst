@@ -14,7 +14,7 @@ From the abstract:
 
 *... new family of algorithms, principally for Abel inversion, that are 
 recursive and hence computationally efficient. The methods are based on a 
-linear, space-variant, state-variable model of the Abel transform. The modl 
+linear, space-variant, state-variable model of the Abel transform. The model 
 is the basis for deterministic algorithms, applicable when data are noise free, 
 and least-squares estimation (Kalman filter) algorithms, which accommodate 
 the noisy data case.*
