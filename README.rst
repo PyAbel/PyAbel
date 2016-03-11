@@ -11,7 +11,7 @@ PyAbel README
 Introduction
 ------------
 
-``PyAbel`` is a Python package that provides functions for the forward and inverse `Abel transforms <https://en.wikipedia.org/wiki/Abel_transform>`_. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
+``PyAbel`` is a Python package that provides functions for the forward and inverse `Abel transforms <https://en.wikipedia.org/wiki/Abel_transform>`_. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution. 
 
 Inverse Abel transforms play an important role in analyzing the projections of angle-resolved photoelectron/photoion spectra, plasma plumes, flames, and solar occultation.
 
@@ -135,7 +135,9 @@ Citation
 --------
 First and foremost, please cite the paper(s) corresponding to the implementation of the Abel Transform that you use in your work. The references can be found at the links above.
 
-If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. [DOI coming soon!]
+If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. 
+.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.47423.svg
+   :target: http://dx.doi.org/10.5281/zenodo.47423
 
 
 **Have fun!**
