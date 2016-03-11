@@ -65,7 +65,7 @@ def test_transform_angular_integration(n=101):
     assert 'angular_integration' in results.keys()
 
     radial = results['angular_integration']
-#    assert np.shape(radial) == (2, 72)   # not sure where 72 comes from
+    assert np.shape(radial) == (2, int(np.sqrt(c2**2+r2**2))) 
 
     max_position = radial[1].argmax()
     assert np.allclose(max_position, c2, rtol=0, atol=2) 
