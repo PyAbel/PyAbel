@@ -15,11 +15,14 @@ from . import direct
 from . import three_point
 from . import tools
 
-def transform(
-    IM, direction='inverse', method='three_point', center='none',
-        verbose=True, symmetry_axis=None,
-        use_quadrants=(True, True, True, True), recast_as_float64=True,
-        transform_options=dict(), center_options=dict()):
+
+def transform(IM,
+              direction='inverse', method='three_point', center='none',
+              symmetry_axis=None, use_quadrants=(True, True, True, True),
+              angular_integration=False,
+              transform_options=dict(), center_options=dict(),
+              angular_integration_options=dict(),
+              recast_as_float64=True, verbose=False):
     """This is the main function of PyAbel, providing both forward
     and inverse abel transforms for full images. In addition,
     this function can perform image centering and symmetrization.
@@ -36,7 +39,7 @@ def transform(
         ``forward``
             A 'forward' Abel transform takes a (2D) slice of a 3D image
             and returns the 2D projection.
-            
+
         ``inverse``
             An 'inverse' Abel transform takes a 2D projection
             and reconstructs a 2D slice of the 3D image.
@@ -69,7 +72,8 @@ def transform(
         ``image_center``
             center is assumed to be the center of the image.
         ``slice``
-            the center is found my comparing slices in the horizontal and vertical directions
+            the center is found my comparing slices in the horizontal and
+            vertical directions
         ``com``
             the center is calculated as the center of mass
         ``gaussian``
@@ -79,8 +83,6 @@ def transform(
             (Default)
             No centering is performed. An image with an odd
             number of columns must be provided.
-    verbose : boolean
-        True/False to determine if non-critical output should be printed.
 
     symmetry_axis : None, int or tuple
         Symmetrize the image about the numpy axis 
@@ -91,12 +93,10 @@ def transform(
         Quadrants are numbered counter-clockwide from upper right.
         See note below for description of quadrants. 
         Default is ``(True, True, True, True)``, which uses all quadrants.
-        
-    recast_as_float64 : boolean
-        True/False that determines if the input image should be recast to ``float64``. 
-        Many images are imported in other formats (such as ``uint8`` or ``uint16``)
-        and this does not always play well with the transorm algorithms. This should
-        probably always be set to True. (Default is True.)
+
+    angular_integration: boolean
+        integrate the image over angle to give the radial (speed) intensity
+        distribution
 
     transform_options : tuple
         Additional arguments passed to the individual transform functions.
@@ -149,6 +149,19 @@ def transform(
                                 ---o---  (all quadrants equivalent)
                                 AQ | AQ
 
+    angular_integration_options: tuple (or dict)
+        Additional arguments passed to the angular_integration transform 
+        functions.  See the documentation for angular_integration for options.
+
+    recast_as_float64 : boolean
+        True/False that determines if the input image should be recast to 
+        ``float64``. Many images are imported in other formats (such as 
+        ``uint8`` or ``uint16``) and this does not always play well with the 
+        transorm algorithms. This should probably always be set to True. 
+        (Default is True.)
+
+    verbose : boolean
+        True/False to determine if non-critical output should be printed.
 
     Returns
     -------
@@ -158,8 +171,9 @@ def transform(
 
         ``results['transform']``
                 (always returned) is the 2D forward/reverse Abel transform
-        ``results['radial_intensity']``
-                is not currently implemented
+        ``results['angular_integration']``
+                tuple: radial coordinates, radial intensity (speed) 
+                distribution
         ``results['residual']``
                 is not currently implemented
     
@@ -169,8 +183,8 @@ def transform(
     to the the exact abel transform.
     All the the methods should produce similar results, but
     depending on the level and type of noise found in the image,
-    certain methods may perform better than others. Please see the "Transform Methods"
-    section of the documentation for complete information.
+    certain methods may perform better than others. Please see the 
+    "Transform Methods" section of the documentation for complete information.
 
     ``hansenlaw`` 
         This "recursive algorithm" produces reliable results
@@ -223,11 +237,11 @@ def transform(
         much more quickly.
     """
 
-    abel_transform = {\
-      "basex" : basex.basex_transform,
-      "direct" : direct.direct_transform,
-      "hansenlaw" : hansenlaw.hansenlaw_transform,
-      "three_point" : three_point.three_point_transform,
+    abel_transform = {
+        "basex" : basex.basex_transform,
+        "direct" : direct.direct_transform,
+        "hansenlaw" : hansenlaw.hansenlaw_transform,
+        "three_point" : three_point.three_point_transform,
     }
 
     verboseprint = print if verbose else lambda *a, **k: None
@@ -257,7 +271,7 @@ def transform(
 
     #########################
 
-    verboseprint('Calculating {0} Abel transform using {1} method -'\
+    verboseprint('Calculating {0} Abel transform using {1} method -'
                  .format(direction, method), 
                  '\n    image size: {:d}x{:d}'.format(rows, cols))
 
@@ -289,33 +303,23 @@ def transform(
 
     # reassemble image
     results = {}
-    results['transform'] = tools.symmetry.put_image_quadrants(
-                           (AQ0, AQ1, AQ2, AQ3), original_image_shape = IM.shape,
+    AIM = tools.symmetry.put_image_quadrants((AQ0, AQ1, AQ2, AQ3), 
+                            original_image_shape=IM.shape,
                             symmetry_axis=symmetry_axis)
 
+    results['transform'] = AIM
     verboseprint("{:.2f} seconds".format(time.time()-t0))
 
+    #########################
+
+    # radial intensity distribution
+    if angular_integration:
+        if 'dr' in transform_options and\
+           'dr' not in angular_integration_options:
+            # assume user forgot to pass grid size
+            angular_integration_options['dr'] = transform_options['dr']
+
+        results['angular_integration'] = tools.vmi.angular_integration(AIM, 
+                                         **angular_integration_options)
+
     return results
-
-
-def main():
-    import matplotlib.pyplot as plt
-    IM0 = tools.analytical.sample_image(n=201, name="dribinski")
-    IM1 = transform(IM0, direction='forward', center='com',
-                    method='hansenlaw')['transform']
-    IM2 = transform(IM1, direction='inverse', method='basex')['transform']
-
-    fig, axs = plt.subplots(2, 3, figsize=(10, 6))
-
-    axs[0, 0].imshow(IM0)
-    axs[0, 1].imshow(IM1)
-    axs[0, 2].imshow(IM2)
-
-    axs[1, 0].plot(*tools.vmi.angular_integration(IM0))
-    axs[1, 1].plot(*tools.vmi.angular_integration(IM1))
-    axs[1, 2].plot(*tools.vmi.angular_integration(IM2))
-
-    plt.show()
-
-if __name__ == "__main__":
-    main()
