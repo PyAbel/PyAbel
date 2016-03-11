@@ -310,6 +310,8 @@ def transform(IM,
     results['transform'] = AIM
     verboseprint("{:.2f} seconds".format(time.time()-t0))
 
+    #########################
+
     # radial intensity distribution
     if angular_integration:
         if 'dr' in transform_options and\
