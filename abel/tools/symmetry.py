@@ -165,17 +165,18 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     if symmetrize == "fourier":
         return Q0, Q1, Q2, Q3
     
-    if symmetry_axis==(0, 1):
-        Q = (Q0 + Q1 + Q2 + Q3)/np.sum(use_quadrants)
-        return Q, Q, Q, Q
+    if symmetrize == "average": 
+        if symmetry_axis==(0, 1):
+            Q = (Q0 + Q1 + Q2 + Q3)/np.sum(use_quadrants)
+            return Q, Q, Q, Q
 
-    if 0 in symmetry_axis:   #  vertical axis image symmetry
-        Q0 = Q1 = (Q0 + Q1)/(use_quadrants[0] + use_quadrants[1])
-        Q2 = Q3 = (Q2 + Q3)/(use_quadrants[2] + use_quadrants[3])
+        if 0 in symmetry_axis:   #  vertical axis image symmetry
+            Q0 = Q1 = (Q0 + Q1)/(use_quadrants[0] + use_quadrants[1])
+            Q2 = Q3 = (Q2 + Q3)/(use_quadrants[2] + use_quadrants[3])
 
-    if 1 in symmetry_axis:   # horizontal axis image symmetry
-        Q1 = Q2 = (Q1 + Q2)/(use_quadrants[1] + use_quadrants[2])
-        Q0 = Q3 = (Q0 + Q3)/(use_quadrants[0] + use_quadrants[3])
+        if 1 in symmetry_axis:   # horizontal axis image symmetry
+            Q1 = Q2 = (Q1 + Q2)/(use_quadrants[1] + use_quadrants[2])
+            Q0 = Q3 = (Q0 + Q3)/(use_quadrants[0] + use_quadrants[3])
 
     return Q0, Q1, Q2, Q3
 
