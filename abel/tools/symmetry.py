@@ -6,9 +6,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+import warnings
+from scipy.fftpack import fft, ifft, fft2, ifft2
+
 
 def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
-                        use_quadrants=(True, True, True, True)):
+                        use_quadrants=(True, True, True, True),
+                        symmetrize="average"):
     """
     Given an image (m,n) return its 4 quadrants Q0, Q1, Q2, Q3
     as defined below.
@@ -30,6 +34,16 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     use_quadrants : boolean tuple
        Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
        and final image
+
+    symmetrize: str
+       Method used for symmetrizing the image.      
+ 
+       average: Simply average the quadrants.
+       fourier: Axial symmetry implies that the Fourier components of the 2-D projection 
+                should be real and even. Removing the imaginary components in reciprocal 
+                space leaves a symmetric projection.
+                ref: Overstreet, K., et al. "Multiple scattering and the density 
+                     distribution of a Cs MOT." Optics express 13.24 (2005): 9672-9682.
 
     Returns
     -------
@@ -121,6 +135,22 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     # odd size increased by 1
     n_c = n // 2 + n % 2
     m_c = m // 2 + m % 2
+    
+
+    if isinstance(symmetry_axis, tuple) and not reorient:
+        raise ValueError(
+            'In order to add quadrants (i.e., to apply horizontal or \
+            vertical symmetry), you must reorient the image.')
+
+    if symmetrize == "fourier":
+        if np.sum(use_quadrants)<4:
+            warnings.warn("Using Fourier transformation to symmetrize the data will use all 4 qudrants!!")
+        if symmetry_axis==(0, 1):
+            IM = ifft2(fft2(IM).real).real
+        elif symmetry_axis==0:
+            IM = ifft(fft(IM).real).real
+        elif symmetry_axis==1:
+            IM = ifft(fft(IM.T).reat).T.real
 
     # define 4 quadrants of the image
     # see definition above
@@ -133,12 +163,10 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         Q1 = np.fliplr(Q1)
         Q3 = np.flipud(Q3)
         Q2 = np.fliplr(np.flipud(Q2))
-
-    if isinstance(symmetry_axis, tuple) and not reorient:
-        raise ValueError(
-            'In order to add quadrants (i.e., to apply horizontal or \
-            vertical symmetry), you must reorient the image.')
-
+    
+    if symmetrize == "fourier":
+        return Q0, Q1, Q2, Q3
+    
     if symmetry_axis==(0, 1):
         Q = (Q0 + Q1 + Q2 + Q3)/np.sum(use_quadrants)
         return Q, Q, Q, Q

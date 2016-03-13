@@ -19,7 +19,7 @@ from . import tools
 def transform(IM,
               direction='inverse', method='three_point', center='none',
               symmetry_axis=None, use_quadrants=(True, True, True, True),
-              angular_integration=False,
+              symmetrize='average', angular_integration=False,
               transform_options=dict(), center_options=dict(),
               angular_integration_options=dict(),
               recast_as_float64=True, verbose=False):
@@ -279,7 +279,7 @@ def transform(IM,
 
     # split image into quadrants
     Q0, Q1, Q2, Q3 = tools.symmetry.get_image_quadrants(
-                     IM, reorient=True, symmetry_axis=symmetry_axis)
+                     IM, reorient=True, symmetry_axis=symmetry_axis, symmetrize=symmetrize)
 
     def selected_transform(Z):
         return abel_transform[method](Z, direction=direction, 
