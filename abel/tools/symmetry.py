@@ -145,12 +145,10 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     if symmetrize == "fourier":
         if np.sum(use_quadrants)<4:
             warnings.warn("Using Fourier transformation to symmetrize the data will use all 4 qudrants!!")
-        if symmetry_axis==(0, 1):
-            IM = ifft2(fft2(IM).real).real
-        elif symmetry_axis==0:
+        if 0 in symmetry_axis:
             IM = ifft(fft(IM).real).real
-        elif symmetry_axis==1:
-            IM = ifft(fft(IM.T).reat).T.real
+        if 1 in symmetry_axis:
+            IM = ifft(fft(IM.T).real).T.real
 
     # define 4 quadrants of the image
     # see definition above
