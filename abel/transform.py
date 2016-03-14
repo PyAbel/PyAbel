@@ -19,7 +19,7 @@ from . import tools
 def transform(IM,
               direction='inverse', method='three_point', center='none',
               symmetry_axis=None, use_quadrants=(True, True, True, True),
-              symmetrize='average', angular_integration=False,
+              symmetrize_method='average', angular_integration=False,
               transform_options=dict(), center_options=dict(),
               angular_integration_options=dict(),
               recast_as_float64=True, verbose=False):
@@ -93,6 +93,17 @@ def transform(IM,
         Quadrants are numbered counter-clockwide from upper right.
         See note below for description of quadrants. 
         Default is ``(True, True, True, True)``, which uses all quadrants.
+
+    symmetrize_method: str
+       Method used for symmetrizing the image.
+
+       average: Simply average the quadrants.
+       fourier: Axial symmetry implies that the Fourier components of the 2-D
+                projection should be real. Removing the imaginary components in
+                reciprocal space leaves a symmetric projection.
+                ref: Overstreet, K., et al. "Multiple scattering and the density
+                     distribution of a Cs MOT." Optics express 13.24 (2005): 9672-9682.
+                     http://dx.doi.org/10.1364/OPEX.13.009672
 
     angular_integration: boolean
         integrate the image over angle to give the radial (speed) intensity
@@ -279,7 +290,8 @@ def transform(IM,
 
     # split image into quadrants
     Q0, Q1, Q2, Q3 = tools.symmetry.get_image_quadrants(
-                     IM, reorient=True, symmetry_axis=symmetry_axis, symmetrize=symmetrize)
+                     IM, reorient=True, symmetry_axis=symmetry_axis, 
+                     symmetrize_method=symmetrize_method)
 
     def selected_transform(Z):
         return abel_transform[method](Z, direction=direction, 
