@@ -13,5 +13,5 @@ from . import three_point
 from . import tools
 from . import transform
 from . import tests
-from .transform import transform
+from .transform import Transform
 from .tools.center import center_image

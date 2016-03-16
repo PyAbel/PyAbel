@@ -376,7 +376,7 @@ class PyAbel:  #(tk.Tk):
                                        " unavailable ...")
             self.canvas.show()
     
-            self.AIM = abel.transform(self.IM, method=self.method, 
+            self.AIM = abel.Transform(self.IM, method=self.method, 
                                       direction=self.fi,
                                       symmetry_axis=None).transform
             self.rmin.delete(0, tk.END)

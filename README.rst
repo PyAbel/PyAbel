@@ -5,7 +5,7 @@ PyAbel README
     :target: https://travis-ci.org/PyAbel/PyAbel
 .. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
     :target: https://ci.appveyor.com/project/PyAbel/PyAbel
-	
+
 **Note:** This readme is best viewed as part of the `PyAbel Documentation <http://pyabel.readthedocs.org/en/latest/readme_link.html>`_.
 
 Introduction
@@ -28,19 +28,19 @@ Transform Methods
 
 The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following `transform methods <http://pyabel.readthedocs.org/en/latest/transform_methods.html>`_:
 
-	1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
+    1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
 
-	2. ``hansenlaw`` - recursive method of Hansen and Law.
+    2. ``hansenlaw`` - recursive method of Hansen and Law.
 
-	3. ``direct`` - numerical integration of the analytical Abel transform equations.
+    3. ``direct`` - numerical integration of the analytical Abel transform equations.
 
-	4. ``threepoint`` - the "three point" method of Dasch and co-workers.
+    4. ``threepoint`` - the "three point" method of Dasch and co-workers.
 
-	5. ``fh`` - Fourier–Hankel method (not yet implemented).
+    5. ``fh`` - Fourier–Hankel method (not yet implemented).
 
-	6. ``onion`` - onion peeling method (not yet implemented).
-	
-	7. ``pop`` - polar onion peeling method (not yet implemented).
+    6. ``onion`` - onion peeling method (not yet implemented).
+
+    7. ``pop`` - polar onion peeling method (not yet implemented).
 
 
 Installation
@@ -74,30 +74,30 @@ Using PyAbel can be simple. The following Python code imports the PyAbel package
 
 .. code-block:: python
 
-	import abel
-	original     = abel.tools.analytical.sample_image()
-	forward_abel = abel.transform(original, direction='forward', method='hansenlaw'  ).transform
-	inverse_abel = abel.transform(forward_abel, direction='inverse', method='three_point').transform
+    import abel
+    original     = abel.tools.analytical.sample_image()
+    forward_abel = abel.transform(original, direction='forward', method='hansenlaw'  ).transform
+    inverse_abel = abel.transform(forward_abel, direction='inverse', method='three_point').transform
 
-Note: the ``abel.transform()`` class returns a Python ``class`` object, where the 2D Abel transform is accessed through the ``.transform`` attribute.
+Note: the ``abel.Transform()`` class returns a Python ``class`` object, where the 2D Abel transform is accessed through the ``.transform`` attribute.
 
 The results can then be plotted using Matplotlib:
 
 .. code-block:: python
 
-	import matplotlib.pyplot as plt
-	import numpy as np
-	
-	fig, axs = plt.subplots(1, 2, figsize=(6, 4))
-	
-	axs[0].imshow(forward_abel, clim=(0, np.max(forward_abel)*0.6), origin='lower', extent=(-1,1,-1,1))
-	axs[1].imshow(inverse_abel, clim=(0, np.max(inverse_abel)*0.4), origin='lower', extent=(-1,1,-1,1))
+    import matplotlib.pyplot as plt
+    import numpy as np
 
-	axs[0].set_title('Forward Abel Transform')
-	axs[1].set_title('Inverse Abel Transform')
+    fig, axs = plt.subplots(1, 2, figsize=(6, 4))
 
-	plt.tight_layout()
-	plt.show()
+    axs[0].imshow(forward_abel, clim=(0, np.max(forward_abel)*0.6), origin='lower', extent=(-1,1,-1,1))
+    axs[1].imshow(inverse_abel, clim=(0, np.max(inverse_abel)*0.4), origin='lower', extent=(-1,1,-1,1))
+
+    axs[0].set_title('Forward Abel Transform')
+    axs[1].set_title('Inverse Abel Transform')
+
+    plt.tight_layout()
+    plt.show()
 
 Output: 
 

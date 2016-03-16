@@ -61,7 +61,7 @@ def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
     To perform a BASEX transorm on 
     a whole image, use ::
     
-        abel.transform(image, method='basex', direction='inverse').transform
+        abel.Transform(image, method='basex', direction='inverse').transform
 
     This BASEX implementation only works with images that have an 
     odd-integer width.

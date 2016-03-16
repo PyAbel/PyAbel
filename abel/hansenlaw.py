@@ -46,16 +46,17 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
     :math:`f(r)` is the reconstructed image (source) function,
     :math:`g'(R)` is the derivative of the projection (measured) function
 
-    Evaluation follows Eqs. (15 or 17), using (16a), (16b), and (16c or 18) of the Hansen 
-    and Law paper. For the full image transform, use the class ``abel.transform``.
+    Evaluation follows Eqs. (15 or 17), using (16a), (16b), and (16c or 18) of 
+    the Hansen and Law paper. For the full image transform, use the 
+    class :class:``abel.Transform``.
 
     For the inverse Abel transform of image g: ::
     
-        f = abel.transform(g, direction="inverse", method="hansenlaw").transform
+        f = abel.Transform(g, direction="inverse", method="hansenlaw").transform
         
     For the forward Abel transform of image f: ::
     
-        g = abel.transform(r, direction="forward", method="hansenlaw").transform
+        g = abel.Transform(r, direction="forward", method="hansenlaw").transform
         
     This function performs the Hansen-Law transform on only one "right-side" image, 
     typically one quadrant of the full image: ::

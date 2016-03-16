@@ -29,7 +29,7 @@ if cols % 2 == 0:
 
 # dr=0.5 may help reduce pixel grid coarseness
 # NB remember to pass to angular_integration
-AIM = abel.transform(IM, method='hansenlaw',
+AIM = abel.Transform(IM, method='hansenlaw',
                      use_quadrants=(True, True, True, True),
                      symmetry_axis=None,
                      transform_options=dict(dr=0.5),

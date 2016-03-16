@@ -16,7 +16,7 @@ from . import three_point
 from . import tools
 
 
-class transform(object):
+class Transform(object):
     """Abel transform image class
 
     This class provides whole image forward and inverse Abel
@@ -264,11 +264,11 @@ class transform(object):
         """
 
         # public class variables
-        self.IM = IM
         self.method = method
         self.direction = direction
 
-        # hidden internal variables
+        # private internal variables
+        self._IM = IM
         self._symmetry_axis = symmetry_axis
         self._symmetrize_method = symmetrize_method
         self._use_quadrants = use_quadrants
@@ -282,6 +282,8 @@ class transform(object):
 
         self._abel_transform_image(**transform_options)
 
+        del self._IM   # no longer required, save space
+
         self._integration(angular_integration, transform_options, 
                           **angular_integration_options)
 
@@ -290,7 +292,7 @@ class transform(object):
     _verboseprint = print if _verbose else lambda *a, **k: None
 
     def _verify_some_inputs(self):
-        if self.IM.ndim == 1 or np.shape(self.IM)[0] <= 2:
+        if self._IM.ndim == 1 or np.shape(self._IM)[0] <= 2:
             raise ValueError('Data must be 2-dimensional. \
                               To transform a single row \
                               use the individual transform function.')
@@ -303,11 +305,12 @@ class transform(object):
             self._symmetry_axis = [self._symmetry_axis]
 
         if self._recast_as_float64:
-            self.IM = self.IM.astype('float64')
+            self._IM = self._IM.astype('float64')
 
     def _center_image(self, center, **center_options):
         if center != "none":
-            self.IM = tools.center.center_image(self.IM, center, **center_options)
+            self._IM = tools.center.center_image(self._IM, center, 
+                                                 **center_options)
 
     def _abel_transform_image(self, **transform_options):
 
@@ -320,13 +323,13 @@ class transform(object):
 
         self._verboseprint('Calculating {0} Abel transform using {1} method -'
                           .format(self.direction, self.method), 
-                          '\n    image size: {:d}x{:d}'.format(*self.IM.shape))
+                          '\n    image size: {:d}x{:d}'.format(*self._IM.shape))
 
         t0 = time.time()
 
         # split image into quadrants
         Q0, Q1, Q2, Q3 = tools.symmetry.get_image_quadrants(
-                         self.IM, reorient=True,
+                         self._IM, reorient=True,
                          symmetry_axis=self._symmetry_axis, 
                          symmetrize_method=self._symmetrize_method)
 
@@ -353,7 +356,7 @@ class transform(object):
         # reassemble image
         self.transform = tools.symmetry.put_image_quadrants(
                                 (AQ0, AQ1, AQ2, AQ3), 
-                                original_image_shape=self.IM.shape,
+                                original_image_shape=self._IM.shape,
                                 symmetry_axis=self._symmetry_axis)
 
         self._verboseprint("{:.2f} seconds".format(time.time()-t0))

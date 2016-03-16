@@ -31,7 +31,7 @@ r2 = rows//2   # half-height image size
 c2 = cols//2   # half-width image size
 
 # Hansen & Law inverse Abel transform
-AIM = abel.transform(IM, method="hansenlaw", direction="inverse",
+AIM = abel.Transform(IM, method="hansenlaw", direction="inverse",
                      symmetry_axis=None).transform
 
 # PES - photoelectron speed distribution  -------------

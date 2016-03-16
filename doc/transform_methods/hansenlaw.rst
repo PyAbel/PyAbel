@@ -111,11 +111,11 @@ How to use it
 -------------
 
 To complete the forward or inverse transform of a full image with the 
-``hansenlaw method``, simply use the :class:`abel.transform`: ::
+``hansenlaw method``, simply use the :class:`abel.Transform`: class ::
 
-	abel.transform(myImage, method='hansenlaw', direction='forward').transform
-	abel.transform(myImage, method='hansenlaw', direction='inverse').transform
-	
+    abel.Transform(myImage, method='hansenlaw', direction='forward').transform
+    abel.Transform(myImage, method='hansenlaw', direction='inverse').transform
+
 
 If you would like to access the Hansen-Law algorithm directly (to transform a 
 right-side half-image), you can use :func:`abel.hansenlaw.hansenlaw_transform`.

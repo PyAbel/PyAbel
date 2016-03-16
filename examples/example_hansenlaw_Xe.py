@@ -37,7 +37,7 @@ print ('image size {:d}x{:d}'.format(rows,cols))
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon = abel.transform(im, method="hansenlaw", direction="inverse", 
+recon = abel.Transform(im, method="hansenlaw", direction="inverse", 
                        symmetry_axis=None, verbose=True, 
                        center=(240,340)).transform
                        
