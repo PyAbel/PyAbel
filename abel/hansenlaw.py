@@ -51,11 +51,11 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
     For the inverse Abel transform of image g: ::
     
-        f = abel.transform(g, direction="inverse", method="hansenlaw")["transform"]
+        f = abel.transform.transform(g, direction="inverse", method="hansenlaw")
         
     For the forward Abel transform of image f: ::
     
-        g = abel.transform(r, direction="forward", method="hansenlaw")["transform"]
+        g = abel.transform.transform(r, direction="forward", method="hansenlaw")
         
     This function performs the Hansen-Law transform on only one "right-side" image, 
     typically one quadrant of the full image: ::

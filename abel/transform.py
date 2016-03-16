@@ -322,7 +322,6 @@ class transform(object):
         AQ3 = selected_transform(Q3)
 
     # reassemble image
-    results = {}
     self.transform = tools.symmetry.put_image_quadrants((AQ0, AQ1, AQ2, AQ3), 
                             original_image_shape=IM.shape,
                             symmetry_axis=symmetry_axis)
@@ -338,5 +337,5 @@ class transform(object):
             # assume user forgot to pass grid size
             angular_integration_options['dr'] = transform_options['dr']
 
-        results['angular_integration'] = tools.vmi.angular_integration(self.AIM, 
-                                         **angular_integration_options)
+        self.angular_integration = tools.vmi.angular_integration(self.AIM, 
+                                            **angular_integration_options)
