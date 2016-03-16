@@ -145,7 +145,8 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
 
     if symmetrize_method == "fourier":
         if np.sum(use_quadrants)<4:
-            warnings.warn("Using Fourier transformation to symmetrize the data will use all 4 quadrants!!")
+            warnings.warn("Using Fourier transformation to symmetrize the"
+                          " data will use all 4 quadrants!!")
         if 0 in symmetry_axis:
             IM = fftpack.ifft(fftpack.fft(IM).real).real
         if 1 in symmetry_axis:

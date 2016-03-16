@@ -110,8 +110,7 @@ class Transform(object):
                     projection should be real. Removing the imaginary components
                     in reciprocal space leaves a symmetric projection.
                     ref: Overstreet, K., et al. 
-                         "Multiple scattering and the density distribution of 
-                          a Cs MOT." 
+                         "Multiple scattering and the density distribution of a Cs MOT." 
                          Optics express 13.24 (2005): 9672-9682.
                          http://dx.doi.org/10.1364/OPEX.13.009672
 
