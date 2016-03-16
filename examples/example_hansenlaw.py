@@ -29,13 +29,14 @@ if cols % 2 == 0:
 
 # dr=0.5 may help reduce pixel grid coarseness
 # NB remember to pass to angular_integration
-IMobj = abel.transform.transform(IM, method='hansenlaw',
+IMobj = abel.transform(IM, method='hansenlaw',
                      use_quadrants=(True, True, True, True),
                      symmetry_axis=None,
                      transform_options=dict(dr=0.5),
-                     verbose=True)['transform']
+                     verbose=True)
 
-rs, speeds  = abel.tools.vmi.angular_integration(IMobj.transform, dr=0.5)
+AIM = IMobj.transform  # the transformed image
+rs, speeds  = abel.tools.vmi.angular_integration(AIM, dr=0.5)
 
 # Set up some axes
 fig = plt.figure(figsize=(15, 4))
@@ -52,7 +53,7 @@ ax1.set_title('velocity map image: size {:d}x{:d}'.format(rows, cols))
 
 # 2D transform
 c2 = cols//2   # half-image width
-im2 = ax2.imshow(IMobj.transform, aspect='auto', vmin=0, vmax=AIM[:c2-50, :c2-50].max())
+im2 = ax2.imshow(AIM, aspect='auto', vmin=0, vmax=AIM[:c2-50, :c2-50].max())
 fig.colorbar(im2, ax=ax2, fraction=.1, shrink=0.9, pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')

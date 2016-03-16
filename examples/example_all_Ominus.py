@@ -39,9 +39,10 @@ IM = abel.tools.analytical.sample_image(n=501, name="Ominus")
 h, w = IM.shape
 
 # forward transform (whole image)
-fIM = abel.transform(IM, direction="forward", method="hansenlaw")['transform']
+fIMobj = abel.transform(IM, direction="forward", method="hansenlaw")
 
-Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(fIM, reorient=True)
+Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(fIMobj.transform, 
+                                                         reorient=True)
 
 Q0fresh = Q0.copy()    # keep clean copy
 print ("quadrant shape {}".format(Q0.shape))

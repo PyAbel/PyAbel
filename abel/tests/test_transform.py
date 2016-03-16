@@ -25,17 +25,17 @@ def test_transform_shape():
         # even width image should be rejected
         iZ = abel.transform(Zeven) 
         # fail if get here
-        assert iZ['transform'].shape[1] % 2 == 1
+        assert iZ.transform.shape[1] % 2 == 1
     except:
         pass
 
     iZ = abel.transform(Zodd) 
     # check odd width returned with default transform
-    assert iZ['transform'].shape[1] % 2 == 1
+    assert iZ.transform.shape[1] % 2 == 1
 
     iZ = abel.transform(Zeven, center="com")
     # check odd width returned for even image, centered using 'com'
-    assert iZ['transform'].shape[1] % 2 == 1
+    assert iZ.transform.shape[1] % 2 == 1
 
 
 def test_transform_angular_integration(n=101):
@@ -54,17 +54,17 @@ def test_transform_angular_integration(n=101):
     IM = gauss(R, c2, 2) # Gaussian donut located at R=c2
 
     # forward Abel transform
-    fIM = abel.transform(IM, method="hansenlaw",
-		    direction="forward")['transform']
+    IMobj = abel.transform(IM, method="hansenlaw", direction="forward")
+    fIM = IMobj.transform  # forward transformed image
 
     # inverse Abel transform, and radial intensity distribution
-    results = abel.transform(fIM, method="hansenlaw", direction="inverse",
+    fIMobj = abel.transform(fIM, method="hansenlaw", direction="inverse",
                              angular_integration=True)
 
-    assert 'transform' in results.keys()
-    assert 'angular_integration' in results.keys()
+    assert 'transform' in dir(fIMobj)
+    assert 'angular_integration' in dir(fIMobj)
 
-    radial = results['angular_integration']
+    radial = fIMobj.angular_integration
     assert np.shape(radial) == (2, int(np.sqrt(c2**2+r2**2))) 
 
     max_position = radial[1].argmax()

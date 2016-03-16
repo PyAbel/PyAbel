@@ -194,6 +194,10 @@ class transform(object):
                            radial intensity (speed) distribution
             ``IMobj.residual``
                     residual image is not currently implemented
+            ``IMobj.method``
+                    transform method
+            ``IMobj.direction``
+                    transform direction
         
         Notes
         -----
@@ -257,7 +261,8 @@ class transform(object):
         """
 
         self.IM = IM
-
+        self.method = method
+        self.direction = direction
  
         abel_transform = {
             "basex" : basex.basex_transform,
