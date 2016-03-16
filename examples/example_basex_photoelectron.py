@@ -46,7 +46,7 @@ print('Performing the inverse Abel transform:')
 
 recon = abel.transform(raw_data, direction='inverse', method='basex',
                        center=center, transform_options={'basis_dir':'./'},
-                       verbose=True)['transform']
+                       verbose=True).transform
                       
 speeds = abel.tools.vmi.angular_integration(recon)
 

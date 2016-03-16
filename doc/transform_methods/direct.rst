@@ -22,10 +22,10 @@ When a robust forward transform is required, this method works quite well. It is
 How to use it
 -------------
 
-To complete the forward or inverse transform of a full image with the direct method, simply use the :func:`abel.transform` function: ::
+To complete the forward or inverse transform of a full image with the direct method, simply use the :class:`abel.transform` class: ::
 
-	abel.transform(myImage, method='direct', direction='forward')
-	abel.transform(myImage, method='direct', direction='inverse')
+	abel.transform(myImage, method='direct', direction='forward').transform
+	abel.transform(myImage, method='direct', direction='inverse').transform
 	
 
 If you would like to access the Direct algorithm directly (to transform a right-side half-image), you can use :func:`abel.direct.direct_transform`.

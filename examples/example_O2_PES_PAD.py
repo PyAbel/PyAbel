@@ -31,13 +31,13 @@ r2 = rows//2   # half-height image size
 c2 = cols//2   # half-width image size
 
 # Hansen & Law inverse Abel transform
-IMobj = abel.transform(IM, method="hansenlaw", direction="inverse",
-                       symmetry_axis=None)
+AIM = abel.transform(IM, method="hansenlaw", direction="inverse",
+                     symmetry_axis=None).transform
 
 # PES - photoelectron speed distribution  -------------
 print('Calculating speed distribution:')
 
-r, speed  = abel.tools.vmi.angular_integration(IMobj.transform)
+r, speed  = abel.tools.vmi.angular_integration(AIM)
 
 # normalize to max intensity peak
 speed /= speed[200:].max()  # exclude transform noise near centerline of image
@@ -50,8 +50,7 @@ r_range = [(93, 111), (145, 162), (255, 280), (330, 350), (350, 370),
            (370, 390), (390, 410), (410, 430)]
 
 # map to intensity vs theta for each radial range
-intensities, theta = abel.tools.vmi.radial_integration(IMobj.transform,
-                                    radial_ranges=r_range)
+intensities, theta = abel.tools.vmi.radial_integration(AIM, radial_ranges=r_range)
 
 print("radial-range      anisotropy parameter (beta)")
 for rr, intensity in zip(r_range, intensities):
@@ -69,8 +68,8 @@ ax3 = plt.subplot(133)
 
 # join 1/2 raw data : 1/2 inversion image
 vmax = IM[:, :c2-100].max()
-IMobj.transform *= vmax/IMobj.transform[:, c2+100:].max()
-JIM = np.concatenate((IM[:, :c2], IMobj.transform[:, c2:]), axis=1)
+AIM *= vmax/AIM[:, c2+100:].max()
+JIM = np.concatenate((IM[:, :c2], AIM[:, c2:]), axis=1)
 rr = r_range[-3]
 intensity = intensities[-3]
 beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity) 

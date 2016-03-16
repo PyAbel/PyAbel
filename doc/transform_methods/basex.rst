@@ -38,9 +38,9 @@ According to Dribinski et al. BASEX has several advantages:
 How to use it
 -------------
 
-The recommended way to complete the inverse Abel transform using the BASEX algorithm for a full image is to use the :func:`abel.transform` function: ::
+The recommended way to complete the inverse Abel transform using the BASEX algorithm for a full image is to use the :func:`abel.transform` class: ::
 
-	abel.transform(myImage, method='basex', direction='inverse')
+	abel.transform(myImage, method='basex', direction='inverse').transform
 
 Note that the forward BASEX transform is not yet implemented in PyAbel. 
 

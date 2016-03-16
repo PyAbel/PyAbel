@@ -304,7 +304,7 @@ class PyAbel:  #(tk.Tk):
             else:
                 self.IM = imread(self.fn)
         elif self.fn == "from transform":
-            self.IM = self.AIM.transform
+            self.IM = self.AIM
             self.AIM = None
             for i in range(1,4):
                 self._clr_plt(i)
@@ -378,7 +378,7 @@ class PyAbel:  #(tk.Tk):
     
             self.AIM = abel.transform(self.IM, method=self.method, 
                                       direction=self.fi,
-                                      symmetry_axis=None)
+                                      symmetry_axis=None).transform
             self.rmin.delete(0, tk.END)
             self.rmin.insert(0, self.rmx[0])
             self.rmax.delete(0, tk.END)

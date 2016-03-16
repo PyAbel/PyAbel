@@ -1,7 +1,7 @@
 import abel
 original     = abel.tools.analytical.sample_image()
-forward_abel = abel.transform(original,     direction='forward', method='hansenlaw'  )['transform']
-inverse_abel = abel.transform(forward_abel, direction='inverse', method='three_point')['transform']
+forward_abel = abel.transform(original,     direction='forward', method='hansenlaw'  ).transform
+inverse_abel = abel.transform(forward_abel, direction='inverse', method='three_point').transform
 
 
 # plot the original and transform

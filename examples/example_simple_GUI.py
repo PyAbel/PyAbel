@@ -108,7 +108,7 @@ def _transform():
 
     # inverse Abel transform of whole image
     AIM = abel.transform(IM, method=method, direction="inverse",
-                         symmetry_axis=None)['transform']
+                         symmetry_axis=None).transform
 
     f.clf()
     a = f.add_subplot(111)

@@ -39,7 +39,7 @@ print('Performing Hansen and Law inverse Abel transform:')
 
 recon = abel.transform(im, method="hansenlaw", direction="inverse", 
                        symmetry_axis=None, verbose=True, 
-                       center=(240,340))['transform']
+                       center=(240,340)).transform
                        
 r, speeds = abel.tools.vmi.angular_integration(recon)
 

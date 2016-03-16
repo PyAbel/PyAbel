@@ -27,9 +27,9 @@ He also notes that this technique works best for cases where the real difference
 How to use it
 -------------
 
-To complete the inverse transform of a full image with the ``hansenlaw method``, simply use the :func:`abel.transform` function: ::
+To complete the inverse transform of a full image with the ``three_point method``, simply use the :class:`abel.transform` class: ::
 
-	abel.transform(myImage, method='three_point', direction='inverse')
+	abel.transform(myImage, method='three_point', direction='inverse').transform
 	
 Note that the forward Three point transform is not yet implemented in PyAbel.
 
