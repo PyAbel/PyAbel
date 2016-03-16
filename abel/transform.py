@@ -16,18 +16,24 @@ from . import three_point
 from . import tools
 
 
-def transform(IM,
+class transform(object):
+    """Abel transform class
+
+    This class provides whole image forward and inverse Abel
+    transformations, together with preprocessing (centering, symmetrizing) 
+    and post processing (integration) functions.
+  
+    """
+
+    def __init__(self, IM,
               direction='inverse', method='three_point', center='none',
               symmetry_axis=None, use_quadrants=(True, True, True, True),
               symmetrize_method='average', angular_integration=False,
               transform_options=dict(), center_options=dict(),
               angular_integration_options=dict(),
               recast_as_float64=True, verbose=False):
-    """This is the main function of PyAbel, providing both forward
-    and inverse abel transforms for full images. In addition,
-    this function can perform image centering and symmetrization.
 
-
+    """
     Parameters
     ----------
     IM : a NxM numpy array
@@ -248,6 +254,8 @@ def transform(IM,
         much more quickly.
     """
 
+    self.IM = IM
+
     abel_transform = {
         "basex" : basex.basex_transform,
         "direct" : direct.direct_transform,
@@ -269,7 +277,7 @@ def transform(IM,
     if not isinstance(symmetry_axis, (list, tuple)):
         # if the user supplies an int, make it into a 1-element list:
         symmetry_axis = [symmetry_axis]
-    
+
     if recast_as_float64:
         IM = IM.astype('float64')
     # centering:
@@ -303,7 +311,7 @@ def transform(IM,
     AQ1 = selected_transform(Q1)
 
     if 0 in symmetry_axis:
-        AQ2 = selected_transform(Q2)
+    AQ2 = selected_transform(Q2)
 
     if 1 in symmetry_axis:
         AQ0 = selected_transform(Q0)
@@ -315,11 +323,10 @@ def transform(IM,
 
     # reassemble image
     results = {}
-    AIM = tools.symmetry.put_image_quadrants((AQ0, AQ1, AQ2, AQ3), 
+    self.transform = tools.symmetry.put_image_quadrants((AQ0, AQ1, AQ2, AQ3), 
                             original_image_shape=IM.shape,
                             symmetry_axis=symmetry_axis)
 
-    results['transform'] = AIM
     verboseprint("{:.2f} seconds".format(time.time()-t0))
 
     #########################
@@ -331,7 +338,5 @@ def transform(IM,
             # assume user forgot to pass grid size
             angular_integration_options['dr'] = transform_options['dr']
 
-        results['angular_integration'] = tools.vmi.angular_integration(AIM, 
+        results['angular_integration'] = tools.vmi.angular_integration(self.AIM, 
                                          **angular_integration_options)
-
-    return results
