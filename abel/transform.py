@@ -33,6 +33,8 @@ class Transform(object):
         radial coordinates, with the radial intensity (speed) distribution.
     residual : numpy 2D array
         residual image (not currently implemented).
+    IM: numpy 2D array
+        image, as input, centered(option) and odd-size in width
     method : str
         transform method, as specified by the input option.
     direction: str
@@ -263,11 +265,11 @@ class Transform(object):
         """
 
         # public class variables
+        self.IM = IM   # (optionally) centered, odd-width image
         self.method = method
         self.direction = direction
 
         # private internal variables
-        self._IM = IM
         self._symmetry_axis = symmetry_axis
         self._symmetrize_method = symmetrize_method
         self._use_quadrants = use_quadrants
@@ -281,8 +283,6 @@ class Transform(object):
 
         self._abel_transform_image(**transform_options)
 
-        del self._IM   # no longer required, save space
-
         self._integration(angular_integration, transform_options, 
                           **angular_integration_options)
 
@@ -291,7 +291,7 @@ class Transform(object):
     _verboseprint = print if _verbose else lambda *a, **k: None
 
     def _verify_some_inputs(self):
-        if self._IM.ndim == 1 or np.shape(self._IM)[0] <= 2:
+        if self.IM.ndim == 1 or np.shape(self.IM)[0] <= 2:
             raise ValueError('Data must be 2-dimensional. \
                               To transform a single row \
                               use the individual transform function.')
@@ -304,11 +304,11 @@ class Transform(object):
             self._symmetry_axis = [self._symmetry_axis]
 
         if self._recast_as_float64:
-            self._IM = self._IM.astype('float64')
+            self.IM = self.IM.astype('float64')
 
     def _center_image(self, center, **center_options):
         if center != "none":
-            self._IM = tools.center.center_image(self._IM, center, 
+            self.IM = tools.center.center_image(self.IM, center, 
                                                  **center_options)
 
     def _abel_transform_image(self, **transform_options):
@@ -322,13 +322,13 @@ class Transform(object):
 
         self._verboseprint('Calculating {0} Abel transform using {1} method -'
                           .format(self.direction, self.method), 
-                          '\n    image size: {:d}x{:d}'.format(*self._IM.shape))
+                          '\n    image size: {:d}x{:d}'.format(*self.IM.shape))
 
         t0 = time.time()
 
         # split image into quadrants
         Q0, Q1, Q2, Q3 = tools.symmetry.get_image_quadrants(
-                         self._IM, reorient=True,
+                         self.IM, reorient=True,
                          symmetry_axis=self._symmetry_axis, 
                          symmetrize_method=self._symmetrize_method)
 
@@ -355,7 +355,7 @@ class Transform(object):
         # reassemble image
         self.transform = tools.symmetry.put_image_quadrants(
                                 (AQ0, AQ1, AQ2, AQ3), 
-                                original_image_shape=self._IM.shape,
+                                original_image_shape=self.IM.shape,
                                 symmetry_axis=self._symmetry_axis)
 
         self._verboseprint("{:.2f} seconds".format(time.time()-t0))
