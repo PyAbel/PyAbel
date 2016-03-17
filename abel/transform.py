@@ -17,12 +17,27 @@ from . import tools
 
 
 class Transform(object):
-    """Abel transform image class
+    """Abel transform image class.
 
     This class provides whole image forward and inverse Abel
     transformations, together with preprocessing (centering, symmetrizing) 
-    and post processing (integration) functions.
+    and post processing (integration) functions. 
+
+    The following class attributes are available, depending on the calculation.
   
+    Attributes
+    ----------
+    transform : numpy 2D array 
+        the 2D forward/reverse Abel transform.
+    angular_integration : tuple
+        radial coordinates, with the radial intensity (speed) distribution.
+    residual : numpy 2D array
+        residual image (not currently implemented).
+    method : str
+        transform method, as specified by the input option.
+    direction: str
+        transform direction, as specified by the input option.
+        
     """
 
     _verbose = False
@@ -34,8 +49,7 @@ class Transform(object):
               transform_options=dict(), center_options=dict(),
               angular_integration_options=dict(),
               recast_as_float64=True, verbose=False):
-
-        """
+        """The one stop transform function.
 
         Parameters
         ----------
@@ -129,6 +143,20 @@ class Transform(object):
         center_options : tuple
             Additional arguments to be passed to the centering function.
             
+        angular_integration_options : tuple (or dict)
+            Additional arguments passed to the angular_integration transform 
+            functions.  See the documentation for angular_integration for options.
+
+        recast_as_float64 : boolean
+            True/False that determines if the input image should be recast to 
+            ``float64``. Many images are imported in other formats (such as 
+            ``uint8`` or ``uint16``) and this does not always play well with the 
+            transorm algorithms. This should probably always be set to True. 
+            (Default is True.)
+
+        verbose : boolean
+            True/False to determine if non-critical output should be printed.
+
             
         .. note:: Quadrant combining 
              The quadrants can be combined (averaged) using the 
@@ -154,7 +182,7 @@ class Transform(object):
 
                     Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
                     inverse image   AQ01 | AQ01
-                                    -----o-----
+                                    -----o----- (left and right sides equivalent)
                                     AQ23 | AQ23
 
 
@@ -173,39 +201,6 @@ class Transform(object):
                                     ---o---  (all quadrants equivalent)
                                     AQ | AQ
 
-
-        angular_integration_options: tuple (or dict)
-            Additional arguments passed to the angular_integration transform 
-            functions.  See the documentation for angular_integration for options.
-
-        recast_as_float64 : boolean
-            True/False that determines if the input image should be recast to 
-            ``float64``. Many images are imported in other formats (such as 
-            ``uint8`` or ``uint16``) and this does not always play well with the 
-            transorm algorithms. This should probably always be set to True. 
-            (Default is True.)
-
-        verbose : boolean
-            True/False to determine if non-critical output should be printed.
-
-        Returns
-        -------
-        IMobj : class elements
-            The transform function returns class element results
-            depending on the options selected
-
-            ``IMobj.transform``
-                    the 2D forward/reverse Abel transform
-            ``IMobj.angular_integration``
-                    tuple: radial coordinates, 
-                           radial intensity (speed) distribution
-            ``IMobj.residual``
-                    residual image is not currently implemented
-            ``IMobj.method``
-                    transform method
-            ``IMobj.direction``
-                    transform direction
-        
         Notes
         -----
         As mentioned above, PyAbel offers several different approximations
