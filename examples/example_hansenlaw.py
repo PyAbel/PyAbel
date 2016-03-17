@@ -29,13 +29,13 @@ if cols % 2 == 0:
 
 # dr=0.5 may help reduce pixel grid coarseness
 # NB remember to pass to angular_integration
-AIM = abel.transform(IM, method='hansenlaw',
+AIM = abel.Transform(IM, method='hansenlaw',
                      use_quadrants=(True, True, True, True),
                      symmetry_axis=None,
                      transform_options=dict(dr=0.5),
-                     verbose=True)['transform']
+                     verbose=True).transform
 
-rs, speeds  = abel.tools.vmi.angular_integration(AIM, dr=0.5)
+radial, speeds  = abel.tools.vmi.angular_integration(AIM, dr=0.5)
 
 # Set up some axes
 fig = plt.figure(figsize=(15, 4))
@@ -59,7 +59,7 @@ ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law inverse Abel')
 
 # 1D speed distribution
-ax3.plot(rs, speeds/speeds[200:].max())
+ax3.plot(radial, speeds/speeds[200:].max())
 ax3.axis(xmax=500, ymin=-0.05, ymax=1.1)
 ax3.set_xlabel('speed (pixel)')
 ax3.set_ylabel('intensity')
