@@ -36,8 +36,10 @@ class Transform(object):
               recast_as_float64=True, verbose=False):
 
         """
+
         Parameters
         ----------
+
         IM : a NxM numpy array
             This is the image to be transformed
 
@@ -105,14 +107,16 @@ class Transform(object):
         symmetrize_method: str
            Method used for symmetrizing the image.
 
-           average: Simply average the quadrants.
-           fourier: Axial symmetry implies that the Fourier components of the 2-D
-                    projection should be real. Removing the imaginary components
-                    in reciprocal space leaves a symmetric projection.
-                    ref: Overstreet, K., et al. 
-                         "Multiple scattering and the density distribution of a Cs MOT." 
-                         Optics express 13.24 (2005): 9672-9682.
-                         http://dx.doi.org/10.1364/OPEX.13.009672
+           ``average`` 
+                 average the quadrants, in accordance with the `symmetry_axis`
+           ``fourier``
+                axial symmetry implies that the Fourier components of the 2-D
+                projection should be real. Removing the imaginary components
+                in reciprocal space leaves a symmetric projection.
+                ref: Overstreet, K., et al. 
+                "Multiple scattering and the density distribution of a Cs MOT." 
+                Optics express 13.24 (2005): 9672-9682.
+                http://dx.doi.org/10.1364/OPEX.13.009672
 
         angular_integration: boolean
             integrate the image over angle to give the radial (speed) intensity
@@ -168,6 +172,7 @@ class Transform(object):
                     inverse image   AQ | AQ
                                     ---o---  (all quadrants equivalent)
                                     AQ | AQ
+
 
         angular_integration_options: tuple (or dict)
             Additional arguments passed to the angular_integration transform 
