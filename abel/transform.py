@@ -34,7 +34,7 @@ class Transform(object):
     residual : numpy 2D array
         residual image (not currently implemented).
     IM: numpy 2D array
-        image, that is transformed, centered(option) and odd-size in width
+        the input image, re-centered (optional) with an odd-size width
     method : str
         transform method, as specified by the input option.
     direction: str
