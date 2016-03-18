@@ -1,7 +1,8 @@
-#!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
 from __future__ import print_function
-
+from __future__ import unicode_literals
 
 import numpy as np
 import time
@@ -24,7 +25,7 @@ def init_abel(xc, yc):
     return val1, val2
 
 
-def iabel_onion_peeling(IM, sym_lr=False, sym_ud=False):
+def onion_peeling_transform(IM, sym_lr=False, sym_ud=False, direction=None):
     # Abel-inversion algorithm from: Rev. Sci. Instrum. 67, 2257 (1996).
     # info about this implementation:
     # Rallis et al., Rev. Sci. Instrum. 85, 113105 (2014)
@@ -32,9 +33,11 @@ def iabel_onion_peeling(IM, sym_lr=False, sym_ud=False):
     # works only on the left side of an image.
     # i.e., for IM[i,j], the radial coordinate (r) increases with increasing j
 
-    print("Warning: iabel_onion_peeling() is in early testing and \
+    print("Warning: abel.onion_peeling_transform() is in early testing and \
            may not produce reasonable results")
 
+    # Other methods expect a Q0 oriented image, flip for onion use
+    IM = IM[:, ::-1]  
     h, w = np.shape(IM)
 
     if w % 2 == 1:
@@ -79,4 +82,4 @@ def iabel_onion_peeling(IM, sym_lr=False, sym_ud=False):
 
         abel_arr[:, col_index] = normfac * rest_col * vect.transpose()
 
-    return abel_arr
+    return abel_arr[:, ::-1] # flip back
