@@ -20,7 +20,7 @@ def init_abel(xc, yc):
 
     for idist in range(0, xc+1):
         for jdist in range(0, yc+1):
-            val2[idist, jdist] = np.sqrt((idist+1)**2+(jdist+1)**2)/(idist+1)
+            val2[idist, jdist] = np.sqrt((idist+1)**2+jdist**2)/(idist+1)
 
     return val1, val2
 
@@ -36,17 +36,17 @@ def onion_peeling_transform(IM, sym_lr=False, sym_ud=False, direction=None):
     print("Warning: abel.onion_peeling_transform() is in early testing and \
            may not produce reasonable results")
 
-    # Other methods expect a Q0 oriented image, flip for onion use
+    # Other methods use a Q0 oriented image, flip for onion use
     IM = IM[:, ::-1]  
     h, w = np.shape(IM)
 
     if w % 2 == 1:
         raise ValueError('Image width must be even')
 
-    if np.any(IM < 0):
-        print('Image cannot have negative values, \
-               setting negative values to zero')
-        IM[IM < 0] = 0  # cannot have negative values
+    #if np.any(IM < 0):
+    #    print('Image cannot have negative values, \
+    #           setting negative values to zero')
+    #    IM[IM < 0] = 0  # cannot have negative values
 
     # calculate val1 and val2, which are 2D arrays
     # of what appear to be scaling factors
@@ -74,7 +74,7 @@ def onion_peeling_transform(IM, sym_lr=False, sym_ud=False, direction=None):
             ic = w - i - 1
             rest_arr[:, ic] = rest_arr[:, ic] - \
                 rest_col * normfac * val1[i, idist]
-            rest_arr[:, ic][rest_arr[:, ic] < 0] = 0
+            #rest_arr[:, ic][rest_arr[:, ic] < 0] = 0
 
         for row_index in range(0, h):  # for row_index =1:ymax
             jdist = h - row_index

@@ -16,10 +16,21 @@ print(Q[0].shape)
 Q0 = Q[0].copy()
 
 iOnionQ0 = abel.onion_peeling.onion_peeling_transform(Q[0])
-Qradial, Qspeed = abel.tools.vmi.angular_integration(iOnionQ0,origin=(0,0))
 
 iHLQ0 = abel.hansenlaw.hansenlaw_transform(Q0)
 HLradial, HLspeed = abel.tools.vmi.angular_integration(iHLQ0,origin=(0,0))
+
+h, w = iOnionQ0.shape
+x = np.linspace(2,w,w)
+y = np.linspace(2,h,h)[::-1]
+
+X,Y = np.meshgrid(x,y)
+
+R = np.sqrt(X**2 + Y**2)
+#iOnionQ0 /= R
+Qradial, Qspeed = abel.tools.vmi.angular_integration(iOnionQ0,origin=(0,0))
+Qspeed[1:] /= Qradial[1:]
+
 
 plt.plot(HLradial, HLspeed/HLspeed[50:].max(), label="hansen-law")
 plt.plot(Qradial, Qspeed/Qspeed[50:].max(), label="onion_peeling")
