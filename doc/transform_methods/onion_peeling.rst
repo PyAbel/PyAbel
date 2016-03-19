@@ -51,4 +51,4 @@ Citation
 --------
 [1] http://scitation.aip.org/content/aip/journal/rsi/85/11/10.1063/1.4899267
 
-[2] https://github.com/PyAbel/PyAbel/issues/dx.doi.org/10.1063/1.1147044
+[2] http://scitation.aip.org/content/aip/journal/rsi/67/6/10.1063/1.1147044
