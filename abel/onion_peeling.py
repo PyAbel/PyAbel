@@ -128,4 +128,4 @@ def onion_peeling_transform(IM, dr=1, direction="inverse"):
         x = np.linspace(2,w,w)
         abel_arr /= x
 
-    return abel_arr
+    return abel_arr*w/2   # x1/2 appears to be required
