@@ -11,6 +11,7 @@ import warnings
 
 from . import basex
 from . import hansenlaw
+from . import onion_peeling
 from . import direct
 from . import three_point
 from . import tools
@@ -86,6 +87,10 @@ class Transform(object):
                         formula by Roman Yurchuk.
             ``three_point``
                         the three-point transform of Dasch and co-workers
+
+            ``onion_peeling``
+                        the algorithm of Bordas and co-workers (1996), 
+                        re-implemented by Rallis, Wells and co-workers (2014)  
 
         center : tuple or str
             If a tuple (float, float) is provided, this specifies
@@ -244,6 +249,9 @@ class Transform(object):
             but thanks to this Cython implementation (by Roman Yurchuk),
             this 'direct' method is competitive with the other methods.
 
+         ``onion_peeling``
+            (to be completed)
+
         ``three_point`` *
             The "Three Point" Abel transform method
             exploits the observation that the value of the Abel inverted data
@@ -317,6 +325,7 @@ class Transform(object):
             "basex": basex.basex_transform,
             "direct": direct.direct_transform,
             "hansenlaw": hansenlaw.hansenlaw_transform,
+            "onion_peeling": onion_peeling.onion_peeling_transform,
             "three_point": three_point.three_point_transform,
         }
 

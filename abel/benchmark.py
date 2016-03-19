@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 import numpy as np
 from . import basex
 from . import hansenlaw
-from . import onion
+from . import onion_peeling
 from . import direct
 from . import three_point
 from . import tools
