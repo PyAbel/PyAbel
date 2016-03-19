@@ -43,7 +43,7 @@ def init_abel(xc, yc):
     return val1, val2
 
 
-def onion_peeling_transform(IM, direction="inverse"):
+def onion_peeling_transform(IM, dr=1, direction="inverse"):
     r"""Onion peeling (or back projection) inverse Abel transform.
 
     This function operates on the "right side" of an image. i.e.
@@ -57,6 +57,9 @@ def onion_peeling_transform(IM, direction="inverse"):
     ----------
     IM : 1D or 2D numpy array
         right-side half-image (or quadrant)
+
+    dr : float
+        not used (grid size for other algorithms)
 
     direction: str
         only the `direction="inverse"` transform is currently implemented
