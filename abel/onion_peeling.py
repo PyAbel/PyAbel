@@ -73,6 +73,7 @@ def onion_peeling_transform(IM, dr=1, direction="inverse"):
 
     # The original pythod code operated on the left-half image
     # Other methods use a righ-half oriented image, flip for common use
+    IM = np.atleast_2d(IM)
     IM = IM[:, ::-1]  
     h, w = np.shape(IM)
 
@@ -110,14 +111,21 @@ def onion_peeling_transform(IM, dr=1, direction="inverse"):
         abel_arr[:, col_index] = normfac * rest_col * vect.transpose()
 
     abel_arr = abel_arr[:, ::-1] # flip back
+
     # Jacobian intensity correction `x 1/r` @DanHickstein #53
     # this factor should be incorporated in the code above
-    x = np.linspace(2,w,w)
-    y = np.linspace(2,h,h)[::-1]
+    if abel_arr.shape[0] > 1:
+        x = np.linspace(2,w,w)
+        y = np.linspace(2,h,h)[::-1]
 
-    X,Y = np.meshgrid(x,y)
+        X,Y = np.meshgrid(x,y)
 
-    R = np.sqrt(X**2 + Y**2)
-    abel_arr /= R
+        R = np.sqrt(X**2 + Y**2)
+        abel_arr /= R
+    else:
+        # flatten to a vector
+        abel_arr = abel_arr[0]
+        x = np.linspace(2,w,w)
+        abel_arr /= x
 
     return abel_arr

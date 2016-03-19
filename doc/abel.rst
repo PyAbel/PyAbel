@@ -26,6 +26,14 @@ abel.hansenlaw module
     :undoc-members:
     :show-inheritance:
 
+abel.onion_peeling module
+-----------------------
+
+.. automodule:: abel.onion_peeling
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 abel.three_point module
 -----------------------
 
