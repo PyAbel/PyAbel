@@ -9,7 +9,7 @@ from . import basex
 from . import benchmark
 from . import direct
 from . import hansenlaw
-from . import onion
+from . import onion_peeling
 from . import three_point
 from . import tools
 from . import transform

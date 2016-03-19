@@ -26,7 +26,7 @@ fig, (ax1,ax2) = plt.subplots(1, 2, figsize=(8,4))
 transforms = {
   "direct": abel.direct.direct_transform,      
   "hansenlaw": abel.hansenlaw.hansenlaw_transform,
-  "onion": abel.onion.onion_transform,
+  "onion": abel.onion_peeling.onion_peeling_transform,
   "basex": abel.basex.basex_transform,   
   "three_point": abel.three_point.three_point_transform,
 }

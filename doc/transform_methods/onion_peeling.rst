@@ -5,7 +5,7 @@ Onion Peeling (not implemented)
 Introduction
 ------------
 
-The onion peeling method has been premiminarily ported to Python, but not yet incorporated into Pyabel.
+The onion peeling method has been ported to Python
 
 See the discussion here: https://github.com/PyAbel/PyAbel/issues/56
 

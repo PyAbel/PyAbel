@@ -14,7 +14,7 @@ IM = abel.tools.center.center_image(IM, center="slice")
 Q = abel.tools.symmetry.get_image_quadrants(IM)
 Q0 = Q[0].copy()
 
-iOnionQ0 = abel.onion.onion_transform(Q[0])
+iOnionQ0 = abel.onion_peeling.onion_peeling_transform(Q[0])
 Qradial, Qspeed = abel.tools.vmi.angular_integration(iOnionQ0,origin=(0,0))
 
 iHLQ0 = abel.hansenlaw.hansenlaw_transform(Q0)

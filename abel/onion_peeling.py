@@ -43,7 +43,7 @@ def init_abel(xc, yc):
     return val1, val2
 
 
-def onion_transform(IM, direction="inverse"):
+def onion_peeling_transform(IM, direction="inverse"):
     r"""Onion peeling (or back projection) inverse Abel transform.
 
     This function operates on the "right side" of an image. i.e.
@@ -51,7 +51,7 @@ def onion_transform(IM, direction="inverse"):
     object and ``IM[0,0]`` should correspond to a central pixel. 
     To perform a onion transorm on a whole image, use ::
     
-        abel.Transform(image, method='onion').transform
+        abel.Transform(image, method='onion_peeling').transform
 
     Parameters
     ----------

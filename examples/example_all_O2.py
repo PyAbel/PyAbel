@@ -24,7 +24,7 @@ from time import time
 
 transforms = {
   "direct": abel.direct.direct_transform,      
-  "onion": abel.onion.onion_transform, 
+  "onion": abel.onion_peeling.onion_peeling_transform, 
   "hansenlaw": abel.hansenlaw.hansenlaw_transform,
   "basex": abel.basex.basex_transform,   
   "three_point": abel.three_point.three_point_transform,
