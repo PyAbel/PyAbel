@@ -250,7 +250,18 @@ class Transform(object):
             this 'direct' method is competitive with the other methods.
 
          ``onion_peeling``
-            (to be completed)
+            The onion peeling method, also known as "back projection" 
+            originates from Bordas *et al.* 
+            Rev. Sci. Instrum. **67**, 2257 (1996) 
+            <http://scitation.aip.org/content/aip/journal/rsi/67/6/10.1063/1.1147044> 
+            with the Python code based on the work of Rallis, Wells and co-workers, Rev. Sci. Instrum. **85**, 113105 (2014)
+            <http://scitation.aip.org/content/aip/journal/rsi/85/11/10.1063/1.4899267>
+
+has been
+            ported to Python from the original Matlab implementation, created by
+            Chris Rallis and Eric Wells of Augustana University, and described in
+            this paper [1]. The algorithm actually originates from this 1996 RSI paper
+            by Bordas ~et al.[2]
 
         ``three_point`` *
             The "Three Point" Abel transform method

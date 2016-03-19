@@ -13,9 +13,9 @@ The numerical Abel transform is computationally intensive, and a basic numerical
 
     4. ``*`` The :doc:`Three Point <transform_methods/three_point>` method of Dasch and co-workers, which provides a fast and robust transform by exploiting the observation that underlying radial distribution is primarily determined from changes in the line-of-sight projection data in the neighborhood of each radial data point. This technique works very well in cases where the real difference between adjacent projections is much greater than the noise in the projections (i.e. where the raw data is not oversampled). 
 
-    5. (Planned implementation) The :doc:`Fourier–Hankel <transform_methods/fh>` method, which is computationally efficient, but contains significant centerline noise and is known to introduce artifacts. 
+    5. The :doc:`Onion Peeling <transform_methods/onion_peeling>` method of Bordas et al. from matlab code by Rallis and Wells et al. One of the simpler inversion methods. The articles claim "the method works properly only in the limit of large electrostatic energy to initial kinetic energy ratio and gives qualitatively the same results as a standard inversion method". 
 
-    6. (Planned implementation) The :doc:`Onion Peeling <transform_methods/onion_peeling>` method. 
+    6. (Planned implementation) The :doc:`Fourier–Hankel <transform_methods/fh>` method, which is computationally efficient, but contains significant centerline noise and is known to introduce artifacts. 
 
     7. (Planned implementation) The :doc:`POP <transform_methods/pop>` (polar onion peeling) method. POP projects the image onto a basis set of Legendre polynomial-based functions, which can greatly reduce the noise in the reconstruction. However, this method only applies to images that contain features at constant radii. I.e., it works for the spherical shells seen in photoelectron/ion spectra, but not for flames.
 
