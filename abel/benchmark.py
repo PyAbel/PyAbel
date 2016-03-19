@@ -8,6 +8,7 @@ from __future__ import unicode_literals
 import numpy as np
 from . import basex
 from . import hansenlaw
+from . import onion
 from . import direct
 from . import three_point
 from . import tools
@@ -41,6 +42,7 @@ class AbelTiming(object):
                      'three_point':    [],
                      'three_point_bs': [],
                      'hansenlaw':      [],
+                     'onion':          [],
                      'direct_python' : [] }
                      
         if direct.cython_ext:
@@ -86,6 +88,10 @@ class AbelTiming(object):
                       
             res_iabel['hansenlaw'].append(Timer(
                 lambda: hansenlaw.hansenlaw_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+
+            res_iabel['onion'].append(Timer(
+                lambda: onion.onion_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+                      
                       
             if direct.cython_ext:
                 res_iabel['direct_C'].append(Timer(

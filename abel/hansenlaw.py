@@ -72,19 +72,19 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
     Parameters
     ----------
-    IM : 2D np.array
-        One quadrant (or half) of the image oriented top-right.
+    IM : 1D or 2D numpy array
+        right-side half-image (or quadrant)
 
     dr : float
-        Sampling size (=1 for pixel images), used for Jacobian scaling
+        sampling size (=1 for pixel images), used for Jacobian scaling
 
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
 
     Returns
     -------
-    AIM : 2D numpy array
-        forward/inverse Abel transform image
+    AIM : 1D or 2D numpy array
+        forward/inverse Abel transform half-image
         
         
     .. note::  Image should be a right-side image, like this: ::  

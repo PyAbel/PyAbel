@@ -9,6 +9,7 @@ from . import basex
 from . import benchmark
 from . import direct
 from . import hansenlaw
+from . import onion
 from . import three_point
 from . import tools
 from . import transform
