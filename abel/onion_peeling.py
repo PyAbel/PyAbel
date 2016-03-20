@@ -104,7 +104,7 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
     vect = np.zeros(h)
     # initialize a 1D array that is temporarily used to store scaling factors
 
-    for col_index in range(0, w):
+    for col_index in range(1, w):
         # iterate over the columns (x-values) in the slice space
         # if col_index%100 == 0: print col_index
 
@@ -139,8 +139,9 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
         R = np.sqrt(X**2 + Y**2)
         abel_arr /= R
     else:
+        x = np.linspace(2,w,w)
+        # flatten array
         abel_arr = abel_arr[0]
-        x = np.linspace(1,w,w)
         abel_arr /= x
 
     # shift back to pixel grid
