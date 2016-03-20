@@ -27,7 +27,7 @@ from scipy.ndimage.interpolation import shift
 #
 ################################################################################
 
-def init_abel(xc, yc):
+def _init_abel(xc, yc):
     # this seems like it could be vectorized pretty easily
     val1 = np.zeros((xc+1, xc+1))
     val2 = np.zeros((xc+1, yc+1))
@@ -39,7 +39,7 @@ def init_abel(xc, yc):
 
     for idist in range(0, xc+1):
         for jdist in range(0, yc+1):
-            val2[idist, jdist] = np.sqrt((idist+1)**2+jdist**2)/(idist+1)
+            val2[idist, jdist] = 1.0/(idist+1)
 
     return val1, val2
 
@@ -79,23 +79,26 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
 
     """
 
+    if direction != 'inverse':
+        raise ValueError('Forward "onion_peeling" transform not implemented')
 
     # onion-peeling uses grid rather than pixel values, 
     # odd shaped whole images require shift image (-1/2, -1/2)
     if shift_grid:
         IM = shift(IM, -1/2)
 
+    # make sure that the data is the right shape (1D must be converted to 2D):
     IM = np.atleast_2d(IM)
 
     # The original pythod code operated on the left-half image
     # Other methods use a right-half oriented image, flip for common use
-    IM = IM[:, ::-1]  
+    IM = np.fliplr(IM)
 
     h, w = np.shape(IM)
 
     # calculate val1 and val2, which are 2D arrays
     # of what appear to be scaling factors
-    val1, val2 = init_abel(w, h)
+    val1, val2 = _init_abel(w, h)
 
     abel_arr = IM*0
     # initialize 2D array for final transform
@@ -126,23 +129,11 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
 
         abel_arr[:, col_index] = normfac * rest_col * vect.transpose()
 
-    abel_arr = abel_arr[:, ::-1] # flip back
+    abel_arr = np.fliplr(abel_arr) # flip back
 
-    # Jacobian intensity correction `x 1/r` @DanHickstein #53
-    # this factor may be better incorporated in the code above
-    if abel_arr.shape[0] > 1:
-        x = np.linspace(2,w,w)
-        y = np.linspace(2,h,h)[::-1]
-
-        X,Y = np.meshgrid(x,y)
-
-        R = np.sqrt(X**2 + Y**2)
-        abel_arr /= R
-    else:
-        x = np.linspace(2,w,w)
+    if abel_arr.shape[0] == 1:
         # flatten array
         abel_arr = abel_arr[0]
-        abel_arr /= x
 
     # shift back to pixel grid
     if shift_grid:
