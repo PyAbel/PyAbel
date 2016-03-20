@@ -114,7 +114,7 @@ def test_onion_peeling_2d_gaussian(n=100):
 
     X, Y = np.meshgrid(x, y)
 
-    IM = gauss(X, 0, sigma) # cylinderical Gaussian located at pixel R=0
+    IM = gauss(X, 0, sigma) # cylindrical Gaussian located at pixel R=0
     Q0 = IM[:r2, c2:] # quadrant, top-right
     Q0_copy = Q0.copy()
 
