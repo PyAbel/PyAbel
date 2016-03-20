@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+from scipy.ndimage.interpolation import shift
 
 ################################################################################
 #
@@ -43,13 +44,16 @@ def init_abel(xc, yc):
     return val1, val2
 
 
-def onion_peeling_transform(IM, dr=1, direction="inverse"):
+def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
     r"""Onion peeling (or back projection) inverse Abel transform.
 
     This function operates on the "right side" of an image. i.e.
-    it works on just half of a cylindrically symmetric
-    object and ``IM[0,0]`` should correspond to a central pixel. 
-    To perform a onion transorm on a whole image, use ::
+    it works on just half of a cylindrically symmetric image.
+    Unlike the other transforms, the left edge should be the
+    image center, not mid-first pixel. This corresponds to an
+    even-width full image. If not, set `shift_grid=True`. 
+
+    To perform a onion-peeling transorm on a whole image, use ::
     
         abel.Transform(image, method='onion_peeling').transform
 
@@ -63,6 +67,10 @@ def onion_peeling_transform(IM, dr=1, direction="inverse"):
 
     direction: str
         only the `direction="inverse"` transform is currently implemented
+   
+    shift_grid: boolean
+        place width-center on grid (bottom left pixel) by shifting image 
+        center (-1/2, -1/2) pixel 
 
     Returns
     -------
@@ -71,10 +79,18 @@ def onion_peeling_transform(IM, dr=1, direction="inverse"):
 
     """
 
-    # The original pythod code operated on the left-half image
-    # Other methods use a righ-half oriented image, flip for common use
+
+    # onion-peeling uses grid rather than pixel values, 
+    # odd shaped whole images require shift image (-1/2, -1/2)
+    if shift_grid:
+        IM = shift(IM, -1/2)
+
     IM = np.atleast_2d(IM)
+
+    # The original pythod code operated on the left-half image
+    # Other methods use a right-half oriented image, flip for common use
     IM = IM[:, ::-1]  
+
     h, w = np.shape(IM)
 
     # calculate val1 and val2, which are 2D arrays
@@ -86,7 +102,7 @@ def onion_peeling_transform(IM, dr=1, direction="inverse"):
     rest_arr = IM
     # initialize 2D array that will be manipulated during the transform
     vect = np.zeros(h)
-    # initialize a 1D array that is temorarily used to store scaling factors
+    # initialize a 1D array that is temporarily used to store scaling factors
 
     for col_index in range(0, w):
         # iterate over the columns (x-values) in the slice space
@@ -113,7 +129,7 @@ def onion_peeling_transform(IM, dr=1, direction="inverse"):
     abel_arr = abel_arr[:, ::-1] # flip back
 
     # Jacobian intensity correction `x 1/r` @DanHickstein #53
-    # this factor should be incorporated in the code above
+    # this factor may be better incorporated in the code above
     if abel_arr.shape[0] > 1:
         x = np.linspace(2,w,w)
         y = np.linspace(2,h,h)[::-1]
@@ -123,9 +139,12 @@ def onion_peeling_transform(IM, dr=1, direction="inverse"):
         R = np.sqrt(X**2 + Y**2)
         abel_arr /= R
     else:
-        # flatten to a vector
         abel_arr = abel_arr[0]
-        x = np.linspace(2,w,w)
+        x = np.linspace(1,w,w)
         abel_arr /= x
 
-    return abel_arr*w/2   # x1/2 appears to be required
+    # shift back to pixel grid
+    if shift_grid:
+        abel_arr = shift(abel_arr, 1/2)
+
+    return abel_arr   
