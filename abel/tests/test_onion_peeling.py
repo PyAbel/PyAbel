@@ -96,7 +96,7 @@ def test_onion_peeling_1d_gaussian(n=100):
 
     recon = abel.onion_peeling.onion_peeling_transform(orig, shift_grid=False)
 
-    ratio_1d = orig_copy[10]/recon[10]
+    ratio_1d = 21.1565   # set to 1.0 once correct normalization determined
 
     assert_allclose(orig_copy[20:], recon[20:]*ratio_1d, rtol=0.0, atol=0.5)
 
@@ -113,9 +113,8 @@ def test_onion_peeling_2d_gaussian(n=100):
     y = np.linspace(-r2, r2, rows)
 
     X, Y = np.meshgrid(x, y)
-    R, THETA = abel.tools.polar.cart2polar(X, Y)
 
-    IM = gauss(R, 0, sigma) # Gaussian located at pixel R=0
+    IM = gauss(X, 0, sigma) # cylinderical Gaussian located at pixel R=0
     Q0 = IM[:r2, c2:] # quadrant, top-right
     Q0_copy = Q0.copy()
 
@@ -123,7 +122,8 @@ def test_onion_peeling_2d_gaussian(n=100):
     AQ0 = abel.onion_peeling.onion_peeling_transform(Q0, shift_grid=False)
     profQ0 = Q0_copy[-10:,:].sum(axis=0)
     profAQ0 = AQ0[-10:,:].sum(axis=0)
-    ratio_2d = profQ0[10]/profAQ0[10]
+
+    ratio_2d = 21.1569
 
     assert_allclose(Q0_copy, AQ0*ratio_2d, rtol=0.0, atol=0.3)
 
