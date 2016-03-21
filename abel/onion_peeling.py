@@ -30,16 +30,14 @@ from scipy.ndimage.interpolation import shift
 def _init_abel(xc, yc):
     # this seems like it could be vectorized pretty easily
     val1 = np.zeros((xc+1, xc+1))
-    val2 = np.zeros((xc+1, yc+1))
+    val2 = np.zeros_like(val1)
 
-    for ii in range(0, xc+1):
+    for ii in range(xc+1):
         for jj in range(ii, xc+1):
-            val1[ii, jj] = np.arcsin((ii+1)/float(jj+1)) - \
-                np.arcsin((ii)/float(jj+1))
+            val1[ii, jj] = np.arcsin((ii+1)/(jj+1)) - \
+                           np.arcsin((ii)/(jj+1))
 
-    for idist in range(0, xc+1):
-        for jdist in range(0, yc+1):
-            val2[idist, jdist] = 1.0/(idist+1)
+        val2[ii, :] = 1.0/(ii+1)
 
     return val1, val2
 
