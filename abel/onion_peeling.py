@@ -27,7 +27,8 @@ from scipy.ndimage.interpolation import shift
 #
 ################################################################################
 
-def _init_abel(xc, yc):
+def _init_abel_vec(xc, yc):
+    # vectorized 
     i = np.arange(xc+1, dtype=int)
     j = np.arange(yc+1, dtype=int)
 
@@ -40,7 +41,7 @@ def _init_abel(xc, yc):
 
     return val1, val2
 
-def _init_abel2(xc, yc):
+def _init_abel(xc, yc):
     # this seems like it could be vectorized pretty easily
     val1 = np.zeros((xc, xc))
     val2 = np.zeros((xc, yc))
