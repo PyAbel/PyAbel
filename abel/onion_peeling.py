@@ -110,7 +110,12 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
 
     # calculate val1 and val2, which are 2D arrays
     # of what appear to be scaling factors
-    val1, val2 = _init_abel(w, h)
+    if h > 1:
+        # use vectorized method for 2D image
+        val1, val2 = _init_abel_vec(w, h) 
+    else:
+        # 1D image remain with legacy code
+        val1, val2 = _init_abel(w, h) 
 
     abel_arr = IM*0
     # initialize 2D array for final transform
