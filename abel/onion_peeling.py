@@ -29,11 +29,11 @@ from scipy.ndimage.interpolation import shift
 
 def _init_abel(xc, yc):
     # this seems like it could be vectorized pretty easily
-    val1 = np.zeros((xc+1, xc+1))
-    val2 = np.zeros((xc+1, yc+1))
+    val1 = np.zeros((xc, xc))
+    val2 = np.zeros((xc, yc))
 
-    for ii in range(xc+1):
-        for jj in range(ii, xc+1):
+    for ii in range(xc):
+        for jj in range(ii, xc):
             val1[ii, jj] = np.arcsin((ii+1)/(jj+1)) - \
                            np.arcsin((ii)/(jj+1))
 
