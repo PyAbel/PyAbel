@@ -107,25 +107,24 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
 
     for col_index in range(1, w):
         # iterate over the columns (x-values) in the slice space
-        # if col_index%100 == 0: print col_index
 
         idist = w - col_index
         # this is basically the x-coordinate
         # or "distance in i direction", I guess
-        rest_col = rest_arr[:, col_index]
+        rest_col = rest_arr[:, col_index-1]
         # a 1D column. This is the piece of the onion we are on.
         normfac = 1 / val1[idist, idist]
 
-        for i in range(0, idist)[::-1]:
-            ic = w - i - 1
-            rest_arr[:, ic] = rest_arr[:, ic] - \
-                rest_col * normfac * val1[i, idist]
+        for i in range(idist)[::-1]:
+            rest_arr[:, w-i-1] -= rest_col * normfac * val1[i, idist]
 
-        for row_index in range(0, h):  # for row_index =1:ymax
-            jdist = h - row_index
-            vect[row_index] = val2[idist, jdist]
+        for row_index in range(h):  # for row_index =1:ymax
+            vect[row_index] = val2[idist, h-row_index-1]
 
         abel_arr[:, col_index] = normfac * rest_col * vect.transpose()
+
+    # set missing 1st column
+    abel_arr[:, 0] = abel_arr[:, 1]
 
     abel_arr = np.fliplr(abel_arr) # flip back
 
