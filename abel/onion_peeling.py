@@ -28,6 +28,19 @@ from scipy.ndimage.interpolation import shift
 ################################################################################
 
 def _init_abel(xc, yc):
+    i = np.arange(xc+1, dtype=int)
+    j = np.arange(yc+1, dtype=int)
+
+    Jp1, I = np.meshgrid(j+1, i)
+    Jpp1, Ip1 = np.meshgrid(j+1, i+1)
+
+    val1 = np.arcsin(np.triu(Ip1/Jpp1)) - np.arcsin(np.triu(I/Jp1))
+
+    val2 = 1.0/Ip1[:]
+
+    return val1, val2
+
+def _init_abel2(xc, yc):
     # this seems like it could be vectorized pretty easily
     val1 = np.zeros((xc, xc))
     val2 = np.zeros((xc, yc))
