@@ -29,15 +29,16 @@ from scipy.ndimage.interpolation import shift
 
 def _init_abel_vec(xc, yc):
     # vectorized 
-    i = np.arange(xc+1, dtype=int)
-    j = np.arange(yc+1, dtype=int)
+    i = np.arange(xc, dtype=int)
+    j = np.arange(yc, dtype=int)
 
-    Jp1, I = np.meshgrid(j+1, i)
-    Jpp1, Ip1 = np.meshgrid(j+1, i+1)
+    Ip1, I = np.meshgrid(i+1, i)
+    Ijp1, Iip1 = np.meshgrid(i+1, i+1)
 
-    val1 = np.arcsin(np.triu(Ip1/Jpp1)) - np.arcsin(np.triu(I/Jp1))
+    val1 = np.arcsin(np.triu(Iip1/Ijp1)) - np.arcsin(np.triu(I/Ip1))
 
-    val2 = 1.0/Ip1[:]
+    Jp1, I1 = np.meshgrid(j+1, i+1)
+    val2 = 1.0/I1[:]
 
     return val1, val2
 
@@ -110,12 +111,7 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
 
     # calculate val1 and val2, which are 2D arrays
     # of what appear to be scaling factors
-    #if h > 1:
-        # use vectorized method for 2D image
-    #    val1, val2 = _init_abel_vec(w, h) 
-    #else:
-        # 1D image remain with legacy code
-    val1, val2 = _init_abel(w, h) 
+    val1, val2 = _init_abel_vec(w, h) 
 
     abel_arr = IM*0
     # initialize 2D array for final transform
