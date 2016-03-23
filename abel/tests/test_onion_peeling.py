@@ -53,7 +53,7 @@ def test_onion_peeling_inverse_transform_gaussian():
     recon = abel.onion_peeling.onion_peeling_transform(tr, ref.dr, direction='inverse')
     recon1d = recon[n//2 + n%2]  # centre row
 
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)
+    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)/2
 
     assert_allclose(ratio, 1.0, rtol=1, atol=0)
 
@@ -96,7 +96,7 @@ def test_onion_peeling_1d_gaussian(n=100):
 
     recon = abel.onion_peeling.onion_peeling_transform(orig, shift_grid=False)
 
-    ratio_1d = 19.103   # set to 1.0 once correct normalization determined
+    ratio_1d = np.sqrt(np.pi)*sigma
 
     assert_allclose(orig_copy[20:], recon[20:]*ratio_1d, rtol=0.0, atol=0.5)
 
@@ -123,7 +123,7 @@ def test_onion_peeling_2d_gaussian(n=100):
     profQ0 = Q0_copy[-10:,:].sum(axis=0)
     profAQ0 = AQ0[-10:,:].sum(axis=0)
 
-    ratio_2d = 19.1035
+    ratio_2d = np.sqrt(np.pi)*sigma
 
     assert_allclose(Q0_copy, AQ0*ratio_2d, rtol=0.0, atol=0.3)
 
