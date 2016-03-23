@@ -111,7 +111,7 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
 
     # calculate val1 and val2, which are 2D arrays
     # of what appear to be scaling factors
-    val1, val2 = _init_abel_vec(w, h) 
+    val1, val2 = _init_abel(w, h) 
 
     abel_arr = IM*0
     # initialize 2D array for final transform
@@ -140,6 +140,10 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
 
     # set missing 1st column
     abel_arr[:, 0] = abel_arr[:, 1]
+
+    # for some reason shift by 1 pixel aligns better? - FIX ME!
+    # Just like hansenlaw
+    abel_arr = np.c_[abel_arr[:, 1:],abel_arr[:, -1]]
 
     abel_arr = np.fliplr(abel_arr) # flip back
 
