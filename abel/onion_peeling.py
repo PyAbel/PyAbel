@@ -155,4 +155,4 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
     if shift_grid:
         abel_arr = shift(abel_arr, 1/2)
 
-    return abel_arr   
+    return abel_arr/2  # x1/2 normalization   
