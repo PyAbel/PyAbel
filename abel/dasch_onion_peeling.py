@@ -6,7 +6,6 @@ from __future__ import unicode_literals
 
 import numpy as np
 import abel
-import matplotlib.pyplot as plt
 from scipy.linalg import inv
 from scipy import dot
 
