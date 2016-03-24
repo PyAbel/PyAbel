@@ -11,6 +11,7 @@ from . import hansenlaw
 from . import onion_bordas
 from . import onion_dasch
 from . import direct
+from . import two_point
 from . import three_point
 from . import tools
 
@@ -42,6 +43,7 @@ class AbelTiming(object):
                      'basex_bs':       [],
                      'three_point':    [],
                      'three_point_bs': [],
+                     'two_point':    [],
                      'hansenlaw':      [],
                      'onion_bordas':  [],
                      'onion_dasch': [],
@@ -91,6 +93,9 @@ class AbelTiming(object):
             res_iabel['hansenlaw'].append(Timer(
                 lambda: hansenlaw.hansenlaw_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
 
+            res_iabel['two_point'].append(Timer(
+                lambda: two_point.two_point_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+                      
             res_iabel['onion_dasch'].append(Timer(
                 lambda: onion_dasch.onion_dasch_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
                       
