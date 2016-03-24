@@ -12,6 +12,7 @@ import warnings
 from . import basex
 from . import hansenlaw
 from . import onion_peeling
+from . import dasch_onion_peeling
 from . import direct
 from . import three_point
 from . import tools
@@ -91,6 +92,9 @@ class Transform(object):
             ``onion_peeling``
                         the algorithm of Bordas and co-workers (1996), 
                         re-implemented by Rallis, Wells and co-workers (2014)  
+
+            ``dasch_onion_peeling``
+                        the onion peeling deconvolution as described by Dasch
 
         center : tuple or str
             If a tuple (float, float) is provided, this specifies
@@ -264,6 +268,11 @@ class Transform(object):
         .. _#56: <https://github.com/PyAbel/PyAbel/issues/56>
 
 
+        ``dasch_onion_peeling``
+            See also ``three_point`` is the onion peeling algorithm as
+            described by Dasch (1992), reference below.
+
+
         ``three_point`` *
             The "Three Point" Abel transform method
             exploits the observation that the value of the Abel inverted data
@@ -338,6 +347,8 @@ class Transform(object):
             "direct": direct.direct_transform,
             "hansenlaw": hansenlaw.hansenlaw_transform,
             "onion_peeling": onion_peeling.onion_peeling_transform,
+            "dasch_onion_peeling":\
+                   dasch_onion_peeling.dasch_onion_peeling_transform,
             "three_point": three_point.three_point_transform,
         }
 
