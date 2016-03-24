@@ -91,6 +91,9 @@ class AbelTiming(object):
             res_iabel['hansenlaw'].append(Timer(
                 lambda: hansenlaw.hansenlaw_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
 
+            res_iabel['dash_onion_peeling'].append(Timer(
+                lambda: dash_onion_peeling.dash_onion_peeling_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+                      
             res_iabel['onion_peeling'].append(Timer(
                 lambda: onion_peeling.onion_peeling_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
                       
