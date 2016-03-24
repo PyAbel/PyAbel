@@ -9,8 +9,8 @@ from . import basex
 from . import benchmark
 from . import direct
 from . import hansenlaw
-from . import onion_peeling
-from . import dasch_onion_peeling
+from . import onion_bordas
+from . import onion_dasch
 from . import two_point
 from . import three_point
 from . import tools

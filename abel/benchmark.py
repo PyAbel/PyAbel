@@ -8,8 +8,8 @@ from __future__ import unicode_literals
 import numpy as np
 from . import basex
 from . import hansenlaw
-from . import onion_peeling
-from . import dasch_onion_peeling
+from . import onion_bordas
+from . import onion_dasch
 from . import direct
 from . import three_point
 from . import tools
@@ -43,8 +43,8 @@ class AbelTiming(object):
                      'three_point':    [],
                      'three_point_bs': [],
                      'hansenlaw':      [],
-                     'onion_peeling':  [],
-                     'dasch_onion_peeling': [],
+                     'onion_bordas':  [],
+                     'onion_dasch': [],
                      'direct_python' : [] }
                      
         if direct.cython_ext:
@@ -91,11 +91,11 @@ class AbelTiming(object):
             res_iabel['hansenlaw'].append(Timer(
                 lambda: hansenlaw.hansenlaw_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
 
-            res_iabel['dasch_onion_peeling'].append(Timer(
-                lambda: dasch_onion_peeling.dasch_onion_peeling_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+            res_iabel['onion_dasch'].append(Timer(
+                lambda: onion_dasch.onion_dasch_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
                       
-            res_iabel['onion_peeling'].append(Timer(
-                lambda: onion_peeling.onion_peeling_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+            res_iabel['onion_bordas'].append(Timer(
+                lambda: onion_bordas.onion_bordas_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
                       
                       
             if direct.cython_ext:
