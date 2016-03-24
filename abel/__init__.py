@@ -11,6 +11,7 @@ from . import direct
 from . import hansenlaw
 from . import onion_peeling
 from . import dasch_onion_peeling
+from . import two_point
 from . import three_point
 from . import tools
 from . import transform
