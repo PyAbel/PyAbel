@@ -23,26 +23,26 @@ def g(R):
         return (4/3)*alpha*(1+2*R2)-4*R2*np.log((1+alpha)/R)
 
 
-def test_onion_peeling_shape():
+def test_onion_bordas_shape():
     n = 21
     x = np.ones((n, n), dtype='float32')
 
-    recon = abel.onion_peeling.onion_peeling_transform(x, direction='inverse')
+    recon = abel.onion_bordas.onion_bordas_transform(x, direction='inverse')
 
     assert recon.shape == (n, n) 
 
 
-def test_onion_peeling_zeros():
+def test_onion_bordas_zeros():
     n = 21
     x = np.zeros((n, n), dtype='float32')
 
-    recon = abel.onion_peeling.onion_peeling_transform(x, direction="inverse")
+    recon = abel.onion_bordas.onion_bordas_transform(x, direction="inverse")
 
     assert_allclose(recon, 0)
 
 
-def test_onion_peeling_inverse_transform_gaussian():
-    """Check onion_peeling inverse transform with a Gaussian function"""
+def test_onion_bordas_inverse_transform_gaussian():
+    """Check onion_bordas inverse transform with a Gaussian function"""
     n = 501   
     r_max = 251
 
@@ -50,15 +50,15 @@ def test_onion_peeling_inverse_transform_gaussian():
           symmetric=False,  sigma=10)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
-    recon = abel.onion_peeling.onion_peeling_transform(tr, ref.dr, direction='inverse')
+    recon = abel.onion_bordas.onion_bordas_transform(tr, ref.dr, direction='inverse')
     recon1d = recon[n//2 + n%2]  # centre row
 
     ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)/2
 
     assert_allclose(ratio, 1.0, rtol=1, atol=0)
 
-def test_onion_peeling_inverse_transform_curveA():
-    """ Check onion_peeling inverse transform() 'curve A'
+def test_onion_bordas_inverse_transform_curveA():
+    """ Check onion_bordas inverse transform() 'curve A'
     """
     delta = 0.01 
 
@@ -71,14 +71,14 @@ def test_onion_peeling_inverse_transform_curveA():
     proj = np.concatenate((g(rl),g(rr)), axis=0)   # g(r)
 
     # inverse Abel 
-    recon = abel.onion_peeling.onion_peeling_transform(proj, r[1]-r[0],
+    recon = abel.onion_bordas.onion_bordas_transform(proj, r[1]-r[0],
                                                direction='inverse') 
                                                        # == f(r)
     ratio = orig[20]/recon[20]
 
     assert_allclose(orig, recon*ratio, rtol=0, atol=0.1)
 
-def test_onion_peeling_1d_gaussian(n=100):
+def test_onion_bordas_1d_gaussian(n=100):
     gauss = lambda r, r0, sigma: np.exp(-(r-r0)**2/sigma**2)
 
     n = 100
@@ -94,13 +94,13 @@ def test_onion_peeling_1d_gaussian(n=100):
     orig = gauss(r, 0, sigma)
     orig_copy = orig.copy()
 
-    recon = abel.onion_peeling.onion_peeling_transform(orig, shift_grid=False)
+    recon = abel.onion_bordas.onion_bordas_transform(orig, shift_grid=False)
 
     ratio_1d = np.sqrt(np.pi)*sigma
 
     assert_allclose(orig_copy[20:], recon[20:]*ratio_1d, rtol=0.0, atol=0.5)
 
-def test_onion_peeling_2d_gaussian(n=100):
+def test_onion_bordas_2d_gaussian(n=100):
     gauss = lambda r, r0, sigma: np.exp(-(r-r0)**2/sigma**2)
 
     image_shape=(n, n)
@@ -118,8 +118,8 @@ def test_onion_peeling_2d_gaussian(n=100):
     Q0 = IM[:r2, c2:] # quadrant, top-right
     Q0_copy = Q0.copy()
 
-    # onion_peeling inverse Abel transform
-    AQ0 = abel.onion_peeling.onion_peeling_transform(Q0, shift_grid=False)
+    # onion_bordas inverse Abel transform
+    AQ0 = abel.onion_bordas.onion_bordas_transform(Q0, shift_grid=False)
     profQ0 = Q0_copy[-10:,:].sum(axis=0)
     profAQ0 = AQ0[-10:,:].sum(axis=0)
 
@@ -128,9 +128,9 @@ def test_onion_peeling_2d_gaussian(n=100):
     assert_allclose(Q0_copy, AQ0*ratio_2d, rtol=0.0, atol=0.3)
 
 if __name__ == "__main__":
-    test_onion_peeling_shape()
-    test_onion_peeling_zeros()
-    test_onion_peeling_1d_gaussian()
-    test_onion_peeling_inverse_transform_gaussian()
-    test_onion_peeling_inverse_transform_curveA()
-    test_onion_peeling_2d_gaussian()
+    test_onion_bordas_shape()
+    test_onion_bordas_zeros()
+    test_onion_bordas_1d_gaussian()
+    test_onion_bordas_inverse_transform_gaussian()
+    test_onion_bordas_inverse_transform_curveA()
+    test_onion_bordas_2d_gaussian()

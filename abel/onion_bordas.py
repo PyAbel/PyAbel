@@ -57,7 +57,7 @@ def _init_abel(xc, yc):
     return val1, val2
 
 
-def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
+def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False):
     r"""Onion peeling (or back projection) inverse Abel transform.
 
     This function operates on the "right side" of an image. i.e.
@@ -68,7 +68,7 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
 
     To perform a onion-peeling transorm on a whole image, use ::
     
-        abel.Transform(image, method='onion_peeling').transform
+        abel.Transform(image, method='onion_bordas').transform
 
     Parameters
     ----------
@@ -93,7 +93,7 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
     """
 
     if direction != 'inverse':
-        raise ValueError('Forward "onion_peeling" transform not implemented')
+        raise ValueError('Forward "onion_bordas" transform not implemented')
 
     # onion-peeling uses grid rather than pixel values, 
     # odd shaped whole images require shift image (-1/2, -1/2)

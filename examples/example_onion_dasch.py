@@ -24,13 +24,13 @@ Q = abel.tools.symmetry.get_image_quadrants(fIM)
 Q0 = Q[0].copy()
 
 # dasch_onion_peeling inverse Abel transform
-dopQ0 = abel.dasch_onion_peeling.dasch_onion_peeling_transform(Q0)
+dopQ0 = abel.onion_dasch.onion_dasch_transform(Q0)
 # speed distribution
 dop_speed = abel.tools.vmi.angular_integration(dopQ0, origin=(0,0))
 
 plt.plot(orig_speed[0], orig_speed[1]/scale_factor, linestyle='dashed', label="Dribinski sample")
-plt.plot(dop_speed[0], dop_speed[1]*orig_speed[1][14]/dop_speed[1][14]/scale_factor, label="dasch_onion_peeling")
+plt.plot(dop_speed[0], dop_speed[1]*orig_speed[1][14]/dop_speed[1][14]/scale_factor, label="onion_dasch")
 plt.axis(ymin=-0.1)
 plt.legend(loc=0)
-plt.savefig("example_dasch_onion_peeling.png",dpi=100)
+plt.savefig("example_onion_dasch.png",dpi=100)
 plt.show()

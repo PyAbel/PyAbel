@@ -9,6 +9,19 @@ import abel
 from scipy.linalg import inv
 from scipy import dot
 
+#################################################################################
+#
+#  Dasch two-point deconvolution
+#    as described in Applied Optics 31, 1146 (1992), page 1148 sect. C.
+#    see PR #155
+#
+# 2016-03-25 Dan Hickstein - one line Abel transform
+# 2016-03-24 Steve Gibson - Python code framework
+# 2015-12-29 Dhrubajyoti Das - three_point code and highlighting the Dasch paper
+#                              see issue #61
+#
+################################################################################
+
 
 def two_point_transform(IM, dr=1, direction="inverse"):
     """ Two-point deconvolution of Dasch  
@@ -28,47 +41,44 @@ def two_point_transform(IM, dr=1, direction="inverse"):
 
     Returns
     -------
-    AIM: 1D or 2D numpy array
+    inv_IM: 1D or 2D numpy array
         the inverse Abel transformed half-image 
 
     """
 
-    # Eq. (9)  for j > i
-    def J(i, j): 
-       return np.log((np.sqrt((j+1)**2-i**2)+j+1)/\
-                     (np.sqrt((j-1)**2-i**2)+j))/np.pi
-
     if direction != 'inverse':
-        raise ValueError('Forward "two_point" transform not'
-                         ' implemented')
+        raise ValueError('Forward "two_point" transform not implemented')
 
     # make sure that the data has 2D shape
     IM = np.atleast_2d(IM)
 
-    cols, rows = IM.shape
+    # basis function Eq. (9)  for j >= i
+    def J(i, j): 
+       if j == 0: 
+           J = 2/np.pi
+       else:
+           J = np.log((np.sqrt((j+1)**2-i**2) + j+1)/\
+                      (np.sqrt(j**2-i**2) + j))/np.pi
+       return J
 
-    # transformed image
-    AIM = np.zeros_like(IM)
-
-    # operator
+    # Eq. (8, 9) D-operator basis, is 0 for j < i
     D = np.zeros_like(IM)
 
-    Iu, Ju = np.triu_indices(cols, k=0)  # upper triangle j >= i
+    # diagonal i == j
+    Ii, Jj = np.diag_indices_from(IM) 
+    for i in Ii:  
+        D[i, i] = J(i, i)
 
-    # Eq. (8, 9)
-    for i, j in zip(Iu[1:], Ju[1:]):    # drop [0, 0]
-        if j > i+1:
-            D[i, j] = J(i, j) - J(i, j-1)
-        elif j > i: 
-            D[i, j] = J(i, j)
+    # upper triangle j > i
+    Iu, Ju = np.triu_indices(IM.shape[0], k=1)
 
-    D[0, 0] = 2/np.pi  # special case i=j=0
+    for i, j in zip(Iu, Ju):   
+        D[i, j] = J(i, j) - J(i, j-1)
 
-    for i, P in enumerate(IM):
-        AIM[i] = dot(D, P)   # Eq. (1)
+    # one-line Abel transform 
+    inv_IM = np.tensordot(IM, D, axes=(1, 1))
 
-    if AIM.shape[0] == 1:
-        # flatten array
-        AIM = AIM[0]
+    if inv_IM.shape[0] == 1:
+        inv_IM = inv_IM[0]  # flatten array
 
-    return AIM*dr
+    return inv_IM*dr

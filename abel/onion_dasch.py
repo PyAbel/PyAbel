@@ -9,8 +9,21 @@ import abel
 from scipy.linalg import inv
 from scipy import dot
 
+#################################################################################
+#
+#  Dasch onion-peeling deconvolution
+#    as described in Applied Optics 31, 1146 (1992), page 1148 sect. D.
+#    see PR #155
+#
+# 2016-03-25 Dan Hickstein - one line Abel transform
+# 2016-03-24 Steve Gibson - Python code framework
+# 2015-12-29 Dhrubajyoti Das - three_point code and highlighting the Dasch paper
+#                              see issue #61
+#
+#################################################################################
 
-def dasch_onion_peeling_transform(IM, dr=1, direction="inverse"):
+
+def onion_dasch_transform(IM, dr=1, direction="inverse"):
     """ Onion-peeling deconvolution of Dasch  
         Applied Optics 31, 1146 (1992), page 1148 sect. D.
 
@@ -28,24 +41,18 @@ def dasch_onion_peeling_transform(IM, dr=1, direction="inverse"):
 
     Returns
     -------
-    AIM: 1D or 2D numpy array
+    inv_IM: 1D or 2D numpy array
         the inverse Abel transformed half-image 
 
     """
 
     if direction != 'inverse':
-        raise ValueError('Forward "dasch_onion_peeling" transform not'
-                         ' implemented')
+        raise ValueError('Forward "onion_dasch" transform not implemented')
 
     # make sure that the data has 2D shape
     IM = np.atleast_2d(IM)
 
-    cols, rows = IM.shape
-
-    # transformed image
-    AIM = np.zeros_like(IM)
-
-    # weight matrix 
+    # basis weight matrix 
     W = np.zeros_like(IM)
 
     I, J = np.diag_indices_from(IM)    # diagonal elements i = j
@@ -59,13 +66,12 @@ def dasch_onion_peeling_transform(IM, dr=1, direction="inverse"):
                   np.sqrt((2*j-1)**2 - 4*i**2)    # Eq. (11) j > i
 
     # operator used in Eq. (1)
-    D = inv(W)
+    D = inv(W)   # note => square matrix
 
-    for i, P in enumerate(IM):
-        AIM[i] = dot(D, P)   # Eq. (1)
+    # one-line Abel transform
+    inv_IM = np.tensordot(IM, D, axes=(1,1)) 
 
-    if AIM.shape[0] == 1:
-        # flatten array
-        AIM = AIM[0]
+    if inv_IM.shape[0] == 1:
+        inv_IM = inv_IM[0]  # flatten array
 
-    return AIM*dr/cols   # normalization x(dr/cols)
+    return inv_IM*dr
