@@ -9,6 +9,7 @@ import numpy as np
 from . import basex
 from . import hansenlaw
 from . import onion_peeling
+from . import dasch_onion_peeling
 from . import direct
 from . import three_point
 from . import tools
@@ -43,6 +44,7 @@ class AbelTiming(object):
                      'three_point_bs': [],
                      'hansenlaw':      [],
                      'onion_peeling':  [],
+                     'dasch_onion_peeling': [],
                      'direct_python' : [] }
                      
         if direct.cython_ext:
