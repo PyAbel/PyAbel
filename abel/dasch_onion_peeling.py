@@ -61,7 +61,7 @@ def dasch_onion_peeling_transform(IM, dr=1, direction="inverse"):
     D = inv(W)
 
     for i, P in enumerate(IM):
-        AIM[i] = dot(W, P)   # Eq. (1)
+        AIM[i] = dot(D, P)   # Eq. (1)
     
     if AIM.shape[0] == 1:
         # flatten array
