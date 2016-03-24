@@ -9,6 +9,7 @@ import abel
 from scipy.linalg import inv
 from scipy import dot
 
+
 def dasch_onion_peeling_transform(IM, dr=1, direction="inverse"):
     """ Onion-peeling deconvolution of Dasch  
         Applied Optics 31, 1146 (1992), page 1148 sect. D.
@@ -23,7 +24,7 @@ def dasch_onion_peeling_transform(IM, dr=1, direction="inverse"):
 
     direction: str
         only the `direction="inverse"` transform is currently implemented
-   
+
 
     Returns
     -------
@@ -46,14 +47,14 @@ def dasch_onion_peeling_transform(IM, dr=1, direction="inverse"):
 
     # weight matrix 
     W = np.zeros_like(IM)
-    
-    I, J = np.diag_indices_from(IM)
-    Iu, Ju = np.triu_indices(IM.shape[0], k=1)
-    
+
+    I, J = np.diag_indices_from(IM)    # diagonal elements i = j
+    Iu, Ju = np.triu_indices(IM.shape[0], k=1)  # upper triangle j > i
+
     for i in I:  
         W[i, i] = np.sqrt((2*i+1)**2 - 4*i**2)    # Eq. (11) j = i
-    
-    for i,j in zip(Iu, Ju):
+
+    for i, j in zip(Iu, Ju):
         W[i, j] = np.sqrt((2*j+1)**2 - 4*i**2) -\
                   np.sqrt((2*j-1)**2 - 4*i**2)    # Eq. (11) j > i
 
@@ -62,7 +63,7 @@ def dasch_onion_peeling_transform(IM, dr=1, direction="inverse"):
 
     for i, P in enumerate(IM):
         AIM[i] = dot(D, P)   # Eq. (1)
-    
+
     if AIM.shape[0] == 1:
         # flatten array
         AIM = AIM[0]

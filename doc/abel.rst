@@ -37,7 +37,7 @@ abel.onion_peeling module
 abel.dasch_onion_peeling module
 -------------------------------
 
-.. automodule:: abel.onion_peeling
+.. automodule:: abel.dash_onion_peeling
     :members:
     :undoc-members:
     :show-inheritance:
