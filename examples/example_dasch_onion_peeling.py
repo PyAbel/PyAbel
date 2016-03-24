@@ -17,6 +17,7 @@ origQ = abel.tools.symmetry.get_image_quadrants(IM)
 
 # speed distribution
 orig_speed = abel.tools.vmi.angular_integration(origQ[0], origin=(0,0))
+scale_factor = orig_speed[1].max()
 
 # split projected image into quadrants
 Q = abel.tools.symmetry.get_image_quadrants(fIM)
@@ -27,8 +28,8 @@ dopQ0 = abel.dasch_onion_peeling.dasch_onion_peeling_transform(Q0)
 # speed distribution
 dop_speed = abel.tools.vmi.angular_integration(dopQ0, origin=(0,0))
 
-plt.plot(*orig_speed, linestyle='dashed', label="Dribinski sample")
-plt.plot(dop_speed[0], dop_speed[1], label="dasch_onion_peeling")
+plt.plot(orig_speed[0], orig_speed[1]/scale_factor, linestyle='dashed', label="Dribinski sample")
+plt.plot(dop_speed[0], dop_speed[1]*orig_speed[1][14]/dop_speed[1][14]/scale_factor, label="dasch_onion_peeling")
 plt.axis(ymin=-0.1)
 plt.legend(loc=0)
 plt.savefig("example_dasch_onion_peeling.png",dpi=100)

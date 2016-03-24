@@ -27,12 +27,22 @@ abel.hansenlaw module
     :show-inheritance:
 
 abel.onion_peeling module
------------------------
+-------------------------
 
 .. automodule:: abel.onion_peeling
     :members:
     :undoc-members:
     :show-inheritance:
+
+abel.dasch_onion_peeling module
+-------------------------------
+
+.. automodule:: abel.onion_peeling
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.three_point module
 
 abel.three_point module
 -----------------------
