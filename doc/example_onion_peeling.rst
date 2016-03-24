@@ -2,7 +2,7 @@ Example: HansenLaw Xenon
 ========================
 
 
-.. plot:: ../examples/example_hansenlaw_onion.py
+.. plot:: ../examples/example_onion_peeling.py
    :include-source:
 
 

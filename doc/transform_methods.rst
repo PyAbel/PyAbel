@@ -15,9 +15,11 @@ The numerical Abel transform is computationally intensive, and a basic numerical
 
     5. The :doc:`Onion Peeling <transform_methods/onion_peeling>` method of Bordas et al. from matlab code by Rallis and Wells et al. One of the simpler inversion methods. The articles claim "the method works properly only in the limit of large electrostatic energy to initial kinetic energy ratio and gives qualitatively the same results as a standard inversion method". 
 
-    6. (Planned implementation) The :doc:`Fourier–Hankel <transform_methods/fh>` method, which is computationally efficient, but contains significant centerline noise and is known to introduce artifacts. 
+    6. The :doc:`Dasch Onion Peeling <transform_methods/dasch_onion_peeling>` method described by Dash. One of the simpler inversion methods. The article states the onion-peeling deconvolution is similar to the two point Abel (not yet implemented in PyAbel). Both methods have less smoothing than the other methods examined by Dasch.
 
-    7. (Planned implementation) The :doc:`POP <transform_methods/pop>` (polar onion peeling) method. POP projects the image onto a basis set of Legendre polynomial-based functions, which can greatly reduce the noise in the reconstruction. However, this method only applies to images that contain features at constant radii. I.e., it works for the spherical shells seen in photoelectron/ion spectra, but not for flames.
+    7. (Planned implementation) The :doc:`Fourier–Hankel <transform_methods/fh>` method, which is computationally efficient, but contains significant centerline noise and is known to introduce artifacts. 
+
+    8. (Planned implementation) The :doc:`POP <transform_methods/pop>` (polar onion peeling) method. POP projects the image onto a basis set of Legendre polynomial-based functions, which can greatly reduce the noise in the reconstruction. However, this method only applies to images that contain features at constant radii. I.e., it works for the spherical shells seen in photoelectron/ion spectra, but not for flames.
 
     ``*`` Methods marked with an asterisk require the generation of basis sets. The first time each method is run for a specific image size, a basis set must be generated, which can take several seconds or minutes. However, this basis set is saved to disk (generally to the current directory) and can be reused, making subsequent transforms very efficient. Users who are transforming numerous images using these methods will want to keep this in mind and specify the directory containing the basis sets.
 
@@ -33,5 +35,6 @@ Contents:
    transform_methods/hansenlaw
    transform_methods/three_point
    transform_methods/onion_peeling
+   transform_methods/dasch_onion_peeling
    transform_methods/pop
    transform_methods/fh

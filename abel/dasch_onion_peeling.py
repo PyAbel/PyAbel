@@ -58,7 +58,7 @@ def dasch_onion_peeling_transform(IM, dr=1, direction="inverse"):
                   np.sqrt((2*j-1)**2 - 4*i**2)    # Eq. (11) j > i
 
     # operator used in Eq. (1)
-    D = inv(W)   
+    D = inv(W)
 
     for i, P in enumerate(IM):
         AIM[i] = dot(W, P)   # Eq. (1)
