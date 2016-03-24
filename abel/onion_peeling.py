@@ -113,7 +113,7 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
     # of what appear to be scaling factors
     val1, val2 = _init_abel(w, h) 
 
-    abel_arr = IM*0
+    abel_arr = np.zeros_like(IM)
     # initialize 2D array for final transform
     rest_arr = IM
     # initialize 2D array that will be manipulated during the transform
@@ -155,4 +155,4 @@ def onion_peeling_transform(IM, dr=1, direction="inverse", shift_grid=False):
     if shift_grid:
         abel_arr = shift(abel_arr, 1/2)
 
-    return abel_arr/2  # x1/2 normalization   
+    return abel_arr/2  # x1/2 for 'correct' normalization   

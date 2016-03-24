@@ -135,7 +135,7 @@ rediscovered by Jason Gascooke (Flinders University, South Australia) for use in
 his velocity-map image analysis, and written up in his PhD thesis: 
 
 J. R. Gascooke, PhD Thesis: *"Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation"*, Flinders University (2000).
-Unfortunately, not available in electronic format.
+Available in `PDF format <https://github.com/DanHickstein/abel_transforms/raw/master/Gascooke.pdf>`
 
 
 
