@@ -21,13 +21,12 @@ The projection data is given by :math:`P(r_i) = \Delta r \sum_{j=i}^\infty W_{ij
 
 where 
 
-.. math::
+.. math:: W_{ij} = 0 \, \, (j < i) 
 
-    W_{ij} = \left{ \begin{array}{c}
-                0   (j < i) \\
-                \sqrt{(2j+1)^2 - 4i^2} (j=i)\\
-                \sqrt{(2j+1)^2 - 4i^2} - \sqrt{(2j-1)^2 - 4i^2} (j > i)
-                \end{array}\right.
+                \sqrt{(2j+1)^2 - 4i^2} \, \, (j=i)
+
+                \sqrt{(2j+1)^2 - 4i^2} - \sqrt{(2j-1)^2 - 4i^2} \, \, (j > i)
+
 
 The onion-peeling deconvolution function is: :math:`D_{ij} = (W^{-1})_{ij}`.
 
@@ -65,3 +64,4 @@ or more information on the PyAbel implementation of the ``dasch_onion_peeling`` 
 Citation
 --------
 [1] `Dasch, Applied Optics, Vol 31, No 8, March 1992, Pg 1146-1152 <(http://dx.doi.org/10.1364/AO.31.001146>`_.
+
