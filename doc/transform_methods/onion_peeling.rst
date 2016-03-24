@@ -44,7 +44,7 @@ right-side half-image), you can use :func:`abel.onion_peeling.onion_peeling_tran
 Example
 -------
 
-.. plot:: ../examples/example_onion.py
+.. plot:: ../examples/example_onion_peeling.py
 
 
 Citation
