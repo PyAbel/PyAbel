@@ -376,9 +376,9 @@ class PyAbel:  #(tk.Tk):
                                        " unavailable ...")
             self.canvas.show()
     
-            self.AIM = abel.transform(self.IM, method=self.method, 
+            self.AIM = abel.Transform(self.IM, method=self.method, 
                                       direction=self.fi,
-                                      symmetry_axis=None)['transform']
+                                      symmetry_axis=None).transform
             self.rmin.delete(0, tk.END)
             self.rmin.insert(0, self.rmx[0])
             self.rmax.delete(0, tk.END)
@@ -388,7 +388,8 @@ class PyAbel:  #(tk.Tk):
            self.action not in ["speed", "anisotropy"]:
             self.plt[2].set_title(self.method+" {:s} Abel transform".format(self.fi),
                             fontsize=10)
-            self.plt[2].imshow(self.AIM, vmin=0, vmax=self.AIM.max()/5.0)
+            self.plt[2].imshow(self.AIM.transform, vmin=0, 
+                               vmax=self.AIM.transform.max()/5.0)
             #self.f.colorbar(self.c.get_children()[2], ax=self.f.gca())
             #self.text.insert(tk.END, "{:s} inverse Abel transformed image".format(self.method))
 
@@ -407,7 +408,8 @@ class PyAbel:  #(tk.Tk):
         self.canvas.show()
     
         # speed distribution
-        self.radial, self.speed_dist = abel.tools.vmi.angular_integration(self.AIM)
+        self.radial, self.speed_dist = abel.tools.vmi.angular_integration(
+                                       self.AIM.transform)
     
         self.plt[1].axis("on")
         self.plt[1].plot(self.radial, self.speed_dist/self.speed_dist[10:].max(),
@@ -452,7 +454,7 @@ class PyAbel:  #(tk.Tk):
     
         # intensity vs angle
         self.intensity, self.theta = abel.tools.vmi.\
-                                     radial_integration(self.AIM,\
+                                     radial_integration(self.AIM.transform,\
                                      radial_ranges=[self.rmx,])
     
         # fit to P2(cos theta)
