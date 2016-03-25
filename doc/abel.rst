@@ -66,6 +66,11 @@ abel.direct module
     :undoc-members:
     :show-inheritance:
 
+
+Pre- and post-transform image tools
+-----------------------------------
+
+
 abel.tools.analytical module
 ----------------------------
 
