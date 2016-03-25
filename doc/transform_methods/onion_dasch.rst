@@ -1,52 +1,67 @@
-Onion Peeling (Dasch) 
+Onion Peeling (Dasch)
 =====================
 
 
 Introduction
 ------------
 
-The onion-peeling deconvolution method, as described by Dasch [1], is 
-one of the simpler algorithms, which is computionally very efficient. Its
-only draw-back is less accuracy/smoothness (yet to be confirmed) than 
-the other algorithms.
-
-See the discussion here: https://github.com/PyAbel/PyAbel/issues/56
+The "Dasch onion peeling" deconvolution algorithm is one of several
+described in the Dasch [1] paper. See also the ``two_point`` and 
+``three_point`` descriptions.
 
 How it works
 ------------
 
-The Dasch algorithm effectively treats an image as a one-dimensional rows of pixels. A square operator matrix `D` accounts for all interactions between the
-`i`-th pixel and non-`i`-th pixel in each row. The row-independence of the Abel transform is made explicit here.
+In the onion-peeling method the projection is approximated by rings
+of constant property between 
+:math:`r_j - \Delta r/2` and :math:`r_j + \Delta r/2` for each data 
+point :math:`r_j`.
+
+The projection data is given by :math:`P(r_i) = \Delta r \sum_{j=i}^\infty W_{ij} F(r_j)`
+
+where 
+
+.. math:: W_{ij} = 0 \, \, (j < i) 
+
+       \sqrt{(2j+1)^2 - 4i^2} \, \, (j=i)
+
+       \sqrt{(2j+1)^2 - 4i^2} - \sqrt{(2j-1)^2 - 4i^2} \, \, (j > i)
+
+
+The onion-peeling deconvolution function is: :math:`D_{ij} = (W^{-1})_{ij}`.
 
 
 When to use it
 --------------
 
-This is a very computationally efficient algorithm, but is stated to be
-less smooth than more sophisticated methods, from the same Dasch stable, 
-such as `three-point`.
+This method is simple and computationally very efficient. The article
+states that it has less smoothing that other methods (discussed in Dasch).
 
 
 How to use it
 -------------
 
-To complete the inverse transform of a full image with the
-``onion_dasch`` method, simply use the :class:`abel.Transform`: class ::
+To complete the inverse transform of a full image with the ``dasch_onion_peeling method``, simply use the :class:`abel.Transform` class: ::
 
-    abel.Transform(myImage, method='onion_dasch').transform
+    abel.Transform(myImage, method='dasch_onion_peeling', direction='inverse').transform
 
-If you would like to access the ``onion_dasch`` algorithm directly i
-(to transform a right-side half-image), you can 
-use :func:`abel.onion_dasch.onion_dasch_transform`.
+Note that the forward Three point transform is not yet implemented in PyAbel.
+
+If you would like to access the ``onin_dasch`` algorithm directly (to transform a right-side half-image), you can use :func:`abel.onion_dasch.onion_dasch_transform`.
 
 
 Example
 -------
 
 .. plot:: ../examples/example_onion_dasch.py
+    :include-source:
+
+
+or more information on the PyAbel implementation of the ``onion_dasch`` algorithm, please see `Pull Request #155 <https://github.com/PyAbel/PyAbel/pull/155>`_.
+
 
 
 Citation
 --------
-[1] https://www.osapublishing.org/ao/abstract.cfm?uri=ao-31-8-1146
+[1] `Dasch, Applied Optics, Vol 31, No 8, March 1992, Pg 1146-1152 <(http://dx.doi.org/10.1364/AO.31.001146>`_.
 
