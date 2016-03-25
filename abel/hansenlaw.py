@@ -33,8 +33,7 @@ from math import exp, log, pow, pi
 
 
 def hansenlaw_transform(IM, dr=1, direction="inverse"):
-    r"""
-    Forward/Inverse Abel transformation using the algorithm of
+    r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985) 
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a: 
     
