@@ -66,12 +66,12 @@ def onion_dasch_transform(IM, dr=1, direction="inverse"):
                   np.sqrt((2*j-1)**2 - 4*i**2)    # Eq. (11) j > i
 
     # operator used in Eq. (1)
-    D = inv(W)   # note => square matrix
+    D = inv(W)   
 
-    # one-line Abel transform
+    # one-line Abel transform - dot product of each row of IM with D
     inv_IM = np.tensordot(IM, D, axes=(1,1)) 
 
     if inv_IM.shape[0] == 1:
         inv_IM = inv_IM[0]  # flatten array
 
-    return inv_IM*dr
+    return inv_IM/dr

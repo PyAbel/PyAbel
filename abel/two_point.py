@@ -9,7 +9,7 @@ import abel
 from scipy.linalg import inv
 from scipy import dot
 
-#################################################################################
+################################################################################
 #
 #  Dasch two-point deconvolution
 #    as described in Applied Optics 31, 1146 (1992), page 1148 sect. C.
@@ -54,31 +54,33 @@ def two_point_transform(IM, dr=1, direction="inverse"):
 
     # basis function Eq. (9)  for j >= i
     def J(i, j): 
-       if j == 0: 
-           J = 2/np.pi
-       else:
-           J = np.log((np.sqrt((j+1)**2-i**2) + j+1)/\
-                      (np.sqrt(j**2-i**2) + j))/np.pi
-       return J
+       return np.log((np.sqrt((j+1)**2-i**2) + j+1)/\
+                     (np.sqrt(j**2-i**2) + j))/np.pi
 
     # Eq. (8, 9) D-operator basis, is 0 for j < i
     D = np.zeros_like(IM)
 
     # diagonal i == j
     Ii, Jj = np.diag_indices_from(IM) 
-    for i in Ii:  
-        D[i, i] = J(i, i)
+    Ii = Ii[1:]  # exclude special case i=j=0
+    Jj = Jj[1:]
+    D[Ii, Jj] = J(Ii, Jj)
 
     # upper triangle j > i
     Iu, Ju = np.triu_indices(IM.shape[0], k=1)
+    Iu = Iu[1:]  # exclude special case [0, 1]
+    Ju = Ju[1:]
 
-    for i, j in zip(Iu, Ju):   
-        D[i, j] = J(i, j) - J(i, j-1)
+    D[Iu, Ju] = J(Iu, Ju) - J(Iu, Ju-1)
 
-    # one-line Abel transform 
+    # special cases
+    D[0, 1] = J(0, 1) - 2/np.pi
+    D[0, 0] = 2/np.pi
+
+    # the one-line Abel transform - dot product of each row of IM with D
     inv_IM = np.tensordot(IM, D, axes=(1, 1))
 
     if inv_IM.shape[0] == 1:
         inv_IM = inv_IM[0]  # flatten array
 
-    return inv_IM*dr
+    return inv_IM/dr
