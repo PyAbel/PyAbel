@@ -59,7 +59,7 @@ def onion_dasch_transform(IM, dr=1, direction="inverse"):
     I, J = np.diag_indices_from(IM) 
     W[I, J] = np.sqrt((2*J+1)**2 - 4*I**2)
 
-    # upper triangle j > i, # upper triangle
+    # upper triangle j > i
     Iu, Ju = np.triu_indices(IM.shape[0], k=1) 
     W[Iu, Ju] = np.sqrt((2*Ju+1)**2 - 4*Iu**2) -\
                 np.sqrt((2*Ju-1)**2 - 4*Iu**2) 
