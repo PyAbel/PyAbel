@@ -26,23 +26,29 @@ abel.hansenlaw module
     :undoc-members:
     :show-inheritance:
 
-abel.onion_peeling module
+abel.onion_dasch module
 -------------------------
 
-.. automodule:: abel.onion_peeling
+.. automodule:: abel.onion_dasch
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.dasch_onion_peeling module
--------------------------------
+abel.onion_bordas module
+------------------------
 
-.. automodule:: abel.dash_onion_peeling
+.. automodule:: abel.onion_bordas
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.three_point module
+abel.two_point module
+---------------------
+
+.. automodule:: abel.two_point
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 abel.three_point module
 -----------------------
