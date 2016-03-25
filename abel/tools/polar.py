@@ -77,8 +77,8 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     # Project the r and theta grid back into pixel coordinates
     X, Y = polar2cart(r_grid, theta_grid)
 
-    X += origin[0]  # We need to shift the origin
-    Y += origin[1]  # back to the bottom-left corner...
+    X += origin[1]  # We need to shift the origin
+    Y += origin[0]  # back to the bottom-left corner...
     xi, yi = X.flatten(), Y.flatten()
     coords = np.vstack((xi, yi))  # (map_coordinates requires a 2xn array)
 
