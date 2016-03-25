@@ -44,9 +44,11 @@ class AbelTiming(object):
                      'three_point':    [],
                      'three_point_bs': [],
                      'two_point':    [],
+                     'two_point_bs':    [],
                      'hansenlaw':      [],
                      'onion_bordas':  [],
                      'onion_dasch': [],
+                     'onion_dasch_bs': [],
                      'direct_python' : [] }
                      
         if direct.cython_ext:
@@ -86,6 +88,15 @@ class AbelTiming(object):
             else:
                 res_iabel['direct_python'].append(np.nan)
                 res_fabel['direct_python'].append(np.nan)
+
+            t = time.time()
+            tp = tools.basis.get_bs_cached("two_point", ni, basis_dir=None)
+            res_iabel['two_point_bs'].append((time.time()-t)*1000)
+
+            t = time.time()
+            tp = tools.basis.get_bs_cached("onion_dasch", ni, basis_dir=None)
+            res_iabel['onion_dasch_bs'].append((time.time()-t)*1000)
+                
                 
             res_fabel['hansenlaw'].append(Timer(
             lambda: hansenlaw.hansenlaw_transform(x, direction='forward')).timeit(number=transform_repeat)*1000/transform_repeat)

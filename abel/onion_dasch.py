@@ -54,6 +54,25 @@ def onion_dasch_transform(IM, dr=1, direction="inverse"):
 
     rows, cols = IM.shape
 
+    D = abel.tools.basis.get_bs_cached("onion_dasch", cols)
+
+    # one-line Abel transform - dot product of each row of IM with D
+    inv_IM = np.tensordot(IM, D, axes=(1,1)) 
+
+    if inv_IM.shape[0] == 1:
+        inv_IM = inv_IM[0]  # flatten array
+
+    return inv_IM/dr
+
+def _bs_onion_dasch(cols):
+    """basis function for onion_dasch.
+    
+    Parameters
+    ----------
+    cols : int
+        width of the image
+    """
+
     # basis weight matrix 
     W = np.zeros((cols, cols))
 
@@ -69,10 +88,4 @@ def onion_dasch_transform(IM, dr=1, direction="inverse"):
     # operator used in Eq. (1)
     D = inv(W)   
 
-    # one-line Abel transform - dot product of each row of IM with D
-    inv_IM = np.tensordot(IM, D, axes=(1,1)) 
-
-    if inv_IM.shape[0] == 1:
-        inv_IM = inv_IM[0]  # flatten array
-
-    return inv_IM/dr
+    return D

@@ -4,6 +4,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os.path
 import numpy as np
 import abel
 from scipy.linalg import inv
@@ -54,6 +55,25 @@ def two_point_transform(IM, dr=1, direction="inverse"):
 
     rows, cols = IM.shape
 
+    D = abel.tools.basis.get_bs_cached("two_point", cols)
+
+    # the one-line Abel transform - dot product of each row of IM with D
+    inv_IM = np.tensordot(IM, D, axes=(1, 1))
+
+    if rows == 1:
+        inv_IM = inv_IM[0]  # flatten array
+
+    return inv_IM/dr
+
+def _bs_two_point(cols):
+    """basis function for two_point.
+    
+    Parameters
+    ----------
+    cols : int
+        width of the image
+    """
+
     # basis function Eq. (9)  for j >= i
     def J(i, j): 
        return np.log((np.sqrt((j+1)**2-i**2) + j+1)/\
@@ -78,10 +98,4 @@ def two_point_transform(IM, dr=1, direction="inverse"):
     D[0, 1] = J(0, 1) - 2/np.pi
     D[0, 0] = 2/np.pi
 
-    # the one-line Abel transform - dot product of each row of IM with D
-    inv_IM = np.tensordot(IM, D, axes=(1, 1))
-
-    if inv_IM.shape[0] == 1:
-        inv_IM = inv_IM[0]  # flatten array
-
-    return inv_IM/dr
+    return D
