@@ -52,22 +52,24 @@ def two_point_transform(IM, dr=1, direction="inverse"):
     # make sure that the data has 2D shape
     IM = np.atleast_2d(IM)
 
+    rows, cols = IM.shape
+
     # basis function Eq. (9)  for j >= i
     def J(i, j): 
        return np.log((np.sqrt((j+1)**2-i**2) + j+1)/\
                      (np.sqrt(j**2-i**2) + j))/np.pi
 
     # Eq. (8, 9) D-operator basis, is 0 for j < i
-    D = np.zeros_like(IM)
+    D = np.zeros((cols, cols))
 
     # diagonal i == j
-    Ii, Jj = np.diag_indices_from(IM) 
+    Ii, Jj = np.diag_indices(cols) 
     Ii = Ii[1:]  # exclude special case i=j=0
     Jj = Jj[1:]
     D[Ii, Jj] = J(Ii, Jj)
 
     # upper triangle j > i
-    Iu, Ju = np.triu_indices(IM.shape[0], k=1)
+    Iu, Ju = np.triu_indices(cols, k=1)
     Iu = Iu[1:]  # exclude special case [0, 1]
     Ju = Ju[1:]
     D[Iu, Ju] = J(Iu, Ju) - J(Iu, Ju-1)
