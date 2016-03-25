@@ -14,6 +14,7 @@ from . import hansenlaw
 from . import onion_bordas
 from . import onion_dasch
 from . import direct
+from . import two_point
 from . import three_point
 from . import tools
 
@@ -86,9 +87,10 @@ class Transform(object):
             ``direct``
                         a naive implementation of the analytical
                         formula by Roman Yurchuk.
+            ``two_point``
+                        the two-point transform of Dasch and co-workers
             ``three_point``
                         the three-point transform of Dasch and co-workers
-
             ``onion_bordas``
                         the algorithm of Bordas and co-workers (1996), 
                         re-implemented by Rallis, Wells and co-workers (2014)  
@@ -269,11 +271,14 @@ class Transform(object):
 
 
         ``onion_dasch``
-            This is one of the most compact algorithms, with the
+            This is one of the most compact and fast algorithms, with the
             inverse Abel transfrom achieved in one Python code-line, PR #155.
             See also ``three_point`` is the onion peeling algorithm as
             described by Dasch (1992), reference below.
 
+         ``two_point``
+            Another Dasch method. Simple, and fast, but not as accurate as the
+            other methods.
 
         ``three_point`` *
             The "Three Point" Abel transform method
@@ -350,6 +355,7 @@ class Transform(object):
             "hansenlaw": hansenlaw.hansenlaw_transform,
             "onion_bordas": onion_bordas.onion_bordas_transform,
             "onion_dasch": onion_dasch.onion_dasch_transform,
+            "two_point": two_point.two_point_transform,
             "three_point": three_point.three_point_transform,
         }
 
