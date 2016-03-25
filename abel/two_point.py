@@ -70,7 +70,6 @@ def two_point_transform(IM, dr=1, direction="inverse"):
     Iu, Ju = np.triu_indices(IM.shape[0], k=1)
     Iu = Iu[1:]  # exclude special case [0, 1]
     Ju = Ju[1:]
-
     D[Iu, Ju] = J(Iu, Ju) - J(Iu, Ju-1)
 
     # special cases

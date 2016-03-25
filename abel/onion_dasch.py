@@ -55,15 +55,14 @@ def onion_dasch_transform(IM, dr=1, direction="inverse"):
     # basis weight matrix 
     W = np.zeros_like(IM)
 
-    I, J = np.diag_indices_from(IM)    # diagonal elements i = j
-    Iu, Ju = np.triu_indices(IM.shape[0], k=1)  # upper triangle j > i
+    # diagonal elements i = j, Eq. (11)
+    I, J = np.diag_indices_from(IM) 
+    W[I, J] = np.sqrt((2*J+1)**2 - 4*I**2)
 
-    for i in I:  
-        W[i, i] = np.sqrt((2*i+1)**2 - 4*i**2)    # Eq. (11) j = i
-
-    for i, j in zip(Iu, Ju):
-        W[i, j] = np.sqrt((2*j+1)**2 - 4*i**2) -\
-                  np.sqrt((2*j-1)**2 - 4*i**2)    # Eq. (11) j > i
+    # upper triangle j > i, # upper triangle
+    Iu, Ju = np.triu_indices(IM.shape[0], k=1) 
+    W[Iu, Ju] = np.sqrt((2*Ju+1)**2 - 4*Iu**2) -\
+                np.sqrt((2*Ju-1)**2 - 4*Iu**2) 
 
     # operator used in Eq. (1)
     D = inv(W)   
