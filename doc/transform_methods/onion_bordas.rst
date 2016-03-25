@@ -1,5 +1,5 @@
-Onion Peeling 
-=============
+Onion Peeling (Bordas)
+======================
 
 
 Introduction
@@ -27,24 +27,26 @@ row of the image.
 When to use it
 --------------
 
+This is a historical implementation of the onion-peeling method. 
 
 
 How to use it
 -------------
 
 To complete the inverse transform of a full image with the
-``onion peeling method``, simply use the :class:`abel.Transform`: class ::
+``onion_bordas`` method, simply use the :class:`abel.Transform`: class ::
 
-    abel.Transform(myImage, method='onion_peeling').transform
+    abel.Transform(myImage, method='onion_bordas').transform
 
-If you would like to access the onion-peeling algorithm directly (to transform a
-right-side half-image), you can use :func:`abel.onion_peeling.onion_peeling_transform`.
+If you would like to access the onion-peeling algorithm directly 
+(to transform a right-side half-image), you can 
+use :func:`abel.onion_bordas.onion_bordas_transform`.
 
 
 Example
 -------
 
-.. plot:: ../examples/example_onion_peeling.py
+.. plot:: ../examples/example_onion_bordas.py
 
 
 Citation

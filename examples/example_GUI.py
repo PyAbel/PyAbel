@@ -26,8 +26,8 @@ from matplotlib import gridspec
 
 from scipy.ndimage.interpolation import shift
 
-Abel_methods = ['basex', 'direct', 'hansenlaw', #'onion-peeling'
-                'three_point']
+Abel_methods = ['basex', 'direct', 'hansenlaw', 'onion_dasch', 'onion_bordas',
+                'two_point', 'three_point']
 
 
 class PyAbel:  #(tk.Tk):
