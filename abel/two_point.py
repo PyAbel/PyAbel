@@ -63,12 +63,18 @@ def two_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):
     D = abel.tools.basis.get_bs_cached("two_point", cols, basis_dir=basis_dir)
 
     # the one-line Abel transform - dot product of each row of IM with D
-    inv_IM = np.tensordot(IM, D, axes=(1, 1))
+    inv_IM = _two_point_core_transform(IM, D)
 
     if rows == 1:
         inv_IM = inv_IM[0]  # flatten array
 
     return inv_IM/dr
+
+def _two_point_core_transform(IM, D):
+    """Convenience function to allow direct evaluation of transform if
+       D-operator known.
+    """
+    return inv_IM = np.tensordot(IM, D, axes=(1, 1))
 
 def _bs_two_point(cols):
     """basis function for two_point.
