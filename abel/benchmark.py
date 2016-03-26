@@ -105,10 +105,10 @@ class AbelTiming(object):
                 lambda: hansenlaw.hansenlaw_transform(x,  direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
 
             res_iabel['two_point'].append(Timer(
-                lambda: two_point._two_point_core_transform(x, tpp).timeit(number=transform_repeat)*1000/transform_repeat)
+                lambda: two_point._two_point_core_transform(x, tpp)).timeit(number=transform_repeat)*1000/transform_repeat)
                       
             res_iabel['onion_dasch'].append(Timer(
-                lambda: onion_dasch._onion_dasch_core_transform(x, od).timeit(number=transform_repeat)*1000/transform_repeat)
+                lambda: onion_dasch._onion_dasch_core_transform(x, od)).timeit(number=transform_repeat)*1000/transform_repeat)
                       
             res_iabel['onion_bordas'].append(Timer(
                 lambda: onion_bordas.onion_bordas_transform(x)).timeit(number=transform_repeat)*1000/transform_repeat)

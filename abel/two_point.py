@@ -74,7 +74,7 @@ def _two_point_core_transform(IM, D):
     """Convenience function to allow direct evaluation of transform if
        D-operator known.
     """
-    return inv_IM = np.tensordot(IM, D, axes=(1, 1))
+    return np.tensordot(IM, D, axes=(1, 1))
 
 def _bs_two_point(cols):
     """basis function for two_point.

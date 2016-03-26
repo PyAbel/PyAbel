@@ -73,7 +73,7 @@ def _onion_dasch_core_transform(IM, D):
     """Convenience function to allow direct evaluation of transform if
        D-operator known.
     """
-    return inv_IM = np.tensordot(IM, D, axes=(1, 1))
+    return np.tensordot(IM, D, axes=(1, 1))
 
 def _bs_onion_dasch(cols):
     """basis function for onion_dasch.
