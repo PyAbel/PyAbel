@@ -378,7 +378,7 @@ class PyAbel:  #(tk.Tk):
     
             self.AIM = abel.Transform(self.IM, method=self.method, 
                                       direction=self.fi,
-                                      symmetry_axis=None).transform
+                                      symmetry_axis=None)
             self.rmin.delete(0, tk.END)
             self.rmin.insert(0, self.rmx[0])
             self.rmax.delete(0, tk.END)
