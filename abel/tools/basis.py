@@ -52,7 +52,8 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
                 raise
     if D is None:
         if verbose:
-            print("A suitable operator matrix was not found.\n",
+            print("A suitable operator matrix for '{}' was not found.\n"\
+                  .format(method),
                   "A new operator matrix will be generated.")
             if basis_dir is not None:
                 print("But don\'t worry, it will be saved to disk \
