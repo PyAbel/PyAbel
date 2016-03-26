@@ -79,6 +79,14 @@ abel.tools.analytical module
     :undoc-members:
     :show-inheritance:
 
+abel.tools.basis module
+----------------------------
+
+.. automodule:: abel.tools.basis
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 abel.tools.center module
 ------------------------
 

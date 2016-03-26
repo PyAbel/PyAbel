@@ -14,7 +14,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
     Parameters
     ----------
     method : str
-        Abel transform method
+        Abel transform method, currently ``two_point`` or ``onion_dasch``
     cols : int
         width of image
     basis_dir : str
