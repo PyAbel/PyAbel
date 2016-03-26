@@ -24,7 +24,7 @@ from scipy import dot
 ################################################################################
 
 
-def two_point_transform(IM, dr=1, direction="inverse"):
+def two_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):
     """ Two-point deconvolution of Dasch  
         Applied Optics 31, 1146 (1992), page 1148 sect. C.
 
@@ -32,6 +32,11 @@ def two_point_transform(IM, dr=1, direction="inverse"):
     ----------
     IM : 1D or 2D numpy array
         right-side half-image (or quadrant)
+
+    basis_dir: str
+        path to the directory for saving / loading
+        the two_point operator matrix.
+        If None, the operator matrix will not be saved to disk.
 
     dr : float
         not used (grid size for other algorithms)
@@ -55,7 +60,7 @@ def two_point_transform(IM, dr=1, direction="inverse"):
 
     rows, cols = IM.shape
 
-    D = abel.tools.basis.get_bs_cached("two_point", cols)
+    D = abel.tools.basis.get_bs_cached("two_point", cols, basis_dir=basis_dir)
 
     # the one-line Abel transform - dot product of each row of IM with D
     inv_IM = np.tensordot(IM, D, axes=(1, 1))

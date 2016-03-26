@@ -90,11 +90,11 @@ class AbelTiming(object):
                 res_fabel['direct_python'].append(np.nan)
 
             t = time.time()
-            tp = tools.basis.get_bs_cached("two_point", ni, basis_dir=None)
+            tools.basis.get_bs_cached("two_point", ni, basis_dir=None)
             res_iabel['two_point_bs'].append((time.time()-t)*1000)
 
             t = time.time()
-            tp = tools.basis.get_bs_cached("onion_dasch", ni, basis_dir=None)
+            tools.basis.get_bs_cached("onion_dasch", ni, basis_dir=None)
             res_iabel['onion_dasch_bs'].append((time.time()-t)*1000)
                 
                 
@@ -102,16 +102,16 @@ class AbelTiming(object):
             lambda: hansenlaw.hansenlaw_transform(x, direction='forward')).timeit(number=transform_repeat)*1000/transform_repeat)
                       
             res_iabel['hansenlaw'].append(Timer(
-                lambda: hansenlaw.hansenlaw_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+                lambda: hansenlaw.hansenlaw_transform(x,  direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
 
             res_iabel['two_point'].append(Timer(
-                lambda: two_point.two_point_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+                lambda: two_point.two_point_transform(x, basis_dir='.')).timeit(number=transform_repeat)*1000/transform_repeat)
                       
             res_iabel['onion_dasch'].append(Timer(
-                lambda: onion_dasch.onion_dasch_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+                lambda: onion_dasch.onion_dasch_transform(x, basis_dir='.')).timeit(number=transform_repeat)*1000/transform_repeat)
                       
             res_iabel['onion_bordas'].append(Timer(
-                lambda: onion_bordas.onion_bordas_transform(x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
+                lambda: onion_bordas.onion_bordas_transform(x)).timeit(number=transform_repeat)*1000/transform_repeat)
                       
                       
             if direct.cython_ext:
