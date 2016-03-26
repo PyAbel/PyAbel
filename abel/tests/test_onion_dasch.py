@@ -53,7 +53,7 @@ def test_onion_dasch_inverse_transform_gaussian():
           symmetric=False,  sigma=10)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
-    recon = abel.onion_dasch.onion_dasch_transform(tr, ref.dr, direction='inverse')
+    recon = abel.onion_dasch.onion_dasch_transform(tr, basis_dir=None, dr=1)
     recon1d = recon[n//2 + n%2]  # centre row
 
     ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)/2

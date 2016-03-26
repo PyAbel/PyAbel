@@ -53,7 +53,7 @@ def test_two_point_inverse_transform_gaussian():
           symmetric=False,  sigma=10)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
-    recon = abel.two_point.two_point_transform(tr, ref.dr, direction='inverse')
+    recon = abel.two_point.two_point_transform(tr, basis_dir=None, dr=1)
     recon1d = recon[n//2 + n%2]  # centre row
 
     ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)/2
