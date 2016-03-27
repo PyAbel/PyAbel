@@ -67,8 +67,8 @@ abel.direct module
     :show-inheritance:
 
 
-Pre- and post-transform image tools
------------------------------------
+Image processing tools
+----------------------
 
 
 abel.tools.analytical module

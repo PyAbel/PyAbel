@@ -80,7 +80,7 @@ class Transform(object):
             should be employed (see below). The options are
 
             ``hansenlaw``
-                        the recursive algorithm described by Hansen and Law
+                        the recursive algorithm described by Hansen and Law.
             ``basex``
                         the Gaussian "basis set expansion" method
                         of Dribinski et al.
@@ -88,12 +88,12 @@ class Transform(object):
                         a naive implementation of the analytical
                         formula by Roman Yurchuk.
             ``two_point``
-                        the two-point transform of Dasch and co-workers
+                        the two-point transform of Dasch (1992).
             ``three_point``
-                        the three-point transform of Dasch and co-workers
+                        the three-point transform of Dasch (1992).
             ``onion_bordas``
                         the algorithm of Bordas and co-workers (1996), 
-                        re-implemented by Rallis, Wells and co-workers (2014)  
+                        re-implemented by Rallis, Wells and co-workers (2014).
 
             ``onion_dasch``
                         the onion peeling deconvolution as described by Dasch (1992)

@@ -43,9 +43,7 @@ How to use it
 
 To complete the inverse transform of a full image with the ``onion_dasch`` method, simply use the :class:`abel.Transform` class: ::
 
-    abel.Transform(myImage, method='onion_dasch', direction='inverse').transform
-
-Note that the forward Three point transform is not yet implemented in PyAbel.
+    abel.Transform(myImage, method='onion_dasch').transform
 
 If you would like to access the ``onion_dasch`` algorithm directly (to transform a right-side half-image), you can use :func:`abel.onion_dasch.onion_dasch_transform`.
 

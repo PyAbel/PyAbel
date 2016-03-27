@@ -38,7 +38,7 @@ The outcome of the numerical Abel Transform depends on the exact method used. So
 
     5. ``three_point`` - the "three point" method of Dasch and co-workers.
 
-    6. ``onion_dasch`` - the "onion-peeling" deconvolution method of Dasch and co-workers.
+    6. ``onion_dasch`` - the "onion peeling" deconvolution method of Dasch and co-workers.
 
     7. ``onion_bordas`` - "onion peeling" or "back projection" method of Bordas *et al.* based on the MatLab code by Rallis and Wells *et al.*
 

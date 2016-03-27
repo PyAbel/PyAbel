@@ -9,7 +9,7 @@ import abel
 from scipy.linalg import inv
 from scipy import dot
 
-#################################################################################
+################################################################################
 #
 #  Dasch onion-peeling deconvolution
 #    as described in Applied Optics 31, 1146 (1992), page 1148 sect. D.
@@ -18,9 +18,9 @@ from scipy import dot
 # 2016-03-25 Dan Hickstein - one line Abel transform
 # 2016-03-24 Steve Gibson - Python code framework
 # 2015-12-29 Dhrubajyoti Das - three_point code and highlighting the Dasch paper
-#                              see issue #61
+#            see issue #61,  https://github.com/PyAbel/PyAbel/issues/61
 #
-#################################################################################
+################################################################################
 
 
 def onion_dasch_transform(IM, basis_dir='.', dr=1, direction="inverse"):
@@ -61,7 +61,6 @@ def onion_dasch_transform(IM, basis_dir='.', dr=1, direction="inverse"):
 
     D = abel.tools.basis.get_bs_cached("onion_dasch", cols, basis_dir=basis_dir)
 
-    # one-line Abel transform - dot product of each row of IM with D
     inv_IM = _onion_dasch_core_transform(IM, D)
 
     if inv_IM.shape[0] == 1:
@@ -70,9 +69,10 @@ def onion_dasch_transform(IM, basis_dir='.', dr=1, direction="inverse"):
     return inv_IM/dr
 
 def _onion_dasch_core_transform(IM, D):
-    """Convenience function to allow direct evaluation of transform if
-       D-operator known.
+    """Inverse Abel transform (onion peeling - Dasch version)
+       using a given D-operator basis matrix.
     """
+    # one-line Abel transform - dot product of each row of IM with D
     return np.tensordot(IM, D, axes=(1, 1))
 
 def _bs_onion_dasch(cols):
@@ -91,7 +91,7 @@ def _bs_onion_dasch(cols):
     I, J = np.diag_indices(cols) 
     W[I, J] = np.sqrt((2*J+1)**2 - 4*I**2)
 
-    # upper triangle j > i
+    # upper triangle j > i,  Eq. (11)
     Iu, Ju = np.triu_indices(cols, k=1) 
     W[Iu, Ju] = np.sqrt((2*Ju+1)**2 - 4*Iu**2) -\
                 np.sqrt((2*Ju-1)**2 - 4*Iu**2) 

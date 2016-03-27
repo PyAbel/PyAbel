@@ -28,9 +28,7 @@ How to use it
 
 To complete the inverse transform of a full image with the ``two_point method``, simply use the :class:`abel.Transform` class: ::
 
-    abel.Transform(myImage, method='two_point', direction='inverse').transform
-
-Note that the forward Three point transform is not yet implemented in PyAbel.
+    abel.Transform(myImage, method='two_point').transform
 
 If you would like to access the ``two_point`` algorithm directly (to transform a right-side half-image), you can use :func:`abel.two_point.two_point_transform`.
 

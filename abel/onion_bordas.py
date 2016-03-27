@@ -60,11 +60,20 @@ def _init_abel(xc, yc):
 def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False):
     r"""Onion peeling (or back projection) inverse Abel transform.
 
-    This function operates on the "right side" of an image. i.e.
-    it works on just half of a cylindrically symmetric image.
-    Unlike the other transforms, the left edge should be the
-    image center, not mid-first pixel. This corresponds to an
-    even-width full image. If not, set `shift_grid=True`. 
+    This algorithm was adapted by Dan Hickstein from the original Matlab 
+    implementation, created by Chris Rallis and Eric Wells of 
+    Augustana University, and described in this paper:
+
+    http://scitation.aip.org/content/aip/journal/rsi/85/11/10.1063/1.4899267
+
+    The algorithm actually originates from this 1996 RSI paper by Bordas et al:
+
+    http://scitation.aip.org/content/aip/journal/rsi/67/6/10.1063/1.1147044
+
+    This function operates on the "right side" of an image. i.e. it works on 
+    just half of a cylindrically symmetric image.  Unlike the other transforms,
+    the left edge should be the image center, not mid-first pixel. This 
+    corresponds to an even-width full image. If not, set `shift_grid=True`. 
 
     To perform a onion-peeling transorm on a whole image, use ::
     
@@ -103,8 +112,8 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False):
     # make sure that the data is the right shape (1D must be converted to 2D):
     IM = np.atleast_2d(IM)
 
-    # The original pythod code operated on the left-half image
-    # Other methods use a right-half oriented image, flip for common use
+    # we would like to work from the outside to the inside of the image, 
+    # so flip the image to put the "outside" at low index values.
     IM = np.fliplr(IM)
 
     h, w = np.shape(IM)
