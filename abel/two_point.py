@@ -61,21 +61,17 @@ def two_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):
 
     rows, cols = IM.shape
 
+    if cols < 2:
+        raise ValueError('"two_point" requires image width (cols) > 2')
+
     D = abel.tools.basis.get_bs_cached("two_point", cols, basis_dir=basis_dir)
 
-    inv_IM = _two_point_core_transform(IM, D)
+    inv_IM = abel.tools.basis.abel_transform(IM, D)
 
     if rows == 1:
         inv_IM = inv_IM[0]  # flatten array
 
     return inv_IM/dr
-
-def _two_point_core_transform(IM, D):
-    """Inverse Abel transform (two point) 
-       using a given D-operator basis matrix.
-    """
-    # one-line Abel transform - dot product of each row of IM with D
-    return np.tensordot(IM, D, axes=(1, 1))
 
 def _bs_two_point(cols):
     """basis function for two_point.

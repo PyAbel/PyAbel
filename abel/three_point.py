@@ -13,7 +13,7 @@ from scipy import dot
 ##############################################################################
 #
 #  Dasch three-point deconvolution
-#    as described in Applied Optics 31, 1146 (1992), page 1148 sect. C.
+#    as described in Applied Optics 31, 1146 (1992), page 1147 sect. B.
 #    see PR #155
 #
 # 2016-03-28 Steve Gibson - Python code framework
@@ -60,22 +60,18 @@ def three_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):
     IM = np.atleast_2d(IM)
 
     rows, cols = IM.shape
+    
+    if cols < 4: 
+        raise ValueError('"three_point" requires image width (cols) > 3')
 
     D = abel.tools.basis.get_bs_cached("three_point", cols, basis_dir=basis_dir)
 
-    inv_IM = _three_point_core_transform(IM, D)
+    inv_IM = abel.tools.basis.abel_transform(IM, D)
 
     if rows == 1:
         inv_IM = inv_IM[0]  # flatten array
 
     return inv_IM/dr
-
-def _three_point_core_transform(IM, D):
-    """Inverse Abel transform (three point) 
-       using a given D-operator basis matrix.
-    """
-    # one-line Abel transform - dot product of each row of IM with D
-    return np.tensordot(IM, D, axes=(1, 1))
 
 def _bs_three_point(cols):
     """basis function for three_point.

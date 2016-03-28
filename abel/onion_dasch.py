@@ -61,19 +61,12 @@ def onion_dasch_transform(IM, basis_dir='.', dr=1, direction="inverse"):
 
     D = abel.tools.basis.get_bs_cached("onion_dasch", cols, basis_dir=basis_dir)
 
-    inv_IM = _onion_dasch_core_transform(IM, D)
+    inv_IM = abel.tools.basis.abel_transform(IM, D)
 
     if inv_IM.shape[0] == 1:
         inv_IM = inv_IM[0]  # flatten array
 
     return inv_IM/dr
-
-def _onion_dasch_core_transform(IM, D):
-    """Inverse Abel transform (onion peeling - Dasch version)
-       using a given D-operator basis matrix.
-    """
-    # one-line Abel transform - dot product of each row of IM with D
-    return np.tensordot(IM, D, axes=(1, 1))
 
 def _bs_onion_dasch(cols):
     """basis function for onion_dasch.

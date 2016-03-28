@@ -8,6 +8,12 @@ import os.path
 import numpy as np
 import abel
 
+def abel_transform(IM, D):
+    """Inverse Abel transform using a given D-operator basis matrix.
+    """
+    # one-line Abel transform - dot product of each row of IM with D
+    return np.tensordot(IM, D, axes=(1, 1))
+
 def get_bs_cached(method, cols, basis_dir='.', verbose=False):
     """load basis set from disk, generate and store if not available.
 
