@@ -61,13 +61,16 @@ def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None, average=
     polarIM, R, T = reproject_image_into_polar(
         IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)    
 
+    dt = T[0,1] - T[0,0]
+
     if Jacobian:  # x r sinθ
         polarIM = polarIM * R * np.abs(np.sin(T))
 
+    
+    speeds = np.trapz(polarIM, axis=1, dx=dt)
+
     if average:
-        speeds = np.average(polarIM, axis=1)*dr
-    else:
-        speeds = np.sum(polarIM, axis=1)*dr
+        speeds /= 2*np.pi
 
     n = speeds.shape[0]
 
