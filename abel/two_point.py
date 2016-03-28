@@ -10,7 +10,7 @@ import abel
 from scipy.linalg import inv
 from scipy import dot
 
-################################################################################
+###############################################################################
 #
 #  Dasch two-point deconvolution
 #    as described in Applied Optics 31, 1146 (1992), page 1148 sect. C.
@@ -18,10 +18,11 @@ from scipy import dot
 #
 # 2016-03-25 Dan Hickstein - one line Abel transform
 # 2016-03-24 Steve Gibson - Python code framework
-# 2015-12-29 Dhrubajyoti Das - three_point code and highlighting the Dasch paper
-#                              see issue #61
+# 2015-12-29 Dhrubajyoti Das - original three_point code and 
+#                              highlighting the Dasch paper,see issue #61
+#                              https://github.com/PyAbel/PyAbel/issues/61
 #
-################################################################################
+###############################################################################
 
 
 def two_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):

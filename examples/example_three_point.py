@@ -1,39 +1,42 @@
+# -*- coding: utf-8 -*-
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+"""example_three_point.py.
+"""
+
 import numpy as np
+import abel
 import matplotlib.pyplot as plt
-import abel 
 
-n = 101
-center = n//2
-r_max = 4
-r = np.linspace(-1*r_max, r_max, n)
-dr = r[1]-r[0]
+# Dribinski sample image size 501x501
+IM = abel.tools.analytical.sample_image(n=501)
 
-fig, axes = plt.subplots(ncols = 2)
-fig.set_size_inches(8,4)
+# split into quadrants
+origQ = abel.tools.symmetry.get_image_quadrants(IM)
 
-axes[0].set_xlabel("Lateral position, x")
-axes[0].set_ylabel("F(x)")
-axes[0].set_title("Original LOS signal")
-axes[1].set_xlabel("Radial position, r")
-axes[1].set_ylabel("f(r)")
-axes[1].set_title("Inverted radial signal")
+# speed distribution of original image
+orig_speed = abel.tools.vmi.angular_integration(origQ[0], origin=(0,0))
+scale_factor = orig_speed[1].max()
 
-Mat = np.sqrt(np.pi)*np.exp(-1*r*r)
-Left_Mat = Mat[:center+1][::-1]
-Right_Mat = Mat[center:]
-AnalyticAbelMat = np.exp(-1*r*r)
-DaschAbelMat_Left = abel.three_point.three_point_transform(Left_Mat)[0]/dr
-DaschAbelMat_Right = abel.three_point.three_point_transform(Right_Mat)[0]/dr
+# forward Abel projection
+fIM = abel.Transform(IM, direction="forward", method="hansenlaw").transform
 
-axes[0].plot(r, Mat, 'r', label = r'$\sqrt{\pi}e^{-r^2}$')
-axes[0].legend()
+# split projected image into quadrants
+Q = abel.tools.symmetry.get_image_quadrants(fIM)
+Q0 = Q[0].copy()
 
-axes[1].plot(r, AnalyticAbelMat, 'k', lw = 1.5, alpha = 0.5, label = r'$e^{-r^2}$')
-axes[1].plot(r[:center+1], DaschAbelMat_Left[::-1], 'r--.', label = '3-pt Abel')
-axes[1].plot(r[center:], DaschAbelMat_Right, 'r--.')
+# three_point inverse Abel transform
+tpQ0 = abel.three_point.three_point_transform(Q0)
+# speed distribution
+tp_speed = abel.tools.vmi.angular_integration(tpQ0, origin=(0,0))
 
-box = axes[1].get_position()
-axes[1].set_position([box.x0, box.y0, box.width * 0.8, box.height])
-axes[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
-fig.tight_layout()
+plt.plot(orig_speed[0], orig_speed[1]/scale_factor, linestyle='dashed', 
+         label="Dribinski sample")
+plt.plot(tp_speed[0], tp_speed[1]*orig_speed[1][14]/tp_speed[1][14]/scale_factor, 
+         label="three_point")
+plt.axis(ymin=-0.1)
+plt.legend(loc=0)
+plt.savefig("example_three_point.png",dpi=100)
 plt.show()

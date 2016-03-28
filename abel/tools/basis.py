@@ -30,6 +30,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
 
     basis_generator = {\
         "two_point" : abel.two_point._bs_two_point,
+        "three_point" : abel.three_point._bs_three_point,
         "onion_dasch" : abel.onion_dasch._bs_onion_dasch
     }
 
