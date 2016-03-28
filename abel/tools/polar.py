@@ -33,7 +33,8 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     dt : float
         Angular coordinate spacing (in degrees)
         if ``dt=None``, dt will be set such that the number of theta values
-        is equal to the height of the image.
+        is equal to the maximum value between the height or the width of 
+        the image.
 
     Returns
     -------
@@ -64,7 +65,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     nr = np.round((r.max()-r.min())/dr)
 
     if dt is None:
-        nt = ny
+        nt = max(nx, ny)
     else:
         # dt in degrees
         nt = np.round((theta.max()-theta.min())/(np.pi*dt/180))
