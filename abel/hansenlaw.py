@@ -150,7 +150,7 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
         for k in range(K):  # Iterate over k, the eigenvectors?
             X[:, k] = pow(Nm, lam[k])*X[:, k] +\
-                     h[k]*gamma(Nm, lam[k], n)*gp[:, n]  # Eq. (15 or 17)
+                      h[k]*gamma(Nm, lam[k], n)*gp[:, n]  # Eq. (15 or 17)
         AIM[:, n] = X.sum(axis=1)
 
     # special case for the end pixel

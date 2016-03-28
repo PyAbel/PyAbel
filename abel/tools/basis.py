@@ -10,6 +10,18 @@ import abel
 
 def abel_transform(IM, D):
     """Inverse Abel transform using a given D-operator basis matrix.
+
+    Parameters
+    ----------
+    IM : 2D numpy array
+        image data
+    D : 2D numpy array 
+        D-operator basis shape (cols, cols) 
+
+    Returns
+    -------
+    inv_IM : 2D numpy array
+        inverse Abel transform according to basis operator D 
     """
     # one-line Abel transform - dot product of each row of IM with D
     return np.tensordot(IM, D, axes=(1, 1))
