@@ -136,7 +136,7 @@ def cart2polar(x, y):
         
     """
     r = np.sqrt(x**2 + y**2)
-    theta = np.arctan2(-x, y)  # θ referenced to vertical
+    theta = np.arctan2(x, y)  # θ referenced to vertical
     return r, theta
 
 
@@ -155,5 +155,5 @@ def polar2cart(r, theta):
         Cartesian coordinates
     """
     y = r * np.cos(theta)   # θ referenced to vertical
-    x = -r * np.sin(theta)
+    x = r * np.sin(theta)
     return x, y
