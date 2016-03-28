@@ -64,19 +64,19 @@ class AbelTiming(object):
                 bs = basex.get_bs_basex_cached(ni, ni, basis_dir=None)
                 res_iabel['basex_bs'].append((time.time()-t)*1000)
                 
-                t = time.time()
-                tbs = three_point.get_bs_three_point_cached(ni, basis_dir=None)
-                res_iabel['three_point_bs'].append((time.time()-t)*1000)
+                #t = time.time()
+                #tbs = three_point.get_bs_three_point_cached(ni, basis_dir=None)
+                #res_iabel['three_point_bs'].append((time.time()-t)*1000)
                
                 res_iabel['basex'   ].append(Timer(
                     lambda: basex.basex_core_transform(x, *bs)).timeit(number=transform_repeat)*1000/transform_repeat)
-                res_iabel['three_point'].append(Timer(
-                    lambda: three_point.three_point_core_transform(x, tbs)).timeit(number=transform_repeat)*1000/transform_repeat)
+                #res_iabel['three_point'].append(Timer(
+                #    lambda: three_point.three_point_core_transform(x, tbs)).timeit(number=transform_repeat)*1000/transform_repeat)
             else:
                 res_iabel['basex_bs'].append(np.nan)
                 res_iabel['basex'   ].append(np.nan)
-                res_iabel['three_point_bs'].append(np.nan)
-                res_iabel['three_point'   ].append(np.nan)
+                #res_iabel['three_point_bs'].append(np.nan)
+                #res_iabel['three_point'   ].append(np.nan)
             
             if ni <= n_max_slow:
                 res_iabel['direct_python'].append(Timer(
@@ -94,9 +94,13 @@ class AbelTiming(object):
             res_iabel['two_point_bs'].append((time.time()-t)*1000)
 
             t = time.time()
+            tp=tools.basis.get_bs_cached("three_point", ni, basis_dir=None)
+            res_iabel['three_point_bs'].append((time.time()-t)*1000)
+                
+            t = time.time()
             od=tools.basis.get_bs_cached("onion_dasch", ni, basis_dir=None)
             res_iabel['onion_dasch_bs'].append((time.time()-t)*1000)
-                
+
                 
             res_fabel['hansenlaw'].append(Timer(
             lambda: hansenlaw.hansenlaw_transform(x, direction='forward')).timeit(number=transform_repeat)*1000/transform_repeat)
@@ -106,6 +110,9 @@ class AbelTiming(object):
 
             res_iabel['two_point'].append(Timer(
                 lambda: two_point._two_point_core_transform(x, tpp)).timeit(number=transform_repeat)*1000/transform_repeat)
+                      
+            res_iabel['three_point'].append(Timer(
+                lambda: three_point._three_point_core_transform(x, tp)).timeit(number=transform_repeat)*1000/transform_repeat)
                       
             res_iabel['onion_dasch'].append(Timer(
                 lambda: onion_dasch._onion_dasch_core_transform(x, od)).timeit(number=transform_repeat)*1000/transform_repeat)

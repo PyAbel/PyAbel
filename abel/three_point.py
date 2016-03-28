@@ -16,8 +16,8 @@ from scipy import dot
 #    as described in Applied Optics 31, 1146 (1992), page 1148 sect. C.
 #    see PR #155
 #
+# 2016-03-28 Steve Gibson - Python code framework
 # 2016-03-25 Dan Hickstein - one line Abel transform
-# 2016-03-24 Steve Gibson - Python code framework
 # 2015-12-29 Dhrubajyoti Das - original three_point code and 
 #                              highlighting the Dasch paper see issue #61
 #                              https://github.com/PyAbel/PyAbel/issues/61
