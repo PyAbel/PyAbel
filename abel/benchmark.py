@@ -146,9 +146,9 @@ class AbelTiming(object):
 
         out = []
         out += ['PyAbel benchmark run on {}\n'.format(platform.processor())]
-        out += ['times in milliseconds\n']
+        out += ['times in milliseconds']
 
-        LABEL_FORMAT = 'Implementation ' + ''.join( ['    n = {:<12} '.format(ni) for ni in self.n])
+        LABEL_FORMAT = ' Implementation ' + ''.join( ['    n = {:<12} '.format(ni) for ni in self.n])
         ROW_FORMAT = '{:>16} ' + ' {:8.1f}            '*len(self.n)
         SEP_ROW = '' + '-'*(22 + (17+1)*len(self.n))
 
