@@ -51,11 +51,11 @@ class AbelTiming(object):
             'direct_C': direct.direct_transform,
             'hansenlaw': hansenlaw.hansenlaw_transform,
             'onion_bordas': onion_bordas.onion_bordas_transform,
-            'onion_peeling': dasch.abel_transform,
+            'onion_peeling': dasch.dasch_transform,
             'onion_peeling_bs': dasch._bs_onion_peeling,
-            'two_point': dasch.abel_transform,
+            'two_point': dasch.dasch_transform,
             'two_point_bs': dasch._bs_two_point,
-            'three_point': dasch.abel_transform,
+            'three_point': dasch.dasch_transform,
             'three_point_bs': dasch._bs_three_point,
          }
                      
@@ -68,8 +68,8 @@ class AbelTiming(object):
                         'onion_bordas': [], 'onion_peeling': [], 
                         'two_point': [], 'three_point': []}
 
+        # delete all keys not present in 'select' input parameter
         if "all" not in select:
-            # delete all keys not present in 'select' input parameter
             for direction in ['forward', 'inverse']:
                 rm = []
                 for abel in res[direction]:
@@ -151,7 +151,7 @@ class AbelTiming(object):
         out += ['times in milliseconds\n']
 
         LABEL_FORMAT = 'Implementation ' + ''.join( ['    n = {:<12} '.format(ni) for ni in self.n])
-        ROW_FORMAT = '{:>15} ' + ' {:8.1f}            '*len(self.n)
+        ROW_FORMAT = '{:>16} ' + ' {:8.1f}            '*len(self.n)
         SEP_ROW = '' + '-'*(22 + (17+1)*len(self.n))
 
         HEADER_ROW = '\n========= {:>8} Abel implementations ==========\n'

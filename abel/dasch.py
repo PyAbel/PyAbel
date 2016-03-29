@@ -93,7 +93,7 @@ def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse",
     
     D = get_bs_cached(method, cols, basis_dir=basis_dir)
 
-    inv_IM = abel_transform(IM, D)
+    inv_IM = dasch_transform(IM, D)
 
     if rows == 1:
         inv_IM = inv_IM[0]  # flatten array
@@ -101,7 +101,7 @@ def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse",
     return inv_IM/dr
 
 
-def abel_transform(IM, D):
+def dasch_transform(IM, D):
     """Inverse Abel transform using a given D-operator basis matrix.
 
     Parameters
