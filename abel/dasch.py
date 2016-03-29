@@ -59,20 +59,23 @@ def two_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):
     return _dasch_transform(IM, basis_dir=basis_dir, direction=direction, 
                             method="two_point")
 
+
 def three_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):
     return _dasch_transform(IM, basis_dir=basis_dir, direction=direction,
                             method="three_point")
 
+
 def onion_peeling_transform(IM, basis_dir='.', dr=1, direction="inverse"):
     return _dasch_transform(IM, basis_dir=basis_dir, direction=direction,
-                          method="onion_peeling")
+                            method="onion_peeling")
 
 two_point_transform.__doc__ =\
-            _dasch_parameter_docstring.replace("dasch_method","two-point")
+            _dasch_parameter_docstring.replace("dasch_method", "two-point")
 three_point_transform.__doc__ =\
-            _dasch_parameter_docstring.replace("dasch_method","three-point")
+            _dasch_parameter_docstring.replace("dasch_method", "three-point")
 onion_peeling_transform.__doc__ =\
-            _dasch_parameter_docstring.replace("dasch_method","onion-peeling")
+            _dasch_parameter_docstring.replace("dasch_method", "onion-peeling")
+
 
 def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse", 
                      method="three_point"):
@@ -131,8 +134,8 @@ def _bs_two_point(cols):
 
     # basis function Eq. (9)  for j >= i
     def J(i, j): 
-       return np.log((np.sqrt((j+1)**2-i**2) + j+1)/\
-                     (np.sqrt(j**2-i**2) + j))/np.pi
+        return np.log((np.sqrt((j+1)**2 - i**2) + j + 1)/
+                      (np.sqrt(j**2 - i**2) + j))/np.pi
 
     # Eq. (8, 9) D-operator basis, is 0 for j < i
     D = np.zeros((cols, cols))
@@ -155,6 +158,7 @@ def _bs_two_point(cols):
 
     return D
 
+
 def _bs_three_point(cols):
     """basis function for three_point.
     
@@ -166,12 +170,12 @@ def _bs_three_point(cols):
 
     # basis function Eq. (7)  for j >= i
     def I0diag(i, j):
-        return np.log( (np.sqrt((2*j+1)**2-4*i**2) + 2*j+1)/(2*j) )/(2*np.pi)
+        return np.log((np.sqrt((2*j+1)**2-4*i**2) + 2*j+1)/(2*j))/(2*np.pi)
 
     # j > i
     def I0(i, j):
-        return np.log(((np.sqrt((2*j+1)**2 - 4*i**2) + 2*j+1))/ 
-                       (np.sqrt((2*j-1)**2 - 4*i**2) + 2*j-1))/(2*np.pi) 
+        return np.log(((np.sqrt((2*j + 1)**2 - 4*i**2) + 2*j + 1))/ 
+                       (np.sqrt((2*j - 1)**2 - 4*i**2) + 2*j - 1))/(2*np.pi) 
 
     # i = j  NB minus -2I_ij typo in Dasch paper
     def I1diag(i, j):
@@ -179,7 +183,7 @@ def _bs_three_point(cols):
 
     # j > i
     def I1(i, j):
-        return (np.sqrt((2*j+1)**2 - 4*i**2) -
+        return (np.sqrt((2*j+1)**2 - 4*i**2) -\
                 np.sqrt((2*j-1)**2 - 4*i**2))/(2*np.pi) - 2*j*I0(i, j)
 
     D = np.zeros((cols, cols))
@@ -199,7 +203,7 @@ def _bs_three_point(cols):
     Ju = Ju[1:] 
 
     # j > i + 1
-    Iut, Jut = np.triu_indices(cols, k= 2)
+    Iut, Jut = np.triu_indices(cols, k=2)
     Iut = Iut[1:]  # drop special case (0, 2)
     Jut = Jut[1:] 
 
@@ -225,6 +229,7 @@ def _bs_three_point(cols):
 
     return D
 
+
 def _bs_onion_peeling(cols):
     """basis function for onion_peeling.
     
@@ -243,13 +248,14 @@ def _bs_onion_peeling(cols):
 
     # upper triangle j > i,  Eq. (11)
     Iu, Ju = np.triu_indices(cols, k=1) 
-    W[Iu, Ju] = np.sqrt((2*Ju+1)**2 - 4*Iu**2) -\
-                np.sqrt((2*Ju-1)**2 - 4*Iu**2) 
+    W[Iu, Ju] = np.sqrt((2*Ju + 1)**2 - 4*Iu**2) -\
+                np.sqrt((2*Ju - 1)**2 - 4*Iu**2) 
 
     # operator used in Eq. (1)
     D = inv(W)   
 
     return D
+
 
 def get_bs_cached(method, cols, basis_dir='.', verbose=False):
     """load basis set from disk, generate and store if not available.
@@ -271,14 +277,14 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
        basis operator array
     """
 
-    basis_generator = {\
-        "two_point" : _bs_two_point,
-        "three_point" : _bs_three_point,
-        "onion_peeling" : _bs_onion_peeling
+    basis_generator = {
+        "two_point": _bs_two_point,
+        "three_point": _bs_three_point,
+        "onion_peeling": _bs_onion_peeling
     }
 
     if method not in basis_generator.keys():
-        raise ValueError("basis generating function for method '{}' not know"\
+        raise ValueError("basis generating function for method '{}' not know"
                          .format(method))
 
     basis_name = "{}_basis_{}_{}.npy".format(method, cols, cols)
@@ -296,9 +302,8 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
                 raise
     if D is None:
         if verbose:
-            print("A suitable operator matrix for '{}' was not found.\n"\
-                  .format(method),
-                  "A new operator matrix will be generated.")
+            print("A suitable operator matrix for '{}' was not found.\n"
+                  .format(method), "A new operator matrix will be generated.")
             if basis_dir is not None:
                 print("But don\'t worry, it will be saved to disk \
                     for future use.\n")

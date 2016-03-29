@@ -14,8 +14,9 @@ from . import hansenlaw
 from . import onion_bordas
 from . import tools
 
+
 class AbelTiming(object):
-    def __init__(self, n=[301, 501], select=["all",], n_max_bs=700, 
+    def __init__(self, n=[301, 501], select=["all", ], n_max_bs=700,
                  n_max_slow=700, transform_repeat=1):
         """
         Benchmark performance of different iAbel/fAbel implementations.
@@ -23,10 +24,12 @@ class AbelTiming(object):
         Parameters
         ----------
         n: integer
-            a list of arrays sizes for the benchmark (assuming 2D square arrays (n,n))
+            a list of arrays sizes for the benchmark
+            (assuming 2D square arrays (n,n))
+
         select: list of str
             list of transforms to benchmark select=['all',] (default) or 
-            choose transforms,
+            choose transforms:
             select=['basex', 'direct_Python', 'direct_C', 'hansenlaw',
              'onion_bordas, 'onion_peeling', 'two_point', 'three_point']
 
@@ -44,7 +47,7 @@ class AbelTiming(object):
 
         self.n = n
 
-        transform = {\
+        transform = {
             'basex': basex.basex_core_transform,
             'basex_bs': basex.get_bs_basex_cached,
             'direct_Python': direct.direct_transform,
@@ -58,15 +61,15 @@ class AbelTiming(object):
             'three_point': dasch.dasch_transform,
             'three_point_bs': dasch._bs_three_point,
          }
-                     
+
         # result dicts
         res = {}
         res['bs'] = {'basex_bs': [], 'onion_peeling_bs': [], 
                      'two_point_bs': [], 'three_point_bs': []}
         res['forward'] = {'direct_Python': [], 'hansenlaw': []}
         res['inverse'] = {'basex': [], 'direct_Python': [], 'hansenlaw': [],
-                        'onion_bordas': [], 'onion_peeling': [], 
-                        'two_point': [], 'three_point': []}
+                          'onion_bordas': [], 'onion_peeling': [],
+                          'two_point': [], 'three_point': []}
 
         if direct.cython_ext:
             res['forward']['direct_C'] = []
@@ -74,6 +77,11 @@ class AbelTiming(object):
 
         # delete all keys not present in 'select' input parameter
         if "all" not in select:
+            for trans in select:
+                if trans not in res['inverse'].keys():
+                    raise ValueError("'{}' is not a valid transform method".
+                                     format(trans), res['inverse'].keys())
+                     
             for direction in ['forward', 'inverse']:
                 rm = []
                 for abel in res[direction]:
@@ -100,7 +108,7 @@ class AbelTiming(object):
             for method in res['bs'].keys():
                 if method[:-3] == 'basex':  # special case
                     if ni <= n_max_bs:
-                        # calculate and store basis matrices
+                        # calculate and store basex basis matrix
                         t = time.time()
                         basis[method[:-3]] = transform[method](ni, ni,
                                                        basis_dir=None)
@@ -110,35 +118,38 @@ class AbelTiming(object):
                 else:
                     # calculate and store basis matrix
                     t = time.time()
-                    basis[method[:-3]] = transform[method](ni), # tuple
+                    # store basis calculation. NB a tuple to accomodate basex
+                    basis[method[:-3]] = transform[method](ni), 
                     res['bs'][method].append((time.time()-t)*1000)
 
             # Abel transforms ---------------
             for cal in ["forward", "inverse"]:
                 for method in res[cal].keys(): 
                     if method in basis.keys():
-                         # have basis calculation
-                         res[cal][method].append(Timer(lambda: 
-                         transform[method](x, *basis[method]))
-                        .timeit(number=transform_repeat)*1000/transform_repeat)
-                    elif method[:6] == 'direct': # special case 'direct'
-                         if method[7] == 'P' and (ni > n_max_slow):
-                             res[cal][method].append(np.nan)
-                         else:     
-                             res[cal][method].append(Timer(
-                             lambda: transform[method](x, backend=method[7:],
-                             direction=cal)).
-                             timeit(number=transform_repeat)*1000/
-                                    transform_repeat)
+                        # have basis calculation
+                        res[cal][method].append(Timer(
+                           lambda: transform[method](x, *basis[method])).
+                           timeit(number=transform_repeat)*1000/
+                           transform_repeat)
+                    elif method[:6] == 'direct':  # special case 'direct'
+                        if method[7] == 'P' and (ni > n_max_slow):
+                            res[cal][method].append(np.nan)
+                        else:     
+                            res[cal][method].append(Timer(
+                               lambda: transform[method](x, backend=method[7:],
+                               direction=cal)).
+                               timeit(number=transform_repeat)*1000/
+                               transform_repeat)
                     else:
-                         # full calculation for everything else
-                         res[cal][method].append(Timer(
-                         lambda: transform[method](x, direction=cal)).
-                         timeit(number=transform_repeat)*1000/transform_repeat)
+                        # full calculation for everything else
+                        res[cal][method].append(Timer(
+                           lambda: transform[method](x, direction=cal)).
+                           timeit(number=transform_repeat)*1000/
+                           transform_repeat)
 
         self.fabel = res['forward']
         self.bs = res['bs']
-        self.iabel = res['inverse'] 
+        self.iabel = res['inverse']
 
     def __repr__(self):
         import platform
@@ -148,7 +159,8 @@ class AbelTiming(object):
         out += ['PyAbel benchmark run on {}\n'.format(platform.processor())]
         out += ['times in milliseconds']
 
-        LABEL_FORMAT = ' Implementation ' + ''.join( ['    n = {:<12} '.format(ni) for ni in self.n])
+        LABEL_FORMAT = 'Implementation  ' +\
+                       ''.join(['    n = {:<12} '.format(ni) for ni in self.n])
         ROW_FORMAT = '{:>16} ' + ' {:8.1f}            '*len(self.n)
         SEP_ROW = '' + '-'*(22 + (17+1)*len(self.n))
 
