@@ -24,8 +24,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread
 
-Abel_methods = ['basex', 'direct', 'hansenlaw', 'onion_dasch', 'onion_bordas',
-                'two_point', 'three_point']
+Abel_methods = ['basex', 'direct', 'hansenlaw', 'onion_peeling', 
+                'onion_bordas', 'two_point', 'three_point']
 
 # GUI window -------------------
 
