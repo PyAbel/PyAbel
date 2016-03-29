@@ -100,8 +100,6 @@ def _transform():
     text.insert(tk.END,"inverse Abel transform: {:s}\n".format(method))
     if "basex" in method:
         text.insert(tk.END,"  first time calculation of the basis functions may take a while ...\n")
-    if "onion" in method:
-       text.insert(tk.END,"   onion_peeling method is in early testing and may not produce reliable results\n")
     if "direct" in method:
        text.insert(tk.END,"   calculation is slowed if Cython unavailable ...\n")
     canvas.show()

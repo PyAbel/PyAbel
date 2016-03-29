@@ -368,9 +368,6 @@ class PyAbel:  #(tk.Tk):
                 self.text.insert(tk.END,
                               "\nbasex: first time calculation of the basis"
                               " functions may take a while ...")
-            if "onion" in self.method:
-               self.text.insert(tk.END,"\nonion_peeling: method is in early "
-                              "testing and may not produce reliable results")
             if "direct" in self.method:
                self.text.insert(tk.END,"\ndirect: calculation is slowed if Cython"
                                        " unavailable ...")
