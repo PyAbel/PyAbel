@@ -68,6 +68,10 @@ class AbelTiming(object):
                         'onion_bordas': [], 'onion_peeling': [], 
                         'two_point': [], 'three_point': []}
 
+        if direct.cython_ext:
+            res['forward']['direct_C'] = []
+            res['inverse']['direct_C'] = []
+
         # delete all keys not present in 'select' input parameter
         if "all" not in select:
             for direction in ['forward', 'inverse']:
@@ -84,12 +88,6 @@ class AbelTiming(object):
                     rm.append(abel)
             for x in rm:
                 del res['bs'][x] 
-
-
-        if direct.cython_ext:
-            res['forward']['direct_C'] = []
-            res['inverse']['direct_C'] = []
-
 
         # calculated basis sets
         basis = {}
