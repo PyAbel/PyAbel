@@ -15,8 +15,8 @@ from . import onion_bordas
 from . import tools
 
 class AbelTiming(object):
-    def __init__(self, n=[301, 501], n_max_bs=700, n_max_slow=700, 
-                 transform_repeat=1):
+    def __init__(self, n=[301, 501], select=["all",], n_max_bs=700, 
+                 n_max_slow=700, transform_repeat=1):
         """
         Benchmark performance of different iAbel/fAbel implementations.
 
@@ -24,6 +24,12 @@ class AbelTiming(object):
         ----------
         n: integer
             a list of arrays sizes for the benchmark (assuming 2D square arrays (n,n))
+        select: list of str
+            list of transforms to benchmark select=['all',] (default) or 
+            choose transforms,
+            select=['basex', 'direct_Python', 'direct_C', 'hansenlaw',
+             'onion_bordas, 'onion_peeling', 'two_point', 'three_point']
+
         n_max_bs: integer
             since the basis sets generation takes a long time,
             do not run this benchmark for implementations that use basis sets
@@ -53,7 +59,7 @@ class AbelTiming(object):
             'three_point_bs': dasch._bs_three_point,
          }
                      
-        # results dicts
+        # result dicts
         res = {}
         res['bs'] = {'basex_bs': [], 'onion_peeling_bs': [], 
                      'two_point_bs': [], 'three_point_bs': []}
@@ -62,11 +68,32 @@ class AbelTiming(object):
                         'onion_bordas': [], 'onion_peeling': [], 
                         'two_point': [], 'three_point': []}
 
+        if "all" not in select:
+            # delete all keys not present in 'select' input parameter
+            for direction in ['forward', 'inverse']:
+                rm = []
+                for abel in res[direction]:
+                    if abel not in select:
+                        rm.append(abel)
+                for x in rm:
+                    del res[direction][x]
+            # repeat for 'bs' which has append '_bs'
+            rm = []
+            for abel in res['bs']:
+                if abel[:-3] not in select:
+                    rm.append(abel)
+            for x in rm:
+                del res['bs'][x] 
+
+
         if direct.cython_ext:
             res['forward']['direct_C'] = []
             res['inverse']['direct_C'] = []
 
+
+        # calculated basis sets
         basis = {}
+
         for ni in n:
             ni = int(ni)
             x = np.random.randn(ni, ni)
