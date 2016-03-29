@@ -15,7 +15,7 @@ The numerical Abel transform is computationally intensive, and a basic numerical
 
     5. ``*`` The :doc:`two_point <transform_methods/two_point>` method is also well described by Dasch. It is a simpler approximation to the `three point` transform. Computationally, very efficient in Python.
 
-    6. ``*`` The :doc:`onion_dasch <transform_methods/onion_dasch>` onion-peeling deconvolution method described by Dash is one of the simpler, and faster inversion methods. The article states the onion-peeling deconvolution is similar to the two point Abel. Both methods have less smoothing than the other methods examined by Dasch.
+    6. ``*`` The :doc:`onion_peeling <transform_methods/onion_peeling>` onion-peeling deconvolution method described by Dash is one of the simpler, and faster inversion methods. The article states the onion-peeling deconvolution is similar to the two point Abel. Both methods have less smoothing than the other methods examined by Dasch.
 
     7. The :doc:`onion_bordas <transform_methods/onion_bordas>` onion-peeling method of Bordas et al. is based on the MatLab code of Rallis and Wells *et al.* The article claims "the method works properly only in the limit of large electrostatic energy to initial kinetic energy ratio and gives qualitatively the same results as a standard inversion method". 
 
@@ -37,7 +37,7 @@ Contents:
    transform_methods/hansenlaw
    transform_methods/two_point
    transform_methods/three_point
-   transform_methods/onion_dasch
+   transform_methods/onion_peeling
    transform_methods/onion_bordas
    transform_methods/pop
    transform_methods/fh

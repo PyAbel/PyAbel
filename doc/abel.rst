@@ -26,10 +26,10 @@ abel.hansenlaw module
     :undoc-members:
     :show-inheritance:
 
-abel.onion_dasch module
--------------------------
+abel.dasch module
+-----------------
 
-.. automodule:: abel.onion_dasch
+.. automodule:: abel.dasch
     :members:
     :undoc-members:
     :show-inheritance:
@@ -38,22 +38,6 @@ abel.onion_bordas module
 ------------------------
 
 .. automodule:: abel.onion_bordas
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-abel.two_point module
----------------------
-
-.. automodule:: abel.two_point
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-abel.three_point module
------------------------
-
-.. automodule:: abel.three_point
     :members:
     :undoc-members:
     :show-inheritance:
@@ -75,14 +59,6 @@ abel.tools.analytical module
 ----------------------------
 
 .. automodule:: abel.tools.analytical
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-abel.tools.basis module
-----------------------------
-
-.. automodule:: abel.tools.basis
     :members:
     :undoc-members:
     :show-inheritance:

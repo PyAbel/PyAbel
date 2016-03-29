@@ -7,7 +7,7 @@ Introduction
 
 The "Dasch two-point" deconvolution algorithm is one of several
 described in the Dasch [1] paper. See also the ``three_point`` and 
-``onion_dasch`` descriptions.
+``onion_peeling`` descriptions.
 
 How it works
 ------------
@@ -30,13 +30,13 @@ To complete the inverse transform of a full image with the ``two_point method``,
 
     abel.Transform(myImage, method='two_point').transform
 
-If you would like to access the ``two_point`` algorithm directly (to transform a right-side half-image), you can use :func:`abel.two_point.two_point_transform`.
+If you would like to access the ``two_point`` algorithm directly (to transform a right-side half-image), you can use :func:`abel.dasch.two_point_transform`.
 
 
 Example
 -------
 
-.. plot:: ../examples/example_two_point.py
+.. plot:: ../examples/example_dasch_methods.py
     :include-source:
 
 

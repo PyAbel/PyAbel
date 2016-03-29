@@ -43,19 +43,19 @@ How to use it
 
 To complete the inverse transform of a full image with the ``onion_dasch`` method, simply use the :class:`abel.Transform` class: ::
 
-    abel.Transform(myImage, method='onion_dasch').transform
+    abel.Transform(myImage, method='onion_peeling').transform
 
-If you would like to access the ``onion_dasch`` algorithm directly (to transform a right-side half-image), you can use :func:`abel.onion_dasch.onion_dasch_transform`.
+If you would like to access the ``onion_peeling`` algorithm directly (to transform a right-side half-image), you can use :func:`abel.dasch.onion_peeling_transform`.
 
 
 Example
 -------
 
-.. plot:: ../examples/example_onion_dasch.py
+.. plot:: ../examples/example_dasch_methods.py
     :include-source:
 
 
-or more information on the PyAbel implementation of the ``onion_dasch`` algorithm, please see `Pull Request #155 <https://github.com/PyAbel/PyAbel/pull/155>`_.
+or more information on the PyAbel implementation of the ``onion_peeling`` algorithm, please see `Pull Request #155 <https://github.com/PyAbel/PyAbel/pull/155>`_.
 
 
 

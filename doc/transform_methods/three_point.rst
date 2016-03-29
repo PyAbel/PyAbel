@@ -33,13 +33,13 @@ To complete the inverse transform of a full image with the ``three_point method`
 
 Note that the forward Three point transform is not yet implemented in PyAbel.
 
-If you would like to access the Three Point algorithm directly (to transform a right-side half-image), you can use :func:`abel.three_point.three_point_transform`.
+If you would like to access the Three Point algorithm directly (to transform a right-side half-image), you can use :func:`abel.dasch.three_point_transform`.
 
 
 Example
 -------
 
-.. plot:: ../examples/example_three_point.py
+.. plot:: ../examples/example_dasch_methods.py
     :include-source:
 
 

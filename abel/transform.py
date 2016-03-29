@@ -11,11 +11,9 @@ import warnings
 
 from . import basex
 from . import hansenlaw
+from . import dasch
 from . import onion_bordas
-from . import onion_dasch
 from . import direct
-from . import two_point
-from . import three_point
 from . import tools
 
 
@@ -95,7 +93,7 @@ class Transform(object):
                         the algorithm of Bordas and co-workers (1996), 
                         re-implemented by Rallis, Wells and co-workers (2014).
 
-            ``onion_dasch``
+            ``onion_peeling``
                         the onion peeling deconvolution as described by Dasch (1992)
 
         center : tuple or str
@@ -270,7 +268,7 @@ class Transform(object):
         .. _#56: <https://github.com/PyAbel/PyAbel/issues/56>
 
 
-        ``onion_dasch``
+        ``onion_peeling``
             This is one of the most compact and fast algorithms, with the
             inverse Abel transfrom achieved in one Python code-line, PR #155.
             See also ``three_point`` is the onion peeling algorithm as
@@ -354,9 +352,9 @@ class Transform(object):
             "direct": direct.direct_transform,
             "hansenlaw": hansenlaw.hansenlaw_transform,
             "onion_bordas": onion_bordas.onion_bordas_transform,
-            "onion_dasch": onion_dasch.onion_dasch_transform,
-            "two_point": two_point.two_point_transform,
-            "three_point": three_point.three_point_transform,
+            "onion_peeling": dasch.onion_peeling_transform,
+            "two_point": dasch.two_point_transform,
+            "three_point": dasch.three_point_transform,
         }
 
         self._verboseprint('Calculating {0} Abel transform using {1} method -'

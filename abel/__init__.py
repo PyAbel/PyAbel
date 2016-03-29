@@ -10,9 +10,7 @@ from . import benchmark
 from . import direct
 from . import hansenlaw
 from . import onion_bordas
-from . import onion_dasch
-from . import two_point
-from . import three_point
+from . import dasch
 from . import tools
 from . import transform
 from . import tests
