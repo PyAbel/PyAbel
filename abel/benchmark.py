@@ -97,14 +97,13 @@ class AbelTiming(object):
             for x in rm:
                 del res['bs'][x] 
 
-        # calculated basis sets
-        basis = {}
-
+        # ---- timing tests for various image sizes nxn
         for ni in n:
             ni = int(ni)
             x = np.random.randn(ni, ni)
            
             # basis set evaluation --------------
+            basis = {}
             for method in res['bs'].keys():
                 if method[:-3] == 'basex':  # special case
                     if ni <= n_max_bs:
@@ -114,6 +113,7 @@ class AbelTiming(object):
                                                        basis_dir=None)
                         res['bs'][method].append((time.time()-t)*1000)
                     else:
+                        basis[method[:-3]] = None,
                         res['bs'][method].append(np.nan)
                 else:
                     # calculate and store basis matrix
@@ -126,11 +126,15 @@ class AbelTiming(object):
             for cal in ["forward", "inverse"]:
                 for method in res[cal].keys(): 
                     if method in basis.keys():
-                        # have basis calculation
-                        res[cal][method].append(Timer(
-                           lambda: transform[method](x, *basis[method])).
-                           timeit(number=transform_repeat)*1000/
-                           transform_repeat)
+                        if basis[method][0] is not None:
+                            # have basis calculation
+                            res[cal][method].append(Timer(
+                               lambda: transform[method](x, *basis[method])).
+                               timeit(number=transform_repeat)*1000/
+                               transform_repeat)
+                        else:
+                            # no calculation available
+                            res[cal][method].append(np.nan)
                     elif method[:6] == 'direct':  # special case 'direct'
                         if method[7] == 'P' and (ni > n_max_slow):
                             res[cal][method].append(np.nan)
@@ -157,11 +161,11 @@ class AbelTiming(object):
 
         out = []
         out += ['PyAbel benchmark run on {}\n'.format(platform.processor())]
-        out += ['times in milliseconds']
+        out += ['time in milliseconds']
 
         LABEL_FORMAT = 'Implementation  ' +\
-                       ''.join(['    n = {:<12} '.format(ni) for ni in self.n])
-        ROW_FORMAT = '{:>16} ' + ' {:8.1f}            '*len(self.n)
+                       ''.join(['    n = {:<9} '.format(ni) for ni in self.n])
+        ROW_FORMAT = '{:>16} ' + ' {:8.1f}         '*len(self.n)
         SEP_ROW = '' + '-'*(22 + (17+1)*len(self.n))
 
         HEADER_ROW = '\n========= {:>8} Abel implementations ==========\n'
