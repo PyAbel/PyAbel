@@ -26,10 +26,18 @@ abel.hansenlaw module
     :undoc-members:
     :show-inheritance:
 
-abel.three_point module
------------------------
+abel.dasch module
+-----------------
 
-.. automodule:: abel.three_point
+.. automodule:: abel.dasch
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.onion_bordas module
+------------------------
+
+.. automodule:: abel.onion_bordas
     :members:
     :undoc-members:
     :show-inheritance:
@@ -41,6 +49,11 @@ abel.direct module
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+Image processing tools
+----------------------
+
 
 abel.tools.analytical module
 ----------------------------

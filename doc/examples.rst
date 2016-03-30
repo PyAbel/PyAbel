@@ -12,3 +12,5 @@ Contents:
    example_basex_gaussian
    example_basex_photoelectron
    example_all_dribinski
+   example_dasch_methods
+   example_onion_bordas

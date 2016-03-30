@@ -34,11 +34,15 @@ The outcome of the numerical Abel Transform depends on the exact method used. So
 
     3. ``direct`` - numerical integration of the analytical Abel transform equations.
 
-    4. ``threepoint`` - the "three point" method of Dasch and co-workers.
+    4. ``two_point`` - the "two point" method of Dasch and co-workers.
 
-    5. ``fh`` - Fourier–Hankel method (not yet implemented).
+    5. ``three_point`` - the "three point" method of Dasch and co-workers.
 
-    6. ``onion`` - onion peeling method (not yet implemented).
+    6. ``onion_peeling`` - the "onion peeling" deconvolution method of Dasch and co-workers.
+
+    7. ``onion_bordas`` - "onion peeling" or "back projection" method of Bordas *et al.* based on the MatLab code by Rallis and Wells *et al.*
+
+    6. ``fh`` - Fourier–Hankel method (not yet implemented).
 
     7. ``pop`` - polar onion peeling method (not yet implemented).
 

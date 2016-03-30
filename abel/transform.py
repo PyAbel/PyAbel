@@ -11,8 +11,9 @@ import warnings
 
 from . import basex
 from . import hansenlaw
+from . import dasch
+from . import onion_bordas
 from . import direct
-from . import three_point
 from . import tools
 
 
@@ -34,7 +35,7 @@ class Transform(object):
     residual : numpy 2D array
         residual image (not currently implemented).
     IM: numpy 2D array
-        image, that is transformed, centered(option) and odd-size in width
+        the input image, re-centered (optional) with an odd-size width
     method : str
         transform method, as specified by the input option.
     direction: str
@@ -77,15 +78,23 @@ class Transform(object):
             should be employed (see below). The options are
 
             ``hansenlaw``
-                        the recursive algorithm described by Hansen and Law
+                        the recursive algorithm described by Hansen and Law.
             ``basex``
                         the Gaussian "basis set expansion" method
                         of Dribinski et al.
             ``direct``
                         a naive implementation of the analytical
                         formula by Roman Yurchuk.
+            ``two_point``
+                        the two-point transform of Dasch (1992).
             ``three_point``
-                        the three-point transform of Dasch and co-workers
+                        the three-point transform of Dasch (1992).
+            ``onion_bordas``
+                        the algorithm of Bordas and co-workers (1996), 
+                        re-implemented by Rallis, Wells and co-workers (2014).
+
+            ``onion_peeling``
+                        the onion peeling deconvolution as described by Dasch (1992)
 
         center : tuple or str
             If a tuple (float, float) is provided, this specifies
@@ -244,6 +253,31 @@ class Transform(object):
             but thanks to this Cython implementation (by Roman Yurchuk),
             this 'direct' method is competitive with the other methods.
 
+        ``onion_bordas``
+            The onion peeling method, also known as "back projection",
+            originates from Bordas *et al.*  `Rev. Sci. Instrum. 67, 2257 (1996)`_.
+
+          .. _Rev. Sci. Instrum. 67, 2257 (1996):  <http://scitation.aip.org/content/aip/journal/rsi/67/6/10.1063/1.1147044> 
+
+            The algorithm was subsequently coded in MatLab by Rallis, Wells and co-workers, `Rev. Sci. Instrum. 85, 113105 (2014)`_.
+
+          .. _Rev. Sci. Instrum. 85, 113105 (2014): <http://scitation.aip.org/content/aip/journal/rsi/85/11/10.1063/1.4899267>
+
+           which was used as the basis of this Python port. See issue `#56`_.
+
+        .. _#56: <https://github.com/PyAbel/PyAbel/issues/56>
+
+
+        ``onion_peeling``
+            This is one of the most compact and fast algorithms, with the
+            inverse Abel transfrom achieved in one Python code-line, PR #155.
+            See also ``three_point`` is the onion peeling algorithm as
+            described by Dasch (1992), reference below.
+
+         ``two_point``
+            Another Dasch method. Simple, and fast, but not as accurate as the
+            other methods.
+
         ``three_point`` *
             The "Three Point" Abel transform method
             exploits the observation that the value of the Abel inverted data
@@ -317,7 +351,10 @@ class Transform(object):
             "basex": basex.basex_transform,
             "direct": direct.direct_transform,
             "hansenlaw": hansenlaw.hansenlaw_transform,
-            "three_point": three_point.three_point_transform,
+            "onion_bordas": onion_bordas.onion_bordas_transform,
+            "onion_peeling": dasch.onion_peeling_transform,
+            "two_point": dasch.two_point_transform,
+            "three_point": dasch.three_point_transform,
         }
 
         self._verboseprint('Calculating {0} Abel transform using {1} method -'

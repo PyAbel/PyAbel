@@ -33,8 +33,7 @@ from math import exp, log, pow, pi
 
 
 def hansenlaw_transform(IM, dr=1, direction="inverse"):
-    r"""
-    Forward/Inverse Abel transformation using the algorithm of
+    r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985) 
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a: 
     
@@ -72,19 +71,19 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
     Parameters
     ----------
-    IM : 2D np.array
-        One quadrant (or half) of the image oriented top-right.
+    IM : 1D or 2D numpy array
+        right-side half-image (or quadrant)
 
     dr : float
-        Sampling size (=1 for pixel images), used for Jacobian scaling
+        sampling size (=1 for pixel images), used for Jacobian scaling
 
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
 
     Returns
     -------
-    AIM : 2D numpy array
-        forward/inverse Abel transform image
+    AIM : 1D or 2D numpy array
+        forward/inverse Abel transform half-image
         
         
     .. note::  Image should be a right-side image, like this: ::  
@@ -151,7 +150,7 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
         for k in range(K):  # Iterate over k, the eigenvectors?
             X[:, k] = pow(Nm, lam[k])*X[:, k] +\
-                     h[k]*gamma(Nm, lam[k], n)*gp[:, n]  # Eq. (15 or 17)
+                      h[k]*gamma(Nm, lam[k], n)*gp[:, n]  # Eq. (15 or 17)
         AIM[:, n] = X.sum(axis=1)
 
     # special case for the end pixel

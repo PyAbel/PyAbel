@@ -26,8 +26,8 @@ from matplotlib import gridspec
 
 from scipy.ndimage.interpolation import shift
 
-Abel_methods = ['basex', 'direct', 'hansenlaw', #'onion-peeling'
-                'three_point']
+Abel_methods = ['basex', 'direct', 'hansenlaw', 'onion_peeling', 
+                'onion_bordas', 'two_point', 'three_point']
 
 
 class PyAbel:  #(tk.Tk):
@@ -368,9 +368,6 @@ class PyAbel:  #(tk.Tk):
                 self.text.insert(tk.END,
                               "\nbasex: first time calculation of the basis"
                               " functions may take a while ...")
-            if "onion" in self.method:
-               self.text.insert(tk.END,"\nonion_peeling: method is in early "
-                              "testing and may not produce reliable results")
             if "direct" in self.method:
                self.text.insert(tk.END,"\ndirect: calculation is slowed if Cython"
                                        " unavailable ...")
@@ -378,7 +375,7 @@ class PyAbel:  #(tk.Tk):
     
             self.AIM = abel.Transform(self.IM, method=self.method, 
                                       direction=self.fi,
-                                      symmetry_axis=None).transform
+                                      symmetry_axis=None)
             self.rmin.delete(0, tk.END)
             self.rmin.insert(0, self.rmx[0])
             self.rmax.delete(0, tk.END)

@@ -24,10 +24,10 @@ from time import time
 
 transforms = {
   "direct": abel.direct.direct_transform,      
-  #"onion": iabel_onion_transform, 
+  "onion": abel.dasch.onion_peeling_transform, 
   "hansenlaw": abel.hansenlaw.hansenlaw_transform,
   "basex": abel.basex.basex_transform,   
-  "three_point": abel.three_point.three_point_transform,
+  "three_point": abel.dasch.three_point_transform,
 }
 # sort dictionary 
 transforms = collections.OrderedDict(sorted(transforms.items()))
@@ -36,8 +36,6 @@ ntrans = np.size(transforms.keys())  # number of transforms
 
 # Image:   O2- VMI 1024x1024 pixel ------------------
 IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
-# this is even size, all methods except 'onion' require an odd-size
-
 # recenter the image to an odd size
 
 IModd = abel.tools.center.center_image(IM, center="slice", odd_size=True)
