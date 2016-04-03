@@ -12,7 +12,7 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit
 
 
-def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None):
+def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None, average=False):
     """ 
     Angular integration of the image.
 
@@ -45,6 +45,8 @@ def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None):
         is equal to the height of the image (which should typically ensure
         good sampling.)
 
+    average: bool
+        If ``average=True``, return the averaged radial intensity instead.
 
     Returns
     -------
@@ -59,10 +61,17 @@ def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None):
     polarIM, R, T = reproject_image_into_polar(
         IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)    
 
+    dt = T[0,1] - T[0,0]
+
     if Jacobian:  # x r sinθ
         polarIM = polarIM * R * np.abs(np.sin(T))
 
-    speeds = np.sum(polarIM, axis=1)*dr
+    
+    speeds = np.trapz(polarIM, axis=1, dx=dt)
+
+    if average:
+        speeds /= 2*np.pi
+
     n = speeds.shape[0]
 
     return R[:n, 0], speeds   # limit radial coordinates range to match speed
