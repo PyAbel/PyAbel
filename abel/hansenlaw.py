@@ -110,11 +110,6 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
     rows, cols = N
 
-    # constants listed in Table 1.
-    h = np.array([0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3])
-    lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
-                    -47391.1])
-
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform
     def fgamma(Nm, lam, n):
@@ -145,6 +140,11 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
     # ------ The Hansen and Law algorithm ------------
     # iterate along columns, starting outer edge (right side)
     # toward the image center
+
+    # constants listed in Table 1.
+    h = np.array([0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3])
+    lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
+                    -47391.1])
 
     K = np.size(h)
     X = np.zeros((rows, K))
