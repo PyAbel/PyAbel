@@ -111,54 +111,55 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
     rows, cols = N
 
     # constants listed in Table 1.
-    h = [0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3]
-    lam = [0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9, -47391.1]
-
-    K = np.size(h)
-    X = np.zeros((rows, K))
+    h = np.array([0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3])
+    lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
+                    -47391.1])
 
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform
     def fgamma(Nm, lam, n):
-        return 2*n*(1-pow(Nm, (lam+1)))/(lam+1)
+        return 2*n*(1-np.power(Nm, (lam+1)))/(lam+1)
 
     # Eq. (18) used for the inverse transform
-    def igamma(Nm, lam, n):
-        if lam < -1:
-            return (1-pow(Nm, lam))/(pi*lam)
-        else:
-            return -np.log(Nm)/pi
+    def igammalt(Nm, lam, n):
+        return (1-np.power(Nm, lam))/(pi*lam)
+
+    def igammagt(Nm, lam, n):
+        return -np.log(Nm)/pi
 
     if direction == "inverse":   # inverse transform
-        gamma = igamma
+        gammagt = igammagt   # special case lam = 0.0
+        gammalt = igammalt   # lam < 0.0
+
         # g' - derivative of the intensity profile
         if rows > 1:
             gp = np.gradient(IM)[1]
             # second element is gradient along the columns
         else:  # If there is only one row
             gp = np.atleast_2d(np.gradient(IM[0]))
+
     else:  # forward transform
-        gamma = fgamma
+        gammagt = gammalt = fgamma
         gp = IM
 
     # ------ The Hansen and Law algorithm ------------
     # iterate along columns, starting outer edge (right side)
     # toward the image center
 
+    K = np.size(h)
+    X = np.zeros((rows, K))
+    hkgam = np.zeros((K, 1))
+
     for n in range(cols-2, 0, -1):
         Nm = (n+1)/n          # R0/R
+        hkgam[0, 0] = h[0]*gammagt(Nm, lam[0], n)   # special case lam = 0.0
+        hkgam[1:, 0] = h[1:]*gammalt(Nm, lam[1:], n)   # lam < 0.0
 
-        for k in range(K):  # Iterate over k, the eigenvectors?
-            X[:, k] = pow(Nm, lam[k])*X[:, k] +\
-                      h[k]*gamma(Nm, lam[k], n)*gp[:, n]  # Eq. (15 or 17)
+        X = np.power(Nm, lam)*X + np.transpose(hkgam*gp[:, n])
         AIM[:, n] = X.sum(axis=1)
 
     # special case for the end pixel
     AIM[:, 0] = AIM[:, 1]
-
-    #for some reason shift by 1 pixel aligns better? - FIX ME!
-    if direction == "inverse":
-        AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
