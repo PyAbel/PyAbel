@@ -102,8 +102,6 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
         Use ``abel.tools.center.center_image(IM, method='com', odd_size=True)`` 
     """
 
-
-
     IM = np.atleast_2d(IM)
     N = np.shape(IM)         # shape of input quadrant (half)
     AIM = np.zeros(N)        # forward/inverse Abel transform image
@@ -155,7 +153,7 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
         hkgam[0, 0] = h[0]*gammagt(Nm, lam[0], n)   # special case lam = 0.0
         hkgam[1:, 0] = h[1:]*gammalt(Nm, lam[1:], n)   # lam < 0.0
 
-        X = np.power(Nm, lam)*X + np.transpose(hkgam*gp[:, n])
+        X = np.power(Nm, lam)*X + np.transpose(hkgam*gp[:, n])  # Eq. (15 or 17)
         AIM[:, n] = X.sum(axis=1)
 
     # special case for the end pixel
