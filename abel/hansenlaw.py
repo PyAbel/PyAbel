@@ -111,7 +111,7 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform
     def fgamma(Nm, lam, n):
-        return 2*n*(1-np.power(Nm, (lam+1)))/(lam+1)
+        return 2*n*(1-np.power(Nm, lam+1))/(lam+1)
 
     # Eq. (18) used for the inverse transform
     def igammalt(Nm, lam, n):
@@ -145,18 +145,30 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
                     -47391.1])
 
     K = np.size(h)
-    X = np.zeros((rows, K))
-    hkgam = np.zeros((K, 1))
+    nn = np.arange(cols-2, 0, -1, dtype=int)
 
-    for n in range(cols-2, 0, -1):
-        Nm = (n+1)/n          # R0/R
-        hkgam[0, 0] = h[0]*gammagt(Nm, lam[0], n)   # special case lam = 0.0
-        hkgam[1:, 0] = h[1:]*gammalt(Nm, lam[1:], n)   # lam < 0.0
+    Nm = (nn+1)/nn          # R0/R
+    len_Nm = len(Nm)
+    X = np.zeros(K)
 
-        X = np.power(Nm, lam)*X + np.transpose(hkgam*gp[:, n])  # Eq. (15 or 17)
+    hkgam = np.zeros((len_Nm, K))
+    pNm = np.zeros((len_Nm, K))
+
+    # special case lam = 0
+    hkgam[:, 0] = h[0]*gammagt(Nm, lam[0], nn) 
+    pNm[:, 0] = np.ones_like(Nm)
+
+    # lam < 0
+    for k in range(1, K):
+        hkgam[:, k] = h[k]*gammalt(Nm, lam[k], nn) 
+        pNm[:, k] = np.power(Nm, lam[k])
+
+    # Eq. (15) or (17)
+    for i, n in enumerate(nn):
+        X = pNm[i]*X + hkgam[i]*np.expand_dims(gp[:, n], axis=1)
         AIM[:, n] = X.sum(axis=1)
 
-    # special case for the end pixel
+    # center pixel column
     AIM[:, 0] = AIM[:, 1]
 
     if AIM.shape[0] == 1:
