@@ -12,7 +12,8 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit
 
 
-def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None, average=False):
+def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None,
+                        average=False):
     """ 
     Angular integration of the image.
 
