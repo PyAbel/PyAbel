@@ -149,23 +149,23 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
     Nm = (nn+1)/nn          # R0/R
     len_Nm = len(Nm)
-    X = np.zeros(K)
+    X = np.zeros((rows, K))
 
-    hkgam = np.zeros((len_Nm, K))
-    pNm = np.zeros((len_Nm, K))
+    hkgam = np.zeros((len_Nm, K, 1))
+    phi = np.zeros((len_Nm, K, K))
 
     # special case lam = 0
-    hkgam[:, 0] = h[0]*gammagt(Nm, lam[0], nn) 
-    pNm[:, 0] = np.ones_like(Nm)
+    hkgam[:, 0, 0] = h[0]*gammagt(Nm, lam[0], nn) 
+    phi[:, 0, 0] = 1
 
     # lam < 0
     for k in range(1, K):
-        hkgam[:, k] = h[k]*gammalt(Nm, lam[k], nn) 
-        pNm[:, k] = np.power(Nm, lam[k])
+        hkgam[:, k, 0] = h[k]*gammalt(Nm, lam[k], nn) 
+        phi[:, k, k] = np.power(Nm, lam[k])
 
     # Eq. (15) or (17)
     for i, n in enumerate(nn):
-        X = pNm[i]*X + hkgam[i]*np.expand_dims(gp[:, n], axis=1)
+        X = np.dot(X, phi[i]) + np.transpose(hkgam[i]*gp[:, n])
         AIM[:, n] = X.sum(axis=1)
 
     # center pixel column
