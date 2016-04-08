@@ -149,24 +149,24 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
     Nm = (nn+1)/nn          # R0/R
     len_Nm = len(Nm)
-    X = np.zeros((rows, K))
 
-    hkgam = np.zeros((len_Nm, K, 1))
-    phi = np.zeros((len_Nm, K, K))
+    X = np.zeros((K, rows))
+    Gamma = np.zeros((len_Nm, K, 1))
+    Phi = np.zeros((len_Nm, K, K))
 
-    # special case lam = 0
-    hkgam[:, 0, 0] = h[0]*gammagt(Nm, lam[0], nn) 
-    phi[:, 0, 0] = 1
+    # Gamma_n and Phi_n  Eq. (16a) and (16b)
+    # lam = 0.0
+    Gamma[:, 0, 0] = h[0]*gammagt(Nm, lam[0], nn)   
+    Phi[:, 0, 0] = 1
+    # lam < 0.0
+    for k in range(1, K): 
+        Gamma[:, k, 0] = h[k]*gammalt(Nm, lam[k], nn)  
+        Phi[:, k, k] = np.power(Nm, lam[k])   # diagonal matrix Eq. (16a)
 
-    # lam < 0
-    for k in range(1, K):
-        hkgam[:, k, 0] = h[k]*gammalt(Nm, lam[k], nn) 
-        phi[:, k, k] = np.power(Nm, lam[k])
-
-    # Eq. (15) or (17)
+    # Eq. (15) forward, or (17) inverse
     for i, n in enumerate(nn):
-        X = np.dot(X, phi[i]) + np.transpose(hkgam[i]*gp[:, n])
-        AIM[:, n] = X.sum(axis=1)
+        X = np.dot(Phi[i], X) + Gamma[i]*gp[:, n]
+        AIM[:, n] = X.sum(axis=0)
 
     # center pixel column
     AIM[:, 0] = AIM[:, 1]
