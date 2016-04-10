@@ -148,11 +148,10 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
     nn = np.arange(cols-2, 0, -1, dtype=int)
 
     Nm = (nn+1)/nn          # R0/R
-    len_Nm = len(Nm)
 
     X = np.zeros((K, rows))
-    Gamma = np.zeros((len_Nm, K, 1))
-    Phi = np.zeros((len_Nm, K, K))
+    Gamma = np.zeros((cols-2, K, 1))
+    Phi = np.zeros((cols-2, K, K))
 
     # Gamma_n and Phi_n  Eq. (16a) and (16b)
     # lam = 0.0
