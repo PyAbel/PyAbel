@@ -71,12 +71,13 @@ for q, method in enumerate(transforms.keys()):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    IAQ0 = transforms[method](Q0, direction="inverse", dr=0.5) 
+    IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1) 
     print ("                    {:.1f} sec".format(time()-t0))
 
 
     # polar projection and speed profile
-    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(0, 0), dr=0.5)
+    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(0, 0),
+                                                       dr=0.1)
 
     # normalize image intensity and speed distribution
     IAQ0 /= IAQ0[mask].max()  
@@ -109,12 +110,12 @@ iq = 0
 for q in range(4):
     Q[q] = iabelQ[iq].copy()
     ann_plt(q, 0, meth[iq])
-    ax1.plot(*(sp[iq]), label=meth[iq])
+    ax1.plot(*(sp[iq]), label=meth[iq], alpha=0.3)
     iq += 1
     if iq < len(transforms):
         Q[q][indx] = np.triu(iabelQ[iq])[indx] 
         ann_plt(q, 1, meth[iq])
-        ax1.plot(*(sp[iq]), label=meth[iq])
+        ax1.plot(*(sp[iq]), label=meth[iq], alpha=0.3)
     iq += 1
 
 # reassemble image from transformed (part-)quadrants
