@@ -29,6 +29,7 @@ transforms = {
   "onion": abel.dasch.onion_peeling_transform,
   "basex": abel.basex.basex_transform,   
   "three_point": abel.dasch.three_point_transform,
+  "two_point": abel.dasch.two_point_transform,
 }
 
 # sort dictionary:

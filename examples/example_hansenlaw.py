@@ -7,16 +7,15 @@ import numpy as np
 import abel
 import matplotlib.pylab as plt
 
-# Hansen and Law inverse Abel transform of a velocity-map image 
-# O2- photodetachement at 454 nm.
-# The spectrum was recorded in 2010  
-# ANU / The Australian National University
+# Hansen and Law inverse Abel transform of velocity-map imaged electrons
+# from O2- photodetachement at 454 nm. The spectrum was recorded in 2010  
+# at the Australian National University (ANU)
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
-# Load as a numpy array
+# load image as a numpy array
+# use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
 print("HL: loading 'data/O2-ANU1024.txt.bz2'")
 IM = np.loadtxt("data/O2-ANU1024.txt.bz2")
-# use plt.imread(filename) to load image formats (.png, .jpg, etc)
 
 rows, cols = IM.shape    # image size
 
@@ -28,7 +27,7 @@ if cols % 2 == 0:
     rows, cols = IM.shape   # new image size
 
 # dr=0.5 may help reduce pixel grid coarseness
-# NB remember to pass to angular_integration
+# NB remember to also pass to angular_integration
 AIM = abel.Transform(IM, method='hansenlaw',
                      use_quadrants=(True, True, True, True),
                      symmetry_axis=None,
@@ -39,9 +38,9 @@ radial, speeds  = abel.tools.vmi.angular_integration(AIM, dr=0.5)
 
 # Set up some axes
 fig = plt.figure(figsize=(15, 4))
-ax1 = plt.subplot(131)
-ax2 = plt.subplot(132)
-ax3 = plt.subplot(133)
+ax1 = plt.subplot2grid((1, 3), (0, 0))
+ax2 = plt.subplot2grid((1, 3), (0, 1))
+ax3 = plt.subplot2grid((1, 3), (0, 2))
 
 # raw image
 im1 = ax1.imshow(IM, aspect='auto')
@@ -69,7 +68,7 @@ ax3.set_title('speed distribution')
 plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35,
                     hspace=0.37)
 
-# save an image of the plot
+# save copy of the plot
 plt.savefig("example_hansenlaw.png", dpi=100)
 
 plt.show()
