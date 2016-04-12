@@ -56,18 +56,18 @@ _dasch_parameter_docstring = \
 
 
 def two_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):
-    return _dasch_transform(IM, basis_dir=basis_dir, direction=direction, 
-                            method="two_point")
+    return _dasch_transform(IM, basis_dir=basis_dir, dr=dr,
+                            direction=direction, method="two_point")
 
 
 def three_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):
-    return _dasch_transform(IM, basis_dir=basis_dir, direction=direction,
-                            method="three_point")
+    return _dasch_transform(IM, basis_dir=basis_dir, dr=dr,
+                            direction=direction, method="three_point")
 
 
 def onion_peeling_transform(IM, basis_dir='.', dr=1, direction="inverse"):
-    return _dasch_transform(IM, basis_dir=basis_dir, direction=direction,
-                            method="onion_peeling")
+    return _dasch_transform(IM, basis_dir=basis_dir, dr=dr,
+                            direction=direction, method="onion_peeling")
 
 two_point_transform.__doc__ =\
             _dasch_parameter_docstring.replace("dasch_method", "two-point")
