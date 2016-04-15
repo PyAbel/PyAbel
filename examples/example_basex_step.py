@@ -7,7 +7,7 @@ from abel.tools.analytical import StepAnalytical
 fig, ax = plt.subplots(1, 1)
 plt.title('Abel tranforms of a step function')
 
-n = 501
+n = 301
 r_max = 50
 A0 = 10.0
 r1 = 6.0

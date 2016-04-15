@@ -33,7 +33,8 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     dt : float
         Angular coordinate spacing (in degrees)
         if ``dt=None``, dt will be set such that the number of theta values
-        is equal to the height of the image.
+        is equal to the maximum value between the height or the width of 
+        the image.
 
     Returns
     -------
@@ -64,7 +65,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     nr = np.round((r.max()-r.min())/dr)
 
     if dt is None:
-        nt = ny
+        nt = max(nx, ny)
     else:
         # dt in degrees
         nt = np.round((theta.max()-theta.min())/(np.pi*dt/180))
@@ -80,7 +81,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     X += origin[0]  # We need to shift the origin
     Y += origin[1]  # back to the bottom-left corner...
     xi, yi = X.flatten(), Y.flatten()
-    coords = np.vstack((xi, yi))  # (map_coordinates requires a 2xn array)
+    coords = np.vstack((yi, xi))  # (map_coordinates requires a 2xn array)
 
     zi = map_coordinates(data, coords)
     output = zi.reshape((nr, nt))
@@ -154,20 +155,6 @@ def polar2cart(r, theta):
     x, y : floats or arrays
         Cartesian coordinates
     """
-    y = r * np.sin(theta)   # θ referenced to vertical
-    x = r * np.cos(theta)
+    y = r * np.cos(theta)   # θ referenced to vertical
+    x = r * np.sin(theta)
     return x, y
-
-
-class CythonExtensionsNotBuilt(Exception):
-    pass
-
-# why is this here??
-CythonExtensionsNotBuilt_msg = CythonExtensionsNotBuilt(
-    "Cython extensions were not propery built.\n"
-    "Either the complilation failed at the setup phase"
-    " (no complier, compiller not found etc),\n"
-    "or you are using Windows 64bit with Anaconda that has a known issue"
-    " with Cython\n"
-    "https://groups.google.com/a/continuum.io/forum/#!topic/anaconda/\
-    3ES7VyW4t3I\n")

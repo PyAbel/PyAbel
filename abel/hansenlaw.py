@@ -33,8 +33,7 @@ from math import exp, log, pow, pi
 
 
 def hansenlaw_transform(IM, dr=1, direction="inverse"):
-    r"""
-    Forward/Inverse Abel transformation using the algorithm of
+    r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985) 
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a: 
     
@@ -46,16 +45,17 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
     :math:`f(r)` is the reconstructed image (source) function,
     :math:`g'(R)` is the derivative of the projection (measured) function
 
-    Evaluation follows Eqs. (15 or 17), using (16a), (16b), and (16c or 18) of the Hansen 
-    and Law paper. For the full image transform, use ``abel.transform``.
+    Evaluation follows Eqs. (15 or 17), using (16a), (16b), and (16c or 18) of 
+    the Hansen and Law paper. For the full image transform, use the 
+    class :class:``abel.Transform``.
 
     For the inverse Abel transform of image g: ::
     
-        f = abel.transform(g, direction="inverse", method="hansenlaw")["transform"]
+        f = abel.Transform(g, direction="inverse", method="hansenlaw").transform
         
     For the forward Abel transform of image f: ::
     
-        g = abel.transform(r, direction="forward", method="hansenlaw")["transform"]
+        g = abel.Transform(r, direction="forward", method="hansenlaw").transform
         
     This function performs the Hansen-Law transform on only one "right-side" image, 
     typically one quadrant of the full image: ::
@@ -71,19 +71,19 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
     Parameters
     ----------
-    IM : 2D np.array
-        One quadrant (or half) of the image oriented top-right.
+    IM : 1D or 2D numpy array
+        right-side half-image (or quadrant)
 
     dr : float
-        Sampling size (=1 for pixel images), used for Jacobian scaling
+        sampling size (=1 for pixel images), used for Jacobian scaling
 
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
 
     Returns
     -------
-    AIM : 2D numpy array
-        forward/inverse Abel transform image
+    AIM : 1D or 2D numpy array
+        forward/inverse Abel transform half-image
         
         
     .. note::  Image should be a right-side image, like this: ::  
@@ -102,63 +102,73 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
         Use ``abel.tools.center.center_image(IM, method='com', odd_size=True)`` 
     """
 
-
-
     IM = np.atleast_2d(IM)
     N = np.shape(IM)         # shape of input quadrant (half)
     AIM = np.zeros(N)        # forward/inverse Abel transform image
 
     rows, cols = N
 
-    # constants listed in Table 1.
-    h = [0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3]
-    lam = [0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9, -47391.1]
-
-    K = np.size(h)
-    X = np.zeros((rows, K))
-
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform
     def fgamma(Nm, lam, n):
-        return 2*n*(1-pow(Nm, (lam+1)))/(lam+1)
+        return 2*n*(1-np.power(Nm, lam+1))/(lam+1)
 
     # Eq. (18) used for the inverse transform
-    def igamma(Nm, lam, n):
-        if lam < -1:
-            return (1-pow(Nm, lam))/(pi*lam)
-        else:
-            return -np.log(Nm)/pi
+    def igammalt(Nm, lam, n):
+        return (1-np.power(Nm, lam))/(pi*lam)
+
+    def igammagt(Nm, lam, n):
+        return -np.log(Nm)/pi
 
     if direction == "inverse":   # inverse transform
-        gamma = igamma
+        gammagt = igammagt   # special case lam = 0.0
+        gammalt = igammalt   # lam < 0.0
+
         # g' - derivative of the intensity profile
         if rows > 1:
             gp = np.gradient(IM)[1]
             # second element is gradient along the columns
         else:  # If there is only one row
             gp = np.atleast_2d(np.gradient(IM[0]))
+
     else:  # forward transform
-        gamma = fgamma
+        gammagt = gammalt = fgamma
         gp = IM
 
     # ------ The Hansen and Law algorithm ------------
     # iterate along columns, starting outer edge (right side)
     # toward the image center
 
-    for n in range(cols-2, 0, -1):
-        Nm = (n+1)/n          # R0/R
+    # constants listed in Table 1.
+    h = np.array([0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3])
+    lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
+                    -47391.1])
 
-        for k in range(K):  # Iterate over k, the eigenvectors?
-            X[:, k] = pow(Nm, lam[k])*X[:, k] +\
-                     h[k]*gamma(Nm, lam[k], n)*gp[:, n]  # Eq. (15 or 17)
-        AIM[:, n] = X.sum(axis=1)
+    K = np.size(h)
+    nn = np.arange(cols-2, 0, -1, dtype=int)
 
-    # special case for the end pixel
+    Nm = (nn+1)/nn          # R0/R
+
+    X = np.zeros((K, rows))
+    Gamma = np.zeros((cols-2, K, 1))
+    Phi = np.zeros((cols-2, K, K))
+
+    # Gamma_n and Phi_n  Eq. (16a) and (16b)
+    # lam = 0.0
+    Gamma[:, 0, 0] = h[0]*gammagt(Nm, lam[0], nn)   
+    Phi[:, 0, 0] = 1
+    # lam < 0.0
+    for k in range(1, K): 
+        Gamma[:, k, 0] = h[k]*gammalt(Nm, lam[k], nn)  
+        Phi[:, k, k] = np.power(Nm, lam[k])   # diagonal matrix Eq. (16a)
+
+    # Eq. (15) forward, or (17) inverse
+    for i, n in enumerate(nn):
+        X = np.dot(Phi[i], X) + Gamma[i]*gp[:, n]
+        AIM[:, n] = X.sum(axis=0)
+
+    # center pixel column
     AIM[:, 0] = AIM[:, 1]
-
-    #for some reason shift by 1 pixel aligns better? - FIX ME!
-    if direction == "inverse":
-        AIM = np.c_[AIM[:, 1:],AIM[:, -1]]
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector

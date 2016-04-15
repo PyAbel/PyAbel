@@ -13,8 +13,9 @@ import sys
 
 import numpy as np
 from scipy.special import gammaln
-from numpy.linalg import inv
+from scipy.linalg import inv
 from scipy.ndimage import median_filter, gaussian_filter, center_of_mass
+import scipy
 
 from ._version import __version__
 
@@ -25,7 +26,12 @@ from ._version import __version__
 # V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, and H. Reisler,
 # Review of Scientific Instruments 73, 2634 (2002).
 #
-# Version 0.7 - 2016-02-17
+# 
+# version 0.62 - 2016-03-07 
+#   DH changed all linear algebra steps from numpy to scipy
+#   Scipy uses fortran fftpack, so it will be faster on some systems
+#   or the same speed as numpy in most cases.
+# Version 0.61 - 2016-02-17
 #   Major reformatting - removed up/down symmetic version and
 #   made basex work with only one quadrant.
 # Version 0.6 - 2015-12-01
@@ -55,11 +61,12 @@ def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
     To perform a BASEX transorm on 
     a whole image, use ::
     
-        abel.transform(image, method='basex')
+        abel.Transform(image, method='basex', direction='inverse').transform
 
-    This BASEX implementation only works with images that have an odd-integer width.
+    This BASEX implementation only works with images that have an 
+    odd-integer width.
     
-    Note: only the inverse transform is currently implemented.
+    Note: only the `direction="inverse"` transform is currently implemented.
     
 
     Parameters
@@ -155,13 +162,13 @@ def basex_core_transform(rawdata, M_vert, M_horz, Mc_vert,
     """
 
     # Reconstructing image  - This is where the magic happens
-    Ci = vert_left.dot(rawdata).dot(horz_right)
+    Ci = scipy.dot(scipy.dot(vert_left, rawdata), horz_right) # previously: vert_left.dot(rawdata).dot(horz_right)
 
     # use an heuristic scaling factor to match the analytical abel transform
     # For more info see https://github.com/PyAbel/PyAbel/issues/4
     MAGIC_NUMBER = 1.1122244156826457
     Ci *= MAGIC_NUMBER/dr
-    IM = Mc_vert.dot(Ci).dot(Mc_horz.T)
+    IM = scipy.dot(scipy.dot(Mc_vert, Ci), Mc_horz.T)    # Previously: Mc_vert.dot(Ci).dot(Mc_horz.T)
     # P = dot(dot(Mc,Ci),M.T) # This calculates the projection,
     # which should recreate the original image
     return IM
@@ -177,8 +184,13 @@ def _get_left_right_matrices(M_vert, M_horz, Mc_vert, Mc_horz):
     q_vert, q_horz = 0, 0  # No Tikhonov regularization
     E_vert, E_horz = np.identity(nbf_vert)*q_vert, np.identity(nbf_horz)*q_horz
 
-    vert_left = inv(Mc_vert.T.dot(Mc_vert) + E_vert).dot(Mc_vert.T)
-    horz_right = M_horz.dot(inv(M_horz.T.dot(M_horz) + E_horz))
+    vert_left  = scipy.dot( inv(scipy.dot(Mc_vert.T, Mc_vert) + E_vert),  Mc_vert.T)
+    horz_right = scipy.dot( M_horz, inv(scipy.dot(M_horz.T, M_horz) + E_horz) )
+    
+    # previously: 
+    # vert_left = inv(Mc_vert.T.dot(Mc_vert) + E_vert).dot(Mc_vert.T)
+    # horz_right = M_horz.dot(inv(M_horz.T.dot(M_horz) + E_horz))
+    
 
     return vert_left, horz_right
 

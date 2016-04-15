@@ -9,9 +9,10 @@ from . import basex
 from . import benchmark
 from . import direct
 from . import hansenlaw
-from . import three_point
+from . import onion_bordas
+from . import dasch
 from . import tools
 from . import transform
 from . import tests
-from .transform import transform
+from .transform import Transform
 from .tools.center import center_image

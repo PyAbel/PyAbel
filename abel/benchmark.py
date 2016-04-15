@@ -1,101 +1,158 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-
-
 import abel
+from . import basex
+from . import dasch
+from . import direct
+from . import hansenlaw
+from . import onion_bordas
+from . import tools
 
 
 class AbelTiming(object):
-    def __init__(self, n=[301, 501], n_max_bs=700, transform_repeat=1):
+    def __init__(self, n=[301, 501], select=["all", ], n_max_bs=700,
+                 n_max_slow=700, transform_repeat=1):
         """
         Benchmark performance of different iAbel/fAbel implementations.
 
         Parameters
         ----------
         n: integer
-            a list of arrays sizes for the benchmark (assuming 2D square arrays (n,n))
+            a list of arrays sizes for the benchmark
+            (assuming 2D square arrays (n,n))
+
+        select: list of str
+            list of transforms to benchmark select=['all',] (default) or 
+            choose transforms:
+            select=['basex', 'direct_Python', 'direct_C', 'hansenlaw',
+             'onion_bordas, 'onion_peeling', 'two_point', 'three_point']
+
         n_max_bs: integer
             since the basis sets generation takes a long time,
             do not run this benchmark for implementations that use basis sets
             for n > n_max_bs
+
+        n_max_slow: integer
+            maximum n run for the "slow" transform methods, so far including 
+            only the "direct_python" implementation.
         """
         from timeit import Timer
+        import time
 
         self.n = n
 
+        transform = {
+            'basex': basex.basex_core_transform,
+            'basex_bs': basex.get_bs_basex_cached,
+            'direct_Python': direct.direct_transform,
+            'direct_C': direct.direct_transform,
+            'hansenlaw': hansenlaw.hansenlaw_transform,
+            'onion_bordas': onion_bordas.onion_bordas_transform,
+            'onion_peeling': dasch.dasch_transform,
+            'onion_peeling_bs': dasch._bs_onion_peeling,
+            'two_point': dasch.dasch_transform,
+            'two_point_bs': dasch._bs_two_point,
+            'three_point': dasch.dasch_transform,
+            'three_point_bs': dasch._bs_three_point,
+         }
 
-        res_fabel = {'HansenLaw':     {'tr': []},
-                     'direct_Python': {'tr': []}}
-        res_iabel = {'BASEX':         {'bs': [], 'tr': []},
-                     'Three_point':   {'bs': [], 'tr': []},
-                     'HansenLaw':     {'tr': []},
-                     'direct_Python': {'tr': []}}
-        if abel.direct.cython_ext:
-            res_fabel['direct_C'] = {'tr': []}
-            res_iabel['direct_C'] = {'tr': []}
+        # result dicts
+        res = {}
+        res['bs'] = {'basex_bs': [], 'onion_peeling_bs': [], 
+                     'two_point_bs': [], 'three_point_bs': []}
+        res['forward'] = {'direct_Python': [], 'hansenlaw': []}
+        res['inverse'] = {'basex': [], 'direct_Python': [], 'hansenlaw': [],
+                          'onion_bordas': [], 'onion_peeling': [],
+                          'two_point': [], 'three_point': []}
 
+        if direct.cython_ext:
+            res['forward']['direct_C'] = []
+            res['inverse']['direct_C'] = []
+
+        # delete all keys not present in 'select' input parameter
+        if "all" not in select:
+            for trans in select:
+                if trans not in res['inverse'].keys():
+                    raise ValueError("'{}' is not a valid transform method".
+                                     format(trans), res['inverse'].keys())
+                     
+            for direction in ['forward', 'inverse']:
+                rm = []
+                for abel in res[direction]:
+                    if abel not in select:
+                        rm.append(abel)
+                for x in rm:
+                    del res[direction][x]
+            # repeat for 'bs' which has append '_bs'
+            rm = []
+            for abel in res['bs']:
+                if abel[:-3] not in select:
+                    rm.append(abel)
+            for x in rm:
+                del res['bs'][x] 
+
+        # ---- timing tests for various image sizes nxn
         for ni in n:
+            ni = int(ni)
             x = np.random.randn(ni, ni)
-            # direct implementations
-            if ni <= n_max_bs:
-                # evaluate basis sets, saved for later re-use
-                bs = abel.basex.get_bs_basex_cached(ni, ni)
-                tbs = abel.three_point.get_bs_three_point_cached(ni)
-                res_iabel['BASEX']['bs'].append(
-                    Timer(lambda: abel.basex.get_bs_basex_cached(ni, ni, basis_dir=None)).
-                    timeit(number=1)*1000)
-                res_iabel['BASEX']['tr'].append(
-                    Timer(lambda: abel.basex.basex_core_transform(x, *bs)).
-                    timeit(number=transform_repeat)*1000/transform_repeat)
-                res_iabel['Three_point']['bs'].append(
-                    Timer(lambda: abel.three_point.get_bs_three_point_cached(ni, basis_dir=None)).
-                    timeit(number=1)*1000)
-                res_iabel['Three_point']['tr'].append(
-                    Timer(lambda: abel.three_point.three_point_core_transform(x, tbs)).
-                          timeit(number=transform_repeat)*1000/transform_repeat)
-            else:
-                res_iabel['BASEX']['bs'].append(np.nan)
-                res_iabel['BASEX']['tr'].append(np.nan)
-                res_iabel['Three_point']['bs'].append(np.nan)
-                res_iabel['Three_point']['tr'].append(np.nan)
+           
+            # basis set evaluation --------------
+            basis = {}
+            for method in res['bs'].keys():
+                if method[:-3] == 'basex':  # special case
+                    if ni <= n_max_bs:
+                        # calculate and store basex basis matrix
+                        t = time.time()
+                        basis[method[:-3]] = transform[method](ni, ni,
+                                                       basis_dir=None)
+                        res['bs'][method].append((time.time()-t)*1000)
+                    else:
+                        basis[method[:-3]] = None,
+                        res['bs'][method].append(np.nan)
+                else:
+                    # calculate and store basis matrix
+                    t = time.time()
+                    # store basis calculation. NB a tuple to accomodate basex
+                    basis[method[:-3]] = transform[method](ni), 
+                    res['bs'][method].append((time.time()-t)*1000)
 
-            res_fabel['HansenLaw']['tr'].append(
-                Timer(lambda: abel.hansenlaw.hansenlaw_transform(
-                      x, direction='forward')).timeit(number=transform_repeat)*1000/transform_repeat)
-                      
-            res_iabel['HansenLaw']['tr'].append(
-                Timer(lambda: abel.hansenlaw.hansenlaw_transform(
-                      x, direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
-                      
-            res_iabel['direct_Python']['tr'].append(
-                Timer(lambda: abel.direct.direct_transform(
-                      x, backend='Python',
-                      direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
-                      
-            res_fabel['direct_Python']['tr'].append(
-                Timer(lambda: abel.direct.direct_transform(
-                      x, backend='Python',
-                      direction='forward')).timeit(number=transform_repeat)*1000/transform_repeat)
-                      
-            if abel.direct.cython_ext:
-                res_iabel['direct_C']['tr'].append(
-                    Timer(lambda: abel.direct.direct_transform(
-                        x, backend='C',
-                        direction='inverse')).timeit(number=transform_repeat)*1000/transform_repeat)
-                        
-                res_fabel['direct_C']['tr'].append(
-                    Timer(lambda: abel.direct.direct_transform(
-                        x, backend='C',
-                        direction='forward')).timeit(number=transform_repeat)*1000/transform_repeat)
+            # Abel transforms ---------------
+            for cal in ["forward", "inverse"]:
+                for method in res[cal].keys(): 
+                    if method in basis.keys():
+                        if basis[method][0] is not None:
+                            # have basis calculation
+                            res[cal][method].append(Timer(
+                               lambda: transform[method](x, *basis[method])).
+                               timeit(number=transform_repeat)*1000/
+                               transform_repeat)
+                        else:
+                            # no calculation available
+                            res[cal][method].append(np.nan)
+                    elif method[:6] == 'direct':  # special case 'direct'
+                        if method[7] == 'P' and (ni > n_max_slow):
+                            res[cal][method].append(np.nan)
+                        else:     
+                            res[cal][method].append(Timer(
+                               lambda: transform[method](x, backend=method[7:],
+                               direction=cal)).
+                               timeit(number=transform_repeat)*1000/
+                               transform_repeat)
+                    else:
+                        # full calculation for everything else
+                        res[cal][method].append(Timer(
+                           lambda: transform[method](x, direction=cal)).
+                           timeit(number=transform_repeat)*1000/
+                           transform_repeat)
 
-        self.fabel = res_fabel
-        self.iabel = res_iabel
+        self.fabel = res['forward']
+        self.bs = res['bs']
+        self.iabel = res['inverse']
 
     def __repr__(self):
         import platform
@@ -103,37 +160,29 @@ class AbelTiming(object):
 
         out = []
         out += ['PyAbel benchmark run on {}\n'.format(platform.processor())]
+        out += ['time in milliseconds']
 
-        LABEL_FORMAT = '|'.join([' Implementation '] +
-                                ['    n = {:<12} '.
-                                format(ni) for ni in self.n])
-        TR_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:8.1f}            ']\
-                                 * len(self.n))
-        BS_ROW_FORMAT = '|'.join(['{:>15} '] + [' {:8.1f} ({:8.1f}) ']\
-                                 * len(self.n))
-        SEP_ROW = ' ' + '-'*(22 + (17+1)*len(self.n))
+        LABEL_FORMAT = 'Implementation  ' +\
+                       ''.join(['    n = {:<9} '.format(ni) for ni in self.n])
+        ROW_FORMAT = '{:>16} ' + ' {:8.1f}         '*len(self.n)
+        SEP_ROW = '' + '-'*(22 + (17+1)*len(self.n))
 
-        HEADER_ROW = ' ========= {:>10} Abel implementations ==========\n' \
-                     'time to solution [milli-sec (=sec/1000)] -> transform'\
-                     ' (basis sets generation)\n'
+        HEADER_ROW = '\n========= {:>8} Abel implementations ==========\n'
 
         def print_benchmark(name, res):
             out = [HEADER_ROW.format(name)]
             if res:
                 out += [LABEL_FORMAT]
                 out += [SEP_ROW]
-                for name, row in res.items():
-                    if 'bs' in row:
-                        pars = list(chain(*zip(row['tr'], row['bs'])))
-                        out += [BS_ROW_FORMAT.format(name, *pars)]
-                    else:
-                        out += [TR_ROW_FORMAT.format(name, *row['tr'])]
+                for name, row in sorted(res.items()):
+                    out += [ROW_FORMAT.format(name, *row)]
             return out
 
-        out += print_benchmark('Direct', self.fabel)
+        out += print_benchmark('Basis', self.bs)
+        out += ['']
+        out += print_benchmark('Forward', self.fabel)
         out += ['']
         out += print_benchmark('Inverse', self.iabel)
-
         return '\n'.join(out)
 
 
@@ -152,7 +201,7 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
     Returns
     -------
     a binary array with the symmetry condition for the corresponding quadrants.
-    The global validity can be checked with `array.all()`
+    The globa
 
     Note: if both i_sym=True and i_sym=True, the input array is checked
     for polar symmetry.
@@ -161,7 +210,7 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
     for the defintion of a center of the image.
     """
 
-    Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(
+    Q0, Q1, Q2, Q3 = tools.symmetry.get_image_quadrants(
                                                  arr, reorient=False)
 
     if i_sym and not j_sym:
@@ -187,7 +236,7 @@ def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
 
     Parameters
     ----------
-    analytical : one of the classes from abel.analytical, initialized
+    analytical : one of the classes from analytical, initialized
 
     recon : 1D ndarray
         a reconstruction (i.e. inverse abel)
@@ -202,13 +251,3 @@ def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
 
     err = func[mask]/recon[mask]
     return err
-
-
-def main():
-    # run some benchmarks!!
-    time = AbelTiming()
-    print(time)
-
-
-if __name__ == '__main__':
-    main()

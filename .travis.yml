@@ -1,36 +1,37 @@
 language: python
 sudo: false
 matrix:
-    include:
-    - python: "3.5"
-      env: DEPS="numpy scipy nose cython"
-    - python: "3.4"
-      env: DEPS="numpy scipy nose cython"
-    - python: "3.3"
-      env: DEPS="numpy scipy nose cython"
-    - python: "2.7"
-      env: DEPS="numpy scipy nose cython"
-
-install: 
-    - wget http://repo.continuum.io/miniconda/Miniconda${TRAVIS_PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh -O miniconda.sh
-    - chmod +x miniconda.sh
-    - ./miniconda.sh -b
-    - export PATH=/home/travis/miniconda${TRAVIS_PYTHON_VERSION:0:1}/bin:$PATH
-    # See: https://groups.google.com/a/continuum.io/forum/#!topic/conda/RSFENqovnro
-    - conda update --yes --no-deps conda
-    - conda config --set always_yes yes --set changeps1 no
-    # Learned the hard way: miniconda is not always up-to-date with conda.
-    - conda update --yes conda
-    - conda install --yes -c conda conda-env
-    - conda install --yes $DEPS pip python=${TRAVIS_PYTHON_VERSION}
-    - pip install coveralls
-    - python setup.py install
-    - cd ~/
-    - pwd
-
-script: 
-    - python  -c "import abel.tests; abel.tests.run_cli(coverage=True)"
-
-#after_success:
-#    coveralls
-
+  include:
+  - python: '3.5'
+    env: DEPS="numpy scipy nose cython"
+  - python: '3.4'
+    env: DEPS="numpy scipy nose cython"
+  - python: '3.3'
+    env: DEPS="numpy scipy nose cython"
+  - python: '2.7'
+    env: DEPS="numpy scipy nose cython"
+install:
+- wget http://repo.continuum.io/miniconda/Miniconda${TRAVIS_PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh
+  -O miniconda.sh
+- chmod +x miniconda.sh
+- ./miniconda.sh -b
+- export PATH=/home/travis/miniconda${TRAVIS_PYTHON_VERSION:0:1}/bin:$PATH
+- conda update --yes --no-deps conda
+- conda config --set always_yes yes --set changeps1 no
+- conda update --yes conda
+- conda install --yes -c conda conda-env
+- conda install --yes $DEPS pip python=${TRAVIS_PYTHON_VERSION}
+- pip install coveralls
+- python setup.py install
+- cd ~/
+- pwd
+script:
+- python  -c "import abel.tests; abel.tests.run_cli(coverage=True)"
+deploy:
+  provider: pypi
+  user: DanHickstein
+  on:
+    tags: true
+  password:
+    secure: GHhpt4Ssv2VQh6ZpInI6tNe6pKp4idULGS/hvCUJjl3lkZ41q0/MNP2g6q5JMYkFiivHC8q4SCB/V5dBHPoWoo7mc/uUZI4a5OzfjkVpAU7ptmSF/w/A3xBtysWTMz1XGymIQHv3ZmBoFM4khPc3jOhv1eU0EjNmy8NGNmHrwKKtjzGUfUnpBfWIq0HNA4/es06vhbDzmgdATNSOhCtcNWJbJJGH+Qumb4XzUvyweb4ypdVbbV7DVdpDp05rBG2omYsEE+IgSUA28AHZwOXeY3MfgJ8h29LDETLEDHbwyX3WuLnd3YhL1NxnH1ydlJ7cDc8Mr05RY2ioI6PfOXn6cD3tWANEH3OnMVFYTU/DVan1aE4Mq5tSMlqAuQZu8qqyPF2OH/PMuGIF1BfUZVWcmTpegHjw/vozbpf3wr3XYl5p0Xuuf7RF6Ck8L3Xhxen+i8EWNXe8fQ1UinYKNqqtEirJdMOXzm0QHZy8ucW5rpZmzV0QiKQPPcKTHkxCPWHHUQNgYqPI6J0MViZQI5OSf1XaT4WEO+lmJO691GdTdf9eFDJQpuEUCeIPOAfvEmvas39MWhKfTQJE75bQ507UFesF2Zys4bsYFoiDopUnNmpXy/f/Z0OiR1xWsNTMRAFHVqCumDMkxSvVInrghOZsCSiPX+wK2EtPxwJk0ntjIfo=
+  skip_cleanup: true

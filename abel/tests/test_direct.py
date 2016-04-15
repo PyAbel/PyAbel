@@ -6,7 +6,6 @@ from unittest.case import SkipTest
 from numpy.testing import assert_allclose
 import scipy.ndimage as nd
 import abel
-from abel.tools.polar import CythonExtensionsNotBuilt
 
 def test_direct_shape():
     if not abel.direct.cython_ext:

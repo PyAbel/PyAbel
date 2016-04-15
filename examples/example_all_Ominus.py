@@ -23,10 +23,10 @@ from time import time
 
 transforms = {
   "direct": abel.direct.direct_transform,      
-  #"onion": iabel_onion_transform, 
+  "onion": abel.dasch.onion_peeling_transform, 
   "hansenlaw": abel.hansenlaw.hansenlaw_transform,
   "basex": abel.basex.basex_transform,   
-  "three_point": abel.three_point.three_point_transform,
+  "three_point": abel.dasch.three_point_transform,
 }
 # sort dictionary 
 transforms = collections.OrderedDict(sorted(transforms.items()))
@@ -39,7 +39,7 @@ IM = abel.tools.analytical.sample_image(n=501, name="Ominus")
 h, w = IM.shape
 
 # forward transform (whole image)
-fIM = abel.transform(IM, direction="forward", method="hansenlaw")['transform']
+fIM = abel.Transform(IM, direction="forward", method="hansenlaw").transform
 
 Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(fIM, reorient=True)
 

@@ -14,7 +14,7 @@ From the abstract:
 
 *... new family of algorithms, principally for Abel inversion, that are 
 recursive and hence computationally efficient. The methods are based on a 
-linear, space-variant, state-variable model of the Abel transform. The modl 
+linear, space-variant, state-variable model of the Abel transform. The model 
 is the basis for deterministic algorithms, applicable when data are noise free, 
 and least-squares estimation (Kalman filter) algorithms, which accommodate 
 the noisy data case.*
@@ -111,11 +111,11 @@ How to use it
 -------------
 
 To complete the forward or inverse transform of a full image with the 
-``hansenlaw method``, simply use the :func:`abel.transform` function: ::
+``hansenlaw method``, simply use the :class:`abel.Transform`: class ::
 
-	abel.transform(myImage, method='hansenlaw', direction='forward')
-	abel.transform(myImage, method='hansenlaw', direction='inverse')
-	
+    abel.Transform(myImage, method='hansenlaw', direction='forward').transform
+    abel.Transform(myImage, method='hansenlaw', direction='inverse').transform
+
 
 If you would like to access the Hansen-Law algorithm directly (to transform a 
 right-side half-image), you can use :func:`abel.hansenlaw.hansenlaw_transform`.
@@ -135,7 +135,7 @@ rediscovered by Jason Gascooke (Flinders University, South Australia) for use in
 his velocity-map image analysis, and written up in his PhD thesis: 
 
 J. R. Gascooke, PhD Thesis: *"Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation"*, Flinders University (2000).
-Unfortunately, not available in electronic format.
+Available in `PDF format <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`
 
 
 

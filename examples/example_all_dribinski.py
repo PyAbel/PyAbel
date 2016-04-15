@@ -26,8 +26,10 @@ fig, (ax1,ax2) = plt.subplots(1, 2, figsize=(8,4))
 transforms = {
   "direct": abel.direct.direct_transform,      
   "hansenlaw": abel.hansenlaw.hansenlaw_transform,
+  "onion": abel.dasch.onion_peeling_transform,
   "basex": abel.basex.basex_transform,   
-  "three_point": abel.three_point.three_point_transform,
+  "three_point": abel.dasch.three_point_transform,
+  "two_point": abel.dasch.two_point_transform,
 }
 
 # sort dictionary:
@@ -40,7 +42,7 @@ IM = abel.tools.analytical.sample_image(n=301, name="dribinski")
 h, w = IM.shape
 
 # forward transform:
-fIM = abel.transform(IM, direction="forward", method="hansenlaw")['transform']
+fIM = abel.Transform(IM, direction="forward", method="hansenlaw").transform
 
 Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(fIM, reorient=True)
 
@@ -59,7 +61,7 @@ for q, method in enumerate(transforms.keys()):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    IAQ0 = transforms[method](Q0, direction="inverse") 
+    IAQ0 = transforms[method](Q0, direction="inverse")
 
     print ("                    {:.4f} sec".format(time()-t0))
 

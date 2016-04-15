@@ -24,8 +24,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread
 
-Abel_methods = ['basex', 'direct', 'hansenlaw', #'onion-peeling'
-                'three_point']
+Abel_methods = ['basex', 'direct', 'hansenlaw', 'onion_peeling', 
+                'onion_bordas', 'two_point', 'three_point']
 
 # GUI window -------------------
 
@@ -100,15 +100,13 @@ def _transform():
     text.insert(tk.END,"inverse Abel transform: {:s}\n".format(method))
     if "basex" in method:
         text.insert(tk.END,"  first time calculation of the basis functions may take a while ...\n")
-    if "onion" in method:
-       text.insert(tk.END,"   onion_peeling method is in early testing and may not produce reliable results\n")
     if "direct" in method:
        text.insert(tk.END,"   calculation is slowed if Cython unavailable ...\n")
     canvas.show()
 
     # inverse Abel transform of whole image
-    AIM = abel.transform(IM, method=method, direction="inverse",
-                         symmetry_axis=None)['transform']
+    AIM = abel.Transform(IM, method=method, direction="inverse",
+                         symmetry_axis=None).transform
 
     f.clf()
     a = f.add_subplot(111)

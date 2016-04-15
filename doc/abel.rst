@@ -7,6 +7,7 @@ abel.transform module
 
 .. automodule:: abel.transform
     :members:
+    :special-members:
     :show-inheritance:
 
 abel.basex module
@@ -16,7 +17,7 @@ abel.basex module
     :members:
     :undoc-members:
     :show-inheritance:
-	
+
 abel.hansenlaw module
 ---------------------
 
@@ -24,11 +25,19 @@ abel.hansenlaw module
     :members:
     :undoc-members:
     :show-inheritance:
-	
-abel.three_point module
------------------------
 
-.. automodule:: abel.three_point
+abel.dasch module
+-----------------
+
+.. automodule:: abel.dasch
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.onion_bordas module
+------------------------
+
+.. automodule:: abel.onion_bordas
     :members:
     :undoc-members:
     :show-inheritance:
@@ -40,6 +49,11 @@ abel.direct module
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+Image processing tools
+----------------------
+
 
 abel.tools.analytical module
 ----------------------------
@@ -64,7 +78,7 @@ abel.tools.math module
     :members:
     :undoc-members:
     :show-inheritance:
-	
+
 abel.tools.polar module
 -----------------------
 
@@ -80,7 +94,7 @@ abel.tools.symmetry module
     :members:
     :undoc-members:
     :show-inheritance:
-	
+
 abel.tools.vmi module
 ---------------------
 
@@ -88,7 +102,7 @@ abel.tools.vmi module
     :members:
     :undoc-members:
     :show-inheritance:
-	
+
 abel.benchmark module
 ---------------------
 
