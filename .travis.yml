@@ -24,7 +24,7 @@ install:
 - pip install coveralls
 - python setup.py install
 script:
-- python  -c "import abel.tests; abel.tests.run_cli(coverage=True)"
+- nosetests -vv abel/tests
 deploy:
   provider: pypi
   user: DanHickstein
