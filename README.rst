@@ -42,9 +42,9 @@ The outcome of the numerical Abel Transform depends on the exact method used. So
 
     7. ``onion_bordas`` - "onion peeling" or "back projection" method of Bordas *et al.* based on the MatLab code by Rallis and Wells *et al.*
 
-    6. ``fh`` - Fourier–Hankel method (not yet implemented).
+    8. ``fh`` - Fourier–Hankel method (not yet implemented).
 
-    7. ``pop`` - polar onion peeling method (not yet implemented).
+    9. ``pop`` - polar onion peeling method (not yet implemented).
 
 
 Installation
@@ -127,7 +127,7 @@ Contributing
 
 We welcome suggestions for improvement! Either open a new `Issue <https://github.com/PyAbel/PyAbel/issues>`_ or make a `Pull Request <https://github.com/PyAbel/PyAbel/pulls>`_.
 
-`Contributing.md <https://github.com/PyAbel/PyAbel/blob/master/CONTRIBUTING.md>`_ has more information on how to contribute, such as how to run the unit tests and how to build the documentation.
+`CONTRIBUTING.rst <https://github.com/PyAbel/PyAbel/blob/master/CONTRIBUTING.rst>`_ has more information on how to contribute, such as how to run the unit tests and how to build the documentation.
 
 
 License

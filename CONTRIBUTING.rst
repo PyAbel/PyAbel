@@ -2,7 +2,7 @@ Contributing to PyAbel
 ======================
 
 
-PyAbel is an open source project and we welcome improvements! The easiest way to get started is to open a `new issue <https://github.com/PyAbel/PyAbel/issues>`_.
+PyAbel is an open source project and we welcome improvements! Please let us know about any issues with the software, even if's just a typo. The easiest way to get started is to open a `new issue <https://github.com/PyAbel/PyAbel/issues>`_.
 
 If you would like to make a Pull Request, the following information may be useful.
 
@@ -126,3 +126,8 @@ Dependencies
 ------------
 
 The current list of dependencies can be found in `setup.py <https://github.com/PyAbel/PyAbel/blob/master/setup.py>`_. Please refrain from adding new dependencies, unless it cannot be avoided.
+
+Change Log
+----------
+
+If the change is significant (more than just a typo-fix), please leave a short note about the change in `CHANGELOG.rst <https://github.com/PyAbel/PyAbel/blob/master/CHANGELOG.rst>`_
