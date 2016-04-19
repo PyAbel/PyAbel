@@ -80,8 +80,8 @@ Using PyAbel can be simple. The following Python code imports the PyAbel package
 
     import abel
     original     = abel.tools.analytical.sample_image()
-    forward_abel = abel.transform(original, direction='forward', method='hansenlaw').transform
-    inverse_abel = abel.transform(forward_abel, direction='inverse', method='three_point').transform
+    forward_abel = abel.Transform(original, direction='forward', method='hansenlaw').transform
+    inverse_abel = abel.Transform(forward_abel, direction='inverse', method='three_point').transform
 
 Note: the ``abel.Transform()`` class returns a Python ``class`` object, where the 2D Abel transform is accessed through the ``.transform`` attribute.
 
