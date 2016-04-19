@@ -12,13 +12,15 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit
 
 
-def angular_integration(IM, origin=None, Jacobian=False, dr=1, dt=None,
+def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None,
                         average=False):
     """ 
     Angular integration of the image.
 
     Returns the one-dimentional intensity profile as a function of the
     radial coordinate.
+    
+    Note: the use of Jacobian=True applies the correct Jacobian for the integration of a 3D object in spherical coordinates.
 
     Parameters
     ----------
