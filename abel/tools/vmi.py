@@ -61,6 +61,9 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None,
 
      """
 
+    if average:
+        Jacobian=False
+
     polarIM, R, T = reproject_image_into_polar(
         IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)    
 
