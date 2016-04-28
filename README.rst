@@ -6,12 +6,12 @@ PyAbel README
 .. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
     :target: https://ci.appveyor.com/project/PyAbel/PyAbel
 
-**Note:** This readme is best viewed as part of the `PyAbel Documentation <http://pyabel.readthedocs.org/en/latest/readme_link.html>`_.
+**Note:** This readme is best viewed as part of the `PyAbel Documentation <http://pyabel.readthedocs.io/en/latest/readme_link.html>`_.
 
 Introduction
 ------------
 
-``PyAbel`` is a Python package that provides functions for the forward and inverse `Abel transforms <https://en.wikipedia.org/wiki/Abel_transform>`_. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution. 
+``PyAbel`` is a Python package that provides functions for the forward and inverse `Abel transforms <https://en.wikipedia.org/wiki/Abel_transform>`_. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
 
 Inverse Abel transforms play an important role in analyzing the projections of angle-resolved photoelectron/photoion spectra, plasma plumes, flames, and solar occultation.
 
@@ -21,12 +21,12 @@ PyAbel provides efficient implementations of several Abel transform algorithms, 
    :width: 430px
    :alt: PyAbel
    :align: right
-   
+
 
 Transform Methods
 -----------------
 
-The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following `transform methods <http://pyabel.readthedocs.org/en/latest/transform_methods.html>`_:
+The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following `transform methods <http://pyabel.readthedocs.io/en/latest/transform_methods.html>`_:
 
     1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
 
@@ -103,18 +103,18 @@ The results can then be plotted using Matplotlib:
     plt.tight_layout()
     plt.show()
 
-Output: 
+Output:
 
 .. image:: https://cloud.githubusercontent.com/assets/1107796/13401302/d89aed7e-dec8-11e5-944f-fcafa1b75328.png
    :width: 400px
    :alt: example abel transform
-   
-.. note:: Additional examples can be viewed on the `PyAbel examples <http://pyabel.readthedocs.org/en/latest/examples.html>`_ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`_ directory.
+
+.. note:: Additional examples can be viewed on the `PyAbel examples <http://pyabel.readthedocs.io/en/latest/examples.html>`_ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`_ directory.
 
 
 Documentation
 -------------
-General information about the various Abel transforms available in PyAbel is available at the links above. The complete documentation for all of the methods in PyAbel is hosted at https://pyabel.readthedocs.org.
+General information about the various Abel transforms available in PyAbel is available at the links above. The complete documentation for all of the methods in PyAbel is hosted at https://pyabel.readthedocs.io.
 
 
 Support
@@ -139,7 +139,7 @@ Citation
 --------
 First and foremost, please cite the paper(s) corresponding to the implementation of the Abel Transform that you use in your work. The references can be found at the links above.
 
-If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. 
+If you find PyAbel useful in you work, it would bring us great joy if you would cite the project.
 
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.47423.svg
    :target: http://dx.doi.org/10.5281/zenodo.47423
