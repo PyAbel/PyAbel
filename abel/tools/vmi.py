@@ -100,7 +100,7 @@ def average_radial_intensity(IM, **kwargs):
     """
     R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
     intensity /= 2*np.pi
-    return R, intensityorigin=None, dr=1, dt=None):
+    return R, intensity
 
 
 def radial_integration(IM, radial_ranges=None):
