@@ -66,7 +66,7 @@ Before merging
 If possible, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository>`_ ::
 
     # Add the remote, call it "upstream" (only the fist time)
-    git remote add upstream git@github.com:PyAbel/PyAbel.git
+    git remote add upstream git@https://github.com/PyAbel/PyAbel.git
 
     # Fetch all the branches of that remote into remote-tracking branches,
     # such as upstream/master:
@@ -106,7 +106,7 @@ The implementation named `<implementation>`, located under `abel/<implementation
 
  -  ``<implemenation>_transform`` :  core transform (when defined)
  -  ``_bs_<implementation>`` :  function that generates  the basis sets (if necessary)
- -  ``bs_<implementation>_cached`` : function that loads the basis sets from disk, and generates them if they are not found (if necessary).
+ -  ``abel.tools.basis.py`` : (if necessary) modify this file to provide for loading the basis sets from disk, or calling the generator function
 
 
 Unit tests
