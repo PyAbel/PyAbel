@@ -72,46 +72,35 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     return R[:n, 0], speeds   # limit radial coordinates range to match speed
 
 
-def average_radial_intensity(IM, origin=None, dr=1, dt=None):
+def average_radial_intensity(IM, **kwargs):
     """
-    Calculate the average radial intensity of the image with angular integration.
+    Calculate the average radial intensity of the image, averaged over all angles.
+    This differs form :func:`abel.tools.vmi.angular_integration` only in that it returns
+    the average intensity, and not the integrated intensity of a 3D image. 
+    It is equavalent to calling :func:`abel.tools.vmi.angular_integration` with 
+    `Jacobian=True` and then dividing the result by 2*pi.
 
-    Returns the one-dimentional intensity profile as a function of the
-    radial coordinate.
 
     Parameters
     ----------
     IM : 2D np.array
-        The data image.
+     The data image.
 
-    origin : tuple
-        Image center coordinate relative to *bottom-left* corner
-        defaults to ``rows//2+rows%2,cols//2+cols%2``.
-
-    dr : float
-        Radial coordinate grid spacing, in pixels (default 1). `dr=0.5` may
-        reduce pixel granularity of the speed profile.
-
-    dt : float
-        Theta coordinate grid spacing in degrees.
-        if ``dt=None``, dt will be set such that the number of theta values
-        is equal to the height of the image (which should typically ensure
-        good sampling.)
+    kwargs : 
+      additional keyword arguments to be passed to :func:`abel.tools.vmi.angular_integration`
 
     Returns
     -------
     r : 1D np.array
-         radial coordinates
+      radial coordinates
 
     intensity : 1D np.array
-         average radial intensity array (vs radius).
+      one-dimentional intensity profile as a function of the radial coordinate.
 
     """
-    R, intensity = angular_integration(IM, origin=origin, Jacobian=False, dr=dr, dt=dt)
+    R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
     intensity /= 2*np.pi
-    return R, intensity
-
-
+    return R, intensityorigin=None, dr=1, dt=None):
 
 
 def radial_integration(IM, radial_ranges=None):
