@@ -66,7 +66,7 @@ Before merging
 If possible, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository>`_ ::
 
     # Add the remote, call it "upstream" (only the fist time)
-    git remote add upstream git@https://github.com/PyAbel/PyAbel.git
+    git remote add upstream https://github.com/PyAbel/PyAbel.git
 
     # Fetch all the branches of that remote into remote-tracking branches,
     # such as upstream/master:
