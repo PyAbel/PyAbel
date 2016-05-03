@@ -27,8 +27,8 @@ from recommonmark.parser import CommonMarkParser
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../'))
 
-# Scipy and Numpy packages cannot be installed in on readthedocs.org
-# https://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
+# Scipy and Numpy packages cannot be installed in on readthedocs.io
+# https://read-the-docs.readthedocs.io/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
 if six.PY3:
     from unittest.mock import MagicMock
 else:
@@ -43,7 +43,7 @@ class Mock(MagicMock):
 #         'scipy.linalg', 'scipy.integrate', 'scipy.optimize']
 #
 MOCK_MODULES = []
-        
+
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 source_parsers = {
@@ -319,7 +319,7 @@ texinfo_documents = [
 required_symlinks = [
     ('examples', '../examples/')
     ]
-    
+
 autodoc_member_order = 'bysource'
 
 
@@ -332,4 +332,3 @@ def _warn_node(self, msg, node):
         self._warnfunc(msg, '%s:%s' % get_source_line(node))
 
 sphinx.environment.BuildEnvironment.warn_node = _warn_node
-
