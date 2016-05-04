@@ -12,8 +12,7 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit
 
 
-def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None,
-                        average=False):
+def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     """ 
     Angular integration of the image.
 
@@ -48,9 +47,6 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None,
         is equal to the height of the image (which should typically ensure
         good sampling.)
 
-    average: bool
-        If ``average=True``, return the averaged radial intensity instead.
-
     Returns
     -------
     r : 1D np.array
@@ -68,16 +64,43 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None,
 
     if Jacobian:  # x r sinθ
         polarIM = polarIM * R * np.abs(np.sin(T))
-
     
     speeds = np.trapz(polarIM, axis=1, dx=dt)
-
-    if average:
-        speeds /= 2*np.pi
 
     n = speeds.shape[0]
 
     return R[:n, 0], speeds   # limit radial coordinates range to match speed
+
+
+def average_radial_intensity(IM, **kwargs):
+    """
+    Calculate the average radial intensity of the image, averaged over all angles.
+    This differs form :func:`abel.tools.vmi.angular_integration` only in that it returns
+    the average intensity, and not the integrated intensity of a 3D image. 
+    It is equavalent to calling :func:`abel.tools.vmi.angular_integration` with 
+    `Jacobian=True` and then dividing the result by 2*pi.
+
+
+    Parameters
+    ----------
+    IM : 2D np.array
+     The data image.
+
+    kwargs : 
+      additional keyword arguments to be passed to :func:`abel.tools.vmi.angular_integration`
+
+    Returns
+    -------
+    r : 1D np.array
+      radial coordinates
+
+    intensity : 1D np.array
+      one-dimentional intensity profile as a function of the radial coordinate.
+
+    """
+    R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
+    intensity /= 2*np.pi
+    return R, intensity
 
 
 def radial_integration(IM, radial_ranges=None):
