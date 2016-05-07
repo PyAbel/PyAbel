@@ -131,7 +131,7 @@ transforms the full image, with the attributes returned as a tuple in this case.
 Tips
 ----
 
-Including more projection (angles) may improve the transform: ::
+Including more projection angles may improve the transform: ::
    
   an = [0, 45, 90, 135]
 

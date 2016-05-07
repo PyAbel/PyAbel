@@ -121,6 +121,19 @@ If you would like to access the Hansen-Law algorithm directly (to transform a
 right-side half-image), you can use :func:`abel.hansenlaw.hansenlaw_transform`.
 
 
+
+Tips
+----
+
+`hansenlaw` tends to perform better with images of large size :math:`n \gt 1001` pixel width. For smaller images the angular_integration (speed) profile may look better if sub-pixel sampling is used via: ::
+
+    transform_options=dict(dr=0.1)
+
+NB pass the same parameter to the angular integration: ::
+
+    angular_integration_options=dict(dr=0.1)
+
+
 Example
 -------
 
