@@ -63,21 +63,21 @@ im1 = ax1.imshow(JIM, origin='lower', aspect='auto', vmin=0, vmax=vmax)
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(*inv_IM.shape))
+ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(*inv_IM.shape), font='small')
 
 # Plot the 1D speed distribution
 ax2.plot(radial, speed)
 ax2.axis(xmin=100, xmax=450, ymin=-0.05, ymax=1.2)
 ax2.set_xlabel('radial pixel')
 ax2.set_ylabel('intensity')
-ax2.set_title('Beta[0]: speed distribution')
+ax2.set_title('Beta[0]: speed distribution', font='small')
 
 # Plot anisotropy variation
 ax3.plot(radial, beta, 'r-')
 ax3.axis(xmin=200, xmax=450, ymin=-1.2, ymax=0.1)
 ax3.set_xlabel("radial pixel")
 ax3.set_ylabel("$\\beta$")
-ax3.set_title("Beta[1]: anisotropy parameter")
+ax3.set_title("Beta[1]: anisotropy parameter", font='small')
 
 plt.suptitle("un={}, an={}, sig_s={}".format(un, an, sig_s))
 
