@@ -9,6 +9,7 @@ from . import basex
 from . import benchmark
 from . import direct
 from . import hansenlaw
+from . import linbasex
 from . import onion_bordas
 from . import dasch
 from . import tools
