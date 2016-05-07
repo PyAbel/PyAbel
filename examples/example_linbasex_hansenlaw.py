@@ -66,6 +66,7 @@ ax1.legend(loc=0, labelspacing=0.1, frameon=False, numpoints=1, fontsize=10)
 ax1.set_title("Bet0 an={} inc={} sig={} th={}".format(an, inc, sig_s,
                                                           threshold), fontsize=10)
 ax1.axis(ymin=-0.1, ymax=1.2)
+ax1.set_xlabel("radial coordinate (pixels)")
 
 ax2.plot(LIM.radial, LIM.Beta[1], 'r-', label='linbasex')
 ax2.errorbar(x=rr, y=beta, yerr=ebeta, color='b', lw=2, fmt='o',
@@ -73,6 +74,7 @@ ax2.errorbar(x=rr, y=beta, yerr=ebeta, color='b', lw=2, fmt='o',
 ax2.set_title("anisotropy parameter (Beta1)", fontsize=10)
 ax2.legend(loc=0, labelspacing=0.1, frameon=False, numpoints=1, fontsize=10)
 ax2.axis(xmax=300, ymin=-1.0, ymax=1.0)
+ax2.set_xlabel("radial coordinate (pixels)")
 
 plt.savefig("example_linbasex_hansenlaw.png", dpi=100)
 plt.show()

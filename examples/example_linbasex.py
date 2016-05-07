@@ -76,13 +76,14 @@ ax2.set_xlabel('radial pixel')
 ax2.axis(ymin=-0.1, ymax=1.2)
 ax2.set_ylabel('intensity')
 ax2.set_title('Beta[0]: speed distribution', fontsize='small')
+ax2.set_xlabel('radial coordinate (pixels)')
 
 # Plot anisotropy variation
 ax3.plot(radial, beta, 'r-')
 ax3.axis(xmin=150, xmax=450, ymin=-1.2, ymax=0.1)
-ax3.set_xlabel("radial pixel")
 ax3.set_ylabel("$\\beta$")
 ax3.set_title("Beta[1]: anisotropy parameter", fontsize='small')
+ax2.set_xlabel('radial coordinate (pixels)')
 
 plt.suptitle("un={}, an={}, sig_s={}".format(un, an, sig_s))
 
