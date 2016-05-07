@@ -25,13 +25,18 @@ rows, cols = IM.shape    # image size
 # `center=convolution` takes care of this
 
 un = [0, 2]  # spherical harmonic orders
-an = range(0, 180, 45)  # projectin angles
-sig_s = 0.5  # smoothing Gaussian 1/e width
+an = range(0, 180, 45)  # projection angles
+sig_s = 1  # smoothing Gaussian 1/e width
+inc = 1
+threshold = 0.2
+clip = 0
 # Hansen & Law inverse Abel transform
 LIM = abel.Transform(IM, method="linbasex", center="convolution",
                      center_options=dict(square=True),
                      transform_options=dict(basis_dir=None, return_Beta=True,
-                                            un=un, an=an, sig_s=sig_s)) 
+                                            un=un, an=an, sig_s=sig_s,
+                                            inc=inc, clip=clip,
+                                            threshold=threshold)) 
 
 # angular_integration - direct from `linbasex` transform
 radial = LIM.radial
@@ -44,10 +49,10 @@ speed /= speed[200:].max()  # exclude transform noise near centerline of image
 beta = LIM.Beta[1]
 
 # plots of the analysis
-fig = plt.figure(figsize=(15, 4))
+fig = plt.figure(figsize=(16, 4))
 ax1 = plt.subplot2grid((1, 3), (0, 0))
 ax2 = plt.subplot2grid((1, 3), (0, 1))
-ax3 = plt.subplot2grid((1, 3), (0, 2))
+ax3 = plt.subplot2grid((1, 3), (0, 2), sharex=ax2)
 
 # join 1/2 raw data : 1/2 inversion image
 inv_IM = LIM.transform
@@ -60,21 +65,21 @@ JIM = np.concatenate((IM[:, :c2], inv_IM[:, c2:]), axis=1)
 # Prettify the plot a little bit:
 # Plot the raw data
 im1 = ax1.imshow(JIM, origin='lower', aspect='auto', vmin=0, vmax=vmax)
-fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
+#fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
 ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(*inv_IM.shape), fontsize='small')
 
 # Plot the 1D speed distribution
 ax2.plot(radial, speed)
-ax2.axis(xmin=100, xmax=450, ymin=-0.05, ymax=1.2)
 ax2.set_xlabel('radial pixel')
+ax2.axis(ymin=-0.1, ymax=1.2)
 ax2.set_ylabel('intensity')
 ax2.set_title('Beta[0]: speed distribution', fontsize='small')
 
 # Plot anisotropy variation
 ax3.plot(radial, beta, 'r-')
-ax3.axis(xmin=200, xmax=450, ymin=-1.2, ymax=0.1)
+ax3.axis(xmin=150, xmax=450, ymin=-1.2, ymax=0.1)
 ax3.set_xlabel("radial pixel")
 ax3.set_ylabel("$\\beta$")
 ax3.set_title("Beta[1]: anisotropy parameter", fontsize='small')
