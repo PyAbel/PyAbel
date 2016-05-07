@@ -42,9 +42,11 @@ The outcome of the numerical Abel Transform depends on the exact method used. So
 
     7. ``onion_bordas`` - "onion peeling" or "back projection" method of Bordas *et al.* based on the MatLab code by Rallis and Wells *et al.*
 
-    8. ``fh`` - Fourier–Hankel method (not yet implemented).
+    8. ``linbasex`` - the 1D-spherical basis set expansion of Gerber *et al.*
 
-    9. ``pop`` - polar onion peeling method (not yet implemented).
+    9. ``fh`` - Fourier–Hankel method (not yet implemented).
+
+    10. ``pop`` - polar onion peeling method (not yet implemented).
 
 
 Installation
