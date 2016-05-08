@@ -118,9 +118,19 @@ def center_image(IM, center='com', odd_size=True, square=False, verbose=False,
         rows, cols = IM.shape
 
     if square and rows != cols:
-        # drop bottom row
-        IM = IM[:-1]
+        if rows > cols:
+            xs = (rows - cols)//2
+            IM = IM[xs: -xs]
+        else:
+            # make rows == cols, check row oddness
+            if odd_size and rows % 2 == 0:
+               IM = IM[:-1, :]
+               rows -= 1 
+            xs = (cols - rows)//2
+            IM = IM[:, xs:-xs]
+
         rows, cols = IM.shape
+
 
     # center is in y,x (row column) format!
     if isinstance(center, string_types):
