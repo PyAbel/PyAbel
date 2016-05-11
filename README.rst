@@ -127,7 +127,9 @@ If you have a question or suggestion about PyAbel, the best way to contact the P
 Contributing
 ------------
 
-We welcome suggestions for improvement! Either open a new `Issue <https://github.com/PyAbel/PyAbel/issues>`_ or make a `Pull Request <https://github.com/PyAbel/PyAbel/pulls>`_.
+We welcome suggestions for improvement, together with any interesting images that demonstrate  application of PyAbel.
+
+Either open a new `Issue <https://github.com/PyAbel/PyAbel/issues>`_ or make a `Pull Request <https://github.com/PyAbel/PyAbel/pulls>`_.
 
 `CONTRIBUTING.rst <https://github.com/PyAbel/PyAbel/blob/master/CONTRIBUTING.rst>`_ has more information on how to contribute, such as how to run the unit tests and how to build the documentation.
 

@@ -276,10 +276,11 @@ def find_center_by_convolution(IM, **kwargs):
     len_conv = len(conv_0)/2
 
     #Take the first max, should there be several equal maxima.
-    center = (np.argmax(conv_0)/2, np.argmax(conv_1)/2)
+    # 10May16 - axes swapped - check this
+    center = (np.argmax(conv_1)/2, np.argmax(conv_0)/2)
 
     if "projections" in kwargs.keys():
-        return center, conv_0, conv_1
+        return center, conv_1, conv_0
     else:
         return center
 
