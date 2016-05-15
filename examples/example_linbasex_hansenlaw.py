@@ -27,7 +27,7 @@ HIM = abel.Transform(IM, method="hansenlaw", center='convolution',
 
 # alternative derivation of anisotropy parameters via integration
 rrange = [(20, 50), (60, 80), (85, 100), (125, 155), (185, 205), (220, 240)]
-intensity, theta = abel.tools.vmi.radial_integration(HIM.transform,
+intensity, theta, rr  = abel.tools.vmi.radial_integration(HIM.transform,
                    radial_ranges=rrange)
 
 # anisotropy parameter from integrated intensity (from hansenlaw method)

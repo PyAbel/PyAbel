@@ -119,11 +119,12 @@ def radial_integration(IM, radial_ranges=None):
     IM : 2D np.array
         Image data
 
-    radial_ranges : list of tuples
-        integration ranges
-        ``[(r0, r1), (r2, r3), ...]``
-        Evaluate the intensity vs angle
-        for the radial ranges ``r0_r1``, ``r2_r3``, etc.
+    radial_ranges : list of tuple ranges or int step
+        tuple integration ranges
+            ``[(r0, r1), (r2, r3), ...]``
+            evaluates the intensity vs angle
+            for the radial ranges ``r0_r1``, ``r2_r3``, etc.
+        int - the whole radial range ``(r0, r_step), (r_step, r_2step), ..)`` 
 
     Returns
     -------
@@ -141,7 +142,9 @@ def radial_integration(IM, radial_ranges=None):
     r = r_grid[:, 0]          # radial coordinates
 
     if radial_ranges is None:
-        radial_ranges = [(0, r[-1]), ]
+        radial_ranges = 1
+    if isinstance(radial_ranges, int):
+        radial_ranges = list(zip(r[:-radial_ranges], r[radial_ranges:]))
 
     intensity_vs_theta_at_R = []
     for rr in radial_ranges:
@@ -150,7 +153,7 @@ def radial_integration(IM, radial_ranges=None):
         # sum intensity across radius of spectral feature
         intensity_vs_theta_at_R.append(np.sum(polarIM[subr], axis=0))
 
-    return np.array(intensity_vs_theta_at_R), theta
+    return np.array(intensity_vs_theta_at_R), theta, radial_ranges
 
 
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
