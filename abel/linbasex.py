@@ -30,22 +30,24 @@ from scipy import ndimage
 ###############################################################################
 
 _linbasex_parameter_docstring = \
-    r"""Inverse Abel transform using 1d projections of VM-images.
+    r"""Inverse Abel transform using 1d projections of images.
 
     `Gerber, Thomas, Yuzhu Liu, Gregor Knopp, Patrick Hemberger, Andras Bodi,
     Peter Radi, and Yaroslav Sych.
     Charged Particle Velocity Map Image Reconstruction with One-Dimensional Projections of Spherical Functions.` Review of Scientific Instruments 84, no. 3 (March 1, 2013): 033101–033101 – 10.
     <http://dx.doi.org/10.1063/1.4793404>`_
 
-     linbasex determines the contribution of spherical functions,
-     calculating the weight of each :math:`Y_{i0}`. The reconstructed 3D object
-     is obtained by adding all the :math:`Y_{i0}` contributions, from which
-     slices are derived.
+     ``linbasex``models the image using a sum of Legendre polynomials at each 
+     radial pixel, As such, it should only be applied to situations that can 
+     be adequately represented by Legendre polynomials, i.e., images that 
+     feature spherical-like structures.  The 
+     reconstructed 3D object is obtained by adding all the :math:`Y_{i0}` 
+     contributions, from which slices are derived.
 
 
     Parameters
     ----------
-    Dat: numpy 2D array
+    IM: numpy 2D array
         image data must be square shape of odd size
     an: list
         projection angle, in degrees
@@ -91,7 +93,7 @@ _linbasex_parameter_docstring = \
 
     Returns
     -------
-    inv_Data: numpy 2D array
+    inv_IM: numpy 2D array
        inverse Abel transformed image
 
     radial-grid, Beta, projections: tuple
@@ -110,7 +112,7 @@ _linbasex_parameter_docstring = \
     """
 
 
-def linbasex_transform(Dat, an=[0, 45, 90, 135], un=[0, 2], inc=1, sig_s=0.5,
+def linbasex_transform(IM, an=[0, 45, 90, 135], un=[0, 2], inc=1, sig_s=0.5,
                        rcond=0.0005, threshold=0.2, basis_dir='./',
                        return_Beta=False, clip=0, norm_range=(0, -1),
                        direction="inverse", verbose=False, **kwargs):
@@ -121,10 +123,10 @@ def linbasex_transform(Dat, an=[0, 45, 90, 135], un=[0, 2], inc=1, sig_s=0.5,
     the left re-forming the whole image.
 
     """
-    Dat = np.atleast_2d(Dat)
+    IM = np.atleast_2d(IM)
 
-    quad_rows, quad_cols = Dat.shape
-    full_image = abel.tools.symmetry.put_image_quadrants((Dat, Dat, Dat, Dat),
+    quad_rows, quad_cols = IM.shape
+    full_image = abel.tools.symmetry.put_image_quadrants((IM, IM, IM, IM),
                            original_image_shape=(quad_rows*2-1, quad_cols*2-1))
 
     # inverse Abel transform
@@ -135,15 +137,15 @@ def linbasex_transform(Dat, an=[0, 45, 90, 135], un=[0, 2], inc=1, sig_s=0.5,
                                  verbose=verbose, **kwargs)
 
     # unpack right-side
-    inv_Dat = abel.tools.symmetry.get_image_quadrants(recon)[0]
+    inv_IM = abel.tools.symmetry.get_image_quadrants(recon)[0]
 
     if return_Beta:
-        return inv_Dat, radial, Beta, QLz
+        return inv_IM, radial, Beta, QLz
     else:
-        return inv_Dat
+        return inv_IM
 
 
-def linbasex_transform_full(Dat, an=[0, 90], un=[0, 2], inc=1, sig_s=0.5,
+def linbasex_transform_full(IM, an=[0, 90], un=[0, 2], inc=1, sig_s=0.5,
                             rcond=0.0005, threshold=0.2, clip=0, basis_dir='./',
                             return_Beta=False, norm_range=(0, -1),
                             direction="inverse", verbose=False, **kwargs):
@@ -152,9 +154,9 @@ def linbasex_transform_full(Dat, an=[0, 90], un=[0, 2], inc=1, sig_s=0.5,
 
     """
 
-    Dat = np.atleast_2d(Dat)
+    IM = np.atleast_2d(IM)
 
-    rows, cols = Dat.shape
+    rows, cols = IM.shape
 
     if rows != cols:
         raise ValueError('image has shape ({}, {}), '.format(rows, cols) +
@@ -166,22 +168,22 @@ def linbasex_transform_full(Dat, an=[0, 90], un=[0, 2], inc=1, sig_s=0.5,
                   basis_options=dict(an=an, un=un, inc=inc, clip=clip,
                                      verbose=verbose))
 
-    return _linbasex_transform_with_basis(Dat, Basis, an=an, un=un, inc=inc,
+    return _linbasex_transform_with_basis(IM, Basis, an=an, un=un, inc=inc,
                                           rcond=rcond, sig_s=sig_s,
                                           threshold=threshold, clip=clip,
                                           norm_range=norm_range)
 
 
-def _linbasex_transform_with_basis(Dat, Basis, an=[0, 90], un=[0, 2], inc=1,
+def _linbasex_transform_with_basis(IM, Basis, an=[0, 90], un=[0, 2], inc=1,
                                    rcond=0.0005, sig_s=0.5, threshold=0.2,
                                    clip=0, norm_range=(0, -1)):
     """linbasex inverse Abel transform evaluated with supplied basis set Basis.
 
     """
 
-    Dat = np.atleast_2d(Dat)
+    IM = np.atleast_2d(IM)
 
-    rows, cols = Dat.shape
+    rows, cols = IM.shape
 
     # Number of used polynoms
     pol = len(un)
@@ -195,20 +197,20 @@ def _linbasex_transform_with_basis(Dat, Basis, an=[0, 90], un=[0, 2], inc=1,
     if an == [0, 90]:
         # If coordinates of the detector coincide with the projection
         # directions unnecessary rotations are avoided, i.e.an=[0, 90] degrees
-        QLz[0] = np.sum(Dat, axis=1)
-        QLz[1] = np.sum(Dat, axis=0)
+        QLz[0] = np.sum(IM, axis=1)
+        QLz[1] = np.sum(IM, axis=0)
     else:
         for i in range(proj):
-            Rot_Dat = sci.ndimage.interpolation.rotate(Dat, an[i], axes=(1, 0),
+            Rot_IM = sci.ndimage.interpolation.rotate(IM, an[i], axes=(1, 0),
                                                        reshape=False)
-            QLz[i, :] = np.sum(Rot_Dat, axis=1)
+            QLz[i, :] = np.sum(Rot_IM, axis=1)
 
     # arrange all projections for input into "lstsq"
     bb = np.concatenate(QLz, axis=0)
 
     Beta = _beta_solve(Basis, bb, pol, rcond=rcond)
 
-    inv_Dat, Beta_convol = _Slices(Beta, un, sig_s=sig_s)
+    inv_IM, Beta_convol = _Slices(Beta, un, sig_s=sig_s)
 
     # normalize
     Beta = _single_Beta_norm(Beta_convol, threshold=threshold,
@@ -216,7 +218,7 @@ def _linbasex_transform_with_basis(Dat, Basis, an=[0, 90], un=[0, 2], inc=1,
 
     radial = np.linspace(clip, cols//2, len(Beta[0]))
 
-    return inv_Dat, radial, Beta, QLz
+    return inv_IM, radial, Beta, QLz
 
 linbasex_transform_full.__doc__ = _linbasex_parameter_docstring
 

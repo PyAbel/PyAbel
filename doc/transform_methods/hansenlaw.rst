@@ -127,11 +127,7 @@ Tips
 
 `hansenlaw` tends to perform better with images of large size :math:`n \gt 1001` pixel width. For smaller images the angular_integration (speed) profile may look better if sub-pixel sampling is used via: ::
 
-    transform_options=dict(dr=0.1)
-
-NB pass the same parameter to the angular integration: ::
-
-    angular_integration_options=dict(dr=0.1)
+    angular_integration_options=dict(dr=0.5)
 
 
 Example

@@ -118,9 +118,15 @@ def center_image(IM, center='com', odd_size=True, square=False, verbose=False,
         rows, cols = IM.shape
 
     if square and rows != cols:
+        # make rows == cols, but maintain approx. center
         if rows > cols:
-            xs = (rows - cols)//2
-            IM = IM[xs: -xs]
+            diff = rows - cols
+            trim = diff//2
+            if trim > 0:
+                IM = IM[trim: -trim]  # remove even number of rows off each end
+            if diff % 2:
+                IM = IM[: -1]  # remove one additional row
+            
         else:
             # make rows == cols, check row oddness
             if odd_size and rows % 2 == 0:
@@ -130,7 +136,6 @@ def center_image(IM, center='com', odd_size=True, square=False, verbose=False,
             IM = IM[:, xs:-xs]
 
         rows, cols = IM.shape
-
 
     # center is in y,x (row column) format!
     if isinstance(center, string_types):
@@ -266,9 +271,9 @@ def find_center_by_convolution(IM, **kwargs):
 
     """
     # projections along axis=0 of image (rows)
-    QL_raw0 = np.sum(IM, axis=0)
+    QL_raw0 = IM.sum(axis=1)
     # projections along axis=1 of image (cols)
-    QL_raw1 = np.sum(IM, axis=1) 
+    QL_raw1 = IM.sum(axis=0) 
 
     # autocorrelate projections
     conv_0 = np.convolve(QL_raw0, QL_raw0, mode='full')
@@ -277,10 +282,10 @@ def find_center_by_convolution(IM, **kwargs):
 
     #Take the first max, should there be several equal maxima.
     # 10May16 - axes swapped - check this
-    center = (np.argmax(conv_1)/2, np.argmax(conv_0)/2)
+    center = (np.argmax(conv_0)/2, np.argmax(conv_1)/2)
 
     if "projections" in kwargs.keys():
-        return center, conv_1, conv_0
+        return center, conv_0, conv_1
     else:
         return center
 
