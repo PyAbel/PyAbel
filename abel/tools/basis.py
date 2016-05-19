@@ -64,15 +64,15 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
     # linbasex_basis_cols_cols_02_090_0.npy
     if method == "linbasex": 
        # Fix Me! not a simple unique naming mechanism
-        for key in ['un', 'an', 'inc', 'clip']:
+        for key in ['un', 'proj_angles', 'inc', 'clip']:
             if key in basis_options.keys():
-                if key in ['un', 'an']:
+                if key in ['un', 'proj_angles']:
                     value = ''.join(map(str, basis_options[key]))
                 else: 
                     value = basis_options[key]
             else:
                 # missing option, use defaults
-                default = {'un':[0,2], 'an':[0,90], 'inc':1, 'clip':0}
+                default = {'un':[0,2], 'proj_angles':[0,90], 'inc':1, 'clip':0}
                 value = default[key]
 
             basis_name += "_{}".format(value)
