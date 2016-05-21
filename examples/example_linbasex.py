@@ -27,15 +27,16 @@ rows, cols = IM.shape    # image size
 un = [0, 2]  # spherical harmonic orders
 proj_angles = range(0, 180, 45)  # projection angles
 sig_s = 1  # smoothing Gaussian 1/e width
-inc = 1
+radial_step = 1
 threshold = 0.2
 clip = 0
 # Hansen & Law inverse Abel transform
 LIM = abel.Transform(IM, method="linbasex", center="convolution",
                      center_options=dict(square=True),
                      transform_options=dict(basis_dir=None, return_Beta=True,
-                                            un=un, proj_angles=proj_angles, sig_s=sig_s,
-                                            inc=inc, clip=clip,
+                                            un=un, proj_angles=proj_angles,
+                                            sig_s=sig_s,
+                                            radial_step=radial_step, clip=clip,
                                             threshold=threshold)) 
 
 # angular_integration - direct from `linbasex` transform

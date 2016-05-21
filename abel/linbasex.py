@@ -60,7 +60,7 @@ _linbasex_parameter_docstring = \
         In a single photon experiment there are only anisotropies up to
         second order. The interaction of 4 photons (four wave mixing) yields
         anisotropies up to order 8.
-    inc: int
+    radial_step: int
         number of pixels per Newton sphere (default 1)
     sig_s: float
         sigma for smoothing (default 0.5)
@@ -113,7 +113,7 @@ _linbasex_parameter_docstring = \
 
 
 def linbasex_transform(IM, proj_angles=[0, 45, 90, 135],
-                       legendre_orders=[0, 2], inc=1, sig_s=0.5,
+                       legendre_orders=[0, 2], radial_step=1, sig_s=0.5,
                        rcond=0.0005, threshold=0.2, basis_dir='./',
                        return_Beta=False, clip=0, norm_range=(0, -1),
                        direction="inverse", verbose=False, **kwargs):
@@ -133,7 +133,7 @@ def linbasex_transform(IM, proj_angles=[0, 45, 90, 135],
     # inverse Abel transform
     recon, radial, Beta, QLz = linbasex_transform_full(full_image,
                   proj_angles=proj_angles, legendre_orders=legendre_orders,
-                  inc=inc, sig_s=sig_s, basis_dir=basis_dir,
+                  radial_step=radial_step, sig_s=sig_s, basis_dir=basis_dir,
                   threshold=threshold, clip=clip,
                   norm_range=norm_range,
                   verbose=verbose, **kwargs)
@@ -149,7 +149,7 @@ def linbasex_transform(IM, proj_angles=[0, 45, 90, 135],
 
 def linbasex_transform_full(IM, proj_angles=[0, 45, 90, 135],
                             legendre_orders=[0, 2],
-                            inc=1, sig_s=0.5,
+                            radial_step=1, sig_s=0.5,
                             rcond=0.0005, threshold=0.2, clip=0,
                             basis_dir=None,
                             return_Beta=False, norm_range=(0, -1),
@@ -171,18 +171,19 @@ def linbasex_transform_full(IM, proj_angles=[0, 45, 90, 135],
     Basis = abel.tools.basis.get_bs_cached("linbasex", cols,
                   basis_dir=basis_dir,
                   basis_options=dict(proj_angles=proj_angles,
-                  legendre_orders=legendre_orders, inc=inc, clip=clip,
-                                     verbose=verbose))
+                  legendre_orders=legendre_orders, radial_step=radial_step,
+                  clip=clip, verbose=verbose))
 
     return _linbasex_transform_with_basis(IM, Basis, proj_angles=proj_angles,
-                                    legendre_orders=legendre_orders, inc=inc,
+                                    legendre_orders=legendre_orders,
+                                    radial_step=radial_step,
                                     rcond=rcond, sig_s=sig_s,
                                           threshold=threshold, clip=clip,
                                           norm_range=norm_range)
 
 
 def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, 45, 90, 135],
-                                   legendre_orders=[0, 2], inc=1,
+                                   legendre_orders=[0, 2], radial_step=1,
                                    rcond=0.0005, sig_s=0.5, threshold=0.2,
                                    clip=0, norm_range=(0, -1)):
     """linbasex inverse Abel transform evaluated with supplied basis set Basis.
@@ -290,7 +291,7 @@ def _Slices(Beta, legendre_orders, sig_s=0.5):
     return Slice, Beta_convol
 
 
-def int_beta(Beta, inc=1, threshold=0.1, regions=[(37, 40), (69, 72), (89, 92),
+def int_beta(Beta, radial_step=1, threshold=0.1, regions=[(37, 40), (69, 72), (89, 92),
                                                   (133, 136)]):
     """Integrate beta over a range of Newton spheres.
 
@@ -298,7 +299,7 @@ def int_beta(Beta, inc=1, threshold=0.1, regions=[(37, 40), (69, 72), (89, 92),
     ----------
     Beta: numpy array
         Newton spheres
-    inc: int
+    radial_step: int
         number of pixels per Newton sphere (default 1)
     threshold: float
         threshold for normalisation of higher orders, 0.0 ... 1.0.
@@ -380,8 +381,8 @@ def _bas(ord, angle, COS, TRI):
     return basis_vec
 
 
-def _bs_linbasex(cols, proj_angles=[0, 90], legendre_orders=[0, 2], inc=1,
-                 clip=0, **kwargs):
+def _bs_linbasex(cols, proj_angles=[0, 90], legendre_orders=[0, 2],
+                 radial_step=1, clip=0, **kwargs):
 
     pol = len(legendre_orders)
     proj = len(proj_angles)
@@ -398,9 +399,9 @@ def _bs_linbasex(cols, proj_angles=[0, 90], legendre_orders=[0, 2], inc=1,
     TRI = np.concatenate((np.tri(n, n, k=0,)[:-1, ::-1],
                           np.tri(n, n, k=0,)[::-1, ::-1]), axis=0)
 
-    # inc: use only each inc other vector. Keep the base vector with full span
-    COS = COS[:, ::-inc]
-    TRI = TRI[:, ::-inc]
+    # radial_step: use only each radial_step other vector. Keep the base vector with full span
+    COS = COS[:, ::-radial_step]
+    TRI = TRI[:, ::-radial_step]
 
     COS = COS[:, ::-1]  # rearrange base vectors again in ascending order
     TRI = TRI[:, ::-1]

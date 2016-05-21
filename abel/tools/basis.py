@@ -15,10 +15,10 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
     Checks whether file ``{method}_basis_{cols}_{cols}*.npy`` is present in 
     `basis_dir` 
     (*) special case for ``linbasex``
-         _{un}_{an}_{inc}_{clip} 
-        where {un} = str of the list elements, typically '02'
-              (an} = str of the list elements, typically '04590135'
-              {inc} = pixel grid size, usually 1
+         _{legendre_orders}_{proj_angles}_{radial_step}_{clip} 
+        where {legendre_orders} = str of the list elements, typically '02'
+              (proj_angles} = str of the list elements, typically '04590135'
+              {radial_step} = pixel grid size, usually 1
               {clip} = clipping size, usually 0
 
     Either, read basis array or generate basis, saving it to the file.
@@ -43,7 +43,7 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
 
     file.npy: file
        saves basis to file name ``{method}_basis_{cols}_{cols}*.npy``
-       * == ``__{un}_{an}_{inc}_{clip}`` for ``linbasex`` method
+       * == ``__{legendre_orders}_{proj_angles}_{radial_step}_{clip}`` for ``linbasex`` method
 
     """
 
@@ -64,15 +64,15 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
     # linbasex_basis_cols_cols_02_090_0.npy
     if method == "linbasex": 
        # Fix Me! not a simple unique naming mechanism
-        for key in ['un', 'proj_angles', 'inc', 'clip']:
+        for key in ['legendre_orders', 'proj_angles', 'radial_step', 'clip']:
             if key in basis_options.keys():
-                if key in ['un', 'proj_angles']:
+                if key in ['legendre_orders', 'proj_angles']:
                     value = ''.join(map(str, basis_options[key]))
                 else: 
                     value = basis_options[key]
             else:
                 # missing option, use defaults
-                default = {'un':[0,2], 'proj_angles':[0,90], 'inc':1, 'clip':0}
+                default = {'legendre_orders':[0,2], 'proj_angles':[0,90], 'radial_step':1, 'clip':0}
                 value = default[key]
 
             basis_name += "_{}".format(value)
