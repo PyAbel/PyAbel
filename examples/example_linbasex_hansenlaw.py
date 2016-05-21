@@ -8,7 +8,7 @@ IM = np.loadtxt("data/VMI_art1.txt.bz2")
 legendre_orders = [0, 2, 4]  # Legendre polynomial orders
 proj_angles = range(0, 180, 10)  # projection angles in 10 degree steps
 radial_step = 1  # pixel grid
-sig_s = 1  # smoothing Gaussian convolution
+smoothing = 1  # smoothing 1/e-width for Gaussian convolution smoothing
 threshold = 0.2  # threshold for normalization of higher order Newton spheres
 clip=0  # clip first vectors (smallest Newton spheres) to avoid singularities
 
@@ -18,7 +18,7 @@ LIM = abel.Transform(IM, method='linbasex', center='convolution',
                      center_options=dict(square=True),
                      transform_options=dict(basis_dir=None,
                      proj_angles=proj_angles, radial_step=radial_step,
-                     sig_s=sig_s, threshold=threshold, clip=clip, 
+                     smoothing=smoothing, threshold=threshold, clip=clip, 
                      return_Beta=True, verbose=True))
 
 # hansenlaw method - speed and anisotropy parameters evaluated by integration
@@ -65,7 +65,7 @@ ax1.plot(HIM.angular_integration[1]/HIM.angular_integration[1].max(),
          'b-', label='hansenlaw')
 ax1.legend(loc=0, labelspacing=0.1, frameon=False, numpoints=1, fontsize=10)
 ax1.set_title("Beta0 norm an={} un={} inc={} sig={} th={}".
-              format(proj_angles, legendre_orders, radial_step, sig_s,
+              format(proj_angles, legendre_orders, radial_step, smoothing,
                      threshold), fontsize=10)
 ax1.axis(ymin=-0.1, ymax=1.2)
 ax1.set_xlabel("radial coordinate (pixels)")

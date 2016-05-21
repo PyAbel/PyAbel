@@ -62,8 +62,8 @@ _linbasex_parameter_docstring = \
         anisotropies up to order 8.
     radial_step: int
         number of pixels per Newton sphere (default 1)
-    sig_s: float
-        sigma for smoothing (default 0.5)
+    smoothing: float
+        sigma for Gaussian function smoothing (default 0.5)
     rcond: float
         (default 0.0005) scipy.linalg.lstsq fit conditioning value.
         set rcond to zero to switch conditioning off
@@ -113,7 +113,7 @@ _linbasex_parameter_docstring = \
 
 
 def linbasex_transform(IM, proj_angles=[0, 45, 90, 135],
-                       legendre_orders=[0, 2], radial_step=1, sig_s=0.5,
+                       legendre_orders=[0, 2], radial_step=1, smoothing=0.5,
                        rcond=0.0005, threshold=0.2, basis_dir='./',
                        return_Beta=False, clip=0, norm_range=(0, -1),
                        direction="inverse", verbose=False, **kwargs):
@@ -133,7 +133,8 @@ def linbasex_transform(IM, proj_angles=[0, 45, 90, 135],
     # inverse Abel transform
     recon, radial, Beta, QLz = linbasex_transform_full(full_image,
                   proj_angles=proj_angles, legendre_orders=legendre_orders,
-                  radial_step=radial_step, sig_s=sig_s, basis_dir=basis_dir,
+                  radial_step=radial_step, smoothing=smoothing,
+                  basis_dir=basis_dir,
                   threshold=threshold, clip=clip,
                   norm_range=norm_range,
                   verbose=verbose, **kwargs)
@@ -149,7 +150,7 @@ def linbasex_transform(IM, proj_angles=[0, 45, 90, 135],
 
 def linbasex_transform_full(IM, proj_angles=[0, 45, 90, 135],
                             legendre_orders=[0, 2],
-                            radial_step=1, sig_s=0.5,
+                            radial_step=1, smoothing=0.5,
                             rcond=0.0005, threshold=0.2, clip=0,
                             basis_dir=None,
                             return_Beta=False, norm_range=(0, -1),
@@ -177,14 +178,14 @@ def linbasex_transform_full(IM, proj_angles=[0, 45, 90, 135],
     return _linbasex_transform_with_basis(IM, Basis, proj_angles=proj_angles,
                                     legendre_orders=legendre_orders,
                                     radial_step=radial_step,
-                                    rcond=rcond, sig_s=sig_s,
-                                          threshold=threshold, clip=clip,
-                                          norm_range=norm_range)
+                                    rcond=rcond, smoothing=smoothing,
+                                    threshold=threshold, clip=clip,
+                                    norm_range=norm_range)
 
 
 def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, 45, 90, 135],
                                    legendre_orders=[0, 2], radial_step=1,
-                                   rcond=0.0005, sig_s=0.5, threshold=0.2,
+                                   rcond=0.0005, smoothing=0.5, threshold=0.2,
                                    clip=0, norm_range=(0, -1)):
     """linbasex inverse Abel transform evaluated with supplied basis set Basis.
 
@@ -220,7 +221,7 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, 45, 90, 135],
 
     Beta = _beta_solve(Basis, bb, pol, rcond=rcond)
 
-    inv_IM, Beta_convol = _Slices(Beta, legendre_orders, sig_s=sig_s)
+    inv_IM, Beta_convol = _Slices(Beta, legendre_orders, smoothing=smoothing)
 
     # normalize
     Beta = _single_Beta_norm(Beta_convol, threshold=threshold,
@@ -258,8 +259,8 @@ def _SL(i, x, y, Beta_convol, index, legendre_orders):
     return BB*eval_legendre(legendre_orders[i], x/r)
 
 
-def _Slices(Beta, legendre_orders, sig_s=0.5):
-    """Convolve Beta with a Gaussian smoothing function of 1/e width sig_s.
+def _Slices(Beta, legendre_orders, smoothing=0.5):
+    """Convolve Beta with a Gaussian smoothing function of 1/e width smoothing.
 
     """
 
@@ -272,10 +273,10 @@ def _Slices(Beta, legendre_orders, sig_s=0.5):
 
 
     # Convolve Beta's with smoothing function
-    if sig_s > 0:
+    if smoothing > 0:
         # smoothing function
-        Basis_s = np.fromfunction(lambda i: np.exp(-(i-(NP)/2)**2/(2*sig_s**2))/
-                              (sig_s*2.5), (NP,))
+        Basis_s = np.fromfunction(lambda i: np.exp(-(i-(NP)/2)**2/\
+                                  (2*smoothing**2))/(smoothing*2.5), (NP,))
         for i in range(pol):
             Beta_convol[i] = np.convolve(Basis_s, Beta[i], mode='same')
     else:

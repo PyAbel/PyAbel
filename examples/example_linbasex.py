@@ -26,7 +26,7 @@ rows, cols = IM.shape    # image size
 
 un = [0, 2]  # spherical harmonic orders
 proj_angles = range(0, 180, 45)  # projection angles
-sig_s = 1  # smoothing Gaussian 1/e width
+smoothing = 1  # smoothing Gaussian 1/e width
 radial_step = 1
 threshold = 0.2
 clip = 0
@@ -35,7 +35,7 @@ LIM = abel.Transform(IM, method="linbasex", center="convolution",
                      center_options=dict(square=True),
                      transform_options=dict(basis_dir=None, return_Beta=True,
                                             un=un, proj_angles=proj_angles,
-                                            sig_s=sig_s,
+                                            smoothing=smoothing,
                                             radial_step=radial_step, clip=clip,
                                             threshold=threshold)) 
 
@@ -86,7 +86,7 @@ ax3.set_ylabel("$\\beta$")
 ax3.set_title("Beta[1]: anisotropy parameter", fontsize='small')
 ax2.set_xlabel('radial coordinate (pixels)')
 
-plt.suptitle("un={}, an={}, sig_s={}".format(un, proj_angles, sig_s))
+plt.suptitle("un={}, an={}, sig_s={}".format(un, proj_angles, smoothing))
 
 # Save a image of the plot
 plt.savefig("example_linbasex.png", dpi=100)
