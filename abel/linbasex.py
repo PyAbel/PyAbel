@@ -37,22 +37,21 @@ _linbasex_parameter_docstring = \
     Charged Particle Velocity Map Image Reconstruction with One-Dimensional Projections of Spherical Functions.` Review of Scientific Instruments 84, no. 3 (March 1, 2013): 033101–033101 – 10.
     <http://dx.doi.org/10.1063/1.4793404>`_
 
-     ``linbasex``models the image using a sum of Legendre polynomials at each 
-     radial pixel, As such, it should only be applied to situations that can 
-     be adequately represented by Legendre polynomials, i.e., images that 
-     feature spherical-like structures.  The 
-     reconstructed 3D object is obtained by adding all the 
-     contributions, from which slices are derived.
+     ``linbasex``models the image using a sum of Legendre polynomials at each
+     radial pixel, As such, it should only be applied to situations that can
+     be adequately represented by Legendre polynomials, i.e., images that
+     feature spherical-like structures.  The reconstructed 3D object is
+     obtained by adding all the contributions, from which slices are derived.
 
 
     Parameters
     ----------
-    IM: numpy 2D array
+    IM : numpy 2D array
         image data must be square shape of odd size
-    proj_angles: list
+    proj_angles : list
         projection angles, in degrees
         e.g. [0, 90] or [0, 54.7356, 90] or [0, 45, 90, 135]
-    legendre_orders: list
+    legendre_orders : list
         orders of Legendre polynomials to be used as the expansion
             even polynomials [0, 2, ...] gerade
             odd polynomials [1, 3, ...] ungerade
@@ -60,24 +59,24 @@ _linbasex_parameter_docstring = \
         In a single photon experiment there are only anisotropies up to
         second order. The interaction of 4 photons (four wave mixing) yields
         anisotropies up to order 8.
-    radial_step: int
+    radial_step : int
         number of pixels per Newton sphere (default 1)
     smoothing: float
         convolve Beta array with a Gaussian function of 1/e 1/2 width `smoothing`.
-    rcond: float
+    rcond : float
         (default 0.0005) scipy.linalg.lstsq fit conditioning value.
         set rcond to zero to switch conditioning off
-    threshold: float
+    threshold : float
         threshold for normalization of higher order Newton spheres
         (default 0.2)
-    clip: int
+    clip : int
         clip first vectors (smallest Newton spheres) to avoid singularities
         (default 0)
-    norm_range: tuple 
+    norm_range : tuple
         (low, high)
         normalization of Newton sphere, maximum in range
         Beta[0, low:high]
-    return_Beta: bool
+    return_Beta : bool
         return the Beta array of Newton spheres, as the tuple: radial-grid, Beta
         for the case :attr:`legendre_orders=[0, 2]`
 
@@ -85,19 +84,19 @@ _linbasex_parameter_docstring = \
 
             Beta[2] vs radius -> anisotropy of each Newton sphere
         see 'Returns'.
-    direction: str
+    direction : str
         "inverse" - only option for this method.
         Abel transform direction.
-    verbose: bool
+    verbose : bool
         print information about processing (normally used for debugging)
 
 
     Returns
     -------
-    inv_IM: numpy 2D array
+    inv_IM : numpy 2D array
        inverse Abel transformed image
 
-    radial-grid, Beta, projections: tuple
+    radial-grid, Beta, projections : tuple
        (if :attr:`return_Beta=True`)
   
        contributions of each spherical harmonic :math:`Y_{i0}` to the 3D 
@@ -108,7 +107,7 @@ _linbasex_parameter_docstring = \
 
            Beta[2] vs radius -> anisotropy of each Newton sphere.
 
-       projections: are the radial projection profiles at angles `proj_angles`
+       projections : are the radial projection profiles at angles `proj_angles`
 
     """
 
@@ -129,7 +128,7 @@ def linbasex_transform(IM, proj_angles=[0, 45, 90, 135],
 
     quad_rows, quad_cols = IM.shape
     full_image = abel.tools.symmetry.put_image_quadrants((IM, IM, IM, IM),
-                           original_image_shape=(quad_rows*2-1, quad_cols*2-1))
+                       original_image_shape=(quad_rows*2-1, quad_cols*2-1))
 
     # inverse Abel transform
     recon, radial, Beta, QLz = linbasex_transform_full(full_image,
@@ -205,13 +204,13 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, 45, 90, 135],
     QLz = np.zeros((proj, cols))  # array for projections.
 
     # Rotate and project VMI-image for each angle (as many as projections)
-    #if proj_angles == [0, 90]:
-    #    # If coordinates of the detector coincide with the projection
-    #    # directions unnecessary rotations are avoided
-    #    # i.e. proj_angles=[0, 90] degrees
-    #    QLz[0] = np.sum(IM, axis=1)
-    #    QLz[1] = np.sum(IM, axis=0)
-    #else:
+    # if proj_angles == [0, 90]:
+    #     # If coordinates of the detector coincide with the projection
+    #     # directions unnecessary rotations are avoided
+    #     # i.e. proj_angles=[0, 90] degrees
+    #     QLz[0] = np.sum(IM, axis=1)
+    #     QLz[1] = np.sum(IM, axis=0)
+    # else:
     for i in range(proj):
         Rot_IM = scipy.ndimage.interpolation.rotate(IM, proj_angles[i],
                                             axes=(1, 0), reshape=False)
@@ -272,11 +271,10 @@ def _Slices(Beta, legendre_orders, smoothing=0.5):
     Beta_convol = np.zeros((pol, NP))
     Slice_3D = np.zeros((pol, 2*NP, 2*NP))
 
-
     # Convolve Beta's with smoothing function
     if smoothing > 0:
         # smoothing function
-        Basis_s = np.fromfunction(lambda i: np.exp(-(i-(NP)/2)**2/\
+        Basis_s = np.fromfunction(lambda i: np.exp(-(i - (NP)/2)**2 /
                                   (2*smoothing**2))/(smoothing*2.5), (NP,))
         for i in range(pol):
             Beta_convol[i] = np.convolve(Basis_s, Beta[i], mode='same')
@@ -293,24 +291,23 @@ def _Slices(Beta, legendre_orders, smoothing=0.5):
     return Slice, Beta_convol
 
 
-def int_beta(Beta, radial_step=1, threshold=0.1, regions=[(37, 40), (69, 72), (89, 92),
-                                                  (133, 136)]):
+def int_beta(Beta, radial_step=1, threshold=0.1, regions=None):
     """Integrate beta over a range of Newton spheres.
 
     Parameters
     ----------
-    Beta: numpy array
+    Beta : numpy array
         Newton spheres
-    radial_step: int
+    radial_step : int
         number of pixels per Newton sphere (default 1)
-    threshold: float
+    threshold : float
         threshold for normalisation of higher orders, 0.0 ... 1.0.
-    regions: list of tuple radial ranges
+    regions : list of tuple radial ranges
         [(min0, max0), (min1, max1), ...]
 
     Returns
     -------
-    Beta_in: numpy array
+    Beta_in : numpy array
         integrated normalized Beta array [Newton sphere, region]
 
     """
@@ -340,21 +337,21 @@ def _single_Beta_norm(Beta, threshold=0.2, norm_range=(0, -1)):
 
     Parameters
     ----------
-    Beta: numpy array
+    Beta : numpy array
         Newton spheres
-    threshold: float
+    threshold : float
         choose only Beta's for which Beta0 is greater than the maximal Beta0
         times threshold in the chosen range
         Set all βi, i>=1 to zero if the associated β0 is smaller than threshold
 
-    norm_range: tuple (int, int)
+    norm_range : tuple (int, int)
         (low, high)
         normalize to Newton sphere with maximum counts in chosen range.
         Beta[0, low:high]
 
     Return
     ------
-    Beta: numpy array
+    Beta : numpy array
         normalized Beta array
 
     """
@@ -401,7 +398,8 @@ def _bs_linbasex(cols, proj_angles=[0, 90], legendre_orders=[0, 2],
     TRI = np.concatenate((np.tri(n, n, k=0,)[:-1, ::-1],
                           np.tri(n, n, k=0,)[::-1, ::-1]), axis=0)
 
-    # radial_step: use only each radial_step other vector. Keep the base vector with full span
+    # radial_step: use only each radial_step other vector.
+    # Keep the base vector with full span
     COS = COS[:, ::-radial_step]
     TRI = TRI[:, ::-radial_step]
 
@@ -410,9 +408,9 @@ def _bs_linbasex(cols, proj_angles=[0, 90], legendre_orders=[0, 2],
 
     if clip > 0:
         # clip first vectors (smallest Newton spheres) to avoid singularities
-        COS=COS[:,clip:]
+        COS = COS[:, clip:]
         # It is difficult to trace the effect on the SVD solver used below.
-        TRI=TRI[:,clip:]  # usually no clipping works fine.
+        TRI = TRI[:, clip:]  # usually no clipping works fine.
 
     # Calculate base vectors for each projection and each order.
     B = np.zeros((pol, proj, len(COS[:, 0]), len(COS[0, :])))
