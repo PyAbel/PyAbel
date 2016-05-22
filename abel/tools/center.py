@@ -270,9 +270,9 @@ def find_center_by_convolution(IM, **kwargs):
         (row-center, col-center)
 
     """
-    # projections along axis=0 of image (rows)
+    # projection along axis=0 of image (rows)
     QL_raw0 = IM.sum(axis=1)
-    # projections along axis=1 of image (cols)
+    # projection along axis=1 of image (cols)
     QL_raw1 = IM.sum(axis=0) 
 
     # autocorrelate projections

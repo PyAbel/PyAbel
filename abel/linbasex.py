@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 import abel
-import scipy as sci
+import scipy
 from scipy.special import eval_legendre
 from scipy import ndimage
 
@@ -63,7 +63,7 @@ _linbasex_parameter_docstring = \
     radial_step: int
         number of pixels per Newton sphere (default 1)
     smoothing: float
-        sigma for Gaussian function smoothing (default 0.5)
+        convolve Beta array with a Gaussian function of 1/e 1/2 width `smoothing`.
     rcond: float
         (default 0.0005) scipy.linalg.lstsq fit conditioning value.
         set rcond to zero to switch conditioning off
@@ -72,13 +72,14 @@ _linbasex_parameter_docstring = \
         (default 0.2)
     clip: int
         clip first vectors (smallest Newton spheres) to avoid singularities
+        (default 0)
     norm_range: tuple 
         (low, high)
         normalization of Newton sphere, maximum in range
         Beta[0, low:high]
     return_Beta: bool
         return the Beta array of Newton spheres, as the tuple: radial-grid, Beta
-            for the case :attr:`legendre_orders=[0, 2]`
+        for the case :attr:`legendre_orders=[0, 2]`
 
             Beta[0] vs radius -> speed distribution
 
@@ -212,8 +213,8 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, 45, 90, 135],
     #    QLz[1] = np.sum(IM, axis=0)
     #else:
     for i in range(proj):
-        Rot_IM = sci.ndimage.interpolation.rotate(IM, proj_angles[i],
-                                          axes=(1, 0), reshape=False)
+        Rot_IM = scipy.ndimage.interpolation.rotate(IM, proj_angles[i],
+                                            axes=(1, 0), reshape=False)
         QLz[i, :] = np.sum(Rot_IM, axis=1)
 
     # arrange all projections for input into "lstsq"
@@ -260,7 +261,7 @@ def _SL(i, x, y, Beta_convol, index, legendre_orders):
 
 
 def _Slices(Beta, legendre_orders, smoothing=0.5):
-    """Convolve Beta with a Gaussian smoothing function of 1/e width smoothing.
+    """Convolve Beta with a Gaussian function of 1/e width smoothing.
 
     """
 
@@ -377,8 +378,8 @@ def _bas(ord, angle, COS, TRI):
 
     """
 
-    basis_vec = sci.special.eval_legendre(ord, angle) *\
-                sci.special.eval_legendre(ord, COS) * TRI
+    basis_vec = scipy.special.eval_legendre(ord, angle) *\
+                scipy.special.eval_legendre(ord, COS) * TRI
     return basis_vec
 
 

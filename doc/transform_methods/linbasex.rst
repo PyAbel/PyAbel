@@ -15,7 +15,7 @@ described in Gerber et al. [1].
 
 *VM-images are composed of projected Newton spheres with a common centre. 
 The 2D images are usually evaluated by a decomposition into base vectors each
-representing the 2D projec- tion of a set of particles starting from a centre 
+representing the 2D projection of a set of particles starting from a centre 
 with a specific velocity distribution. We propose to evaluate 1D projections of
 VM-images in terms of 1D projections of spherical functions, instead. 
 The proposed evaluation algorithm shows that all distribution information can 
