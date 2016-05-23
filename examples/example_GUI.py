@@ -450,7 +450,7 @@ class PyAbel:  #(tk.Tk):
         self._transform()
     
         # intensity vs angle
-        self.intensity, self.theta = abel.tools.vmi.\
+        self.intensity, self.theta, self.rad  = abel.tools.vmi.\
                                      radial_integration(self.AIM.transform,\
                                      radial_ranges=[self.rmx,])
     

@@ -23,7 +23,7 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
 
     Parameters
     ----------
-    IM : 2D np.array
+    IM : 2D numpy.array
         The data image.
 
     origin : tuple
@@ -49,10 +49,10 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
 
     Returns
     -------
-    r : 1D np.array
+    r : 1D numpy.array
          radial coordinates
 
-    speeds : 1D np.array
+    speeds : 1D numpy.array
          Integrated intensity array (vs radius).
 
      """
@@ -83,7 +83,7 @@ def average_radial_intensity(IM, **kwargs):
 
     Parameters
     ----------
-    IM : 2D np.array
+    IM : 2D numpy.array
      The data image.
 
     kwargs : 
@@ -91,10 +91,10 @@ def average_radial_intensity(IM, **kwargs):
 
     Returns
     -------
-    r : 1D np.array
+    r : 1D numpy.array
       radial coordinates
 
-    intensity : 1D np.array
+    intensity : 1D numpy.array
       one-dimentional intensity profile as a function of the radial coordinate.
 
     """
@@ -116,22 +116,26 @@ def radial_integration(IM, radial_ranges=None):
 
     Parameters
     ----------
-    IM : 2D np.array
+    IM : 2D numpy.array
         Image data
 
-    radial_ranges : list of tuples
-        integration ranges
-        ``[(r0, r1), (r2, r3), ...]``
-        Evaluate the intensity vs angle
-        for the radial ranges ``r0_r1``, ``r2_r3``, etc.
+    radial_ranges : list of tuple ranges or int step
+        tuple integration ranges
+            ``[(r0, r1), (r2, r3), ...]``
+            evaluates the intensity vs angle
+            for the radial ranges ``r0_r1``, ``r2_r3``, etc.
+        int - the whole radial range ``(r0, r_step), (r_step, r_2step), ..)`` 
 
     Returns
     -------
-    intensity_vs_theta: 2D np.array
+    intensity_vs_theta: 2D numpy.array
        Intensity vs angle distribution for each selected radial range.
 
-    theta: 1D np.array
+    theta: 1D numpy.array
        Angle coordinates, referenced to vertical direction.
+
+    radial_midpt: numpy.array
+       Array of radial positions of the mid-point of the integration range
 
     """
 
@@ -141,16 +145,20 @@ def radial_integration(IM, radial_ranges=None):
     r = r_grid[:, 0]          # radial coordinates
 
     if radial_ranges is None:
-        radial_ranges = [(0, r[-1]), ]
+        radial_ranges = 1
+    if isinstance(radial_ranges, int):
+        radial_ranges = list(zip(r[:-radial_ranges], r[radial_ranges:]))
 
     intensity_vs_theta_at_R = []
+    radial_midpt = []
     for rr in radial_ranges:
         subr = np.logical_and(r >= rr[0], r <= rr[1])
 
         # sum intensity across radius of spectral feature
         intensity_vs_theta_at_R.append(np.sum(polarIM[subr], axis=0))
+        radial_midpt.append(np.mean(rr))
 
-    return np.array(intensity_vs_theta_at_R), theta
+    return np.array(intensity_vs_theta_at_R), theta, radial_midpt
 
 
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
