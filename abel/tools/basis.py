@@ -72,7 +72,7 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
                     value = basis_options[key]
             else:
                 # missing option, use defaults
-                default = {'legendre_orders':[0,2], 'proj_angles':[0,90], 'radial_step':1, 'clip':0}
+                default = {'legendre_orders':[0, 2], 'proj_angles':[0, 90], 'radial_step':1, 'clip':0}
                 value = default[key]
 
             basis_name += "_{}".format(value)

@@ -49,7 +49,7 @@ _linbasex_parameter_docstring = \
     IM : numpy 2D array
         image data must be square shape of odd size
     proj_angles : list
-        projection angles, in degrees
+        projection angles, in degrees (default [0, 90])
         e.g. [0, 90] or [0, 54.7356, 90] or [0, 45, 90, 135]
     legendre_orders : list
         orders of Legendre polynomials to be used as the expansion
@@ -118,7 +118,7 @@ _linbasex_parameter_docstring = \
     """
 
 
-def linbasex_transform(IM, proj_angles=[0, 45, 90, 135],
+def linbasex_transform(IM, proj_angles=[0, 90],
                        legendre_orders=[0, 2], radial_step=1, smoothing=0.5,
                        rcond=0.0005, threshold=0.2, basis_dir='./',
                        return_Beta=False, clip=0, norm_range=(0, -1),
@@ -154,7 +154,7 @@ def linbasex_transform(IM, proj_angles=[0, 45, 90, 135],
         return inv_IM
 
 
-def linbasex_transform_full(IM, proj_angles=[0, 45, 90, 135],
+def linbasex_transform_full(IM, proj_angles=[0, 90],
                             legendre_orders=[0, 2],
                             radial_step=1, smoothing=0.5,
                             rcond=0.0005, threshold=0.2, clip=0,
@@ -189,7 +189,7 @@ def linbasex_transform_full(IM, proj_angles=[0, 45, 90, 135],
                                     norm_range=norm_range)
 
 
-def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, 45, 90, 135],
+def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, 90],
                                    legendre_orders=[0, 2], radial_step=1,
                                    rcond=0.0005, smoothing=0.5, threshold=0.2,
                                    clip=0, norm_range=(0, -1)):
@@ -386,7 +386,7 @@ def _bas(ord, angle, COS, TRI):
     return basis_vec
 
 
-def _bs_linbasex(cols, proj_angles=[0, 90], legendre_orders=[0, 2],
+def _bs_linbasex(cols, proj_angles=[0,90], legendre_orders=[0, 2],
                  radial_step=1, clip=0, **kwargs):
 
     pol = len(legendre_orders)
