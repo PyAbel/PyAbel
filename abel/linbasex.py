@@ -65,17 +65,23 @@ _linbasex_parameter_docstring = \
         convolve Beta array with a Gaussian function of 1/e 1/2 width `smoothing`.
     rcond : float
         (default 0.0005) scipy.linalg.lstsq fit conditioning value.
-        set rcond to zero to switch conditioning off
-    threshold : float
-        threshold for normalization of higher order Newton spheres
-        (default 0.2)
+        set rcond to zero to switch conditioning off.
+        Note: In the presence of noise the equation system may be ill posed.
+        Increasing rcond smoothes the result, lowering it beyond a minimum
+        renders the solution unstable. Tweak rcond to get a "reasonable" 
+        solution with acceptable resolution.
     clip : int
         clip first vectors (smallest Newton spheres) to avoid singularities
         (default 0)
     norm_range : tuple
         (low, high)
-        normalization of Newton sphere, maximum in range
-        Beta[0, low:high]
+        normalization of Newton spheres, maximum in range Beta[0, low:high].
+        Note: Beta[0, i] the total number of counts integrated over sphere i,
+        becomes 1.
+    threshold : float
+        threshold for normalization of higher order Newton spheres (default 0.2)
+        Set all Beta[j], j>=1 to zero if the associated Beta[0] is smaller 
+        than threshold.
     return_Beta : bool
         return the Beta array of Newton spheres, as the tuple: radial-grid, Beta
         for the case :attr:`legendre_orders=[0, 2]`
