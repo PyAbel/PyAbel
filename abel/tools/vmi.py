@@ -47,8 +47,8 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
         is equal to the height of the image (which should typically ensure
         good sampling.)
 
-    Returns
-    -------
+    [eturns
+    a#------
     r : 1D numpy.array
          radial coordinates
 
@@ -213,9 +213,50 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         intensity = intensity[subtheta]
 
     # fit angular intensity distribution
-    popt, pcov = curve_fit(PAD, theta, intensity)
-
-    beta, amplitude = popt
-    error_beta, error_amplitude = np.sqrt(np.diag(pcov))
+    try:
+        popt, pcov = curve_fit(PAD, theta, intensity)
+        beta, amplitude = popt
+        error_beta, error_amplitude = np.sqrt(np.diag(pcov))
+    except:
+        beta, error_beta = nan, nan
+        amplitude, error_amplitude = nan, nan
 
     return (beta, error_beta), (amplitude, error_amplitude)
+
+
+def anisotropy(AIM, radial_step):
+    """
+    Combines `radial_intensity()` and `anisotropy_parameter()` to return the
+    anisotropy parameter for each of the radial ranges.
+
+    Parameters
+    ----------
+    AIM : numpy 2d float array
+        inverse Abel transformed image slice
+    radial_step: int
+        radial integration over 'radial_step' radii
+
+    Returns
+    -------
+    beta : array of tuples
+        (beta0, error_beta_fit0), (beta1, error_beta_fit1), ... 
+        corresponding to the radial ranges
+    amplitude : array of tuples
+        (amp0, error_amp_fit0), (amp1, error_amp_fit1), ... 
+        corresponding to the radial ranges
+
+    """
+    rows, cols = AIM.shape
+    radial_grid = np.arange(0, cols//2)
+    # clever code from @DanHickstein
+    radial_ranges = zip(radial_grid[:-radial_step], radial_grid[radial_step:])
+
+    IvsTheta, theta, Rbar = radial_integration(AIM, radial_ranges)
+    Beta = []
+    Amp = []
+    for i, angle in enumerate(theta):
+        (beta, ebeta), (amp, eamp) = anisotropy_parameter(angle, IvsTheta[i])
+        Beta.append((beta, ebeta))
+        Amp.append((amp, eamp))
+
+    return Beta, Amp
