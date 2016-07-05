@@ -218,8 +218,8 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         beta, amplitude = popt
         error_beta, error_amplitude = np.sqrt(np.diag(pcov))
     except:
-        beta, error_beta = nan, nan
-        amplitude, error_amplitude = nan, nan
+        beta, error_beta = np.nan, np.nan
+        amplitude, error_amplitude = np.nan, np.nan
 
     return (beta, error_beta), (amplitude, error_amplitude)
 
@@ -227,7 +227,7 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
 def anisotropy(AIM, radial_step):
     """
     Combines `radial_intensity()` and `anisotropy_parameter()` to return the
-    anisotropy parameter for each of the radial ranges.
+    anisotropy parameter for the whole radial range.
 
     Parameters
     ----------
@@ -244,19 +244,21 @@ def anisotropy(AIM, radial_step):
     amplitude : array of tuples
         (amp0, error_amp_fit0), (amp1, error_amp_fit1), ... 
         corresponding to the radial ranges
+    Rbar : numpy float 1d array
+         radial-mid point of each radial range
 
     """
     rows, cols = AIM.shape
-    radial_grid = np.arange(0, cols//2)
+    radial_grid = np.arange(0, cols//2, radial_step)
     # clever code from @DanHickstein
     radial_ranges = zip(radial_grid[:-radial_step], radial_grid[radial_step:])
 
     IvsTheta, theta, Rbar = radial_integration(AIM, radial_ranges)
     Beta = []
     Amp = []
-    for i, angle in enumerate(theta):
-        (beta, ebeta), (amp, eamp) = anisotropy_parameter(angle, IvsTheta[i])
+    for i, Ith in enumerate(IvsTheta):
+        (beta, ebeta), (amp, eamp) = anisotropy_parameter(theta, Ith)
         Beta.append((beta, ebeta))
         Amp.append((amp, eamp))
 
-    return Beta, Amp
+    return Beta, Amp, Rbar
