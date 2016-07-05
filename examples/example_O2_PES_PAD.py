@@ -57,7 +57,8 @@ for rr, intensity in zip(r_range, intensities):
     # evaluate anisotropy parameter from least-squares fit to
     # intensity vs angle
     beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity)
-    result = "    {:3d}-{:3d}        {:+.2f}+-{:.2f}".format(*rr+beta)
+    result = "    {:3d}-{:3d}        {:+.2f}+-{:.2f}"\
+             .format(rr[0], rr[1], beta[0], beta[1])
     print(result)
 
 # plots of the analysis
