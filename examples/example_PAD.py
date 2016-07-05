@@ -34,7 +34,8 @@ r_range = [(93, 111), (145, 162), (255, 280), (330, 350), (350, 370),
 Beta, Amp, R = abel.tools.vmi.anisotropy(AIM, r_range)
 
 # OR  anisotropy parameter for ranges (0, 20), (20, 40) ...
-Br, Ar, Rr = abel.tools.vmi.anisotropy(AIM, 20)
+Beta_whole_grid, Amp_whole_grid, Radial_midpoints =\
+                         abel.tools.vmi.anisotropy(AIM, 20)
 
 # plots of the analysis
 fig = plt.figure(figsize=(8, 4))
@@ -61,8 +62,8 @@ ax1.set_title('VMI, inverse Abel: {:d}x{:d}'\
 ax2.plot(speed, label='speed')
 BT = np.transpose(Beta)
 ax2.errorbar(R, BT[0], BT[1], fmt='o', color='r', label='specific radii')
-BrT = np.transpose(Br)
-ax2.plot(Rr, BrT[0], '-g', label='stepped')
+BrT = np.transpose(Beta_whole_grid)
+ax2.plot(Radial_midpoints, BrT[0], '-g', label='stepped')
 ax2.axis(xmax=450, ymin=-1.2, ymax=1.2)
 ax2.set_xlabel('radial pixel')
 ax2.set_ylabel('speed/anisotropy')
