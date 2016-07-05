@@ -60,10 +60,8 @@ ax1.set_title('VMI, inverse Abel: {:d}x{:d}'\
 
 # Plot the 1D speed distribution
 ax2.plot(speed, label='speed')
-BT = np.transpose(Beta)
-ax2.errorbar(R, BT[0], BT[1], fmt='o', color='r', label='specific radii')
-BrT = np.transpose(Beta_whole_grid)
-ax2.plot(Radial_midpoints, BrT[0], '-g', label='stepped')
+ax2.errorbar(R, Beta[0], Beta[1], fmt='o', color='r', label='specific radii')
+ax2.plot(Radial_midpoints, Beta_whole_grid[0], '-g', label='stepped')
 ax2.axis(xmax=450, ymin=-1.2, ymax=1.2)
 ax2.set_xlabel('radial pixel')
 ax2.set_ylabel('speed/anisotropy')

@@ -248,8 +248,8 @@ def anisotropy(AIM, radial_ranges=None):
     Covenience function providing a single call to 'radial_integration' and
     'anisotropy_parameter'
 
-    Note: in general specifying a radial range tuple that encompasses a spectral
-    feature that has good intensity, will provide a more accurate
+    Note: in general specifying a radial range tuple that encompasses a
+    spectral feature that has good intensity, will provide a more accurate
     anisotropy parameter
 
     Parameters
@@ -279,4 +279,5 @@ def anisotropy(AIM, radial_ranges=None):
     IvsTheta, theta, Rbar = radial_integration(AIM, radial_ranges)
     Beta, Amp = anisotropy_parameter(theta, IvsTheta)
 
-    return Beta, Amp, Rbar
+    # tranpose gives beta vs r, ebeta vs r etc
+    return np.transpose(Beta), np.transpose(Amp), Rbar
