@@ -8,17 +8,17 @@ import abel
 
 import matplotlib.pylab as plt
 
-# Load image as a numpy array - numpy handles .gz, .bz2 
+# Load image as a numpy array - numpy handles .gz, .bz2
 IM = np.loadtxt("data/O2-ANU1024.txt.bz2")
 # use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
 
-#=== linbasex transform ===================================
+# === linbasex transform ===================================
 legendre_orders = [0, 2, 4]  # Legendre polynomial orders
 proj_angles = range(0, 180, 10)  # projection angles in 10 degree steps
 radial_step = 1  # pixel grid
 smoothing = 1  # smoothing 1/e-width for Gaussian convolution smoothing
 threshold = 0.2  # threshold for normalization of higher order Newton spheres
-clip=0  # clip first vectors (smallest Newton spheres) to avoid singularities
+clip = 0  # clip first vectors (smallest Newton spheres) to avoid singularities
 
 # linbasex method - center and center_options ensure image has odd square shape
 LIM = abel.Transform(IM, method='linbasex', center='slice',
@@ -38,18 +38,23 @@ radial, speed = HIM.angular_integration
 # normalize to max intensity peak
 speed /= speed[200:].max()  # exclude transform noise near centerline of image
 
-# PAD - photoelectron angular distribution  ------------
+# PAD - photoelectron angular distribution from image ======================
+# Note: `linbasex` provides the anisotropy parameter directly LIM.Beta[1]
+#       here we extract I vs theta for given radial ranges
+#       and use fitting to determine the anisotropy parameter
+#
 # radial ranges (of spectral features) to follow intensity vs angle
 # view the speed distribution to determine radial ranges
-r_range = [(145, 162), (200, 218), (230, 250), (255, 280), (280, 310), 
+r_range = [(145, 162), (200, 218), (230, 250), (255, 280), (280, 310),
            (310, 330), (330, 350), (350, 370), (370, 390), (390, 410),
            (410, 430)]
 
-# anisotropy parameter for each tuple r_range
-Beta, Amp, R = abel.tools.vmi.anisotropy(HIM.transform, r_range)
+# anisotropy parameter from image for each tuple r_range
+Beta, Amp, Rmid, Ivstheta, theta =\
+              abel.tools.vmi.radial_integration(HIM.transform, r_range)
 
 # OR  anisotropy parameter for ranges (0, 20), (20, 40) ...
-#Beta_whole_grid, Amp_whole_grid, Radial_midpoints =\
+# Beta_whole_grid, Amp_whole_grid, Radial_midpoints =\
 #                         abel.tools.vmi.anisotropy(AIM.transform, 20)
 
 # plots of the analysis
@@ -70,22 +75,23 @@ im1 = ax1.imshow(JIM, origin='lower', aspect='auto', vmin=0, vmax=vmax)
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('VMI, inverse Abel: {:d}x{:d}'\
-              .format(rows, cols))
+ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(rows, cols))
 
 # Plot the 1D speed distribution
 ax2.plot(LIM.Beta[0], 'r-', label='linbasex-Beta[0]')
 ax2.plot(speed, 'b-', label='speed')
 ax2.plot(LIM.Beta[1], 'r-', label='linbasex-Beta[2]')
-ax2.errorbar(R, Beta[0], Beta[1], fmt='o', color='g', label='specific radii')
-#ax2.plot(Radial_midpoints, Beta_whole_grid[0], '-g', label='stepped')
+ax2.errorbar(Rmid, Beta[0], Beta[1], fmt='o', color='g',
+             label='specific radii')
+# ax2.plot(Radial_midpoints, Beta_whole_grid[0], '-g', label='stepped')
 ax2.axis(xmin=100, xmax=450, ymin=-1.2, ymax=1.2)
 ax2.set_xlabel('radial pixel')
 ax2.set_ylabel('speed/anisotropy')
 ax2.set_title('speed/anisotropy distribution')
-ax2.legend(frameon=False, labelspacing=0.1, numpoints=1, loc=3, fontsize='small')
+ax2.legend(frameon=False, labelspacing=0.1, numpoints=1, loc=3,
+           fontsize='small')
 
-plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, 
+plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89,
                     wspace=0.35, hspace=0.37)
 
 # Save a image of the plot

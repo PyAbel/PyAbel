@@ -110,10 +110,10 @@ def radial_integration(IM, radial_ranges=None):
     This function is the :math:`\\theta`-coordinate complement to
     :func:`abel.tools.vmi.angular_integration`
 
-    (optionally and more useful) returning intensity vs angle for defined
-    radial ranges, to evaluate the anisotropy parameter.
+    Evaluates intensity vs angle for defined radial ranges.
+    Determines the anisotropy parameter for each radial range.
 
-    See :doc:`examples/example_O2_PES_PAD.py <examples>`
+    See :doc:`examples/example_PAD.py <examples>`
 
     Parameters
     ----------
@@ -129,14 +129,23 @@ def radial_integration(IM, radial_ranges=None):
 
     Returns
     -------
-    intensity_vs_theta: 2D numpy.array
+    Beta : array of tuples
+        (beta0, error_beta_fit0), (beta1, error_beta_fit1), ...
+        corresponding to the radial ranges
+
+    Amplitude : array of tuples
+        (amp0, error_amp_fit0), (amp1, error_amp_fit1), ...
+        corresponding to the radial ranges
+
+    Rmidpt : numpy float 1d array
+        radial-mid point of each radial range
+
+    Intensity_vs_theta: 2D numpy.array
        Intensity vs angle distribution for each selected radial range.
 
     theta: 1D numpy.array
        Angle coordinates, referenced to vertical direction.
 
-    radial_midpt: numpy.array
-       Array of radial positions of the mid-point of the integration range
 
     """
 
@@ -152,16 +161,30 @@ def radial_integration(IM, radial_ranges=None):
         # @DanHickstein clever code to map ranges
         radial_ranges = list(zip(rr[:-1], rr[1:]))
 
-    intensity_vs_theta_at_R = []
+    Intensity_vs_theta = []
     radial_midpt = []
+    Beta = []
+    Amp = []
     for rr in radial_ranges:
         subr = np.logical_and(r >= rr[0], r <= rr[1])
 
         # sum intensity across radius of spectral feature
-        intensity_vs_theta_at_R.append(np.sum(polarIM[subr], axis=0))
+        intensity_vs_theta_at_R = np.sum(polarIM[subr], axis=0)
+        Intensity_vs_theta.append(intensity_vs_theta_at_R)
         radial_midpt.append(np.mean(rr))
 
-    return np.array(intensity_vs_theta_at_R), theta, radial_midpt
+        # evaluate anisotropy parameter from intensity_vs_theta_at_R fit to
+        #        amp*(1 + beta P_2(cos theta)) 
+        # returns (beta_i, fit_error_i) for each radial range
+        beta, amp = anisotropy_parameter(theta, intensity_vs_theta_at_R)
+        Beta.append(beta)
+        Amp.append(amp)
+     
+    Beta = np.transpose(Beta)
+    Amp = np.transpose(Amp)
+    Intensity_vs_theta = np.array(Intensity_vs_theta)
+
+    return Beta, Amp, radial_midpt, Intensity_vs_theta, theta
 
 
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
@@ -183,8 +206,8 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     theta: 1D numpy array
        Angle coordinates, referenced to the vertical direction.
 
-    intensity: 1D or 2D numpy array
-       Array of intensity variation (with angle)
+    intensity: 1D numpy array
+       Intensity variation with angle
 
     theta_ranges: list of tuples
        Angular ranges over which to fit ``[(theta1, theta2), (theta3, theta4)]``.
@@ -192,10 +215,11 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
 
     Returns
     -------
-    Beta : array of tuple of floats
-        array of tuples (anisotropy parameter, fit error)
-    Amplitude : array of tuple of floats
-       array of tuples (amplitude of signal, fit error)
+    beta : tuple of floats
+        (anisotropy parameter, fit error)
+
+    amplitude : tuple of floats
+        (amplitude of signal, fit error)
 
     """
     def P2(x):   # 2nd order Legendre polynomial
@@ -213,71 +237,16 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         theta = theta[subtheta]
         intensity = intensity[subtheta]
 
-    Beta = []
-    Amp = []
-    intensity = np.atleast_2d(intensity)
-    for i, Ith in enumerate(intensity):
-        # fit angular intensity distribution
-        try:
-            popt, pcov = curve_fit(PAD, theta, Ith)
-            beta, amplitude = popt
-            error_beta, error_amplitude = np.sqrt(np.diag(pcov))
-            # physical range
-            if beta > 2 or beta < -1:
-                beta, error_beta = np.nan, np.nan
-        except:
+    # fit angular intensity distribution
+    try:
+        popt, pcov = curve_fit(PAD, theta, intensity)
+        beta, amplitude = popt
+        error_beta, error_amplitude = np.sqrt(np.diag(pcov))
+        # physical range
+        if beta > 2 or beta < -1:
             beta, error_beta = np.nan, np.nan
-            amplitude, error_amplitude = np.nan, np.nan
-        Beta.append((beta, error_beta))
-        Amp.append((amplitude, error_amplitude))
+    except:
+        beta, error_beta = np.nan, np.nan
+        amplitude, error_amplitude = np.nan, np.nan
 
-    Beta = np.array(Beta)
-    Amp = np.array(Amp)
-
-    if Beta.shape[0] == 1:
-        # flatten to a vector
-        Beta = Beta[0]
-        Amp = Amp[0]
-
-    return Beta, Amp
-
-
-def anisotropy(AIM, radial_ranges=None):
-    """Evaluates anisotropy parameter for each tuple range of the radial grid.
-
-    Covenience function providing a single call to 'radial_integration' and
-    'anisotropy_parameter'
-
-    Note: in general specifying a radial range tuple that encompasses a
-    spectral feature that has good intensity, will provide a more accurate
-    anisotropy parameter
-
-    Parameters
-    ----------
-    AIM : numpy 2d float array
-        inverse Abel transformed image slice
-
-    radial_ranges : list of tuple ranges or int step
-        tuple integration ranges
-            ``[(r0, r1), (r2, r3), ...]``
-            evaluates the intensity vs angle
-            for the radial ranges ``r0_r1``, ``r2_r3``, etc.
-        int - the whole radial range ``(0, step), (step, 2*step), ...``
-
-    Returns
-    -------
-    Beta : array of tuples
-        (beta0, error_beta_fit0), (beta1, error_beta_fit1), ...
-        corresponding to the radial ranges
-    Amplitude : array of tuples
-        (amp0, error_amp_fit0), (amp1, error_amp_fit1), ...
-        corresponding to the radial ranges
-    Rbar : numpy float 1d array
-         radial-mid point of each radial range
-
-    """
-    IvsTheta, theta, Rbar = radial_integration(AIM, radial_ranges)
-    Beta, Amp = anisotropy_parameter(theta, IvsTheta)
-
-    # tranpose gives beta vs r, ebeta vs r etc
-    return np.transpose(Beta), np.transpose(Amp), Rbar
+    return (beta, error_beta), (amplitude, error_amplitude)

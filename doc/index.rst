@@ -17,6 +17,7 @@ Contents:
    contributing_link
    abel
    transform_methods
+   anisotropy_parameter
    examples
    
 
