@@ -111,7 +111,7 @@ _linbasex_parameter_docstring = \
 
            Beta[0] vs radius -> speed distribution
 
-           Beta[2] vs radius -> anisotropy of each Newton sphere.
+           Beta[1] vs radius -> anisotropy of each Newton sphere.
 
        projections : are the radial projection profiles at angles `proj_angles`
 

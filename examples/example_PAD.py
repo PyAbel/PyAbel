@@ -8,6 +8,10 @@ import abel
 
 import matplotlib.pylab as plt
 
+# Demonstration of two techniques to determine the anisotropy parameter
+# (a) directly, using `linbasex`
+# (b) from the inverse Abel transformed image
+
 # Load image as a numpy array - numpy handles .gz, .bz2
 IM = np.loadtxt("data/O2-ANU1024.txt.bz2")
 # use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
@@ -33,6 +37,7 @@ LIM = abel.Transform(IM, method='linbasex', center='slice',
 HIM = abel.Transform(IM, center="slice", method="hansenlaw",
                      symmetry_axis=None, angular_integration=True)
 
+# speed distribution
 radial, speed = HIM.angular_integration
 
 # normalize to max intensity peak
