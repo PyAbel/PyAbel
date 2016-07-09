@@ -349,7 +349,7 @@ class PyAbel:  #(tk.Tk):
         self.canvas.show()
     
         # center image via chosen method
-        self.IM = abel.tools.center.center_image(self.IM, method=center_method,
+        self.IM = abel.tools.center.center_image(self.IM, center=center_method,
                                   odd_size=True)
         self.text.insert(tk.END, "\ncenter offset = {:}".format(self.offset))
         self.text.see(tk.END)
@@ -463,7 +463,7 @@ class PyAbel:  #(tk.Tk):
         
         self.plt[3].plot(self.theta, self.intensity[0], 'r-')
         self.plt[3].plot(self.theta, PAD(self.theta, self.beta[0][0], self.amp[0][0]), 'b-', lw=2)
-        self.plt[3].annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*self.rmx+self.beta[0]), (-2.5, self.intensity[0].max()/0.8))
+        self.plt[3].annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*self.rmx+self.beta[0]), (-3, self.intensity[0].min()/0.8))
         self.plt[3].set_title("anisotropy", fontsize=12)
         self.plt[3].set_xlabel("angle", fontsize=9)
         self.plt[3].set_ylabel("intensity")
