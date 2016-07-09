@@ -8,7 +8,7 @@ For linearly polarized light the angular distribution of photodetached electrons
   I(\epsilon, \theta) = \frac{\sigma_{\rm total}(\epsilon)}{4\pi} [ 1 + \beta(\epsilon) P_2(\cos\theta)]
 
 
-where :math:`\beta(\epsilon)` is the electron kinetic energy anisotropy parameter, that varies between -1 and +2, and :math:`P_2(\cos\theta)` is the 2nd order Legendre polynomial in :math:`\cos\theta`. :math:`\sigma_{\rm total}` is the total photodetachment cross section.
+where :math:`\beta(\epsilon)` is the electron kinetic energy (:math:`\epsilon`) dependent anisotropy parameter, that varies between -1 and +2, and :math:`P_2(\cos\theta)` is the 2nd order Legendre polynomial in :math:`\cos\theta`. :math:`\sigma_{\rm total}` is the total photodetachment cross section.
 
 
 ``PyAbel`` provides two methods to determine the anisotropy parameter :math:`\beta`:
