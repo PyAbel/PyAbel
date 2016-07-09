@@ -8,12 +8,14 @@ import abel
 import sys
 if sys.version_info[0] < 3:
     import Tkinter as tk
+    from tkFileDialog import askopenfilename
 else:
     import tkinter as tk
-from tkFileDialog import askopenfilename
-import ttk
-import tkFont
-from ScrolledText import *
+    from tkinter.filedialog import askopenfilename
+import tkinter.ttk as ttk
+import tkinter.font as tkFont
+from tkinter.scrolledtext import *
+#from ScrolledText import *
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -415,7 +417,7 @@ class PyAbel:  #(tk.Tk):
         self.plt[1].set_xlabel("radius (pixels)", fontsize=9)
         self.plt[1].set_ylabel("normalized intensity")
         self.plt[1].set_title("radial speed distribution", fontsize=12)
-        self.plt[1].legend(fontsize=9)
+        self.plt[1].legend(fontsize=9, loc=0, frameon=False)
 
         self.action = None
         self.canvas.show()
@@ -450,21 +452,18 @@ class PyAbel:  #(tk.Tk):
         self._transform()
     
         # intensity vs angle
-        self.intensity, self.theta, self.rad  = abel.tools.vmi.\
-                                     radial_integration(self.AIM.transform,\
-                                     radial_ranges=[self.rmx,])
+        self.beta, self.amp, self.rad, self.intensity, self.theta =\
+           abel.tools.vmi.radial_integration(self.AIM.transform,\
+                                             radial_ranges=[self.rmx,])
     
-        # fit to P2(cos theta)
-        self.beta, self.amp = abel.tools.vmi.anisotropy_parameter(self.theta, self.intensity[0])
-    
-        self.text.insert(tk.END," beta = {:g}+-{:g}".format(*self.beta))
+        self.text.insert(tk.END," beta = {:g}+-{:g}".format(*self.beta[0]))
     
         self._clr_plt(3)
         self.plt[3].axis("on")
         
         self.plt[3].plot(self.theta, self.intensity[0], 'r-')
-        self.plt[3].plot(self.theta, PAD(self.theta, self.beta[0], self.amp[0]), 'b-', lw=2)
-        self.plt[3].annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*self.rmx+self.beta), (-np.pi/2,-2))
+        self.plt[3].plot(self.theta, PAD(self.theta, self.beta[0][0], self.amp[0][0]), 'b-', lw=2)
+        self.plt[3].annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*self.rmx+self.beta[0]), (-2.5, self.intensity[0].max()/0.8))
         self.plt[3].set_title("anisotropy", fontsize=12)
         self.plt[3].set_xlabel("angle", fontsize=9)
         self.plt[3].set_ylabel("intensity")

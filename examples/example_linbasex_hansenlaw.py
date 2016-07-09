@@ -28,19 +28,8 @@ HIM = abel.Transform(IM, method="hansenlaw", center='convolution',
 
 # alternative derivation of anisotropy parameters via integration
 rrange = [(20, 50), (60, 80), (85, 100), (125, 155), (185, 205), (220, 240)]
-intensity, theta, rr  = abel.tools.vmi.radial_integration(HIM.transform,
-                   radial_ranges=rrange)
-
-# anisotropy parameter from integrated intensity (from hansenlaw method)
-beta = []
-ebeta = []
-rr = []
-for i, inten in enumerate(intensity):
-    betax, amp = abel.tools.vmi.anisotropy_parameter(theta, inten)
-    ar = np.average(rrange[i])
-    beta.append(betax[0])
-    ebeta.append(betax[1])
-    rr.append(ar)
+Beta, Amp, rr, intensity, theta =\
+      abel.tools.vmi.radial_integration(HIM.transform, radial_ranges=rrange)
 
 plt.figure(figsize=(12, 6))
 ax0 = plt.subplot2grid((2,4), (0,0))
@@ -71,7 +60,8 @@ ax1.axis(ymin=-0.1, ymax=1.2)
 ax1.set_xlabel("radial coordinate (pixels)")
 
 ax2.plot(LIM.radial, LIM.Beta[1], 'r-', label='linbasex')
-ax2.errorbar(x=rr, y=beta, yerr=ebeta, color='b', lw=2, fmt='o',
+beta = np.transpose(Beta)
+ax2.errorbar(x=rr, y=beta[0], yerr=beta[1], color='b', lw=2, fmt='o',
              label='hansenlaw')
 ax2.set_title(r"$\beta$-parameter  (Beta2 norm)", fontsize=10)
 ax2.legend(loc=0, labelspacing=0.1, frameon=False, numpoints=1, fontsize=10)

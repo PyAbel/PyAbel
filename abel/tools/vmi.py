@@ -173,16 +173,9 @@ def radial_integration(IM, radial_ranges=None):
         Intensity_vs_theta.append(intensity_vs_theta_at_R)
         radial_midpt.append(np.mean(rr))
 
-        # evaluate anisotropy parameter from intensity_vs_theta_at_R fit to
-        #        amp*(1 + beta P_2(cos theta)) 
-        # returns (beta_i, fit_error_i) for each radial range
         beta, amp = anisotropy_parameter(theta, intensity_vs_theta_at_R)
         Beta.append(beta)
         Amp.append(amp)
-     
-    Beta = np.transpose(Beta)
-    Amp = np.transpose(Amp)
-    Intensity_vs_theta = np.array(Intensity_vs_theta)
 
     return Beta, Amp, radial_midpt, Intensity_vs_theta, theta
 

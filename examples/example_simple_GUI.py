@@ -12,10 +12,11 @@ from scipy.ndimage.interpolation import shift
 import sys
 if sys.version_info[0] < 3:
     import Tkinter as tk
+    from tkFileDialog import askopenfilename
 else:
     import tkinter as tk
-from tkFileDialog import askopenfilename
-import ttk
+    from tkinter.filedialog import askopenfilename
+import tkinter.ttk as ttk
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -24,7 +25,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread
 
-Abel_methods = ['basex', 'direct', 'hansenlaw', 'onion_peeling', 
+Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_peeling', 
                 'onion_bordas', 'two_point', 'three_point']
 
 # GUI window -------------------
@@ -154,18 +155,15 @@ def _anisotropy():
     _transform()
 
     # intensity vs angle
-    intensity, theta, rad = abel.tools.vmi.radial_integration(AIM,\
-                                                  radial_ranges=[rmx,])
+    beta, amp, rad, intensity, theta =\
+        abel.tools.vmi.radial_integration(AIM, radial_ranges=[rmx,])
 
-    # fit to P2(cos theta)
-    beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity[0])
-
-    text.insert(tk.END,"beta = {:g}+-{:g}\n".format(*beta))
+    text.insert(tk.END,"beta = {:g}+-{:g}\n".format(*beta[0]))
 
     f.clf()
     a = f.add_subplot(111)
     a.plot(theta, intensity[0], 'r-')
-    a.plot(theta, PAD(theta, beta[0], amp[0]), 'b-', lw=2)
+    a.plot(theta, PAD(theta, beta[0][0], amp[0][0]), 'b-', lw=2)
     a.annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*rmx+beta), (-np.pi/2,-2))
     canvas.show()
 
@@ -202,11 +200,11 @@ tk.Button(master=root, text='speed distribution', command=_speed)\
 tk.Button(master=root, text='anisotropy parameter', command=_anisotropy)\
    .pack(anchor=tk.N)
 rmin = tk.Entry(master=root, text='rmin')
-rmin.place(anchor=tk.W, relx=0.66, rely=0.22, width=40)
+rmin.place(anchor=tk.W, relx=0.66, rely=0.20, width=40)
 rmin.insert(0, 368)
-tk.Label(master=root, text="to").place(relx=0.74, rely=0.20)
+tk.Label(master=root, text="to").place(relx=0.74, rely=0.18)
 rmax = tk.Entry(master=root, text='rmax')
-rmax.place(anchor=tk.W, relx=0.78, rely=0.22, width=40)
+rmax.place(anchor=tk.W, relx=0.78, rely=0.20, width=40)
 rmax.insert(0, 389)
 
 tk.Button(master=root, text='Quit', command=_quit).pack(anchor=tk.SW)

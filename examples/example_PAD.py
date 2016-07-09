@@ -86,7 +86,8 @@ ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(rows, cols))
 ax2.plot(LIM.Beta[0], 'r-', label='linbasex-Beta[0]')
 ax2.plot(speed, 'b-', label='speed')
 ax2.plot(LIM.Beta[1], 'r-', label='linbasex-Beta[2]')
-ax2.errorbar(Rmid, Beta[0], Beta[1], fmt='o', color='g',
+BetaT = np.transpose(Beta)
+ax2.errorbar(Rmid, BetaT[0], BetaT[1], fmt='o', color='g',
              label='specific radii')
 # ax2.plot(Radial_midpoints, Beta_whole_grid[0], '-g', label='stepped')
 ax2.axis(xmin=100, xmax=450, ymin=-1.2, ymax=1.2)
