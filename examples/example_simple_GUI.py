@@ -156,28 +156,36 @@ def _anisotropy():
     def PAD(theta, beta, amp):
         return amp*(1 + beta*P2(np.cos(theta)))
 
-    # radial range over which to follow the intensity variation with angle
-    rmx = (int(rmin.get()), int(rmax.get()))
+    # inverse Abel transform
+    _transform()
+
+    method = transform.get()
+    if method != 'linbasex':
+        # radial range over which to follow the intensity variation with angle
+        rmx = (int(rmin.get()), int(rmax.get()))
+
+    else:
+        rmx = (0, AIM.radial[-1])
+
 
     text.delete(1.0, tk.END)
     text.insert(tk.END,"anisotropy parameter pixel range {:} to {:}\n".format(*rmx))
     canvas.show()
 
-    # inverse Abel transform
-    _transform()
-
     f.clf()
     a = f.add_subplot(111)
-    if transform.get not in ['linbasex']:
+    if method not in ['linbasex']:
         # intensity vs angle
         beta, amp, rad, intensity, theta =\
             abel.tools.vmi.radial_integration(AIM.transform, radial_ranges=[rmx,])
 
-        text.insert(tk.END,"beta = {:g}+-{:g}\n".format(*beta[0]))
+        beta = beta[0]
+        amp = amp[0]
+        text.insert(tk.END,"beta = {:g}+-{:g}\n".format(beta[0],beta[1]))
 
         a.plot(theta, intensity[0], 'r-')
-        a.plot(theta, PAD(theta, beta[0][0], amp[0][0]), 'b-', lw=2)
-        a.annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*rmx+beta), (-np.pi/2,-2))
+        a.plot(theta, PAD(theta, beta[0], amp[0]), 'b-', lw=2)
+        a.annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(rmx[0], rmx[1],beta[0], beta[1]), (-np.pi/2,-2))
     else:
         beta = AIM.Beta[1]
         radial = AIM.radial
@@ -206,7 +214,7 @@ cent.current(3)
 cent.place(anchor=tk.W, relx=0.65, rely=0.05)
 
 # display raw input image
-tk.Button(master=root, text='raw image', command=_display).pack(anchor=tk.N)
+tk.Button(master=root, text='raw image', command=_display).pack(anchor=tk.W, padx=0.1)
 
 # Abel transform
 tk.Button(master=root, text='inverse Abel transform', command=_transform)\
