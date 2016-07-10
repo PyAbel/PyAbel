@@ -351,7 +351,7 @@ class PyAbel:  #(tk.Tk):
         # center image via chosen method
         self.IM = abel.tools.center.center_image(self.IM, center=center_method,
                                   odd_size=True)
-        self.text.insert(tk.END, "\ncenter offset = {:}".format(self.offset))
+        #self.text.insert(tk.END, "\ncenter offset = {:}".format(self.offset))
         self.text.see(tk.END)
     
         self._display()
