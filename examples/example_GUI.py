@@ -28,8 +28,10 @@ from matplotlib import gridspec
 
 from scipy.ndimage.interpolation import shift
 
-Abel_methods = ['basex', 'direct', 'hansenlaw', 'onion_peeling', 
+Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_peeling', 
                 'onion_bordas', 'two_point', 'three_point']
+
+center_methods = ['center-of-mass', 'convolution', 'gaussian', 'slice']
 
 
 class PyAbel:  #(tk.Tk):
@@ -168,7 +170,7 @@ class PyAbel:  #(tk.Tk):
         self.center.grid(row=0, column=1, padx=(0, 20), pady=(5, 0))
         self.center_method = ttk.Combobox(master=self.button_frame,
                          font=self.font,
-                         values=["com", "slice", "gaussian", "image_center"],
+                         values=center_methods,
                          width=10, height=4)
         self.center_method.current(1)
         self.center_method.grid(row=1, column=1, padx=(0, 20))
