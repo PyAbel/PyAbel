@@ -377,9 +377,15 @@ class PyAbel:  #(tk.Tk):
                                        " unavailable ...")
             self.canvas.show()
     
-            self.AIM = abel.Transform(self.IM, method=self.method, 
-                                      direction=self.fi,
-                                      symmetry_axis=None)
+            if self.method == 'linbasex':
+
+                self.AIM = abel.Transform(self.IM, method=self.method, 
+                                direction=self.fi,
+                                transform_options=dict(return_Beta=True))
+            else:
+                self.AIM = abel.Transform(self.IM, method=self.method, 
+                                direction=self.fi,
+                                symmetry_axis=None)
             self.rmin.delete(0, tk.END)
             self.rmin.insert(0, self.rmx[0])
             self.rmax.delete(0, tk.END)
@@ -408,9 +414,13 @@ class PyAbel:  #(tk.Tk):
         self.text.see(tk.END)
         self.canvas.show()
     
+        if self.method == 'linbasex':
+            self.speed_dist = self.AIM.Beta[0]
+            self.radial = self.AIM.radial
+        else:
         # speed distribution
-        self.radial, self.speed_dist = abel.tools.vmi.angular_integration(
-                                       self.AIM.transform)
+            self.radial, self.speed_dist = abel.tools.vmi.angular_integration(
+                                           self.AIM.transform)
     
         self.plt[1].axis("on")
         self.plt[1].plot(self.radial, self.speed_dist/self.speed_dist[10:].max(),
@@ -443,8 +453,12 @@ class PyAbel:  #(tk.Tk):
     
         self.action = "anisotropy"
         self._transform()
-        # radial range over which to follow the intensity variation with angle
-        self.rmx = (int(self.rmin.get()), int(self.rmax.get()))
+
+        if self.method == 'linbasex':
+            self.rmx = (0, self.radial[-1])
+        else:
+            # radial range over which to follow the intensity variation with angle
+            self.rmx = (int(self.rmin.get()), int(self.rmax.get()))
     
         self.text.insert(tk.END,"\nanisotropy parameter pixel range {:} to {:}: "\
                                .format(*self.rmx))
@@ -453,22 +467,33 @@ class PyAbel:  #(tk.Tk):
         # inverse Abel transform
         self._transform()
     
-        # intensity vs angle
-        self.beta, self.amp, self.rad, self.intensity, self.theta =\
-           abel.tools.vmi.radial_integration(self.AIM.transform,\
-                                             radial_ranges=[self.rmx,])
+        if self.method == 'linbasex':
+            self.beta = self.AIM.Beta[1]
+            self.radial = self.AIM.radial
+            self._clr_plt(3)
+            self.plt[3].axis("on")
+            self.plt[3].plot(self.radial, self.beta, 'r-')
+            self.plt[3].set_title("anisotropy", fontsize=12)
+            self.plt[3].set_xlabel("radius", fontsize=9)
+            self.plt[3].set_ylabel("anisotropy parameter")
+            self.plt[3].axis(xmax=500, ymin=-1.1, ymax=0.1)
+        else:
+            # intensity vs angle
+            self.beta, self.amp, self.rad, self.intensity, self.theta =\
+               abel.tools.vmi.radial_integration(self.AIM.transform,\
+                                                 radial_ranges=[self.rmx,])
     
-        self.text.insert(tk.END," beta = {:g}+-{:g}".format(*self.beta[0]))
+            self.text.insert(tk.END," beta = {:g}+-{:g}".format(*self.beta[0]))
     
-        self._clr_plt(3)
-        self.plt[3].axis("on")
+            self._clr_plt(3)
+            self.plt[3].axis("on")
         
-        self.plt[3].plot(self.theta, self.intensity[0], 'r-')
-        self.plt[3].plot(self.theta, PAD(self.theta, self.beta[0][0], self.amp[0][0]), 'b-', lw=2)
-        self.plt[3].annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*self.rmx+self.beta[0]), (-3, self.intensity[0].min()/0.8))
-        self.plt[3].set_title("anisotropy", fontsize=12)
-        self.plt[3].set_xlabel("angle", fontsize=9)
-        self.plt[3].set_ylabel("intensity")
+            self.plt[3].plot(self.theta, self.intensity[0], 'r-')
+            self.plt[3].plot(self.theta, PAD(self.theta, self.beta[0][0], self.amp[0][0]), 'b-', lw=2)
+            self.plt[3].annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*self.rmx+self.beta[0]), (-3, self.intensity[0].min()/0.8))
+            self.plt[3].set_title("anisotropy", fontsize=12)
+            self.plt[3].set_xlabel("angle", fontsize=9)
+            self.plt[3].set_ylabel("intensity")
 
         self.action = None
         self.canvas.show()
