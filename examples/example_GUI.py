@@ -160,8 +160,9 @@ class PyAbel:  #(tk.Tk):
         self.load.grid(row=0, column=0, sticky=tk.W, padx=(5, 10), pady=(5, 0))
         self.sample_image = ttk.Combobox(master=self.button_frame,
                          font=self.font,
-                         values=["from file", "from transform", "sample dribinski", "sample Ominus"],
-                         width=14, height=4)
+                         values=["from file", "from transform",
+                                 "sample dribinski", "sample Ominus"],
+                         width=10, height=4)
         self.sample_image.current(0)
         self.sample_image.grid(row=1, column=0, padx=(5, 10))
 
@@ -181,8 +182,8 @@ class PyAbel:  #(tk.Tk):
         self.center_method = ttk.Combobox(master=self.button_frame,
                          font=self.font,
                          values=center_methods,
-                         width=10, height=4)
-        self.center_method.current(1)
+                         width=11, height=4)
+        self.center_method.current(0)
         self.center_method.grid(row=1, column=1, padx=(0, 20))
 
         # column 2 -----------
@@ -435,7 +436,12 @@ class PyAbel:  #(tk.Tk):
         self.plt[1].axis("on")
         self.plt[1].plot(self.radial, self.speed_dist/self.speed_dist[10:].max(),
                          label=self.method)
-        self.plt[1].axis(xmax=500, ymin=-0.05)
+        # make O2- look nice
+        if self.fn.find('O2-ANU1024') > -1:
+            self.plt[1].axis(xmax=500, ymin=-0.05)
+        elif self.fn.find('VMI_art1') > -1:
+            self.plt[1].axis(xmax=260, ymin=-0.05)
+
         self.plt[1].set_xlabel("radius (pixels)", fontsize=9)
         self.plt[1].set_ylabel("normalized intensity")
         self.plt[1].set_title("radial speed distribution", fontsize=12)
@@ -465,13 +471,15 @@ class PyAbel:  #(tk.Tk):
         self._transform()
 
         if self.method == 'linbasex':
-            self.rmx = (0, self.radial[-1])
+            self.text.insert(tk.END,
+                        "\nanisotropy parameter pixel range 0 to {}: "\
+                        .format(self.rmx[1]))
         else:
             # radial range over which to follow the intensity variation with angle
             self.rmx = (int(self.rmin.get()), int(self.rmax.get()))
-    
-        self.text.insert(tk.END,"\nanisotropy parameter pixel range {:} to {:}: "\
-                               .format(*self.rmx))
+            self.text.insert(tk.END,
+                        "\nanisotropy parameter pixel range {:} to {:}: "\
+                        .format(*self.rmx))
         self.canvas.show()
     
         # inverse Abel transform
@@ -486,7 +494,11 @@ class PyAbel:  #(tk.Tk):
             self.plt[3].set_title("anisotropy", fontsize=12)
             self.plt[3].set_xlabel("radius", fontsize=9)
             self.plt[3].set_ylabel("anisotropy parameter")
-            self.plt[3].axis(xmax=500, ymin=-1.1, ymax=0.1)
+            # make O2- look nice
+            if self.fn.find('O2-ANU1024') > -1:
+                self.plt[3].axis(xmax=500, ymin=-1.1, ymax=0.1)
+            elif self.fn.find('VMI_art1') > -1:
+                self.plt[3].axis(xmax=260, ymin=-1.1, ymax=2)
         else:
             # intensity vs angle
             self.beta, self.amp, self.rad, self.intensity, self.theta =\
@@ -499,8 +511,10 @@ class PyAbel:  #(tk.Tk):
             self.plt[3].axis("on")
         
             self.plt[3].plot(self.theta, self.intensity[0], 'r-')
-            self.plt[3].plot(self.theta, PAD(self.theta, self.beta[0][0], self.amp[0][0]), 'b-', lw=2)
-            self.plt[3].annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*self.rmx+self.beta[0]), (-3, self.intensity[0].min()/0.8))
+            self.plt[3].plot(self.theta, PAD(self.theta, self.beta[0][0],
+                             self.amp[0][0]), 'b-', lw=2)
+            self.plt[3].annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".
+             format(*self.rmx+self.beta[0]), (-3, self.intensity[0].min()/0.8))
             self.plt[3].set_title("anisotropy", fontsize=12)
             self.plt[3].set_xlabel("angle", fontsize=9)
             self.plt[3].set_ylabel("intensity")
