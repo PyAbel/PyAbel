@@ -98,6 +98,7 @@ class PyAbel:  #(tk.Tk):
         # duplicates the button interface
         self.menubar = tk.Menu(self.parent)
         self.transform_method = tk.IntVar()
+        self.center_method = tk.IntVar()
 
         # File - menu
         self.filemenu = tk.Menu(self.menubar, tearoff=0)
@@ -109,7 +110,16 @@ class PyAbel:  #(tk.Tk):
 
         # Process - menu
         self.processmenu = tk.Menu(self.menubar, tearoff=0)
-        self.processmenu.add_command(label="Center image", command=self._center)
+        #self.processmenu.add_command(label="Center image", command=self._center)
+
+        self.subcent=tk.Menu(self.processmenu)
+        for cent in center_methods:
+            self.subcent.add_radiobutton(label=cent,
+                 var=self.center_method, val=center_methods.index(cent),
+                 command=self._center)
+        self.processmenu.add_cascade(label="Center image",
+                 menu=self.subcent, underline=0)
+        
         self.submenu=tk.Menu(self.processmenu)
         for method in Abel_methods:
             self.submenu.add_radiobutton(label=method,
