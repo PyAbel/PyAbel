@@ -49,9 +49,9 @@ class PyAbel:  #(tk.Tk):
         self.rmx = (368, 393)
 
         # matplotlib figure
-        self.f = Figure(figsize=(2, 4))
+        self.f = Figure(figsize=(2, 8))
         self.gs = gridspec.GridSpec(2, 2, width_ratios=[1, 2])
-        self.gs.update(wspace=0.2, hspace=0.5)
+        self.gs.update(wspace=0.2, hspace=0.2)
 
         self.plt = []
         self.plt.append(self.f.add_subplot(self.gs[0]))
@@ -183,7 +183,7 @@ class PyAbel:  #(tk.Tk):
                          font=self.font,
                          values=center_methods,
                          width=11, height=4)
-        self.center_method.current(0)
+        self.center_method.current(1)
         self.center_method.grid(row=1, column=1, padx=(0, 20))
 
         # column 2 -----------
