@@ -49,7 +49,7 @@ class PyAbel:  #(tk.Tk):
         self.rmx = (368, 393)
 
         # matplotlib figure
-        self.f = Figure(figsize=(2, 8))
+        self.f = Figure(figsize=(2, 6))
         self.gs = gridspec.GridSpec(2, 2, width_ratios=[1, 2])
         self.gs.update(wspace=0.2, hspace=0.2)
 
@@ -379,17 +379,16 @@ class PyAbel:  #(tk.Tk):
             # Abel transform of whole image
             self.text.insert(tk.END,"\n{:s} {:s} Abel transform:".\
                              format(self.method, self.fi))
-            if "basex" in self.method:
+            if self.method == "basex":
                 self.text.insert(tk.END,
                               "\nbasex: first time calculation of the basis"
                               " functions may take a while ...")
-            if "direct" in self.method:
-               self.text.insert(tk.END,"\ndirect: calculation is slowed if Cython"
-                                       " unavailable ...")
+            elif self.method == "direct":
+               self.text.insert(tk.END,
+                 "\ndirect: calculation is slowed if Cython unavailable ...")
             self.canvas.show()
     
             if self.method == 'linbasex':
-
                 self.AIM = abel.Transform(self.IM, method=self.method, 
                                 direction=self.fi,
                                 transform_options=dict(return_Beta=True))
