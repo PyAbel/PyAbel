@@ -259,13 +259,13 @@ class PyAbel:  #(tk.Tk):
                          " be incomplete ...\n")
         self.text.insert(tk.END, "To start: load an image data file using"
                          " e.g. data/O2-ANU1024.txt.bz2\n"
-                         " '(1) load image' button (or file menu)\n"
-                         " '(2) center image'\n"
-                         " '(3) Abel transform'\n"
-                         " '(4) speed'\n"
-                         " '(5) anisotropy'\n"
-                         " '(6) Abel transform <- change'\n"
-                         " '(:) repeat'\n")
+                         " (1) load image button (or file menu)\n"
+                         " (2) center image\n"
+                         " (3) Abel transform\n"
+                         " (4) speed\n"
+                         " (5) anisotropy\n"
+                         " (6) Abel transform <- change\n"
+                         " (:) repeat\n")
         self.text.grid(row=3, column=1, columnspan=3, padx=5)
 
 
