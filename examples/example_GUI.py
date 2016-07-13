@@ -155,20 +155,20 @@ class PyAbel:  #(tk.Tk):
         # column 0 ---------
         # load image file button
         self.load = tk.Button(master=self.button_frame, text="load image",
-                              font=self.fontB,
+                              font=self.fontB, fg="dark blue",
                               command=self._loadimage)
         self.load.grid(row=0, column=0, sticky=tk.W, padx=(5, 10), pady=(5, 0))
         self.sample_image = ttk.Combobox(master=self.button_frame,
                          font=self.font,
                          values=["from file", "from transform",
                                  "sample dribinski", "sample Ominus"],
-                         width=10, height=4)
+                         width=14, height=4)
         self.sample_image.current(0)
         self.sample_image.grid(row=1, column=0, padx=(5, 10))
 
         # quit
-        self.quit = tk.Button(master=self.button_frame, text="quit",
-                              font=self.fontB,
+        self.quit = tk.Button(master=self.button_frame, text="Quit",
+                              font=self.fontB, fg="dark red",
                               command=self._quit)
         self.quit.grid(row=3, column=0, sticky=tk.W, padx=(5, 10), pady=(0, 5))
    
@@ -176,7 +176,7 @@ class PyAbel:  #(tk.Tk):
         # center image
         self.center = tk.Button(master=self.button_frame, text="center image",
                                 anchor=tk.W, 
-                                font=self.fontB,
+                                font=self.fontB, fg="dark blue",
                                 command=self._center)
         self.center.grid(row=0, column=1, padx=(0, 20), pady=(5, 0))
         self.center_method = ttk.Combobox(master=self.button_frame,
@@ -190,7 +190,7 @@ class PyAbel:  #(tk.Tk):
         # Abel transform image
         self.recond = tk.Button(master=self.button_frame,
                                 text="Abel transform image",
-                                font=self.fontB,
+                                font=self.fontB, fg="dark blue",
                                 command=self._transform)
         self.recond.grid(row=0, column=2, padx=(0, 10), pady=(5, 0))
 
@@ -212,7 +212,7 @@ class PyAbel:  #(tk.Tk):
         # column 3 -----------
         # speed button
         self.speed = tk.Button(master=self.button_frame, text="speed",
-                               font=self.fontB,
+                               font=self.fontB, fg="dark blue",
                                command=self._speed)
         self.speed.grid(row=0, column=5, padx=20, pady=(5, 0))
         
@@ -223,7 +223,7 @@ class PyAbel:  #(tk.Tk):
         # column 4 -----------
         # anisotropy button
         self.aniso = tk.Button(master=self.button_frame, text="anisotropy",
-                               font=self.fontB,
+                               font=self.fontB, fg="dark blue",
                                command=self._anisotropy)
         self.aniso.grid(row=0, column=6, pady=(5, 0))
 
@@ -246,20 +246,26 @@ class PyAbel:  #(tk.Tk):
         # turn off button interface
         self.hide_buttons = tk.Button(master=self.button_frame,
                                       text="hide buttons",
-                                      font=self.fontB,
+                                      font=self.fontB, fg='grey',
                                       command=self._hide_buttons)
         self.hide_buttons.grid(row=3, column=6, sticky=tk.E, pady=(0, 20))
 
     def _text_info_box(self):
         # text info box ---------------------
-        self.text = ScrolledText(master=self.button_frame, height=4, 
+        self.text = ScrolledText(master=self.button_frame, height=6, 
                             fg="mediumblue",
                             bd=1, relief=tk.SUNKEN)
         self.text.insert(tk.END, "Work in progress, some features may"
-                         " be incomplete\n\n")
-        self.text.insert(tk.END, "To start load an image data file using"
-                         " 'load image' button (or file menu)\n")
-        self.text.insert(tk.END, "e.g. data/O2-ANU1024.txt.bz2\n")
+                         " be incomplete ...\n")
+        self.text.insert(tk.END, "To start: load an image data file using"
+                         " e.g. data/O2-ANU1024.txt.bz2\n"
+                         " '(1) load image' button (or file menu)\n"
+                         " '(2) center image'\n"
+                         " '(3) Abel transform'\n"
+                         " '(4) speed'\n"
+                         " '(5) anisotropy'\n"
+                         " '(6) Abel transform <- change'\n"
+                         " '(:) repeat'\n")
         self.text.grid(row=3, column=1, columnspan=3, padx=5)
 
 
