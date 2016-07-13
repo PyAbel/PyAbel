@@ -74,5 +74,3 @@ def test_speeds_non_integer_center():
 
 if __name__ == "__main()__":
    test_centering_function()
-
-def test_anisotropy():
