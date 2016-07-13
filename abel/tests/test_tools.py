@@ -5,10 +5,9 @@ from __future__ import print_function
 import os.path
 
 import numpy as np
-from numpy.testing import assert_allclose, assert_equal
+from numpy.testing import assert_allclose, assert_equal, assert_almost_equal
 
-from abel.tools.vmi import angular_integration
-from abel.tools.center import  center_image
+import abel
 from abel.benchmark import is_symmetric
 
 
@@ -27,7 +26,7 @@ def test_speeds():
 
     IM = np.random.randn(n, n)
 
-    angular_integration(IM)
+    abel.tools.vmi.angular_integration(IM)
 
 
 def test_centering_function_shape():
@@ -38,7 +37,7 @@ def test_centering_function_shape():
                     (5, 11),  # pad image
                     (4, 11)]:
         data = np.zeros((y, x))
-        res = center_image(data, (y//2, x//2))
+        res = abel.tools.center.center_image(data, (y//2, x//2))
         assert_equal( res.shape, (y, x),
                     'Centering preserves shapes for ni={}, n={}'.format(y, x))
 
@@ -56,7 +55,7 @@ def test_centering_function():
         # # else:
         arr[n_c-1:n_c+1,n_c-1:n_c+1] = 1.0
 
-        res = center_image(arr, (n_c, n_c), odd_size=False)
+        res = abel.tools.center.center_image(arr, (n_c, n_c), odd_size=False)
         # The print statements  below can be commented after we fix the centering issue
         # print('Original array')
         # print(arr)
@@ -70,7 +69,17 @@ def test_speeds_non_integer_center():
     # ensures that the rest speeds function can work with a non-integer center
     n  = 101
     IM = np.random.randn(n, n)
-    angular_integration(IM, origin=(50.5, 50.5))
+    abel.tools.vmi.angular_integration(IM, origin=(50.5, 50.5))
 
-if __name__ == "__main()__":
-   test_centering_function()
+def test_anisotropy_parameter():
+    # anisotropy parameter from test image (not inverted)
+    IM = abel.tools.analytical.sample_image(name='dribinski')
+    
+    Beta, Amp, Rmid, Ivstheta, theta = abel.tools.vmi.radial_integration(IM,
+                                         radial_ranges=([(0, 33), (92, 108)]))
+
+    assert_almost_equal(-0.13, Beta[0][0], decimal=2)
+
+
+if __name__ == "__main__":
+    test_anisotropy_parameter()
