@@ -72,7 +72,7 @@ def test_speeds_non_integer_center():
     abel.tools.vmi.angular_integration(IM, origin=(50.5, 50.5))
 
 def test_anisotropy_parameter():
-    # anisotropy parameter from test image (not inverted)
+    # anisotropy parameter from test image (not transformed)
     IM = abel.tools.analytical.sample_image(name='dribinski')
     
     Beta, Amp, Rmid, Ivstheta, theta = abel.tools.vmi.radial_integration(IM,
