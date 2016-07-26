@@ -50,14 +50,12 @@ r_range = [(93, 111), (145, 162), (255, 280), (330, 350), (350, 370),
            (370, 390), (390, 410), (410, 430)]
 
 # map to intensity vs theta for each radial range
-intensities, theta, rad = abel.tools.vmi.radial_integration(AIM, radial_ranges=r_range)
+Beta, Amp, rad,intensities, theta = abel.tools.vmi.radial_integration(AIM, radial_ranges=r_range)
 
 print("radial-range      anisotropy parameter (beta)")
-for rr, intensity in zip(r_range, intensities):
-    # evaluate anisotropy parameter from least-squares fit to
-    # intensity vs angle
-    beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity)
-    result = "    {:3d}-{:3d}        {:+.2f}+-{:.2f}".format(*rr+beta)
+for beta, rr in zip(Beta, r_range):
+    result = "    {:3d}-{:3d}        {:+.2f}+-{:.2f}"\
+             .format(rr[0], rr[1], beta[0], beta[1])
     print(result)
 
 # plots of the analysis
@@ -72,7 +70,7 @@ AIM *= vmax/AIM[:, c2+100:].max()
 JIM = np.concatenate((IM[:, :c2], AIM[:, c2:]), axis=1)
 rr = r_range[-3]
 intensity = intensities[-3]
-beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity) 
+beta, amp = Beta[-3], Amp[-3]
 
 # Prettify the plot a little bit:
 # Plot the raw data

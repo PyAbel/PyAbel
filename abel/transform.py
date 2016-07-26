@@ -459,18 +459,21 @@ class Transform(object):
         if self.method == "linbasex" and\
            "return_Beta" in transform_options.keys():
             # linbasex evaluates speed and anisotropy parameters
-            Beta0 = AQ0[1]
-            Beta1 = AQ1[1]
-            Beta2 = AQ2[1]
-            Beta3 = AQ3[1]
+            # AQi == AIM, R, Beta, QLz
+            Beta0 = AQ0[2]
+            Beta1 = AQ1[2]
+            Beta2 = AQ2[2]
+            Beta3 = AQ3[2]
             # rconstructed images of each quadrant
             AQ0 = AQ0[0]
             AQ1 = AQ1[0]
             AQ2 = AQ2[0]
             AQ3 = AQ3[0]
-            self.linbasex_angular_integration =\
+            # speed
+            self.linbasex_angular_integration = self.Beta[0]\
                  (Beta0[0] + Beta1[0] + Beta2[0] + Beta3[0])/4
-            self.linbasex_anisotropy_parameter =\
+            # anisotropy
+            self.linbasex_anisotropy_parameter = self.Beta[1]\
                  (Beta0[1] + Beta1[1] + Beta2[1] + Beta3[1])/4
 
         # reassemble image
