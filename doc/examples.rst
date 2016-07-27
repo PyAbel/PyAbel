@@ -14,3 +14,5 @@ Contents:
    example_all_dribinski
    example_dasch_methods
    example_onion_bordas
+   example_linbasex
+   example_anisotropy_parameter

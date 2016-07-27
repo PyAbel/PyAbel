@@ -27,4 +27,4 @@ where :math:`\beta(\epsilon)` is the electron kinetic energy (:math:`\epsilon`) 
 Example
 -------
 
-.. plot:: ../examples/example_PAD.py 
+.. plot:: ../examples/example_anisotropy_parameter.py 
