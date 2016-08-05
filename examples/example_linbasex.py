@@ -9,9 +9,7 @@ import abel
 import matplotlib.pylab as plt
 
 # This example demonstrates ``linbasex`` inverse Abel transform
-# of an image obtained using a velocity map imaging (VMI) photoelecton 
-# spectrometer to record the photoelectron angular distribution resulting 
-# from photodetachement of O2- at 454 nm. 
+# of a velocity-map image of photoelectrons from O2- photodetachment at 454 nm. 
 # Measured at  The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
@@ -19,18 +17,19 @@ import matplotlib.pylab as plt
 IM = np.loadtxt("data/O2-ANU1024.txt.bz2")
 # use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
 
-rows, cols = IM.shape    # image size
-
-# Image center should be mid-pixel and image square, 
+# Image center should be mid-pixel and the image square, 
 # `center=convolution` takes care of this
 
 un = [0, 2]  # spherical harmonic orders
-proj_angles = range(0, 180, 45)  # projection angles
-smoothing = 1  # smoothing Gaussian 1/e width
+proj_angles = range(0, 360, 10)  # projection angles
+# adjust these parameter to 'improve' the look
+smoothing = 0.9  # smoothing Gaussian 1/e width
+threshold = 0.01 # exclude small amplitude Newton spheres
+# no need to change these
 radial_step = 1
-threshold = 0.2
 clip = 0
-# Hansen & Law inverse Abel transform
+
+# linbasex inverse Abel transform
 LIM = abel.Transform(IM, method="linbasex", center="convolution",
                      center_options=dict(square=True),
                      transform_options=dict(basis_dir=None, return_Beta=True,
@@ -39,21 +38,19 @@ LIM = abel.Transform(IM, method="linbasex", center="convolution",
                                             radial_step=radial_step, clip=clip,
                                             threshold=threshold)) 
 
-# angular_integration - direct from `linbasex` transform
+# angular, and radial integration - direct from `linbasex` transform
+# as class attributes
 radial = LIM.radial
 speed  = LIM.Beta[0]
+anisotropy = LIM.Beta[1]
 
-# normalize to max intensity peak
+# normalize to max intensity peak i.e. max peak height = 1
 speed /= speed[200:].max()  # exclude transform noise near centerline of image
 
-# PAD - photoelectron angular distribution  - direct from `linbasex` transform
-beta = LIM.Beta[1]
-
 # plots of the analysis
-fig = plt.figure(figsize=(16, 4))
-ax1 = plt.subplot2grid((1, 3), (0, 0))
-ax2 = plt.subplot2grid((1, 3), (0, 1))
-ax3 = plt.subplot2grid((1, 3), (0, 2), sharex=ax2)
+fig = plt.figure(figsize=(11, 5))
+ax1 = plt.subplot2grid((1, 2), (0, 0))
+ax2 = plt.subplot2grid((1, 2), (0, 1))
 
 # join 1/2 raw data : 1/2 inversion image
 inv_IM = LIM.transform
@@ -63,30 +60,27 @@ vmax = IM[:, :c2-100].max()
 inv_IM *= vmax/inv_IM[:, c2+100:].max()
 JIM = np.concatenate((IM[:, :c2], inv_IM[:, c2:]), axis=1)
 
-# Prettify the plot a little bit:
-# Plot the raw data
-im1 = ax1.imshow(JIM, origin='lower', aspect='auto', vmin=0, vmax=vmax)
-#fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
-ax1.set_xlabel('x (pixels)')
-ax1.set_ylabel('y (pixels)')
-ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(*inv_IM.shape), fontsize='small')
+# raw data
+im1 = ax1.imshow(JIM, origin='upper', aspect='auto', vmin=0, vmax=vmax)
+ax1.set_xlabel('column (pixels)')
+ax1.set_ylabel('row (pixels)')
+ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(*inv_IM.shape),
+              fontsize='small')
 
-# Plot the 1D speed distribution
-ax2.plot(radial, speed)
+# Plot the 1D speed distribution and anisotropy parameter ("looks" better
+# if multiplied by the intensity)
+ax2.plot(radial, speed, label='speed')
+ax2.plot(radial, speed*anisotropy, label=r'anisotropy $\times$ speed')
 ax2.set_xlabel('radial pixel')
-ax2.axis(ymin=-0.1, ymax=1.2)
+ax2.axis(xmin=100, xmax=500, ymin=-1.0, ymax=1.1)
+ax2.set_title("speed, anisotropy parameter", fontsize='small')
 ax2.set_ylabel('intensity')
-ax2.set_title('Beta[0]: speed distribution', fontsize='small')
 ax2.set_xlabel('radial coordinate (pixels)')
 
-# Plot anisotropy variation
-ax3.plot(radial, beta, 'r-')
-ax3.axis(xmin=150, xmax=450, ymin=-1.2, ymax=0.1)
-ax3.set_ylabel("$\\beta$")
-ax3.set_title("Beta[1]: anisotropy parameter", fontsize='small')
-ax2.set_xlabel('radial coordinate (pixels)')
-
-plt.suptitle("un={}, an={}, sig_s={}".format(un, proj_angles, smoothing))
+plt.legend(loc='best', frameon=False, labelspacing=0.1, fontsize='small')
+plt.suptitle(
+r'linbasex inverse Abel transform of O$_{2}{}^{-}$ electron velocity-map image',
+             fontsize='larger')
 
 # Save a image of the plot
 plt.savefig("example_linbasex.png", dpi=100)

@@ -20,7 +20,7 @@ IM = np.loadtxt("data/O2-ANU1024.txt.bz2")
 legendre_orders = [0, 2, 4]  # Legendre polynomial orders
 proj_angles = range(0, 180, 10)  # projection angles in 10 degree steps
 radial_step = 1  # pixel grid
-smoothing = 1  # smoothing 1/e-width for Gaussian convolution smoothing
+smoothing = 0.9  # smoothing 1/e-width for Gaussian convolution smoothing
 threshold = 0.2  # threshold for normalization of higher order Newton spheres
 clip = 0  # clip first vectors (smallest Newton spheres) to avoid singularities
 
@@ -85,6 +85,7 @@ ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(rows, cols))
 # Plot the 1D speed distribution
 ax2.plot(LIM.Beta[0], 'r-', label='linbasex-Beta[0]')
 ax2.plot(speed, 'b-', label='speed')
+# Plot anisotropy parameter, attribute Beta[1], x speed
 ax2.plot(LIM.Beta[1], 'r-', label='linbasex-Beta[2]')
 BetaT = np.transpose(Beta)
 ax2.errorbar(Rmid, BetaT[0], BetaT[1], fmt='o', color='g',
