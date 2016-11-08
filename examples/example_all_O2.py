@@ -24,6 +24,7 @@ from time import time
 
 transforms = {
   "basex": abel.basex.basex_transform,   
+  "linbasex": abel.linbasex.linbasex_transform,
   "direct": abel.direct.direct_transform,      
   "hansenlaw": abel.hansenlaw.hansenlaw_transform,
   "onion_bordas": abel.onion_bordas.onion_bordas_transform,
@@ -128,7 +129,7 @@ ax0.imshow(im, vmin=0, vmax=0.8)
 
 ax1.set_title("speed distribution")
 ax1.axis(ymin=-0.05, ymax=1.1, xmin=50, xmax=450)
-ax1.legend(loc=0, labelspacing=0.1, fontsize=10)
+ax1.legend(loc=0, labelspacing=0.1, fontsize=10, frameon=False)
 plt.tight_layout()
 
 # save a copy of the plot

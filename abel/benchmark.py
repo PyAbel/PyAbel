@@ -9,6 +9,7 @@ import abel
 from . import basex
 from . import dasch
 from . import direct
+from . import linbasex
 from . import hansenlaw
 from . import onion_bordas
 from . import tools
@@ -29,8 +30,9 @@ class AbelTiming(object):
         select: list of str
             list of transforms to benchmark select=['all',] (default) or 
             choose transforms:
-            select=['basex', 'direct_Python', 'direct_C', 'hansenlaw',
-             'onion_bordas, 'onion_peeling', 'two_point', 'three_point']
+            select=['basex', 'direct_Python', 'direct_C', 'hansenlaw', 
+                    'linbasex' 'onion_bordas, 'onion_peeling', 'two_point', 
+                    'three_point']
 
         n_max_bs: integer
             since the basis sets generation takes a long time,
@@ -52,6 +54,8 @@ class AbelTiming(object):
             'direct_Python': direct.direct_transform,
             'direct_C': direct.direct_transform,
             'hansenlaw': hansenlaw.hansenlaw_transform,
+            'linbasex': linbasex._linbasex_transform_with_basis,
+            'linbasex_bs': linbasex._bs_linbasex,
             'onion_bordas': onion_bordas.onion_bordas_transform,
             'onion_peeling': dasch.dasch_transform,
             'onion_peeling_bs': dasch._bs_onion_peeling,
@@ -63,10 +67,11 @@ class AbelTiming(object):
 
         # result dicts
         res = {}
-        res['bs'] = {'basex_bs': [], 'onion_peeling_bs': [], 
+        res['bs'] = {'basex_bs': [], 'linbasex_bs': [], 'onion_peeling_bs': [], 
                      'two_point_bs': [], 'three_point_bs': []}
         res['forward'] = {'direct_Python': [], 'hansenlaw': []}
         res['inverse'] = {'basex': [], 'direct_Python': [], 'hansenlaw': [],
+                          'linbasex': [],
                           'onion_bordas': [], 'onion_peeling': [],
                           'two_point': [], 'three_point': []}
 

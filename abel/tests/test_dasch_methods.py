@@ -29,10 +29,10 @@ def test_dasch_basis_sets_cache():
         if os.path.exists(file_name):
             os.remove(file_name)
         # 1st call generate and save
-        abel.dasch.get_bs_cached(method, n, basis_dir=DATA_DIR, 
+        abel.tools.basis.get_bs_cached(method, n, basis_dir=DATA_DIR, 
                                  verbose=False)
         # 2nd call load from file
-        abel.dasch.get_bs_cached(method, n, basis_dir=DATA_DIR, 
+        abel.tools.basis.get_bs_cached(method, n, basis_dir=DATA_DIR, 
                                  verbose=False)
 
         # clean-up

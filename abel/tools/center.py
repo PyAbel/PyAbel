@@ -12,28 +12,34 @@ from scipy.ndimage.interpolation import shift
 from scipy.optimize import minimize
 from six import string_types # testing stings with Python 2 and 3 compatibility
 
-def find_center(IM, center='image_center', verbose=False, **kwargs):
+def find_center(IM, center='image_center', square=False, verbose=False, 
+                **kwargs):
     """Find the coordinates of image center, using the method 
        specified by the `center` parameter.
 
     Parameters
     ----------
-    IM : 2D np.array
+    IM: 2D np.array
       image data
 
-    center : str
+    center: str
         this determines how the center should be found. The options are:
         
         ``image_center``
             the center of the image is used as the center. The trivial result.
         ``com``
-            the center is found as the center of mass
+            the center is found as the center of mass.
+        ``convolution``
+            center by convolution of two projections along each axis.
         ``gaussian``
             the center is extracted by a fit to a Gaussian function.
             This is probably only appropriate if the data resembles a
             gaussian.
         ``slice``
             the image is broken into slices, and these slices compared for symmetry.
+
+    square: bool
+        if 'True' returned image will have a square shape
 
     Returns
     -------
@@ -44,7 +50,8 @@ def find_center(IM, center='image_center', verbose=False, **kwargs):
     return func_method[center](IM, verbose=verbose, **kwargs)
 
 
-def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
+def center_image(IM, center='com', odd_size=True, square=False, verbose=False,
+                 **kwargs):
     """ Center image with the custom value or by several methods provided in `find_center` function
 
     Parameters
@@ -62,7 +69,9 @@ def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
         ``image_center``
             the center of the image is used as the center. The trivial result.
         ``com``
-            the center is found as the center of mass
+            the center is found as the center of mass.
+        ``convolution``
+            center by convolution of two projections along each axis.
         ``gaussian``
             the center is extracted by a fit to a Gaussian function.
             This is probably only appropriate if the data resembles a
@@ -74,6 +83,9 @@ def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
         if True, an image will be returned containing an odd number of columns. 
         Most of the transform methods require this, so it's best to set this to 
         True if the image will subsequently be Abel transformed.
+
+    square: bool
+        if 'True' returned image will have a square shape
     
     crop : str
         This determines how the image should be cropped. The options are:
@@ -103,6 +115,26 @@ def center_image(IM, center='com', odd_size=True, verbose=False, **kwargs):
     if odd_size and cols % 2 == 0:
         # drop rightside column
         IM = IM[:, :-1]
+        rows, cols = IM.shape
+
+    if square and rows != cols:
+        # make rows == cols, but maintain approx. center
+        if rows > cols:
+            diff = rows - cols
+            trim = diff//2
+            if trim > 0:
+                IM = IM[trim: -trim]  # remove even number of rows off each end
+            if diff % 2:
+                IM = IM[: -1]  # remove one additional row
+            
+        else:
+            # make rows == cols, check row oddness
+            if odd_size and rows % 2 == 0:
+               IM = IM[:-1, :]
+               rows -= 1 
+            xs = (cols - rows)//2
+            IM = IM[:, xs:-xs]
+
         rows, cols = IM.shape
 
     # center is in y,x (row column) format!
@@ -223,14 +255,47 @@ def find_center_by_center_of_mass(IM, verbose=False, round_output=False,
     return center
 
 
+def find_center_by_convolution(IM, **kwargs):
+    """ Center the image by convolution of two projections along each axis.
+
+        code from the ``linbasex`` juptyer notebook
+
+    Parameter
+    -------
+    IM: numpy 2D array
+        image data
+    Returns
+    -------
+    center: tuple
+        (row-center, col-center)
+
+    """
+    # projection along axis=0 of image (rows)
+    QL_raw0 = IM.sum(axis=1)
+    # projection along axis=1 of image (cols)
+    QL_raw1 = IM.sum(axis=0) 
+
+    # autocorrelate projections
+    conv_0 = np.convolve(QL_raw0, QL_raw0, mode='full')
+    conv_1 = np.convolve(QL_raw1, QL_raw1, mode='full')
+    len_conv = len(conv_0)/2
+
+    #Take the first max, should there be several equal maxima.
+    # 10May16 - axes swapped - check this
+    center = (np.argmax(conv_0)/2, np.argmax(conv_1)/2)
+
+    if "projections" in kwargs.keys():
+        return center, conv_0, conv_1
+    else:
+        return center
+
+
 def find_center_by_center_of_image(data, verbose=False, **kwargs):
     """
     Find image center simply from its dimensions.
     """
     return (data.shape[1] // 2 + data.shape[1] % 2,
             data.shape[0] // 2 + data.shape[0] % 2)
-
-
 
 
 def find_center_by_gaussian_fit(IM, verbose=False, round_output=False,
@@ -380,7 +445,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
 func_method = {
     "image_center": find_center_by_center_of_image,
     "com": find_center_by_center_of_mass,
+    "convolution": find_center_by_convolution,
     "gaussian": find_center_by_gaussian_fit,
     "slice": find_image_center_by_slice
 }
-

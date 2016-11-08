@@ -18,6 +18,14 @@ abel.basex module
     :undoc-members:
     :show-inheritance:
 
+abel.linbasex module
+--------------------
+
+.. automodule:: abel.linbasex
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 abel.hansenlaw module
 ---------------------
 
@@ -59,6 +67,14 @@ abel.tools.analytical module
 ----------------------------
 
 .. automodule:: abel.tools.analytical
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.tools.basis module
+------------------------
+
+.. automodule:: abel.tools.basis
     :members:
     :undoc-members:
     :show-inheritance:

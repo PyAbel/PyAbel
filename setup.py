@@ -5,8 +5,8 @@ import os.path
 from setuptools import setup, find_packages, Extension
 from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
 
-# change behaviour of the setup.py on readthedocs.org
-# https://read-the-docs.readthedocs.org/en/latest/faq.html#how-do-i-change-behavior-for-read-the-docs
+# change behaviour of the setup.py on readthedocs.io
+# https://read-the-docs.readthedocs.io/en/latest/faq.html#how-do-i-change-behavior-for-read-the-docs
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if not on_rtd:
     import numpy as np
@@ -39,7 +39,7 @@ except ImportError:
 
 
 # a define the version sting inside the package
-# see https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package 
+# see https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 VERSIONFILE="abel/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()
 VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
@@ -52,12 +52,12 @@ else:
 
 if sys.platform != 'win32':
     compile_args = dict( extra_compile_args=['-O2', '-march=native',
-                                             '-Wno-unused-function', 
+                                             '-Wno-unused-function',
                                              '-Wno-unneeded-internal-declaration',
                                              '-Wno-#warnings'],
                              extra_link_args=['-O2', '-march=native'])
 else:
-    compile_args = dict( extra_compile_args=['-Wunused-function', 
+    compile_args = dict( extra_compile_args=['-Wunused-function',
                                               '-Wunneeded-internal-declaration',
                                               '-Wno-#warnings'])
 
@@ -139,4 +139,3 @@ setup(name='PyAbel',
       ],
       **setup_args
      )
-

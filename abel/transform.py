@@ -10,10 +10,11 @@ import time
 import warnings
 
 from . import basex
-from . import hansenlaw
 from . import dasch
-from . import onion_bordas
 from . import direct
+from . import hansenlaw
+from . import linbasex
+from . import onion_bordas
 from . import tools
 
 
@@ -31,16 +32,35 @@ class Transform(object):
     transform : numpy 2D array 
         the 2D forward/reverse Abel transform.
     angular_integration : tuple
-        radial coordinates, with the radial intensity (speed) distribution.
+        (radial-grid, radial-intensity)
+        radial coordinates, and the radial intensity (speed) distribution,
+        evaluated using :func:`abel.tools.vmi.angular_integration()`.
     residual : numpy 2D array
         residual image (not currently implemented).
     IM: numpy 2D array
-        the input image, re-centered (optional) with an odd-size width
+        the input image, re-centered (optional) with an odd-size width.
     method : str
         transform method, as specified by the input option.
-    direction: str
+    direction : str
         transform direction, as specified by the input option.
+
+    Beta : numpy 2D array
+        with ``linbasex`` :func:`transform_options=dict(return_Beta=True)`
+        Beta array coefficients of Newton sphere spherical harmonics
         
+            Beta[0] - the radial intensity variation
+
+            Beta[1] - the anisotropy parameter variation
+
+            ...Beta[n] - higher order terms up to `legedre_orders = [0, ..., n]`
+        
+    radial : numpy 1d array
+        with ``linbasex`` :func:`transform_options=dict(return_Beta=True)`
+        radial-grid for Beta array
+
+    projection : 
+        with ``linbasex`` :func:`transform_options=dict(return_Beta=True)`
+        radial projection profiles at angles `proj_angles`
     """
 
     _verbose = False
@@ -94,7 +114,12 @@ class Transform(object):
                         re-implemented by Rallis, Wells and co-workers (2014).
 
             ``onion_peeling``
-                        the onion peeling deconvolution as described by Dasch (1992)
+                        the onion peeling deconvolution as described by 
+                        Dasch (1992).
+
+            ``linbasex``
+                        the 1d-projections of VM-images in terms of 1d
+                        spherical functions by Gerber et al. (2013).
 
         center : tuple or str
             If a tuple (float, float) is provided, this specifies
@@ -106,6 +131,8 @@ class Transform(object):
 
             ``image_center``
                 center is assumed to be the center of the image.
+            ``convolution``
+                center the image by convolution of two projections along each axis.
             ``slice``
                 the center is found my comparing slices in the horizontal and
                 vertical directions
@@ -253,6 +280,16 @@ class Transform(object):
             but thanks to this Cython implementation (by Roman Yurchuk),
             this 'direct' method is competitive with the other methods.
 
+        ``linbasex`` *
+            VM-images are composed of projected Newton spheres with a common 
+            centre. The 2D images are usually evaluated by a decomposition into
+            base vectors each representing the 2D projection of a set of 
+            particles starting from a centre with a specific velocity 
+            distribution. `linbasex` evaluate 1D projections of VM-images in 
+            terms of 1D projections of spherical functions, instead.
+            
+            ..Rev. Sci. Instrum. 84, 033101 (2013): <http://scitation.aip.org/content/aip/journal/rsi/84/3/10.1063/1.4793404>
+
         ``onion_bordas``
             The onion peeling method, also known as "back projection",
             originates from Bordas *et al.*  `Rev. Sci. Instrum. 67, 2257 (1996)`_.
@@ -268,13 +305,13 @@ class Transform(object):
         .. _#56: <https://github.com/PyAbel/PyAbel/issues/56>
 
 
-        ``onion_peeling``
+        ``onion_peeling`` *
             This is one of the most compact and fast algorithms, with the
             inverse Abel transfrom achieved in one Python code-line, PR #155.
             See also ``three_point`` is the onion peeling algorithm as
             described by Dasch (1992), reference below.
 
-         ``two_point``
+         ``two_point`` *
             Another Dasch method. Simple, and fast, but not as accurate as the
             other methods.
 
@@ -346,11 +383,41 @@ class Transform(object):
                                                  **center_options)
 
     def _abel_transform_image(self, **transform_options):
+        if self.method == "linbasex" and self._symmetry_axis is not None: 
+            self._abel_transform_image_full(**transform_options)
+        else:
+            self._abel_transform_image_by_quadrant(**transform_options)
+
+
+    def _abel_transform_image_full(self, **transform_options):
+
+        abel_transform = {
+            # "basex": basex.basex_transform,
+            "linbasex": linbasex.linbasex_transform_full
+        }
+        t0 = time.time()
+
+        self._verboseprint('Calculating {0} Abel transform using {1} method -'
+                          .format(self.direction, self.method), 
+                          '\n    image size: {:d}x{:d}'.format(*self.IM.shape))
+
+        self.transform, radial, Beta, QLz = abel_transform[self.method](self.IM,
+                                                   **transform_options)
+
+        self._verboseprint("{:.2f} seconds".format(time.time()-t0))
+
+        self.Beta = Beta
+        self.projection = QLz
+        self.radial = radial
+            
+
+    def _abel_transform_image_by_quadrant(self, **transform_options):
 
         abel_transform = {
             "basex": basex.basex_transform,
             "direct": direct.direct_transform,
             "hansenlaw": hansenlaw.hansenlaw_transform,
+            "linbasex": linbasex.linbasex_transform,
             "onion_bordas": onion_bordas.onion_bordas_transform,
             "onion_peeling": dasch.onion_peeling_transform,
             "two_point": dasch.two_point_transform,
@@ -388,6 +455,26 @@ class Transform(object):
             AQ0 = selected_transform(Q0)
             AQ2 = selected_transform(Q2)
             AQ3 = selected_transform(Q3)
+
+        if self.method == "linbasex" and\
+           "return_Beta" in transform_options.keys():
+            # linbasex evaluates speed and anisotropy parameters
+            # AQi == AIM, R, Beta, QLz
+            Beta0 = AQ0[2]
+            Beta1 = AQ1[2]
+            Beta2 = AQ2[2]
+            Beta3 = AQ3[2]
+            # rconstructed images of each quadrant
+            AQ0 = AQ0[0]
+            AQ1 = AQ1[0]
+            AQ2 = AQ2[0]
+            AQ3 = AQ3[0]
+            # speed
+            self.linbasex_angular_integration = self.Beta[0]\
+                 (Beta0[0] + Beta1[0] + Beta2[0] + Beta3[0])/4
+            # anisotropy
+            self.linbasex_anisotropy_parameter = self.Beta[1]\
+                 (Beta0[1] + Beta1[1] + Beta2[1] + Beta3[1])/4
 
         # reassemble image
         self.transform = tools.symmetry.put_image_quadrants(

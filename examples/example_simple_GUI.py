@@ -12,10 +12,11 @@ from scipy.ndimage.interpolation import shift
 import sys
 if sys.version_info[0] < 3:
     import Tkinter as tk
+    from tkFileDialog import askopenfilename
 else:
     import tkinter as tk
-from tkFileDialog import askopenfilename
-import ttk
+    from tkinter.filedialog import askopenfilename
+import tkinter.ttk as ttk
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -24,8 +25,10 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread
 
-Abel_methods = ['basex', 'direct', 'hansenlaw', 'onion_peeling', 
+Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_peeling', 
                 'onion_bordas', 'two_point', 'three_point']
+
+center_methods = ['center-of-mass', 'convolution', 'gaussian', 'slice']
 
 # GUI window -------------------
 
@@ -76,17 +79,19 @@ def _getfilename():
 
 
 def _center():
-    global IM, text
+    global cent, IM, text
+
+    center = cent.get()
 
     # update information text box
     text.delete(1.0, tk.END)
-    text.insert(tk.END, "centering image using abel.tools.center_image()\n")
+    text.insert(tk.END, "centering image using abel.tools.center_image(center={})\n".format(center))
     canvas.show()
 
     # center image via horizontal (left, right), and vertical (top, bottom)
     # intensity slices
-    IM, offset = abel.tools.center.center_image(IM, center='com', odd_size=True)
-    text.insert(tk.END, "center offset = {:}\n".format(offset))
+    IM = abel.tools.center.center_image(IM, center=center, odd_size=True)
+    #text.insert(tk.END, "center offset = {:}\n".format(offset))
 
     _display()
 
@@ -105,12 +110,17 @@ def _transform():
     canvas.show()
 
     # inverse Abel transform of whole image
-    AIM = abel.Transform(IM, method=method, direction="inverse",
-                         symmetry_axis=None).transform
+    if method == 'linbasex':
+        AIM = abel.Transform(IM, method=method, direction="inverse",
+                             symmetry_axis=None,
+                             transform_options=dict(return_Beta=True))
+    else:
+        AIM = abel.Transform(IM, method=method, direction="inverse",
+                             symmetry_axis=None)
 
     f.clf()
     a = f.add_subplot(111)
-    a.imshow(AIM, vmin=0, vmax=AIM.max()/5.0)
+    a.imshow(AIM.transform, vmin=0, vmax=AIM.transform.max()/5.0)
     canvas.show()
 
 
@@ -125,7 +135,10 @@ def _speed():
     canvas.show()
 
     # speed distribution
-    radial, speed  = abel.tools.vmi.angular_integration(AIM)
+    if transform.get() not in ['linbasex']:
+        radial, speed  = abel.tools.vmi.angular_integration(AIM.transform)
+    else:
+        radial, speed = AIM.radial, AIM.Beta[0]
 
     f.clf()
     a = f.add_subplot(111)
@@ -143,30 +156,42 @@ def _anisotropy():
     def PAD(theta, beta, amp):
         return amp*(1 + beta*P2(np.cos(theta)))
 
-    # radial range over which to follow the intensity variation with angle
-    rmx = (int(rmin.get()), int(rmax.get()))
+    # inverse Abel transform
+    _transform()
+
+    method = transform.get()
+    if method != 'linbasex':
+        # radial range over which to follow the intensity variation with angle
+        rmx = (int(rmin.get()), int(rmax.get()))
+
+    else:
+        rmx = (0, AIM.radial[-1])
+
 
     text.delete(1.0, tk.END)
     text.insert(tk.END,"anisotropy parameter pixel range {:} to {:}\n".format(*rmx))
     canvas.show()
 
-    # inverse Abel transform
-    _transform()
-
-    # intensity vs angle
-    intensity, theta = abel.tools.vmi.radial_integration(AIM,\
-                                                  radial_ranges=[rmx,])
-
-    # fit to P2(cos theta)
-    beta, amp = abel.tools.vmi.anisotropy_parameter(theta, intensity[0])
-
-    text.insert(tk.END,"beta = {:g}+-{:g}\n".format(*beta))
-
     f.clf()
     a = f.add_subplot(111)
-    a.plot(theta, intensity[0], 'r-')
-    a.plot(theta, PAD(theta, beta[0], amp[0]), 'b-', lw=2)
-    a.annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(*rmx+beta), (-np.pi/2,-2))
+    if method not in ['linbasex']:
+        # intensity vs angle
+        beta, amp, rad, intensity, theta =\
+            abel.tools.vmi.radial_integration(AIM.transform, radial_ranges=[rmx,])
+
+        beta = beta[0]
+        amp = amp[0]
+        text.insert(tk.END,"beta = {:g}+-{:g}\n".format(beta[0],beta[1]))
+
+        a.plot(theta, intensity[0], 'r-')
+        a.plot(theta, PAD(theta, beta[0], amp[0]), 'b-', lw=2)
+        a.annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$".format(rmx[0], rmx[1],beta[0], beta[1]), (-np.pi/2,-2))
+    else:
+        beta = AIM.Beta[1]
+        radial = AIM.radial
+        a.plot(radial, beta)
+        a.annotate("anisotropy parameter vs radial coordinate", (-np.pi/2, 2))
+        
     canvas.show()
 
 def _quit():
@@ -183,8 +208,13 @@ tk.Button(master=root, text='Load image file', command=_getfilename)\
 # image centering
 tk.Button(master=root, text='center image', command=_center).pack(anchor=tk.N)
 
+cent = ttk.Combobox(master=root, values=center_methods, state="readonly",
+                    width=11, height=len(center_methods))
+cent.current(3)
+cent.place(anchor=tk.W, relx=0.65, rely=0.05)
+
 # display raw input image
-tk.Button(master=root, text='raw image', command=_display).pack(anchor=tk.N)
+tk.Button(master=root, text='raw image', command=_display).pack(anchor=tk.W, padx=0.1)
 
 # Abel transform
 tk.Button(master=root, text='inverse Abel transform', command=_transform)\
@@ -192,7 +222,7 @@ tk.Button(master=root, text='inverse Abel transform', command=_transform)\
 
 transform = ttk.Combobox(master=root, values=Abel_methods, state="readonly", width=10, height=len(Abel_methods))
 transform.current(2)
-transform.place(anchor=tk.W, relx=0.67, rely=0.14)
+transform.place(anchor=tk.W, relx=0.67, rely=0.11)
 
 # speed
 tk.Button(master=root, text='speed distribution', command=_speed)\
@@ -202,11 +232,11 @@ tk.Button(master=root, text='speed distribution', command=_speed)\
 tk.Button(master=root, text='anisotropy parameter', command=_anisotropy)\
    .pack(anchor=tk.N)
 rmin = tk.Entry(master=root, text='rmin')
-rmin.place(anchor=tk.W, relx=0.66, rely=0.22, width=40)
+rmin.place(anchor=tk.W, relx=0.66, rely=0.16, width=40)
 rmin.insert(0, 368)
-tk.Label(master=root, text="to").place(relx=0.74, rely=0.20)
+tk.Label(master=root, text="to").place(relx=0.74, rely=0.14)
 rmax = tk.Entry(master=root, text='rmax')
-rmax.place(anchor=tk.W, relx=0.78, rely=0.22, width=40)
+rmax.place(anchor=tk.W, relx=0.78, rely=0.16, width=40)
 rmax.insert(0, 389)
 
 tk.Button(master=root, text='Quit', command=_quit).pack(anchor=tk.SW)
