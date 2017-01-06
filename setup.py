@@ -53,8 +53,10 @@ else:
 if sys.platform != 'win32':
     compile_args = dict( extra_compile_args=['-O2', '-march=native'],
                              extra_link_args=['-O2', '-march=native'])
+    libraries = ["m"]
 else:
     compile_args = dict( extra_compile_args=[])
+    libraries = []
 
 # Optional compilation of Cython modules adapted from
 # https://github.com/bsmurphy/PyKrige which was itself adapted from a StackOverflow post
@@ -74,16 +76,23 @@ class TryBuildExt(build_ext):
                   "  - issues using mingw compiler on Windows 64bit (experimental support for now)\n"
                   "This only means that the abel.direct C implementation will not be available.\n")
             print("**************************************************")
-            # continue the install
-            pass
+            if os.environ.get('CI'):
+                # running on Travis CI or Appveyor CI
+                if sys.platform == 'win32' and sys.version_info < (3, 0):
+                    pass # Cython extensions are not built on Appveyor (Win) for PY2.7
+                         # see PR #185
+                else:
+                    raise
+            else:
+                # regular install, Cython extensions won't be compiled
+                pass
         except:
             raise
-
 
 ext_modules=[
     Extension("abel.lib.direct",
              [os.path.join("abel","lib","direct.pyx")],
-             libraries=["m"],
+             libraries=libraries,
              **compile_args),
     ]
 
