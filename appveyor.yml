@@ -25,10 +25,13 @@ init:
 
 install:
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  # Remove cygwin because it clashes with conda
+  # see http://help.appveyor.com/discussions/problems/3712-git-remote-https-seems-to-be-broken
+  - rmdir C:\\cygwin /s /q
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - "conda create -q -n abel-env python=%PYTHON_VERSION% numpy scipy nose cython==0.24.1 libpython"
+  - "conda create -q -n abel-env python=%PYTHON_VERSION% numpy scipy nose cython==0.24.1"
   - activate abel-env
   - pip install coverage
   - dir 
