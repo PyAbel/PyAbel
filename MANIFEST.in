@@ -1,5 +1,5 @@
 include README.rst
-indluce LICENSE.txt
+incluce LICENSE.txt
 recursive-include abel *.py
 recursive-include abel *.gz
 recursive-include examples *.py
