@@ -136,7 +136,7 @@ Either open a new `Issue <https://github.com/PyAbel/PyAbel/issues>`_ or make a `
 
 License
 -------
-PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE>`_, so it can be used for pretty much whatever you want! Of course, it is provided "as is" with absolutely no warrenty.
+PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE.txt>`_, so it can be used for pretty much whatever you want! Of course, it is provided "as is" with absolutely no warrenty.
 
 
 Citation
