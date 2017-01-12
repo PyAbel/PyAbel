@@ -5,7 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from time import time
+from scipy.ndimage.interpolation import shift
 from math import exp, log, pow, pi
 
 #############################################################################
@@ -172,6 +172,10 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
+
+    # for some reason shift by 1/2 pixel aligns? - Fix me!
+    if direction == 'inverse':
+        AIM = shift(AIM, (0, -1/2))
 
     if direction == "inverse":
         return AIM*np.pi/dr    # 1/dr - from derivative
