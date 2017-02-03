@@ -109,7 +109,10 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
         # return to original image size
         IMcirc = ndimage.zoom(IMcirc, 1/zoom)
 
-    return IMcirc, slice_angles, radcorr, radcorrspl
+    if return_correction:
+        return IMcirc, slice_angles, radcorr, radcorrspl
+    else:
+        return IMcirc
 
 
 def circularize(IM, radcorrspl):
