@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import ndimage
@@ -10,7 +11,8 @@ import abel
 # see https://github.com/PyAbel/PyAbel/issues/186 for discussion
 
 def circularize_image(IM, method="argmax", center=None, radial_range=None,
-                      zoom=1, smooth=0, nslices=32, return_correction=False):
+                      zoom=1, smooth=0, nslices=32, inverse=False,
+                      return_correction=False):
     """
     Remove radial distortion from a velocity-map-image through radial scaling
     of the Newton-rings to enforce circularity. 
@@ -83,6 +85,9 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
     # cartesian (Y, X) -> polar (Radius, Theta)
     polarIM, radial_coord, angle_coord =\
              abel.tools.polar.reproject_image_into_polar(IM)
+ 
+    if inverse:
+        polarIM = abel.Transform(polarIM).transform
 
     # limit radial range of polar image, if selected
     radial = radial_coord[:, 0]
@@ -132,10 +137,12 @@ def circularize(IM, radcorrspl):
     Y, X = np.indices(IM.shape)
 
     row, col = IM.shape
+    origin = (col//2 + col % 2, row//2 + row % 2)  # % handles odd size image
+
     # coordinates relative to center
-    X -= col//2
-    Y -= row//2
-    theta = np.pi/2 - np.arctan2(Y, X)
+    X -= origin[0]
+    Y -= origin[1]
+    theta = np.arctan2(Y, X)
 
     # radial correction 
     Xactual = X/radcorrspl(theta)
@@ -144,7 +151,7 @@ def circularize(IM, radcorrspl):
     # @DanHickstein magic
     # https://github.com/PyAbel/PyAbel/issues/186#issuecomment-275471271
     IMcirc = ndimage.interpolation.map_coordinates(IM,
-                                  (Yactual+row/2, Xactual+col/2))
+                                  (Yactual+origin[1], Xactual+origin[0]))
 
     return IMcirc
 
@@ -185,6 +192,7 @@ def correction(slice_angles, slices, radial, method="argmax"):
         sf = radial[pkpos]/radial[0] 
 
     return sf 
+
 
 if __name__ == "__main__":
     IM = np.loadtxt("O-10N2C1024.txt")

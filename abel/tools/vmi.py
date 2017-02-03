@@ -243,3 +243,44 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         amplitude, error_amplitude = np.nan, np.nan
 
     return (beta, error_beta), (amplitude, error_amplitude)
+
+
+def speed2eBE(radial, intensity, wavelength, Vrep, R2E, zoom=1):
+    """ convert speed radial coordinate into electron binding energy.
+        i.e. return the photoelectron spectrum.
+
+    Parameters
+    ----------
+    radial : numpy 1D array
+         radial coordinates
+
+    intensity : numpy 1D array
+         intensity values, at the radial array
+
+    wavelength: float
+         measurement wavelength in nm
+         e.g. 812.51 nm, for example/data/O-ANU1024.txt
+
+    Vrep: float
+         repeller voltage 
+         e.g. -98 volts, for example/data/O-ANU1024.txt
+
+    R2E: float
+         energy calibration factor
+         e.g. 1.148427 for example/data/O-ANU1024.txt
+
+    zoom: float
+         factor is profile from zoomed image
+
+    """
+
+    # transform radius to electron binding energy
+    eBE = 1.0e7/wavelength - radial**2*(np.abs(Vrep)/1000)*R2E/100/zoom**2
+
+    # Jacobian correction to intensity, because the radius has been squared
+    intensity *= radial
+
+    # sort into ascending order
+    indx = eBE.argsort()
+
+    return eBE[indx], intensity[indx]
