@@ -10,12 +10,13 @@ import abel
 
 # see https://github.com/PyAbel/PyAbel/issues/186 for discussion
 
+
 def circularize_image(IM, method="argmax", center=None, radial_range=None,
                       zoom=1, smooth=0, nslices=32, inverse=False,
                       return_correction=False):
     """
     Remove radial distortion from a velocity-map-image through radial scaling
-    of the Newton-rings to enforce circularity. 
+    of the Newton-rings to enforce circularity.
 
     The image is divided into angular slices, adjacent radial intensity
     profile slices compared to give a radial scaling factor that best
@@ -33,9 +34,9 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
         method to align slice profiles,
         "argmax" - compare intensity-profile.argmax() of each radial slice.
         "lsq" - determine radial scaling factor by minimizing the
-                intensity-prfoile with an adjacent slice intensity-profile. 
+                intensity-prfoile with an adjacent slice intensity-profile.
 
-    center: str, or None 
+    center: str, or None
         pre-center image using PyAbel centering methods,
         "com", "convolution", "gaussian", "image_center", "slice"
 
@@ -47,12 +48,12 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
         radius slice profile.
 
     smooth: float
-        smoothing for spline interpolation of the determined radial scaling 
+        smoothing for spline interpolation of the determined radial scaling
         factor vs angle
 
     nslices: int
         divide the image into nslices. Ideally, this should be a divisor of
-        the image column width. 
+        the image column width.
 
     inverse: bool
         inverse Abel transform the *polar* image, to remove the background
@@ -66,9 +67,9 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
     -------
     IMcirc : numpy 2D array, same size as input
         Circularized imput image
-    
+
     (if return_correction is True)
-    slice_angles: numpy 1D array 
+    slice_angles: numpy 1D array
         Mid-point angle (radians) of image slice
 
     radial_corrections: numpy 1D array
@@ -89,8 +90,8 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
     # map image into polar coordinates - much easier to slice
     # cartesian (Y, X) -> polar (Radius, Theta)
     polarIM, radial_coord, angle_coord =\
-             abel.tools.polar.reproject_image_into_polar(IM)
- 
+                           abel.tools.polar.reproject_image_into_polar(IM)
+
     if inverse:
         polarIM = abel.Transform(polarIM.T).transform.T
 
@@ -103,7 +104,7 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
         radial = radial[subr]
 
     # split image into n-slices
-    slices = np.array_split(polarIM, nslices, axis=1) 
+    slices = np.array_split(polarIM, nslices, axis=1)
     slice_angles = np.array(np.hsplit(angle_coord[0], nslices)).mean(axis=1)
 
     # evaluate radial scaling factor for each slice
@@ -133,7 +134,7 @@ def circularize(IM, radcorrspl):
     ----------
     IM : numpy 2D array
         original image
- 
+
     radcorrspl: numpy func(theta)
         spline function to evaluate radial correction at a given angle
 
@@ -149,7 +150,7 @@ def circularize(IM, radcorrspl):
     Y -= origin[1]
     theta = np.arctan2(Y, X)
 
-    # radial correction 
+    # radial correction
     Xactual = X/radcorrspl(theta)
     Yactual = Y/radcorrspl(theta)
 
@@ -163,12 +164,12 @@ def circularize(IM, radcorrspl):
 
 def residual(radial_scale_factor, radial, profile, previous):
 
-   newradial = radial/radial_scale_factor
-   spline_prof = UnivariateSpline(newradial, profile, s=0, ext=3)
-   newprof = spline_prof(radial)
+    newradial = radial/radial_scale_factor
+    spline_prof = UnivariateSpline(newradial, profile, s=0, ext=3)
+    newprof = spline_prof(radial)
 
-   # residual cf adjacent slice profile
-   return newprof - previous
+    # residual cf adjacent slice profile
+    return newprof - previous
 
 
 def correction(slice_angles, slices, radial, method="argmax"):
@@ -179,7 +180,7 @@ def correction(slice_angles, slices, radial, method="argmax"):
         if method == "argmax":
             pkpos.append(profile.argmax())  # store index of peak position
 
-        elif  method == "lsq":
+        elif method == "lsq":
             if ang > slice_angles[0]:
                 result = leastsq(residual, rsf, args=(radial, profile,
                                                       previous))
@@ -188,39 +189,15 @@ def correction(slice_angles, slices, radial, method="argmax"):
                 sf = []
                 rsf = 1
                 sf.append(1)
-                
+
             previous = profile
 
     if method == "argmax":
         # radial scaling factor referenced to the position of the first
         # angular slice
-        sf = radial[pkpos]/radial[0] 
+        sf = radial[pkpos]/radial[0]
 
-    return sf 
+    elif method == "lsq":
+        sf[0] = sf[-1]
 
-
-if __name__ == "__main__":
-    IM = np.loadtxt("O-10N2C1024.txt")
-
-    IMcirc, ang, sf, splsf = circularize_image(IM, method='lsq',
-                                         radial_range=(325, 345), zoom=1) 
-
-    AIM = abel.Transform(IM).transform
-    speed =  abel.tools.vmi.angular_integration(AIM, dr=0.5)
-
-    AIMcirc = abel.Transform(IMcirc).transform
-    speedcirc =  abel.tools.vmi.angular_integration(AIMcirc, dr=0.5)
-
-    f, axarr = plt.subplots(1, 2)
-    print(axarr.shape)
-    axarr[0].plot(*speed, label="raw")
-    axarr[0].plot(*speedcirc, label="circularized")
-    axarr[0].legend(frameon=False)
-    axarr[0].axis(xmin=200, xmax=500)
-
-    axarr[1].plot(ang, sf, 'o')
-    twopi = np.arange(-np.pi, np.pi, 0.1)
-    axarr[1].plot(twopi, splsf(twopi))
-
-    plt.savefig("PES.png", dpi=75)
-    plt.show()
+    return sf

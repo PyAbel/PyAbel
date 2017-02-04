@@ -62,7 +62,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     x, y = index_coords(data, origin=origin)  # (x,y) coordinates of each pixel
     r, theta = cart2polar(x, y)  # convert (x,y) -> (r,θ), note θ=0 is vertical
 
-    nr = np.round((r.max()-r.min())/dr)
+    nr = np.int(np.ceil((r.max()-r.min())/dr))
 
     if dt is None:
         nt = max(nx, ny)

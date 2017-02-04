@@ -347,7 +347,7 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
 
     r2 = rows//2 + rows % 2
     c2 = cols//2 + cols % 2
-    sw2 = slice_width/2
+    sw2 = slice_width//2
 
     rmin, rmax = radial_range
 
