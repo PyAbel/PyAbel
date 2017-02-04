@@ -12,7 +12,7 @@ import abel
 
 
 def circularize_image(IM, method="argmax", center=None, radial_range=None,
-                      zoom=1, smooth=0, nslices=32, inverse=False,
+                      zoom=1, smooth=1.0e-7, nslices=32, inverse=False,
                       return_correction=False):
     """
     Remove radial distortion from a velocity-map-image through radial scaling
@@ -111,7 +111,7 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
     radcorr = correction(slice_angles, slices, radial, method=method)
 
     # spline radial scaling vs angle
-    radcorrspl = UnivariateSpline(slice_angles, radcorr, s=1.0e-7, ext=3)
+    radcorrspl = UnivariateSpline(slice_angles, radcorr, s=smooth, ext=3)
 
     # apply the correction
     IMcirc = circularize(IM, radcorrspl)
@@ -172,7 +172,7 @@ def residual(radial_scale_factor, radial, profile, previous):
     return newprof - previous
 
 
-def correction(slice_angles, slices, radial, method="argmax"):
+def correction(slice_angles, slices, radial, method):
     pkpos = []
     for ang, aslice in zip(slice_angles, slices):
         profile = aslice.sum(axis=1)  # intensity vs radius for a given slice
@@ -184,8 +184,9 @@ def correction(slice_angles, slices, radial, method="argmax"):
             if ang > slice_angles[0]:
                 result = leastsq(residual, rsf, args=(radial, profile,
                                                       previous))
-                sf.append(result[0])
+                sf.append(result[0]) # radial scale factor direct from lsq
             else:
+                # first profile has nothing to compare with
                 sf = []
                 rsf = 1
                 sf.append(1)
@@ -195,7 +196,7 @@ def correction(slice_angles, slices, radial, method="argmax"):
     if method == "argmax":
         # radial scaling factor referenced to the position of the first
         # angular slice
-        sf = radial[pkpos]/radial[0]
+        sf = radial[pkpos]/radial[pkpos[0]]
 
     elif method == "lsq":
         sf[0] = sf[-1]
