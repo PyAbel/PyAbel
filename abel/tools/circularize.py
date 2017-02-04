@@ -54,6 +54,11 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
         divide the image into nslices. Ideally, this should be a divisor of
         the image column width. 
 
+    inverse: bool
+        inverse Abel transform the *polar* image, to remove the background
+        intensity. This helps follow a given peak intensityr, for all angles,
+        when the anisotropy parameter is large.
+
     return_correction: bool
         additional outputs, see below
 
@@ -87,7 +92,7 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
              abel.tools.polar.reproject_image_into_polar(IM)
  
     if inverse:
-        polarIM = abel.Transform(polarIM).transform
+        polarIM = abel.Transform(polarIM.T).transform.T
 
     # limit radial range of polar image, if selected
     radial = radial_coord[:, 0]
@@ -105,7 +110,7 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
     radcorr = correction(slice_angles, slices, radial, method=method)
 
     # spline radial scaling vs angle
-    radcorrspl = UnivariateSpline(slice_angles, radcorr, s=1.0e-5, ext=3)
+    radcorrspl = UnivariateSpline(slice_angles, radcorr, s=1.0e-7, ext=3)
 
     # apply the correction
     IMcirc = circularize(IM, radcorrspl)
