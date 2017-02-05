@@ -162,11 +162,11 @@ def circularize(IM, radcorrspl):
     return IMcirc
 
 
-def residual(radial_scale_factor, radial, profile, previous):
+def residual(param, radial, profile, previous):
 
-    newradial = radial/radial_scale_factor
+    newradial = radial*param[0]
     spline_prof = UnivariateSpline(newradial, profile, s=0, ext=3)
-    newprof = spline_prof(radial)
+    newprof = spline_prof(radial)*param[1]
 
     # residual cf adjacent slice profile
     return newprof - previous
@@ -174,6 +174,7 @@ def residual(radial_scale_factor, radial, profile, previous):
 
 def correction(slice_angles, slices, radial, method):
     pkpos = []
+    fitpar = np.array([1.0, 1.0])  # radial scale factor, amplitude
     for ang, aslice in zip(slice_angles, slices):
         profile = aslice.sum(axis=1)  # intensity vs radius for a given slice
 
@@ -182,9 +183,11 @@ def correction(slice_angles, slices, radial, method):
 
         elif method == "lsq":
             if ang > slice_angles[0]:
-                result = leastsq(residual, rsf, args=(radial, profile,
+                result = leastsq(residual, fitpar, args=(radial, profile,
                                                       previous))
-                sf.append(result[0]) # radial scale factor direct from lsq
+                sf.append(result[0][0]) # radial scale factor direct from lsq
+                profile = residual(result[0], radial, profile, previous) +\
+                                    previous
             else:
                 # first profile has nothing to compare with
                 sf = []
