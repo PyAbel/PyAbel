@@ -93,7 +93,7 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
                            abel.tools.polar.reproject_image_into_polar(IM)
 
     if inverse:
-        polarIM = abel.Transform(polarIM.T).transform.T
+        polarIM = abel.dasch.two_point_transform(polarIM.T).T
 
     # limit radial range of polar image, if selected
     radial = radial_coord[:, 0]
@@ -148,9 +148,13 @@ def circularize(IM, radcorrspl):
     # coordinates relative to center
     X -= origin[0]
     Y -= origin[1]
-    theta = np.arctan2(Y, X)
+    theta = np.arctan2(X, Y)  # referenced to vertical direction
 
     # radial correction
+    # O2- this works better for O2-
+    #Xactual = X*radcorrspl(theta)
+    #Yactual = Y*radcorrspl(theta)
+    # sample image this corrects the sample image ??
     Xactual = X/radcorrspl(theta)
     Yactual = Y/radcorrspl(theta)
 
@@ -199,7 +203,7 @@ def correction(slice_angles, slices, radial, method):
     if method == "argmax":
         # radial scaling factor referenced to the position of the first
         # angular slice
-        sf = radial[pkpos]/radial[pkpos[0]]
+        sf = radial[pkpos[0]]/radial[pkpos]
 
     elif method == "lsq":
         sf[0] = sf[-1]
