@@ -155,11 +155,11 @@ def circularize(IM, radcorrspl):
 
     # radial correction
     # O2- this works better for O2-
-    # Xactual = X*radcorrspl(theta)
-    # Yactual = Y*radcorrspl(theta)
+    Xactual = X*radcorrspl(theta)
+    Yactual = Y*radcorrspl(theta)
     # this corrects the sample image ??
-    Xactual = X/radcorrspl(theta)
-    Yactual = Y/radcorrspl(theta)
+    # Xactual = X/radcorrspl(theta)
+    # Yactual = Y/radcorrspl(theta)
 
     # @DanHickstein magic
     # https://github.com/PyAbel/PyAbel/issues/186#issuecomment-275471271
@@ -171,7 +171,8 @@ def circularize(IM, radcorrspl):
 
 def residual(param, radial, profile, previous):
     """ compare radially scaled intensity profile with adjacent 'previous'
-        profile, to determine the radial scale factor param[0], and amplitude param[1].
+        profile, to determine the radial scale factor param[0], and
+        amplitude param[1].
 
     """
     newradial = radial*param[0]
@@ -193,13 +194,13 @@ def correction(slice_angles, slices, radial, method):
         pkpos = []
 
         for ang, aslice in zip(slice_angles, slices):
-            profile = aslice.sum(axis=1)  # intensity vs radius for a given slice
+            profile = aslice.sum(axis=1)  # intensity vs radius for slice
             pkpos.append(profile.argmax())  # store index of peak position
-        
+
         # radial scaling factor relative to peak max in first angular slice
         sf = radial[pkpos[0]]/radial[pkpos]
 
-    elif method == "lsq":    
+    elif method == "lsq":
         # least-squares radially scale intensity profile to match previous slice
 
         fitpar = np.array([1.0, 1.0])  # radial scale factor, amplitude
@@ -208,13 +209,19 @@ def correction(slice_angles, slices, radial, method):
         previous = slices[0].sum(axis=1)
 
         for ang, aslice in zip(slice_angles[1:], slices[1:]):
-            profile = aslice.sum(axis=1)  # intensity vs radius for a given slice
+            profile = aslice.sum(axis=1)  # intensity vs radius for slice
 
             result = leastsq(residual, fitpar, args=(radial, profile, previous))
 
-            sf.append(result[0][0]) # radial scale factor direct from lsq
+            sf.append(result[0][0])  # radial scale factor direct from lsq
+
             previous += residual(result[0], radial, profile, previous)
+            fitpar = result[0]
 
         sf[0] = sf[-1]
+
+    else:
+        raise ValueError("method variable must be one of 'argmax' or 'lsq',"
+                         " not '{}'".format(method))
 
     return sf
