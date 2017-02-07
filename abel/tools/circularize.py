@@ -151,15 +151,15 @@ def circularize(IM, radcorrspl):
     # coordinates relative to center
     X -= origin[0]
     Y -= origin[1]
-    theta = np.arctan2(X, Y)  # referenced to vertical direction
+    theta = np.arctan2(X, Y) - np.pi/2 # referenced to vertical direction
 
     # radial correction
     # O2- this works better for O2-
-    Xactual = X*radcorrspl(theta)
-    Yactual = Y*radcorrspl(theta)
+    # Xactual = X*radcorrspl(theta)
+    # Yactual = Y*radcorrspl(theta)
     # this corrects the sample image ??
-    # Xactual = X/radcorrspl(theta)
-    # Yactual = Y/radcorrspl(theta)
+    Xactual = X/radcorrspl(theta)
+    Yactual = Y/radcorrspl(theta)
 
     # @DanHickstein magic
     # https://github.com/PyAbel/PyAbel/issues/186#issuecomment-275471271
@@ -218,7 +218,7 @@ def correction(slice_angles, slices, radial, method):
             previous += residual(result[0], radial, profile, previous)
             fitpar = result[0]
 
-        sf[0] = sf[-1]
+        #sf[0] = sf[-1]
 
     else:
         raise ValueError("method variable must be one of 'argmax' or 'lsq',"
