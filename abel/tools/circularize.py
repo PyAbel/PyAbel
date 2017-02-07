@@ -81,10 +81,11 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
     """
 
     if zoom > 1:
+        # zoom may improve the low radii angular resolution
         IM = ndimage.zoom(IM, zoom)
 
     if center is not None:
-        # convenience function in case image is not centered
+        # convenience function for the case image is not centered
         IM = abel.tools.center.center_image(IM, center=center)
 
     # map image into polar coordinates - much easier to slice
@@ -93,6 +94,8 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
                            abel.tools.polar.reproject_image_into_polar(IM)
 
     if inverse:
+        # pseudo inverse Abel transform of the polar image, removes background
+        # to enhance transition peaks
         polarIM = abel.dasch.two_point_transform(polarIM.T).T
 
     # limit radial range of polar image, if selected
@@ -152,9 +155,9 @@ def circularize(IM, radcorrspl):
 
     # radial correction
     # O2- this works better for O2-
-    #Xactual = X*radcorrspl(theta)
-    #Yactual = Y*radcorrspl(theta)
-    # sample image this corrects the sample image ??
+    # Xactual = X*radcorrspl(theta)
+    # Yactual = Y*radcorrspl(theta)
+    # this corrects the sample image ??
     Xactual = X/radcorrspl(theta)
     Yactual = Y/radcorrspl(theta)
 
@@ -167,7 +170,10 @@ def circularize(IM, radcorrspl):
 
 
 def residual(param, radial, profile, previous):
+    """ compare radially scaled intensity profile with adjacent 'previous'
+        profile, to determine the radial scale factor param[0], and amplitude param[1].
 
+    """
     newradial = radial*param[0]
     spline_prof = UnivariateSpline(newradial, profile, s=0, ext=3)
     newprof = spline_prof(radial)*param[1]
@@ -177,35 +183,38 @@ def residual(param, radial, profile, previous):
 
 
 def correction(slice_angles, slices, radial, method):
-    pkpos = []
-    fitpar = np.array([1.0, 1.0])  # radial scale factor, amplitude
-    for ang, aslice in zip(slice_angles, slices):
-        profile = aslice.sum(axis=1)  # intensity vs radius for a given slice
+    """ evaluate a radial scaling factor to align intensity profile features,
+        between adjacent angular slices.
 
-        if method == "argmax":
-            pkpos.append(profile.argmax())  # store index of peak position
-
-        elif method == "lsq":
-            if ang > slice_angles[0]:
-                result = leastsq(residual, fitpar, args=(radial, profile,
-                                                      previous))
-                sf.append(result[0][0]) # radial scale factor direct from lsq
-                profile = residual(result[0], radial, profile, previous) +\
-                                    previous
-            else:
-                # first profile has nothing to compare with
-                sf = []
-                rsf = 1
-                sf.append(1)
-
-            previous = profile
+    """
 
     if method == "argmax":
-        # radial scaling factor referenced to the position of the first
-        # angular slice
+        # follow position of intensity maximum
+        pkpos = []
+
+        for ang, aslice in zip(slice_angles, slices):
+            profile = aslice.sum(axis=1)  # intensity vs radius for a given slice
+            pkpos.append(profile.argmax())  # store index of peak position
+        
+        # radial scaling factor relative to peak max in first angular slice
         sf = radial[pkpos[0]]/radial[pkpos]
 
-    elif method == "lsq":
+    elif method == "lsq":    
+        # least-squares radially scale intensity profile to match previous slice
+
+        fitpar = np.array([1.0, 1.0])  # radial scale factor, amplitude
+        sf = []
+        sf.append(1)  # first slice nothing to compare with
+        previous = slices[0].sum(axis=1)
+
+        for ang, aslice in zip(slice_angles[1:], slices[1:]):
+            profile = aslice.sum(axis=1)  # intensity vs radius for a given slice
+
+            result = leastsq(residual, fitpar, args=(radial, profile, previous))
+
+            sf.append(result[0][0]) # radial scale factor direct from lsq
+            previous += residual(result[0], radial, profile, previous)
+
         sf[0] = sf[-1]
 
     return sf
