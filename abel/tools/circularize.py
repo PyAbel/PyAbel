@@ -92,7 +92,7 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
     # cartesian (Y, X) -> polar (Radius, Theta)
     polarIM, radial_coord, angle_coord =\
                            abel.tools.polar.reproject_image_into_polar(IM)
-
+ 
     if inverse:
         # pseudo inverse Abel transform of the polar image, removes background
         # to enhance transition peaks
@@ -146,18 +146,14 @@ def circularize(IM, radcorrspl):
     Y, X = np.indices(IM.shape)
 
     row, col = IM.shape
-    origin = (col//2 + col % 2, row//2 + row % 2)  # % handles odd size image
+    origin = (col//2, row//2)  # odd image 
 
     # coordinates relative to center
     X -= origin[0]
-    Y -= origin[1]
-    theta = np.arctan2(X, Y) - np.pi/2 # referenced to vertical direction
+    Y = origin[1] - Y   # negative values below the axis
+    theta = np.arctan2(X, Y)  # referenced to vertical direction
 
     # radial correction
-    # O2- this works better for O2-
-    # Xactual = X*radcorrspl(theta)
-    # Yactual = Y*radcorrspl(theta)
-    # this corrects the sample image ??
     Xactual = X/radcorrspl(theta)
     Yactual = Y/radcorrspl(theta)
 
@@ -217,8 +213,6 @@ def correction(slice_angles, slices, radial, method):
 
             previous += residual(result[0], radial, profile, previous)
             fitpar = result[0]
-
-        #sf[0] = sf[-1]
 
     else:
         raise ValueError("method variable must be one of 'argmax' or 'lsq',"
