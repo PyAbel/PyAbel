@@ -160,7 +160,7 @@ def circularize(IM, radcorrspl):
     # @DanHickstein magic
     # https://github.com/PyAbel/PyAbel/issues/186#issuecomment-275471271
     IMcirc = ndimage.interpolation.map_coordinates(IM,
-                                  (Yactual+origin[1], Xactual+origin[0]))
+                                  (origin[1] - Yactual, Xactual + origin[0]))
 
     return IMcirc
 
