@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-# Copyright CNRS 2012
-# Roman Yurchak (LULI)
-# This software is governed by the CeCILL-B license under French law and
-# abiding by the rules of distribution of free software.
-
 import numpy as np
 from scipy.linalg import circulant
 from scipy.optimize import curve_fit, brentq
