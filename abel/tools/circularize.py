@@ -108,7 +108,13 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
 
     # split image into n-slices
     slices = np.array_split(polarIM, nslices, axis=1)
-    slice_angles = np.array(np.hsplit(angle_coord[0], nslices)).mean(axis=1)
+    slice_angles_array = np.array_split(angle_coord[0], nslices)
+    # Fix me! - np.hsplit does not cope with uneven split
+    #           there must be a better way to determine mean slice angle?
+    slice_angles = []
+    for ang in slice_angles_array:
+        slice_angles.append(np.mean(ang))
+    slice_angles = np.array(slice_angles)
 
     # evaluate radial scaling factor for each slice
     radcorr = correction(slice_angles, slices, radial, method=method)
