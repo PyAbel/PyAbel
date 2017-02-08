@@ -14,7 +14,7 @@ import matplotlib.pylab as plt
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
 # Load image as a numpy array - numpy handles .gz, .bz2 
-IM = np.loadtxt("data/O2-ANU1024.txt.bz2")
+IM = np.loadtxt("data/O2-ANU1024.txt.bz2")[::2,::2]
 # use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
 
 # Image center should be mid-pixel and the image square, 
