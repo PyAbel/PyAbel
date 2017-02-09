@@ -56,7 +56,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
 
     ny, nx = data.shape[:2]
     if origin is None:
-        origin = (nx//2 + nx % 2, ny//2 + ny % 2)   # % handles odd size image
+        origin = (nx//2, ny//2) 
 
     # Determine that the min and max r and theta coords will be...
     x, y = index_coords(data, origin=origin)  # (x,y) coordinates of each pixel
@@ -110,7 +110,7 @@ def index_coords(data, origin=None):
     """
     ny, nx = data.shape[:2]
     if origin is None:
-        origin_x, origin_y = nx//2+nx % 2, ny//2+ny % 2   # % for odd-size
+        origin_x, origin_y = nx//2, ny//2
     else:
         origin_x, origin_y = origin
 
