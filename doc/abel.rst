@@ -87,6 +87,14 @@ abel.tools.center module
     :undoc-members:
     :show-inheritance:
 
+abel.tools.circularize module
+------------------------------
+
+.. automodule:: abel.tools.circularize
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 abel.tools.math module
 ----------------------
 

@@ -15,7 +15,9 @@ import matplotlib.pylab as plt
 
 # Load image as a numpy array - numpy handles .gz, .bz2 
 IM = np.loadtxt("data/O2-ANU1024.txt.bz2")[::2,::2]
-# use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
+# the [::2, ::2] reduces the image size x1/2, decreasing processing memory load
+# for the online readthedocs.org
+# remove the [::2, ::2] for higher resolution processing.
 
 # Image center should be mid-pixel and the image square, 
 # `center=convolution` takes care of this
@@ -72,7 +74,8 @@ ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(*inv_IM.shape),
 ax2.plot(radial, speed, label='speed')
 ax2.plot(radial, speed*anisotropy, label=r'anisotropy $\times$ speed')
 ax2.set_xlabel('radial pixel')
-ax2.axis(xmin=100 xmax=500, ymin=-1.5, ymax=1.8)
+row, cols = IM.shape
+ax2.axis(xmin=100*cols/1024, xmax=500*cols/1024, ymin=-1.5, ymax=1.8)
 ax2.set_title("speed, anisotropy parameter", fontsize='small')
 ax2.set_ylabel('intensity')
 ax2.set_xlabel('radial coordinate (pixels)')

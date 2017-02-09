@@ -14,10 +14,6 @@ import scipy.interpolate
 #######################################################################
 
 
-def scaling(angle, factor=0.1):
-    # define a simple scaling that will squish a circle into a "flower"
-    return 1 + factor*(np.sin(2*angle)**4)
-
 # sample image -----------
 IM = abel.tools.analytical.sample_image(n=511, name='Ominus', sigma=2)
 
@@ -32,17 +28,18 @@ IMcirc, sla, sc, scspl = abel.tools.circularize.circularize_image(IMdist,
                method='lsq', nslices=32, zoom=2, smooth=0,
                return_correction=True)
 
-# inverse Abel transform -----------
+# inverse Abel transform for distored and circularized images ---------
 AIMdist = abel.Transform(IMdist, method="three_point",
                          transform_options=dict(basis_dir=None)).transform
 AIMcirc = abel.Transform(IMcirc, method="three_point",
                          transform_options=dict(basis_dir=None)).transform
 
-# speed distributions
+# respective speed distributions
 rdist, speeddist = abel.tools.vmi.angular_integration(AIMdist, dr=0.5)
 rcirc, speedcirc = abel.tools.vmi.angular_integration(AIMcirc, dr=0.5)
 
-# note small image size causes slight over correction near peaks
+# note the small image size is responsible for the slight over correction 
+# of the background near peaks
 
 row, col = IMcirc.shape
 
