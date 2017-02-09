@@ -245,9 +245,18 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     return (beta, error_beta), (amplitude, error_amplitude)
 
 
-def speed2eBE(radial, intensity, wavelength, Vrep, R2E, zoom=1):
-    """ convert speed radial coordinate into electron binding energy.
-        i.e. return the photoelectron spectrum.
+def toPES(radial, intensity, wavelength, Vrep, R2E, zoom=1):
+    """ convert speed radial coordinate into electron binding/kinetic energy.
+        Return the photoelectron spectrum (PES).
+
+        NB requires experiment parameters, measurement wavelength,
+           repeller voltage, radius squared to energy calibration factor.
+           These are easily determined by comparing the generated PES
+           with published spectra. e.g. for O- photodetachment, the
+           strongest fine-structure transition occurs a the electron
+           affinity EA = 11,784.676(7) cm-1. This energy scaling
+           will provide the R2E factor. Values for the ANU experiment
+           are given below.
 
     Parameters
     ----------
@@ -278,7 +287,8 @@ def speed2eBE(radial, intensity, wavelength, Vrep, R2E, zoom=1):
     eBE = 1.0e7/wavelength - radial**2*(np.abs(Vrep)/1000)*R2E/100/zoom**2
 
     # Jacobian correction to intensity, because the radius has been squared
-    intensity *= radial
+    # check if required?
+    #intensity *= radial
 
     # sort into ascending order
     indx = eBE.argsort()
