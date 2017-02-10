@@ -116,7 +116,8 @@ def _transform():
                              transform_options=dict(return_Beta=True))
     else:
         AIM = abel.Transform(IM, method=method, direction="inverse",
-                             symmetry_axis=None)
+                             symmetry_axis=None,
+                             transform_options=dict(basis_dir='bases'))
 
     f.clf()
     a = f.add_subplot(111)

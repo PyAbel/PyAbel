@@ -57,7 +57,8 @@ def _init_abel(xc, yc):
     return val1, val2
 
 
-def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False):
+def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
+                           **kwars):
     r"""Onion peeling (or back projection) inverse Abel transform.
 
     This algorithm was adapted by Dan Hickstein from the original Matlab 

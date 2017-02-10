@@ -30,9 +30,9 @@ IMcirc, sla, sc, scspl = abel.tools.circularize.circularize_image(IMdist,
 
 # inverse Abel transform for distored and circularized images ---------
 AIMdist = abel.Transform(IMdist, method="three_point",
-                         transform_options=dict(basis_dir=None)).transform
+                         transform_options=dict(basis_dir='bases')).transform
 AIMcirc = abel.Transform(IMcirc, method="three_point",
-                         transform_options=dict(basis_dir=None)).transform
+                         transform_options=dict(basis_dir='bases')).transform
 
 # respective speed distributions
 rdist, speeddist = abel.tools.vmi.angular_integration(AIMdist, dr=0.5)
@@ -73,5 +73,5 @@ axs[1, 1].legend(frameon=False)
 axs[1, 1].set_xlabel('radius (pixels)')
 axs[1, 1].set_ylabel('intensity')
 
-plt.savefig("example_circularize_image.png", dpi=75)
+plt.savefig("output/example_circularize_image.png", dpi=75)
 plt.show()

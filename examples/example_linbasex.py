@@ -57,7 +57,7 @@ ax2 = plt.subplot2grid((1, 2), (0, 1))
 # join 1/2 raw data : 1/2 inversion image
 inv_IM = LIM.transform
 cols = inv_IM.shape[1]
-c2 = cols//2 + cols % 2
+c2 = cols//2 
 vmax = IM[:, :c2-100].max()
 inv_IM *= vmax/inv_IM[:, c2+100:].max()
 JIM = np.concatenate((IM[:, :c2], inv_IM[:, c2:]), axis=1)

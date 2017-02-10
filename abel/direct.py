@@ -74,7 +74,7 @@ def _construct_r_grid(n, dr=None, r=None):
 def direct_transform(fr, dr=None, r=None, direction='inverse',
                      derivative=gradient,
                      int_func=simpson_rule_wrong,
-                     correction=True, backend='C'):
+                     correction=True, backend='C', **kwargs):
     """
     This algorithm does a direct computation of the Abel transform
 

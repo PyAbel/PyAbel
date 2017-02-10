@@ -45,7 +45,7 @@ center = (245,340)
 print('Performing the inverse Abel transform:')
 
 recon = abel.Transform(raw_data, direction='inverse', method='basex',
-                       center=center, transform_options={'basis_dir':'./'},
+                       center=center, transform_options=dict(basis_dir='bases'),
                        verbose=True).transform
                       
 speeds = abel.tools.vmi.angular_integration(recon)

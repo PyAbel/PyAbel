@@ -61,7 +61,7 @@ for q, method in enumerate(transforms.keys()):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    IAQ0 = transforms[method](Q0, direction="inverse")
+    IAQ0 = transforms[method](Q0, direction="inverse", basis_dir='bases')
 
     print ("                    {:.4f} sec".format(time()-t0))
 
@@ -118,5 +118,5 @@ ax2.set_ylabel('Integrated intensity')
 plt.suptitle('Dribinski sample image')
 
 plt.tight_layout()
-plt.savefig('example_all_dribinski.png', dpi=100)
+plt.savefig('output/example_all_dribinski.png', dpi=100)
 plt.show()

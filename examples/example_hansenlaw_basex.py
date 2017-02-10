@@ -34,7 +34,7 @@ base_dir, name = os.path.split(filename)
 name  = name.split('.')[0]
 output_image = name + '_inverse_Abel_transform_HansenLaw.png'
 output_text  = name + '_speeds_HansenLaw.dat'
-output_plot  = name + '_comparison_HansenLaw.png'
+output_plot  = 'output/' + name + '_comparison_HansenLaw.png'
 
 # Load an image file as a numpy array
 print('Loading ' + filename)
@@ -66,7 +66,8 @@ rH, speedsH = abel.tools.vmi.angular_integration(reconH)
 # Basex inverse Abel transform
 print('Performing basex inverse Abel transform:')
 reconB = abel.Transform(im, method="basex", direction="inverse", 
-                        verbose=True, symmetry_axis=None).transform
+                        verbose=True, symmetry_axis=None,
+                        transform_options=dict(basis_dir='bases')).transform
 rB, speedsB = abel.tools.vmi.angular_integration(reconB)
 
 # plot the results - VMI, inverse Abel transformed image, speed profiles

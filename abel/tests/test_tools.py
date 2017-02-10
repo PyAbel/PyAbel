@@ -10,8 +10,6 @@ from numpy.testing import assert_allclose, assert_equal, assert_almost_equal
 import abel
 from abel.benchmark import is_symmetric
 
-
-
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
 def assert_allclose_msg(x, y, message, rtol=1e-5):
@@ -65,11 +63,13 @@ def test_centering_function():
         assert_equal( is_symmetric(res), True,\
             'Validating the centering function for ni={}, n_c={}'.format(ni, n_c))
 
+
 def test_speeds_non_integer_center():  
     # ensures that the rest speeds function can work with a non-integer center
     n  = 101
     IM = np.random.randn(n, n)
     abel.tools.vmi.angular_integration(IM, origin=(50.5, 50.5))
+
 
 def test_anisotropy_parameter():
     # anisotropy parameter from test image (not transformed)
@@ -78,8 +78,36 @@ def test_anisotropy_parameter():
     Beta, Amp, Rmid, Ivstheta, theta = abel.tools.vmi.radial_integration(IM,
                                          radial_ranges=([(0, 33), (92, 108)]))
 
-    assert_almost_equal(-0.13, Beta[0][0], decimal=2)
+    assert_almost_equal(-0.14, Beta[0][0], decimal=2)
+
+
+
+def test_circularize_image():
+
+    IM = abel.tools.analytical.sample_image(n=511, name='Ominus', sigma=2)
+
+    IMdist = abel.tools.analytical.flower_distort(IM)
+
+    nslices = 32
+
+    IMcirc, angle, scalefactor, spline =\
+        abel.tools.circularize.circularize_image(IMdist,
+                   method='lsq', nslices=nslices, zoom=1, smooth=0,
+                   return_correction=True)
+
+    r, c = IMcirc.shape
+
+    diff = (IMcirc - IM).sum(axis=1).sum(axis=0)
+
+    assert_almost_equal(diff, 425854.7, decimal=0)
+
+    assert_equal(len(angle), nslices)
+
+    assert_almost_equal(angle[-1], 3.04, decimal=2)
+    
+    assert_almost_equal(scalefactor[4], 0.92, decimal=2)
 
 
 if __name__ == "__main__":
+    test_circularize_image()
     test_anisotropy_parameter()

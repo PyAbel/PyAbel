@@ -401,6 +401,7 @@ class PyAbel:  #(tk.Tk):
             else:
                 self.AIM = abel.Transform(self.IM, method=self.method, 
                                 direction=self.fi,
+                                transform_options=dict(basis_dir='bases'),
                                 symmetry_axis=None)
             self.rmin.delete(0, tk.END)
             self.rmin.insert(0, self.rmx[0])

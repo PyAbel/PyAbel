@@ -32,7 +32,7 @@ from math import exp, log, pow, pi
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction="inverse"):
+def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985) 
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a: 
@@ -170,12 +170,12 @@ def hansenlaw_transform(IM, dr=1, direction="inverse"):
     # center pixel column
     AIM[:, 0] = AIM[:, 1]
 
-    if AIM.shape[0] == 1:
-        AIM = AIM[0]   # flatten to a vector
-
     # for some reason shift by 1/2 pixel aligns? - Fix me!
     if direction == 'inverse':
         AIM = shift(AIM, (0, -1/2))
+
+    if AIM.shape[0] == 1:
+        AIM = AIM[0]   # flatten to a vector
 
     if direction == "inverse":
         return AIM*np.pi/dr    # 1/dr - from derivative

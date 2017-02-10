@@ -69,6 +69,6 @@ plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35,
                     hspace=0.37)
 
 # save copy of the plot
-plt.savefig("example_hansenlaw.png", dpi=100)
+plt.savefig("output/example_hansenlaw.png", dpi=100)
 
 plt.show()

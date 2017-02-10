@@ -39,7 +39,7 @@ dasch_transform = {\
 for method in dasch_transform.keys():
     Q0 = Q[0].copy()
 # method inverse Abel transform
-    AQ0 = dasch_transform[method](Q0)
+    AQ0 = dasch_transform[method](Q0, basis_dir='bases')
 # speed distribution
     speed = abel.tools.vmi.angular_integration(AQ0, origin=(0,0))
 
@@ -49,5 +49,5 @@ for method in dasch_transform.keys():
 plt.title("Dasch methods for Dribinski sample image $n={:d}$".format(n))
 plt.axis(xmax=250, ymin=-0.1)
 plt.legend(loc=0, frameon=False, labelspacing=0.1, fontsize='small')
-plt.savefig("example_dasch_methods.png",dpi=100)
+plt.savefig("output/example_dasch_methods.png",dpi=100)
 plt.show()

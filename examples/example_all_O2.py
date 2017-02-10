@@ -72,7 +72,8 @@ for q, method in enumerate(transforms.keys()):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1) 
+    IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
+                              basis_dir='bases') 
     print ("                    {:.1f} sec".format(time()-t0))
 
 
@@ -133,5 +134,5 @@ ax1.legend(loc=0, labelspacing=0.1, fontsize=10, frameon=False)
 plt.tight_layout()
 
 # save a copy of the plot
-plt.savefig('example_all_O2.png', dpi=100)
+plt.savefig('output/example_all_O2.png', dpi=100)
 plt.show()
