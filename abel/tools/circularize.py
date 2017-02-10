@@ -122,14 +122,12 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
 
     # evaluate radial scaling factor for each slice
     radcorr = correction(slice_angles, slices, radial, method=method)
-    # radcorr *= 0.98696709945174  # Dribinski
-    # radcorr *= 0.9981    # O-sample
 
     # spline radial scaling vs angle
     radcorrspl = UnivariateSpline(slice_angles, radcorr, s=smooth, ext=3)
 
     # apply the correction
-    IMcirc = circularize(IM, radcorrspl, ref_angle)
+    IMcirc = circularize(IM, radcorrspl, ref_angle=ref_angle)
 
     if zoom > 1:
         # return to original image size
@@ -165,8 +163,10 @@ def circularize(IM, radcorrspl, ref_angle=0):
     Y = origin[1] - Y   # negative values below the axis
     theta = np.arctan2(X, Y)  # referenced to vertical direction
 
-    # radial scale factor at angle = 0
+    # radial scale factor at angle = ref_angle
+    #factor = np.mean(radcorrspl(theta))
     factor = radcorrspl(ref_angle)
+
     # radial correction
     Xactual = X*factor/radcorrspl(theta)
     Yactual = Y*factor/radcorrspl(theta)
