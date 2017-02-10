@@ -81,33 +81,5 @@ def test_anisotropy_parameter():
     assert_almost_equal(-0.14, Beta[0][0], decimal=2)
 
 
-
-def test_circularize_image():
-
-    IM = abel.tools.analytical.sample_image(n=511, name='Ominus', sigma=2)
-
-    IMdist = abel.tools.analytical.flower_distort(IM)
-
-    nslices = 32
-
-    IMcirc, angle, scalefactor, spline =\
-        abel.tools.circularize.circularize_image(IMdist,
-                   method='lsq', nslices=nslices, zoom=1, smooth=0,
-                   return_correction=True)
-
-    r, c = IMcirc.shape
-
-    diff = (IMcirc - IM).sum(axis=1).sum(axis=0)
-
-    assert_almost_equal(diff, 425854.7, decimal=0)
-
-    assert_equal(len(angle), nslices)
-
-    assert_almost_equal(angle[-1], 3.04, decimal=2)
-    
-    assert_almost_equal(scalefactor[4], 0.92, decimal=2)
-
-
 if __name__ == "__main__":
-    test_circularize_image()
     test_anisotropy_parameter()
