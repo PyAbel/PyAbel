@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy import ndimage
 from scipy.interpolate import UnivariateSpline
 from scipy.optimize import leastsq
