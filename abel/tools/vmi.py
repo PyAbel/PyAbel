@@ -28,7 +28,7 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
 
     origin : tuple
         Image center coordinate relative to *bottom-left* corner
-        defaults to ``rows//2+rows%2,cols//2+cols%2``.
+        defaults to ``rows//2, cols//2``.
 
     Jacobian : boolean
         Include :math:`r\sin\\theta` in the angular sum (integration).
@@ -47,8 +47,8 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
         is equal to the height of the image (which should typically ensure
         good sampling.)
 
-    [eturns
-    a#------
+    Returns
+    ------
     r : 1D numpy.array
          radial coordinates
 
@@ -287,8 +287,7 @@ def toPES(radial, intensity, wavelength, Vrep, R2E, zoom=1):
     eBE = 1.0e7/wavelength - radial**2*(np.abs(Vrep)/1000)*R2E/100/zoom**2
 
     # Jacobian correction to intensity, because the radius has been squared
-    # check if required?
-    #intensity *= radial
+    intensity = intensity*radial
 
     # sort into ascending order
     indx = eBE.argsort()

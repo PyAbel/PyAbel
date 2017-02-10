@@ -12,8 +12,8 @@ import abel
 
 
 def circularize_image(IM, method="argmax", center=None, radial_range=None,
-                      zoom=1, smooth=1.0e-7, nslices=32, inverse=False,
-                      return_correction=False):
+                      zoom=1, smooth=1.0e-7, nslices=32, ref_angle=0, 
+                      inverse=False, return_correction=False):
     """
     Remove radial distortion from a velocity-map-image through radial scaling
     of the Newton-rings to enforce circularity.
@@ -54,6 +54,10 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
     nslices: int
         divide the image into nslices. Ideally, this should be a divisor of
         the image column width.
+
+    ref_angle: float
+        reference angle for which radial coordinate is unchanged
+        i.e. radial scalefactor = 1
 
     inverse: bool
         inverse Abel transform the *polar* image, to remove the background
@@ -118,12 +122,14 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
 
     # evaluate radial scaling factor for each slice
     radcorr = correction(slice_angles, slices, radial, method=method)
+    # radcorr *= 0.98696709945174  # Dribinski
+    # radcorr *= 0.9981    # O-sample
 
     # spline radial scaling vs angle
     radcorrspl = UnivariateSpline(slice_angles, radcorr, s=smooth, ext=3)
 
     # apply the correction
-    IMcirc = circularize(IM, radcorrspl)
+    IMcirc = circularize(IM, radcorrspl, ref_angle)
 
     if zoom > 1:
         # return to original image size
@@ -135,7 +141,7 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
         return IMcirc
 
 
-def circularize(IM, radcorrspl):
+def circularize(IM, radcorrspl, ref_angle=0):
     """
     Remap image from its distorted grid to the true cartesian grid.
 
@@ -159,9 +165,11 @@ def circularize(IM, radcorrspl):
     Y = origin[1] - Y   # negative values below the axis
     theta = np.arctan2(X, Y)  # referenced to vertical direction
 
+    # radial scale factor at angle = 0
+    factor = radcorrspl(ref_angle)
     # radial correction
-    Xactual = X/radcorrspl(theta)
-    Yactual = Y/radcorrspl(theta)
+    Xactual = X*factor/radcorrspl(theta)
+    Yactual = Y*factor/radcorrspl(theta)
 
     # @DanHickstein magic
     # https://github.com/PyAbel/PyAbel/issues/186#issuecomment-275471271
