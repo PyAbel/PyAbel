@@ -169,8 +169,6 @@ def circularize(IM, radcorrspl, ref_angle=None):
     else:
         factor = radcorrspl(ref_angle)
 
-    print("ref_angle = {}, factor = {:g}".format(ref_angle, factor))
-
     # radial correction
     Xactual = X*factor/radcorrspl(theta)
     Yactual = Y*factor/radcorrspl(theta)
