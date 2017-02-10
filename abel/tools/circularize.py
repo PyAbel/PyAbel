@@ -11,8 +11,8 @@ import abel
 # see https://github.com/PyAbel/PyAbel/issues/186 for discussion
 
 
-def circularize_image(IM, method="argmax", center=None, radial_range=None,
-                      zoom=1, smooth=1.0e-7, nslices=32, ref_angle=None, 
+def circularize_image(IM, method="lsq", center=None, radial_range=None,
+                      zoom=1, smooth=0, nslices=32, ref_angle=None, 
                       inverse=False, return_correction=False):
     """
     Remove radial distortion from a velocity-map-image through radial scaling
