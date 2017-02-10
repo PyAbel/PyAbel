@@ -245,7 +245,8 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     return (beta, error_beta), (amplitude, error_amplitude)
 
 
-def toPES(radial, intensity, wavelength, Vrep, R2E, zoom=1):
+def toPES(radial, intensity, wavelength, Vrep, R2E, zoom=1, energy_form='eBE',
+          units='cm'):
     """ convert speed radial coordinate into electron binding/kinetic energy.
         Return the photoelectron spectrum (PES).
 
@@ -281,15 +282,30 @@ def toPES(radial, intensity, wavelength, Vrep, R2E, zoom=1):
     zoom: float
          factor is profile from zoomed image
 
+    energy_form: str
+         'eBE' or 'eKE', electron binding energy or electron kinetic energy 
+
+    units: str
+         'cm' or 'eV'
+          
     """
 
     # transform radius to electron binding energy
     eBE = 1.0e7/wavelength - radial**2*(np.abs(Vrep)/1000)*R2E/100/zoom**2
 
-    # Jacobian correction to intensity, because the radius has been squared
-    intensity = intensity*radial
+    if energy_form == 'eKE':
+        eBKE = 1.0e7/wavelength - eBE   # in cm-1
+    else:
+        eBKE = eBE
+
+    if units == 'eV':
+        eBKE /= 8065.541  # convert cm-1 to eV
+
+    # Jacobian correction to intensity, radius has been squared
+    # Not sure why divide, but this is same as for basex?
+    intensity[1:] /= radial[1:]  # 1: to exclude R = 0
 
     # sort into ascending order
-    indx = eBE.argsort()
+    indx = eBKE.argsort()
 
-    return eBE[indx], intensity[indx]
+    return eBKE[indx], intensity[indx]
