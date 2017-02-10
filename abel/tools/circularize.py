@@ -12,7 +12,7 @@ import abel
 
 
 def circularize_image(IM, method="argmax", center=None, radial_range=None,
-                      zoom=1, smooth=1.0e-7, nslices=32, ref_angle=0, 
+                      zoom=1, smooth=1.0e-7, nslices=32, ref_angle=None, 
                       inverse=False, return_correction=False):
     """
     Remove radial distortion from a velocity-map-image through radial scaling
@@ -55,9 +55,9 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
         divide the image into nslices. Ideally, this should be a divisor of
         the image column width.
 
-    ref_angle: float
-        reference angle for which radial coordinate is unchanged
-        i.e. radial scalefactor = 1
+    ref_angle: None or float
+        reference angle for which radial coordinate is unchanged.
+        None uses numpy.mean(radial scale factors)
 
     inverse: bool
         inverse Abel transform the *polar* image, to remove the background
@@ -139,7 +139,7 @@ def circularize_image(IM, method="argmax", center=None, radial_range=None,
         return IMcirc
 
 
-def circularize(IM, radcorrspl, ref_angle=0):
+def circularize(IM, radcorrspl, ref_angle=None):
     """
     Remap image from its distorted grid to the true cartesian grid.
 
@@ -164,8 +164,10 @@ def circularize(IM, radcorrspl, ref_angle=0):
     theta = np.arctan2(X, Y)  # referenced to vertical direction
 
     # radial scale factor at angle = ref_angle
-    #factor = np.mean(radcorrspl(theta))
-    factor = radcorrspl(ref_angle)
+    if ref_angle == None:
+        factor = np.mean(radcorrspl(theta))
+    else:
+        factor = radcorrspl(ref_angle)
 
     # radial correction
     Xactual = X*factor/radcorrspl(theta)
