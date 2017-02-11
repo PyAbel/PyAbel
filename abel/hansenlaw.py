@@ -170,9 +170,9 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
     # center pixel column
     AIM[:, 0] = AIM[:, 1]
 
-    # for some reason shift by 1/2 pixel aligns? - Fix me!
+    # for some reason shift by -0.3 pixel aligns? - Fix me!
     if direction == 'inverse':
-        AIM = shift(AIM, (0, -1/2))
+        AIM = shift(AIM, (0, -0.30))
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
