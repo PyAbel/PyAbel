@@ -14,16 +14,22 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
                       zoom=1, smooth=0, nslices=32, ref_angle=None, 
                       inverse=False, return_correction=False):
     """
-    Remove radial distortion from a velocity-map-image through radial scaling
-    of the Newton-rings to enforce circularity.
+    This function corrects for radial distortion in an image that consists of
+    features that exist at a constant radius. In other words, the image must
+    consist of "circle-like" structures. This function attempts to correct for
+    any distortion and ensures that the circle-like structures are perfect
+    circles.
 
-    The image is divided into angular slices, adjacent radial intensity
-    profile slices compared to give a radial scaling factor that best
-    aligns common structure.
+    This function is especially useful for correcting the image obtained with
+    a velocity-map-imaging spectrometer with imperfect electro-static lenses,
+    allowing a high-resolution 1D photoelectron distribution to be extracted.
 
-    The resultant radial scaling factor vs angle is interpolated to apply the
-    correction to the whole image grid. The image is remapped to the
-    correct cartesian grid.
+    The algorithm is to split the image into "slices" at many different angles
+    (set by `nslices`) and compare adjacent slices. A scaling factor is found
+    which aligns each slice with the previous slice. The image is then
+    corrected using a spline function that smoothly connects the discrete
+    scaling factors as a continuous function of angle.
+
 
     Parameters
     ----------

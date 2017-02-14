@@ -21,7 +21,10 @@ IM = abel.tools.analytical.sample_image(n=511, name='Ominus', sigma=2)
 IMf = abel.Transform(IM, method='hansenlaw', direction="forward").transform
 
 # flower image distortion
-IMdist = abel.tools.analytical.flower_distort(IMf, amp=0.1, phase=2)
+def flower_scaling(theta, freq=2, amp=0.1):
+    return 1 + amp*np.sin(freq*theta)**4
+
+IMdist = abel.tools.circularize.circularize(IMf, radcorrspl=flower_scaling)
 
 # circularize ------------
 IMcirc, sla, sc, scspl = abel.tools.circularize.circularize_image(IMdist,

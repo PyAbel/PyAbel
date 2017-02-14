@@ -12,7 +12,11 @@ def test_circularize_image():
 
     IM = abel.tools.analytical.sample_image(n=511, name='Ominus', sigma=2)
 
-    IMdist = abel.tools.analytical.flower_distort(IM)
+    # flower image distortion
+    def flower_scaling(theta, freq=2, amp=0.1):
+        return 1 + amp*np.sin(freq*theta)**4
+
+    IMdist = abel.tools.circularize.circularize(IM, radcorrspl=flower_scaling)
 
     nslices = 32
 
@@ -25,7 +29,7 @@ def test_circularize_image():
 
     diff = (IMcirc - IM).sum(axis=1).sum(axis=0)
 
-    assert_almost_equal(diff, 425854.7, decimal=0)
+    assert_almost_equal(diff, -283.7, decimal=0)
 
     assert_equal(len(angle), nslices)
 
