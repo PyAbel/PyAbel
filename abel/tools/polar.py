@@ -67,8 +67,8 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     if dt is None:
         nt = max(nx, ny)
     else:
-        # dt in degrees
-        nt = np.round((theta.max()-theta.min())/(np.pi*dt/180))
+        # dt in radians
+        nt = np.int(np.ceil((theta.max()-theta.min())/dt))
 
     # Make a regular (in polar space) grid based on the min and max r & theta
     r_i = np.linspace(r.min(), r.max(), nr, endpoint=False)

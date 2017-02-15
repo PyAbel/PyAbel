@@ -18,24 +18,20 @@ def test_circularize_image():
 
     IMdist = abel.tools.circularize.circularize(IM, radcorrspl=flower_scaling)
 
-    nslices = 32
-
     IMcirc, angle, scalefactor, spline =\
         abel.tools.circularize.circularize_image(IMdist,
-                   method='lsq', nslices=nslices, zoom=1, smooth=0,
+                   method='lsq', dr=0.5, dt=0.1, smooth=0,
                    ref_angle=0, return_correction=True)
 
     r, c = IMcirc.shape
 
     diff = (IMcirc - IM).sum(axis=1).sum(axis=0)
 
-    assert_almost_equal(diff, -283.7, decimal=0)
-
-    assert_equal(len(angle), nslices)
+    assert_almost_equal(diff, -306.0, decimal=0)
 
     assert_almost_equal(angle[-1], 3.04, decimal=2)
 
-    assert_almost_equal(scalefactor[4], 0.92, decimal=2)
+    assert_almost_equal(scalefactor[4], 0.97, decimal=2)
 
 
 if __name__ == "__main__":

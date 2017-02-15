@@ -11,7 +11,7 @@ import abel
 
 
 def circularize_image(IM, method="lsq", center=None, radial_range=None,
-                      zoom=1, smooth=0, nslices=32, ref_angle=None, 
+                      dr=0.5, dt=0.5, smooth=0, ref_angle=None, 
                       inverse=False, return_correction=False):
     """
     This function corrects for radial distortion in an image that consists of
@@ -30,46 +30,70 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
     corrected using a spline function that smoothly connects the discrete
     scaling factors as a continuous function of angle.
 
+    The circularization algorithm should only be applied to a well-centered
+    image.
+
 
     Parameters
     ----------
     IM : numpy 2D array
 
-    method: str
+    method : str
         method to align slice profiles,
         "argmax" - compare intensity-profile.argmax() of each radial slice.
         "lsq" - determine radial scaling factor by minimizing the
                 intensity-prfoile with an adjacent slice intensity-profile.
 
-    center: str, or None
-        pre-center image using PyAbel centering methods,
-        "com", "convolution", "gaussian", "image_center", "slice"
+    center : str, float tuple, or None
+        pre-center image using :func:`abel.tools.center.center_image`
+        "com", "convolution", "gaussian", "image_center", "slice", or
+        float tuple center (y, x).
 
-    radial_range: tuple, or None
-        limit slice comparison to the radial range (rmin, rmax).
+    radial_range : tuple, or None
+        limit slice comparison to the radial range tuple (rmin, rmax), in
+        pixels, from the image center. Used to determine the alignment
+        around particular peaks. 
 
-    zoom: float
-        nmimage.zoom image before analysis. This may help improve the low
-        radius slice profile.
+    dr : float
+        Radial grid size for the polar coordinate image, default = 0.5 pixel.
+        Small values may improve the distortion correction, which is often of
+        sub-pixel dimensions, at the cost of reduced signal to noise for the
+        slice intensity profile. 
+        See also :func:`abel.tools.polar.reproject_image_into_polar`
 
-    smooth: float
-        smoothing for spline interpolation of the determined radial scaling
-        factor vs angle
+    dt : float
+        Angular grid size.
+        See also :func:`abel.tools.polar.reproject_image_into_polar`
 
-    nslices: int
-        divide the image into nslices. Ideally, this should be a divisor of
-        the image column width.
+    smooth : float
+        This value is passed to the `scipy.interpolate.UnivariateSpline`
+        function and controls how smooth the spline interpolation is. A value 
+        of zero corresponds to a spline that runs through all of the points,
+        and higher values correspond to a smoother spline function. 
+        It is important to examine the relative peak position (scaling factor)
+        data and how well it is represented by the spline function. Use the
+        option `return_correction=True` to examine this data. Typically,
+        `smooth` may remain zero, noisy data may require some smoothing.
 
-    ref_angle: None or float
+    ref_angle : None or float
         reference angle for which radial coordinate is unchanged.
-        None uses numpy.mean(radial scale factors)
+        Angle varies between -pi to pi, with zero angle vertical.
+        None uses numpy.mean(radial scale factors), which attempts to maintain
+        the same average radial scaling. This approximation is likely valid,
+        unless you know for certain that a specific angle of your image
+        corresponds to an undistorted image."
 
-    inverse: bool
+    inverse : bool
         inverse Abel transform the *polar* image, to remove the background
-        intensity. This helps follow a given peak intensityr, for all angles,
-        when the anisotropy parameter is large.
+        intensity. This may improve the signal to noise, allowing weak 
+        intensity featured to be followed in angle. 
 
-    return_correction: bool
+        Note that this step is only for the purposes of allowing the algorithm
+        to better follow peaks in the image. It does not affect the final 
+        image that is returned, expect for (hopefully) slightly improving the
+        precision of the distortion correction.
+
+    return_correction : bool
         additional outputs, see below
 
     Returns
@@ -78,20 +102,16 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
         Circularized imput image
 
     (if return_correction is True)
-    slice_angles: numpy 1D array
+    slice_angles : numpy 1D array
         Mid-point angle (radians) of image slice
 
-    radial_corrections: numpy 1D array
-        radial correction scale factors, at each angle
+    radial_corrections : numpy 1D array
+        radial correction scale factors, at any angle
 
-    spline_function: numpy func()
-        spline function used to evaluate the radial correction at each angle
+    function : numpy function that accepts numpy.array
+        function used to evaluate the radial correction at each angle
 
     """
-
-    if zoom > 1:
-        # zoom may improve the low radii angular resolution
-        IM = ndimage.zoom(IM, zoom)
 
     if center is not None:
         # convenience function for the case image is not centered
@@ -100,46 +120,35 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
     # map image into polar coordinates - much easier to slice
     # cartesian (Y, X) -> polar (Radius, Theta)
     polarIM, radial_coord, angle_coord =\
-                           abel.tools.polar.reproject_image_into_polar(IM)
+             abel.tools.polar.reproject_image_into_polar(IM, dr=dr, dt=dt)
  
     if inverse:
         # pseudo inverse Abel transform of the polar image, removes background
         # to enhance transition peaks
         polarIM = abel.dasch.two_point_transform(polarIM.T).T
 
+    # 1-D coordinate arrays
+    angles = angle_coord[0]  # angle coordinate
+    radial = radial_coord[:, 0]  # radial coordinate
+
     # limit radial range of polar image, if selected
-    radial = radial_coord[:, 0]
     if radial_range is not None:
         subr = np.logical_and(radial > radial_range[0]*zoom,
                               radial < radial_range[1]*zoom)
         polarIM = polarIM[subr]
         radial = radial[subr]
 
-    # split image into n-slices
-    slices = np.array_split(polarIM, nslices, axis=1)
-    slice_angles_array = np.array_split(angle_coord[0], nslices)
-    # Fix me! - np.hsplit does not cope with uneven split
-    #           there must be a better way to determine mean slice angle?
-    slice_angles = []
-    for ang in slice_angles_array:
-        slice_angles.append(np.mean(ang))
-    slice_angles = np.array(slice_angles)
-
     # evaluate radial scaling factor for each slice
-    radcorr = correction(slice_angles, slices, radial, method=method)
+    radcorr = correction(polarIM.T, radial, angles, method=method)
 
     # spline radial scaling vs angle
-    radcorrspl = UnivariateSpline(slice_angles, radcorr, s=smooth, ext=3)
+    radcorrspl = UnivariateSpline(angles, radcorr, s=smooth, ext=3)
 
     # apply the correction
     IMcirc = circularize(IM, radcorrspl, ref_angle=ref_angle)
 
-    if zoom > 1:
-        # return to original image size
-        IMcirc = ndimage.zoom(IMcirc, 1/zoom)
-
     if return_correction:
-        return IMcirc, slice_angles, radcorr, radcorrspl
+        return IMcirc, angles, radcorr, radcorrspl
     else:
         return IMcirc
 
@@ -153,8 +162,8 @@ def circularize(IM, radcorrspl, ref_angle=None):
     IM : numpy 2D array
         original image
 
-    radcorrspl: numpy func(theta)
-        spline function to evaluate radial correction at a given angle
+    radcorrspl : numpy function that accepts numpy.array of angles
+        function to evaluate radial correction at a given angle
 
     """
     # cartesian coordinate system
@@ -186,23 +195,44 @@ def circularize(IM, radcorrspl, ref_angle=None):
     return IMcirc
 
 
-def residual(param, radial, profile, previous):
+def _residual(param, radial, profile, previous):
     """ compare radially scaled intensity profile with adjacent 'previous'
         profile, to determine the radial scale factor param[0], and
         amplitude param[1].
 
     """
-    newradial = radial*param[0]
+    radial_scaling, amplitude = param[0], param[1]
+
+    newradial = radial*radial_scaling
     spline_prof = UnivariateSpline(newradial, profile, s=0, ext=3)
-    newprof = spline_prof(radial)*param[1]
+    newprof = spline_prof(radial)*amplitude
 
     # residual cf adjacent slice profile
     return newprof - previous
 
 
-def correction(slice_angles, slices, radial, method):
-    """ evaluate a radial scaling factor to align intensity profile features,
-        between adjacent angular slices.
+def correction(polarIMTrans, radial, angles, method):
+    """ `leastsq` residuals function.
+
+    Evaluate the difference between a radial-scaled intensity profile
+    and its adjacent angular slice.
+
+
+    Parameters
+    ----------
+    polarIMTrans : numpy 2D array
+        polar coordinate image, transposed so that each row is one angle
+
+    radial : numpy 1D array
+        radial coordinates of one column of polarIMTrans
+
+    angles : numpy 1D array
+        angle coordinates of one row of polarIMTrans
+
+    method : str
+        'lsq' : determine a radial correction factor that will align a
+        radial intensity profile with the previous, adjacent slice.
+        'argmax': radial correction factor from position of maximum intensity
 
     """
 
@@ -210,8 +240,8 @@ def correction(slice_angles, slices, radial, method):
         # follow position of intensity maximum
         pkpos = []
 
-        for ang, aslice in zip(slice_angles, slices):
-            profile = aslice.sum(axis=1)  # intensity vs radius for slice
+        for ang, aslice in zip(angles, polarIMTrans):
+            profile = aslice
             pkpos.append(profile.argmax())  # store index of peak position
 
         # radial scaling factor relative to peak max in first angular slice
@@ -223,16 +253,17 @@ def correction(slice_angles, slices, radial, method):
         fitpar = np.array([1.0, 1.0])  # radial scale factor, amplitude
         sf = []
         sf.append(1)  # first slice nothing to compare with
-        previous = slices[0].sum(axis=1)
+        previous = polarIMTrans[0]
 
-        for ang, aslice in zip(slice_angles[1:], slices[1:]):
-            profile = aslice.sum(axis=1)  # intensity vs radius for slice
+        for ang, aslice in zip(angles[1:], polarIMTrans[1:]):
+            profile = aslice
 
-            result = leastsq(residual, fitpar, args=(radial, profile, previous))
+            result = leastsq(_residual, fitpar, args=(radial, profile,
+                             previous))
 
             sf.append(result[0][0])  # radial scale factor direct from lsq
 
-            previous += residual(result[0], radial, profile, previous)
+            previous += _residual(result[0], radial, profile, previous)
             fitpar = result[0]
 
     else:
