@@ -26,24 +26,29 @@ adjacent slice intensity profiles.
 Implementation
 --------------
 
-Cartesian :math:`(y, x)` image is converted to a polar coordinate image :math:`(r, theta)` for easy slicing into angular blocks. Each radial intensity profile is compared with its adjacent slice, providing a radial scaling factor that best aligns the two intensity profiles. 
+Cartesian :math:`(y, x)` image is converted to a polar coordinate image :math:`(r, \theta)` for easy slicing into angular blocks. Each radial intensity profile is compared with its adjacent slice, providing a radial scaling factor that best aligns the two intensity profiles. 
 
-The set of radial scaling factors, for each angular slice, is the spline 
+The set of radial scaling factors, for each angular slice, is then spline 
 interpolated to correct the :math:`(y, x)` grid, and the image remapped to an
 unperturbed grid.
 
 How to use it
 -------------
-The `circularize_image()` function is called directly::
+The ``circularize_image()`` function is called directly ::
 
- IMcirc, angle, radial_correction, splinefunction = abel.tools.circularize.circularize_image(IM, method='lsq', center='slice', dr=0.5, dt=0.1, return_correction=True)
+ IMcirc, angle, radial_correction, radial_correction_function =\
+     abel.tools.circularize.circularize_image(IM, method='lsq',\
+     center='slice', dr=0.5, dt=0.1, return_correction=True)
 
-The main input parameters are the image `IM`, and the number of angular slices, to use, which is set by `2*np.pi/dt`. Other parameters may help better define the radial correction function.
+The main input parameters are the image `IM`, and the number of angular slices, to use, which is set by :math:`2\pi/dt`. The default `dt = 0.1` uses ~63 slices.
+This parameter determines the angular resolution of the distortion correction
+function, but is limited by the signal to noise loss with smaller `dt`.
+Other parameters may help better define the radial correction function.
 
 Warning
 -------
 Ensure the returned radial_correction vs angle data is a well behaved function. 
-See the example (below). If necessary limit the `radial_range=(Rmin, Rmax)`, or change the value of the spline smoothing parameter.
+See the example, below, bottom left figure. If necessary limit the `radial_range=(Rmin, Rmax)`, or change the value of the spline smoothing parameter.
 
 Example
 -------
