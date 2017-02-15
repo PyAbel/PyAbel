@@ -16,7 +16,8 @@ def test_circularize_image():
     def flower_scaling(theta, freq=2, amp=0.1):
         return 1 + amp*np.sin(freq*theta)**4
 
-    IMdist = abel.tools.circularize.circularize(IM, radcorrspl=flower_scaling)
+    IMdist = abel.tools.circularize.circularize(IM,
+                                    radial_correction_function=flower_scaling)
 
     IMcirc, angle, scalefactor, spline =\
         abel.tools.circularize.circularize_image(IMdist,

@@ -24,7 +24,8 @@ IMf = abel.Transform(IM, method='hansenlaw', direction="forward").transform
 def flower_scaling(theta, freq=2, amp=0.1):
     return 1 + amp*np.sin(freq*theta)**4
 
-IMdist = abel.tools.circularize.circularize(IMf, radcorrspl=flower_scaling)
+IMdist = abel.tools.circularize.circularize(IMf,
+                                radial_correction_function=flower_scaling)
 
 # circularize ------------
 IMcirc, sla, sc, scspl = abel.tools.circularize.circularize_image(IMdist,

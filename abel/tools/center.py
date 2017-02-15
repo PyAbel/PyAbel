@@ -10,7 +10,7 @@ import warnings
 from scipy.ndimage import center_of_mass
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import minimize
-from six import string_types # testing stings with Python 2 and 3 compatibility
+from six import string_types # testing strings with Python 2 and 3 compatibility
 
 def find_center(IM, center='image_center', square=False, verbose=False, 
                 **kwargs):

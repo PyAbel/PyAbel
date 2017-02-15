@@ -36,9 +36,9 @@ How to use it
 -------------
 The `circularize_image()` function is called directly::
 
- IMcirc, angle, radial_correction, splinefunction = abel.tools.circularize.circularize_image(IM, method='lsq', center='slice', nslices=32, zoom=2, return_correction=True)
+ IMcirc, angle, radial_correction, splinefunction = abel.tools.circularize.circularize_image(IM, method='lsq', center='slice', dr=0.5, dt=0.1, return_correction=True)
 
-The main input parameters are the image `IM`, and the number of angular slices, `nslices` to use. Other parameters may help better define the radial correction function.
+The main input parameters are the image `IM`, and the number of angular slices, to use, which is set by `2*np.pi/dt`. Other parameters may help better define the radial correction function.
 
 Warning
 -------
