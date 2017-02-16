@@ -31,7 +31,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
         Radial coordinate spacing for the grid interpolation
         tests show that there is not much point in going below 0.5
     dt : float
-        Angular coordinate spacing (in degrees)
+        Angular coordinate spacing (in radians)
         if ``dt=None``, dt will be set such that the number of theta values
         is equal to the maximum value between the height or the width of 
         the image.

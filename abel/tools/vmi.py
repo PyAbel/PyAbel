@@ -15,7 +15,7 @@ from scipy.optimize import curve_fit
 def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     """Angular integration of the image.
 
-    Returns the one-dimentional intensity profile as a function of the
+    Returns the one-dimensional intensity profile as a function of the
     radial coordinate.
 
     Note: the use of Jacobian=True applies the correct Jacobian for the
@@ -76,7 +76,7 @@ def average_radial_intensity(IM, **kwargs):
     """Calculate the average radial intensity of the image, averaged over all
     angles. This differs form :func:`abel.tools.vmi.angular_integration` only
     in that it returns the average intensity, and not the integrated intensity
-    of a 3D image. It is equavalent to calling
+    of a 3D image. It is equivalent to calling
     :func:`abel.tools.vmi.angular_integration` with
     `Jacobian=True` and then dividing the result by 2*pi.
 
@@ -96,7 +96,7 @@ def average_radial_intensity(IM, **kwargs):
       radial coordinates
 
     intensity : 1D numpy.array
-      one-dimentional intensity profile as a function of the radial coordinate.
+      one-dimensional intensity profile as a function of the radial coordinate.
 
     """
     R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
@@ -247,17 +247,18 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
 
 def toPES(radial, intensity, wavelength, Vrep, R2E, zoom=1, energy_form='eBE',
           units='cm'):
-    """ convert speed radial coordinate into electron binding/kinetic energy.
-        Return the photoelectron spectrum (PES).
+    """
+    Convert speed radial coordinate into electron binding/kinetic energy.
+    Return the photoelectron spectrum (PES).
 
-        NB requires experiment parameters, measurement wavelength,
-           repeller voltage, radius squared to energy calibration factor.
-           These are easily determined by comparing the generated PES
-           with published spectra. e.g. for O- photodetachment, the
-           strongest fine-structure transition occurs a the electron
-           affinity EA = 11,784.676(7) cm-1. This energy scaling
-           will provide the R2E factor. Values for the ANU experiment
-           are given below.
+    NB requires experiment parameters, measurement `wavelength`,
+    `repeller voltage`, radius squared to `energy calibration factor`.
+    These are easily determined by comparing the generated PES
+    with published spectra. e.g. for O :math:`^-` photodetachment, the
+    strongest fine-structure transition occurs at the electron
+    affinity :math:`EA = 11,784.676(7)` cm :math:`^{-1}`. This energy scaling
+    will provide the `R2E` parameter. Values for the ANU experiment
+    are given below.
 
     Parameters
     ----------
@@ -269,24 +270,24 @@ def toPES(radial, intensity, wavelength, Vrep, R2E, zoom=1, energy_form='eBE',
 
     wavelength: float
          measurement wavelength in nm
-         e.g. 812.51 nm, for example/data/O-ANU1024.txt
+	 e.g. `812.51 nm`, for "examples/data/O-ANU1024.txt"
 
     Vrep: float
          repeller voltage 
-         e.g. -98 volts, for example/data/O-ANU1024.txt
+         e.g. `-98 volts`, for "examples/data/O-ANU1024.txt"
 
     R2E: float
          energy calibration factor
-         e.g. 1.148427 for example/data/O-ANU1024.txt
+         e.g. `1.148427` for "examples/data/O-ANU1024.txt"
 
     zoom: float
-         factor is profile from zoomed image
+         additional factor if experimental image has been zoomed
 
     energy_form: str
-         'eBE' or 'eKE', electron binding energy or electron kinetic energy 
+         ``eBE`` or ``eKE``, electron binding energy or electron kinetic energy
 
     units: str
-         'cm' or 'eV'
+         ``cm-1`` or ``eV``
           
     """
 

@@ -20,8 +20,7 @@ Compare the radial positions of strong features in angular slice intensity profi
         ^        ^    slice#
     radial peak position
 
-Peak alignment is achieved through a radial scaling factor :math:`R_i(actual) = R_i * scalefactor_i`. The scalefactor is determined by a choice or methods, `argmax`, where :math:`scalefactor_i = R_0/R_i`, with `R_0` a reference peak. Or `lsq`, which directly determines the radial scaling factor that best aligns
-adjacent slice intensity profiles.
+Peak alignment is achieved through a radial scaling factor :math:`R_i(actual) = R_i \times scalefactor_i`. The scalefactor is determined by a choice or methods, ``argmax``, where :math:`scalefactor_i = R_0/R_i`, with :math:`R_0` a reference peak. Or ``lsq``, which directly determines the radial scaling factor that best aligns adjacent slice intensity profiles.
 
 Implementation
 --------------
@@ -48,7 +47,7 @@ Other parameters may help better define the radial correction function.
 Warning
 -------
 Ensure the returned radial_correction vs angle data is a well behaved function. 
-See the example, below, bottom left figure. If necessary limit the `radial_range=(Rmin, Rmax)`, or change the value of the spline smoothing parameter.
+See the example, below, bottom left figure. If necessary limit the ``radial_range=(Rmin, Rmax)``, or change the value of the spline smoothing parameter.
 
 Example
 -------
