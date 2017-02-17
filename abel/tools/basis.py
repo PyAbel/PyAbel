@@ -70,7 +70,8 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
                     value = ''.join(map(str, basis_options[key]))
                 elif key == 'proj_angles':
                     # in radians, convert to % of pi
-                    proj_angles_fractpi = basis_options['proj_angles']*100/np.pi
+                    proj_angles_fractpi =\
+                         np.array(basis_options['proj_angles'])*100/np.pi
                     
                     value = ''.join(map(str, proj_angles_fractpi.astype(int)))
                 else: 
