@@ -42,7 +42,7 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
         reduce pixel granularity of the speed profile.
 
     dt : float
-        Theta coordinate grid spacing in degrees.
+        Theta coordinate grid spacing in radians.
         if ``dt=None``, dt will be set such that the number of theta values
         is equal to the height of the image (which should typically ensure
         good sampling.)
