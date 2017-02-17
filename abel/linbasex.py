@@ -49,8 +49,8 @@ _linbasex_parameter_docstring = \
     IM : numpy 2D array
         image data must be square shape of odd size
     proj_angles : list
-        projection angles, in degrees (default [0, 90])
-        e.g. [0, 90] or [0, 54.7356, 90] or [0, 45, 90, 135]
+        projection angles, in radians (default :math:`[0, \pi/2]`)
+        e.g. :math:`[0, \pi/2]` or :math:`[0, 0.955, \pi/2]` or :math:`[0, \pi/4, \pi/2, 3\pi/4]`
     legendre_orders : list
         orders of Legendre polynomials to be used as the expansion
             even polynomials [0, 2, ...] gerade
@@ -118,7 +118,7 @@ _linbasex_parameter_docstring = \
     """
 
 
-def linbasex_transform(IM, proj_angles=[0, 90],
+def linbasex_transform(IM, proj_angles=[0, np.pi/2],
                        legendre_orders=[0, 2], radial_step=1, smoothing=0.5,
                        rcond=0.0005, threshold=0.2, basis_dir='./',
                        return_Beta=False, clip=0, norm_range=(0, -1),
@@ -154,7 +154,7 @@ def linbasex_transform(IM, proj_angles=[0, 90],
         return inv_IM
 
 
-def linbasex_transform_full(IM, proj_angles=[0, 90],
+def linbasex_transform_full(IM, proj_angles=[0, np.pi/2],
                             legendre_orders=[0, 2],
                             radial_step=1, smoothing=0.5,
                             rcond=0.0005, threshold=0.2, clip=0,
@@ -189,7 +189,7 @@ def linbasex_transform_full(IM, proj_angles=[0, 90],
                                     norm_range=norm_range)
 
 
-def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, 90],
+def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
                                    legendre_orders=[0, 2], radial_step=1,
                                    rcond=0.0005, smoothing=0.5, threshold=0.2,
                                    clip=0, norm_range=(0, -1)):
@@ -210,16 +210,16 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, 90],
     QLz = np.zeros((proj, cols))  # array for projections.
 
     # Rotate and project VMI-image for each angle (as many as projections)
-    # if proj_angles == [0, 90]:
+    # if proj_angles == [0, np.pi/2]:
     #     # If coordinates of the detector coincide with the projection
     #     # directions unnecessary rotations are avoided
-    #     # i.e. proj_angles=[0, 90] degrees
+    #     # i.e. proj_angles=[0, np.pi/2] degrees
     #     QLz[0] = np.sum(IM, axis=1)
     #     QLz[1] = np.sum(IM, axis=0)
     # else:
     for i in range(proj):
-        Rot_IM = scipy.ndimage.interpolation.rotate(IM, proj_angles[i],
-                                            axes=(1, 0), reshape=False)
+        Rot_IM = scipy.ndimage.interpolation.rotate(IM,
+                       proj_angles[i]*180/np.pi, axes=(1, 0), reshape=False)
         QLz[i, :] = np.sum(Rot_IM, axis=1)
 
     # arrange all projections for input into "lstsq"
@@ -386,14 +386,14 @@ def _bas(ord, angle, COS, TRI):
     return basis_vec
 
 
-def _bs_linbasex(cols, proj_angles=[0,90], legendre_orders=[0, 2],
+def _bs_linbasex(cols, proj_angles=[0, np.pi/2], legendre_orders=[0, 2],
                  radial_step=1, clip=0, **kwargs):
 
     pol = len(legendre_orders)
     proj = len(proj_angles)
 
     # Calculation of Base vectors
-    # Define triangular matrix containing columns x/y (representing cos(θ)).
+    # Define triangular matrix containing columns :math:`x/y` (representing :math:`\cos(\theta))`.
     n = cols//2 + cols % 2
     Index = np.indices((n, n))
     Index[:, 0, 0] = 1
@@ -422,7 +422,7 @@ def _bs_linbasex(cols, proj_angles=[0,90], legendre_orders=[0, 2],
     B = np.zeros((pol, proj, len(COS[:, 0]), len(COS[0, :])))
 
     Norm = np.sum(_bas(0, 1, COS, TRI), axis=0)  # calculate normalization
-    cos_an = np.cos(np.radians(proj_angles))  # angles in radians
+    cos_an = np.cos(proj_angles)  # angles in radians
 
     for p in range(pol):
         for u in range(proj):

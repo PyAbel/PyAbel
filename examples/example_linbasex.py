@@ -23,7 +23,7 @@ IM = np.loadtxt("data/O2-ANU1024.txt.bz2")[::2,::2]
 # `center=convolution` takes care of this
 
 un = [0, 2]  # spherical harmonic orders
-proj_angles = range(0, 360, 10)  # projection angles
+proj_angles = np.arange(0, 2*np.pi, np.pi/20) # projection angles
 # adjust these parameter to 'improve' the look
 smoothing = 0.9  # smoothing Gaussian 1/e width
 threshold = 0.01 # exclude small amplitude Newton spheres

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 IM = np.loadtxt("data/VMI_art1.txt.bz2")
 
 legendre_orders = [0, 2, 4]  # Legendre polynomial orders
-proj_angles = range(0, 180, 10)  # projection angles in 10 degree steps
+proj_angles = np.arange(0, np.pi/2, np.pi/10)  # projection angles in 10 degree steps
 radial_step = 1  # pixel grid
 smoothing = 1  # smoothing 1/e-width for Gaussian convolution smoothing
 threshold = 0.2  # threshold for normalization of higher order Newton spheres
@@ -53,9 +53,10 @@ ax1.plot(LIM.radial, LIM.Beta[0], 'r-', label='linbasex')
 ax1.plot(HIM.angular_integration[1]/HIM.angular_integration[1].max(),
          'b-', label='hansenlaw')
 ax1.legend(loc=0, labelspacing=0.1, frameon=False, numpoints=1, fontsize=10)
+proj_angles *= 100/np.pi
 ax1.set_title("Beta0 norm an={} un={} inc={} sig={} th={}".
-              format(proj_angles, legendre_orders, radial_step, smoothing,
-                     threshold), fontsize=10)
+              format(proj_angles.astype(int), legendre_orders,
+                     radial_step, smoothing, threshold), fontsize=10)
 ax1.axis(ymin=-0.1, ymax=1.2)
 ax1.set_xlabel("radial coordinate (pixels)")
 
