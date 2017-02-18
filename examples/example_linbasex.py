@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 import abel
+import os
 
 import matplotlib.pylab as plt
 
@@ -14,10 +15,11 @@ import matplotlib.pylab as plt
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
 # Load image as a numpy array - numpy handles .gz, .bz2 
-IM = np.loadtxt("data/O2-ANU1024.txt.bz2")[::2,::2]
+IM = np.loadtxt("data/O2-ANU1024.txt.bz2")
+if os.environ.get('READTHEDOCS', None) == True:
+    IM = IM[::2,::2]
 # the [::2, ::2] reduces the image size x1/2, decreasing processing memory load
 # for the online readthedocs.org
-# remove the [::2, ::2] for higher resolution processing.
 
 # Image center should be mid-pixel and the image square, 
 # `center=convolution` takes care of this

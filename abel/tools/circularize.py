@@ -39,7 +39,8 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
     connects the discrete scaling factors as a continuous function of angle.
 
     This circularization algorithm should only be applied to a well-centered
-    image, otherwise use the `center` keyword (described below) to center it.
+    image, otherwise use the `center` keyword (described below) to
+    center it.
 
 
     Parameters

@@ -1,15 +1,16 @@
-Circularize Image
-=================
+Circularization of Images
+=========================
 
 Background
 ----------
 
-For velocity-map imaging experiments the charged particles emanate as Newton spheres that have spherical symmetry, and thus the 2D projection should be perfectly circular. Experimental velocity-map images may have distortions in the circular charged particle energy structure, due to, for example, stray magnetic fields, or optical distortion of the camera lens that images the particle detector. The effect of distortion is to degrade the radial (or velocity or kinetic energy) resolution, since a particular energy peak will "walk" in radial position, depending on the particular angular position on the detector. Imposing a physical circular distribution of particles, may substantially improve the kinetic energy resolution, at the expense of uncertainly in the absolution kinetic-energy position of the transition.
+While the Abel transform only assumes cylindrical symmetry, often the objects to be transformed also have some degree of spherical symmetry, (i.e., features that appear at a constant radius for all angles) and thus the 2D projection should be perfectly circular. Experimental images may have distortions in the circular charged particle energy structure, due to, for example, stray magnetic fields, or optical distortion of the camera lens that images the particle detector. The effect of distortion is to degrade the radial (or velocity or kinetic energy) resolution, since a particular energy peak will "walk" in radial position, depending on the particular angular position on the detector. Imposing a physical circular distribution of particles, may substantially improve the kinetic energy resolution, at the expense of uncertainly in the absolution kinetic-energy position of the transition.
 
 Approach
 --------
 
-Compare the radial positions of strong features in angular slice intensity profiles. i.e. follow the radial position of a peak as a function of angle. A linear correction is applied to the radial grid to align the peak at each angle.
+The algorithm is implemented in :func:`abel.tools.circularize.circularize_image`
+compares the radial positions of strong features in angular slice intensity profiles. i.e. follow the radial position of a peak as a function of angle. A linear correction is applied to the radial grid to align the peak at each angle.
 ::
      before     after
        ^         ^    slice0
@@ -33,7 +34,7 @@ unperturbed grid.
 
 How to use it
 -------------
-The ``circularize_image()`` function is called directly ::
+The :func:`circularize_image()` function is called directly ::
 
  IMcirc, angle, radial_correction, radial_correction_function =\
      abel.tools.circularize.circularize_image(IM, method='lsq',\
