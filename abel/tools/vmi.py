@@ -245,26 +245,27 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     return (beta, error_beta), (amplitude, error_amplitude)
 
 
-def toPES(radial, intensity, energy_scale_factor, per_energy_scaling=True,
+def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
           wavelength=None, Vrep=None, zoom=1):
     """
     Convert speed radial coordinate into electron kinetic or binding energy.
     Return the photoelectron spectrum (PES).
 
-    This calculation uses a single scaling factor ``energy_scale_factor``
+    This calculation uses a single scaling factor ``energy_cal_factor``
     to convert the radial pixel coordinate into electron kinetic energy.
 
     Additional experimental parameters, ``wavelength(nm)`` will give the
     energy scale as the electron binding energy in cm-1, while ``Vrep``,
     the VMI lens repeller voltage (volts), provides for a voltage
-    independent scaling factor. i.e. ``energy_scale_factor`` should
+    independent scaling factor. i.e. ``energy_cal_factor`` should
     remain approximately constant.
 
-    The ``energy_scale_factor`` is readily determined by comparing the
+    The ``energy_cal_factor`` is readily determined by comparing the
     generated energy scale with published spectra. e.g. for O :math:`^-`
     photodetachment, the strongest fine-structure transition occurs at the
     electron affinity :math:`EA = 11,784.676(7)` cm :math:`^{-1}`. Values for
-    the ANU experiment are given below.
+    the ANU experiment are given below, see also
+    `examples/example_hansenlaw.py`.
 
     Parameters
     ----------
@@ -274,7 +275,7 @@ def toPES(radial, intensity, energy_scale_factor, per_energy_scaling=True,
     intensity : numpy 1D array
         intensity values, at the radial array
 
-    energy_scale_factor: float
+    energy_cal_factor: float
         energy calibration factor that will convert radius squared into energy
         e.g. `1.148427e-5` for "examples/data/O-ANU1024.txt"
 
@@ -300,9 +301,9 @@ def toPES(radial, intensity, energy_scale_factor, per_energy_scaling=True,
     """
 
     if Vrep is not None:
-        energy_scale_factor *= np.abs(Vrep)/zoom**2
+        energy_cal_factor *= np.abs(Vrep)/zoom**2
 
-    eKE = radial**2*energy_scale_factor
+    eKE = radial**2*energy_cal_factor
 
     if wavelength is not None:
         # electron binding energy
@@ -318,7 +319,7 @@ def toPES(radial, intensity, energy_scale_factor, per_energy_scaling=True,
     intensity[1:] /= (2*radial[1:])  # 1: to exclude R = 0
     if per_energy_scaling:
         # intensity per unit energy
-        intensity /= energy_scale_factor
+        intensity /= energy_cal_factor
 
     # sort into ascending order
     indx = eBKE.argsort()

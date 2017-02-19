@@ -166,8 +166,8 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
 
     # limit radial range of polar image, if selected
     if radial_range is not None:
-        subr = np.logical_and(radial > radial_range[0]*zoom,
-                              radial < radial_range[1]*zoom)
+        subr = np.logical_and(radial > radial_range[0],
+                              radial < radial_range[1])
         polarIM = polarIM[subr]
         radial = radial[subr]
 

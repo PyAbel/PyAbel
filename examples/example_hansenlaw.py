@@ -39,7 +39,7 @@ radial, speeds  = abel.tools.vmi.angular_integration(AIM, dr=0.5)
 # convert to photoelectron spectrum vs binding energy
 # conversion factors depend on measurement parameters
 eBE, PES = abel.tools.vmi.toPES(radial, speeds,
-                                energy_scale_factor=1.209e-5,
+                                energy_cal_factor=1.209e-5,
                                 wavelength=454.5, Vrep=-2200,
                                 zoom=0.5)
 
