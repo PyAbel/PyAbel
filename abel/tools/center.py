@@ -257,8 +257,7 @@ def find_center_by_center_of_mass(IM, verbose=False, round_output=False,
 
 def find_center_by_convolution(IM, **kwargs):
     """ Center the image by convolution of two projections along each axis.
-
-        code from the ``linbasex`` juptyer notebook
+        Code from the ``linbasex`` juptyer notebook
 
     Parameter
     -------

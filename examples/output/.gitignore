@@ -1,5 +1,0 @@
-# empty directory to hold example output images
-# Ignore everything in this directory
-*
-# Except this file
-!.gitignore

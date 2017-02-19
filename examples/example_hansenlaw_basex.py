@@ -34,7 +34,7 @@ base_dir, name = os.path.split(filename)
 name  = name.split('.')[0]
 output_image = name + '_inverse_Abel_transform_HansenLaw.png'
 output_text  = name + '_speeds_HansenLaw.dat'
-output_plot  = 'output/' + name + '_comparison_HansenLaw.png'
+output_plot  = 'plot_' + name + '_comparison_HansenLaw.png'
 
 # Load an image file as a numpy array
 print('Loading ' + filename)

@@ -9,12 +9,12 @@ import abel
 
 #########################################################################
 # circularize.py
-# 
+#
 # Image circularization by following peak intensity vs angle
 # see https://github.com/PyAbel/PyAbel/issues/186 for discussion
 # and https://github.com/PyAbel/PyAbel/pull/195
 #
-# Steve Gibson and Dan Hickstein - ideas/code 
+# Steve Gibson and Dan Hickstein - ideas/code
 # Jason Gascooke - ideas
 #
 # February 2017
@@ -22,11 +22,11 @@ import abel
 
 
 def circularize_image(IM, method="lsq", center=None, radial_range=None,
-                      dr=0.5, dt=0.5, smooth=0, ref_angle=None, 
+                      dr=0.5, dt=0.5, smooth=0, ref_angle=None,
                       inverse=False, return_correction=False):
     """
     Corrects image distortion on the basis that the structure (Newton spheres)
-    should be circular.  
+    should be circular.
 
     This function is especially useful for correcting the image obtained with
     a velocity-map-imaging spectrometer with imperfect electro-static lenses,
@@ -35,7 +35,7 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
     The algorithm splits the image into "slices" at many different angles
     (set by `dt`) and compares the radial intensity profile of adjacent slices.
     A scaling factor is found which aligns each slice profile with the previous
-    slice. The image is then corrected using a spline function that smoothly 
+    slice. The image is then corrected using a spline function that smoothly
     connects the discrete scaling factors as a continuous function of angle.
 
     This circularization algorithm should only be applied to a well-centered
@@ -49,14 +49,16 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
         Image to be circularized.
 
     method : str
-        Method used to determine the radial correction factor to align slice profiles:
+        Method used to determine the radial correction factor to align slice
+        profiles:
 
         ``argmax`` - compare intensity-profile.argmax() of each radial slice.
-                   This method is quick and reliable, but it assumes that 
-                   the radial intensity profile has an obvious maximum. 
-                   The positioning is limited to the nearest pixel.
+                This method is quick and reliable, but it assumes that
+                the radial intensity profile has an obvious maximum.
+                The positioning is limited to the nearest pixel.
 
-        ``lsq`` - minimize the difference between a slice intensity-profile with its adjacent slice.
+        ``lsq`` - minimize the difference between a slice intensity-profile
+                with its adjacent slice.
                 This method is slower and may fail to converge, but it
                 may be applied to images with any (circular) structure.
                 It aligns the slices with sub-pixel precision.
@@ -68,7 +70,7 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
 
     radial_range : tuple, or None
         Limit slice comparison to the radial range tuple (rmin, rmax), in
-        pixels, from the image center. Use to determine the distortion 
+        pixels, from the image center. Use to determine the distortion
         correction associated with particular peaks. It is recommended to
         select a region of your image where the signal-to-noise is highest,
         with sharp persistant (in angle) features.
@@ -93,9 +95,9 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
 
     smooth : float
         This value is passed to the :func:`scipy.interpolate.UnivariateSpline`
-        function and controls how smooth the spline interpolation is. A value 
+        function and controls how smooth the spline interpolation is. A value
         of zero corresponds to a spline that runs through all of the points,
-        and higher values correspond to a smoother spline function. 
+        and higher values correspond to a smoother spline function.
 
         It is important to examine the relative peak position (scaling factor)
         data and how well it is represented by the spline function. Use the
@@ -115,10 +117,10 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
     inverse : bool
         Apply an inverse Abel transform the **polar** coordinate image, to
         remove the background intensity. This may improve the signal to noise,
-        allowing the weaker intensity featured to be followed in angle. 
+        allowing the weaker intensity featured to be followed in angle.
 
         Note that this step is only for the purposes of allowing the algorithm
-        to better follow peaks in the image. It does not affect the final 
+        to better follow peaks in the image. It does not affect the final
         image that is returned, except for (hopefully) slightly improving the
         precision of the distortion correction.
 
@@ -131,7 +133,7 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
         Circularized version of the input image.
 
      The following values are returned if ``return_correction=True``:
-    
+
     angles : numpy 1D array
         Mid-point angle (radians) of each image slice.
 
@@ -152,7 +154,7 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
     # cartesian (Y, X) -> polar (Radius, Theta)
     polarIM, radial_coord, angle_coord =\
              abel.tools.polar.reproject_image_into_polar(IM, dr=dr, dt=dt)
- 
+
     if inverse:
         # pseudo inverse Abel transform of the polar image, removes background
         # to enhance transition peaks
@@ -203,7 +205,7 @@ def circularize(IM, radial_correction_function, ref_angle=None):
     Y, X = np.indices(IM.shape)
 
     row, col = IM.shape
-    origin = (col//2, row//2)  # odd image 
+    origin = (col//2, row//2)  # odd image
 
     # coordinates relative to center
     X -= origin[0]
@@ -211,7 +213,7 @@ def circularize(IM, radial_correction_function, ref_angle=None):
     theta = np.arctan2(X, Y)  # referenced to vertical direction
 
     # radial scale factor at angle = ref_angle
-    if ref_angle == None:
+    if ref_angle is None:
         factor = np.mean(radial_correction_function(theta))
     else:
         factor = radial_correction_function(ref_angle)
@@ -223,7 +225,7 @@ def circularize(IM, radial_correction_function, ref_angle=None):
     # @DanHickstein magic
     # https://github.com/PyAbel/PyAbel/issues/186#issuecomment-275471271
     IMcirc = ndimage.interpolation.map_coordinates(IM,
-                                  (origin[1] - Yactual, Xactual + origin[0]))
+                     (origin[1] - Yactual, Xactual + origin[0]))
 
     return IMcirc
 
@@ -247,14 +249,15 @@ def _residual(param, radial, profile, previous):
 
 
 def correction(polarIMTrans, angles, radial, method):
-    """Determines a radial correction factors that align an angular slice radial intensity profile with its adjacent (previous) slice profile.
+    """Determines a radial correction factors that align an angular slice
+       radial intensity profile with its adjacent (previous) slice profile.
 
 
     Parameters
     ----------
     polarIMTrans : numpy 2D array
-        Polar coordinate image, transposed :math:`(\\theta, r)` so that each row 
-        is a single angle.
+        Polar coordinate image, transposed :math:`(\\theta, r)` so that each
+        row is a single angle.
 
     angles : numpy 1D array
         Angle coordinates for one row of `polarIMTrans`.
@@ -265,8 +268,9 @@ def correction(polarIMTrans, angles, radial, method):
     method : str
         "argmax": radial correction factor from position of maximum intensity.
 
-        "lsq" : least-squares determine a radial correction factor that 
-        will align a radial intensity profile with the previous, adjacent slice.
+        "lsq" : least-squares determine a radial correction factor that
+        will align a radial intensity profile with the previous, adjacent
+        slice.
 
     """
 
@@ -282,10 +286,10 @@ def correction(polarIMTrans, angles, radial, method):
         radcorr = radial[pkpos[0]]/radial[pkpos]
 
     elif method == "lsq":
-        # least-squares radially scale intensity profile to match previous slice
+        # least-squares radially scale intensity profile matching previous slice
 
         # initial guess fit parameters: radial correction factor, and amplitude
-        fitpar = np.array([1.0, 1.0])  
+        fitpar = np.array([1.0, 1.0])
 
         # storage for the radial correction factors
         radcorr = []
@@ -302,7 +306,7 @@ def correction(polarIMTrans, angles, radial, method):
 
             previous += _residual(result[0], radial, profile, previous)
             # This "previous" slice corresponds to the previous slice intensity
-            # profile that has # been re-scaled. Thus, if the next slice is 
+            # profile that has # been re-scaled. Thus, if the next slice is
             # identical, it will be assigned a scale factor of 1.0
 
             # use the determined radial scale factor, and amplitude parameters

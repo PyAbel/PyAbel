@@ -18,5 +18,5 @@ axs[0].set_title('Forward Abel Transform')
 axs[1].set_title('Inverse Abel Transform')
 
 plt.tight_layout()
-plt.savefig('output/example.png', dpi=150)
+plt.savefig('plot_example.png', dpi=150)
 plt.show()

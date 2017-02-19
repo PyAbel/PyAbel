@@ -88,7 +88,7 @@ r'linbasex inverse Abel transform of O$_{2}{}^{-}$ electron velocity-map image',
              fontsize='larger')
 
 # Save a image of the plot
-plt.savefig("example_linbasex.png", dpi=100)
+plt.savefig("plot_example_linbasex.png", dpi=100)
 
 # Show the plots
 plt.show()

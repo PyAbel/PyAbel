@@ -118,5 +118,5 @@ ax2.set_ylabel('Integrated intensity')
 plt.suptitle('Dribinski sample image')
 
 plt.tight_layout()
-plt.savefig('output/example_all_dribinski.png', dpi=100)
+plt.savefig('plot_example_all_dribinski.png', dpi=100)
 plt.show()

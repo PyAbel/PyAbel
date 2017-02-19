@@ -25,7 +25,7 @@ filename = 'data/Xenon_ATI_VMI_800_nm_649x519.tif'
 name = filename.split('.')[0].split('/')[1]
 output_image = name + '_inverse_Abel_transform_HansenLaw.png'
 output_text  = name + '_speeds_HansenLaw.dat'
-output_plot  = 'output/' + name + '_comparison_HansenLaw.pdf'
+output_plot  = 'plot_' + name + '_comparison_HansenLaw.png'
 
 print('Loading ' + filename)
 #im = np.loadtxt(filename)

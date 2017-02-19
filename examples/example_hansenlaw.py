@@ -38,8 +38,10 @@ radial, speeds  = abel.tools.vmi.angular_integration(AIM, dr=0.5)
 
 # convert to photoelectron spectrum vs binding energy
 # conversion factors depend on measurement parameters
-eBE, PES = abel.tools.vmi.toPES(radial, speeds, wavelength=454.5, Vrep=2200,
-                                R2E=1.209, zoom=0.5)
+eBE, PES = abel.tools.vmi.toPES(radial, speeds,
+                                energy_scale_factor=1.209e-5,
+                                wavelength=454.5, Vrep=-2200,
+                                zoom=0.5)
 
 # Set up some axes
 fig = plt.figure(figsize=(15, 4))
@@ -81,6 +83,6 @@ plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35,
                     hspace=0.37)
 
 # save copy of the plot
-plt.savefig("output/example_hansenlaw.png", dpi=100)
+plt.savefig("plot_example_hansenlaw.png", dpi=100)
 
 plt.show()

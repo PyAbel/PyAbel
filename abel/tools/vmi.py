@@ -245,66 +245,80 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     return (beta, error_beta), (amplitude, error_amplitude)
 
 
-def toPES(radial, intensity, wavelength, Vrep, R2E, zoom=1, energy_form='eBE',
-          units='cm'):
+def toPES(radial, intensity, energy_scale_factor, per_energy_scaling=True,
+          wavelength=None, Vrep=None, zoom=1):
     """
-    Convert speed radial coordinate into electron binding/kinetic energy.
+    Convert speed radial coordinate into electron kinetic or binding energy.
     Return the photoelectron spectrum (PES).
 
-    NB requires experiment parameters, measurement `wavelength`,
-    `repeller voltage`, radius squared to `energy calibration factor`.
-    These are easily determined by comparing the generated PES
-    with published spectra. e.g. for O :math:`^-` photodetachment, the
-    strongest fine-structure transition occurs at the electron
-    affinity :math:`EA = 11,784.676(7)` cm :math:`^{-1}`. This energy scaling
-    will provide the `R2E` parameter. Values for the ANU experiment
-    are given below.
+    This calculation uses a single scaling factor ``energy_scale_factor``
+    to convert the radial pixel coordinate into electron kinetic energy.
+
+    Additional experimental parameters, ``wavelength(nm)`` will give the
+    energy scale as the electron binding energy in cm-1, while ``Vrep``,
+    the VMI lens repeller voltage (volts), provides for a voltage
+    independent scaling factor. i.e. ``energy_scale_factor`` should
+    remain approximately constant.
+
+    The ``energy_scale_factor`` is readily determined by comparing the
+    generated energy scale with published spectra. e.g. for O :math:`^-`
+    photodetachment, the strongest fine-structure transition occurs at the
+    electron affinity :math:`EA = 11,784.676(7)` cm :math:`^{-1}`. Values for
+    the ANU experiment are given below.
 
     Parameters
     ----------
     radial : numpy 1D array
-         radial coordinates
+        radial coordinates
 
     intensity : numpy 1D array
-         intensity values, at the radial array
+        intensity values, at the radial array
 
-    wavelength: float
+    energy_scale_factor: float
+        energy calibration factor that will convert radius squared into energy
+        e.g. `1.148427e-5` for "examples/data/O-ANU1024.txt"
+
+    per_energy_scaling : bool
+        sets the intensity Jacobian. If `True`, the returned intensities
+        correspond to an "intensity per eV" or "intensity per cm-1".
+        If `False`, the returned intensities correspond to an "intensity per
+        pixel"
+
+    Optional:
+     wavelength: float
          measurement wavelength in nm
-	 e.g. `812.51 nm`, for "examples/data/O-ANU1024.txt"
+         e.g. `812.51 nm`, for "examples/data/O-ANU1024.txt"
 
-    Vrep: float
-         repeller voltage 
+     Vrep: float
+         repeller voltage
          e.g. `-98 volts`, for "examples/data/O-ANU1024.txt"
 
-    R2E: float
-         energy calibration factor
-         e.g. `1.148427` for "examples/data/O-ANU1024.txt"
-
-    zoom: float
+     zoom: float
          additional factor if experimental image has been zoomed
 
-    energy_form: str
-         ``eBE`` or ``eKE``, electron binding energy or electron kinetic energy
 
-    units: str
-         ``cm-1`` or ``eV``
-          
     """
 
-    # transform radius to electron binding energy
-    eBE = 1.0e7/wavelength - radial**2*(np.abs(Vrep)/1000)*R2E/100/zoom**2
+    if Vrep is not None:
+        energy_scale_factor *= np.abs(Vrep)/zoom**2
 
-    if energy_form == 'eKE':
-        eBKE = 1.0e7/wavelength - eBE   # in cm-1
+    eKE = radial**2*energy_scale_factor
+
+    if wavelength is not None:
+        # electron binding energy
+        eBKE = 1.0e7/wavelength - eKE
     else:
-        eBKE = eBE
-
-    if units == 'eV':
-        eBKE /= 8065.541  # convert cm-1 to eV
+        eBKE = eKE
 
     # Jacobian correction to intensity, radius has been squared
-    # Not sure why divide, but this is same as for basex?
-    intensity[1:] /= radial[1:]  # 1: to exclude R = 0
+    # We have E = c1 - c2 * r**2, where c1 and c2 are constants. To get thei
+    # Jacobian, we find dE/dr = 2c2r. Since the coordinates are getting
+    # stretched at high E and "squished" at low E, we know that we need to
+    # divide by this factor.
+    intensity[1:] /= (2*radial[1:])  # 1: to exclude R = 0
+    if per_energy_scaling:
+        # intensity per unit energy
+        intensity /= energy_scale_factor
 
     # sort into ascending order
     indx = eBKE.argsort()
