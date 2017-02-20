@@ -141,7 +141,7 @@ def center_image(IM, center='com', odd_size=True, square=False, verbose=False,
     if isinstance(center, string_types):
         center = find_center(IM, center=center, verbose=verbose, **kwargs)
 
-    centered_data = set_center(IM, center=center, verbose=verbose, **kwargs)
+    centered_data = set_center(IM, center=center, verbose=verbose)
     return centered_data
 
 
@@ -179,7 +179,7 @@ def set_center(data, center, crop='maintain_size', verbose=False):
     c0, c1 = center
 
     old_shape = data.shape
-    old_center = data.shape[0]/2.0, data.shape[1]/2.0
+    old_center = data.shape[0]//2, data.shape[1]//2
 
     delta0 = old_center[0] - center[0]
     delta1 = old_center[1] - center[1]
@@ -293,8 +293,7 @@ def find_center_by_center_of_image(data, verbose=False, **kwargs):
     """
     Find image center simply from its dimensions.
     """
-    return (data.shape[1] // 2 + data.shape[1] % 2,
-            data.shape[0] // 2 + data.shape[0] % 2)
+    return (data.shape[1] // 2, data.shape[0] // 2)
 
 
 def find_center_by_gaussian_fit(IM, verbose=False, round_output=False,
