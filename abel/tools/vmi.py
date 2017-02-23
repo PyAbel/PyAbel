@@ -246,18 +246,18 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
 
 
 def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
-          wavelength=None, Vrep=None, zoom=1):
+          photon_energy=None, Vrep=None, zoom=1):
     """
-    Convert speed radial coordinate into electron kinetic or binding energy.
-    Return the photoelectron spectrum (PES).
+    Convert speed radial coordinate into electron kinetic or electron binding
+    energy.  Return the photoelectron spectrum (PES).
 
     This calculation uses a single scaling factor ``energy_cal_factor``
     to convert the radial pixel coordinate into electron kinetic energy.
 
-    Additional experimental parameters, ``wavelength(nm)`` will give the
-    energy scale as the electron binding energy in cm-1, while ``Vrep``,
-    the VMI lens repeller voltage (volts), provides for a voltage
-    independent scaling factor. i.e. ``energy_cal_factor`` should
+    Additional experimental parameters: ``photon_energy`` will give the
+    energy scale as electron binding energy, in the same energy units,
+    while ``Vrep``, the VMI lens repeller voltage (volts), provides for a
+    voltage independent scaling factor. i.e. ``energy_cal_factor`` should
     remain approximately constant.
 
     The ``energy_cal_factor`` is readily determined by comparing the
@@ -270,47 +270,62 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     Parameters
     ----------
     radial : numpy 1D array
-        radial coordinates
+
+        radial coordinates.
 
     intensity : numpy 1D array
-        intensity values, at the radial array
 
-    energy_cal_factor: float
+        intensity values, at the radial array.
+
+    energy_cal_factor : float
+
         energy calibration factor that will convert radius squared into energy.
-        The units affect the units of the output. e.g. inputs in  eV/pixel^2,
-        will give output energy units in eV.
-        A value of  `1.148427e-5` applies for "examples/data/O-ANU1024.txt"
+        The units affect the units of the output. e.g. inputs in
+        eV/pixel :math:`^2`, will give output energy units in eV.  A value of
+        :math:`1.148427\\times 10^{-5}` cm :math:`^{-1}/` pixel :math:`^2`
+        applies for "examples/data/O-ANU1024.txt" (with Vrep = -98 volts).
 
-    per_energy_scaling : bool
-        sets the intensity Jacobian. If `True`, the returned intensities
-        correspond to an "intensity per eV" or "intensity per cm-1".
-        If `False`, the returned intensities correspond to an "intensity per
-        pixel"
+    per_energy_scaling : bool 
+        
+        sets the intensity Jacobian.
+        If `True`, the returned intensities correspond to an "intensity per eV"
+        or "intensity per cm-1". If `False`, the returned intensities
+        correspond to an "intensity per pixel".
 
-    Optional:
-     wavelength: float
-         measurement wavelength in nm,=. The output energy scale
-         is then set to electron-binding-energy (cm-1).
-         e.g. `812.51 nm`, for "examples/data/O-ANU1024.txt"
+     Optional:
 
-     Vrep: float
-         repeller voltage. Convenience parameter provided to allow the
-         `energy_cal_factor` to remain constant, for different VMI lens
-         repeller voltages.
-         e.g. `-98 volts`, for "examples/data/O-ANU1024.txt"
+    photon_energy : None or float
 
-     zoom: float
-         additional factor if the input experimental image has been zoomed
+        measurement photon energy. The output energy scale is then set to
+        electron-binding-energy in units of `energy_cal_factor`. The
+        conversion from wavelength (nm) to `photon_energy` in (cm-1) is
+        :math:`10^{7}/\lambda` (nm) e.g. `1.0e7/812.51` for
+        "examples/data/O-ANU1024.txt".
+
+    Vrep : None or float
+
+        repeller voltage. Convenience parameter to allow the `energy_cal_factor`
+        to remain constant, for different VMI lens repeller voltages. Defaults
+        to `None`, in which case no extra scaling is applied.
+        e.g. `-98 volts`, for "examples/data/O-ANU1024.txt".
+
+    zoom : float
+
+        additional scaling factor if the input experimental image has been
+        zoomed.  Default 1.
 
     Returns
     -------
     eKBE : numpy 1d-array of floats
+
         energy scale for the photoelectron spectrum in units of
-        `energy_cal_factor` or cm-1 if `wavelength` is specified.
-        Note, that the data is no-longer on a uniform grid
+        `energy_cal_factor`.  Note that the data is no-longer on
+        a uniform grid.
 
     PES : numpy 1d-array of floats
-        the photolectron spectrum, modified according to `per_energy_scaling`
+
+        the photoelectron spectrum, scaled according to the `per_energy_scaling`
+        input parameter.
 
     """
 
@@ -319,9 +334,9 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
     eKE = radial**2*energy_cal_factor
 
-    if wavelength is not None:
+    if photon_energy is not None:
         # electron binding energy
-        eBKE = 1.0e7/wavelength - eKE
+        eBKE = photon_energy - eKE
     else:
         eBKE = eKE
 

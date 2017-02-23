@@ -40,7 +40,7 @@ radial, speeds  = abel.tools.vmi.angular_integration(AIM, dr=0.5)
 # conversion factors depend on measurement parameters
 eBE, PES = abel.tools.vmi.toPES(radial, speeds,
                                 energy_cal_factor=1.209e-5,
-                                wavelength=454.5, Vrep=-2200,
+                                photon_energy=1.0e7/454.5, Vrep=-2200,
                                 zoom=0.5)
 
 # Set up some axes
