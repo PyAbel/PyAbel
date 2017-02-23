@@ -25,12 +25,14 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
                       dr=0.5, dt=0.5, smooth=0, ref_angle=None,
                       inverse=False, return_correction=False):
     """
-    Corrects image distortion on the basis that the structure (Newton spheres)
-    should be circular.
+    Corrects image distortion on the basis that the structure should be
+    circular.
 
     This function is especially useful for correcting the image obtained with
-    a velocity-map-imaging spectrometer with imperfect electro-static lenses,
-    allowing a high-resolution 1D photoelectron distribution to be extracted.
+    a velocity-map-imaging spectrometer, in the case where there is distortion
+    of the Newton Sphere (ring) structure due to an imperfect electrostatic
+    lens or stray electromagnetic fields. The correction allows the
+    highest-resolution 1D photoelectron distribution to be extracted.
 
     The algorithm splits the image into "slices" at many different angles
     (set by `dt`) and compares the radial intensity profile of adjacent slices.

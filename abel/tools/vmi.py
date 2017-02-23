@@ -276,8 +276,10 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
         intensity values, at the radial array
 
     energy_cal_factor: float
-        energy calibration factor that will convert radius squared into energy
-        e.g. `1.148427e-5` for "examples/data/O-ANU1024.txt"
+        energy calibration factor that will convert radius squared into energy.
+        The units affect the units of the output. e.g. inputs in  eV/pixel^2,
+        will give output energy units in eV.
+        A value of  `1.148427e-5` applies for "examples/data/O-ANU1024.txt"
 
     per_energy_scaling : bool
         sets the intensity Jacobian. If `True`, the returned intensities
@@ -287,16 +289,28 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
     Optional:
      wavelength: float
-         measurement wavelength in nm
+         measurement wavelength in nm,=. The output energy scale
+         is then set to electron-binding-energy (cm-1).
          e.g. `812.51 nm`, for "examples/data/O-ANU1024.txt"
 
      Vrep: float
-         repeller voltage
+         repeller voltage. Convenience parameter provided to allow the
+         `energy_cal_factor` to remain constant, for different VMI lens
+         repeller voltages.
          e.g. `-98 volts`, for "examples/data/O-ANU1024.txt"
 
      zoom: float
-         additional factor if experimental image has been zoomed
+         additional factor if the input experimental image has been zoomed
 
+    Returns
+    -------
+    eKBE : numpy 1d-array of floats
+        energy scale for the photoelectron spectrum in units of
+        `energy_cal_factor` or cm-1 if `wavelength` is specified.
+        Note, that the data is no-longer on a uniform grid
+
+    PES : numpy 1d-array of floats
+        the photolectron spectrum, modified according to `per_energy_scaling`
 
     """
 
