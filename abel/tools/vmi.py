@@ -261,7 +261,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     remain approximately constant.
 
     The ``energy_cal_factor`` is readily determined by comparing the
-    generated energy scale with published spectra. e.g. for O :math:`^-`
+    generated energy scale with published spectra. e.g. for O\ :sup:`-`
     photodetachment, the strongest fine-structure transition occurs at the
     electron affinity :math:`EA = 11,784.676(7)` cm :math:`^{-1}`. Values for
     the ANU experiment are given below, see also
@@ -281,15 +281,15 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
         energy calibration factor that will convert radius squared into energy.
         The units affect the units of the output. e.g. inputs in
-        eV/pixel :math:`^2`, will give output energy units in eV.  A value of
-        :math:`1.148427\\times 10^{-5}` cm :math:`^{-1}/` pixel :math:`^2`
+        eV/pixel\ :sup:`2`, will give output energy units in eV.  A value of
+        :math:`1.148427\\times 10^{-5}` cm\ :math:`^{-1}/`\ pixel\ :sup:`2`
         applies for "examples/data/O-ANU1024.txt" (with Vrep = -98 volts).
 
     per_energy_scaling : bool 
         
         sets the intensity Jacobian.
         If `True`, the returned intensities correspond to an "intensity per eV"
-        or "intensity per cm-1". If `False`, the returned intensities
+        or "intensity per cm\ :sup:`-1` ". If `False`, the returned intensities
         correspond to an "intensity per pixel".
 
      Optional:
@@ -298,8 +298,8 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
         measurement photon energy. The output energy scale is then set to
         electron-binding-energy in units of `energy_cal_factor`. The
-        conversion from wavelength (nm) to `photon_energy` in (cm-1) is
-        :math:`10^{7}/\lambda` (nm) e.g. `1.0e7/812.51` for
+        conversion from wavelength (nm) to `photon_energy` in (cm\ :`sup:-1`\ )
+        is :math:`10^{7}/\lambda` (nm) e.g. `1.0e7/812.51` for
         "examples/data/O-ANU1024.txt".
 
     Vrep : None or float
