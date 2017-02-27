@@ -16,7 +16,7 @@ import matplotlib.pylab as plt
 
 # Load image as a numpy array - numpy handles .gz, .bz2 
 IM = np.loadtxt("data/O2-ANU1024.txt.bz2")
-if os.environ.get('READTHEDOCS', None) == True:
+if os.environ.get('READTHEDOCS', None) == 'True':
     IM = IM[::2,::2]
 # the [::2, ::2] reduces the image size x1/2, decreasing processing memory load
 # for the online readthedocs.org
