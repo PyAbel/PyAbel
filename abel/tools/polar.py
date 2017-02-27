@@ -31,7 +31,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
         Radial coordinate spacing for the grid interpolation
         tests show that there is not much point in going below 0.5
     dt : float
-        Angular coordinate spacing (in degrees)
+        Angular coordinate spacing (in radians)
         if ``dt=None``, dt will be set such that the number of theta values
         is equal to the maximum value between the height or the width of 
         the image.
@@ -56,19 +56,19 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
 
     ny, nx = data.shape[:2]
     if origin is None:
-        origin = (nx//2 + nx % 2, ny//2 + ny % 2)   # % handles odd size image
+        origin = (nx//2, ny//2) 
 
     # Determine that the min and max r and theta coords will be...
     x, y = index_coords(data, origin=origin)  # (x,y) coordinates of each pixel
     r, theta = cart2polar(x, y)  # convert (x,y) -> (r,θ), note θ=0 is vertical
 
-    nr = np.round((r.max()-r.min())/dr)
+    nr = np.int(np.ceil((r.max()-r.min())/dr))
 
     if dt is None:
         nt = max(nx, ny)
     else:
-        # dt in degrees
-        nt = np.round((theta.max()-theta.min())/(np.pi*dt/180))
+        # dt in radians
+        nt = np.int(np.ceil((theta.max()-theta.min())/dt))
 
     # Make a regular (in polar space) grid based on the min and max r & theta
     r_i = np.linspace(r.min(), r.max(), nr, endpoint=False)
@@ -110,7 +110,7 @@ def index_coords(data, origin=None):
     """
     ny, nx = data.shape[:2]
     if origin is None:
-        origin_x, origin_y = nx//2+nx % 2, ny//2+ny % 2   # % for odd-size
+        origin_x, origin_y = nx//2, ny//2
     else:
         origin_x, origin_y = origin
 

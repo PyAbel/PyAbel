@@ -102,7 +102,7 @@ plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89,
                     wspace=0.35, hspace=0.37)
 
 # Save a image of the plot
-plt.savefig("example_PAD.png", dpi=100)
+plt.savefig("plot_example_PAD.png", dpi=100)
 
 # Show the plots
 plt.show()

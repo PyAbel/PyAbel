@@ -18,6 +18,7 @@ Contents:
    abel
    transform_methods
    anisotropy_parameter
+   circularize_image
    examples
    
 

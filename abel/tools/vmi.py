@@ -15,7 +15,7 @@ from scipy.optimize import curve_fit
 def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     """Angular integration of the image.
 
-    Returns the one-dimentional intensity profile as a function of the
+    Returns the one-dimensional intensity profile as a function of the
     radial coordinate.
 
     Note: the use of Jacobian=True applies the correct Jacobian for the
@@ -28,7 +28,7 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
 
     origin : tuple
         Image center coordinate relative to *bottom-left* corner
-        defaults to ``rows//2+rows%2,cols//2+cols%2``.
+        defaults to ``rows//2, cols//2``.
 
     Jacobian : boolean
         Include :math:`r\sin\\theta` in the angular sum (integration).
@@ -42,13 +42,13 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
         reduce pixel granularity of the speed profile.
 
     dt : float
-        Theta coordinate grid spacing in degrees.
+        Theta coordinate grid spacing in radians.
         if ``dt=None``, dt will be set such that the number of theta values
         is equal to the height of the image (which should typically ensure
         good sampling.)
 
-    [eturns
-    a#------
+    Returns
+    ------
     r : 1D numpy.array
          radial coordinates
 
@@ -76,7 +76,7 @@ def average_radial_intensity(IM, **kwargs):
     """Calculate the average radial intensity of the image, averaged over all
     angles. This differs form :func:`abel.tools.vmi.angular_integration` only
     in that it returns the average intensity, and not the integrated intensity
-    of a 3D image. It is equavalent to calling
+    of a 3D image. It is equivalent to calling
     :func:`abel.tools.vmi.angular_integration` with
     `Jacobian=True` and then dividing the result by 2*pi.
 
@@ -96,7 +96,7 @@ def average_radial_intensity(IM, **kwargs):
       radial coordinates
 
     intensity : 1D numpy.array
-      one-dimentional intensity profile as a function of the radial coordinate.
+      one-dimensional intensity profile as a function of the radial coordinate.
 
     """
     R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
@@ -243,3 +243,114 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         amplitude, error_amplitude = np.nan, np.nan
 
     return (beta, error_beta), (amplitude, error_amplitude)
+
+
+def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
+          photon_energy=None, Vrep=None, zoom=1):
+    """
+    Convert speed radial coordinate into electron kinetic or electron binding
+    energy.  Return the photoelectron spectrum (PES).
+
+    This calculation uses a single scaling factor ``energy_cal_factor``
+    to convert the radial pixel coordinate into electron kinetic energy.
+
+    Additional experimental parameters: ``photon_energy`` will give the
+    energy scale as electron binding energy, in the same energy units,
+    while ``Vrep``, the VMI lens repeller voltage (volts), provides for a
+    voltage independent scaling factor. i.e. ``energy_cal_factor`` should
+    remain approximately constant.
+
+    The ``energy_cal_factor`` is readily determined by comparing the
+    generated energy scale with published spectra. e.g. for O\ :sup:`-`
+    photodetachment, the strongest fine-structure transition occurs at the
+    electron affinity :math:`EA = 11,784.676(7)` cm :math:`^{-1}`. Values for
+    the ANU experiment are given below, see also
+    `examples/example_hansenlaw.py`.
+
+    Parameters
+    ----------
+    radial : numpy 1D array
+
+        radial coordinates.
+
+    intensity : numpy 1D array
+
+        intensity values, at the radial array.
+
+    energy_cal_factor : float
+
+        energy calibration factor that will convert radius squared into energy.
+        The units affect the units of the output. e.g. inputs in
+        eV/pixel\ :sup:`2`, will give output energy units in eV.  A value of
+        :math:`1.148427\\times 10^{-5}` cm\ :math:`^{-1}/`\ pixel\ :sup:`2`
+        applies for "examples/data/O-ANU1024.txt" (with Vrep = -98 volts).
+
+    per_energy_scaling : bool 
+        
+        sets the intensity Jacobian.
+        If `True`, the returned intensities correspond to an "intensity per eV"
+        or "intensity per cm\ :sup:`-1` ". If `False`, the returned intensities
+        correspond to an "intensity per pixel".
+
+     Optional:
+
+    photon_energy : None or float
+
+        measurement photon energy. The output energy scale is then set to
+        electron-binding-energy in units of `energy_cal_factor`. The
+        conversion from wavelength (nm) to `photon_energy` in (cm\ :`sup:-1`\ )
+        is :math:`10^{7}/\lambda` (nm) e.g. `1.0e7/812.51` for
+        "examples/data/O-ANU1024.txt".
+
+    Vrep : None or float
+
+        repeller voltage. Convenience parameter to allow the `energy_cal_factor`
+        to remain constant, for different VMI lens repeller voltages. Defaults
+        to `None`, in which case no extra scaling is applied.
+        e.g. `-98 volts`, for "examples/data/O-ANU1024.txt".
+
+    zoom : float
+
+        additional scaling factor if the input experimental image has been
+        zoomed.  Default 1.
+
+    Returns
+    -------
+    eKBE : numpy 1d-array of floats
+
+        energy scale for the photoelectron spectrum in units of
+        `energy_cal_factor`.  Note that the data is no-longer on
+        a uniform grid.
+
+    PES : numpy 1d-array of floats
+
+        the photoelectron spectrum, scaled according to the `per_energy_scaling`
+        input parameter.
+
+    """
+
+    if Vrep is not None:
+        energy_cal_factor *= np.abs(Vrep)/zoom**2
+
+    eKE = radial**2*energy_cal_factor
+
+    if photon_energy is not None:
+        # electron binding energy
+        eBKE = photon_energy - eKE
+    else:
+        eBKE = eKE
+
+    # Jacobian correction to intensity, radius has been squared
+    # We have E = c1 - c2 * r**2, where c1 and c2 are constants. To get thei
+    # Jacobian, we find dE/dr = 2c2r. Since the coordinates are getting
+    # stretched at high E and "squished" at low E, we know that we need to
+    # divide by this factor.
+    intensity[1:] /= (2*radial[1:])  # 1: to exclude R = 0
+    if per_energy_scaling:
+        # intensity per unit energy
+        intensity /= energy_cal_factor
+
+    # sort into ascending order
+    indx = eBKE.argsort()
+
+    return eBKE[indx], intensity[indx]

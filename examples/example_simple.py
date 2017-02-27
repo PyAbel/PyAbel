@@ -3,7 +3,8 @@ original     = abel.tools.analytical.sample_image()
 forward_abel = abel.Transform(original, direction='forward', 
                               method='hansenlaw'  ).transform
 inverse_abel = abel.Transform(forward_abel, direction='inverse',
-                              method='three_point').transform
+                              method='three_point', 
+                    transform_options=dict(basis_dir='bases')).transform
 
 
 # plot the original and transform
@@ -17,5 +18,5 @@ axs[0].set_title('Forward Abel Transform')
 axs[1].set_title('Inverse Abel Transform')
 
 plt.tight_layout()
-plt.savefig('example.png', dpi=150)
+plt.savefig('plot_example.png', dpi=150)
 plt.show()

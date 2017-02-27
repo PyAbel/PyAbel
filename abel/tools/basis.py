@@ -66,13 +66,19 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
        # Fix Me! not a simple unique naming mechanism
         for key in ['legendre_orders', 'proj_angles', 'radial_step', 'clip']:
             if key in basis_options.keys():
-                if key in ['legendre_orders', 'proj_angles']:
+                if key == 'legendre_orders':
                     value = ''.join(map(str, basis_options[key]))
+                elif key == 'proj_angles':
+                    # in radians, convert to % of pi
+                    proj_angles_fractpi =\
+                         np.array(basis_options['proj_angles'])*100/np.pi
+                    
+                    value = ''.join(map(str, proj_angles_fractpi.astype(int)))
                 else: 
                     value = basis_options[key]
             else:
                 # missing option, use defaults
-                default = {'legendre_orders':[0, 2], 'proj_angles':[0, 90], 'radial_step':1, 'clip':0}
+                default = {'legendre_orders':'02', 'proj_angles':'050', 'radial_step':1, 'clip':0}
                 value = default[key]
 
             basis_name += "_{}".format(value)

@@ -28,9 +28,9 @@ left_half = st.abel[:center+1][::-1]
 # BASEX Transform:
 # Calculate the inverse abel transform for the centered data
 recon_right = basex_transform(
-    right_half, basis_dir='./', dr=st.dr, verbose=True)
+    right_half, basis_dir='bases', dr=st.dr, verbose=True)
 recon_left = basex_transform(
-    left_half, basis_dir='./', dr=st.dr, verbose=False)
+    left_half, basis_dir='bases', dr=st.dr, verbose=False)
 plt.plot(
     st.r[center:], recon_right, '--.', c='red',
     label='Inverse transform [BASEX]')

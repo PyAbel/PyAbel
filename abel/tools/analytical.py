@@ -2,6 +2,7 @@
 import numpy as np
 from abel.tools.polar import index_coords, cart2polar
 import scipy.constants as const
+import scipy.interpolate
 
 # This file includes functions that have a known analytical Abel transform.
 # They are used in unit testing as well for comparing different Abel

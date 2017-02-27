@@ -10,7 +10,7 @@ import warnings
 from scipy.ndimage import center_of_mass
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import minimize
-from six import string_types # testing stings with Python 2 and 3 compatibility
+from six import string_types # testing strings with Python 2 and 3 compatibility
 
 def find_center(IM, center='image_center', square=False, verbose=False, 
                 **kwargs):
@@ -141,7 +141,7 @@ def center_image(IM, center='com', odd_size=True, square=False, verbose=False,
     if isinstance(center, string_types):
         center = find_center(IM, center=center, verbose=verbose, **kwargs)
 
-    centered_data = set_center(IM, center=center, verbose=verbose, **kwargs)
+    centered_data = set_center(IM, center=center, verbose=verbose)
     return centered_data
 
 
@@ -179,7 +179,7 @@ def set_center(data, center, crop='maintain_size', verbose=False):
     c0, c1 = center
 
     old_shape = data.shape
-    old_center = data.shape[0]/2.0, data.shape[1]/2.0
+    old_center = data.shape[0]//2, data.shape[1]//2
 
     delta0 = old_center[0] - center[0]
     delta1 = old_center[1] - center[1]
@@ -257,8 +257,7 @@ def find_center_by_center_of_mass(IM, verbose=False, round_output=False,
 
 def find_center_by_convolution(IM, **kwargs):
     """ Center the image by convolution of two projections along each axis.
-
-        code from the ``linbasex`` juptyer notebook
+        Code from the ``linbasex`` juptyer notebook
 
     Parameter
     -------
@@ -294,8 +293,7 @@ def find_center_by_center_of_image(data, verbose=False, **kwargs):
     """
     Find image center simply from its dimensions.
     """
-    return (data.shape[1] // 2 + data.shape[1] % 2,
-            data.shape[0] // 2 + data.shape[0] % 2)
+    return (data.shape[1] // 2, data.shape[0] // 2)
 
 
 def find_center_by_gaussian_fit(IM, verbose=False, round_output=False,
@@ -347,7 +345,7 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
 
     r2 = rows//2 + rows % 2
     c2 = cols//2 + cols % 2
-    sw2 = slice_width/2
+    sw2 = slice_width//2
 
     rmin, rmax = radial_range
 

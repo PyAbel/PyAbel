@@ -58,7 +58,7 @@ for q, method in enumerate(transforms.keys()):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    IAQ0 = transforms[method](Q0, direction="inverse")
+    IAQ0 = transforms[method](Q0, direction="inverse", basis_dir='bases')
 
     print ("                    {:.1f} sec".format(time()-t0))
 
@@ -114,5 +114,5 @@ plt.title("Ominus sample image")
 plt.axis(ymin=-0.05, ymax=1.1)
 plt.legend(loc=0, labelspacing=0.1)
 plt.tight_layout()
-plt.savefig('example_all_Ominus.png', dpi=100)
+plt.savefig('plot_example_all_Ominus.png', dpi=100)
 plt.show()

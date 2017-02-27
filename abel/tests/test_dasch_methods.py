@@ -60,8 +60,8 @@ def test_dasch_1d_gaussian(n=101):
     gauss = lambda r, r0, sigma: np.exp(-(r-r0)**2/sigma**2)
 
     rows, cols = n, n
-    r2 = rows//2 + rows % 2
-    c2 = cols//2 + cols % 2
+    r2 = rows//2
+    c2 = cols//2
 
     sigma = 20*n/100
 
@@ -84,8 +84,8 @@ def test_dasch_cyl_gaussian(n=101):
 
     image_shape=(n, n)
     rows, cols = image_shape
-    r2 = rows//2 + rows % 2
-    c2 = cols//2 + cols % 2
+    r2 = rows//2
+    c2 = cols//2
     sigma = 20*n/100
 
     x = np.linspace(-c2, c2, cols)
