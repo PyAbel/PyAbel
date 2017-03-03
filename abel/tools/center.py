@@ -50,8 +50,8 @@ def find_center(IM, center='image_center', square=False, verbose=False,
     return func_method[center](IM, verbose=verbose, **kwargs)
 
 
-def center_image(IM, center='com', odd_size=True, square=False, verbose=False,
-                 **kwargs):
+def center_image(IM, center='com', odd_size=True, square=False, axes=(0, 1),  
+                 crop='maintain_size', verbose=False, **kwargs):
     """ Center image with the custom value or by several methods provided in `find_center` function
 
     Parameters
@@ -104,6 +104,9 @@ def center_image(IM, center='com', odd_size=True, square=False, verbose=False,
             the image will be padded with zeros such that none of the original
             image will be cropped.
 
+    axes : int or tuple
+        center image with respect to axes ``0``, ``1``, or both ``(0, 1)`` (default)
+
     Returns
     -------
     out : 2D np.array
@@ -140,12 +143,13 @@ def center_image(IM, center='com', odd_size=True, square=False, verbose=False,
     # center is in y,x (row column) format!
     if isinstance(center, string_types):
         center = find_center(IM, center=center, verbose=verbose, **kwargs)
-
-    centered_data = set_center(IM, center=center, verbose=verbose)
+    
+    centered_data = set_center(IM, center=center, crop=crop, axes=axes, 
+                               verbose=verbose)
     return centered_data
 
 
-def set_center(data, center, crop='maintain_size', verbose=False):
+def set_center(data, center, crop='maintain_size', axes=(0, 1), verbose=False):
     """ Move image center to mid-point of image
         
     Parameters
@@ -172,6 +176,9 @@ def set_center(data, center, crop='maintain_size', verbose=False):
         ``maintain_data``
             the image will be padded with zeros such that none of the original
             image will be cropped. 
+
+    axes : int or tuple
+        center with respect to axis ``0``, ``1``, or both axes `(0, 1)` default.
             
     verbose: boolean
         True: print diagnostics
@@ -214,7 +221,13 @@ def set_center(data, center, crop='maintain_size', verbose=False):
     if verbose:
         print("delta = ({0}, {1})".format(delta0, delta1))
 
-    centered_data = shift(data, (delta0, delta1))
+    if isinstance(axes, int):
+        if axes in [0, 1]:
+            centered_data = shift(data, (delta0*(1-axes), delta1*axes))
+        else:
+            raise ValueError("axes value not 0, or 1")
+    else:
+        centered_data = shift(data, (delta0, delta1))
 
     if crop == 'maintain_data':
         # pad the image so that the center can be moved
