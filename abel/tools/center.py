@@ -10,11 +10,13 @@ import warnings
 from scipy.ndimage import center_of_mass
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import minimize
-from six import string_types # testing strings with Python 2 and 3 compatibility
+# testing strings with Python 2 and 3 compatibility
+from six import string_types
 
-def find_center(IM, center='image_center', square=False, verbose=False, 
+
+def find_center(IM, center='image_center', square=False, verbose=False,
                 **kwargs):
-    """Find the coordinates of image center, using the method 
+    """Find the coordinates of image center, using the method
        specified by the `center` parameter.
 
     Parameters
@@ -24,7 +26,7 @@ def find_center(IM, center='image_center', square=False, verbose=False,
 
     center: str
         this determines how the center should be found. The options are:
-        
+
         ``image_center``
             the center of the image is used as the center. The trivial result.
         ``com``
@@ -36,7 +38,8 @@ def find_center(IM, center='image_center', square=False, verbose=False,
             This is probably only appropriate if the data resembles a
             gaussian.
         ``slice``
-            the image is broken into slices, and these slices compared for symmetry.
+            the image is broken into slices, and these slices compared
+            for symmetry.
 
     square: bool
         if 'True' returned image will have a square shape
@@ -50,9 +53,10 @@ def find_center(IM, center='image_center', square=False, verbose=False,
     return func_method[center](IM, verbose=verbose, **kwargs)
 
 
-def center_image(IM, center='com', odd_size=True, square=False, axes=(0, 1),  
+def center_image(IM, center='com', odd_size=True, square=False, axes=(0, 1),
                  crop='maintain_size', verbose=False, **kwargs):
-    """ Center image with the custom value or by several methods provided in `find_center` function
+    """ Center image with the custom value or by several methods provided in
+        `find_center` function
 
     Parameters
     ----------
@@ -65,7 +69,7 @@ def center_image(IM, center='com', odd_size=True, square=False, axes=(0, 1),
 
         Or, it can be a string, to specify an automatic centering method.
         The options are:
-    
+
         ``image_center``
             the center of the image is used as the center. The trivial result.
         ``com``
@@ -77,35 +81,37 @@ def center_image(IM, center='com', odd_size=True, square=False, axes=(0, 1),
             This is probably only appropriate if the data resembles a
             gaussian.
         ``slice``
-            the image is broken into slices, and these slices compared for symmetry.
-    
+            the image is broken into slices, and these slices compared for
+            symmetry.
+
     odd_size: boolean
-        if True, an image will be returned containing an odd number of columns. 
-        Most of the transform methods require this, so it's best to set this to 
+        if True, an image will be returned containing an odd number of columns.
+        Most of the transform methods require this, so it's best to set this to
         True if the image will subsequently be Abel transformed.
 
     square: bool
         if 'True' returned image will have a square shape
-    
+
     crop : str
         This determines how the image should be cropped. The options are:
-        
+
         ``maintain_size``
-            return image of the same size. Some of the original 
+            return image of the same size. Some of the original
             image may be lost
             and some regions may be filled with zeros.
         ``valid_region``
-            return the largest image that can be created without padding. 
+            return the largest image that can be created without padding.
             All of the returned image will correspond to the original image.
             However, portions of the original image will be lost.
-            If you can tolerate clipping the edges of the image, this is probably 
-            the method to choose.
+            If you can tolerate clipping the edges of the image, this is
+            probably the method to choose.
         ``maintain_data``
             the image will be padded with zeros such that none of the original
             image will be cropped.
 
     axes : int or tuple
-        center image with respect to axes ``0``, ``1``, or both ``(0, 1)`` (default)
+        center image with respect to axis ``0`` (vertical), ``1`` (horizontal),
+        or both axes ``(0, 1)`` (default).
 
     Returns
     -------
@@ -129,12 +135,12 @@ def center_image(IM, center='com', odd_size=True, square=False, axes=(0, 1),
                 IM = IM[trim: -trim]  # remove even number of rows off each end
             if diff % 2:
                 IM = IM[: -1]  # remove one additional row
-            
+
         else:
             # make rows == cols, check row oddness
             if odd_size and rows % 2 == 0:
-               IM = IM[:-1, :]
-               rows -= 1 
+                IM = IM[:-1, :]
+                rows -= 1
             xs = (cols - rows)//2
             IM = IM[:, xs:-xs]
 
@@ -143,43 +149,44 @@ def center_image(IM, center='com', odd_size=True, square=False, axes=(0, 1),
     # center is in y,x (row column) format!
     if isinstance(center, string_types):
         center = find_center(IM, center=center, verbose=verbose, **kwargs)
-    
-    centered_data = set_center(IM, center=center, crop=crop, axes=axes, 
+
+    centered_data = set_center(IM, center=center, crop=crop, axes=axes,
                                verbose=verbose)
     return centered_data
 
 
 def set_center(data, center, crop='maintain_size', axes=(0, 1), verbose=False):
     """ Move image center to mid-point of image
-        
+
     Parameters
     ----------
     data : 2D np.array
         The image data
-    
+
     center : tuple
         image pixel coordinate center (row, col)
 
     crop : str
         This determines how the image should be cropped. The options are:
-        
+
         ``maintain_size``
-            return image of the same size. Some of the original 
+            return image of the same size. Some of the original
             image may be lost
             and some regions may be filled with zeros.
         ``valid_region``
-            return the largest image that can be created without padding. 
+            return the largest image that can be created without padding.
             All of the returned image will correspond to the original image.
             However, portions of the original image will be lost.
-            If you can tolerate clipping the edges of the image, this is probably 
-            the method to choose.
+            If you can tolerate clipping the edges of the image, this is
+            probably the method to choose.
         ``maintain_data``
             the image will be padded with zeros such that none of the original
-            image will be cropped. 
+            image will be cropped.
 
     axes : int or tuple
-        center with respect to axis ``0``, ``1``, or both axes `(0, 1)` default.
-            
+        center image with respect to axis ``0`` (vertical), ``1`` (horizontal),
+        or both axes ``(0, 1)`` (default).
+
     verbose: boolean
         True: print diagnostics
     """
@@ -192,7 +199,9 @@ def set_center(data, center, crop='maintain_size', axes=(0, 1), verbose=False):
     delta1 = old_center[1] - center[1]
 
     if crop == 'maintain_data':
-        # pad the image so that the center can be moved without losing any of the original data
+        # pad the image so that the center can be moved without losing any of
+        # the original data
+
         # we need to pad the image with zeros before using the shift() function
         shift0, shift1 = (None, None)
         if delta0 != 0:
@@ -201,29 +210,31 @@ def set_center(data, center, crop='maintain_size', axes=(0, 1), verbose=False):
             shift1 = 1 + int(np.abs(delta1))
 
         container = np.zeros((data.shape[0]+shift0, data.shape[1]+shift1),
-                              dtype = data.dtype)
+                              dtype=data.dtype)
 
-        area = container[:,:]
+        area = container[:, :]
         if shift0:
             if delta0 > 0:
-                area = area[:-shift0,:]
+                area = area[:-shift0, :]
             else:
-                area = area[shift0:,:]
+                area = area[shift0:, :]
         if shift1:
-           if delta1 > 0:
-                area = area[:,:-shift1]
-           else:
-                area = area[:,shift1:]
-        area[:,:] = data[:,:]
+            if delta1 > 0:
+                area = area[:, :-shift1]
+            else:
+                area = area[:, shift1:]
+        area[:, :] = data[:, :]
         data = container
-        delta0 += np.sign(delta0)*shift0/2.0
-        delta1 += np.sign(delta1)*shift1/2.0
+        delta0 += np.sign(delta0)*shift0 / 2.0
+        delta1 += np.sign(delta1)*shift1 / 2.0
     if verbose:
         print("delta = ({0}, {1})".format(delta0, delta1))
 
     if isinstance(axes, int):
-        if axes in [0, 1]:
-            centered_data = shift(data, (delta0*(1-axes), delta1*axes))
+        if axes == 0:
+            centered_data = shift(data, (delta0, 0))
+        elif axes == 1:
+            centered_data = shift(data, (0, delta1))
         else:
             raise ValueError("axes value not 0, or 1")
     else:
@@ -245,6 +256,7 @@ def set_center(data, center, crop='maintain_size', axes=(0, 1), verbose=False):
         return centered_data[shift0:-shift0, shift1:-shift1]
     else:
         raise ValueError("Invalid crop method!!")
+
 
 def find_center_by_center_of_mass(IM, verbose=False, round_output=False,
                                   **kwargs):
@@ -285,14 +297,14 @@ def find_center_by_convolution(IM, **kwargs):
     # projection along axis=0 of image (rows)
     QL_raw0 = IM.sum(axis=1)
     # projection along axis=1 of image (cols)
-    QL_raw1 = IM.sum(axis=0) 
+    QL_raw1 = IM.sum(axis=0)
 
     # autocorrelate projections
     conv_0 = np.convolve(QL_raw0, QL_raw0, mode='full')
     conv_1 = np.convolve(QL_raw1, QL_raw1, mode='full')
     len_conv = len(conv_0)/2
 
-    #Take the first max, should there be several equal maxima.
+    # Take the first max, should there be several equal maxima.
     # 10May16 - axes swapped - check this
     center = (np.argmax(conv_0)/2, np.argmax(conv_1)/2)
 
@@ -312,7 +324,8 @@ def find_center_by_center_of_image(data, verbose=False, **kwargs):
 def find_center_by_gaussian_fit(IM, verbose=False, round_output=False,
                                 **kwargs):
     """
-    Find image center by fitting the summation along x and y axis of the data to two 1D Gaussian function
+    Find image center by fitting the summation along x and y axis of the data
+    to two 1D Gaussian function.
     """
     x = np.sum(IM, axis=0)
     y = np.sum(IM, axis=1)
@@ -376,7 +389,7 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
 
 def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
                                axis=(0, 1), **kwargs):
-    """ 
+    """
     Center image by comparing opposite side, vertical (``axis=0``) and/or
     horizontal slice (``axis=1``) profiles. To center along both axis, use
     ``axis=(0,1)``.
@@ -393,7 +406,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
        (rmin,rmax): radial range [rmin:rmax] for slice profile comparison.
 
     axis : integer or tuple
-       Center with along ``axis=0`` (vertical), or ``axis=1`` (horizontal), 
+       Center with along ``axis=0`` (vertical), or ``axis=1`` (horizontal),
        or ``axis=(0,1)`` (both vertical and horizontal).
 
     Returns
@@ -412,7 +425,7 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
 
     if not isinstance(axis, (list, tuple)):
         # if the user supplies an int, make it into a 1-element list:
-       axis = [axis]
+        axis = [axis]
 
     rows, cols = IM.shape
 
@@ -448,9 +461,6 @@ def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
     # this is the (y, x) shift to align the slice profiles
     xyoffset = tuple(xyoffset)
 
-    #IM_centered = shift(IM, xyoffset)  # center image
-
-    #return IM_centered, xyoffset
     return r2-xyoffset[0], c2-xyoffset[1]
 
 func_method = {
