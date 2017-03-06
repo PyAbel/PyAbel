@@ -5,7 +5,7 @@ from __future__ import print_function
 import os.path
 
 import numpy as np
-from numpy.testing import assert_allclose
+import numpy.testing as npt
 
 import abel
 
@@ -14,21 +14,34 @@ from scipy.ndimage.interpolation import shift
 def test_center_image():
 
     # BASEX sample image, Gaussians at 10, 15, 20, 70,85, 100, 145, 150, 155
-    # image width, height n = 361
+    # image width, height n = 361, center = (180, 180)
     IM = abel.tools.analytical.sample_image(n=361, name="dribinski")
     
-    # artificially displace center
+    # artificially displace center, now at (179, 182)
     IMx = shift(IM, (-1,2))
+    true_center = (179, 182)
 
     # find_center using 'slice' method
-    center = abel.tools.center.find_center(IMx, center="slice", axis=(0,1)) 
+    center = abel.tools.center.find_center(IMx, center="slice", axes=(0,1)) 
 
-    assert np.allclose(center, (179, 182), rtol=0, atol=0.1)
+    npt.assert_almost_equal(center, true_center, decimal=0)
 
     # find_center using 'com' method
     center = abel.tools.center.find_center(IMx, center="com")
    
-    assert np.allclose(center, (179, 182), rtol=0, atol=0.4)
+    npt.assert_almost_equal(center, true_center, decimal=0)
+
+    # check single axis - vertical
+    IMc = abel.tools.center.center_image(IMx, center="com", axes=1)
+    center = abel.tools.center.find_center(IMc, center="com")
+
+    npt.assert_almost_equal(center, (179, 180), decimal=0)
+
+    # check single axis - horizontal
+    IMc = abel.tools.center.center_image(IMx, center="com", axes=0)
+    center = abel.tools.center.find_center(IMc, center="com")
+
+    npt.assert_almost_equal(center, (180, 182), decimal=0)
 
     # check even image size returns odd
     IM = IM[:, :-1]
@@ -36,7 +49,7 @@ def test_center_image():
 
     IMy = abel.tools.center.center_image(IM, center="slice", odd_size=True)
 
-    assert IMy.shape == (m, n-1)
+    npt.assert_almost_equal(IMy.shape, (m, n-1), decimal=0)
 
 
 if __name__ == "__main__":
