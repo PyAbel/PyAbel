@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from numpy.testing import assert_equal, assert_almost_equal
+from numpy.testing import assert_allclose
 
 import abel
 
@@ -28,11 +28,11 @@ def test_circularize_image():
 
     diff = (IMcirc - IM).sum(axis=1).sum(axis=0)
 
-    assert_almost_equal(diff, -306.0, decimal=0)
+    assert_allclose(diff, -306.0, atol=0.05)
 
-    assert_almost_equal(angle[-1], 3.04, decimal=2)
+    assert_allclose(angle[-1], 3.04, atol=0.05)
 
-    assert_almost_equal(scalefactor[4], 0.97, decimal=2)
+    assert_allclose(scalefactor[4], 0.97, atol=0.05)
 
 
 if __name__ == "__main__":

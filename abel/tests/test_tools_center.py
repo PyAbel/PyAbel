@@ -5,7 +5,7 @@ from __future__ import print_function
 import os.path
 
 import numpy as np
-import numpy.testing as npt
+from numpy.testing import assert_allclose
 
 import abel
 
@@ -25,12 +25,12 @@ def test_center_image():
     # find_center using 'slice' method
     center = abel.tools.center.find_center(IMx, center="slice")
 
-    npt.assert_almost_equal(center, true_center, decimal=0)
+    assert_allclose(center, true_center, atol=1)
 
     # find_center using 'com' method
     center = abel.tools.center.find_center(IMx, center="com")
 
-    npt.assert_almost_equal(center, true_center, decimal=0)
+    assert_allclose(center, true_center, atol=1)
 
     # check single axis - vertical
     # center shifted image IMx in the vertical direction only
@@ -38,14 +38,14 @@ def test_center_image():
     # determine the center
     center = abel.tools.center.find_center(IMc, center="com")
 
-    npt.assert_almost_equal(center, (179, 180), decimal=0)
+    assert_allclose(center, (179, 180), atol=1)
 
     # check single axis - horizontal
     # center shifted image IMx in the horizontal direction only
     IMc = abel.tools.center.center_image(IMx, center="com", axes=0)
     center = abel.tools.center.find_center(IMc, center="com")
 
-    npt.assert_almost_equal(center, (180, 182), decimal=0)
+    assert_allclose(center, (180, 182), atol=1)
 
     # check even image size returns odd
     # drop off one column, to make an even column image
@@ -54,7 +54,7 @@ def test_center_image():
 
     IMy = abel.tools.center.center_image(IM, center="slice", odd_size=True)
 
-    npt.assert_almost_equal(IMy.shape, (m, n-1), decimal=0)
+    assert_allclose(IMy.shape, (m, n-1))
 
 
 if __name__ == "__main__":
