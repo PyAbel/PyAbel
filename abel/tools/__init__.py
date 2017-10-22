@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 from . import analytical
 from . import basis
 from . import center
+from . import circularize
 from . import io
 from . import math
 from . import polar

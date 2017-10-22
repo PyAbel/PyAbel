@@ -54,4 +54,3 @@ for axi in ax:
     axi.legend()
 
 plt.show()
-

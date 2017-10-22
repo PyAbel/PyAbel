@@ -5,8 +5,11 @@
 
 import numpy as np
 cimport numpy as np
-from libc.math cimport sqrt, acosh
+from libc.math cimport sqrt, log
 
+# define the hyperbolic arccos function since some old compilers (MSVC 2008) don't have this
+cdef inline double acosh(double xx) nogil:
+    return log(xx + sqrt(xx**2 - 1))
 
 cpdef _cabel_direct_integral(double [:, ::1] f, double [::1] r, int correction):
     """

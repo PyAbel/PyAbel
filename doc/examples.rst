@@ -16,3 +16,4 @@ Contents:
    example_onion_bordas
    example_linbasex
    example_anisotropy_parameter
+   example_circularize_image

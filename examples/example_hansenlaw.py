@@ -36,6 +36,13 @@ AIM = abel.Transform(IM, method='hansenlaw',
 
 radial, speeds  = abel.tools.vmi.angular_integration(AIM, dr=0.5)
 
+# convert to photoelectron spectrum vs binding energy
+# conversion factors depend on measurement parameters
+eBE, PES = abel.tools.vmi.toPES(radial, speeds,
+                                energy_cal_factor=1.209e-5,
+                                photon_energy=1.0e7/454.5, Vrep=-2200,
+                                zoom=0.5)
+
 # Set up some axes
 fig = plt.figure(figsize=(15, 4))
 ax1 = plt.subplot2grid((1, 3), (0, 0))
@@ -58,17 +65,24 @@ ax2.set_ylabel('y (pixels)')
 ax2.set_title('Hansen Law inverse Abel')
 
 # 1D speed distribution
-ax3.plot(radial, speeds/speeds[200:].max())
-ax3.axis(xmax=500, ymin=-0.05, ymax=1.1)
-ax3.set_xlabel('speed (pixel)')
+#ax3.plot(radial, speeds/speeds[200:].max())
+#ax3.axis(xmax=500, ymin=-0.05, ymax=1.1)
+#ax3.set_xlabel('speed (pixel)')
+#ax3.set_ylabel('intensity')
+#ax3.set_title('speed distribution')
+
+# PES
+ax3.plot(eBE, PES/PES[eBE < 5000].max())
+ax3.axis(xmin=0)
+ax3.set_xlabel(r'elecron binding energy (cm$^{-1}$)')
 ax3.set_ylabel('intensity')
-ax3.set_title('speed distribution')
+ax3.set_title(r'O${_2}{^-}$ 454~nm photoelectron spectrum')
 
 # Prettify the plot a little bit:
 plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35,
                     hspace=0.37)
 
 # save copy of the plot
-plt.savefig("example_hansenlaw.png", dpi=100)
+plt.savefig("plot_example_hansenlaw.png", dpi=100)
 
 plt.show()

@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 import abel
+import os
 
 import matplotlib.pylab as plt
 
@@ -15,13 +16,16 @@ import matplotlib.pylab as plt
 
 # Load image as a numpy array - numpy handles .gz, .bz2 
 IM = np.loadtxt("data/O2-ANU1024.txt.bz2")
-# use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
+if os.environ.get('READTHEDOCS', None) == 'True':
+    IM = IM[::2,::2]
+# the [::2, ::2] reduces the image size x1/2, decreasing processing memory load
+# for the online readthedocs.org
 
 # Image center should be mid-pixel and the image square, 
 # `center=convolution` takes care of this
 
 un = [0, 2]  # spherical harmonic orders
-proj_angles = range(0, 360, 10)  # projection angles
+proj_angles = np.arange(0, 2*np.pi, np.pi/20) # projection angles
 # adjust these parameter to 'improve' the look
 smoothing = 0.9  # smoothing Gaussian 1/e width
 threshold = 0.01 # exclude small amplitude Newton spheres
@@ -55,7 +59,7 @@ ax2 = plt.subplot2grid((1, 2), (0, 1))
 # join 1/2 raw data : 1/2 inversion image
 inv_IM = LIM.transform
 cols = inv_IM.shape[1]
-c2 = cols//2 + cols % 2
+c2 = cols//2 
 vmax = IM[:, :c2-100].max()
 inv_IM *= vmax/inv_IM[:, c2+100:].max()
 JIM = np.concatenate((IM[:, :c2], inv_IM[:, c2:]), axis=1)
@@ -72,7 +76,8 @@ ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(*inv_IM.shape),
 ax2.plot(radial, speed, label='speed')
 ax2.plot(radial, speed*anisotropy, label=r'anisotropy $\times$ speed')
 ax2.set_xlabel('radial pixel')
-ax2.axis(xmin=100, xmax=500, ymin=-1.0, ymax=1.1)
+row, cols = IM.shape
+ax2.axis(xmin=100*cols/1024, xmax=500*cols/1024, ymin=-1.5, ymax=1.8)
 ax2.set_title("speed, anisotropy parameter", fontsize='small')
 ax2.set_ylabel('intensity')
 ax2.set_xlabel('radial coordinate (pixels)')
@@ -83,7 +88,7 @@ r'linbasex inverse Abel transform of O$_{2}{}^{-}$ electron velocity-map image',
              fontsize='larger')
 
 # Save a image of the plot
-plt.savefig("example_linbasex.png", dpi=100)
+plt.savefig("plot_example_linbasex.png", dpi=100)
 
 # Show the plots
 plt.show()
