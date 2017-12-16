@@ -41,7 +41,8 @@ _dasch_parameter_docstring = \
         If None, the operator matrix will not be saved to disk.
 
     dr : float
-        not used (grid size for other algorithms)
+        sampling size (=1 for pixel images), used for Jacobian scaling.
+        The resulting inverse transform is simply scaled by 1/dr.
 
     direction: str
         only the `direction="inverse"` transform is currently implemented
