@@ -53,9 +53,9 @@ def test_onion_bordas_inverse_transform_gaussian():
     recon = abel.onion_bordas.onion_bordas_transform(tr, ref.dr, direction='inverse')
     recon1d = recon[n//2 + n%2]  # centre row
 
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)/2
+    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)
 
-    assert_allclose(ratio, 1.0, rtol=1, atol=0)
+    assert_allclose(ratio, 1.0, rtol=0, atol=0.1)
 
 def test_onion_bordas_inverse_transform_curveA():
     """ Check onion_bordas inverse transform() 'curve A'
