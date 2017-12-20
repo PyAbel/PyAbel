@@ -333,7 +333,8 @@ class PyAbel:  #(tk.Tk):
             self.direction.current(0)
         else:
             self.fn = self.fn.split(' ')[-1]
-            self.IM = abel.tools.analytical.sample_image(n=1001, name=self.fn)
+            self.IM = abel.tools.analytical.SampleImage(n=1001,
+                      name=self.fn).image
             self.direction.current(1) # raw images require 'forward' transform
             self.text.insert(tk.END,"\nsample image: (1) Abel transform 'forward', ")
             self.text.insert(tk.END,"              (2) load 'from transform', ") 

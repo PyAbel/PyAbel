@@ -27,7 +27,7 @@ def test_linbasex_forward_dribinski_image():
     """
 
     # BASEX sample image
-    IM = abel.tools.analytical.sample_image(n=1001, name="dribinski")
+    IM = abel.tools.analytical.SampleImage(n=1001, name="dribinski").image
 
     # forward Abel transform
     fIM = abel.Transform(IM, method='hansenlaw', direction='forward')

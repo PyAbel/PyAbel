@@ -34,7 +34,7 @@ ntrans = np.size(transforms.keys())  # number of transforms
 
 
 # Image:   O2- VMI 1024x1024 pixel ------------------
-IM = abel.tools.analytical.sample_image(n=501, name="Ominus")
+IM = abel.tools.analytical.SampleImage(n=501, name="Ominus").image
 
 h, w = IM.shape
 

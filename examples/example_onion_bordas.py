@@ -8,7 +8,7 @@ import abel
 import matplotlib.pyplot as plt
 
 # Dribinski sample image
-IM = abel.tools.analytical.sample_image(n=501) 
+IM = abel.tools.analytical.SampleImage(n=501).image 
 
 # split into quadrants
 origQ = abel.tools.symmetry.get_image_quadrants(IM)
