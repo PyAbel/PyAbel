@@ -10,9 +10,7 @@ import scipy.interpolate
 # impementations.
 
 
-
 class BaseAnalytical(object):
-
     def __init__(self, n, r_max, symmetric=True, **args):
         """
         This is the base class for functions that have a known Abel transform.
@@ -103,7 +101,6 @@ class StepAnalytical(BaseAnalytical):
         self.mask_valid = np.abs(
             np.abs(self.r) - 0.5*(r1 + r2)) < ratio_valid_step*0.5*(r2 - r1)
 
-
     def abel_step_analytical(self, r, A0, r0, r1):
         """
         Directed Abel transform of a step function located between r0 and r1,
@@ -118,7 +115,6 @@ class StepAnalytical(BaseAnalytical):
                +------------------+-------------+------------>
                0                  r0            r1           r axis
 
-        This function is mostly used for unit testing the inverse Abel transform
 
         Parameters
         ----------
@@ -141,15 +137,16 @@ class StepAnalytical(BaseAnalytical):
         F_1d = np.zeros(r.shape)
         mask = (r >= r0)*(r < r1)
         F_1d[mask] = 2*np.sqrt(r1**2 - r[mask]**2)
+
         mask = r < r0
         F_1d[mask] = 2*np.sqrt(r1**2 - r[mask]**2) -\
                      2*np.sqrt(r0**2 - r[mask]**2)
+
         A0 = np.atleast_1d(A0)
         if A0.ndim == 1:
             A0 = A0[:, np.newaxis]
 
         return F_1d[np.newaxis, :]*A0
-
 
     def sym_abel_step_1d(self, r, A0, r0, r1):
         """
@@ -229,7 +226,7 @@ class TransformPair(BaseAnalytical):
 
             dr : float
                 radial interval
-                
+
             func : numpy array
                 values of the original function (same shape as r)
 
@@ -309,12 +306,14 @@ class SampleImage(BaseAnalytical):
             Sample test image used in the BASEX paper
             Rev. Sci. Instrum. 73, 2634 (2002)
 
-            9x Gaussian functions of half-width 4 pixel + 1 background width 3600
+            9x Gaussian functions of half-width 4 pixel +
+            1 background Gaussian of width 3600
+
             anisotropy - ß = -1  for cosθ term
                        - ß = +2  for sinθ term
                        - ß =  0  isotropic, no angular variation
             (there are some missing negative exponents in the publication)
-	    """
+            """
 
             sinetheta2 = np.sin(theta)**2
             cosinetheta2 = np.cos(theta)**2
@@ -362,19 +361,19 @@ class SampleImage(BaseAnalytical):
 
         super(SampleImage, self).__init__(n, r_max=n2, symmetric=True)
 
-        if name=='dribinski': 
+        if name == 'dribinski':
             self.r *= 180/n2
-        elif name=='Ominus':
+        elif name == 'Ominus':
             self.r *= 501/n2
-    
+
         X, Y = np.meshgrid(self.r, self.r)
         R, THETA = cart2polar(X, Y)
 
         if self.name == "dribinski":
             self.image = _dribinski(R, THETA, sigma=sigma)
         elif self.name == "Ominus":
-            boltzmann = np.exp(-177.1*const.h*const.c*100/const.k/temperature)/2
+            boltzmann = np.exp(-177.1*const.h*const.c*100/const.k/temperature)\
+                        / 2
             self.image = _Ominus(R, THETA, sigma=sigma, boltzmann=boltzmann)
         else:
             raise ValueError('sample image name not recognized')
-
