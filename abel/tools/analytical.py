@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from _future__ import division
 import numpy as np
 from abel.tools.polar import index_coords, cart2polar
 from . import transform_pairs
