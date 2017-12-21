@@ -7,7 +7,7 @@ import numpy as np
 #  doi:10.1016/j.sab.2005.11.009
 #
 # 20-Dec-2017 Stephen Gibson - adapted code for PyAbel
-# 20-Nov-2015 Dhrubajyoti Das - python gist 
+# 20-Nov-2015 Dhrubajyoti Das - python gist
 #             https://github.com/PyAbel/PyAbel/issues/19#issuecomment-158244527
 #
 #########################################################################
@@ -18,7 +18,7 @@ def a(n, x):
 
 
 def case1(r):
-    # Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13) 
+    # Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
 
     # domain of case functions
     rm = r[r <= 0.25]
@@ -32,7 +32,7 @@ def case1(r):
     a1m = a(1, rm)
     rm2 = rm**2
     Im = (128*a1m + a4m)/108 + (283*a4m - 112*a1m)*rm2*2/27 +\
-         (4*(1 + rm2)*np.log((1 + a1m)/rm) -\
+         (4*(1 + rm2)*np.log((1 + a1m)/rm) -
          (4 + 31*rm2)*np.log((0.25 + a4m)/rm))*rm2*8/9
 
     a1p = a(1, rp)
@@ -44,7 +44,7 @@ def case1(r):
 
 
 def case2(r):
-    # Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13) 
+    # Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
 
     source = 1 - 3*r*r + 2*r**3
     a1 = a(1, r)
@@ -54,7 +54,7 @@ def case2(r):
 
 
 def case3(r):
-    # Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13) 
+    # Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
     # Curve A, Table 2, Fig 3. Hansen&Law JOSA A2 510 (1985)
 
     # domain regions
@@ -81,7 +81,7 @@ def case3(r):
 
 def case4(r):
     #  Alvarez, Rodero, Quintero Spectochim. Acta B 57, 1665-1680 (2002)
-    # *invalid*
+    # *invalid - typo errors in Table 1*
 
     rm = r[r <= 0.7]
     rp = r[r > 0.7]
