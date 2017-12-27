@@ -86,7 +86,8 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
         right-side half-image (or quadrant)
 
     dr : float
-        not used (grid size for other algorithms)
+        sampling size (=1 for pixel images), used for Jacobian scaling.
+        The resulting inverse transform is simply scaled by 1/dr.
 
     direction: str
         only the `direction="inverse"` transform is currently implemented
@@ -165,4 +166,4 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
     if shift_grid:
         abel_arr = shift(abel_arr, 1/2)
 
-    return abel_arr/2  # x1/2 for 'correct' normalization   
+    return abel_arr/(2*dr)  # x1/2 for 'correct' normalization   
