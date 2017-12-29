@@ -249,13 +249,13 @@ class TransformPair(BaseAnalytical):
         self.r[0] = 1.0e-8
         self.r[-1] -= 1.0e-8
 
-        profiles = {'profile1': transform_pairs.case1,
-                    'profile2': transform_pairs.case2,
-                    'profile3': transform_pairs.case3,
-                    'profile4': transform_pairs.case4,
-                    'profile5': transform_pairs.case5,
-                    'profile6': transform_pairs.case6,
-                    'profile7': transform_pairs.case7}
+        profiles = {'profile1': transform_pairs.profile1,
+                    'profile2': transform_pairs.profile2,
+                    'profile3': transform_pairs.profile3,
+                    'profile4': transform_pairs.profile4,
+                    'profile5': transform_pairs.profile5,
+                    'profile6': transform_pairs.profile6,
+                    'profile7': transform_pairs.profile7}
 
         if profile > 7:
             raise ValueError('only 1-7 profiles')

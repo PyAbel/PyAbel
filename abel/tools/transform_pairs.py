@@ -18,10 +18,10 @@ def a(n, x):
     return np.sqrt(n*n - x*x)
 
 
-def case1(r):
+def profile1(r):
     # Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
 
-    # domain of case functions
+    # domain of profile functions
     rm = r[r <= 0.25]
     rp = r[r > 0.25]
 
@@ -44,7 +44,7 @@ def case1(r):
     return source, proj
 
 
-def case2(r):
+def profile2(r):
     # Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
 
     source = 1 - 3*r*r + 2*r**3
@@ -54,7 +54,7 @@ def case2(r):
     return source, proj
 
 
-def case3(r):
+def profile3(r):
     # Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
     # Curve A, Table 2, Fig 3. Hansen&Law JOSA A2 510 (1985)
 
@@ -80,7 +80,7 @@ def case3(r):
     return source, proj
 
 
-def case4(r):
+def profile4(r):
     #  Alvarez, Rodero, Quintero Spectochim. Acta B 57, 1665-1680 (2002)
     # *invalid - typo errors in Table 1*
 
@@ -107,7 +107,7 @@ def case4(r):
     return source, proj
 
 
-def case5(r):
+def profile5(r):
     # Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996)
 
     source = np.ones_like(r)
@@ -116,7 +116,7 @@ def case5(r):
     return source, proj
 
 
-def case6(r):
+def profile6(r):
     #  Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996)
 
     source = np.exp(1.1**2*(1 - 1/(1 - r**2)))/np.sqrt(1 - r**2)**3
@@ -125,7 +125,7 @@ def case6(r):
     return source, proj
 
 
-def case7(r):
+def profile7(r):
     #  Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996
 
     source = (1 + 10*r**2 - 23*r**4 + 12*r**6)/2

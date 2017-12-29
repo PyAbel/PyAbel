@@ -170,6 +170,9 @@ def linbasex_transform_full(IM, proj_angles=[0, np.pi/2],
 
     rows, cols = IM.shape
 
+    if cols % 2 == 0:
+        raise ValueError('image width ({}) must be odd and equal to the height'.format(cols))
+
     if rows != cols:
         raise ValueError('image has shape ({}, {}), '.format(rows, cols) +
                          'must be square for a "linbasex" transform')
