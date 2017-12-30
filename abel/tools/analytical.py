@@ -361,7 +361,7 @@ class SampleImage(BaseAnalytical):
             self.r *= 501/n2
 
         X, Y = np.meshgrid(self.r, self.r)
-        R, THETA = cart2polar(X, Y)
+        R, THETA = abel.tools.polar.cart2polar(X, Y)
 
         if self.name == "dribinski":
             self.image = _dribinski(R, THETA, sigma=sigma)
