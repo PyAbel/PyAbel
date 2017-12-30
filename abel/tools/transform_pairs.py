@@ -3,7 +3,7 @@ import numpy as np
 
 #########################################################################
 #
-# Analytical Abel transform pairs
+# Analytical Abel transform pairs: profiles 1-7
 #  G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31-41 (2006)
 #  doi:10.1016/j.sab.2005.11.009
 #
@@ -130,5 +130,21 @@ def profile7(r):
 
     source = (1 + 10*r**2 - 23*r**4 + 12*r**6)/2
     proj = a(1, r)*(19 + 34*r**2 - 125*r**4 + 72*r**6)*8/105
+
+    return source, proj
+
+
+def profile8(r):
+    # Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985) Curve B
+    rm = r[r < 1]
+    rp = r[r >= 1]
+
+    source = np.power(1-rm**2, -3/2)*np.exp((1.1*rm)**2/(rm**2 - 1))
+    proj = np.sqrt(np.pi)*np.power(1-rm**2, -1/2)*np.exp((1.1*rm)**2\
+           /(rm**2-1))/1.1
+
+    if rp.size > 0:
+        source.append(0)
+        proj.append(0)
 
     return source, proj

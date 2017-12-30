@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
+from __future__ import absolute_import
 import numpy as np
-from abel.tools.polar import index_coords, cart2polar
-from . import transform_pairs
+import abel
 import scipy.constants as const
 import scipy.interpolate
 
@@ -29,7 +29,7 @@ class BaseAnalytical(object):
         See GaussianAnalytical for a concrete example.
 
         Parameters
-        ----------
+        -------a--
         n : int
             number of points along the r axis
 
@@ -249,20 +249,13 @@ class TransformPair(BaseAnalytical):
         self.r[0] = 1.0e-8
         self.r[-1] -= 1.0e-8
 
-        profiles = {'profile1': transform_pairs.profile1,
-                    'profile2': transform_pairs.profile2,
-                    'profile3': transform_pairs.profile3,
-                    'profile4': transform_pairs.profile4,
-                    'profile5': transform_pairs.profile5,
-                    'profile6': transform_pairs.profile6,
-                    'profile7': transform_pairs.profile7}
-
-        if profile > 7:
-            raise ValueError('only 1-7 profiles')
+        if profile > 8:
+            raise ValueError('only 1-8 profiles')
 
         self.label = 'profile{}'.format(profile)
 
-        self.func, self.abel = profiles[self.label](self.r)
+        profile = getattr(abel.tools.transform_pairs, self.label)
+        self.func, self.abel = profile(self.r)
 
         # function values to use for testing
         self.mask_valid = np.ones_like(self.func)
