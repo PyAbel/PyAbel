@@ -215,6 +215,9 @@ class TransformPair(BaseAnalytical):
             Table 1 of Chan and Hieftje Spectrochimica Acta B 61, 31-41 (2006)
             do:10.1016/j.sab.2005.11.009
 
+            profile8:
+            curve B Hansen and Law JOSA 2, 510 (1985) doi:10.1364/JOSAA.2.000510
+
        Parameters
         ----------
         n : int
