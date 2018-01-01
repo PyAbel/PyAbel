@@ -22,6 +22,7 @@ except (ImportError, UnicodeDecodeError):
 #
 # Roman Yurchak - Laboratoire LULI, Ecole Polytechnique/CNRS/CEA, France
 #
+# 01.2018: Changed the integration method to trapz
 # 12.2015: Added a pure python implementation following a dissuasion
 #                                                     with Dan Hickstein
 # 11.2015: Moved to PyAbel, added more unit tests, reorganized code base
@@ -73,7 +74,7 @@ def _construct_r_grid(n, dr=None, r=None):
 
 def direct_transform(fr, dr=None, r=None, direction='inverse',
                      derivative=gradient,
-                     int_func=simpson_rule_wrong,
+                     int_func=np.trapz,
                      correction=True, backend='C', **kwargs):
     """
     This algorithm does a direct computation of the Abel transform
@@ -187,17 +188,24 @@ def _pyabel_direct_integral(f, r, correction, int_func=simpson_rule_wrong):
     # the following 2 lines can be better written
     i_vect = np.arange(len(r), dtype=int)
     II, JJ = np.meshgrid(i_vect, i_vect, indexing='ij')
-    mask = (II < JJ)
+    mask = (II < JJ) 
 
     I_sqrt = np.zeros(R.shape)
     I_sqrt[mask] = np.sqrt((Y**2 - R**2)[mask])
 
     I_isqrt = np.zeros(R.shape)
     I_isqrt[mask] = 1./I_sqrt[mask]
+    
+    mask2 = ((II>JJ-2) & (II < JJ+1))
+    print (mask2)
 
     for i, row in enumerate(f):  # loop over rows (z)
         P = row[None, :] * I_isqrt  # set up the integral
         out[i, :] = int_func(P, axis=1, **int_opts)  # take the integral
+        # out[i, :] = out[i, :] - 0.5*np.sum(P*(II + 1==JJ), axis=1) * (r[1]-r[0])
+        out[i, :] = out[i, :] - 0.5*int_func(P*mask2, axis=1, **int_opts)
+        
+        
     """
     Compute the correction
     Pre-calculated analytical integration of the cell with the singular value
