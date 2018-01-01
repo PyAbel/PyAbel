@@ -136,15 +136,8 @@ def profile7(r):
 
 def profile8(r):
     # Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985) Curve B
-    rm = r[r < 1]
-    rp = r[r >= 1]
 
-    source = np.power(1-rm**2, -3/2)*np.exp((1.1*rm)**2/(rm**2 - 1))
-    proj = np.sqrt(np.pi)*np.power(1-rm**2, -1/2)*np.exp((1.1*rm)**2\
-           /(rm**2-1))/1.1
-
-    if rp.size > 0:
-        source.append(0)
-        proj.append(0)
+    source = np.power(1-r**2, -3/2)*np.exp((1.1*r)**2/(r**2 - 1))
+    proj = np.sqrt(np.pi)*np.power(1-r**2, -1/2)*np.exp((1.1*r)**2/(r**2-1))/1.1
 
     return source, proj

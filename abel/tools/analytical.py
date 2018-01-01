@@ -248,9 +248,11 @@ class TransformPair(BaseAnalytical):
 
         super(TransformPair, self).__init__(n, r_max=1, symmetric=False)
 
-        # prevent divide by zero
-        self.r[0] = 1.0e-8
-        self.r[-1] -= 1.0e-8
+        # BaseAnalytical creates self.r = 0, 1
+        # prevent divide by zero and NaN for r = 0, 1, slightly offset these values
+        r = self.r
+        r[0] = 1.0e-8
+        r[-1] -= 1.0e-8
 
         if profile > 8:
             raise ValueError('only 1-8 profiles')
@@ -258,7 +260,7 @@ class TransformPair(BaseAnalytical):
         self.label = 'profile{}'.format(profile)
 
         profile = getattr(abel.tools.transform_pairs, self.label)
-        self.func, self.abel = profile(self.r)
+        self.func, self.abel = profile(r)
 
         # function values to use for testing
         self.mask_valid = np.ones_like(self.func)
