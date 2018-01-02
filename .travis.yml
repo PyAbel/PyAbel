@@ -12,7 +12,8 @@ install:
 - pip install --upgrade pip setuptools wheel
 - pip install --only-binary=numpy,scipy,cython numpy scipy cython
 - pip install coveralls
-- python setup.py develop
+- python setup.py build_ext -i
+- python setup.py install
 script:
 - nosetests -vv --with-coverage --cover-package=abel abel/tests
 deploy:
