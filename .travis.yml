@@ -10,7 +10,7 @@ matrix:
     env: DEPS="numpy scipy nose cython"
 install:
 - pip install --upgrade pip setuptools wheel
-- pip install --only-binary=numpy,scipy, cython numpy scipy cython
+- pip install --only-binary=numpy,scipy,cython numpy scipy cython
 - pip install coveralls
 - python setup.py install
 script:
