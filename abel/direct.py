@@ -74,7 +74,7 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
         the second the r axis.
     dr : float
         spatial mesh resolution           (optional, default to 1.0)
-    f : 1D ndarray
+    r : 1D ndarray
         the spatial mesh (optional)
     derivative : callable
         a function that can return the derivative of the fr array
