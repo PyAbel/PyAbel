@@ -63,7 +63,7 @@ cpdef _cabel_direct_integral(double [:, ::1] f, double [::1] r, int correction):
             
                 # Trapezoidal rule integration, skipping r == y
                 for k in range(j+1, N1-1): # inner loop over elements such as r < y
-                    s = s + f[i,k] * I_isqrt[j,k] * 0.5 * dr  + f[i,k+1] * I_isqrt[j,k+1] * 0.5 * dr
+                    s += (f[i,k] * I_isqrt[j,k] + f[i,k+1] * I_isqrt[j,k+1]) * 0.5 * dr
             
                 # Deal with the edge-case. Designed to match the Direct-Python implementation using np.trapz
                 if j == N1-2:

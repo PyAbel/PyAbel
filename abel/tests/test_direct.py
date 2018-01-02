@@ -8,8 +8,8 @@ import scipy.ndimage as nd
 import abel
 
 def test_direct_shape():
-    # if not abel.direct.cython_ext:
-    #     raise SkipTest
+    """Ensure that abel.direct.direct_transform() returns an array of the correct shape"""
+
     n = 21
     x = np.ones((n, n))
 
@@ -21,9 +21,7 @@ def test_direct_shape():
 
 
 def test_direct_zeros():
-    # just a sanity check
-    # if not abel.direct.cython_ext:
-    #     raise SkipTest
+    """Test abel.direct.direct_transform() with zeros"""
     n = 64
     x = np.zeros((n,n))
     assert (abel.direct.direct_transform(x, direction='forward')==0).all()
@@ -31,9 +29,8 @@ def test_direct_zeros():
 
 
 def test_direct_gaussian():
-    """Check abel.direct.direct_transform() with a Gaussian"""
-    # if not abel.direct.cython_ext:
-    #     raise SkipTest
+    """Check abel.direct.direct_transform() against the analytical Gaussian"""
+    
     n = 501
     r_max = 100
 
@@ -53,8 +50,8 @@ def test_direct_gaussian():
 
 def test_direct_c_python_correspondence_with_correction():
     """ Check that both the C and Python backends are identical (correction=True)"""
-    if not abel.direct.cython_ext:
-        raise SkipTest
+    # if not abel.direct.cython_ext:
+    #     raise SkipTest
     N = 10
     r = 0.5 + np.arange(N).astype('float64') 
     x = 2*r.reshape((1, -1))**2
@@ -65,8 +62,8 @@ def test_direct_c_python_correspondence_with_correction():
 
 def test_direct_c_python_correspondence():
     """ Check that both the C and Python backends are identical (correction=False)"""
-    if not abel.direct.cython_ext:
-        raise SkipTest
+    # if not abel.direct.cython_ext:
+    #     raise SkipTest
     N = 10
     r = 0.5 + np.arange(N).astype('float64')
     x = 2*r.reshape((1, -1))**2

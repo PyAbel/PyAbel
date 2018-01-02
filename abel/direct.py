@@ -5,8 +5,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-import scipy.integrate
-
 from .tools.math import gradient
 
 try:
@@ -55,46 +53,61 @@ def _construct_r_grid(n, dr=None, r=None):
 
 
 def direct_transform(fr, dr=None, r=None, direction='inverse',
-                     derivative=gradient,
-                     int_func=np.trapz,
+                     derivative=gradient, int_func=np.trapz,
                      correction=True, backend='C', **kwargs):
     """
-    This algorithm does a direct computation of the Abel transform
+    This algorithm performs a direct computation of the Abel transform
+    integrals. When correction=False, the pixel at the lower bound of the
+    integral (where y=r) is skipped, which causes a systematic error in the
+    Abel transform. However, if correction=True is used, then an analytical
+    transform transform is applied to this pixel, which makes the approximation
+    that the function is linear across this pixel. With correction=True, the
+    Direct method produces reasonable results.
 
-      * integration near the singular value is done analytically
-      * integration further from the singular value with the Simpson
-        rule.
+    The Direct method is implemented in both Python and, if Cython is available
+    during PyAbel's installation, a compiled C version, which is much faster.
+    The implementation can be selected using the backend argument.
+
+    By default, integration at all other pixels is performed using the
+    Trapezoidal rule.
 
     Parameters
     ----------
 
     fr : 1d or 2d numpy array
-        input array to which direct/inversed Abel transform will be applied.
+        input array to which direct/inverse Abel transform will be applied.
         For a 2d array, the first dimension is assumed to be the z axis and
         the second the r axis.
     dr : float
-        spatial mesh resolution           (optional, default to 1.0)
+        spatial mesh resolution (optional, default to 1.0)
     r : 1D ndarray
-        the spatial mesh (optional)
+        the spatial mesh (optional). Unusually, direct_transform should, in
+        principle, be able to handle non-uniform data. However, this has not
+        been regorously tested.
+    direction : string
+        Determines if a forward or inverse Abel transform will be applied.
+        can be 'forward' or 'inverse'.
     derivative : callable
         a function that can return the derivative of the fr array
-        with respect to r
-        (only used in the inverse Abel transform).
-    inverse : boolean
-        If True inverse Abel transform is applied,
-        otherwise use a forward Abel transform.
+        with respect to r. (only used in the inverse Abel transform).
+    int_func : function
+        This function is used to complete the integration. It should resemble
+        np.trapz, in that it must be callable using axis=, x=, and dx=
+        keyword arguments.
     correction : boolean
-        if False integration is performed with the Simpson rule,
-        the pixel where the weighting function has a singular value is ignored
-        if True in addition to the integration with the Simpson rule,
-        integration near the singular value is done analytically,
-        assuming a piecewise linear data.
+        If False the pixel where the weighting function has a singular value
+        (where r==y) is simply skipped, causing a systematic under-estimation
+        of the Abel transform.
+        If True, integration near the singular value is performed analytically,
+        by assuming that the data is linear across that pixel. The accuracy
+        of this approximation will depend on how the data is sampled.
     backend : string
         There are currently two implementations of the Direct transform,
         one in pure Python and one in Cython. The backend paremeter selects
         which method is used. The Cython code is converted to C and compiled,
-        so this is faster. 
-        Can be 'C' or 'python'. 'C' is the default, but 'python' will be used 
+        so this is faster.
+        Can be 'C' or 'python' (case insensitive).
+        'C' is the default, but 'python' will be used
         if the C-library is not available.
 
     Returns
@@ -170,32 +183,31 @@ def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
     else:
         int_opts = {'x': r}
 
-    N0 = f.shape[0]
     N1 = f.shape[1]
     out = np.zeros(f.shape)
     R, Y = np.meshgrid(r, r, indexing='ij')
-    
+
     i_vect = np.arange(len(r), dtype=int)
     II, JJ = np.meshgrid(i_vect, i_vect, indexing='ij')
-    mask = (II < JJ) 
+    mask = (II < JJ)
 
     I_sqrt = np.zeros(R.shape)
     I_sqrt[mask] = np.sqrt((Y**2 - R**2)[mask])
 
     I_isqrt = np.zeros(R.shape)
     I_isqrt[mask] = 1./I_sqrt[mask]
-    
+
     # create a mask that just shows the first two points of the integral
     mask2 = ((II>JJ-2) & (II < JJ+1))
-    
+
     for i, row in enumerate(f):  # loop over rows (z)
         P = row[None, :] * I_isqrt  # set up the integral
         out[i, :] = int_func(P, axis=1, **int_opts)  # take the integral
-        
+
         # correct for the extra triangle at the start of the integral
         out[i, :] = out[i, :] - 0.5*int_func(P*mask2, axis=1, **int_opts)
-        
-        
+
+
     """
     Compute the correction
     Pre-calculated analytical integration of the cell with the singular value
@@ -221,4 +233,3 @@ def is_uniform_sampling(r):
     dr = np.diff(r)
     ddr = np.diff(dr)
     return np.allclose(ddr, 0, atol=1e-13)
-
