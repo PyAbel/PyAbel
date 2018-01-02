@@ -52,7 +52,7 @@ def test_hansenlaw_forward_tansform_gaussian():
     recon = abel.hansenlaw.hansenlaw_transform(ref.func, ref.dr,
                                                direction='forward')
 
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='direct')
+    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='forward')
 
     assert_allclose(ratio, 1.0, rtol=7e-2, atol=0)
 

@@ -5,7 +5,7 @@ Polar Onion Peeling (not implemented)
 Introduction
 ------------
 
-TThe polar onion peeling (POP) method is still under development.
+The polar onion peeling (POP) method is still under development.
 
 See the discussion here: https://github.com/PyAbel/PyAbel/issues/30
 
