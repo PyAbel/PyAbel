@@ -226,7 +226,7 @@ class TransformPair(BaseAnalytical):
         Attributes
         ----------
             r : numpy array
-                vector of positions along the r axis
+                vector of positions along the r axis: linspace(0, 1, n)
 
             dr : float
                 radial interval
@@ -255,7 +255,8 @@ class TransformPair(BaseAnalytical):
         r[-1] -= 1.0e-8
 
         if profile > 8:
-            raise ValueError('only 1-8 profiles')
+            raise ValueError('only 1-8 profiles:'
+                             'see "abel/tools/transform_pairs.py"')
 
         self.label = 'profile{}'.format(profile)
 

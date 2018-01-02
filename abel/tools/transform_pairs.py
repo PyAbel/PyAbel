@@ -1,7 +1,7 @@
 from __future__ import division
 import numpy as np
 
-#########################################################################
+##############################################################################
 #
 # Analytical Abel transform pairs: profiles 1-7
 #  G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31-41 (2006)
@@ -11,7 +11,11 @@ import numpy as np
 # 20-Nov-2015 Dhrubajyoti Das - python gist
 #             https://github.com/PyAbel/PyAbel/issues/19#issuecomment-158244527
 #
-#########################################################################
+# Note: call these functions via:
+#   func = abel.tools.analytical.TransformPair(n, profile=#)
+#   see abel/tools/analytical.py for Class attributes
+# otherwise  0 < r < 1
+##############################################################################
 
 
 def a(n, x):
