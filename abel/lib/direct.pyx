@@ -46,25 +46,31 @@ cpdef _cabel_direct_integral(double [:, ::1] f, double [::1] r, int correction):
 
     with nogil:
         # pre-calculate the array of r_i, r_j
-        for i in range(N1):
-            for j in range(0,i):
-                val = sqrt(r[i]**2 - r[j]**2)
-                I_sqrt[j,i] = val
-                I_isqrt[j,i] = 1./val
+        for j in range(N1):
+            for k in range(j+1, N1):
+                val = sqrt(r[k]**2 - r[j]**2)
+                I_sqrt[j,k] = val
+                I_isqrt[j,k] = 1./val
 
         for i in range(N0): # loop over rows (z)
-            for j in range(N1-1):  # loop over (r) elements
-            
+            for j in range(N1):  # loop over (r) elements
+        
                 s = 0
-                
+            
                 # simple left Reimann sum:
                 # for k in range(j+1, N1): # inner loop over elements such as r < y
                 #   s = s + f[i,k] * I_isqrt[j,k] * dr
-                
+            
                 # Trapezoidal rule integration, skipping r == y
                 for k in range(j+1, N1-1): # inner loop over elements such as r < y
                     s = s + f[i,k] * I_isqrt[j,k] * 0.5 * dr  + f[i,k+1] * I_isqrt[j,k+1] * 0.5 * dr
+            
+                # Deal with the edge-case. Designed to match the Direct-Python implementation using np.trapz
+                if j == N1-2:
+                    k = j
+                    s = f[i,k+1] * I_isqrt[j,k+1] * 0.25 * dr   
        
+                            
                 if j < N1 - 1 and correction == 1:
                    # Integration of the cell with the singular value
                    # Assuming a piecewise linear behaviour of the data
