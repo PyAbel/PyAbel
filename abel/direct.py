@@ -15,7 +15,6 @@ try:
 except (ImportError, UnicodeDecodeError):
     cython_ext = False
 
-
 ###########################################################################
 # direct - calculation of forward and inverse Abel transforms by direct
 # numerical integration
@@ -28,23 +27,6 @@ except (ImportError, UnicodeDecodeError):
 # 11.2015: Moved to PyAbel, added more unit tests, reorganized code base
 #    2012: First implementation in hedp.math.abel
 ###########################################################################
-
-
-def simpson_rule_wrong(f, x=None, dx=None, axis=1, **args):
-    """
-    This function computes the Simpson rule
-    https://en.wikipedia.org/wiki/Simpson%27s_rule#Python
-    both in the cases of odd and even intervals which is not technically valid
-    """
-    if x is not None:
-        raise NotImplementedError
-    if axis != 1:
-        raise NotImplementedError
-
-    res = f[:, 0] + f[:, -1]
-    res += 2*f[:, 1:-1:2].sum(axis=axis)
-    res += 4*f[:, 2:-1:2].sum(axis=axis)
-    return res*dx/3
 
 
 def _construct_r_grid(n, dr=None, r=None):
@@ -107,6 +89,13 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
         if True in addition to the integration with the Simpson rule,
         integration near the singular value is done analytically,
         assuming a piecewise linear data.
+    backend : string
+        There are currently two implementations of the Direct transform,
+        one in pure Python and one in Cython. The backend paremeter selects
+        which method is used. The Cython code is converted to C and compiled,
+        so this is faster. 
+        Can be 'C' or 'python'. 'C' is the default, but 'python' will be used 
+        if the C-library is not available.
 
     Returns
     -------
@@ -155,7 +144,7 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
         return out
 
 
-def _pyabel_direct_integral(f, r, correction, int_func=simpson_rule_wrong):
+def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
     """
     Calculation of the integral  used in Abel transform
     (both direct and inverse).
@@ -185,7 +174,7 @@ def _pyabel_direct_integral(f, r, correction, int_func=simpson_rule_wrong):
     N1 = f.shape[1]
     out = np.zeros(f.shape)
     R, Y = np.meshgrid(r, r, indexing='ij')
-    # the following 2 lines can be better written
+    
     i_vect = np.arange(len(r), dtype=int)
     II, JJ = np.meshgrid(i_vect, i_vect, indexing='ij')
     mask = (II < JJ) 
@@ -196,13 +185,14 @@ def _pyabel_direct_integral(f, r, correction, int_func=simpson_rule_wrong):
     I_isqrt = np.zeros(R.shape)
     I_isqrt[mask] = 1./I_sqrt[mask]
     
+    # create a mask that just shows the first two points of the integral
     mask2 = ((II>JJ-2) & (II < JJ+1))
-    print (mask2)
-
+    
     for i, row in enumerate(f):  # loop over rows (z)
         P = row[None, :] * I_isqrt  # set up the integral
         out[i, :] = int_func(P, axis=1, **int_opts)  # take the integral
-        # out[i, :] = out[i, :] - 0.5*np.sum(P*(II + 1==JJ), axis=1) * (r[1]-r[0])
+        
+        # correct for the extra triangle at the start of the integral
         out[i, :] = out[i, :] - 0.5*int_func(P*mask2, axis=1, **int_opts)
         
         
