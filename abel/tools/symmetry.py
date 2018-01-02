@@ -26,23 +26,23 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         Reorient quadrants to match the orientation of Q0 (top-right)
 
     symmetry_axis : int or tuple
-        can have values of ``None``, ``0``, ``1``, or ``(0,1)`` and specifies 
+        can have values of ``None``, ``0``, ``1``, or ``(0,1)`` and specifies
         no symmetry, vertical symmetry axis, horizontal symmetry axis, and both vertical
         and horizontal symmetry axes. Quadrants are added.
-        See Note. 
+        See Note.
 
     use_quadrants : boolean tuple
        Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
        and final image
 
     symmetrize_method: str
-       Method used for symmetrizing the image.      
- 
+       Method used for symmetrizing the image.
+
        average: Simply average the quadrants.
-       fourier: Axial symmetry implies that the Fourier components of the 2-D 
-                projection should be real. Removing the imaginary components in 
+       fourier: Axial symmetry implies that the Fourier components of the 2-D
+                projection should be real. Removing the imaginary components in
                 reciprocal space leaves a symmetric projection.
-                ref: Overstreet, K., et al. "Multiple scattering and the density 
+                ref: Overstreet, K., et al. "Multiple scattering and the density
                      distribution of a Cs MOT." Optics express 13.24 (2005): 9672-9682.
                      http://dx.doi.org/10.1364/OPEX.13.009672
 
@@ -52,10 +52,10 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
       shape: (``rows//2+rows%2, cols//2+cols%2``)
       all oriented in the same direction as Q0 if ``reorient=True``
 
-    
+
     Notes
     -----
-     
+
     The symmetry_axis keyword averages quadrants like this: ::
 
          +--------+--------+
@@ -66,29 +66,29 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
          |  *     |     *  |               cQ2 | cQ3
          |   *    |    *   |
          | Q2  *  | *   Q3 |          cQi == combined quadrants
-         +--------+--------+                 
+         +--------+--------+
 
         symmetry_axis = None - individual quadrants
         symmetry_axis = 0 (vertical) - average Q0+Q1, and Q2+Q3
         symmetry_axis = 1 (horizontal) - average Q1+Q2, and Q0+Q3
         symmetry_axis = (0, 1) (both) - combine and average all 4 quadrants
-    
+
 
     The end results look like this: ::
-    
+
         (0) symmetry_axis = None
-        
+
             returned image   Q1 | Q0
                             ----o----
                              Q2 | Q3
-                        
+
         (1) symmetry_axis = 0
 
             Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
             returned image    Q01 | Q01
                              -----o-----
                               Q23 | Q23
-                          
+
         (2) symmetry_axis = 1
 
             Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
@@ -111,21 +111,21 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         symmetry_axis = [symmetry_axis]
 
     if ((symmetry_axis == [None] and (use_quadrants[0]==False
-                                   or use_quadrants[1]==False 
+                                   or use_quadrants[1]==False
                                    or use_quadrants[2]==False
-                                   or use_quadrants[3]==False)) or 
+                                   or use_quadrants[3]==False)) or
         # at least one empty
-        (symmetry_axis == [0] and use_quadrants[0]==False and 
+        (symmetry_axis == [0] and use_quadrants[0]==False and
                                   use_quadrants[1]==False) or # top empty
-        (symmetry_axis == [0] and use_quadrants[2]==False and 
+        (symmetry_axis == [0] and use_quadrants[2]==False and
                                   use_quadrants[3]==False) or # bot empty
         (symmetry_axis == [1] and use_quadrants[1]==False and
                                   use_quadrants[2]==False) or # left empty
-        (symmetry_axis == [1] and use_quadrants[0]==False and 
+        (symmetry_axis == [1] and use_quadrants[0]==False and
                                   use_quadrants[3]==False)    # right empty
                                                                 or
         not np.any(use_quadrants)
-        ): 
+        ):
         raise ValueError('At least one quadrant would be empty.'
                          ' Please check symmetry_axis and use_quadrant'
                          ' values to ensure that all quadrants will have a'
@@ -136,7 +136,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     # odd size increased by 1
     n_c = n // 2 + n % 2
     m_c = m // 2 + m % 2
-    
+
 
     if isinstance(symmetry_axis, tuple) and not reorient:
         raise ValueError(
@@ -163,11 +163,11 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         Q1 = np.fliplr(Q1)
         Q3 = np.flipud(Q3)
         Q2 = np.fliplr(np.flipud(Q2))
-    
+
     if symmetrize_method == "fourier":
         return Q0, Q1, Q2, Q3
-  
-    elif symmetrize_method == "average": 
+
+    elif symmetrize_method == "average":
         if symmetry_axis==(0, 1):
             Q = (Q0 + Q1 + Q2 + Q3)/np.sum(use_quadrants)
             return Q, Q, Q, Q
@@ -202,11 +202,11 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
             | Q1   * | *   Q0 |
             |   *    |    *   |
             |  *     |     *  |
-            +--------o--------+ 
-            |  *     |     *  |  
+            +--------o--------+
+            |  *     |     *  |
             |   *    |    *   |
-            | Q2  *  | *   Q3 | 
-            +--------+--------+                 
+            | Q2  *  | *   Q3 |
+            +--------+--------+
 
     original_image_shape: tuple
        (rows, cols)
@@ -219,7 +219,7 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
 
     symmetry_axis : int or tuple
        impose image symmetry
-       
+
            ``symmetry_axis = 0 (vertical)   - Q0 == Q1 and Q3 == Q2``
            ``symmetry_axis = 1 (horizontal) - Q2 == Q1 and Q3 == Q0``
 
@@ -228,7 +228,7 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
     -------
     IM : np.array
         Reassembled image of shape (rows, cols): ::
-        
+
             symmetry_axis =
 
              None             0              1           (0,1)
@@ -269,23 +269,3 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
     IM = np.concatenate((Top, Bottom), axis=0)
 
     return IM
-
-def reflect_array(x, axis=1, kind='even'):
-    """		
-    Make a symmetrically reflected array with respect to the given axis		
-    """		
-    if axis == 0:		
-        x_sym = np.flipud(x)		
-    elif axis == 1:		
-        x_sym = np.fliplr(x)		
-    else:		
-        raise NotImplementedError		
-    	
-    if kind == 'even':		
-        fact = 1.0		
-    elif kind == 'odd':		
-        fact = -1.0		
-    else:		
-        raise NotImplementedError		
-    	
-    return np.concatenate((fact*x_sym, x), axis=axis)
