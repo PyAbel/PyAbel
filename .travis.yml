@@ -9,16 +9,8 @@ matrix:
   - python: '2.7'
     env: DEPS="numpy scipy nose cython"
 install:
-- wget http://repo.continuum.io/miniconda/Miniconda${TRAVIS_PYTHON_VERSION:0:1}-latest-Linux-x86_64.sh
-  -O miniconda.sh
-- chmod +x miniconda.sh
-- ./miniconda.sh -b
-- export PATH=/home/travis/miniconda${TRAVIS_PYTHON_VERSION:0:1}/bin:$PATH
-- conda update --yes --no-deps conda
-- conda config --set always_yes yes --set changeps1 no
-- conda update --yes conda
-- conda install --yes -c conda conda-env
-- conda install --yes $DEPS pip python=${TRAVIS_PYTHON_VERSION}
+- pip install --upgrade pip setuptools wheel
+- pip install --only-binary=numpy,scipy numpy scipy
 - pip install coveralls
 - python setup.py install
 script:
