@@ -11,7 +11,7 @@ import numpy as np
 # 20-Nov-2015 Dhrubajyoti Das - python gist
 #             https://github.com/PyAbel/PyAbel/issues/19#issuecomment-158244527
 #
-# Note: call these functions via:
+# Note: call these functions via the class method:
 #   func = abel.tools.analytical.TransformPair(n, profile=#)
 #   see abel/tools/analytical.py for Class attributes
 # 
