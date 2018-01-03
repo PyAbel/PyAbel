@@ -14,9 +14,8 @@ import numpy as np
 # Note: call these functions via:
 #   func = abel.tools.analytical.TransformPair(n, profile=#)
 #   see abel/tools/analytical.py for Class attributes
-# otherwise  0 < r < 1
+# 
 ##############################################################################
-
 
 def a(n, x):
     return np.sqrt(n*n - x*x)

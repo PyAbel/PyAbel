@@ -216,12 +216,16 @@ class TransformPair(BaseAnalytical):
             do:10.1016/j.sab.2005.11.009
 
             profile8:
-            curve B Hansen and Law JOSA 2, 510 (1985) doi:10.1364/JOSAA.2.000510
+            curve B Hansen and Law JOSA 2, 510 (1985)
+            doi:10.1364/JOSAA.2.000510
 
-       Parameters
+        Parameters
         ----------
         n : int
             number of points along the r axis
+
+        profile: int
+            the profile number 1-8, see 'abel/tools/transform_pairs.py'
 
         Attributes
         ----------
@@ -248,9 +252,10 @@ class TransformPair(BaseAnalytical):
 
         super(TransformPair, self).__init__(n, r_max=1, symmetric=False)
 
-        # BaseAnalytical creates self.r = 0, 1
-        # prevent divide by zero and NaN for r = 0, 1, slightly offset these values
-        r = self.r
+        # BaseAnalytical creates self.r = [0, 1]
+        # prevent divide by zero and NaN for r = 0, or 1, 
+        # slightly offset these values
+        r = self.r.copy()
         r[0] = 1.0e-8
         r[-1] -= 1.0e-8
 
