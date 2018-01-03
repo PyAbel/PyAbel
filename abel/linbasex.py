@@ -238,7 +238,8 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
 
     radial = np.linspace(clip, cols//2, len(Beta[0]))
 
-    return inv_IM*2/cols, radial, Beta, QLz
+    # Fix Me! Issue #202 the correct scaling factor for inv_IM intensity?
+    return inv_IM, radial, Beta, QLz
 
 linbasex_transform_full.__doc__ = _linbasex_parameter_docstring
 
