@@ -104,8 +104,8 @@ profile1.__doc__ = _transform_pairs_docstring.replace(
     "`Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13) <https://doi.org/10.1364/AO.5.001057>`_"+'\n'
     " :math:`\epsilon(r) = 0.75 + 12r^2 -32r^3  \,\,\,0 \le r \le 0.25`"+'\n'
     " :math:`\epsilon(r) = \\frac{16}{27}(1 + 6r -15r^2 +8r^3) \,\,\,0.25 \lt r \le 1`"+'\n\n'
-    " :math:`I(r) = \\frac{1}{108}(128a_1 +a_{0.25}) + \\frac{2}{27}r^2(283a_{0.25} - 112a_1) + \\frac{8}{9}r^2\left[4(1+r^)\log(\\frac{1+a_1}{r}) -(4+31r^2)\log(\\frac{0.25+a_{0.25}}{r})\\right] (0 \le r \le 0.25)`"+'\n'
-    " :math:`I(r) = \\frac{32}{27}\left[a_1 - 7a_1 r + 3r^2(1+r^2)\log(\\frac{1+a_1}{r})\\right]`"+'\n'
+    " :math:`I(r) = \\frac{1}{108}(128a_1 +a_{0.25}) + \\frac{2}{27}r^2(283a_{0.25} - 112a_1) + \\frac{8}{9}r^2\left[4(1+r^)\ln(\\frac{1+a_1}{r}) -(4+31r^2)\ln(\\frac{0.25+a_{0.25}}{r})\\right] \,\,\,0 \le r \le 0.25`"+'\n'
+    " :math:`I(r) = \\frac{32}{27}\left[a_1 - 7a_1 r + 3r^2(1+r^2)\ln(\\frac{1+a_1}{r})\\right] \,\,\,0.25 \lt r \le 1`"+'\n'
     " ::"+'\n\n'
     "                       profile1\n"
     "              source                projection\n"
@@ -140,8 +140,11 @@ def profile2(r):
 
 profile2.__doc__ = _transform_pairs_docstring.replace(
     "(specific_profile_doc_info)",
-    "profile2:\n"
-    "Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13). ::\n\n"
+    "**profile2**:\n"
+    "`Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13) <https://doi.org/10.1364/AO.5.001057>`_"+'\n'
+    " :math:`\epsilon(r) = 1 - 3r^2 + 2r^3 \,\,\, 0 \le r \le 1`"+'\n\n'
+    " :math:`I(r) = a_1\left(1-\\frac{5}{2}r^2\\right) + \\frac{3}{2}r^4\ln(\\frac{1+a_1}{r}) \,\,\,0 \le r \le 1`"+'\n'
+    " :: \n"
     "                       profile2\n"
     "              source                projection\n"
     "          │                      │                 \n"
@@ -280,8 +283,11 @@ def profile5(r):
 
 profile5.__doc__ = _transform_pairs_docstring.replace(
     "(specific_profile_doc_info)",
-    "profile5:\n"
-    "Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996). ::\n\n"
+    "**profile5**:\n"
+    "`Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_" + '\n'
+    ":math:`\epsilon(r) = 1 \,\,\, 0 \le r \le 1`" + '\n'
+    ":math:`I(r) = 2a_1 \,\,\, 0 \le r \le 1`" + '\n'
+    " ::"+'\n\n'
     "                       profile5\n"
     "              source                projection\n"
     "          │                      o oo              \n"
@@ -383,8 +389,10 @@ def profile8(r):
 
 profile8.__doc__ = _transform_pairs_docstring.replace(
     "(specific_profile_doc_info)",
-    "profile8:\n"
-    "Curve B table 2 of Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985). ::\n\n"
+    "**profile8**:\n"
+    "Curve B table 2 of "
+    "`Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985) <http://doi:10.1364/JOSAA.2.000510>`_"+'\n\n'
+    " ::"+'\n\n'
     "                       profile8\n"
     "              source                projection\n"
     "          │                      │                 \n"
