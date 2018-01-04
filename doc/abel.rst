@@ -111,6 +111,14 @@ abel.tools.polar module
     :undoc-members:
     :show-inheritance:
 
+abel.tools.transform_pairs module
+----------------------------------
+
+.. automodule:: abel.tools.transform_pairs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 abel.tools.symmetry module
 --------------------------
 
