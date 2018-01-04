@@ -253,7 +253,7 @@ class TransformPair(BaseAnalytical):
         super(TransformPair, self).__init__(n, r_max=1, symmetric=False)
 
         # BaseAnalytical creates self.r = linspace(0, 1, n)
-        # prevent divide by zero and NaN for r = 0, or 1, 
+        # prevent divide by zero and NaN for r = 0, or 1,
         # slightly offset these values
         r = self.r.copy()
         r[0] = 1.0e-8
