@@ -196,7 +196,7 @@ def profile3(r):
 
         \epsilon(r) &= 2(1-r^2)^2 & 0.5 \lt r \le 1
 
-        I(r) &= \\frac{4a_1}{3}(1+2r^3)-\\frac{2 a_{0.5}}{3}(1+8r^2) -
+        I(r) &= \\frac{4a_1}{3}(1+2r^2)-\\frac{2 a_{0.5}}{3}(1+8r^2) -
                 4r^2\ln\\frac{1-a_1}{0.5+a_{0.5}} & 0 \le r \le 0.5
 
         I(r) &= \\frac{4a_1}{3}(1+2r^2)-4r^2\ln\\frac{1-a_1}{r} & 
@@ -253,9 +253,7 @@ def profile3(r):
 
 
 def profile4(r):
-    """**profile4**:
-    `Alvarez, Rodero, Quintero Spectochim. Acta B 57, 1665-1680 (2002)
-    <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
+    """**profile4**: `Alvarez, Rodero, Quintero Spectochim. Acta B 57, 1665-1680 (2002) <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
 
     WARNING: function pair incorrect due to typo errors in Table 1.
 
@@ -327,9 +325,7 @@ def profile4(r):
 
 
 def profile5(r):
-    """**profile5**:
-    `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996)
-    <https://doi.org/10.1016/j.amc.2014.03.043>`_
+    """**profile5**: `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_
 
      .. math::
 
@@ -369,9 +365,7 @@ def profile5(r):
 
 
 def profile6(r):
-    """**profile6**:
-    `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996)
-    <https://doi.org/10.1016/j.amc.2014.03.043>`_
+    """**profile6**: `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_
 
      .. math::
 
