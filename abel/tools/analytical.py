@@ -252,7 +252,7 @@ class TransformPair(BaseAnalytical):
 
         super(TransformPair, self).__init__(n, r_max=1, symmetric=False)
 
-        # BaseAnalytical creates self.r = [0, 1]
+        # BaseAnalytical creates self.r = linspace(0, 1, n)
         # prevent divide by zero and NaN for r = 0, or 1, 
         # slightly offset these values
         r = self.r.copy()
@@ -265,8 +265,8 @@ class TransformPair(BaseAnalytical):
 
         self.label = 'profile{}'.format(profile)
 
-        profile = getattr(abel.tools.transform_pairs, self.label)
-        self.func, self.abel = profile(r)
+        self.profile = getattr(abel.tools.transform_pairs, self.label)
+        self.func, self.abel = self.profile(r)
 
         # function values to use for testing
         self.mask_valid = np.ones_like(self.func)
