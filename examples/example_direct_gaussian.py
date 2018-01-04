@@ -23,14 +23,14 @@ fig, ax = plt.subplots(1,2)
 
 # forward Abel transform
 reconC = direct_transform(ref.func, dr=ref.dr, direction="forward",
-                          correction=True, backend='C')
+                          correction=True)
 reconP = direct_transform(ref.func, dr=ref.dr, direction="forward",
-                          correction=True, backend='Python')
+                          correction=False)
 
 ax[0].set_title('Forward transform of a Gaussian', fontsize='smaller')
 ax[0].plot(ref.r, ref.abel, label='Analytical transform')
-ax[0].plot(ref.r, reconC , '--', label='direct-C')
-ax[0].plot(ref.r, reconP , ':', label='direct-python')
+ax[0].plot(ref.r, reconC , '--', label='correction=True')
+ax[0].plot(ref.r, reconP , ':', label='correction=False')
 ax[0].set_ylabel('intensity (arb. units)')
 ax[0].set_xlabel('radius')
 
