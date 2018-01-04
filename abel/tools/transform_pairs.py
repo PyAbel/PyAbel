@@ -11,14 +11,14 @@ import numpy as np
 # 20-Nov-2015 Dhrubajyoti Das - python gist
 #             https://github.com/PyAbel/PyAbel/issues/19#issuecomment-158244527
 #
-# Note: call these functions via the class method:
-#   func = abel.tools.analytical.TransformPair(n, profile=#)
+# Note: preferable to call these functions via the class method:
+#        func = abel.tools.analytical.TransformPair(n, profile=#)
 #   see abel/tools/analytical.py for Class attributes
 #
 ##############################################################################
 
 _transform_pairs_docstring = \
- r"""Analytical function Abel transform pairs
+r"""Analytical function Abel transform pairs
 
     profiles 1-7, table 1 of:
      `G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31-41 (2006)
@@ -40,7 +40,6 @@ _transform_pairs_docstring = \
           ``.func`` (source), ``.abel`` (projection), ``.r`` (radial range),
           ``.dr`` (step), ``.label`` (the profile name)
 
-    (specific_profile_doc_info)
 
     Parameters
     ----------
@@ -53,14 +52,57 @@ _transform_pairs_docstring = \
         source function profile (inverse Abel transform of projection),
         projection functon profile (forward Abel transform of source)
 
- """
+"""
 
 
-def a(n, x):
-    return np.sqrt(n*n - x*x)
+def a(n, r):
+    """ coefficient
+
+        .. math:: a_n = \sqrt{n^2 - r^2}
+
+    """
+
+    return np.sqrt(n*n - r*r)
 
 
 def profile1(r):
+    """**profile1**:
+    `Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
+    <https://doi.org/10.1364/AO.5.001057>`_
+
+     .. math::
+
+          \epsilon(r) &= 0.75 + 12r^2 -32r^3  & 0 \le r \le 0.25
+
+          \epsilon(r) &= \\frac{16}{27}(1 + 6r -15r^2 +8r^3) & 0.25 \lt r \le 1
+
+          I(r) &= \\frac{1}{108}(128a_1 +a_{0.25}) + \\frac{2}{27}r^2
+                    (283a_{0.25} - 112a_1) + 
+
+          & \,\,\,\, \\frac{8}{9}r^2\left[4(1+r^2)\ln\\frac{1+a_1}{r} -
+            (4+31r^2)\ln\\frac{0.25+a_{0.25}}{r}\\right] &  0 \le r \le 0.25
+
+          I(r) &= \\frac{32}{27}\left[a_1 - 7a_1 r + 3r^2(1+r^2)
+                  \ln\\frac{1+a_1}{r}\\right]  & 0.25 \lt r \le 1
+
+     ::
+
+                           profile1
+                  source                projection
+              │                      │ o               
+              │                      o  o              
+              │    x                 │    o            
+              │  x  x                │     o           
+              │ x                    │                 
+              x       x              │       o         
+              │        x             │                 
+              │                      │        o        
+              │         x            │                 
+              │                      │         o       
+            ──┼───────────x─────   ──┼───────────o─────
+              │                      │                 
+
+    """
 
     if np.any(r <= 0) or np.any(r > 1):
         raise ValueError('r must be 0 < r <= 1')
@@ -98,33 +140,37 @@ def profile1(r):
 
     return source, proj
 
-profile1.__doc__ = _transform_pairs_docstring.replace(
-    "(specific_profile_doc_info)",
-    "**profile1**:\n"
-    "`Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13) <https://doi.org/10.1364/AO.5.001057>`_"+'\n'
-    " :math:`\epsilon(r) = 0.75 + 12r^2 -32r^3  \,\,\,0 \le r \le 0.25`"+'\n'
-    " :math:`\epsilon(r) = \\frac{16}{27}(1 + 6r -15r^2 +8r^3) \,\,\,0.25 \lt r \le 1`"+'\n\n'
-    " :math:`I(r) = \\frac{1}{108}(128a_1 +a_{0.25}) + \\frac{2}{27}r^2(283a_{0.25} - 112a_1) + \\frac{8}{9}r^2\left[4(1+r^)\ln(\\frac{1+a_1}{r}) -(4+31r^2)\ln(\\frac{0.25+a_{0.25}}{r})\\right] \,\,\,0 \le r \le 0.25`"+'\n'
-    " :math:`I(r) = \\frac{32}{27}\left[a_1 - 7a_1 r + 3r^2(1+r^2)\ln(\\frac{1+a_1}{r})\\right] \,\,\,0.25 \lt r \le 1`"+'\n'
-    " ::"+'\n\n'
-    "                       profile1\n"
-    "              source                projection\n"
-    "          │                      │ o               \n"
-    "          │                      o  o              \n"
-    "          │    x                 │    o            \n"
-    "          │  x  x                │     o           \n"
-    "          │ x                    │                 \n"
-    "          x       x              │       o         \n"
-    "          │        x             │                 \n"
-    "          │                      │        o        \n"
-    "          │         x            │                 \n"
-    "          │                      │         o       \n"
-    "        ──┼───────────x─────   ──┼───────────o─────\n"
-    "          │                      │                 \n"
-    "\n")
-
 
 def profile2(r):
+    """**profile2**:
+    `Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
+    <https://doi.org/10.1364/AO.5.001057>`_
+
+     .. math::
+  
+       \epsilon(r) &= 1 - 3r^2 + 2r^3 & 0 \le r \le 1
+ 
+       I(r) &= a_1\left(1-\\frac{5}{2}r^2\\right) + 
+               \\frac{3}{2}r^4\ln\\frac{1+a_1}{r} & 0 \le r \le 1
+
+     ::
+
+                           profile2
+                  source                projection
+              │                      │                 
+              x x                    o o               
+              │  x                   │  o              
+              │    x                 │    o            
+              │     x                │                 
+              │                      │     o           
+              │       x              │                 
+              │                      │       o         
+              │        x             │        o        
+              │         x            │                 
+            ──┼───────────x─────   ──┼─────────o───────
+              │                      │                 
+
+    """
 
     if np.any(r < 0) or np.any(r > 1):
         raise ValueError('r must be 0 <= r <= 1')
@@ -138,31 +184,43 @@ def profile2(r):
 
     return source, proj
 
-profile2.__doc__ = _transform_pairs_docstring.replace(
-    "(specific_profile_doc_info)",
-    "**profile2**:\n"
-    "`Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13) <https://doi.org/10.1364/AO.5.001057>`_"+'\n'
-    " :math:`\epsilon(r) = 1 - 3r^2 + 2r^3 \,\,\, 0 \le r \le 1`"+'\n\n'
-    " :math:`I(r) = a_1\left(1-\\frac{5}{2}r^2\\right) + \\frac{3}{2}r^4\ln(\\frac{1+a_1}{r}) \,\,\,0 \le r \le 1`"+'\n'
-    " :: \n"
-    "                       profile2\n"
-    "              source                projection\n"
-    "          │                      │                 \n"
-    "          x x                    o o               \n"
-    "          │  x                   │  o              \n"
-    "          │    x                 │    o            \n"
-    "          │     x                │                 \n"
-    "          │                      │     o           \n"
-    "          │       x              │                 \n"
-    "          │                      │       o         \n"
-    "          │        x             │        o        \n"
-    "          │         x            │                 \n"
-    "        ──┼───────────x─────   ──┼─────────o───────\n"
-    "          │                      │                 \n"
-    "\n")
-
 
 def profile3(r):
+    """**profile3**:
+    `Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
+    <https://doi.org/10.1364/AO.5.001057>`_
+
+     .. math::
+
+        \epsilon(r) &= 1-2r^2  & 0 \le r \le 0.5
+
+        \epsilon(r) &= 2(1-r^2)^2 & 0.5 \lt r \le 1
+
+        I(r) &= \\frac{4a_1}{3}(1+2r^3)-\\frac{2 a_{0.5}}{3}(1+8r^2) -
+                4r^2\ln\\frac{1-a_1}{0.5+a_{0.5}} & 0 \le r \le 0.5
+
+        I(r) &= \\frac{4a_1}{3}(1+2r^2)-4r^2\ln\\frac{1-a_1}{r} & 
+                0.5 \lt r \le 1
+
+
+     ::
+
+                           profile3
+                  source                projection
+              │                      │                 
+              x xx                   o o               
+              │                      │  o              
+              │    x                 │    o            
+              │     x                │                 
+              │                      │     o           
+              │       x              │                 
+              │                      │       o         
+              │        x             │                 
+              │                      │        o        
+            ──┼─────────x───────   ──┼─────────o───────
+              │                      │                 
+
+    """
 
     if np.any(r < 0) or np.any(r > 1):
         raise ValueError('r must be 0 <= r <= 1')
@@ -193,28 +251,49 @@ def profile3(r):
 
     return source, proj
 
-profile3.__doc__ = _transform_pairs_docstring.replace(
-    "(specific_profile_doc_info)",
-    "profile3:\n"
-    "Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13). ::\n\n"
-    "                       profile3\n"
-    "              source                projection\n"
-    "          │                      │                 \n"
-    "          x xx                   o o               \n"
-    "          │                      │  o              \n"
-    "          │    x                 │    o            \n"
-    "          │     x                │                 \n"
-    "          │                      │     o           \n"
-    "          │       x              │                 \n"
-    "          │                      │       o         \n"
-    "          │        x             │                 \n"
-    "          │                      │        o        \n"
-    "        ──┼─────────x───────   ──┼─────────o───────\n"
-    "          │                      │                 \n"
-    "\n")
-
 
 def profile4(r):
+    """**profile4**:
+    `Alvarez, Rodero, Quintero Spectochim. Acta B 57, 1665-1680 (2002)
+    <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
+
+    WARNING: function pair incorrect due to typo errors in Table 1.
+
+     .. math::
+
+         \epsilon(r) &= 0.1 + 5.5r^2 - 5.25r^3 & 0 \le r \le 0.7
+
+         \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3 & 0.7 \lt r \le1
+
+         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (217.557a_{0.7} - 
+                 193.30083a_1)r^2 + 
+
+           & \,\,\, 155.56r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} + 
+             r^4\left(55.5525\ln\\frac{1 + a_1}{r} - 59.49\ln\\frac{0.7 + 
+             a_{0.7}}{r}\\right)  & 0 \le r \le 0.7
+
+         I(r) &= -14.811667a_1 - 193.0083a_1 r^2 + r^2(155.56 + 55.5525r^2)
+                 \ln\\frac{1 + a_1}{r} & 0.7 \lt r \le 1
+
+
+ ::
+
+                           profile4
+                  source                projection
+              │                      │        oo       
+              │                      │       o         
+              │                      │     o     o     
+              │                      │    o            
+              │                      │            o    
+              │                      │ oo              
+              │        xx            o                 
+              │       x   x          │                 
+              │     x                │                 
+              │    x                 │                 
+            ──┼──x─────────x────   ──┼─────────────────
+              │                      │                 
+
+    """
 
     if np.any(r <= 0) or np.any(r > 1):
         raise ValueError('r must be 0 < r <= 1')
@@ -246,29 +325,36 @@ def profile4(r):
 
     return source, proj
 
-profile4.__doc__ = _transform_pairs_docstring.replace(
-    "(specific_profile_doc_info)",
-    "profile4:\n"
-    "Alvarez, Rodero, Quintero Spectochim. Acta B 57, 1665-1680 (2002)\n"
-    "WARNING: function pair incorrect due to typo errors in Table 1. ::\n\n"
-    "                       profile4\n"
-    "              source                projection\n"
-    "          │                      │        oo       \n"
-    "          │                      │       o         \n"
-    "          │                      │     o     o     \n"
-    "          │                      │    o            \n"
-    "          │                      │            o    \n"
-    "          │                      │ oo              \n"
-    "          │        xx            o                 \n"
-    "          │       x   x          │                 \n"
-    "          │     x                │                 \n"
-    "          │    x                 │                 \n"
-    "        ──┼──x─────────x────   ──┼─────────────────\n"
-    "          │                      │                 \n"
-    "\n")
-
 
 def profile5(r):
+    """**profile5**:
+    `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996)
+    <https://doi.org/10.1016/j.amc.2014.03.043>`_
+
+     .. math::
+
+      \epsilon(r) &= 1 & 0 \le r \le 1
+
+      I(r) &= 2a_1 & 0 \le r \le 1
+
+ ::
+
+                           profile5
+                  source                projection
+              │                      o oo              
+              │                      │    oo           
+              │                      │       oo        
+              │                      │         o       
+              │                      │                 
+              │                      │           o     
+              x xx xx xxx xx x       │                 
+              │                      │            o    
+              │                      │                 
+              │                      │                 
+            ──┼─────────────────   ──┼─────────────────
+              │                      │                 
+
+    """
 
     if np.any(r < 0) or np.any(r > 1):
         raise ValueError('r must be 0 <= r <= 1')
@@ -281,31 +367,38 @@ def profile5(r):
 
     return source, proj
 
-profile5.__doc__ = _transform_pairs_docstring.replace(
-    "(specific_profile_doc_info)",
-    "**profile5**:\n"
-    "`Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_" + '\n'
-    ":math:`\epsilon(r) = 1 \,\,\, 0 \le r \le 1`" + '\n'
-    ":math:`I(r) = 2a_1 \,\,\, 0 \le r \le 1`" + '\n'
-    " ::"+'\n\n'
-    "                       profile5\n"
-    "              source                projection\n"
-    "          │                      o oo              \n"
-    "          │                      │    oo           \n"
-    "          │                      │       oo        \n"
-    "          │                      │         o       \n"
-    "          │                      │                 \n"
-    "          │                      │           o     \n"
-    "          x xx xx xxx xx x       │                 \n"
-    "          │                      │            o    \n"
-    "          │                      │                 \n"
-    "          │                      │                 \n"
-    "        ──┼─────────────────   ──┼─────────────────\n"
-    "          │                      │                 \n"
-    "\n")
-
 
 def profile6(r):
+    """**profile6**:
+    `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996)
+    <https://doi.org/10.1016/j.amc.2014.03.043>`_
+
+     .. math::
+
+         \epsilon(r) &= (1-r^2)^{-\\frac{3}{2}} \exp\left[1.1^2\left(
+                         1 - \\frac{1}{1-r^2}\\right)\\right] & 0 \le r \le 1
+
+         I(r) &= \\frac{\sqrt{\pi}}{1.1a_1} \exp\left[1.1^2\left(
+                         1 - \\frac{1}{1-r^2}\\right)\\right] & 0 \le r \le 1
+
+ ::
+
+                           profile6
+                  source                projection
+              │                      │                 
+              │                      o oo              
+              │                      │    oo           
+              │                      │       o         
+              │                      │                 
+              x xx xx xx             │        o        
+              │         x            │                 
+              │                      │         o       
+              │           x          │                 
+              │                      │           o     
+            ──┼─────────────────   ──┼─────────────────
+              │                      │                 
+
+    """
 
     if np.any(r < 0) or np.any(r > 1):
         raise ValueError('r must be 0 <= r <= 1')
@@ -318,28 +411,38 @@ def profile6(r):
 
     return source, proj
 
-profile6.__doc__ = _transform_pairs_docstring.replace(
-    "(specific_profile_doc_info)",
-    "profile6:\n"
-    "Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996). ::\n\n"
-    "                       profile6\n"
-    "              source                projection\n"
-    "          │                      │                 \n"
-    "          │                      o oo              \n"
-    "          │                      │    oo           \n"
-    "          │                      │       o         \n"
-    "          │                      │                 \n"
-    "          x xx xx xx             │        o        \n"
-    "          │         x            │                 \n"
-    "          │                      │         o       \n"
-    "          │           x          │                 \n"
-    "          │                      │           o     \n"
-    "        ──┼─────────────────   ──┼─────────────────\n"
-    "          │                      │                 \n"
-    "\n")
-
 
 def profile7(r):
+    """**profile7**:
+    `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996)
+    <https://doi.org/10.1016/j.amc.2014.03.043>`_
+
+     .. math::
+
+       \epsilon(r) &= \\frac{1}{2}(1+10r^2-23r^4+12r^6) & 0 \le r \le 1
+
+       I(r) &= \\frac{8}{105}a_1(19 + 34r^2 - 125r^4 + 72r^6) & 0 \le r \le 1
+
+     ::
+
+
+                           profile7
+                  source                projection
+              │                      │                 
+              │                      o oo oo           
+              │                      │       o         
+              │                      │                 
+              │     x xx             │        o        
+              │    x    x            │                 
+              │                      │         o       
+              │  x                   │                 
+              x x         x          │                 
+              │                      │           o     
+            ──┼────────────x────   ──┼─────────────────
+              │                      │                 
+
+    """
+
 
     if np.any(r < 0) or np.any(r > 1):
         raise ValueError('r must be 0 <= r <= 1')
@@ -352,28 +455,38 @@ def profile7(r):
 
     return source, proj
 
-profile7.__doc__ = _transform_pairs_docstring.replace(
-    "(specific_profile_doc_info)",
-    "profile7:\n"
-    "Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996). ::\n\n"
-    "                       profile7\n"
-    "              source                projection\n"
-    "          │                      │                 \n"
-    "          │                      o oo oo           \n"
-    "          │                      │       o         \n"
-    "          │                      │                 \n"
-    "          │     x xx             │        o        \n"
-    "          │    x    x            │                 \n"
-    "          │                      │         o       \n"
-    "          │  x                   │                 \n"
-    "          x x         x          │                 \n"
-    "          │                      │           o     \n"
-    "        ──┼────────────x────   ──┼─────────────────\n"
-    "          │                      │                 \n"
-    "\n")
-
 
 def profile8(r):
+    """**profile8**:
+    Curve B table 2 of `Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985)
+    <http://doi:10.1364/JOSAA.2.000510>`_
+
+     .. math::
+
+        \epsilon(r) &= (1-r^2)^{-\\frac{3}{2}}
+                        \exp\left[\\frac{(1.1r)^2}{r^2-1}\\right]
+
+        I(r) &= \\frac{\pi^\\frac{1}{2}}{1.1}(1-r^2)^{-\\frac{1}{2}}
+                 \exp\left[\\frac{(1.1r)^2}{r^2-1}\\right]
+
+    ::
+
+                           profile8
+                  source                projection
+              │                      │                 
+              │                      o oo              
+              │                      │    oo           
+              │                      │       o         
+              │                      │                 
+              x xx xx xx             │        o        
+              │         x            │                 
+              │                      │         o       
+              │           x          │                 
+              │                      │           o     
+            ──┼─────────────────   ──┼─────────────────
+              │                      │                 
+
+    """
 
     if np.any(r < 0) or np.any(r > 1):
         raise ValueError('r must be 0 <= r <= 1')
@@ -387,24 +500,3 @@ def profile8(r):
 
     return source, proj
 
-profile8.__doc__ = _transform_pairs_docstring.replace(
-    "(specific_profile_doc_info)",
-    "**profile8**:\n"
-    "Curve B table 2 of "
-    "`Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985) <http://doi:10.1364/JOSAA.2.000510>`_"+'\n\n'
-    " ::"+'\n\n'
-    "                       profile8\n"
-    "              source                projection\n"
-    "          │                      │                 \n"
-    "          │                      o oo              \n"
-    "          │                      │    oo           \n"
-    "          │                      │       o         \n"
-    "          │                      │                 \n"
-    "          x xx xx xx             │        o        \n"
-    "          │         x            │                 \n"
-    "          │                      │         o       \n"
-    "          │           x          │                 \n"
-    "          │                      │           o     \n"
-    "        ──┼─────────────────   ──┼─────────────────\n"
-    "          │                      │                 \n"
-    "\n")

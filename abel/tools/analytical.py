@@ -209,16 +209,43 @@ class GaussianAnalytical(BaseAnalytical):
 
 
 class TransformPair(BaseAnalytical):
+    """**Abel transform pair analytical functions**.
+
+    **profiles1-7**: Table 1 of 
+    `Chan and Hieftje Spectrochimica Acta B 61, 31-41 (2006)
+    <http://doi:10.1016/j.sab.2005.11.009>`_
+
+    **profile8**: curve B `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
+    <http://doi:10.1364/JOSAA.2.000510>`_
+
+
+    Returns
+    -------
+    r : numpy array
+        vector of positions along the r axis: `linspace(0, 1, n)`
+
+    dr : float
+        radial interval
+
+    func : numpy array
+        values of the original function (same shape as r)
+
+    abel : numoy array
+        values of the Abel transform (same shape as func)
+
+    label : str
+        name of the curve
+
+    mask_valid : boolean array
+        set all True. Used for unit tests
+
+
+    """
+
 
     def __init__(self, n, profile=5):
-        """ Analytical Abel transform pairs: profile1, ..., profile7.
-            Table 1 of Chan and Hieftje Spectrochimica Acta B 61, 31-41 (2006)
-            do:10.1016/j.sab.2005.11.009
-
-            profile8:
-            curve B Hansen and Law JOSA 2, 510 (1985)
-            doi:10.1364/JOSAA.2.000510
-
+        """Create Abel transform pair for profile `n`.
+    
         Parameters
         ----------
         n : int
@@ -226,27 +253,6 @@ class TransformPair(BaseAnalytical):
 
         profile: int
             the profile number 1-8, see 'abel/tools/transform_pairs.py'
-
-        Attributes
-        ----------
-            r : numpy array
-                vector of positions along the r axis: linspace(0, 1, n)
-
-            dr : float
-                radial interval
-
-            func : numpy array
-                values of the original function (same shape as r)
-
-            abel : numoy array
-                values of the Abel transform (same shape as func)
-
-            label : str
-                name of the curve
-
-            mask_valid : boolean array
-                set all True. Used for unit tests
-
 
         """
 

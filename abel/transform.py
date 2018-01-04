@@ -27,20 +27,25 @@ class Transform(object):
 
     The following class attributes are available, depending on the calculation.
   
-    Attributes
-    ----------
+    Returns
+    -------
     transform : numpy 2D array 
         the 2D forward/reverse Abel transform.
+
     angular_integration : tuple
         (radial-grid, radial-intensity)
         radial coordinates, and the radial intensity (speed) distribution,
         evaluated using :func:`abel.tools.vmi.angular_integration()`.
+
     residual : numpy 2D array
         residual image (not currently implemented).
+
     IM: numpy 2D array
         the input image, re-centered (optional) with an odd-size width.
+
     method : str
         transform method, as specified by the input option.
+
     direction : str
         transform direction, as specified by the input option.
 
@@ -61,6 +66,7 @@ class Transform(object):
     projection : 
         with ``linbasex`` :func:`transform_options=dict(return_Beta=True)`
         radial projection profiles at angles `proj_angles`
+
     """
 
     _verbose = False
