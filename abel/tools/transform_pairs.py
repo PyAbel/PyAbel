@@ -77,7 +77,7 @@ def profile1(r):
           \epsilon(r) &= \\frac{16}{27}(1 + 6r -15r^2 +8r^3) & 0.25 \lt r \le 1
 
           I(r) &= \\frac{1}{108}(128a_1 +a_{0.25}) + \\frac{2}{27}r^2
-                    (283a_{0.25} - 112a_1) + 
+                    (283a_{0.25} - 112a_1) +
 
           & \,\,\,\, \\frac{8}{9}r^2\left[4(1+r^2)\ln\\frac{1+a_1}{r} -
             (4+31r^2)\ln\\frac{0.25+a_{0.25}}{r}\\right] &  0 \le r \le 0.25
@@ -147,9 +147,9 @@ def profile2(r):
     <https://doi.org/10.1364/AO.5.001057>`_
 
      .. math::
-  
+
        \epsilon(r) &= 1 - 3r^2 + 2r^3 & 0 \le r \le 1
- 
+
        I(r) &= a_1\left(1-\\frac{5}{2}r^2\\right) + 
                \\frac{3}{2}r^4\ln\\frac{1+a_1}{r} & 0 \le r \le 1
 
@@ -263,7 +263,7 @@ def profile4(r):
 
          \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3 & 0.7 \lt r \le1
 
-         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (217.557a_{0.7} - 
+         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (217.557a_{0.7} -
                  193.30083a_1)r^2 + 
 
            & \,\,\, 155.56r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} + 
@@ -437,7 +437,6 @@ def profile7(r):
 
     """
 
-
     if np.any(r < 0) or np.any(r > 1):
         raise ValueError('r must be 0 <= r <= 1')
 
@@ -490,7 +489,6 @@ def profile8(r):
 
     source = np.power(1-r**2, -3/2)*np.exp((1.1*r)**2/(r**2 - 1))
     proj = np.sqrt(np.pi)*np.power(1 - r**2, -1/2)*np.exp((1.1*r)**2\
-           / (r**2 - 1))/1.1
+                                                   / (r**2 - 1))/1.1
 
     return source, proj
-

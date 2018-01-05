@@ -211,7 +211,7 @@ class GaussianAnalytical(BaseAnalytical):
 class TransformPair(BaseAnalytical):
     """**Abel transform pair analytical functions**.
 
-    **profiles1-7**: Table 1 of 
+    **profiles1-7**: Table 1 of
     `Chan and Hieftje Spectrochimica Acta B 61, 31-41 (2006)
     <http://doi:10.1016/j.sab.2005.11.009>`_
 
@@ -230,7 +230,7 @@ class TransformPair(BaseAnalytical):
     func : numpy array
         values of the original function (same shape as r)
 
-    abel : numoy array
+    abel : numpy array
         values of the Abel transform (same shape as func)
 
     label : str
@@ -239,13 +239,11 @@ class TransformPair(BaseAnalytical):
     mask_valid : boolean array
         set all True. Used for unit tests
 
-
     """
-
 
     def __init__(self, n, profile=5):
         """Create Abel transform pair for profile `n`.
-    
+
         Parameters
         ----------
         n : int
