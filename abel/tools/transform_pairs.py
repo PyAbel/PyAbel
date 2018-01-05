@@ -87,20 +87,20 @@ def profile1(r):
 
      ::
 
-                           profile1
-                  source                projection
-              │                      │ o               
-              │                      o  o              
-              │    x                 │    o            
-              │  x  x                │     o           
-              │ x                    │                 
-              x       x              │       o         
-              │        x             │                 
-              │                      │        o        
-              │         x            │                 
-              │                      │         o       
-            ──┼───────────x─────   ──┼───────────o─────
-              │                      │                 
+                          profile1
+                 source                projection
+           ┼+1.3                  ┼+1.3               
+           │                      o   o               
+           │     x                │     o             
+           │   x   x              │       o           
+           │ x                    │                   
+           x         x            │         o         
+           │           x          │                   
+           │                      │           o       
+           │             x        │                   
+           │                      │             o     
+           ┼+0─────────────x──┼   ┼+0─────────────o──┼
+           0          r      +1   0          r      +1
 
     """
 
@@ -155,20 +155,20 @@ def profile2(r):
 
      ::
 
-                           profile2
-                  source                projection
-              │                      │                 
-              x x                    o o               
-              │  x                   │  o              
-              │    x                 │    o            
-              │     x                │                 
-              │                      │     o           
-              │       x              │                 
-              │                      │       o         
-              │        x             │        o        
-              │         x            │                 
-            ──┼───────────x─────   ──┼─────────o───────
-              │                      │                 
+                          profile2
+                 source                projection
+           ┼+1.1                  ┼+1.1               
+           x x                    o o                 
+           │   x                  │   o               
+           │     x                │     o             
+           │       x              │                   
+           │                      │       o           
+           │         x            │                   
+           │                      │         o         
+           │           x          │           o       
+           │             x        │                   
+           ┼+0─────────────x──┼   ┼+0───────────o────┼
+           0          r      +1   0          r      +1
 
     """
 
@@ -205,20 +205,20 @@ def profile3(r):
 
      ::
 
-                           profile3
-                  source                projection
-              │                      │                 
-              x xx                   o o               
-              │                      │  o              
-              │    x                 │    o            
-              │     x                │                 
-              │                      │     o           
-              │       x              │                 
-              │                      │       o         
-              │        x             │                 
-              │                      │        o        
-            ──┼─────────x───────   ──┼─────────o───────
-              │                      │                 
+                          profile3
+                 source                projection
+           ┼+1.1                  ┼+1.1               
+           x x x                  o o                 
+           │                      │   o               
+           │     x                │     o             
+           │       x              │                   
+           │                      │       o           
+           │         x            │                   
+           │                      │         o         
+           │           x          │                   
+           │                      │           o       
+           ┼+0───────────x────┼   ┼+0───────────o────┼
+           0          r      +1   0          r      +1
 
     """
 
@@ -276,20 +276,20 @@ def profile4(r):
 
  ::
 
-                           profile4
-                  source                projection
-              │                      │        oo       
-              │                      │       o         
-              │                      │     o     o     
-              │                      │    o            
-              │                      │            o    
-              │                      │ oo              
-              │        xx            o                 
-              │       x   x          │                 
-              │     x                │                 
-              │    x                 │                 
-            ──┼──x─────────x────   ──┼─────────────────
-              │                      │                 
+                          profile4
+                 source                projection
+           ┼+2.2                  ┼+2.2       o o     
+           │                      │         o         
+           │                      │       o       o   
+           │                      │     o             
+           │                      │                 o 
+           │                      │ o o               
+           │           x x        o                   
+           │         x     x      │                   
+           │       x              │                   
+           │     x                │                   
+           ┼+0─x─────────────x┼   ┼+0────────────────┼
+           0          r      +1   0          r      +1
 
     """
 
@@ -335,20 +335,20 @@ def profile5(r):
 
  ::
 
-                           profile5
-                  source                projection
-              │                      o oo              
-              │                      │    oo           
-              │                      │       oo        
-              │                      │         o       
-              │                      │                 
-              │                      │           o     
-              x xx xx xxx xx x       │                 
-              │                      │            o    
-              │                      │                 
-              │                      │                 
-            ──┼─────────────────   ──┼─────────────────
-              │                      │                 
+                          profile5
+                 source                projection
+           ┼+2.1                  ┼+2.1               
+           │                      │     o o           
+           │                      │         o o       
+           │                      │             o     
+           │                      │                   
+           │                      │               o   
+           x x x x x x x x x x    │                   
+           │                      │                 o 
+           │                      │                   
+           │                      │                   
+           ┼+0────────────────┼   ┼+0────────────────┼
+           0          r      +1   0          r      +1
 
     """
 
@@ -377,20 +377,20 @@ def profile6(r):
 
  ::
 
-                           profile6
-                  source                projection
-              │                      │                 
-              │                      o oo              
-              │                      │    oo           
-              │                      │       o         
-              │                      │                 
-              x xx xx xx             │        o        
-              │         x            │                 
-              │                      │         o       
-              │           x          │                 
-              │                      │           o     
-            ──┼─────────────────   ──┼─────────────────
-              │                      │                 
+                          profile6
+                 source                projection
+           ┼+1.8                  ┼+1.8               
+           │                      o o o               
+           │                      │     o o           
+           │                      │         o         
+           │                      │                   
+           x x x x x x x          │           o       
+           │             x        │                   
+           │                      │             o     
+           │               x      │                   
+           │                      │               o   
+           ┼+0────────────────┼   ┼+0────────────────┼
+           0          r      +1   0          r      +1
 
     """
 
@@ -419,21 +419,20 @@ def profile7(r):
 
      ::
 
-
-                           profile7
-                  source                projection
-              │                      │                 
-              │                      o oo oo           
-              │                      │       o         
-              │                      │                 
-              │     x xx             │        o        
-              │    x    x            │                 
-              │                      │         o       
-              │  x                   │                 
-              x x         x          │                 
-              │                      │           o     
-            ──┼────────────x────   ──┼─────────────────
-              │                      │                 
+                          profile7
+                 source                projection
+           ┼+1.7                  ┼+1.7               
+           │                      o o o o o           
+           │                      │         o         
+           │                      │                   
+           │       x x x          │           o       
+           │     x       x        │                   
+           │                      │             o     
+           │   x                  │                   
+           x x             x      │                   
+           │                      │               o   
+           ┼+0───────────────x┼   ┼+0────────────────┼
+           0          r      +1   0          r      +1
 
     """
 
@@ -464,20 +463,20 @@ def profile8(r):
 
     ::
 
-                           profile8
-                  source                projection
-              │                      │                 
-              │                      o oo              
-              │                      │    oo           
-              │                      │       o         
-              │                      │                 
-              x xx xx xx             │        o        
-              │         x            │                 
-              │                      │         o       
-              │           x          │                 
-              │                      │           o     
-            ──┼─────────────────   ──┼─────────────────
-              │                      │                 
+                          profile8
+                 source                projection
+           ┼+1.8                  ┼+1.8               
+           │                      o o o               
+           │                      │     o o           
+           │                      │         o         
+           │                      │                   
+           x x x x x x x          │           o       
+           │             x        │                   
+           │                      │             o     
+           │               x      │                   
+           │                      │               o   
+           ┼+0────────────────┼   ┼+0────────────────┼
+           0          r      +1   0          r      +1
 
     """
 
