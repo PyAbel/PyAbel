@@ -256,6 +256,7 @@ def profile4(r):
     """**profile4**: `Alvarez, Rodero, Quintero Spectochim. Acta B 57, 1665-1680 (2002) <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
 
     WARNING: function pair incorrect due to typo errors in Table 1.
+             Coefficients corrected using leastsquares fitting.
 
      .. math::
 
@@ -263,14 +264,12 @@ def profile4(r):
 
          \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3 & 0.7 \lt r \le1
 
-         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (217.557a_{0.7} -
-                 193.30083a_1)r^2 + 
-
-           & \,\,\, 155.56r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} + 
-             r^4\left(55.5525\ln\\frac{1 + a_1}{r} - 59.49\ln\\frac{0.7 + 
+         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (36.46a_{0.7} - 36.97a_1)r^2 + 
+           & \,\,\, 64.17r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} + 
+             r^4\left(-17.2\ln\\frac{1 + a_1}{r} + 13.58\ln\\frac{0.7 + 
              a_{0.7}}{r}\\right)  & 0 \le r \le 0.7
 
-         I(r) &= -14.811667a_1 - 193.0083a_1 r^2 + r^2(155.56 + 55.5525r^2)
+         I(r) &= -14.811667a_1 - 196.258a_1 r^2 + r^2(155.56 + 55.5525r^2)
                  \ln\\frac{1 + a_1}{r} & 0.7 \lt r \le 1
 
 
@@ -278,17 +277,17 @@ def profile4(r):
 
                           profile4
                  source                projection
-           ┼+2.2                  ┼+2.2       o o     
-           │                      │         o         
-           │                      │       o       o   
-           │                      │     o             
-           │                      │                 o 
-           │                      │ o o               
-           │           x x        o                   
-           │         x     x      │                   
+           ┼+1.4                  ┼+1.4   o o         
+           │                      │     o     o       
+           │                      o o o               
+           │           x x        │             o     
+           │         x            │                   
+           │               x      │                   
            │       x              │                   
+           │                      │               o   
            │     x                │                   
-           ┼+0─x─────────────x┼   ┼+0────────────────┼
+           │   x             x    │                   
+           ┼+0────────────────┼   ┼+0───────────────o┼
            0          r      +1   0          r      +1
 
     """
@@ -306,16 +305,24 @@ def profile4(r):
 
     a7m = a(0.7, rm)
     a1m = a(1, rm)
-    Im = 22.68862*a7m - 14.811667*a1m + (217.557*a7m - 193.30083*a1m)*rm**2 +\
-         155.56*rm**2*np.log((1 + a1m)/(0.7 + a7m)) +\
-         rm**4*(55.5525*np.log((1 + a1m)/rm) - 59.49*np.log((0.7 + a7m)/rm))
+    # Im = 22.68862*a7m - 14.811667*a1m + (217.557*a7m - 193.30083*a1m)*rm**2 +\
+    #      155.56*rm**2*np.log((1 + a1m)/(0.7 + a7m)) +\
+    #      rm**4*(55.5525*np.log((1 + a1m)/rm) - 59.49*np.log((0.7 + a7m)/rm))
+
+    # fitted to forward transform of profile4
+    Im = 22.68862*a7m - 14.811667*a1m + (36.46*a7m - 36.97*a1m)*rm**2 +\
+         64.17*rm**2*np.log((1 + a1m)/(0.7 + a7m)) +\
+         rm**4*(-17.22*np.log((1 + a1m)/rm) + 13.58*np.log((0.7 + a7m)/rm))
 
     # r > 0.7
     rp = r[r > 0.7]
     ep = -40.74 + 155.56*rp - 188.89*rp**2 + 74.07*rp**3
     a1p = a(1, rp)
 
-    Ip = -14.811667*a1p - 193.30083*a1p*rp**2 +\
+
+    # fit to forward transform of profile4 193->196
+    # Ip = -14.811667*a1p - 193.30083*a1p*rp**2 +\
+    Ip = -14.811667*a1p - 196.258*a1p*rp**2 +\
          rp**2*(155.56 + 55.5525*rp**2)*np.log((1 + a1p)/rp)
 
     source = np.concatenate((em, ep))
