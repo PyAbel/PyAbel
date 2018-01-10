@@ -72,9 +72,9 @@ def profile1(r):
 
      .. math::
 
-          \epsilon(r) &= 0.75 + 12r^2 -32r^3  & 0 \le r \le 0.25
+          \epsilon(r) &= 0.75 + 12r^2 - 32r^3  & 0 \le r \le 0.25
 
-          \epsilon(r) &= \\frac{16}{27}(1 + 6r -15r^2 +8r^3) & 0.25 \lt r \le 1
+          \epsilon(r) &= \\frac{16}{27}(1 + 6r - 15r^2 + 8r^3) & 0.25 \lt r \le 1
 
           I(r) &= \\frac{1}{108}(128a_1 +a_{0.25}) + \\frac{2}{27}r^2
                     (283a_{0.25} - 112a_1) +
@@ -312,10 +312,10 @@ def profile4(r):
 
     # r > 0.7
     rp = r[r > 0.7]
-    ep = -40.74 + 155.6*rp - 188.89*rp**2 + 74.07*rp**3
+    ep = -40.74 + 155.56*rp - 188.89*rp**2 + 74.07*rp**3
     a1p = a(1, rp)
 
-    Ip = -14.811667*a1p - 193.0083*a1p*rp**2 +\
+    Ip = -14.811667*a1p - 193.30083*a1p*rp**2 +\
          rp**2*(155.56 + 55.5525*rp**2)*np.log((1 + a1p)/rp)
 
     source = np.concatenate((em, ep))
