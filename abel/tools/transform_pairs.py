@@ -292,38 +292,56 @@ def profile4(r):
 
     """
 
+    def e_left(x):
+        return 0.1 + 5.51*x**2 - 5.25*x**3
+    
+    def e_right(x):
+        return -40.74 + 155.56*x - 188.89*x**2 + 74.07*x**3
+
+    def I_left(x):
+        """x < 0.7 of right function part.
+           Note: coefficients changed from published values from PyAbel
+                 forward transform and leastsquares fit
+           [22.68862, -14.811667,  129.07, -118.809,   111.72, 18.89,   -22.49]
+           from
+           [22.68862, -14.811667, 217.557, -193.30083, 156.56. 55.5525, -59.49]
+        """
+
+        a7 = a(0.7, x)
+        a1 = a(1, x)
+        return 22.68862*a7 - 14.811667*a1 + (129.07*a7 - 118.809*a1)*x**2 +\
+               +111.72*x**2*np.log((1 + a1)/(0.7 + a7)) +\
+               x**4*(18.89*np.log((1 + a1)/x) - 22.49*np.log((0.7 + a7)/x))
+
+    def I_right(x):
+       a1 = a(1, x)
+       return -14.811667*a1 - 196.258*a1*x**2 + x**2*(155.56 + 55.5525*x**2)*\
+              np.log((1 + a1)/x)
+ 
     if np.any(r <= 0) or np.any(r > 1):
         raise ValueError('r must be 0 < r <= 1')
 
     if not hasattr(r, '__len__'):
         r = np.asarray([r])
 
-    # r <= 0.7
+    # left side r <= 0.7 of source, projection profile
     rm = r[r <= 0.7]
 
-    em = 0.1 + 5.51*rm**2 - 5.25*rm**3
+    em = e_left(rm)
+    Im = I_left(rm)
 
-    a7m = a(0.7, rm)
-    a1m = a(1, rm)
-    # Im = 22.68862*a7m - 14.811667*a1m + (217.557*a7m - 193.30083*a1m)*rm**2 +\
-    #      155.56*rm**2*np.log((1 + a1m)/(0.7 + a7m)) +\
-    #      rm**4*(55.5525*np.log((1 + a1m)/rm) - 59.49*np.log((0.7 + a7m)/rm))
-
-    # fitted to forward transform of profile4
-    Im = 22.68862*a7m - 14.811667*a1m + (36.46*a7m - 36.97*a1m)*rm**2 +\
-         64.17*rm**2*np.log((1 + a1m)/(0.7 + a7m)) +\
-         rm**4*(-17.22*np.log((1 + a1m)/rm) + 13.58*np.log((0.7 + a7m)/rm))
-
-    # r > 0.7
+    # right side r > 0.7 of source, projection profile
     rp = r[r > 0.7]
-    ep = -40.74 + 155.56*rp - 188.89*rp**2 + 74.07*rp**3
-    a1p = a(1, rp)
 
+    ep = e_right(rp)
+    Ip = I_right(rp)
 
-    # fit to forward transform of profile4 193->196
-    # Ip = -14.811667*a1p - 193.30083*a1p*rp**2 +\
-    Ip = -14.811667*a1p - 196.258*a1p*rp**2 +\
-         rp**2*(155.56 + 55.5525*rp**2)*np.log((1 + a1p)/rp)
+    # align leftside with right source
+    ep += e_left(0.7) - e_right(0.7)
+
+    # align leftside with right projection
+    Ip += I_left(0.7) - I_right(0.7)
+
 
     source = np.concatenate((em, ep))
     proj = np.concatenate((Im, Ip))
