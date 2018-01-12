@@ -18,7 +18,7 @@ import numpy as np
 ##############################################################################
 
 _transform_pairs_docstring = \
-r"""Analytical function Abel transform pairs
+    r"""Analytical function Abel transform pairs
 
     profiles 1-7, table 1 of:
      `G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31-41 (2006)
@@ -52,7 +52,7 @@ r"""Analytical function Abel transform pairs
         source function profile (inverse Abel transform of projection),
         projection functon profile (forward Abel transform of source)
 
-"""
+   """
 
 
 def a(n, r):
@@ -74,7 +74,8 @@ def profile1(r):
 
           \epsilon(r) &= 0.75 + 12r^2 - 32r^3  & 0 \le r \le 0.25
 
-          \epsilon(r) &= \\frac{16}{27}(1 + 6r - 15r^2 + 8r^3) & 0.25 \lt r \le 1
+          \epsilon(r) &= \\frac{16}{27}(1 + 6r - 15r^2 + 8r^3)
+                      & 0.25 \lt r \le 1
 
           I(r) &= \\frac{1}{108}(128a_1 +a_{0.25}) + \\frac{2}{27}r^2
                     (283a_{0.25} - 112a_1) +
@@ -253,20 +254,23 @@ def profile3(r):
 
 
 def profile4(r):
-    """**profile4**: `Alvarez, Rodero, Quintero Spectochim. Acta B 57, 1665-1680 (2002) <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
+    """**profile4**: `Alvarez, Rodero, Quintero Spectochim. Acta B 57,
+    1665-1680 (2002) <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
 
     WARNING: function pair incorrect due to typo errors in Table 1.
-             Coefficients corrected using leastsquares fitting.
+             `I(r)` coefficients corrected using leastsquares fitting.
 
      .. math::
 
          \epsilon(r) &= 0.1 + 5.5r^2 - 5.25r^3 & 0 \le r \le 0.7
 
-         \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3 & 0.7 \lt r \le1
+         \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3
+                     & 0.7 \lt r \le1
 
-         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (36.46a_{0.7} - 36.97a_1)r^2 + 
-           & \,\,\, 64.17r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} + 
-             r^4\left(-17.2\ln\\frac{1 + a_1}{r} + 13.58\ln\\frac{0.7 + 
+         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (129.1a_{0.7} - 118.8a_1)r^2 + 
+
+           & \,\,\, 111.7r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} + 
+             r^4\left(18.9\ln\\frac{1 + a_1}{r} - 22.5\ln\\frac{0.7 + 
              a_{0.7}}{r}\\right)  & 0 \le r \le 0.7
 
          I(r) &= -14.811667a_1 - 196.258a_1 r^2 + r^2(155.56 + 55.5525r^2)
@@ -301,22 +305,24 @@ def profile4(r):
     def I_left(x):
         """x < 0.7 of right function part.
            Note: coefficients changed from published values from PyAbel
-                 forward transform and leastsquares fit
-           [22.68862, -14.811667,  129.07, -118.809,   111.72, 18.89,   -22.49]
-           from
+                 forward transform and leastsquares fit of the same functional
+                 form.
+           Coefficients:
+           [22.68862, -14.811667,  129.1, -118.8,   111.7,    18.9,   -22.5]
+           changed from:
            [22.68862, -14.811667, 217.557, -193.30083, 156.56. 55.5525, -59.49]
         """
 
         a7 = a(0.7, x)
         a1 = a(1, x)
-        return 22.68862*a7 - 14.811667*a1 + (129.07*a7 - 118.809*a1)*x**2 +\
-               +111.72*x**2*np.log((1 + a1)/(0.7 + a7)) +\
-               x**4*(18.89*np.log((1 + a1)/x) - 22.49*np.log((0.7 + a7)/x))
+        return 22.68862*a7 - 14.811667*a1 + (129.1*a7 - 118.8*a1)*x**2 +\
+               +111.7*x**2*np.log((1 + a1)/(0.7 + a7)) +\
+               x**4*(18.9*np.log((1 + a1)/x) - 22.5*np.log((0.7 + a7)/x))
 
     def I_right(x):
-       a1 = a(1, x)
-       return -14.811667*a1 - 196.258*a1*x**2 + x**2*(155.56 + 55.5525*x**2)*\
-              np.log((1 + a1)/x)
+        a1 = a(1, x)
+        return -14.811667*a1 - 196.258*a1*x**2 + x**2*(155.56 + 55.5525*x**2)*\
+               np.log((1 + a1)/x)
  
     if np.any(r <= 0) or np.any(r > 1):
         raise ValueError('r must be 0 < r <= 1')
@@ -341,7 +347,6 @@ def profile4(r):
 
     # align leftside with right projection
     Ip += I_left(0.7) - I_right(0.7)
-
 
     source = np.concatenate((em, ep))
     proj = np.concatenate((Im, Ip))
