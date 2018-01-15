@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 import numpy as np
+import warnings
 
 ##############################################################################
 #
@@ -111,35 +112,37 @@ def profile1(r):
     if not hasattr(r, '__len__'):
         r = np.asarray([r])
 
-    # r <= 0.25
-    rm = r[r <= 0.25]
+    # left side r <= 0.25
+    rl = r[r <= 0.25]
 
     # source
-    em = 3/4 + 12*rm**2 - 32*rm**3
+    source_l = 3/4 + 12*rl**2 - 32*rl**3
 
     # projection
-    a4m = a(0.25, rm)
-    a1m = a(1, rm)
-    rm2 = rm**2
-    Im = (128*a1m + a4m)/108 + (283*a4m - 112*a1m)*rm2*2/27 +\
-         (4*(1 + rm2)*np.log((1 + a1m)/rm) -
-          (4 + 31*rm2)*np.log((0.25 + a4m)/rm))*rm2*8/9
+    a4l = a(0.25, rl)
+    a1l = a(1, rl)
+    rl2 = rl**2
 
-    # r > 0.25
-    rp = r[r > 0.25]
+    proj_l = (128*a1l + a4l)/108 + (283*a4l - 112*a1l)*rl2*2/27 +\
+             (4*(1 + rl2)*np.log((1 + a1l)/rl) -
+             (4 + 31*rl2)*np.log((0.25 + a4l)/rl))*rl2*8/9
+
+    # right side r > 0.25
+    rr = r[r > 0.25]
 
     # source
-    ep = (16/27)*(1 + 6*rp - 15*rp**2 + 8*rp**3)
+    source_r = (16/27)*(1 + 6*rr - 15*rr**2 + 8*rr**3)
 
     # projection
-    a1p = a(1, rp)
-    rp2 = rp**2
-    Ip = (a1p - 7*a1p*rp2 + 3*rp2*(1 + rp2)*np.log((1 + a1p)/rp))*32/27
+    a1r = a(1, rr)
+    rr2 = rr**2
 
-    source = np.concatenate((em, ep))
-    proj = np.concatenate((Im, Ip))
+    proj_r = (a1r - 7*a1r*rr2 + 3*rr2*(1 + rr2)*np.log((1 + a1r)/rr))*32/27
 
-    return source, proj
+    source = np.concatenate((source_l, source_r))
+    projection = np.concatenate((proj_l, proj_r))
+
+    return source, projection
 
 
 def profile2(r):
@@ -180,10 +183,11 @@ def profile2(r):
         r = np.asarray([r])
 
     source = 1 - 3*r*r + 2*r**3
-    a1 = a(1, r)
-    proj = a1*(1 - r**2*5/2) + r**4*np.log((1 + a1)/r)*3/2
 
-    return source, proj
+    a1 = a(1, r)
+    projection = a1*(1 - r**2*5/2) + r**4*np.log((1 + a1)/r)*3/2
+
+    return source, projection
 
 
 def profile3(r):
@@ -229,36 +233,35 @@ def profile3(r):
     if not hasattr(r, '__len__'):
         r = np.asarray([r])
 
-    # r <= 0.5
-    rm = r[r <= 0.5]
+    # left side r <= 0.5
+    rl = r[r <= 0.5]
 
-    em = 1 - 2*rm**2
+    source_l = 1 - 2*rl**2
 
-    a5m = a(0.5, rm)
-    a1m = a(1, rm)
+    a5l = a(0.5, rl)
+    a1l = a(1, rl)
     # power rm**2 typo in Cremers
-    Im = (4/3)*a1m*(1 + 2*rm**2) - (2/3)*a5m*(1 + 8*rm**2) -\
-         4*rm**2*np.log((1 + a1m)/(0.5 + a5m))
+    proj_l = (4/3)*a1l*(1 + 2*rl**2) - (2/3)*a5l*(1 + 8*rl**2) -\
+             4*rl**2*np.log((1 + a1l)/(0.5 + a5l))
 
-    # r > 0.5
-    rp = r[r > 0.5]
-    a1p = a(1, rp)
+    # right side r > 0.5
+    rr = r[r > 0.5]
+    a1r = a(1, rr)
 
-    ep = 2*(1 - rp)**2
-    Ip = (4/3)*a1p*(1 + 2*rp**2) - 4*rp**2*np.log((1 + a1p)/rp)
+    source_r = 2*(1 - rr)**2
+    proj_r = (4/3)*a1r*(1 + 2*rr**2) - 4*rr**2*np.log((1 + a1r)/rr)
 
-    source = np.concatenate((em, ep))
-    proj = np.concatenate((Im, Ip))
+    source = np.concatenate((source_l, source_r))
+    projection = np.concatenate((proj_l, proj_r))
 
-    return source, proj
+    return source, projection
 
 
 def profile4(r):
     """**profile4**: `Alvarez, Rodero, Quintero Spectochim. Acta B 57,
     1665-1680 (2002) <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
 
-    WARNING: function pair incorrect due to typo errors in Table 1.
-             `I(r)` coefficients corrected using leastsquares fitting.
+    WARNING: projection function pair incorrect due to typo errors in Table 1.
 
      .. math::
 
@@ -267,91 +270,104 @@ def profile4(r):
          \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3
                      & 0.7 \lt r \le1
 
-         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (129.1a_{0.7} - 118.8a_1)r^2 + 
+         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (217.557a_{0.7} -
+         193.30083a_1)r^2 + 
 
-           & \,\,\, 111.7r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} + 
-             r^4\left(18.9\ln\\frac{1 + a_1}{r} - 22.5\ln\\frac{0.7 + 
+           & \,\,\, 155.56r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} + 
+             r^4\left(55.5525\ln\\frac{1 + a_1}{r} - 59.49\ln\\frac{0.7 + 
              a_{0.7}}{r}\\right)  & 0 \le r \le 0.7
 
-         I(r) &= -14.811667a_1 - 196.258a_1 r^2 + r^2(155.56 + 55.5525r^2)
+         I(r) &= -14.811667a_1 - 193.30083a_1 r^2 + r^2(155.56 + 55.5525r^2)
                  \ln\\frac{1 + a_1}{r} & 0.7 \lt r \le 1
 
 
  ::
 
-                          profile4
+                          profile4     (incorrect)
                  source                projection
-           ┼+1.4                  ┼+1.4   o o         
-           │                      │     o     o       
-           │                      o o o               
-           │           x x        │             o     
-           │         x            │                   
-           │               x      │                   
+           ┼+2.2                  ┼+2.2       o       
+           │                      │         o   o     
+           │                      │       o       o   
+           │                      │     o             
+           │                      │                   
+           │                      │ o o             o 
+           │           x x        o                   
+           │         x     x      │                   
            │       x              │                   
-           │                      │               o   
            │     x                │                   
-           │   x             x    │                   
-           ┼+0────────────────┼   ┼+0───────────────o┼
+           ┼+0─x─────────────x┼   ┼+0────────────────┼
            0          r      +1   0          r      +1
+
 
     """
 
-    def e_left(x):
+    def source_left(x):
+        """Profile4 source x <= 0.7.
+
+        """
+
         return 0.1 + 5.51*x**2 - 5.25*x**3
-    
-    def e_right(x):
+
+    def source_right(x):
+        """Profile4 source x > 0.7.
+
+        """
+
         return -40.74 + 155.56*x - 188.89*x**2 + 74.07*x**3
 
-    def I_left(x):
-        """x < 0.7 of right function part.
-           Note: coefficients changed from published values from PyAbel
-                 forward transform and leastsquares fit of the same functional
-                 form.
-           Coefficients:
+    def proj_left(x):
+        """Profile4 projection x < 0.7 of right function part.
+
+           Note: Published coefficients for function are incorrect.
+           Better values for the coefficients (determined from a leastsquares
+           fit to the forward transform of the source profile, might be:
            [22.68862, -14.811667,  129.1, -118.8,   111.7,    18.9,   -22.5]
-           changed from:
-           [22.68862, -14.811667, 217.557, -193.30083, 156.56. 55.5525, -59.49]
+
         """
 
         a7 = a(0.7, x)
         a1 = a(1, x)
-        return 22.68862*a7 - 14.811667*a1 + (129.1*a7 - 118.8*a1)*x**2 +\
-               +111.7*x**2*np.log((1 + a1)/(0.7 + a7)) +\
-               x**4*(18.9*np.log((1 + a1)/x) - 22.5*np.log((0.7 + a7)/x))
+        return 22.68862*a7 - 14.811667*a1 + (217.557*a7 - 193.30083*a1)*x**2 +\
+               +155.56*x**2*np.log((1 + a1)/(0.7 + a7)) +\
+               x**4*(55.5525*np.log((1 + a1)/x) - 59.49*np.log((0.7 + a7)/x))
 
-    def I_right(x):
+    def proj_right(x):
+        """ profile4 projection x > 0.7
+
+           Note: published coefficients are incorrect. 193.30083 -> 196.258
+           produces a better profile.
+        """
+
         a1 = a(1, x)
-        return -14.811667*a1 - 196.258*a1*x**2 + x**2*(155.56 + 55.5525*x**2)*\
-               np.log((1 + a1)/x)
- 
+        return -14.811667*a1 - 193.30083*a1*x**2 +\
+               x**2*(155.56 + 55.5525*x**2)*np.log((1 + a1)/x)
+
     if np.any(r <= 0) or np.any(r > 1):
         raise ValueError('r must be 0 < r <= 1')
 
     if not hasattr(r, '__len__'):
         r = np.asarray([r])
 
-    # left side r <= 0.7 of source, projection profile
-    rm = r[r <= 0.7]
+    warnmsg = 'Abel profile4 projection incorrect, due to typographical' +\
+              ' errors for the published coefficients'
+    warnings.warn(warnmsg)
 
-    em = e_left(rm)
-    Im = I_left(rm)
+    # left side r <= 0.7 of source, projection profile
+    rl = r[r <= 0.7]
+
+    source_l = source_left(rl)
+    proj_l = proj_left(rl)
 
     # right side r > 0.7 of source, projection profile
-    rp = r[r > 0.7]
+    rr = r[r > 0.7]
 
-    ep = e_right(rp)
-    Ip = I_right(rp)
+    source_r = source_right(rr)
+    proj_r = proj_right(rr)
 
-    # align leftside with right source
-    ep += e_left(0.7) - e_right(0.7)
+    source = np.concatenate((source_l, source_r))
+    projection = np.concatenate((proj_l, proj_r))
 
-    # align leftside with right projection
-    Ip += I_left(0.7) - I_right(0.7)
-
-    source = np.concatenate((em, ep))
-    proj = np.concatenate((Im, Ip))
-
-    return source, proj
+    return source, projection
 
 
 def profile5(r):
@@ -389,9 +405,9 @@ def profile5(r):
         r = np.asarray([r])
 
     source = np.ones_like(r)
-    proj = 2*a(1, r)
+    projection = 2*a(1, r)
 
-    return source, proj
+    return source, projection
 
 
 def profile6(r):
@@ -431,9 +447,9 @@ def profile6(r):
         r = np.asarray([r])
 
     source = np.exp(1.1**2*(1 - 1/(1 - r**2)))/np.sqrt(1 - r**2)**3
-    proj = np.exp(1.1**2*(1 - 1/(1 - r**2)))*np.sqrt(np.pi)/1.1/a(1, r)
+    projection = np.exp(1.1**2*(1 - 1/(1 - r**2)))*np.sqrt(np.pi)/1.1/a(1, r)
 
-    return source, proj
+    return source, projection
 
 
 def profile7(r):
@@ -473,9 +489,9 @@ def profile7(r):
         r = np.asarray([r])
 
     source = (1 + 10*r**2 - 23*r**4 + 12*r**6)/2
-    proj = a(1, r)*(19 + 34*r**2 - 125*r**4 + 72*r**6)*8/105
+    projection = a(1, r)*(19 + 34*r**2 - 125*r**4 + 72*r**6)*8/105
 
-    return source, proj
+    return source, projection
 
 
 def profile8(r):
@@ -517,7 +533,7 @@ def profile8(r):
         r = np.asarray([r])
 
     source = np.power(1-r**2, -3/2)*np.exp((1.1*r)**2/(r**2 - 1))
-    proj = np.sqrt(np.pi)*np.power(1 - r**2, -1/2)*np.exp((1.1*r)**2\
-                                                   / (r**2 - 1))/1.1
+    projection = np.sqrt(np.pi)*np.power(1 - r**2, -1/2)*np.exp((1.1*r)**2
+                                                        / (r**2 - 1))/1.1
 
-    return source, proj
+    return source, projection
