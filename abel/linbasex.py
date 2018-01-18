@@ -170,6 +170,9 @@ def linbasex_transform_full(IM, proj_angles=[0, np.pi/2],
 
     rows, cols = IM.shape
 
+    if cols % 2 == 0:
+        raise ValueError('image width ({}) must be odd and equal to the height'.format(cols))
+
     if rows != cols:
         raise ValueError('image has shape ({}, {}), '.format(rows, cols) +
                          'must be square for a "linbasex" transform')
@@ -235,6 +238,7 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
 
     radial = np.linspace(clip, cols//2, len(Beta[0]))
 
+    # Fix Me! Issue #202 the correct scaling factor for inv_IM intensity?
     return inv_IM, radial, Beta, QLz
 
 linbasex_transform_full.__doc__ = _linbasex_parameter_docstring

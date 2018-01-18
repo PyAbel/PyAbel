@@ -37,7 +37,7 @@ transforms = collections.OrderedDict(sorted(transforms.items()))
 # number of transforms:
 ntrans = np.size(transforms.keys())
   
-IM = abel.tools.analytical.sample_image(n=301, name="dribinski")
+IM = abel.tools.analytical.SampleImage(n=301, name="dribinski").image
 
 h, w = IM.shape
 
