@@ -16,7 +16,7 @@ clip=0  # clip first vectors (smallest Newton spheres) to avoid singularities
 #                 - speed and anisotropy parameters evaluated by method
 LIM = abel.Transform(IM, method='linbasex', center='convolution',
                      center_options=dict(square=True),
-                     transform_options=dict(basis_dir=None,
+                     transform_options=dict(
                      proj_angles=proj_angles, radial_step=radial_step,
                      smoothing=smoothing, threshold=threshold, clip=clip, 
                      return_Beta=True, verbose=True))
