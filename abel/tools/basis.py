@@ -14,21 +14,14 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
 
     Checks whether file ``{method}_basis_{cols}_{cols}*.npy`` is present in 
     `basis_dir` 
-    (*) special case for ``linbasex``
-         _{legendre_orders}_{proj_angles}_{radial_step}_{clip} 
-        where {legendre_orders} = str of the list elements, typically '02'
-              (proj_angles} = str of the list elements, typically '04590135'
-              {radial_step} = pixel grid size, usually 1
-              {clip} = clipping size, usually 0
 
     Either, read basis array or generate basis, saving it to the file.
-        
 
     Parameters
     ----------
     method : str
-        Abel transform method, currently ``linbasex``, ``onion_peeling``,
-        ``three_point``, and ``two_point``
+        Abel transform method, currently ``onion_peeling``, ``three_point``,
+        and ``two_point``
     cols : int
         width of image
     basis_dir : str
@@ -43,12 +36,10 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
 
     file.npy: file
        saves basis to file name ``{method}_basis_{cols}_{cols}*.npy``
-       * == ``__{legendre_orders}_{proj_angles}_{radial_step}_{clip}`` for ``linbasex`` method
 
     """
 
     basis_generator = {
-        "linbasex": abel.linbasex._bs_linbasex,
         "onion_peeling": abel.dasch._bs_onion_peeling,
         "three_point": abel.dasch._bs_three_point,
         "two_point": abel.dasch._bs_two_point
@@ -59,30 +50,6 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
                          .format(method))
 
     basis_name = "{}_basis_{}_{}".format(method, cols, cols)
-    # special case linbasex requires additional identifying parameters
-    # 
-    # linbasex_basis_cols_cols_02_090_0.npy
-    if method == "linbasex": 
-       # Fix Me! not a simple unique naming mechanism
-        for key in ['legendre_orders', 'proj_angles', 'radial_step', 'clip']:
-            if key in basis_options.keys():
-                if key == 'legendre_orders':
-                    value = ''.join(map(str, basis_options[key]))
-                elif key == 'proj_angles':
-                    # in radians, convert to % of pi
-                    proj_angles_fractpi =\
-                         np.array(basis_options['proj_angles'])*100/np.pi
-                    
-                    value = ''.join(map(str, proj_angles_fractpi.astype(int)))
-                else: 
-                    value = basis_options[key]
-            else:
-                # missing option, use defaults
-                default = {'legendre_orders':'02', 'proj_angles':'050', 'radial_step':1, 'clip':0}
-                value = default[key]
-
-            basis_name += "_{}".format(value)
-
     basis_name += ".npy"
 
     D = None
