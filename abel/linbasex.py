@@ -177,12 +177,10 @@ def linbasex_transform_full(IM, proj_angles=[0, np.pi/2],
         raise ValueError('image has shape ({}, {}), '.format(rows, cols) +
                          'must be square for a "linbasex" transform')
 
-    # generate basis or read from file if available
-    Basis = abel.tools.basis.get_bs_cached("linbasex", cols,
-                  basis_dir=basis_dir,
-                  basis_options=dict(proj_angles=proj_angles,
-                  legendre_orders=legendre_orders, radial_step=radial_step,
-                  clip=clip, verbose=verbose))
+    # generate basis
+    Basis =  _bs_linbasex(cols, proj_angles=proj_angles,
+                          legendre_orders=legendre_orders,
+                          radial_step=radial_step, clip=clip)
 
     return _linbasex_transform_with_basis(IM, Basis, proj_angles=proj_angles,
                                     legendre_orders=legendre_orders,
