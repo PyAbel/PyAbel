@@ -123,6 +123,9 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
 
         # g' - derivative of the intensity profile
         gp = np.gradient(IM, axis=-1)
+        # shift gradient curve (0, -0.5) pixel. Improves agreement with
+        # analytical transform pairs, see PR #206
+        gp[:, :-1] = (gp[:, 1:] + gp[:, :-1])/2
 
     else:  # forward transform
         gammagt = gammalt = fgamma
@@ -161,9 +164,6 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
     for i, ni in enumerate(n[::-1]):
         X = np.dot(Phi[i], X) + Gamma[i]*gp[:, ni]
         AIM[:, ni] = X.sum(axis=0)
-
-    # center column
-    AIM[:, 0] = AIM[:, 1]
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector

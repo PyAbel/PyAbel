@@ -124,7 +124,12 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
     r, dr = _construct_r_grid(f.shape[1], dr=dr, r=r)
 
     if direction == "inverse":
-        f = derivative(f)/dr 
+        # a derivative function must be provided
+        f = derivative(f)/dr
+        # shift gradient curve (0, -0.5) pixel. Improves agreement with
+        # analytical transform pairs, see PR #206
+        f[:, :-1] = (f[:, 1:] + f[:, :-1])/2
+    if direction == "inverse":
         f *= - 1./np.pi
     else:
         f *= 2*r[None, :]
