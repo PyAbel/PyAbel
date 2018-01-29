@@ -101,21 +101,21 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
     """
 
     IM = np.atleast_2d(IM)
-    rows, cols = np.shape(IM)      # shape of input quadrant (half)
+    rows, N = np.shape(IM)      # shape of input quadrant (half)
     AIM = np.zeros_like(IM)        # forward/inverse Abel transform image
 
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform
-    def fgamma(N, lam, n):
+    def fgamma(Nratio, lam, n):
         lam += 1
-        return 2*n[::-1]*(1 - N**lam)/lam
+        return 2*n[::-1]*(1 - Nratio**lam)/lam
 
     # Eq. (18) used for the inverse transform
-    def igammalt(N, lam, n):
-        return (1 - N**lam)/(np.pi*lam)
+    def igammalt(Nratio, lam, n):
+        return (1 - Nratio**lam)/(np.pi*lam)
 
-    def igammagt(N, lam, n):
-        return -np.log(N)/np.pi
+    def igammagt(Nratio, lam, n):
+        return -np.log(Nratio)/np.pi
 
     if direction == "inverse":   # inverse transform
         gammagt = igammagt   # special case lam = 0.0
@@ -138,31 +138,29 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
                     -47391.1])
 
     K = np.size(h)
-    n = np.arange(cols-1)
+    n = np.arange(N)  # n = 0, ..., N-1
 
-    N = (cols - n)/(cols - n - 1)
+    n[-1] = n[-2] # to prevent divide by zero in ratio
+    Nratio = (N - n)/(N - n - 1)  # R0/R
 
     X = np.zeros((K, rows))
-    Gamma = np.zeros((cols-1, K, 1))
-    Phi = np.zeros((cols-1, K, K))
+    Gamma = np.zeros((N, K, 1))
+    Phi = np.zeros((N, K, K))
 
     # Gamma_n and Phi_n  Eq. (16a) and (16b)
     # lam = 0.0
-    Gamma[:, 0, 0] = h[0]*gammagt(N, lam[0], n)   
+    Gamma[:, 0, 0] = h[0]*gammagt(Nratio, lam[0], n)   
     Phi[:, 0, 0] = 1
 
     # lam < 0.0
     for k in range(1, K): 
-        Gamma[:, k, 0] = h[k]*gammalt(N, lam[k], n)  
-        Phi[:, k, k] = N**lam[k]   # diagonal matrix Eq. (16a)
+        Gamma[:, k, 0] = h[k]*gammalt(Nratio, lam[k], n)  
+        Phi[:, k, k] = Nratio**lam[k]   # diagonal matrix Eq. (16a)
 
     # Eq. (15) forward, or (17) inverse
     for i, ni in enumerate(n[::-1]):
         X = np.dot(Phi[i], X) + Gamma[i]*gp[:, ni]
         AIM[:, ni] = X.sum(axis=0)
-
-    # center pixel column
-    AIM[:, 0] = AIM[:, 1]
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
