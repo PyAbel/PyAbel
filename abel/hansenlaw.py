@@ -166,6 +166,9 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         X = np.dot(Phi[i], X) + Gamma[i]*gp[:, revcol]
         AIM[:, revcol] = X.sum(axis=0)
 
+    # center column
+    AIM[:, 0] = AIM[:, 1]
+
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
 
