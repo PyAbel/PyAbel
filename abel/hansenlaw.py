@@ -30,7 +30,7 @@ import numpy as np
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985) 
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a: 
@@ -61,7 +61,7 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
         Qtrans = abel.hansenlaw.hansenlaw_transform(Q, direction="inverse")
 
     Recursion method proceeds from the outer edge of the image
-    toward the image centre (origin). i.e. when ``n=N-1``, ``R=Rmax``, and
+    toward the image centre (origin). i.e. when ``n=cols-1``, ``R=Rmax``, and
     when ``n=0``, ``R=0``. This fits well with processing the image one
     quadrant (chosen orientation to be rightside-top), or one right-half
     image at a time.
@@ -97,25 +97,25 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
         .         +--------      +--------+
           
         Image centre ``o`` should be within a pixel (i.e. an odd number of columns)
-        Use ``abel.tools.center.center_image(IM, method='com', odd_size=True)`` 
+        Use ``abel.tools.center.center_image(IM, center='com')`` 
     """
 
     IM = np.atleast_2d(IM)
-    rows, N = np.shape(IM)      # shape of input quadrant (half)
+    rows, cols = np.shape(IM)      # shape of input quadrant (half)
     AIM = np.zeros_like(IM)        # forward/inverse Abel transform image
 
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform
-    def fgamma(Nratio, lam, n):
+    def fgamma(ratio, lam, n):
         lam += 1
-        return 2*n[::-1]*(1 - Nratio**lam)/lam
+        return 2*n[::-1]*(1 - ratio**lam)/lam
 
     # Eq. (18) used for the inverse transform
-    def igammalt(Nratio, lam, n):
-        return (1 - Nratio**lam)/(np.pi*lam)
+    def igammalt(ratio, lam, n):
+        return (1 - ratio**lam)/(np.pi*lam)
 
-    def igammagt(Nratio, lam, n):
-        return -np.log(Nratio)/np.pi
+    def igammagt(ratio, lam, n):
+        return -np.log(ratio)/np.pi
 
     if direction == "inverse":   # inverse transform
         gammagt = igammagt   # special case lam = 0.0
@@ -123,9 +123,10 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
 
         # g' - derivative of the intensity profile
         gp = np.gradient(IM, axis=-1)
-        # shift gradient curve (0, -0.5) pixel. Improves agreement with
+        # shift gradient curve (0, -phase) pixels. Improves agreement with
         # analytical transform pairs, see PR #206
-        gp[:, :-1] = (gp[:, 1:] + gp[:, :-1])/2
+        phase = 0.43
+        gp[:, :-1] = gp[:, 1:]*phase + gp[:, :-1]*(1-phase)
 
     else:  # forward transform
         gammagt = gammalt = fgamma
@@ -141,29 +142,29 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
                     -47391.1])
 
     K = np.size(h)
-    n = np.arange(N)  # n = 0, ..., N-1
+    n = np.arange(cols)  # n = 0, ..., cols-1
 
     n[-1] = n[-2] # to prevent divide by zero in ratio
-    Nratio = (N - n)/(N - n - 1)  # R0/R
+    ratio = (cols - n)/(cols - n - 1)  # R0/R
 
     X = np.zeros((K, rows))
-    Gamma = np.zeros((N, K, 1))
-    Phi = np.zeros((N, K, K))
+    Gamma = np.zeros((cols, K, 1))
+    Phi = np.zeros((cols, K, K))
 
     # Gamma_n and Phi_n  Eq. (16a) and (16b)
     # lam = 0.0
-    Gamma[:, 0, 0] = h[0]*gammagt(Nratio, lam[0], n)   
+    Gamma[:, 0, 0] = h[0]*gammagt(ratio, lam[0], n)   
     Phi[:, 0, 0] = 1
 
     # lam < 0.0
     for k in range(1, K): 
-        Gamma[:, k, 0] = h[k]*gammalt(Nratio, lam[k], n)  
-        Phi[:, k, k] = Nratio**lam[k]   # diagonal matrix Eq. (16a)
+        Gamma[:, k, 0] = h[k]*gammalt(ratio, lam[k], n)  
+        Phi[:, k, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
 
     # Eq. (15) forward, or (17) inverse
-    for i, ni in enumerate(n[::-1]):
-        X = np.dot(Phi[i], X) + Gamma[i]*gp[:, ni]
-        AIM[:, ni] = X.sum(axis=0)
+    for i, revcol in enumerate(n[::-1]):
+        X = np.dot(Phi[i], X) + Gamma[i]*gp[:, revcol]
+        AIM[:, revcol] = X.sum(axis=0)
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector

@@ -128,7 +128,9 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
         f = derivative(f)/dr
         # shift gradient curve (0, -0.5) pixel. Improves agreement with
         # analytical transform pairs, see PR #206
-        f[:, :-1] = (f[:, 1:] + f[:, :-1])/2
+        # phase = 0.43
+        # f[:, :-1] = f[:, 1:]*phase + f[:, :-1]*(1-phase)
+
     if direction == "inverse":
         f *= - 1./np.pi
     else:

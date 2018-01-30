@@ -72,8 +72,13 @@ for q, method in enumerate(transforms.keys()):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
-                              basis_dir='bases') 
+    if method == 'linbasex':
+        IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
+                                  basis_dir='bases',
+                                  proj_angles=np.arange(0, np.pi/3, np.pi/18)) 
+    else:
+        IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
+                                  basis_dir='bases')
     print ("                    {:.1f} sec".format(time()-t0))
 
 
@@ -112,12 +117,12 @@ iq = 0
 for q in range(4):
     Q[q] = iabelQ[iq].copy()
     ann_plt(q, 0, meth[iq])
-    ax1.plot(*(sp[iq]), label=meth[iq], alpha=0.3)
+    ax1.plot(*(sp[iq]), label=meth[iq], alpha=0.5)
     iq += 1
     if iq < len(transforms):
         Q[q][indx] = np.triu(iabelQ[iq])[indx] 
         ann_plt(q, 1, meth[iq])
-        ax1.plot(*(sp[iq]), label=meth[iq], alpha=0.3)
+        ax1.plot(*(sp[iq]), label=meth[iq], alpha=0.5)
     iq += 1
 
 # reassemble image from transformed (part-)quadrants
