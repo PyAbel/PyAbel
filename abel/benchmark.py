@@ -251,7 +251,7 @@ def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
 
     if kind == 'inverse':
         func = analytical.func
-    elif kind == 'direct':
+    elif kind == 'forward':
         func = analytical.abel
 
     err = func[mask]/recon[mask]

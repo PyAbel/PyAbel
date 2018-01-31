@@ -5,8 +5,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy.ndimage.interpolation import shift
-from math import exp, log, pow, pi
 
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
@@ -103,33 +101,28 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
     """
 
     IM = np.atleast_2d(IM)
-    N = np.shape(IM)         # shape of input quadrant (half)
-    AIM = np.zeros(N)        # forward/inverse Abel transform image
-
-    rows, cols = N
+    rows, cols = np.shape(IM)      # shape of input quadrant (half)
+    AIM = np.zeros_like(IM)        # forward/inverse Abel transform image
 
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform
-    def fgamma(Nm, lam, n):
-        return 2*n*(1-np.power(Nm, lam+1))/(lam+1)
+    def fgamma(N, lam, n):
+        lam += 1
+        return 2*n[::-1]*(1 - N**lam)/lam
 
     # Eq. (18) used for the inverse transform
-    def igammalt(Nm, lam, n):
-        return (1-np.power(Nm, lam))/(pi*lam)
+    def igammalt(N, lam, n):
+        return (1 - N**lam)/(np.pi*lam)
 
-    def igammagt(Nm, lam, n):
-        return -np.log(Nm)/pi
+    def igammagt(N, lam, n):
+        return -np.log(N)/np.pi
 
     if direction == "inverse":   # inverse transform
         gammagt = igammagt   # special case lam = 0.0
         gammalt = igammalt   # lam < 0.0
 
         # g' - derivative of the intensity profile
-        if rows > 1:
-            gp = np.gradient(IM)[1]
-            # second element is gradient along the columns
-        else:  # If there is only one row
-            gp = np.atleast_2d(np.gradient(IM[0]))
+        gp = np.gradient(IM, axis=-1)
 
     else:  # forward transform
         gammagt = gammalt = fgamma
@@ -145,34 +138,31 @@ def hansenlaw_transform(IM, dr=1, direction="inverse", **kwargs):
                     -47391.1])
 
     K = np.size(h)
-    nn = np.arange(cols-2, 0, -1, dtype=int)
+    n = np.arange(cols-1)
 
-    Nm = (nn+1)/nn          # R0/R
+    N = (cols - n)/(cols - n - 1)
 
     X = np.zeros((K, rows))
-    Gamma = np.zeros((cols-2, K, 1))
-    Phi = np.zeros((cols-2, K, K))
+    Gamma = np.zeros((cols-1, K, 1))
+    Phi = np.zeros((cols-1, K, K))
 
     # Gamma_n and Phi_n  Eq. (16a) and (16b)
     # lam = 0.0
-    Gamma[:, 0, 0] = h[0]*gammagt(Nm, lam[0], nn)   
+    Gamma[:, 0, 0] = h[0]*gammagt(N, lam[0], n)   
     Phi[:, 0, 0] = 1
+
     # lam < 0.0
     for k in range(1, K): 
-        Gamma[:, k, 0] = h[k]*gammalt(Nm, lam[k], nn)  
-        Phi[:, k, k] = np.power(Nm, lam[k])   # diagonal matrix Eq. (16a)
+        Gamma[:, k, 0] = h[k]*gammalt(N, lam[k], n)  
+        Phi[:, k, k] = N**lam[k]   # diagonal matrix Eq. (16a)
 
     # Eq. (15) forward, or (17) inverse
-    for i, n in enumerate(nn):
-        X = np.dot(Phi[i], X) + Gamma[i]*gp[:, n]
-        AIM[:, n] = X.sum(axis=0)
+    for i, ni in enumerate(n[::-1]):
+        X = np.dot(Phi[i], X) + Gamma[i]*gp[:, ni]
+        AIM[:, ni] = X.sum(axis=0)
 
     # center pixel column
     AIM[:, 0] = AIM[:, 1]
-
-    # for some reason shift by -0.3 pixel aligns? - Fix me!
-    if direction == 'inverse':
-        AIM = shift(AIM, (0, -0.30))
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector

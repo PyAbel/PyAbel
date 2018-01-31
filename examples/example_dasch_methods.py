@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 # Dribinski sample image size 501x501
 n = 501
-IM = abel.tools.analytical.sample_image(n)
+IM = abel.tools.analytical.SampleImage(n).image
 
 # split into quadrants
 origQ = abel.tools.symmetry.get_image_quadrants(IM)

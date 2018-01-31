@@ -10,7 +10,7 @@ import abel
 
 def test_circularize_image():
 
-    IM = abel.tools.analytical.sample_image(n=511, name='Ominus', sigma=2)
+    IM = abel.tools.analytical.SampleImage(n=511, name='Ominus', sigma=2).image
 
     # flower image distortion
     def flower_scaling(theta, freq=2, amp=0.1):
