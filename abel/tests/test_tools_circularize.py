@@ -28,7 +28,7 @@ def test_circularize_image():
 
     diff = (IMcirc - IM).sum(axis=1).sum(axis=0)
 
-    assert_allclose(diff, -306.0, atol=0.05)
+    assert_allclose(diff, -307.603, atol=0.05)
 
     assert_allclose(angle[-1], 3.04, atol=0.05)
 
