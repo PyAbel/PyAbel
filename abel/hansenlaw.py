@@ -106,16 +106,16 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform
-    def fgamma(ratio, lam, n):
+    def fgamma(ratio, lam, nr):
         lam += 1
-        return 2*n[::-1]*(1 - ratio**lam)/lam
+        return 2*nr*(1 - ratio**lam)/lam
 
     # Eq. (18) used for the inverse transform
-    def igammalt(ratio, lam, n):
-        return (1 - ratio**lam)/(np.pi*lam)
+    def igammalt(ratio, lam, nr):  # lam < 0
+        return (1 - ratio**lam)/lam
 
-    def igammagt(ratio, lam, n):
-        return -np.log(ratio)/np.pi
+    def igammagt(ratio, lam, nr):  # lam = 0
+        return -np.log(ratio)
 
     if direction == "inverse":   # inverse transform
         gammagt = igammagt   # special case lam = 0.0
@@ -123,6 +123,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
         # g' - derivative of the intensity profile
         gp = np.gradient(IM, axis=-1)
+
         # shift gradient curve (0, -phase) pixels. Improves agreement with
         # analytical transform pairs, see PR #206
         phase = 0.43
@@ -143,6 +144,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
     K = np.size(h)
     n = np.arange(cols)  # n = 0, ..., cols-1
+    nr = n[::-1]  # nr = cols-1, ..., 0
 
     n[-1] = n[-2] # to prevent divide by zero in ratio
     ratio = (cols - n)/(cols - n - 1)  # R0/R
@@ -153,18 +155,19 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
     # Gamma_n and Phi_n  Eq. (16a) and (16b)
     # lam = 0.0
-    Gamma[:, 0, 0] = h[0]*gammagt(ratio, lam[0], n)   
+    Gamma[:, 0, 0] = h[0]*gammagt(ratio, lam[0], nr)   
     Phi[:, 0, 0] = 1
 
     # lam < 0.0
-    for k in range(1, K): 
-        Gamma[:, k, 0] = h[k]*gammalt(ratio, lam[k], n)  
+    for k in range(1, K):
+        Gamma[:, k, 0] = h[k]*gammalt(ratio, lam[k], nr)
         Phi[:, k, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
 
     # Eq. (15) forward, or (17) inverse
-    for i, revcol in enumerate(n[::-1]):
-        X = np.dot(Phi[i], X) + Gamma[i]*gp[:, revcol]
-        AIM[:, revcol] = X.sum(axis=0)
+    # start at outer edge of image nr = cols-1 and work inwards
+    for i, col in enumerate(nr):
+        X = np.dot(Phi[i], X) + Gamma[i]*gp[:, col]
+        AIM[:, col] = X.sum(axis=0)
 
     # center column
     AIM[:, 0] = AIM[:, 1]
@@ -173,6 +176,6 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         AIM = AIM[0]   # flatten to a vector
 
     if direction == "inverse":
-        return AIM*np.pi/dr    # 1/dr - from derivative
+        return AIM/dr    # 1/dr - from derivative
     else:
         return -AIM*np.pi*dr   # forward still needs '-' sign
