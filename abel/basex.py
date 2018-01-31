@@ -148,7 +148,7 @@ def basex_core_transform(rawdata, M_vert, M_horz, Mc_vert,
     Parameters
     ----------
     rawdata : NxM numpy array
-        the raw image.
+        the raw image. This is the full image, both left and right sides.
     M_vert_etc. : Numpy arrays
         2D arrays given by the basis set calculation function
     dr : float
