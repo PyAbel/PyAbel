@@ -124,14 +124,14 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         # g' - derivative of the intensity profile
         gp = np.gradient(IM, axis=-1)
 
-        # shift gradient curve -1/2 pixel. Improves agreement with analytical
-        # transform pairs, and forward-inverse transform see PR #206
-        gp[:, :-1] = (gp[:, 1:] + gp[:, :-1])/2
-
     else:  # forward transform, common gamma function 
         gammagt = gammalt = fgamma
-        # phase shift -1/2 pixel to agree with double transform self
-        gp = (IM[:, 1:] + IM[:, :-1])/2
+        gp = IM
+
+    # phase shift -1/2 pixel to better align double transform with source
+    # and the agreement with analytical transform pairs (source and
+    # projections) see #206
+    gp = (gp[:, 1:] + gp[:, :-1])/2
 
     # ------ The Hansen and Law algorithm ------------
     # iterate along columns, starting outer edge (right side)
@@ -144,7 +144,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
     K = np.size(h)
     n = np.arange(1, cols-1)  # n = 0, ..., cols-2
-    nr = n[::-1]  # nr = cols-2, ..., 0
+    nr = n[::-1]  # reversed nr = cols-2, ..., 0
     ratio = (cols - n)/(cols - n - 1)  # R0/R
 
     X = np.zeros((K, rows))
