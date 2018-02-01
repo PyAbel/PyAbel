@@ -108,7 +108,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     # Eq. (16c) used for the forward transform
     def fgamma(ratio, lam, nr):
         lam += 1
-        return 2*nr*(1 - ratio**lam)/lam
+        return 2*(nr-1)*(1 - ratio**lam)/lam
 
     # Eq. (18) used for the inverse transform
     def igammalt(ratio, lam, nr):  # lam < 0
@@ -124,14 +124,14 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         # g' - derivative of the intensity profile
         gp = np.gradient(IM, axis=-1)
 
-        # shift gradient curve (0, -phase) pixels. Improves agreement with
-        # analytical transform pairs, see PR #206
-        phase = 0.43
-        gp[:, :-1] = gp[:, 1:]*phase + gp[:, :-1]*(1-phase)
+        # shift gradient curve -1/2 pixel. Improves agreement with analytical
+        # transform pairs, and forward-inverse transform see PR #206
+        gp[:, :-1] = (gp[:, 1:] + gp[:, :-1])/2
 
-    else:  # forward transform
+    else:  # forward transform, common gamma function 
         gammagt = gammalt = fgamma
-        gp = IM
+        # phase shift -1/2 pixel to agree with double transform self
+        gp = (IM[:, 1:] + IM[:, :-1])/2
 
     # ------ The Hansen and Law algorithm ------------
     # iterate along columns, starting outer edge (right side)
@@ -143,18 +143,15 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
                     -47391.1])
 
     K = np.size(h)
-    n = np.arange(cols)  # n = 0, ..., cols-1
-    nr = n[::-1]  # nr = cols-1, ..., 0
-
-    n[-1] = n[-2] # to prevent divide by zero in ratio
+    n = np.arange(1, cols-1)  # n = 0, ..., cols-2
+    nr = n[::-1]  # nr = cols-2, ..., 0
     ratio = (cols - n)/(cols - n - 1)  # R0/R
 
     X = np.zeros((K, rows))
-    Gamma = np.zeros((cols, K, 1))
-    Phi = np.zeros((cols, K, K))
+    Gamma = np.zeros((cols-2, K, 1))
+    Phi = np.zeros((cols-2, K, K))
 
-    # Gamma_n and Phi_n  Eq. (16a) and (16b)
-    # lam = 0.0
+    # Gamma_n and Phi_n  Eq. (16a) and (16b), lam=0 special case (inverse)
     Gamma[:, 0, 0] = h[0]*gammagt(ratio, lam[0], nr)   
     Phi[:, 0, 0] = 1
 
@@ -163,8 +160,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         Gamma[:, k, 0] = h[k]*gammalt(ratio, lam[k], nr)
         Phi[:, k, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
 
-    # Eq. (15) forward, or (17) inverse
-    # start at outer edge of image nr = cols-1 and work inwards
+    # Abel transform, Eq. (15) forward, or (17) inverse
     for i, col in enumerate(nr):
         X = np.dot(Phi[i], X) + Gamma[i]*gp[:, col]
         AIM[:, col] = X.sum(axis=0)
