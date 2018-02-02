@@ -106,9 +106,9 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
     # Two alternative Gamma functions for forward/inverse transform
     # Eq. (16c) used for the forward transform
-    def fgamma(ratio, lam, nr):
+    def fgamma(ratio, lam, n):
         lam += 1
-        return 2*(nr-1)*(1 - ratio**lam)/lam
+        return 2*(n-1)*(1 - ratio**lam)/lam
 
     # Eq. (18) used for the inverse transform
     def igammalt(ratio, lam, nr):  # lam < 0
@@ -143,26 +143,25 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
                     -47391.1])
 
     K = np.size(h)
-    n = np.arange(1, cols-1)  # n = 0, ..., cols-2
-    nr = n[::-1]  # reversed nr = cols-2, ..., 0
-    ratio = (cols - n)/(cols - n - 1)  # R0/R
-
     X = np.zeros((K, rows))
-    Gamma = np.zeros((cols-2, K, 1))
-    Phi = np.zeros((cols-2, K, K))
+    Gamma = np.zeros((cols-1, K, 1))
+    Phi = np.zeros((cols-1, K, K))
+
+    n = np.arange(0, cols-1)  # n =  0, ..., cols-2
+    ratio = ((cols - n)/(cols - n - 1))[::-1]  # R0/R
 
     # Gamma_n and Phi_n  Eq. (16a) and (16b), lam=0 special case (inverse)
-    Gamma[:, 0, 0] = h[0]*gammagt(ratio, lam[0], nr)   
+    Gamma[:, 0, 0] = h[0]*gammagt(ratio, lam[0], n)   
     Phi[:, 0, 0] = 1
 
     # lam < 0.0
     for k in range(1, K):
-        Gamma[:, k, 0] = h[k]*gammalt(ratio, lam[k], nr)
+        Gamma[:, k, 0] = h[k]*gammalt(ratio, lam[k], n)  # Eq. (16c) or (18)
         Phi[:, k, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
 
-    # Abel transform, Eq. (15) forward, or (17) inverse
-    for i, col in enumerate(nr):
-        X = np.dot(Phi[i], X) + Gamma[i]*gp[:, col]
+    # Abel transform ---- Eq. (15) forward, or (17) inverse
+    for col in n[::-1]:  # outer (right) edge to iner (left) edge
+        X = np.dot(Phi[col], X) + Gamma[col]*gp[:, col]
         AIM[:, col] = X.sum(axis=0)
 
     # center column
