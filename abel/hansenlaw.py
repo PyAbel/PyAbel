@@ -161,7 +161,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         Phi[:, k, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
 
     # Abel transform ---- Eq. (15) forward, or (17) inverse
-    for col in n[::-1]:  # outer (right) edge to iner (left) edge
+    for col in n[::-1]:  # outer (right) edge to inner (left) edge
         X = np.dot(Phi[col], X) + Gamma[col]*gp[:, col]
         AIM[:, col] = X.sum(axis=0)
 
