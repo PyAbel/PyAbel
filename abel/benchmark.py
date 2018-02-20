@@ -104,27 +104,39 @@ class AbelTiming(object):
         # ---- timing tests for various image sizes nxn
         for ni in n:
             ni = int(ni)
-            x = np.random.randn(ni, ni)
-           
+            h, w = ni, ni//2 + 1
+            # We transform a rectangular image, since we are  making the assumption 
+            # that we are transforming just the "right side" of a square image.
+            # see: https://github.com/PyAbel/PyAbel/issues/207
+            
+            half_image  = np.random.randn(h, w)    
+            whole_image = np.random.randn(h, h)
             # basis set evaluation --------------
             basis = {}
             for method in res['bs'].keys():
-                if method[:-3] == 'basex':  # special case
-                    if ni <= n_max_bs:
+                if ni <= n_max_bs:
+                
+                    if method[:-3] == 'basex':  # special case
                         # calculate and store basex basis matrix
                         t = time.time()
-                        basis[method[:-3]] = transform[method](ni, ni,
-                                                       basis_dir=None)
+                        basis[method[:-3]] = transform[method](ni, ni, basis_dir=None)
+                        res['bs'][method].append((time.time()-t)*1000)
+                    
+                    elif method[:-3] == 'linbasex':  # special case
+                        t = time.time()
+                        basis[method[:-3]] = transform[method](ni)
                         res['bs'][method].append((time.time()-t)*1000)
                     else:
-                        basis[method[:-3]] = None,
-                        res['bs'][method].append(np.nan)
+                        # calculate and store basis matrix
+                        t = time.time()
+                        # store basis calculation. NB a tuple to accomodate basex
+                        basis[method[:-3]] = transform[method](w), 
+                        res['bs'][method].append((time.time()-t)*1000)
+                        
                 else:
-                    # calculate and store basis matrix
-                    t = time.time()
-                    # store basis calculation. NB a tuple to accomodate basex
-                    basis[method[:-3]] = transform[method](ni), 
-                    res['bs'][method].append((time.time()-t)*1000)
+                    basis[method[:-3]] = None,
+                    res['bs'][method].append(np.nan)
+               
 
             # Abel transforms ---------------
             for cal in ["forward", "inverse"]:
@@ -132,10 +144,26 @@ class AbelTiming(object):
                     if method in basis.keys():
                         if basis[method][0] is not None:
                             # have basis calculation
-                            res[cal][method].append(Timer(
-                               lambda: transform[method](x, *basis[method])).
-                               timeit(number=transform_repeat)*1000/
-                               transform_repeat)
+                            if method == 'basex':
+                                # pass a whole image to BASEX
+                                res[cal][method].append(Timer(
+                                   lambda: transform[method](whole_image, *basis[method])).
+                                   timeit(number=transform_repeat)*1000/
+                                   transform_repeat)
+                             
+                            elif method == 'linbasex':
+                                 # pass a whole image to linbasex
+                                 # also, don't unpack the basis set
+                                 res[cal][method].append(Timer(
+                                    lambda: transform[method](whole_image, basis[method])).
+                                    timeit(number=transform_repeat)*1000/
+                                    transform_repeat)       
+                            else:
+                                
+                                res[cal][method].append(Timer(
+                                   lambda: transform[method](half_image, *basis[method])).
+                                   timeit(number=transform_repeat)*1000/
+                                   transform_repeat)
                         else:
                             # no calculation available
                             res[cal][method].append(np.nan)
@@ -144,14 +172,14 @@ class AbelTiming(object):
                             res[cal][method].append(np.nan)
                         else:     
                             res[cal][method].append(Timer(
-                               lambda: transform[method](x, backend=method[7:],
+                               lambda: transform[method](half_image, backend=method[7:],
                                direction=cal)).
                                timeit(number=transform_repeat)*1000/
                                transform_repeat)
                     else:
                         # full calculation for everything else
                         res[cal][method].append(Timer(
-                           lambda: transform[method](x, direction=cal)).
+                           lambda: transform[method](half_image, direction=cal)).
                            timeit(number=transform_repeat)*1000/
                            transform_repeat)
 

@@ -80,7 +80,7 @@ onion_peeling_transform.__doc__ =\
 
 def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse", 
                      method="three_point"):
-
+    
     if direction != 'inverse':
         raise ValueError('Forward "two_point" transform not implemented')
 
