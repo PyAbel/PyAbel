@@ -104,74 +104,71 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     """
 
     IM = np.atleast_2d(IM)
-    rows, cols = np.shape(IM)      # shape of input quadrant (half)
-    AIM = np.zeros_like(IM)        # forward/inverse Abel transform image
-
-    # Two alternative Gamma functions for forward/inverse transform
-    # Eq. (16c) used for the forward transform
-    # Eq. (18) used for the inverse transform
-    def igammalt(ratio, lam, nr):  # lam < 0
-        return (1 - ratio**lam)/lam
-
-    def igammagt(ratio, lam, nr):  # lam = 0
-        return -np.log(ratio)
-
-    def fgamma(ratio, lam, n):
-        return 2*(n-1)*igammalt(ratio, lam+1, n)
-
-    if direction == "inverse":   # inverse transform
-        gammagt = igammagt   # special case lam = 0.0
-        gammalt = igammalt   # lam < 0.0
-
-        # g' - derivative of the intensity profile
-        gp = np.gradient(IM, axis=-1)
-
-    else:  # forward transform, common gamma function
-        gammagt = gammalt = fgamma
-        gp = IM
-
-    # phase shift -1/2 pixel better aligns double transform with its source
-    # and better agreement with analytical transform pairs (source and
-    # projections) see #206
-    gp = (gp[:, 1:] + gp[:, :-1])/2
+    AIM = np.zeros_like(IM)  # forward/inverse Abel transform image
 
     # ------ The Hansen and Law algorithm ------------
-    # iterate along columns, starting outer edge (right side)
 
     # constants listed in Table 1.
     h = np.array([0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3])
-    lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
-                    -47391.1])
+    lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4,
+                    -8990.9, -47391.1])
 
+    rows, cols = np.shape(IM)  # shape of input quadrant (half)
     K = np.size(h)
     X = np.zeros((K, rows))
     Gamma = np.zeros((cols-1, K, 1))
     Phi = np.zeros((cols-1, K, K))
 
-    n = np.arange(0, cols-1)  # n =  0, ..., cols-2
-    ratio = ((cols - n)/(cols - n - 1))[::-1]  # R0/R
+    # enumerate columns n=0 is Rmax, rightside of image
+    n = np.arange(cols-2, -1, -1)  # n =  cols-2, ..., 0
+    denom = cols - n - 1  #  N-n-1 in Hansen & Law
+    ratio = (cols-n)/denom  #  (N-n)/(N-n-1) in Hansen & Law
 
-    # Gamma_n and Phi_n  Eq. (16a) and (16b), lam=0 special case (inverse)
-    Gamma[:, 0, 0] = h[0]*gammagt(ratio, lam[0], n)
-    Phi[:, 0, 0] = 1
+    if direction == "forward":  # forward transform
+        # Gamma function Eq. (16c) 
+        def gamma(ratio, lam, denom):
+            lam += 1
+            return 2*denom*(1 - ratio**lam)/lam
 
-    # lam < 0.0
-    for k in range(1, K):
-        Gamma[:, k, 0] = h[k]*gammalt(ratio, lam[k], n)  # Eq. (16c) or (18)
+        gp = IM  # the raw image
+        Kmin = 0
+
+    else:  # inverse transform
+        # special case for lam = 0 Eq. (18)
+        def gamma_zero(ratio, lam):
+            return -np.log(ratio)
+
+        # for all other lam < 0, Eq. (18)
+        def gamma(ratio, lam, dummy):  # dummy parameter for common call
+            return (1 - ratio**lam)/lam
+
+        # special case for inverse transform when k=0, lam[k]=0
+        # Gamma_n and Phi_n  Eq. (16a) and (16b)
+        Gamma[:, 0, 0] = h[0]*gamma_zero(ratio, lam[0])
+        Phi[:, 0, 0] = 1
+        Kmin = 1
+
+        # g' - derivative of the intensity profile
+        gp = np.gradient(IM, axis=-1)
+
+    # -1/2 pixel shift of source (image, or derivative) better aligns transform 
+    # see issue #206
+    gp = (gp[:, 1:] + gp[:, :-1])/2
+
+    # Gamma and Phi arrays for the whole image Eq. (16a) and (16b) for lam < 0
+    for k in range(Kmin, K):
+        Gamma[:, k, 0] = h[k]*gamma(ratio, lam[k], denom)  # Eq. (16c) or (18)
         Phi[:, k, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
 
-    # Abel transform ---- Eq. (15) forward, or (17) inverse
-    for col in n[::-1]:  # outer (right) edge to inner (left) edge
+    # The Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
+    for col in n:  # outer (right) edge to inner (left) edge
         X = np.dot(Phi[col], X) + Gamma[col]*gp[:, col]
         AIM[:, col] = X.sum(axis=0)
-
-    # center column
-    AIM[:, 0] = AIM[:, 1]
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
 
     if direction == "inverse":
-        return AIM/dr    # 1/dr - from derivative
+        return AIM/dr  # 1/dr - from derivative
     else:
-        return -AIM*np.pi*dr   # forward still needs '-' sign
+        return -AIM*np.pi*dr  # forward 
