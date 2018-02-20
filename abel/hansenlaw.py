@@ -106,47 +106,41 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     IM = np.atleast_2d(IM)
     AIM = np.zeros_like(IM)  # forward/inverse Abel transform image
 
-    # ------ The Hansen and Law algorithm ------------
-
-    # constants listed in Table 1.
+    # Hansen & Law constants as listed in Table 1.
     h = np.array([0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3])
-    lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4,
-                    -8990.9, -47391.1])
+    lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
+                    -47391.1])
 
     rows, cols = np.shape(IM)  # shape of input quadrant (half)
-    K = np.size(h)
-    X = np.zeros((K, rows))
-    Gamma = np.zeros((cols-1, K, 1))
-    Phi = np.zeros((cols-1, K, K))
 
-    # enumerate columns n=0 is Rmax, rightside of image
+    # enumerate columns n=0 is Rmax, right side of image
     n = np.arange(cols-2, -1, -1)  # n =  cols-2, ..., 0
     denom = cols - n - 1  #  N-n-1 in Hansen & Law
     ratio = (cols-n)/denom  #  (N-n)/(N-n-1) in Hansen & Law
 
-    if direction == "forward":  # forward transform
-        # Gamma function Eq. (16c) 
-        def gamma(ratio, lam, denom):
-            lam += 1
-            return 2*denom*(1 - ratio**lam)/lam
+    K = np.size(h)
+    Phi = np.zeros((cols-1, K, K))
+    Phi[:, 0, 0] = 1
+    for k in range(1, K):
+        Phi[:, k, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
 
-        gp = IM  # the raw image
-        Kmin = 0
+    Gamma = np.zeros((cols-1, K, 1))
+    if direction == "forward":  # forward transform
+        lam1 = lam + 1
+        for k in range(K):
+            Gamma[:, k, 0] = h[k]*2*denom*(1 - ratio**lam1[k])/lam1[k]  # (16c)
+        Gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
+
+        gp = IM  # raw image
 
     else:  # inverse transform
-        # special case for lam = 0 Eq. (18)
-        def gamma_zero(ratio, lam):
-            return -np.log(ratio)
+        # special case for lamda = 0
+        Gamma[:, 0, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
 
-        # for all other lam < 0, Eq. (18)
-        def gamma(ratio, lam, dummy):  # dummy parameter for common call
-            return (1 - ratio**lam)/lam
-
-        # special case for inverse transform when k=0, lam[k]=0
-        # Gamma_n and Phi_n  Eq. (16a) and (16b)
-        Gamma[:, 0, 0] = h[0]*gamma_zero(ratio, lam[0])
-        Phi[:, 0, 0] = 1
-        Kmin = 1
+        # lam < 0
+        for k in range(1, K):
+            Gamma[:, k, 0] = h[k]*(1 - Phi[:, k, k])/lam[k]  # Eq. (18)
+        Gamma /= dr  # Jacobian
 
         # g' - derivative of the intensity profile
         gp = np.gradient(IM, axis=-1)
@@ -155,20 +149,13 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     # see issue #206
     gp = (gp[:, 1:] + gp[:, :-1])/2
 
-    # Gamma and Phi arrays for the whole image Eq. (16a) and (16b) for lam < 0
-    for k in range(Kmin, K):
-        Gamma[:, k, 0] = h[k]*gamma(ratio, lam[k], denom)  # Eq. (16c) or (18)
-        Phi[:, k, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
-
-    # The Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
-    for col in n:  # outer (right) edge to inner (left) edge
+    # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
+    X = np.zeros((K, rows))
+    for col in n:  # right image edge to left edge
         X = np.dot(Phi[col], X) + Gamma[col]*gp[:, col]
         AIM[:, col] = X.sum(axis=0)
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
 
-    if direction == "inverse":
-        return AIM/dr  # 1/dr - from derivative
-    else:
-        return -AIM*np.pi*dr  # forward 
+    return AIM
