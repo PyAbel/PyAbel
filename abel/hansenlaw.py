@@ -119,27 +119,24 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     ratio = (cols-n)/denom  #  (N-n)/(N-n-1) in Hansen & Law
 
     K = np.size(h)
-    Phi = np.zeros((cols-1, K, K))
-    Phi[:, 0, 0] = 1
+    Phi = np.zeros((cols-1, K))
+    Phi[:, 0] = 1
     for k in range(1, K):
-        Phi[:, k, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
+        Phi[:, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
 
-    Gamma = np.zeros((cols-1, K, 1))
+    Gamma = np.zeros((cols-1, K))
     if direction == "forward":  # forward transform
         lam1 = lam + 1
         for k in range(K):
-            Gamma[:, k, 0] = h[k]*2*denom*(1 - ratio**lam1[k])/lam1[k]  # (16c)
+            Gamma[:, k] = h[k]*2*denom*(1 - ratio**lam1[k])/lam1[k]  # (16c)
         Gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
 
         gp = IM  # raw image
 
     else:  # inverse transform
-        # special case for lamda = 0
-        Gamma[:, 0, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
-
-        # lam < 0
+        Gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
         for k in range(1, K):
-            Gamma[:, k, 0] = h[k]*(1 - Phi[:, k, k])/lam[k]  # Eq. (18)
+            Gamma[:, k] = h[k]*(1 - Phi[:, k])/lam[k]  # Eq. (18 lamda<0)
         Gamma /= dr  # Jacobian
 
         # g' - derivative of the intensity profile
@@ -152,7 +149,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     X = np.zeros((K, rows))
     for col in n:  # right image edge to left edge
-        X = np.dot(Phi[col], X) + Gamma[col]*gp[:, col]
+        X = Phi[col][:, None]*X + Gamma[col][:, None]*gp[:, col]
         AIM[:, col] = X.sum(axis=0)
 
     if AIM.shape[0] == 1:
