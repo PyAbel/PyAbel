@@ -31,7 +31,7 @@ import numpy as np
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', shift=False, **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -80,11 +80,6 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=False, **kwargs):
 
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
-
-    shift: boolean
-         -1/2 pixel shift of source (image, or derivative) better aligns transform 
-         see issue #206
-
 
     Returns
     -------
@@ -142,15 +137,10 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=False, **kwargs):
         Gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
         for k in range(1, K):
             Gamma[:, k] = h[k]*(1 - Phi[:, k])/lam[k]  # Eq. (18 lamda<0)
-        Gamma /= dr  # Jacobian
 
         # g' - derivative of the intensity profile
-        gp = np.gradient(IM, axis=-1)
-
-    # -1/2 pixel shift of source (image, or derivative) better aligns transform 
-    # see issue #206
-    if shift:
-        gp = (gp[:, 1:] + gp[:, :-1])/2
+        gp = np.gradient(IM, dr, axis=-1)
+        gp[:, :-1] = gp[:, 1:]*0.35 + gp[:, :-1]*0.65
 
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     X = np.zeros((K, rows))

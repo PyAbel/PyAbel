@@ -90,7 +90,7 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
         path_to_basis_file = os.path.join(basis_dir, basis_name)
         if os.path.exists(path_to_basis_file):
             if verbose:
-                print("Loading {} operator matrix...".method)
+                print("Loading {} operator matrix...", method)
             try:
                 D = np.load(path_to_basis_file)
                 return D 
