@@ -83,13 +83,13 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
         ``forward`` or ``inverse`` Abel transform
 
     shift: float
-	horizontal pixel shift of input image (forward) or gradient (inverse).
-        Improves transform alignment transform with the ``three_point`` method and
-        for transform pairs, see issue #206. `shift=-0.35` better aligns the 
+        horizontal pixel shift of input image (forward) or gradient (inverse)
+        improves transform alignment transform with the ``three_point`` method and
+        for transform pairs, see issue #206. e.g. `shift=-0.35` better aligns the
         O :math:`_2^-` photoelectron spectrum.
 
-	Returns
-	-------
+    Returns
+    -------
     AIM : 1D or 2D numpy array
         forward/inverse Abel transform half-image
 
@@ -122,8 +122,8 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
 
     # enumerate columns n=0 is Rmax, right side of image
     n = np.arange(cols-2, -1, -1)  # n =  cols-2, ..., 0
-    denom = cols - n - 1  #  N-n-1 in Hansen & Law
-    ratio = (cols-n)/denom  #  (N-n)/(N-n-1) in Hansen & Law
+    denom = cols - n - 1  # N-n-1 in Hansen & Law
+    ratio = (cols-n)/denom  # (N-n)/(N-n-1) in Hansen & Law
 
     K = np.size(h)
     Phi = np.zeros((cols-1, K))
