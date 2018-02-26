@@ -31,7 +31,7 @@ if cols % 2 == 0:
 AIM = abel.Transform(IM, method='hansenlaw',
                      use_quadrants=(True, True, True, True),
                      symmetry_axis=None,
-                     transform_options=dict(dr=0.5),
+                     transform_options=dict(dr=0.5), 
                      verbose=True).transform
 
 radial, speeds  = abel.tools.vmi.angular_integration(AIM, dr=0.5)

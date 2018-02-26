@@ -76,6 +76,9 @@ for q, method in enumerate(transforms.keys()):
         IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
                                   basis_dir='bases',
                                   proj_angles=np.arange(0, np.pi/3, np.pi/18)) 
+    elif method == 'hansenlaw':
+        # shift to better align photoelectron spectrum with other methods
+        IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1, shift=-0.35)
     else:
         IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
                                   basis_dir='bases')

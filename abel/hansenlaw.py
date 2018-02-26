@@ -83,10 +83,10 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
         ``forward`` or ``inverse`` Abel transform
 
     shift: float
-	Horizontal pixel shift of image (forward) or gradient (inverse).
-        Improves alignment of transform with ``three_point`` and
-        transform pairs, see issue #206. `shift=-0.35` better aligns the 
-        O:math:`_2^-` photoelectron spectrum.
+	horizontal pixel shift of input image (forward) or gradient (inverse).
+        Improves transform alignment transform with the ``three_point`` method and
+        for transform pairs, see issue #206. `shift=-0.35` better aligns the 
+        O :math:`_2^-` photoelectron spectrum.
 
 	Returns
 	-------
