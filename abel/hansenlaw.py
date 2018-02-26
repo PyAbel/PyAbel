@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+from scipy.ndimage import interpolation
 
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
@@ -31,7 +32,7 @@ import numpy as np
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -81,8 +82,14 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
 
-    Returns
-    -------
+    shift: float
+	Horizontal pixel shift of image (forward) or gradient (inverse).
+        Improves alignment of transform with ``three_point`` and
+        transform pairs, see issue #206. `shift=-0.35` better aligns the 
+        O:math:`_2^-` photoelectron spectrum.
+
+	Returns
+	-------
     AIM : 1D or 2D numpy array
         forward/inverse Abel transform half-image
 
@@ -140,7 +147,11 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
         # g' - derivative of the intensity profile
         gp = np.gradient(IM, dr, axis=-1)
-        gp[:, :-1] = gp[:, 1:]*0.35 + gp[:, :-1]*0.65
+
+    # pixel shift of source (image or derivative) improves alignment
+    # cf three_point transform, and transform pairs, see issue #206
+    if abs(shift) > 1.0e-3:  # if too small don't bother
+        gp = interpolation.shift(gp, (0, shift))
 
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     X = np.zeros((K, rows))
