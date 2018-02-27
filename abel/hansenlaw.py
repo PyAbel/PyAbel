@@ -125,7 +125,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
     denom = cols - n - 1  # N-n-1 in Hansen & Law
     ratio = (cols-n)/denom  # (N-n)/(N-n-1) in Hansen & Law
 
-    # Phi array - diagonal for each pixel
+    # Phi array the diagonal for each row-pixel
     K = np.size(h)
     Phi = np.zeros((cols-1, K))
     Phi[:, 0] = 1
