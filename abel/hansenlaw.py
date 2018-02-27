@@ -120,17 +120,19 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
 
     rows, cols = np.shape(IM)  # shape of input quadrant (half)
 
-    # enumerate columns n=0 is Rmax, right side of image
+    # enumerate columns n=cols-2 is Rmax, right side of image
     n = np.arange(cols-2, -1, -1)  # n =  cols-2, ..., 0
     denom = cols - n - 1  # N-n-1 in Hansen & Law
     ratio = (cols-n)/denom  # (N-n)/(N-n-1) in Hansen & Law
 
+    # Phi array - diagonal for each pixel
     K = np.size(h)
     Phi = np.zeros((cols-1, K))
     Phi[:, 0] = 1
     for k in range(1, K):
         Phi[:, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
 
+    # Gamma array, slightly different for each tansform direction
     Gamma = np.zeros((cols-1, K))
     if direction == "forward":  # forward transform
         lam1 = lam + 1
