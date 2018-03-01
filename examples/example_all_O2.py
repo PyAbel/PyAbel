@@ -18,7 +18,6 @@ import abel
 import collections
 import matplotlib.pylab as plt
 from time import time
-from scipy.ndimage import interpolation
 
 # inverse Abel transform methods -----------------------------
 #   dictionary of method: function()
@@ -82,11 +81,6 @@ for q, method in enumerate(transforms.keys()):
                                   basis_dir='bases')
     print ("                    {:.1f} sec".format(time()-t0))
 
-    if method == 'hansenlaw':
-        # -1/3 pixel shift better aligns spectrum with other methods
-        # see issue #206
-        IAQ0 = interpolation.shift(IAQ0, (0, -1/3))
-
     # polar projection and speed profile
     radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(0, 0),
                                                        dr=0.1)
@@ -94,6 +88,10 @@ for q, method in enumerate(transforms.keys()):
     # normalize image intensity and speed distribution
     IAQ0 /= IAQ0[mask].max()  
     speed /= speed[radial > 50].max()
+
+    # slight radial scaling better aligns hansenlaw, see #206
+    if method == 'hansenlaw':
+        radial /= 1.0008
 
     # keep data for plots
     iabelQ.append(IAQ0)  
