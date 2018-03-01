@@ -5,7 +5,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy.ndimage import interpolation
 
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
@@ -23,6 +22,7 @@ from scipy.ndimage import interpolation
 #    Molecule Dissociation", Flinders University, 2000.
 #
 # Implemented in Python, with image quadrant co-adding, by Steve Gibson
+# 2018-02   : Drop one array dimension, use numpy broadcast multiplication
 # 2015-12-16: Modified to calculate the forward Abel transform
 # 2015-12-03: Vectorization and code improvements Dan Hickstein and
 #             Roman Yurchak
@@ -32,7 +32,7 @@ from scipy.ndimage import interpolation
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -46,6 +46,10 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
 
     :math:`f(r)` is the reconstructed image (source) function,
     :math:`g'(R)` is the derivative of the projection (measured) function
+
+    The Hansen and Law approach treats the Abel transform as a system modeled
+    by a set of linear differential equations, with :math:`f(r)` (forward) or
+    :math:`g'(R)` (inverse) the driving function.
 
     Evaluation follows Eqs. (15 or 17), using (16a), (16b), and (16c or 18) of
     the Hansen and Law paper. For the full image transform, use the
@@ -82,12 +86,6 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
 
-    shift: float
-        horizontal pixel shift of input image (forward) or gradient (inverse)
-        improves transform alignment transform with the ``three_point`` method and
-        for transform pairs, see issue #206. e.g. `shift=-0.35` better aligns the
-        O :math:`_2^-` photoelectron spectrum.
-
     Returns
     -------
     AIM : 1D or 2D numpy array
@@ -113,7 +111,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
     IM = np.atleast_2d(IM)
     AIM = np.zeros_like(IM)  # forward/inverse Abel transform image
 
-    # Hansen & Law constants as listed in Table 1.
+    # Hansen & Law parameters of exponential approximation, Table 1.
     h = np.array([0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3])
     lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
                     -47391.1])
@@ -125,40 +123,36 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
     denom = cols - n - 1  # N-n-1 in Hansen & Law
     ratio = (cols-n)/denom  # (N-n)/(N-n-1) in Hansen & Law
 
-    # Phi array the diagonal for each row-pixel
+    # Phi array Eq (16a), diagonal array, for each pixel
     K = np.size(h)
     Phi = np.zeros((cols-1, K))
     Phi[:, 0] = 1
     for k in range(1, K):
-        Phi[:, k] = ratio**lam[k]   # diagonal matrix Eq. (16a)
+        Phi[:, k] = ratio**lam[k]
 
-    # Gamma array, slightly different for each tansform direction
+    # Gamma array, Eq (16b), with gamma Eq (16c) forward, or Eq (18) inverse
     Gamma = np.zeros((cols-1, K))
-    if direction == "forward":  # forward transform
+    if direction == "forward":
         lam1 = lam + 1
         for k in range(K):
             Gamma[:, k] = h[k]*2*denom*(1 - ratio**lam1[k])/lam1[k]  # (16c)
         Gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
 
-        gp = IM  # raw image
+        # driving function = raw image
+        drive = IM
 
     else:  # inverse transform
         Gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
         for k in range(1, K):
             Gamma[:, k] = h[k]*(1 - Phi[:, k])/lam[k]  # Eq. (18 lamda<0)
 
-        # g' - derivative of the intensity profile
-        gp = np.gradient(IM, dr, axis=-1)
-
-    # pixel shift of source (image or derivative) improves alignment
-    # cf three_point transform, and transform pairs, see issue #206
-    if abs(shift) > 1.0e-3:  # if too small don't bother
-        gp = interpolation.shift(gp, (0, shift))
+        # driving function derivative of the image intensity profile
+        drive = np.gradient(IM, dr, axis=-1)
 
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     X = np.zeros((K, rows))
     for col in n:  # right image edge to left edge
-        X = Phi[col][:, None]*X + Gamma[col][:, None]*gp[:, col]
+        X = Phi[col][:, None]*X + Gamma[col][:, None]*drive[:, col]
         AIM[:, col] = X.sum(axis=0)
 
     if AIM.shape[0] == 1:

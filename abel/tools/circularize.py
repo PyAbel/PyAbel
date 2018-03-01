@@ -28,6 +28,12 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
     Corrects image distortion on the basis that the structure should be
     circular.
 
+    This is a simplified radial scaling version of the algorithm described in 
+    `J. R. Gascooke and S. T. Gibson and W. D. Lawrance: 'A "circularisation"
+    method to repair deformations and determine the centre of velocity map 
+    images' J. Chem. Phys. 147, 013924 (2017).
+    <https://dx.doi.org/10.1063/1.4981024>`_
+
     This function is especially useful for correcting the image obtained with
     a velocity-map-imaging spectrometer, in the case where there is distortion
     of the Newton Sphere (ring) structure due to an imperfect electrostatic
@@ -308,7 +314,7 @@ def correction(polarIMTrans, angles, radial, method):
 
             previous += _residual(result[0], radial, profile, previous)
             # This "previous" slice corresponds to the previous slice intensity
-            # profile that has # been re-scaled. Thus, if the next slice is
+            # profile that has been re-scaled. Thus, if the next slice is
             # identical, it will be assigned a scale factor of 1.0
 
             # use the determined radial scale factor, and amplitude parameters
