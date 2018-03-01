@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+from scipy.ndimage import interpolation
 
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
@@ -32,7 +33,7 @@ import numpy as np
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -148,6 +149,10 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
         # driving function derivative of the image intensity profile
         drive = np.gradient(IM, dr, axis=-1)
+
+    # -4/3-pixel drive array shift better aligns 'curve A' transform pair
+    if abs(shift) > 0:
+        drive = interpolation.shift(drive, (0, shift))
 
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     X = np.zeros((K, rows))
