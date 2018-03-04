@@ -117,22 +117,22 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
     lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
                     -47391.1])
 
-    rows, cols = np.shape(IM)  # shape of input quadrant (half)
+    rows, N = np.shape(IM)  # shape of input quadrant (half)
 
-    # enumerate columns n=cols-2 is Rmax, right side of image
-    n = np.arange(cols-2, -1, -1)  # n =  cols-2, ..., 0
-    denom = cols - n - 1  # N-n-1 in Hansen & Law
-    ratio = (cols-n)/denom  # (N-n)/(N-n-1) in Hansen & Law
+    # enumerate columns n=N-1 is Rmax, right side of image
+    # NB reverse order cf H&L where n=0 is right side of image
+    n = np.arange(N-1, -1, -1)  # n =  N-1, ..., 0
+    denom = N - n - 1  # N-n-1 in Hansen & Law
+    ratio = (N-n)/denom  # (N-n)/(N-n-1) in Hansen & Law
 
     # Phi array Eq (16a), diagonal array, for each pixel
     K = np.size(h)
-    Phi = np.zeros((cols-1, K))
-    Phi[:, 0] = 1
-    for k in range(1, K):
+    Phi = np.zeros((N, K))
+    for k in range(K):
         Phi[:, k] = ratio**lam[k]
 
     # Gamma array, Eq (16b), with gamma Eq (16c) forward, or Eq (18) inverse
-    Gamma = np.zeros((cols-1, K))
+    Gamma = np.zeros((N, K))
     if direction == "forward":
         lam1 = lam + 1
         for k in range(K):
@@ -150,15 +150,18 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
         # driving function derivative of the image intensity profile
         drive = np.gradient(IM, dr, axis=-1)
 
-    # -4/3-pixel drive array shift better aligns 'curve A' transform pair
+    # -1/2-pixel drive array shift better aligns transform pairs
     if abs(shift) > 0:
         drive = interpolation.shift(drive, (0, shift))
 
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     X = np.zeros((K, rows))
-    for col in n:  # right image edge to left edge
+    for col in n[:-1]:  # right image edge to left edge
         X = Phi[col][:, None]*X + Gamma[col][:, None]*drive[:, col]
         AIM[:, col] = X.sum(axis=0)
+
+    # left column
+    AIM[:, 0] = AIM[:, 1]
 
     if AIM.shape[0] == 1:
         AIM = AIM[0]   # flatten to a vector
