@@ -140,7 +140,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
         Gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
 
         # driving function = raw image
-        drive = IM
+        drive = IM.copy()
 
     else:  # inverse transform
         Gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
