@@ -33,7 +33,7 @@ from scipy.ndimage import interpolation
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -119,11 +119,10 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
 
     rows, N = np.shape(IM)  # shape of input quadrant (half)
 
-    # enumerate columns n=N-1 is Rmax, right side of image
-    # NB reverse order cf H&L where n=0 is right side of image
+    # enumerate columns n = N-2 is Rmax, right side of image
     n = np.arange(N-2, -1, -1)  # n =  N-2, ..., 0
     denom = N - n - 1  # N-n-1 in Hansen & Law
-    ratio = (N-n)/denom  # (N-n)/(N-n-1) in Hansen & Law
+    ratio = (N - n)/denom  # (N-n)/(N-n-1) in Hansen & Law
 
     # Phi array Eq (16a), diagonal array, for each pixel
     K = np.size(h)
@@ -140,7 +139,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
         Gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
 
         # driving function = raw image
-        drive = IM.copy()
+        drive = IM
 
     else:  # inverse transform
         Gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
@@ -150,18 +149,15 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0, **kwargs):
         # driving function derivative of the image intensity profile
         drive = np.gradient(IM, dr, axis=-1)
 
-    # 1-pixel shift to align image with ratio, Gamma, Phi arrays
-    drive[:, :-1] = drive[:, 1:]
-
-    # -1/2 pixel drive array shift better aligns transform pairs
-    if abs(shift) > 0:
-        drive = interpolation.shift(drive, (0, shift))
+    # 1/2 pixel shift improves transform pair agreement, see #206, #211
+    drive = interpolation.shift(drive, (0, -1/2))
 
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     X = np.zeros((K, rows))
-    for col in n:  # right image edge to left edge
-        X = Phi[col][:, None]*X + Gamma[col][:, None]*drive[:, col]
-        AIM[:, col] = X.sum(axis=0)
+    n1 = n + 1 # Phi, Gamma, 1-pixel offset relative to image
+    for col, col1  in zip(n, n1):  # right image edge to left edge
+        X = Phi[col][:, None]*X + Gamma[col][:, None]*drive[:, col1]
+        AIM[:, col1] = X.sum(axis=0)
 
     # left column
     AIM[:, 0] = AIM[:, 1]

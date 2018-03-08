@@ -89,10 +89,6 @@ for q, method in enumerate(transforms.keys()):
     IAQ0 /= IAQ0[mask].max()  
     speed /= speed[radial > 50].max()
 
-    # slight radial scaling better aligns hansenlaw, see #206
-    if method == 'hansenlaw':
-        radial /= 1.0008
-
     # keep data for plots
     iabelQ.append(IAQ0)  
     sp.append((radial, speed))
