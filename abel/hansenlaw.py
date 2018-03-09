@@ -109,7 +109,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         Use ``abel.tools.center.center_image(IM, center='com')``
     """
 
-    IM = np.atleast_2d(IM)
+    IM = np.atleast_2d(IM.copy())
     AIM = np.zeros_like(IM)  # forward/inverse Abel transform image
 
     # Hansen & Law parameters of exponential approximation, Table 1.
@@ -138,7 +138,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
             Gamma[:, k] = h[k]*2*denom*(1 - ratio**lam1[k])/lam1[k]  # (16c)
         Gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
 
-        # driving function = raw image. NB use IM.copy() if shift not applied
+        # driving function = raw image
         drive = IM
 
     else:  # inverse transform
