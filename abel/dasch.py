@@ -85,7 +85,7 @@ def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse",
         raise ValueError('Forward "two_point" transform not implemented')
 
     # make sure that the data has 2D shape
-    IM = np.atleast_2d(IM.copy())
+    IM = np.atleast_2d(IM)
 
     rows, cols = IM.shape
 
