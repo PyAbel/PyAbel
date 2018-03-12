@@ -5,7 +5,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy.ndimage import interpolation
 
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
@@ -23,6 +22,8 @@ from scipy.ndimage import interpolation
 #    Molecule Dissociation", Flinders University, 2000.
 #
 # Implemented in Python, with image quadrant co-adding, by Steve Gibson
+# 2018-03   : NB method applies to grid centered (even columns), not
+#             pixel-centered (odd column) image see #206, #211
 # 2018-02   : Drop one array dimension, use numpy broadcast multiplication
 # 2015-12-16: Modified to calculate the forward Abel transform
 # 2015-12-03: Vectorization and code improvements Dan Hickstein and
@@ -105,8 +106,15 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         .         |     *        | *      |
         .         +--------      +--------+
 
-        Image centre ``o`` should be within a pixel (i.e. an odd number of columns)
-        Use ``abel.tools.center.center_image(IM, center='com')``
+        Image centre ``o`` should be on the left pixel-edge
+
+        .    +--+--+        +--+
+        .    |  |  |  ...   |  |
+        .    o--+--+        +--+
+        .     0  1         cols-1     pixel column number
+
+        i.e. an ``even`` number of columns
+        Use ``abel.tools.center.center_image(IM, center='com', odd_size=False)``
     """
 
     IM = np.atleast_2d(IM.copy())
@@ -148,9 +156,6 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
         # driving function derivative of the image intensity profile
         drive = np.gradient(IM, dr, axis=-1)
-
-    # 1/2 pixel shift improves transform pair agreement, see #206, #211
-    drive = interpolation.shift(drive, (0, -1/2))
 
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     X = np.zeros((K, rows))
