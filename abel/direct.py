@@ -48,7 +48,8 @@ def _construct_r_grid(n, dr=None, r=None):
     else:
         if isinstance(dr, np.ndarray):
             raise NotImplementedError
-        r = (np.arange(n))*dr
+        r = np.arange(n)*dr    # +0.5 factor removed, see #213
+        r[0] = 1.0e-16  # otherwise method may fail
     return r, dr
 
 

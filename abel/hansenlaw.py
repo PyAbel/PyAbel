@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+from scipy.ndimage import interpolation
 
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
@@ -34,7 +35,8 @@ import numpy as np
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True,
+                        **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -88,6 +90,12 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
 
+    align_grid : boolean
+         When True image is shifted left by 1/2-pixel to align pixel-grid with
+         left pixel edge, using `scipy.nidmage.shift(IM, (0, -1/2))`.
+         This has been found to produce better agreement between the
+         analytical function transform pairs. See #211 discussion
+
     Returns
     -------
     AIM : 1D or 2D numpy array
@@ -114,10 +122,12 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         .     0  1         cols-1     pixel column number
 
         i.e. an ``even`` number of columns
-        Use ``abel.tools.center.center_image(IM, center='com', odd_size=False)``
+
+        If not, set `image_grid_midpixel=True` (default)
     """
 
     IM = np.atleast_2d(IM)
+
     AIM = np.zeros_like(IM)  # forward/inverse Abel transform image
 
     # Hansen & Law parameters of exponential approximation, Table 1.
@@ -146,8 +156,8 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
             Gamma[:, k] = h[k]*2*denom*(1 - ratio**lam1[k])/lam1[k]  # (16c)
         Gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
 
-        # driving function = raw image
-        drive = IM.copy()
+        # driving function = raw image. copy so do not mangle input image
+        drive = IM.copy() 
 
     else:  # inverse transform
         Gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
@@ -156,6 +166,11 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
         # driving function derivative of the image intensity profile
         drive = np.gradient(IM, dr, axis=-1)
+
+    # see issue #211, better agreement with analytical transform pairs
+    # if image grid on pixel edge, rather than the mid-point
+    if align_grid:
+        drive = interpolation.shift(drive, (0, -1/2))
 
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     X = np.zeros((K, rows))
