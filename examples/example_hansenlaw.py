@@ -19,20 +19,14 @@ IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 
 rows, cols = IM.shape    # image size
 
-# Image center-line should be left-side-of-pixel, i.e. even number of columns
-# see issue #36
-if cols % 2: 
-    print ('HL: even pixel width image, re-adjusting image centre\n'
-           '    using `slice` method, returning even-width size image')
-    IM = abel.tools.center.center_image(IM, center='slice', odd_size=False)
-    rows, cols = IM.shape   # new image size
-
+# in this case the image is centred on a grid, even columns, and so
+# no alignment required, set align_grid=False.
 # dr=0.5 may help reduce pixel grid coarseness
 # NB remember to also pass as an option to angular_integration
 AIM = abel.Transform(IM, method='hansenlaw',
                      use_quadrants=(True, True, True, True),
                      symmetry_axis=None,
-                     transform_options=dict(dr=0.5), 
+                     transform_options=dict(dr=0.5, align_grid=False), 
                      angular_integration=True,
                      angular_integration_options=dict(dr=0.5),
                      verbose=True)

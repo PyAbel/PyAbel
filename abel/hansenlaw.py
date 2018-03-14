@@ -35,7 +35,7 @@ from scipy.ndimage import interpolation
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True,
+def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True, 
                         **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
@@ -91,10 +91,8 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True,
         ``forward`` or ``inverse`` Abel transform
 
     align_grid : boolean
-         When True image is shifted left by 1/2-pixel to align pixel-grid with
-         left pixel edge, using `scipy.nidmage.shift(IM, (0, -1/2))`.
-         This has been found to produce better agreement between the
-         analytical function transform pairs. See #211 discussion
+         Shift the image by -1/2 pixel along each axis. Aligns center
+         with the pixel left-edge. See transform pair functions discussion #211
 
     Returns
     -------
@@ -114,16 +112,21 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True,
         .         |     *        | *      |
         .         +--------      +--------+
 
-        Image centre ``o`` should be on the left pixel-edge
+        In accordance with all PyAbel methods the image center ``o`` is
+        defined to be within a pixel (i.e. an odd number of columns, for the
+        whole image). Here ``align_grid=True`` (default).  
+
+        The native format for ``hansenlaw`` is with image center ``o`` at the 
+        left pixel edge.
 
         .    +--+--+        +--+
         .    |  |  |  ...   |  |
         .    o--+--+        +--+
         .     0  1         cols-1     pixel column number
 
-        i.e. an ``even`` number of columns
+        i.e. an ``even`` number of columns. In this case ensure 
+        to pass ``align_grid=False``.
 
-        If not, set `image_grid_midpixel=True` (default)
     """
 
     IM = np.atleast_2d(IM)
@@ -168,7 +171,8 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True,
         drive = np.gradient(IM, dr, axis=-1)
 
     # see issue #211, better agreement with analytical transform pairs
-    # if image grid on pixel edge, rather than the mid-point
+    # if image grid aligned to pixel edge (even column whole image), rather
+    # than mid-pixel (odd column image)
     if align_grid:
         drive = interpolation.shift(drive, (0, -1/2))
 
