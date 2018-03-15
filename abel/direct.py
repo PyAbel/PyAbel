@@ -18,12 +18,11 @@ except (ImportError, UnicodeDecodeError):
 # numerical integration
 #
 # Roman Yurchak - Laboratoire LULI, Ecole Polytechnique/CNRS/CEA, France
-#
-# 01.2018: Changed the integration method to trapz
-# 12.2015: Added a pure python implementation following a dissuasion
-#                                                     with Dan Hickstein
-# 11.2015: Moved to PyAbel, added more unit tests, reorganized code base
-#    2012: First implementation in hedp.math.abel
+# 03.2018: DH changed the default grid from 0.5, 1.5 ... to 0, 1, 2.
+# 01.2018: DH dhanged the integration method to trapz
+# 12.2015: RY Added a pure python implementation
+# 11.2015: RY moved to PyAbel, added more unit tests, reorganized code base
+#    2012: RY first implementation in hedp.math.abel
 ###########################################################################
 
 
@@ -42,13 +41,13 @@ def _construct_r_grid(n, dr=None, r=None):
             raise ValueError('The input parameter r should be a 1D array'
                              'of shape = ({},), got shape = {}'.format(
                                                                 n, r.shape))
-        # not so sure about this, needs verification
+        # not so sure about this, needs verification -RY
         dr = np.gradient(r)
 
     else:
         if isinstance(dr, np.ndarray):
             raise NotImplementedError
-        r = (np.arange(n) + 0.5)*dr
+        r = (np.arange(n))*dr
     return r, dr
 
 
