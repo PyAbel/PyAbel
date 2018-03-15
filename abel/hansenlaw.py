@@ -5,7 +5,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy.ndimage import interpolation
 
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
@@ -35,8 +34,7 @@ from scipy.ndimage import interpolation
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True, 
-                        **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -90,10 +88,6 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True,
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
 
-    align_grid : boolean
-         Shift the image by -1/2 pixel along each axis. Aligns center
-         with the pixel left-edge. See transform pair functions discussion #211
-
     Returns
     -------
     AIM : 1D or 2D numpy array
@@ -113,20 +107,8 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True,
         .         +--------      +--------+
 
         In accordance with all PyAbel methods the image center ``o`` is
-        defined to be within a pixel (i.e. an odd number of columns, for the
-        whole image). Here ``align_grid=True`` (default).  
-
-        The native format for ``hansenlaw`` is with image center ``o`` at the 
-        left pixel edge.
-
-        .    +--+--+        +--+
-        .    |  |  |  ...   |  |
-        .    o--+--+        +--+
-        .     0  1         cols-1     pixel column number
-
-        i.e. an ``even`` number of columns. In this case ensure 
-        to pass ``align_grid=False``.
-
+        defined to be within a pixel i.e. an odd number of columns, for the
+        whole image. 
     """
 
     IM = np.atleast_2d(IM)
@@ -140,8 +122,8 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True,
 
     rows, N = np.shape(IM)  # shape of input quadrant (half)
 
-    # enumerate columns n = N-2 is Rmax, right side of image
-    n = np.arange(N-2, -1, -1)  # n =  N-2, ..., 0
+    # enumerate columns n = 0 is Rmax, right side of image
+    n = np.arange(N-1)  # n =  0, ..., N-2
     denom = N - n - 1  # N-n-1 in Hansen & Law
     ratio = (N - n)/denom  # (N-n)/(N-n-1) in Hansen & Law
 
@@ -170,18 +152,11 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', align_grid=True,
         # driving function derivative of the image intensity profile
         drive = np.gradient(IM, dr, axis=-1)
 
-    # see issue #211, better agreement with analytical transform pairs
-    # if image grid aligned to pixel edge (even column whole image), rather
-    # than mid-pixel (odd column image)
-    if align_grid:
-        drive = interpolation.shift(drive, (0, -1/2))
-
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     X = np.zeros((K, rows))
-    n1 = n + 1 # Phi, Gamma, 1-pixel offset relative to image
-    for col, col1  in zip(n, n1):  # right image edge to left edge
-        X = Phi[col][:, None]*X + Gamma[col][:, None]*drive[:, col1]
-        AIM[:, col1] = X.sum(axis=0)
+    for col in n:  # right image edge to left edge
+        X = Phi[col][:, None]*X + Gamma[col][:, None]*drive[:, N-col-1]
+        AIM[:, N-col-1] = X.sum(axis=0)
 
     # left column
     AIM[:, 0] = AIM[:, 1]
