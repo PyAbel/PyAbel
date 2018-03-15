@@ -124,8 +124,8 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
 
     # enumerate columns n = 0 is Rmax, right side of image
     n = np.arange(N-1)  # n =  0, ..., N-2
-    denom = N - n - 1  # N-n-1 in Hansen & Law
-    ratio = (N - n)/denom  # (N-n)/(N-n-1) in Hansen & Law
+    denom = N - n - 1 - 0.5 # N-n-1 in Hansen & Law
+    ratio = (N - n - 0.5)/denom  # (N-n)/(N-n-1) in Hansen & Law
 
     # Phi array Eq (16a), diagonal array, for each pixel
     K = np.size(h)
@@ -148,7 +148,6 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         Gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
         for k in range(1, K):
             Gamma[:, k] = h[k]*(1 - Phi[:, k])/lam[k]  # Eq. (18 lamda<0)
-
         # driving function derivative of the image intensity profile
         drive = np.gradient(IM, dr, axis=-1)
 
