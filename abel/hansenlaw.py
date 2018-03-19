@@ -34,7 +34,7 @@ import numpy as np
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0.43, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -88,6 +88,10 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
 
+    shift : float
+        transform-pair agreement is better with
+        `ratio=(N-n-shift)/(N-n-1-shift)`.  Default `shift=0.43`
+
     Returns
     -------
     AIM : 1D or 2D numpy array
@@ -107,57 +111,62 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', **kwargs):
         .         +--------      +--------+
 
         In accordance with all PyAbel methods the image center ``o`` is
-        defined to be within a pixel i.e. an odd number of columns, for the
+        defined to be mix-pixel i.e. an odd number of columns, for the
         whole image. 
     """
-
-    IM = np.atleast_2d(IM)
-
-    AIM = np.zeros_like(IM)  # forward/inverse Abel transform image
 
     # Hansen & Law parameters of exponential approximation, Table 1.
     h = np.array([0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3])
     lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
                     -47391.1])
 
-    rows, N = np.shape(IM)  # shape of input quadrant (half)
+    IM = np.atleast_2d(IM)
 
-    # enumerate columns n = 0 is Rmax, right side of image
+    AIM = np.empty_like(IM)  # forward/inverse Abel transform image
+
+    rows, N = IM.shape  # shape of input quadrant (half)
+    K = h.size  # using H&L nomenclature
+
+    # enumerate columns n = 0 is Rmax, the right side of image
     n = np.arange(N-1)  # n =  0, ..., N-2
-    denom = N - n - 1 - 0.5 # N-n-1 in Hansen & Law
-    ratio = (N - n - 0.5)/denom  # (N-n)/(N-n-1) in Hansen & Law
 
-    # Phi array Eq (16a), diagonal array, for each pixel
-    K = np.size(h)
-    Phi = np.zeros((N-1, K))
+    num = N - n - shift  # shift improves agreement with transform-pair #211
+    denom = num - 1  # N-n-1 in Hansen & Law
+    ratio = num/denom  # (N-n)/(N-n-1)
+                       # in Hansen & Law N/(N-1), ..., 4/3, 3/2, 2/1
+
+    # phi array Eq (16a), diagonal array, for each pixel
+    phi = np.empty((N-1, K))
     for k in range(K):
-        Phi[:, k] = ratio**lam[k]
+        phi[:, k] = ratio**lam[k]
 
     # Gamma array, Eq (16b), with gamma Eq (16c) forward, or Eq (18) inverse
-    Gamma = np.zeros((N-1, K))
+    gamma = np.empty_like(phi)
     if direction == "forward":
-        lam1 = lam + 1
+        lam += 1
         for k in range(K):
-            Gamma[:, k] = h[k]*2*denom*(1 - ratio**lam1[k])/lam1[k]  # (16c)
-        Gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
+            gamma[:, k] = h[k]*2*denom*(1 - ratio**lam[k])/lam[k]  # (16c)
+        gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
 
-        # driving function = raw image. copy so do not mangle input image
-        drive = IM.copy() 
+        # driving function = raw image. Copy so input image not mangled
+        drive = 0 + IM
 
-    else:  # inverse transform
-        Gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
+    else:  # gamma for inverse transform
+        gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
         for k in range(1, K):
-            Gamma[:, k] = h[k]*(1 - Phi[:, k])/lam[k]  # Eq. (18 lamda<0)
+            gamma[:, k] = h[k]*(1 - phi[:, k])/lam[k]  # Eq. (18 lamda<0)
+
         # driving function derivative of the image intensity profile
         drive = np.gradient(IM, dr, axis=-1)
 
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
-    X = np.zeros((K, rows))
-    for col in n:  # right image edge to left edge
-        X = Phi[col][:, None]*X + Gamma[col][:, None]*drive[:, N-col-1]
-        AIM[:, N-col-1] = X.sum(axis=0)
+    # transforms every image row during the column iteration
+    x = np.zeros((K, rows))
+    for nindx, pixelcol in zip(n, -n-1):  # 
+        x  = phi[nindx][:, None]*x + gamma[nindx][:, None]*drive[:, pixelcol]
+        AIM[:, pixelcol] = x.sum(axis=0)
 
-    # left column
+    # missing 1st column
     AIM[:, 0] = AIM[:, 1]
 
     if AIM.shape[0] == 1:

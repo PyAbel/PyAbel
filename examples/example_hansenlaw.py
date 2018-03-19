@@ -19,11 +19,12 @@ IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 
 rows, cols = IM.shape    # image size
 
-# in this case the image is centred on a grid, even columns, and so
-# no alignment required, set align_grid=False.
+# center image returning odd size
+IMc = abel.tools.center.center_image(IM, center='com')
+
 # dr=0.5 may help reduce pixel grid coarseness
 # NB remember to also pass as an option to angular_integration
-AIM = abel.Transform(IM, method='hansenlaw',
+AIM = abel.Transform(IMc, method='hansenlaw',
                      use_quadrants=(True, True, True, True),
                      symmetry_axis=None,
                      transform_options=dict(dr=0.5, align_grid=False), 
