@@ -131,6 +131,8 @@ def hansenlaw_transform(IM, dr=1, direction='inverse',
     # better transform-pair agreement, see discussion in PR #211
     if full_image_odd_cols:
         IMS = interpolation.shift(IM, (0, -1/2))
+    else:
+        IMS = IM.copy()  # to preserve input IM
 
     AIM = np.empty_like(IMS)  # forward/inverse Abel transform image
 
