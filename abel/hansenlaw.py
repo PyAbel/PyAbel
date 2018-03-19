@@ -25,6 +25,7 @@ from scipy.ndimage import interpolation
 # Implemented in Python, with image quadrant co-adding, by Steve Gibson
 # 2018-03   : NB method applies to grid centered (even columns), not
 #             pixel-centered (odd column) image see #206, #211
+#             Apply, -1/2 pixel shift for odd column full image
 # 2018-02   : Drop one array dimension, use numpy broadcast multiplication
 # 2015-12-16: Modified to calculate the forward Abel transform
 # 2015-12-03: Vectorization and code improvements Dan Hickstein and
@@ -35,7 +36,8 @@ from scipy.ndimage import interpolation
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', shift=-0.5, **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse',
+                        full_image_odd_cols=True, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -89,9 +91,11 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=-0.5, **kwargs):
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
 
-    shift : float
-        transform-pair better agreement if image shifted across
-        `scipy.ndimage.shift(IM, (0, -shift))`.  Default `shift=-1/2` pixel
+    full_image_odd_cols : boolean
+        odd-column width images are shifted by (0, -1/2) pixel.
+        This improves the agreement with analytical transform-pair functions,
+        and the other `PyAbel` transform methods. See extensive discussion in
+        PR #211
 
     Returns
     -------
@@ -113,7 +117,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=-0.5, **kwargs):
 
         In accordance with all PyAbel methods the image center ``o`` is
         defined to be mix-pixel i.e. an odd number of columns, for the
-        whole image. 
+        full image, not right side. Otherwise pass `full_image_odd_cols=False`
     """
 
     # Hansen & Law parameters of exponential approximation, Table 1.
@@ -123,10 +127,12 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=-0.5, **kwargs):
 
     IM = np.atleast_2d(IM)
 
-    # shift image across (default -1/2 pixel) gives better transform-pair
-    IMS = interpolation.shift(IM, (0, shift))
+    # shift image left -1/2 pixel for odd column width full-images, 
+    # better transform-pair agreement, see discussion in PR #211
+    if full_image_odd_cols:
+        IMS = interpolation.shift(IM, (0, -1/2))
 
-    AIM = np.empty_like(IM)  # forward/inverse Abel transform image
+    AIM = np.empty_like(IMS)  # forward/inverse Abel transform image
 
     rows, N = IM.shape  # shape of input quadrant (half)
     K = h.size  # using H&L nomenclature
@@ -162,8 +168,9 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=-0.5, **kwargs):
         # driving function derivative of the image intensity profile
         drive = np.gradient(IMS, dr, axis=-1)
 
-    # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
-    # transforms every image row during the column iteration
+    # Hansen and Law Abel transform --------------- 
+    # Eq. (15) forward, or Eq. (17) inverse
+    # transforms every row, during the column iteration
     x = np.zeros((K, rows))
     for nindx, pixelcol in zip(n, -n-1):  # 
         x  = phi[nindx][:, None]*x + gamma[nindx][:, None]*drive[:, pixelcol]
