@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+from scipy.ndimage import interpolation
 
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
@@ -34,7 +35,7 @@ import numpy as np
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0.43, **kwargs):
+def hansenlaw_transform(IM, dr=1, direction='inverse', shift=-0.5, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
     `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
     <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -89,8 +90,8 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0.43, **kwargs):
         ``forward`` or ``inverse`` Abel transform
 
     shift : float
-        transform-pair agreement is better with
-        `ratio=(N-n-shift)/(N-n-1-shift)`.  Default `shift=0.43`
+        transform-pair better agreement if image shifted across
+        `scipy.ndimage.shift(IM, (0, -shift))`.  Default `shift=-1/2` pixel
 
     Returns
     -------
@@ -122,6 +123,9 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0.43, **kwargs):
 
     IM = np.atleast_2d(IM)
 
+    # shift image across (default -1/2 pixel) gives better transform-pair
+    IMS = interpolation.shift(IM, (0, shift))
+
     AIM = np.empty_like(IM)  # forward/inverse Abel transform image
 
     rows, N = IM.shape  # shape of input quadrant (half)
@@ -130,10 +134,9 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0.43, **kwargs):
     # enumerate columns n = 0 is Rmax, the right side of image
     n = np.arange(N-1)  # n =  0, ..., N-2
 
-    num = N - n - shift  # shift improves agreement with transform-pair #211
+    num = N - n
     denom = num - 1  # N-n-1 in Hansen & Law
-    ratio = num/denom  # (N-n)/(N-n-1)
-                       # in Hansen & Law N/(N-1), ..., 4/3, 3/2, 2/1
+    ratio = num/denom  # (N-n)/(N-n-1) = N/(N-1), ..., 4/3. 3/2, 2/1
 
     # phi array Eq (16a), diagonal array, for each pixel
     phi = np.empty((N-1, K))
@@ -149,7 +152,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0.43, **kwargs):
         gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
 
         # driving function = raw image. Copy so input image not mangled
-        drive = 0 + IM
+        drive = IMS
 
     else:  # gamma for inverse transform
         gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
@@ -157,7 +160,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse', shift=0.43, **kwargs):
             gamma[:, k] = h[k]*(1 - phi[:, k])/lam[k]  # Eq. (18 lamda<0)
 
         # driving function derivative of the image intensity profile
-        drive = np.gradient(IM, dr, axis=-1)
+        drive = np.gradient(IMS, dr, axis=-1)
 
     # Hansen and Law Abel transform ---- Eq. (15) forward, or Eq. (17) inverse
     # transforms every image row during the column iteration
