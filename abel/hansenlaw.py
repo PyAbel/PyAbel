@@ -140,14 +140,13 @@ def hansenlaw_transform(IM, dr=1, direction='inverse',
     K = h.size  # using H&L nomenclature
 
     # enumerate columns n = 0 is Rmax, the right side of image
-    n = np.arange(N-1)  # n =  0, ..., N-2
+    n = np.arange(N-1, 0, -1)  # n = N-1, ..., 1
 
-    num = N - n
-    denom = num - 1  # N-n-1 in Hansen & Law
-    ratio = num/denom  # (N-n)/(N-n-1) = N/(N-1), ..., 4/3. 3/2, 2/1
+    ratio = n[:-1]/n[1:]  # N-1/(N-2), ..., 4/3. 3/2, 2/1
+    denom = n[1:]
 
     # phi array Eq (16a), diagonal array, for each pixel
-    phi = np.empty((N-1, K))
+    phi = np.empty((N-2, K))
     for k in range(K):
         phi[:, k] = ratio**lam[k]
 
@@ -174,9 +173,9 @@ def hansenlaw_transform(IM, dr=1, direction='inverse',
     # Eq. (15) forward, or Eq. (17) inverse
     # transforms every row, during the column iteration
     x = np.zeros((K, rows))
-    for nindx, pixelcol in zip(n, -n-1):  # 
-        x  = phi[nindx][:, None]*x + gamma[nindx][:, None]*drive[:, pixelcol]
-        AIM[:, pixelcol] = x.sum(axis=0)
+    for indx,col in zip(n[::-1]-1, n[1:]):  # 
+        x  = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
+        AIM[:, col] = x.sum(axis=0)
 
     # missing 1st column
     AIM[:, 0] = AIM[:, 1]
