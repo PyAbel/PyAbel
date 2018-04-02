@@ -134,7 +134,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse',
     else:
         IMS = IM.copy()  # to preserve input IM
 
-    AIM = np.empty_like(IMS)  # forward/inverse Abel transform image
+    AIM = np.zeros_like(IMS)  # forward/inverse Abel transform image
 
     rows, N = IM.shape  # shape of input quadrant (half)
     K = h.size  # using H&L nomenclature
@@ -151,7 +151,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse',
         phi[:, k] = ratio**lam[k]
 
     # Gamma array, Eq (16b), with gamma Eq (16c) forward, or Eq (18) inverse
-    gamma = np.empty_like(phi)
+    gamma = np.zeros_like(phi)
     if direction == "forward":
         lam += 1
         for k in range(K):

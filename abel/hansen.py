@@ -16,7 +16,7 @@ def hansen_transform(IM, dr=1, **kwargs):
 
     IM = np.atleast_2d(IM)
 
-    AIM = np.empty_like(IM)  # forward Abel transform image
+    AIM = np.zeros_like(IM)  # forward Abel transform image
 
     rows, N = IM.shape  # shape of input quadrant (half)
     # enumerate columns n = 0 is Rmax, the right side of image
@@ -29,8 +29,8 @@ def hansen_transform(IM, dr=1, **kwargs):
     for k in range(K):
         phi[:, k] = ratio**lam[k]
 
-    B0 = np.empty_like(phi)
-    B1 = np.empty_like(phi)
+    B0 = np.zeros_like(phi)
+    B1 = np.zeros_like(phi)
     lam1 = lam + 1
     for k in range(K):
         B0[:, k] = h[k]*beta0(n[:-1], ratio, lam1[k]) 
