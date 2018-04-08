@@ -173,7 +173,7 @@ def hansenlaw_transform(IM, dr=1, direction='inverse',
     # Eq. (15) forward, or Eq. (17) inverse
     # transforms every row, during the column iteration
     x = np.zeros((K, rows))
-    for indx,col in zip(n[::-1]-1, n[1:]):  # 
+    for indx, col in zip(n[::-1]-1, n[1:]):  # 
         x  = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
         AIM[:, col] = x.sum(axis=0)
 
