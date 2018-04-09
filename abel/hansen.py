@@ -14,6 +14,7 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
         K = lam.size
         integral = np.empty((n.size, K))
         lama = lam + a
+
         for k in np.arange(K):
             integral[:, k] = (1 - (n/(n-1))**lama[k])*(n-1)**a/lama[k]
 
@@ -23,6 +24,7 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
     def I0(n, lam, a):
         K = lam.size
         integral = np.empty((n.size, K))
+
         integral[:, 0] = -np.log(n/(n-1))
         for k in np.arange(1, K):
              integral[:, k] = (1 - phi[:, k])/lam[k]
@@ -30,11 +32,11 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
         return integral
 
     # first-order hold functions
-    def beta0(n, lam, a):  # fn   q\epsilon  +  p
-        return I(n, lam, a+1) - (n-1)*I(n, lam, a)
+    def beta0(n, lam, a, intfunc):  # fn   q\epsilon  +  p
+        return I(n, lam, a+1) - (n-1)[:, None]*intfunc(n, lam, a)
 
-    def beta1(n, lam, a):  # fn-1   p + q\epsilon
-        return n*I(n, lam, a) - I(n, lam, a+1)
+    def beta1(n, lam, a, intfunc):  # fn-1   p + q\epsilon
+        return n[:, None]*intfunc(n, lam, a) - I(n, lam, a+1)[:]
 
     im = np.atleast_2d(im)
     aim = np.zeros_like(im)  # Abel transform array
