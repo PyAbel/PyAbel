@@ -68,7 +68,7 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
         for indx, col in zip(N[::-1]-N[-1], N):
             x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col]\
                                      + B1[indx][:, None]*drive[:, col-1]
-            aim[:, col-1] = x.sum()
+            aim[:, col-1] = x.sum(axis=0)
 
     else:  # Hansen zero-order hold approximation
         gamma = integ(N, lam, a)*h
