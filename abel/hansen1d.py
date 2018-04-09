@@ -1,6 +1,8 @@
 import numpy as np
+import abel
+import matplotlib.pyplot as plt
 
-def hansen_transform(IM, dr=1, direction='inverse', hold_order=1):
+def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
     # Hansen IEEE Trans. Acoust. Speech Signal Proc. 33, 666 (1985)
     #  10.1109/TASSP.1985.1164579
 
@@ -11,66 +13,58 @@ def hansen_transform(IM, dr=1, direction='inverse', hold_order=1):
     def phi(n, lam):
         return (n/(n-1))**lam
 
-    def I(n, lam, pwr):  # integral (epsilon/r)^{lamda+pwr} 
+    def I(n, lam, pwr):  # integral (epsilon/r)^(lamda+pwr) 
         if pwr != -1:
             pwr1 = pwr + 1  # integration +1 to power of lambda
             lp = lam + pwr1  
-            integral = 2*(n-1)**pwr1*(1 - phi(n, lp))/lp
+            integral = (1 - phi(n, lp))*(n-1)**pwr1/lp
 
         else:  # special case divide issue for lamda=0
             integral = np.empty_like(lam)
-
             integral[0] = -np.log(n/(n-1))
             integral[1:] = (1 - phi(n, lam[1:]))/lam[1:]
 
         return integral
 
-    # beta0, beta1, first-order hold functions
+
+    # first-order hold functions
     def beta0(n, lam, pwr):  # fn   q\epsilon  +  p
-        return I(n, lam, 1+pwr) - (n-1)*I(n, lam, pwr)
+        return I(n, lam, pwr+1) - (n-1)*I(n, lam, pwr)
 
     def beta1(n, lam, pwr):  # fn-1   p + q\epsilon
-        return n*I(n, lam, pwr) - I(n, lam, 1+pwr)
+        return n*I(n, lam, pwr) - I(n, lam, pwr+1)
 
     if direction == 'forward':
-        drive = IM.copy()
-        h *= -dr*np.pi  # include Jacobian with h-array
+        drive = im.copy()
+        h *= -2*dr*np.pi  # include Jacobian with h-array
         pwr = 0
-
     else:  # inverse Abel transform
-        drive = np.gradient(IM, dr)
-        pwr = -1  # due to 1/piR factor
+        drive = np.gradient(im, dr)
+        pwr = -1  # from 1/piR factor
 
-    AIM = np.zeros_like(IM)  # forward Abel transform image
-    cols = IM.shape[-1]
+    aim = np.zeros_like(im)  # Abel transform array
+    cols = im.shape[-1]
     N = np.arange(cols-1, 1, -1)
 
-    x = np.zeros((h.size, 1))
+    x = np.zeros(h.size)
 
     if hold_order==0:  # Hansen & Law zero-order hold approximation
         for n in N:
-            x  = phi(n, lam)[:, None]*x\
-                 + (I(n, lam, pwr)*h)[:, None]*drive[n-1]
-
-            AIM[n-1] = x.sum()
+            x  = phi(n, lam)*x + I(n, lam, pwr)*h*drive[n-1]
+            aim[n-1] = x.sum()
 
     else:  # Hansen first-order hold approximation
         for n in N:
-            x  = phi(n, lam)[:, None]*x\
-                 + (beta0(n, lam, pwr)*h)[:, None]*drive[n]\
-                 + (beta1(n, lam, pwr)*h)[:, None]*drive[n-1]
-
-            AIM[n-1] = x.sum()
+            x  = phi(n, lam)*x + beta0(n, lam, pwr)*h*drive[n]\
+                               + beta1(n, lam, pwr)*h*drive[n-1]
+            aim[n-1] = x.sum()
 
     # missing 1st column
-    AIM[0] = AIM[1]
+    aim[0] = aim[1]
 
-    return AIM
+    return aim
 
 if __name__ == '__main__':
-
-    import abel
-    import matplotlib.pyplot as plt
 
     n = 101
     hold_order = 1
@@ -81,8 +75,7 @@ if __name__ == '__main__':
                           hold_order=hold_order)
     msef = np.square(hf-f.abel).mean()
 
-    hi = hansen_transform(f.func, dr=f.dr, direction='inverse',
-                          hold_order=hold_order)
+    hi = hansen_transform(f.abel, dr=f.dr, hold_order=hold_order)
     msei = np.square(hi-f.func).mean()
 
     # plotting ---
@@ -98,7 +91,7 @@ if __name__ == '__main__':
     ax1.plot(f.r, f.func, label=f.label)
     ax1.plot(f.r, hi, label='Hansen')
     ax1.legend(fontsize='smaller', labelspacing=0.1)
-    ax1.annotate('mse={:4.2e}'.format(msei), (0.6, 0.5))
+    ax1.annotate('mse={:4.2e}'.format(msei), (0, 0.05))
     ax1.set_xlabel(r'radius')
     ax1.set_ylabel(r'source')
     ax1.set_title('inverse')
