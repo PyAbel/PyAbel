@@ -2,6 +2,7 @@ import numpy as np
 import abel
 import matplotlib.pyplot as plt
 
+
 def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
     # Hansen IEEE Trans. Acoust. Speech Signal Proc. 33, 666 (1985)
     #  10.1109/TASSP.1985.1164579
@@ -13,17 +14,18 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
     def phi(n, lam):
         return (n/(n-1))**lam
 
-    def I(n, lam, a):  # integral (epsilon/r)^(lamda+pwr) 
+    # state equation integration
+    def I(n, lam, a):  # integral (epsilon/r)^(lamda+pwr)
         lama = lam + a
         return (1 - (n/(n-1))**lama)*(n-1)**a/lama
 
     def I0(n, lam, a):
-         # special case divide issue for lamda=0, only for inverse transform
-         integral = np.empty_like(lam)
-         integral[0] = -np.log(n/(n-1))
-         integral[1:] = (1 - phi(n, lam[1:]))/lam[1:]
+        # special case divide issue for lamda=0, only for inverse transform
+        integral = np.empty_like(lam)
+        integral[0] = -np.log(n/(n-1))
+        integral[1:] = (1 - phi(n, lam[1:]))/lam[1:]
 
-         return integral
+        return integral
 
     # first-order hold functions
     def beta0(n, lam, a, In):  # fn   q\epsilon  +  p
@@ -36,11 +38,11 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
         drive = im.copy()
         h *= -2*dr*np.pi  # include Jacobian with h-array
         a = 1
-        integ = I
+        intfunc = I
     else:  # inverse Abel transform
         drive = np.gradient(im, dr)
         a = 0  # from 1/piR factor
-        integ = I0  # special case for lam=0
+        intfunc = I0  # special case for lam=0
 
     aim = np.zeros_like(im)  # Abel transform array
     cols = im.shape[-1]
@@ -48,15 +50,15 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
 
     x = np.zeros(h.size)
 
-    if hold_order==0:  # Hansen & Law zero-order hold approximation
+    if hold_order:  # Hansen first-order hold approximation
         for n in N:
-            x  = phi(n, lam)*x + integ(n, lam, a)*h*drive[n-1]
+            x = phi(n, lam)*x + beta0(n, lam, a, intfunc)*h*drive[n]\
+                              + beta1(n, lam, a, intfunc)*h*drive[n-1]
             aim[n-1] = x.sum()
 
-    else:  # Hansen first-order hold approximation
+    else:  # Hansen & Law zero-order hold approximation
         for n in N:
-            x  = phi(n, lam)*x + beta0(n, lam, a, integ)*h*drive[n]\
-                               + beta1(n, lam, a, integ)*h*drive[n-1]
+            x = phi(n, lam)*x + intfunc(n, lam, a)*h*drive[n-1]
             aim[n-1] = x.sum()
 
     # missing 1st column
@@ -67,7 +69,7 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
 if __name__ == '__main__':
 
     n = 101
-    hold_order = 1 
+    hold_order = 1
 
     f = abel.tools.analytical.TransformPair(n, 3)
 
@@ -96,8 +98,8 @@ if __name__ == '__main__':
     ax1.set_ylabel(r'source')
     ax1.set_title('inverse')
 
-    plt.suptitle(r'Hansen {:s}-order hold, curve A ({:s}), N={:d}'.\
+    plt.suptitle(r'Hansen {:s}-order hold, curve A ({:s}), N={:d}'.
                  format('first' if hold_order else 'zero', f.label, n))
     plt.subplots_adjust(wspace=0.4)
     plt.savefig('hansen-{}.png'.format(hold_order), dpi=75)
-    plt.show() 
+    plt.show()
