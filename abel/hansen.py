@@ -1,6 +1,7 @@
 import numpy as np
 import abel
 
+
 def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
     # Hansen IEEE Trans. Acoust. Speech Signal Proc. 33, 666 (1985)
     #  10.1109/TASSP.1985.1164579
@@ -10,24 +11,23 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
                     -47391.1])
 
     # state equation integrals
-    def I(n, lam, a):  # integral (epsilon/r)^(lamda+pwr) 
-        K = lam.size
-        integral = np.empty((n.size, K))
+    def I(n, lam, a):  # integral (epsilon/r)^(lamda+pwr)
+        integral = np.empty((n.size, lam.size))
         lama = lam + a
 
         for k in np.arange(K):
-            integral[:, k] = (1 - (n/(n-1))**lama[k])*(n-1)**a/lama[k]
+            integral[:, k] = (1 - ratio**lama[k])*(n-1)**a/lama[k]
 
         return integral
 
     # special case divide issue for lamda=0, only for inverse transform
     def I0(n, lam, a):
-        K = lam.size
+        # Fix me! - uses global variables K, phi 
         integral = np.empty((n.size, K))
 
         integral[:, 0] = -np.log(n/(n-1))
         for k in np.arange(1, K):
-             integral[:, k] = (1 - phi[:, k])/lam[k]
+            integral[:, k] = (1 - phi[:, k])/lam[k]
 
         return integral
 
@@ -39,13 +39,14 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
         return n[:, None]*intfunc(n, lam, a) - I(n, lam, a+1)[:]
 
     im = np.atleast_2d(im)
+
     aim = np.zeros_like(im)  # Abel transform array
     rows, cols = im.shape
-    K = h.size 
+    K = h.size
 
     N = np.arange(cols-1, 1, -1)  # N = cols-1, cols-2, ..., 2
-    ratio = N/(N-1)  # cols-1/cols-2, ...,  2/1 
-    
+    ratio = N/(N-1)  # cols-1/cols-2, ...,  2/1
+
     phi = np.empty((N.size, K))
     for k in range(K):
         phi[:, k] = ratio**lam[k]
@@ -63,17 +64,17 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
     x = np.zeros((K, rows))
 
     if hold_order:  # Hansen first-order hold approximation
-        B0 = beta0(N, lam, a, integ)
-        B1 = beta1(N, lam, a, integ)
+        B0 = beta0(N, lam, a, integ)*h
+        B1 = beta1(N, lam, a, integ)*h
         for indx, col in zip(N[::-1]-N[-1], N):
-            x  = phi[indx][:, None]*x + (B0[indx]*h)[:, None]*drive[:, col]\
-                                      + (B1[indx]*h)[:, None]*drive[:, col-1]
+            x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col]\
+                                     + B1[indx][:, None]*drive[:, col-1]
             aim[:, col-1] = x.sum()
 
     else:  # Hansen zero-order hold approximation
-        gamma = integ(N, lam, a)
+        gamma = integ(N, lam, a)*h
         for indx, col in zip(N[::-1]-N[-1], N):
-            x  = phi[indx][:, None]*x + (gamma[indx]*h)[:, None]*drive[:, col-1]
+            x = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col-1]
             aim[:, col-1] = x.sum()
 
     # missing 1st column
