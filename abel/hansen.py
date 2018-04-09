@@ -22,8 +22,8 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
 
     # special case divide issue for lamda=0, only for inverse transform
     def I0(n, lam, a):
-        # Fix me! - uses global variables K, phi 
-        integral = np.empty((n.size, K))
+        # Fix me! - uses global variable phi 
+        integral = np.empty((n.size, lam.size))
 
         integral[:, 0] = -np.log(n/(n-1))
         for k in np.arange(1, K):
@@ -62,7 +62,7 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
         integ = I0
 
     x = np.zeros((K, rows))
-    if hold_order:  # Hansen first-order hold approximation
+    if hold_order == 1:  # Hansen first-order hold approximation
         B0 = beta0(N, lam, a, integ)*h
         B1 = beta1(N, lam, a, integ)*h
         for indx, col in zip(N[::-1]-N[-1], N):
@@ -74,7 +74,7 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
         gamma = integ(N, lam, a)*h
         for indx, col in zip(N[::-1]-N[-1], N-1):
             x = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
-            aim[:, col] = x.sum()
+            aim[:, col] = x.sum(axis=0)
 
     # missing 1st column
     aim[:, 0] = aim[:, 1]
