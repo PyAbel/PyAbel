@@ -36,7 +36,7 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
         return I(n, lam, a+1) - (n-1)[:, None]*intfunc(n, lam, a)
 
     def beta1(n, lam, a, intfunc):  # fn-1   p + q\epsilon
-        return n[:, None]*intfunc(n, lam, a) - I(n, lam, a+1)[:]
+        return n[:, None]*intfunc(n, lam, a) - I(n, lam, a+1)
 
     im = np.atleast_2d(im)
 
@@ -62,7 +62,6 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
         integ = I0
 
     x = np.zeros((K, rows))
-
     if hold_order:  # Hansen first-order hold approximation
         B0 = beta0(N, lam, a, integ)*h
         B1 = beta1(N, lam, a, integ)*h
@@ -73,9 +72,9 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
 
     else:  # Hansen zero-order hold approximation
         gamma = integ(N, lam, a)*h
-        for indx, col in zip(N[::-1]-N[-1], N):
-            x = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col-1]
-            aim[:, col-1] = x.sum()
+        for indx, col in zip(N[::-1]-N[-1], N-1):
+            x = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
+            aim[:, col] = x.sum()
 
     # missing 1st column
     aim[:, 0] = aim[:, 1]
