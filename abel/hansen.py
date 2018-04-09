@@ -1,5 +1,4 @@
 import numpy as np
-import abel
 
 
 def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
@@ -55,23 +54,23 @@ def hansen_transform(im, dr=1, direction='inverse', hold_order=1):
         drive = im.copy()
         h *= -2*dr*np.pi  # include Jacobian with h-array
         a = 1  # integration increases lambda + 1
-        integ = I
+        intfunc = I
     else:  # inverse Abel transform
         drive = np.gradient(im, dr, axis=-1)
         a = 0  # from 1/piR factor
-        integ = I0
+        intfunc = I0
 
     x = np.zeros((K, rows))
     if hold_order == 1:  # Hansen first-order hold approximation
-        B0 = beta0(N, lam, a, integ)*h
-        B1 = beta1(N, lam, a, integ)*h
+        B0 = beta0(N, lam, a, intfunc)*h
+        B1 = beta1(N, lam, a, intfunc)*h
         for indx, col in zip(N[::-1]-N[-1], N):
             x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col]\
                                      + B1[indx][:, None]*drive[:, col-1]
             aim[:, col-1] = x.sum(axis=0)
 
-    else:  # Hansen zero-order hold approximation
-        gamma = integ(N, lam, a)*h
+    else:  # Hansen (& Law) zero-order hold approximation
+        gamma = intfunc(N, lam, a)*h
         for indx, col in zip(N[::-1]-N[-1], N-1):
             x = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
             aim[:, col] = x.sum(axis=0)
