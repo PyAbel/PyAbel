@@ -193,7 +193,7 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
 
     if hold_order == 0:  # Hansen (& Law) zero-order hold approximation
 
-        for indx, col in zip(n[::-1]-n[-1], n-1):
+        for indx, col in enumerate(n-1):
             x = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
             aim[:, col] = x.sum(axis=0)
 
@@ -203,7 +203,7 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
         B0 = gamma1 - gamma*(n-1)[:, None]  # f_n
         B1 = gamma*n[:, None] - gamma1  # f_n-1
 
-        for indx, col in zip(n[::-1]-n[-1], n-1):
+        for indx, col in enumerate(n-1):
             x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col+1]\
                                      + B1[indx][:, None]*drive[:, col]
             aim[:, col] = x.sum(axis=0)
