@@ -192,6 +192,7 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
     x = np.zeros((h.size, rows))
 
     if hold_order == 0:  # Hansen (& Law) zero-order hold approximation
+
         for indx, col in zip(n[::-1]-n[-1], n-1):
             x = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
             aim[:, col] = x.sum(axis=0)
@@ -212,6 +213,6 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
     aim[:, -1] = aim[:, -2]
 
     if rows == 1:
-        aim = aim[0]  # flatter to a vector
+        aim = aim[0]  # flatten to a vector
 
     return aim
