@@ -10,20 +10,21 @@ import numpy as np
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
 #
 # Adapted from (see also PR #211):
-#  [1] E. W. Hansen "Fast Hankel Transform" 
-#      IEEE Transactions on Acoustics, Speech, and Signal Processing 
-#      Volume: 33, Issue: 3, Jun 1985. doi: 10.1109/TASSP.1985.1164579
+#  [1] E. W. Hansen "Fast Hankel Transform"
+#      IEEE Trans. Acoust. Speech, Signal Proc. 33(3), 666-671 (1985)
+#      doi: 10.1109/TASSP.1985.1164579
 #
 # and:
 #
 #  [2] E. W. Hansen and P-L. Law
 #      "Recursive methods for computing the Abel transform and its inverse"
-#      J. Opt. Soc. Am A2, 510-520 (1985) doi: 10.1364/JOSAA.2.000510
+#      J. Opt. Soc. Am A2, 510-520 (1985)
+#      doi: 10.1364/JOSAA.2.000510
 #
 # 2018-04   : New code rewrite, implementing the 1st-order hold approx. of
 #             Ref. [1], with the assistance of Eric Hansen. See PR #211.
 #
-#             Original code was based on Ref. [2]. 
+#             Original hansenlaw code was based on Ref. [2]
 #
 # 2018-03   : NB method applies to grid centered (even columns), not
 #             pixel-centered (odd column) image see #206, #211
@@ -35,20 +36,19 @@ import numpy as np
 #             Previously the algorithm iterated over the rows of the image
 #             now all of the rows are calculated simultaneously, which provides
 #             the same result, but speeds up processing considerably.
-# 
+#
 # Historically, this algorithm was adapted by Jason Gascooke from ref. [2] in:
 #
 #  J. R. Gascooke PhD Thesis:
 #   "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals
 #    Molecule Dissociation", Flinders University, 2000.
 #
-# Implemented in Python, with image quadrant co-adding, by Stephen Gibson (ANU).
-# Significant code/speed improvements due to Dan Hickstein and Roman Yurchak.
+# Implemented in Python, with image quadrant co-adding, by Stephen Gibson (ANU)
+# Significant code/speed improvements due to Dan Hickstein and Roman Yurchak
 #
 # Stephen Gibson - Australian National University, Australia
 #
 #############################################################################
-
 
 
 def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
@@ -58,7 +58,7 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
 
     and
 
-    `E. W. Hansen and P.-L. Law 
+    `E. W. Hansen and P.-L. Law
     "Recursive methods for computing the Abel transform and its inverse"
     J. Opt. Soc. Am. A 2, 510-520 (1985)
     <https://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
@@ -66,7 +66,8 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
 
     .. math::
 
-     f(r) = -\frac{1}{\pi} \int_{r}^{\infty} \frac{g^\prime(R)}{\sqrt{R^2-r^2}} dR,
+     f(r) = -\frac{1}{\pi} \int_{r}^{\infty} \frac{g^\prime(R)}{\sqrt{R^2-r^2}}
+     dR,
 
     where
 
@@ -116,14 +117,14 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
     dr : float
         sampling size (=1 for pixel images), used for Jacobian scaling
 
-    direction : string ('forward' or 'inverse')
+    direction : string 'forward' or 'inverse'
         ``forward`` or ``inverse`` Abel transform
 
     hold_order : int (0 or 1)
         first- or zero-order hold approximation used in the evaluation of
         state equation integral.  `1` (default) yields a more accurate
         transform. `0` gives the same result as the original implementation
-        of the `hansenlaw` method. 
+        of the `hansenlaw` method
 
     Returns
     -------
@@ -148,78 +149,67 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
         full image.
     """
 
+    # state equation integral_r0^r (epsilon/r)^(lamda+a) d\epsilon
+    def I(n, lam, a):
+        integral = np.empty((n.size, lam.size))
 
+        ratio = n/(n-1)
+        if a == 0:
+            integral[:, 0] = -np.log(ratio)  # special case, lam=0
+
+        ra = (n-1)**a
+        k0 = not a  # 0 or 1
+
+        for k, lamk in enumerate((lam+a)[k0:], start=k0):
+            integral[:, k] = ra*(1 - ratio**lamk)/lamk
+
+        return integral
+
+    # parameters for Abel transform system model, Table 1.
     h = np.array([0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3])
     lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
                     -47391.1])
 
-    # state equation integrals
-    def I(n, lam, a):  # integral (epsilon/r)^(lamda+pwr)
-        integral = np.empty((n.size, lam.size))
-        lama = lam + a
-
-        for k in np.arange(K):
-            integral[:, k] = (1 - ratio**lama[k])*(n-1)**a/lama[k]
-
-        return integral
-
-    # special case divide issue for lamda=0, only for inverse transform
-    def I0(n, lam, a):
-        integral = np.empty((n.size, lam.size))
-
-        integral[:, 0] = -np.log(n/(n-1))
-        for k in np.arange(1, K):
-            integral[:, k] = (1 - phi[:, k])/lam[k]
-
-        return integral
-
-    # first-order hold functions
-    def beta0(n, lam, a, intfunc):  # fn   q\epsilon  +  p
-        return I(n, lam, a+1) - (n-1)[:, None]*intfunc(n, lam, a)
-
-    def beta1(n, lam, a, intfunc):  # fn-1   p + q\epsilon
-        return n[:, None]*intfunc(n, lam, a) - I(n, lam, a+1)
-
-    im = np.atleast_2d(im)
-
-    aim = np.zeros_like(im)  # Abel transform array
+    im = np.atleast_2d(im)   # 2D input image
+    aim = np.empty_like(im)  # Abel transform array
     rows, cols = im.shape
-    K = h.size
-
-    N = np.arange(cols-1, 1, -1)  # N = cols-1, cols-2, ..., 2
-    ratio = N/(N-1)  # cols-1/cols-2, ...,  2/1
-
-    phi = np.empty((N.size, K))
-    for k in range(K):
-        phi[:, k] = ratio**lam[k]
 
     if direction == 'forward':
         drive = im.copy()
         h *= -2*dr*np.pi  # include Jacobian with h-array
         a = 1  # integration increases lambda + 1
-        intfunc = I
     else:  # inverse Abel transform
         drive = np.gradient(im, dr, axis=-1)
-        a = 0  # from 1/piR factor
-        intfunc = I0
+        a = 0  # due to 1/piR factor
 
-    x = np.zeros((K, rows))
-    if hold_order == 1:  # Hansen first-order hold approximation
-        B0 = beta0(N, lam, a, intfunc)*h
-        B1 = beta1(N, lam, a, intfunc)*h
-        for indx, col in zip(N[::-1]-N[-1], N):
-            x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col]\
-                                     + B1[indx][:, None]*drive[:, col-1]
-            aim[:, col-1] = x.sum(axis=0)
+    n = np.arange(cols-1, 1, -1)
 
-    else:  # Hansen (& Law) zero-order hold approximation
-        gamma = intfunc(N, lam, a)*h
-        for indx, col in zip(N[::-1]-N[-1], N-1):
+    phi = np.empty((n.size, h.size))
+    for k, lamk in enumerate(lam):
+        phi[:, k] = (n/(n-1))**lamk
+
+    gamma = I(n, lam, a)*h
+    x = np.zeros((h.size, rows))
+
+    if hold_order == 0:  # Hansen (& Law) zero-order hold approximation
+        for indx, col in zip(n[::-1]-n[-1], n-1):
             x = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
             aim[:, col] = x.sum(axis=0)
 
-    # missing 1st column
+    else:  # Hansen first-order hold approximation
+        gamma1 = I(n, lam, a+1)*h
+
+        B0 = gamma1 - gamma*(n-1)[:, None]  # f_n
+        B1 = gamma*n[:, None] - gamma1  # f_n-1
+
+        for indx, col in zip(n[::-1]-n[-1], n-1):
+            x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col+1]\
+                                     + B1[indx][:, None]*drive[:, col]
+            aim[:, col] = x.sum(axis=0)
+
+    # missing columns at each side
     aim[:, 0] = aim[:, 1]
+    aim[:, -1] = aim[:, -2]
 
     if rows == 1:
         aim = aim[0]  # flatter to a vector
