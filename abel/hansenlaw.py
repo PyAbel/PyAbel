@@ -175,8 +175,7 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
     rows, cols = im.shape
 
     if direction == 'forward':
-        drive = im.copy()
-        h *= -2*dr*np.pi  # include Jacobian with h-array
+        drive = -2*dr*np.pi*im.copy()  # include Jacobian
         a = 1  # integration increases lambda + 1
     else:  # inverse Abel transform
         drive = np.gradient(im, dr, axis=-1)
@@ -188,25 +187,24 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
     for k, lamk in enumerate(lam):
         phi[:, k] = (n/(n-1))**lamk
 
-    gamma = I(n, lam, a)*h
+    gamma0 = I(n, lam, a)*h
     x = np.zeros((h.size, rows))
 
     if hold_order == 0:  # Hansen (& Law) zero-order hold approximation
-
-        for indx, col in enumerate(n-1):
-            x = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
-            aim[:, col] = x.sum(axis=0)
+        B1 = gamma0
+        B0 = gamma0*0
 
     else:  # Hansen first-order hold approximation
         gamma1 = I(n, lam, a+1)*h
 
-        B0 = gamma1 - gamma*(n-1)[:, None]  # f_n
-        B1 = gamma*n[:, None] - gamma1  # f_n-1
+        B0 = gamma1 - gamma0*(n-1)[:, None]  # f_n
+        B1 = gamma0*n[:, None] - gamma1  # f_n-1
 
-        for indx, col in enumerate(n-1):
-            x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col+1]\
-                                     + B1[indx][:, None]*drive[:, col]
-            aim[:, col] = x.sum(axis=0)
+    # Hansen Abel transform  --------------------
+    for indx, col in enumerate(n-1):
+        x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col+1]\
+                                 + B1[indx][:, None]*drive[:, col]
+        aim[:, col] = x.sum(axis=0)
 
     # missing columns at each side
     aim[:, 0] = aim[:, 1]
