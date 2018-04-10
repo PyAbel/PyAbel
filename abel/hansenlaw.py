@@ -5,24 +5,26 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy.ndimage import interpolation
 
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
 #
-# Stephen Gibson - Australian National University, Australia
-# Jason Gascooke - Flinders University, Australia
+# Adapted from (see also PR #211):
+#  [1] E. W. Hansen "Fast Hankel Transform" 
+#      IEEE Transactions on Acoustics, Speech, and Signal Processing 
+#      Volume: 33, Issue: 3, Jun 1985. doi: 10.1109/TASSP.1985.1164579
 #
-# This algorithm is adapted by Jason Gascooke from the article
-#   E. W. Hansen and P-L. Law
-#  "Recursive methods for computing the Abel transform and its inverse"
-#   J. Opt. Soc. Am A2, 510-520 (1985) doi: 10.1364/JOSAA.2.000510
+# and:
 #
-#  J. R. Gascooke PhD Thesis:
-#   "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals
-#    Molecule Dissociation", Flinders University, 2000.
+#  [2] E. W. Hansen and P-L. Law
+#      "Recursive methods for computing the Abel transform and its inverse"
+#      J. Opt. Soc. Am A2, 510-520 (1985) doi: 10.1364/JOSAA.2.000510
 #
-# Implemented in Python, with image quadrant co-adding, by Steve Gibson
+# 2018-04   : New code rewrite, implementing the 1st-order hold approx. of
+#             Ref. [1], with the assistance of Eric Hansen. See PR #211.
+#
+#             Original code was based on Ref. [2]. 
+#
 # 2018-03   : NB method applies to grid centered (even columns), not
 #             pixel-centered (odd column) image see #206, #211
 #             Apply, -1/2 pixel shift for odd column full image
@@ -33,14 +35,33 @@ from scipy.ndimage import interpolation
 #             Previously the algorithm iterated over the rows of the image
 #             now all of the rows are calculated simultaneously, which provides
 #             the same result, but speeds up processing considerably.
+# 
+# Historically, this algorithm was adapted by Jason Gascooke from ref. [2] in:
+#
+#  J. R. Gascooke PhD Thesis:
+#   "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals
+#    Molecule Dissociation", Flinders University, 2000.
+#
+# Implemented in Python, with image quadrant co-adding, by Stephen Gibson (ANU).
+# Significant code/speed improvements due to Dan Hickstein and Roman Yurchak.
+#
+# Stephen Gibson - Australian National University, Australia
+#
 #############################################################################
 
 
-def hansenlaw_transform(IM, dr=1, direction='inverse',
-                        full_image_odd_cols=True, **kwargs):
+
+def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of
-    `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
-    <http://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
+    `E. W. Hansen "Fast Hankel Transform" IEEE Trans. Acoust. Speech Signal
+    Proc. 33, 666 (1985) <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
+
+    and
+
+    `E. W. Hansen and P.-L. Law 
+    "Recursive methods for computing the Abel transform and its inverse"
+    J. Opt. Soc. Am. A 2, 510-520 (1985)
+    <https://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
 
 
     .. math::
@@ -79,6 +100,13 @@ def hansenlaw_transform(IM, dr=1, direction='inverse',
     quadrant (chosen orientation to be rightside-top), or one right-half
     image at a time.
 
+    The Hansen and Law approach treats the Abel transform as a system modeled
+    by a set of linear differential equations, with :math:`f(r)` (forward) or
+    :math:`g'(R)` (inverse) the driving function.
+
+    Evaluation follows Eqs. (15 or 17), using (16a), (16b), and (16c or 18) of
+    the Hansen and Law paper. For the full image transform, use the
+    class :class:``abel.Transform``.
 
     Parameters
     ----------
@@ -91,11 +119,11 @@ def hansenlaw_transform(IM, dr=1, direction='inverse',
     direction : string ('forward' or 'inverse')
         ``forward`` or ``inverse`` Abel transform
 
-    full_image_odd_cols : boolean
-        odd-column width images are shifted by (0, -1/2) pixel.
-        This improves the agreement with analytical transform-pair functions,
-        and the other `PyAbel` transform methods. See extensive discussion in
-        PR #211
+    hold_order : int (0 or 1)
+        first- or zero-order hold approximation used in the evaluation of
+        state equation integral.  `1` (default) yields a more accurate
+        transform. `0` gives the same result as the original implementation
+        of the `hansenlaw` method. 
 
     Returns
     -------
@@ -117,70 +145,83 @@ def hansenlaw_transform(IM, dr=1, direction='inverse',
 
         In accordance with all PyAbel methods the image center ``o`` is
         defined to be mix-pixel i.e. an odd number of columns, for the
-        full image, not right side. Otherwise pass `full_image_odd_cols=False`
+        full image.
     """
 
-    # Hansen & Law parameters of exponential approximation, Table 1.
+
     h = np.array([0.318, 0.19, 0.35, 0.82, 1.8, 3.9, 8.3, 19.6, 48.3])
     lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
                     -47391.1])
 
-    IM = np.atleast_2d(IM)
+    # state equation integrals
+    def I(n, lam, a):  # integral (epsilon/r)^(lamda+pwr)
+        integral = np.empty((n.size, lam.size))
+        lama = lam + a
 
-    # shift image left -1/2 pixel for odd column width full-images, 
-    # better transform-pair agreement, see discussion in PR #211
-    if full_image_odd_cols:
-        IMS = interpolation.shift(IM, (0, -1/2))
-    else:
-        IMS = IM.copy()  # to preserve input IM
+        for k in np.arange(K):
+            integral[:, k] = (1 - ratio**lama[k])*(n-1)**a/lama[k]
 
-    AIM = np.zeros_like(IMS)  # forward/inverse Abel transform image
+        return integral
 
-    rows, N = IM.shape  # shape of input quadrant (half)
-    K = h.size  # using H&L nomenclature
+    # special case divide issue for lamda=0, only for inverse transform
+    def I0(n, lam, a):
+        integral = np.empty((n.size, lam.size))
 
-    # enumerate columns n = 0 is Rmax, the right side of image
-    n = np.arange(N-1, 0, -1)  # n = N-1, ..., 1
+        integral[:, 0] = -np.log(n/(n-1))
+        for k in np.arange(1, K):
+            integral[:, k] = (1 - phi[:, k])/lam[k]
 
-    ratio = n[:-1]/n[1:]  # N-1/(N-2), ..., 4/3. 3/2, 2/1
-    denom = n[1:]
+        return integral
 
-    # phi array Eq (16a), diagonal array, for each pixel
-    phi = np.empty((N-2, K))
+    # first-order hold functions
+    def beta0(n, lam, a, intfunc):  # fn   q\epsilon  +  p
+        return I(n, lam, a+1) - (n-1)[:, None]*intfunc(n, lam, a)
+
+    def beta1(n, lam, a, intfunc):  # fn-1   p + q\epsilon
+        return n[:, None]*intfunc(n, lam, a) - I(n, lam, a+1)
+
+    im = np.atleast_2d(im)
+
+    aim = np.zeros_like(im)  # Abel transform array
+    rows, cols = im.shape
+    K = h.size
+
+    N = np.arange(cols-1, 1, -1)  # N = cols-1, cols-2, ..., 2
+    ratio = N/(N-1)  # cols-1/cols-2, ...,  2/1
+
+    phi = np.empty((N.size, K))
     for k in range(K):
         phi[:, k] = ratio**lam[k]
 
-    # Gamma array, Eq (16b), with gamma Eq (16c) forward, or Eq (18) inverse
-    gamma = np.zeros_like(phi)
-    if direction == "forward":
-        lam += 1
-        for k in range(K):
-            gamma[:, k] = h[k]*2*denom*(1 - ratio**lam[k])/lam[k]  # (16c)
-        gamma *= -np.pi*dr  # Jacobian - saves scaling the transform later
+    if direction == 'forward':
+        drive = im.copy()
+        h *= -2*dr*np.pi  # include Jacobian with h-array
+        a = 1  # integration increases lambda + 1
+        intfunc = I
+    else:  # inverse Abel transform
+        drive = np.gradient(im, dr, axis=-1)
+        a = 0  # from 1/piR factor
+        intfunc = I0
 
-        # driving function = raw image. Copy so input image not mangled
-        drive = IMS
-
-    else:  # gamma for inverse transform
-        gamma[:, 0] = -h[0]*np.log(ratio)  # Eq. (18 lamda=0)
-        for k in range(1, K):
-            gamma[:, k] = h[k]*(1 - phi[:, k])/lam[k]  # Eq. (18 lamda<0)
-
-        # driving function derivative of the image intensity profile
-        drive = np.gradient(IMS, dr, axis=-1)
-
-    # Hansen and Law Abel transform --------------- 
-    # Eq. (15) forward, or Eq. (17) inverse
-    # transforms every row, during the column iteration
     x = np.zeros((K, rows))
-    for indx, col in zip(n[::-1]-1, n[1:]):  # 
-        x  = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
-        AIM[:, col] = x.sum(axis=0)
+    if hold_order == 1:  # Hansen first-order hold approximation
+        B0 = beta0(N, lam, a, intfunc)*h
+        B1 = beta1(N, lam, a, intfunc)*h
+        for indx, col in zip(N[::-1]-N[-1], N):
+            x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col]\
+                                     + B1[indx][:, None]*drive[:, col-1]
+            aim[:, col-1] = x.sum(axis=0)
+
+    else:  # Hansen (& Law) zero-order hold approximation
+        gamma = intfunc(N, lam, a)*h
+        for indx, col in zip(N[::-1]-N[-1], N-1):
+            x = phi[indx][:, None]*x + gamma[indx][:, None]*drive[:, col]
+            aim[:, col] = x.sum(axis=0)
 
     # missing 1st column
-    AIM[:, 0] = AIM[:, 1]
+    aim[:, 0] = aim[:, 1]
 
-    if AIM.shape[0] == 1:
-        AIM = AIM[0]   # flatten to a vector
+    if rows == 1:
+        aim = aim[0]  # flatter to a vector
 
-    return AIM
+    return aim
