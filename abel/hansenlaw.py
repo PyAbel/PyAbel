@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+from scipy.ndimage import interpolation
 
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
@@ -124,7 +125,11 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
         first- or zero-order hold approximation used in the evaluation of
         state equation integral.  `1` (default) yields a more accurate
         transform. `0` gives the same result as the original implementation
-        of the `hansenlaw` method
+        of the `hansenlaw` method. 
+
+        For the `0` case, the drive function (image or gradient) is additionally
+        left-shifted by -0.35 pixels, found to improve the transform alignment.
+        See the discussion in PR #211.
 
     Returns
     -------
@@ -188,11 +193,12 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
         phi[:, k] = (n/(n-1))**lamk
 
     gamma0 = I(n, lam, a)*h
-    x = np.zeros((h.size, rows))
 
     if hold_order == 0:  # Hansen (& Law) zero-order hold approximation
         B1 = gamma0
-        B0 = gamma0*0
+        B0 = gamma0*0  # empty array
+        # sub-pixel left shift improves transform alignment, see PR #211
+        drive = interpolation.shift(drive, (0, -0.35))
 
     else:  # Hansen first-order hold approximation
         gamma1 = I(n, lam, a+1)*h
@@ -201,6 +207,8 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
         B1 = gamma0*n[:, None] - gamma1  # f_n-1
 
     # Hansen Abel transform  --------------------
+    x = np.zeros((h.size, rows))
+
     for indx, col in enumerate(n-1):
         x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col+1]\
                                  + B1[indx][:, None]*drive[:, col]
