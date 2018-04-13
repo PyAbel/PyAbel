@@ -8,9 +8,11 @@ Hansen-Law
 Introduction
 ------------
 
-The Hansen and Law transform is the work of E. W. Hansen and P.-L. Law [1].
+The Hansen and Law transform is the work of E. W. Hansen with P.-L. Law,
+zero-order hold approximation, [1] and the more accurate 
+first-order hold approximation. [2]
 
-From the abstract:
+From the abstract [1]:
 
 *... new family of algorithms, principally for Abel inversion, that are 
 recursive and hence computationally efficient. The methods are based on a 
@@ -19,9 +21,7 @@ is the basis for deterministic algorithms, applicable when data are noise free,
 and least-squares estimation (Kalman filter) algorithms, which accommodate 
 the noisy data case.*
 
-The key advantage of the algorithm is its computational simplicity that 
-amounts to only a few lines of code. 
-
+The key advantage of the algorithm that is is fast, providing both the **forward** Abel and **inverse** Abel transform.
 
 
 How it works
@@ -141,13 +141,14 @@ Historical Note
 
 The Hansen and Law algorithm was almost lost to the scientific community. It was 
 rediscovered by Jason Gascooke (Flinders University, South Australia) for use in 
-his velocity-map image analysis, and written up in his PhD thesis: 
-
-J. R. Gascooke, PhD Thesis: *"Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation"*, Flinders University (2000).
-Available in `PDF format <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`
+his velocity-map image analysis, and written up in his PhD thesis [3]. 
 
 
 
 Citation
 --------
 [1] `E. W. Hansen and P.-L. Law, "Recursive methods for computing the Abel transform and its inverse", J. Opt. Soc. A2, 510-520 (1985) <http://dx.doi.org/10.1364/JOSAA.2.000510>`_
+[2] `E. W. Hansen "Fast Hankel Transform" IEEE Trans. Acoust. Speech Signal
+    Proc. 33, 666 (1985) <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
+[3] J. R. Gascooke, PhD Thesis: *"Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation"*, Flinders University (2000).
+Available in `PDF format <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`

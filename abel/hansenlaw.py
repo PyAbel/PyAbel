@@ -52,8 +52,10 @@ from scipy.ndimage import interpolation
 #############################################################################
 
 
-def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
-    r"""Forward/Inverse Abel transformation using the algorithm of
+def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, 
+                        sub_pixel_shift=-0.35, **kwargs):
+    r"""Forward/Inverse Abel transformation using the algorithm of:
+
     `E. W. Hansen "Fast Hankel Transform" IEEE Trans. Acoust. Speech Signal
     Proc. 33, 666 (1985) <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
 
@@ -62,25 +64,9 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
     `E. W. Hansen and P.-L. Law
     "Recursive methods for computing the Abel transform and its inverse"
     J. Opt. Soc. Am. A 2, 510-520 (1985)
-    <https://dx.doi.org/10.1364/JOSAA.2.000510>`_ equation 2a:
+    <https://dx.doi.org/10.1364/JOSAA.2.000510>`_ 
 
-
-    .. math::
-
-     f(r) = -\frac{1}{\pi} \int_{r}^{\infty} \frac{g^\prime(R)}{\sqrt{R^2-r^2}}
-     dR,
-
-    where
-
-    :math:`f(r)` is the reconstructed image (source) function,
-    :math:`g'(R)` is the derivative of the projection (measured) function
-
-    The Hansen and Law approach treats the Abel transform as a system modeled
-    by a set of linear differential equations, with :math:`f(r)` (forward) or
-    :math:`g'(R)` (inverse) the driving function.
-
-    Evaluation follows Eqs. (15 or 17), using (16a), (16b), and (16c or 18) of
-    the Hansen and Law paper. For the full image transform, use the
+    For the full image transform, use the
     class :class:``abel.Transform``.
 
     For the inverse Abel transform of image g: ::
@@ -100,36 +86,31 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, **kwargs):
     toward the image centre (origin). i.e. when ``n=cols-1``, ``R=Rmax``, and
     when ``n=0``, ``R=0``. This fits well with processing the image one
     quadrant (chosen orientation to be rightside-top), or one right-half
-    image at a time.
-
-    The Hansen and Law approach treats the Abel transform as a system modeled
-    by a set of linear differential equations, with :math:`f(r)` (forward) or
-    :math:`g'(R)` (inverse) the driving function.
-
-    Evaluation follows Eqs. (15 or 17), using (16a), (16b), and (16c or 18) of
-    the Hansen and Law paper. For the full image transform, use the
-    class :class:``abel.Transform``.
+    image at a time.  For the full image transform, use the class 
+    :class:``abel.Transform``.
 
     Parameters
     ----------
     IM : 1D or 2D numpy array
-        right-side half-image (or quadrant)
+        Right-side half-image (or quadrant). See figure below.
 
     dr : float
-        sampling size (=1 for pixel images), used for Jacobian scaling
+        Sampling size (=1 for pixel images), used for Jacobian scaling.
 
     direction : string 'forward' or 'inverse'
-        ``forward`` or ``inverse`` Abel transform
+        ``forward`` or ``inverse`` Abel transform.
 
-    hold_order : int (0 or 1)
-        first- or zero-order hold approximation used in the evaluation of
+    hold_order : int 0 or 1
+        First- or zero-order hold approximation used in the evaluation of
         state equation integral.  `1` (default) yields a more accurate
         transform. `0` gives the same result as the original implementation
         of the `hansenlaw` method. 
 
-        For the `0` case, the drive function (image or gradient) is additionally
-        left-shifted by -0.35 pixels, found to improve the transform alignment.
-        See the discussion in PR #211.
+    sub_pixel_shift : float -0.35 default
+        For the zero-order hold approximation `hold_order=0` a sub-pixel 
+        left-shift of the driving function (image-forward or gradient-inverse)
+        improves the transform alignment with the other PyAbel methods,
+        and Abel transform-pair functions.  See the discussion in PR #211.
 
     Returns
     -------
