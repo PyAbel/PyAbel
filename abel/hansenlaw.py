@@ -52,7 +52,7 @@ from scipy.ndimage import interpolation
 #############################################################################
 
 
-def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1, 
+def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=1, 
                         sub_pixel_shift=-0.35, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of:
 
@@ -66,32 +66,42 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1,
     J. Opt. Soc. Am. A 2, 510-520 (1985)
     <https://dx.doi.org/10.1364/JOSAA.2.000510>`_ 
 
-    For the full image transform, use the
-    class :class:``abel.Transform``.
-
-    For the inverse Abel transform of image g: ::
-
-      f = abel.Transform(g, direction="inverse", method="hansenlaw").transform
-
-    For the forward Abel transform of image f: ::
-
-      g = abel.Transform(r, direction="forward", method="hansenlaw").transform
-
     This function performs the Hansen-Law transform on only one "right-side"
-    image, typically one quadrant of the full image: ::
+    image: ::
 
-        Qtrans = abel.hansenlaw.hansenlaw_transform(Q, direction="inverse")
+        Abeltrans = abel.hansenlaw.hansenlaw_transform(image, direction='inverse')
 
-    Recursion method proceeds from the outer edge of the image
-    toward the image centre (origin). i.e. when ``n=cols-1``, ``R=Rmax``, and
-    when ``n=0``, ``R=0``. This fits well with processing the image one
-    quadrant (chosen orientation to be rightside-top), or one right-half
-    image at a time.  For the full image transform, use the class 
-    :class:``abel.Transform``.
+    .. note::  Image should be a right-side image, like this: ::
+
+        .         +--------      +--------+
+        .         |      *       | *      |
+        .         |   *          |    *   |  <---------- im
+        .         |  *           |     *  |
+        .         +--------      o--------+
+        .         |  *           |     *  |
+        .         |   *          |    *   |
+        .         |     *        | *      |
+        .         +--------      +--------+
+
+        In accordance with all PyAbel methods the image center ``o`` is
+        defined to be mix-pixel i.e. an odd number of columns, for the
+        full image.
+
+
+    For the full image transform, use the :class:``abel.Transform``.
+
+    Inverse Abel transform: ::
+
+      iAbel = abel.Transform(image, method='hansenlaw').transform
+
+    Forward Abel transform: ::
+
+      fAbel = abel.Transform(image, direction='forward', method='hansenlaw').transform
+
 
     Parameters
     ----------
-    IM : 1D or 2D numpy array
+    image : 1D or 2D numpy array
         Right-side half-image (or quadrant). See figure below.
 
     dr : float
@@ -107,32 +117,18 @@ def hansenlaw_transform(im, dr=1, direction='inverse', hold_order=1,
         of the `hansenlaw` method. 
 
     sub_pixel_shift : float -0.35 default
-        For the zero-order hold approximation `hold_order=0` a sub-pixel 
+        For the zero-order hold approximation `hold_order=0`, a sub-pixel 
         left-shift of the driving function (image-forward or gradient-inverse)
         improves the transform alignment with the other PyAbel methods,
-        and Abel transform-pair functions.  See the discussion in PR #211.
+        and Abel transform-pair functions.  See the discussion in
+        `PR #211 <https://github.com/PyAbel/PyAbel/pull/211>`_
 
     Returns
     -------
-    AIM : 1D or 2D numpy array
+    aim : 1D or 2D numpy array
         forward/inverse Abel transform half-image
 
 
-    .. note::  Image should be a right-side image, like this: ::
-
-        .         +--------      +--------+
-        .         |      *       | *      |
-        .         |   *          |    *   |  <---------- IM
-        .         |  *           |     *  |
-        .         +--------      o--------+
-        .         |  *           |     *  |
-        .         |   *          |    *   |
-        .         |     *        | *      |
-        .         +--------      +--------+
-
-        In accordance with all PyAbel methods the image center ``o`` is
-        defined to be mix-pixel i.e. an odd number of columns, for the
-        full image.
     """
 
     # state equation integral_r0^r (epsilon/r)^(lamda+a) d\epsilon
