@@ -152,15 +152,15 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=1,
     lam = np.array([0.0, -2.1, -6.2, -22.4, -92.5, -414.5, -1889.4, -8990.9,
                     -47391.1])
 
-    im = np.atleast_2d(im)   # 2D input image
-    aim = np.empty_like(im)  # Abel transform array
-    rows, cols = im.shape
+    image = np.atleast_2d(image)   # 2D input image
+    aim = np.empty_like(image)  # Abel transform array
+    rows, cols = image.shape
 
     if direction == 'forward':
-        drive = -2*dr*np.pi*im.copy()  # include Jacobian
+        drive = -2*dr*np.pi*image.copy()  # include Jacobian
         a = 1  # integration increases lambda + 1
     else:  # inverse Abel transform
-        drive = np.gradient(im, dr, axis=-1)
+        drive = np.gradient(image, dr, axis=-1)
         a = 0  # due to 1/piR factor
 
     n = np.arange(cols-1, 1, -1)
