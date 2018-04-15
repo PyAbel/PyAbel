@@ -60,7 +60,7 @@ and inverse:
 
    x^\prime(R) = -\frac{1}{R} \tilde{A} x(R) - 2\tilde{B} f(R)      
 
-where :math:`[\tilde{A}, \tilde{B}, \tilde{C}]` the impulse response: :math:`\tilde{h}(t) = \tilde{C} \exp{(\tilde{A} t)}\tilde{B} = \frac{1}{\sqrt{1-\exp{(-2t)}}}`.
+where :math:`[\tilde{A}, \tilde{B}, \tilde{C}]` realize the impulse response: :math:`\tilde{h}(t) = \tilde{C} \exp{(\tilde{A} t)}\tilde{B} = \frac{1}{\sqrt{1-\exp{(-2t)}}}`.
 
   .. math:: 
 
@@ -78,7 +78,7 @@ and
 
  .. math:: x(r) = \Phi(R, R_0) x(R_0) + 2 \int_{R_0}^{R} \Phi(R, r) \tilde{B} f(r) dr
 
-Evaluation of the superposition integral, the driven part of the solution, is achieved by assuming the driving function :math:`f(r)` or :math:`g^\prime(R)` is constant (zero-order hold approximation) or linear (first-order hold approximation) across a grid interval.
+Evaluation of the superposition integral, the driven part of the solution, is achieved by assuming the driving function :math:`f(r)` or :math:`g^\prime(R)` is constant (zero-order hold approximation) or linear (first-order hold approximation) across a grid interval. 
 
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/13544803/13bf0d0e-e2cf-11e5-97d5-bece1e61d904.png 
