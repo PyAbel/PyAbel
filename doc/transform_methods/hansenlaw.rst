@@ -37,23 +37,49 @@ How it works
 
 image function |nbsp|  :math:`f(r)`, |nbsp| projected function |nbsp|  :math:`g(R)`
 
-forward Abel transform 
+Forward Abel transform:
 
 .. math:: g(R) = 2 \int_R^\infty \frac{f(r) r}{\sqrt{r^2 - R^2}} dr 
 
-inverse Abel transform 
+Inverse Abel transform: 
 
 .. math:: f(r) = -\frac{1}{\pi}  \int_r^\infty \frac{g^\prime(R)}{\sqrt{R^2 - r^2}} dR
 
 
 
-The Hansen and Law method makes use of a coordinate transformation, which is 
-used to model the Abel transform, and derive *reconstruction* filters. The Abel
-transform is treated as a system modeled by a set of linear differential 
-equations. In this framework the forward Abel transform :math:`g(R)` is 
-the solution of a differential equation with :math:`f(r)` as its driving 
-function. Similarly, the Abel inversion :math:`f(r)` is a solution of a 
-differential equation with :math:`g^\prime(R)` as its driving function. 
+The Hansen and Law method makes a coordinate change :math:`R = \exp{(-t)}, r = \exp{(-\tau)}`
+to re-interpret the Abel integral as a convolution, with associated state-equations, forward transform:
+
+ .. math::
+
+  x^\prime(r) = -\frac{1}{r} \tilde{A} x(r) + \frac{1}{\pi r} \tilde{B} f(R) 
+
+and inverse:
+
+ .. math::
+
+   x^\prime(R) = -\frac{1}{R} \tilde{A} x(R) - 2\tilde{B} f(R)      
+
+where :math:`[\tilde{A}, \tilde{B}, \tilde{C}]` the impulse response: :math:`\tilde{h}(t) = \tilde{C} \exp{(\tilde{A} t)}\tilde{B} = \frac{1}{\sqrt{1-\exp{(-2t)}}}`.
+
+  .. math:: 
+
+    \tilde{A} = diag[\lambda_1, \lambda_2, ..., \lambda_K]
+
+    \tilde{B} = [h_1, h_2, ..., h_K]^T
+
+    \tilde{C} = [1, 1, ..., 1]
+
+The solutions:
+
+ .. math:: x(R) = \Phi(r, r_0) x(r_0) - \frac{1}{\pi} \int_{r_0}^{r} \frac{\Phi(r, R)}{r} \tilde{B} g^\prime(R) dR
+
+and
+
+ .. math:: x(r) = \Phi(R, R_0) x(R_0) + 2 \int_{R_0}^{R} \Phi(R, r) \tilde{B} f(r) dr
+
+Evaluation of the superposition integral, the driven part of the solution, is achieved by assuming the driving function :math:`f(r)` or :math:`g^\prime(R)` is constant (zero-order hold approximation) or linear (first-order hold approximation) across a grid interval.
+
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/13544803/13bf0d0e-e2cf-11e5-97d5-bece1e61d904.png 
    :width: 350px
@@ -68,7 +94,7 @@ forward transform
 
 .. math:: 
 
-  x_{n+1} &= \Phi_n x_n + \Gamma_n f_n 
+  x_{n-1} &= \Phi_n x_n + B_{0n} f_n + B_{1n} f_{n-1}  
 
   g_n &= \tilde{C} x_n
 
@@ -76,7 +102,7 @@ inverse transform
 
 .. math:: 
 
-  x_{n+1} &= \Phi_n x_n + \Gamma_n g^\prime_n 
+  x_{n-1} &= \Phi_n x_n + B_{0n} g^\prime_n + B_{1n} g^\prime_{n-1} 
 
   f_n &= \tilde{C} x_n
 
@@ -95,7 +121,6 @@ The algorithm iterates along each individual row of the image, starting at
 the out edge, ending at the center-line. Since all rows in an image can be 
 processed simultaneously, the operation can be easily vectorized and is 
 therefore numerically efficient.
-
 
 
 When to use it
@@ -143,12 +168,14 @@ The Hansen and Law algorithm was almost lost to the scientific community. It was
 rediscovered by Jason Gascooke (Flinders University, South Australia) for use in 
 his velocity-map image analysis, and written up in his PhD thesis [3]. 
 
+Eric Hansen provided guidence, algebra, and explanations, to aid the implementation of his first-order hold algorithm, described in Ref. [2] (April 2018).
 
 
 Citation
 --------
-[1] `E. W. Hansen and P.-L. Law, "Recursive methods for computing the Abel transform and its inverse", J. Opt. Soc. A2, 510-520 (1985) <http://dx.doi.org/10.1364/JOSAA.2.000510>`_
-[2] `E. W. Hansen "Fast Hankel Transform" IEEE Trans. Acoust. Speech Signal
-    Proc. 33, 666 (1985) <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
+[1] `E. W. Hansen and P.-L. Law, "Recursive methods for computing the Abel transform and its inverse*, J. Opt. Soc. A2, 510-520 (1985). <http://dx.doi.org/10.1364/JOSAA.2.000510>`_
+
+[2] `E. W. Hansen, "Fast Hankel Transform", IEEE Trans. Acoust. Speech Signal Proc. 33, 666 (1985) <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
+
 [3] J. R. Gascooke, PhD Thesis: *"Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation"*, Flinders University (2000).
-Available in `PDF format <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`
+Available in `PDF format <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`_
