@@ -46,7 +46,6 @@ Inverse Abel transform:
 .. math:: f(r) = -\frac{1}{\pi}  \int_r^\infty \frac{g^\prime(R)}{\sqrt{R^2 - r^2}} dR
 
 
-
 The Hansen and Law method makes a coordinate change :math:`R = \exp{(-t)}, r = \exp{(-\tau)}`
 to re-interpret the Abel integral as a convolution, with associated state-equations, forward transform:
 
@@ -70,15 +69,30 @@ where :math:`[\tilde{A}, \tilde{B}, \tilde{C}]` realize the impulse response: :m
 
     \tilde{C} = [1, 1, ..., 1]
 
-The solutions:
+with the solutions:
 
- .. math:: x(R) = \Phi(r, r_0) x(r_0) - \frac{1}{\pi} \int_{r_0}^{r} \frac{\Phi(r, R)}{r} \tilde{B} g^\prime(R) dR
+ .. math:: x(r) = \Phi(r, r_0) x(r_0) - \frac{1}{\pi} \int_{r_0}^{r} \frac{\Phi(r, \epsilon)}{\epsilon} \tilde{B} g^\prime(\epsilon) d\epsilon,
 
 and
 
- .. math:: x(r) = \Phi(R, R_0) x(R_0) + 2 \int_{R_0}^{R} \Phi(R, r) \tilde{B} f(r) dr
+ .. math:: x(r) = \Phi(r, r_0) x(r_0) + 2 \int_{r_0}^{r} \Phi(r, \epsilon) \tilde{B} f(\epsilon) d\epsilon,
 
-Evaluation of the superposition integral, the driven part of the solution, is achieved by assuming the driving function :math:`f(r)` or :math:`g^\prime(R)` is constant (zero-order hold approximation) or linear (first-order hold approximation) across a grid interval. 
+where the integration limits :math:`(r, r_0)` extend across one grid interval or a pixel, :math:`r_0 = n\Delta`, :math:`r = (n-1)\Delta`.
+
+Evaluation of the superposition integral, the driven part of the solution, is
+achieved by assuming the driving function :math:`f(r)` or :math:`g^\prime(R)` is
+constant (zero-order hold approximation) :math:`f(\epsilon) \sim f(r_0)`, or 
+linear (first-order hold approximation) across a grid interval, :math:`f(\epsilon) \sim p + q\epsilon`. The integrand separates into a sum over :math:`h_k` terms, 
+
+ .. math::
+
+    \sum_k h_k f(r_0) \int_{r_0}^{r} \Phi(r, \epsilon)_k d\epsilon
+
+with each integral:
+
+ .. math::
+
+  \int_{r_0}^{r} \left(\frac{\epsilon}{r}\right)^\lambda_k d\epsilon = \frac{r}{r_0}\left[ 1 - \left(\frac{r}{r_0}\right)^{\lambda_k + 1}\right] = \frac{n-1}{n} \left[ 1 - \left(\frac{n}{n-1}\right)^{\lambda_k+1} \right]
 
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/13544803/13bf0d0e-e2cf-11e5-97d5-bece1e61d904.png 
