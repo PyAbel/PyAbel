@@ -82,7 +82,7 @@ where the integration limits :math:`(r, r_0)` extend across one grid interval or
 Evaluation of the superposition integral, the driven part of the solution, is
 achieved by assuming the driving function :math:`f(r)` or :math:`g^\prime(R)` is
 constant (zero-order hold approximation) :math:`f(\epsilon) \sim f(r_0)`, or 
-linear (first-order hold approximation) across a grid interval, :math:`f(\epsilon) \sim p + q\epsilon`. The integrand separates into a sum over :math:`h_k` terms, 
+linear (first-order hold approximation) across a grid interval, :math:`f(\epsilon) \sim p + q\epsilon`. The integrand the separates into a sum over :math:`h_k` terms, 
 
  .. math::
 
@@ -93,6 +93,9 @@ with each integral:
  .. math::
 
   \int_{r_0}^{r} \left(\frac{\epsilon}{r}\right)^\lambda_k d\epsilon = \frac{r}{r_0}\left[ 1 - \left(\frac{r}{r_0}\right)^{\lambda_k + 1}\right] = \frac{n-1}{n} \left[ 1 - \left(\frac{n}{n-1}\right)^{\lambda_k+1} \right]
+
+
+For the inverse transform, there is an additional factor :math:`\frac{1}{\pi r}` and hence the integrand has the power of :math:`\lambda` reduced by -1.
 
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/13544803/13bf0d0e-e2cf-11e5-97d5-bece1e61d904.png 
