@@ -8,10 +8,9 @@ Hansen-Law
 Introduction
 ------------
 
-The Hansen and Law transform is the work of E. W. Hansen with P.-L. Law,
-zero-order hold approximation, [1] and the more accurate 
-first-order hold approximation. [2]
-
+The Hansen and Law transform [1, 2] is a fast (linear time) Abel transform,
+interpreted as a linear system, with the input and output, the Abel transform pair.  
+ 
 From the abstract [1]:
 
 *... new family of algorithms, principally for Abel inversion, that are 
@@ -35,19 +34,20 @@ How it works
 
    Projection geometry (Fig. 1 [1])
 
-image function |nbsp|  :math:`f(r)`, |nbsp| projected function |nbsp|  :math:`g(R)`
-
-Forward Abel transform:
+For an axis-symmetric source image the projection of a source image, 
+:math:`f(r)`, is given by the forward Abel transform:
 
 .. math:: g(R) = 2 \int_R^\infty \frac{f(r) r}{\sqrt{r^2 - R^2}} dr 
 
-Inverse Abel transform: 
+The corresponding inverse Abel transform is: 
 
 .. math:: f(r) = -\frac{1}{\pi}  \int_r^\infty \frac{g^\prime(R)}{\sqrt{R^2 - r^2}} dR
 
+The Hansen and Law method makes the coordinate transformation to model the Abel transform as a set of linear differential equation, with the driving function
+either the source image :math:`f(r)` (for the forward transform) or the 
+projection image gradient :math:`g(R)` (inverse transform). 
 
-The Hansen and Law method makes a coordinate change :math:`R = \exp{(-t)}, r = \exp{(-\tau)}`
-to re-interpret the Abel integral as a convolution, with associated state-equations, forward transform:
+The state equations are, forward:
 
  .. math::
 
@@ -69,33 +69,35 @@ where :math:`[\tilde{A}, \tilde{B}, \tilde{C}]` realize the impulse response: :m
 
     \tilde{C} = [1, 1, ..., 1]
 
-with the solutions:
+with the solutions, forward:
 
- .. math:: x(r) = \Phi(r, r_0) x(r_0) - \frac{1}{\pi} \int_{r_0}^{r} \frac{\Phi(r, \epsilon)}{\epsilon} \tilde{B} g^\prime(\epsilon) d\epsilon,
+ .. math:: x(r) = \Phi(r, r_0) x(r_0) + 2 \int_{r_0}^{r} \Phi(r, \epsilon) \tilde{B} f(\epsilon) d\epsilon.
 
-and
+and, inverse:
 
- .. math:: x(r) = \Phi(r, r_0) x(r_0) + 2 \int_{r_0}^{r} \Phi(r, \epsilon) \tilde{B} f(\epsilon) d\epsilon,
+ .. math:: x(r) = \Phi(r, r_0) x(r_0) - \frac{1}{\pi} \int_{r_0}^{r} \frac{\Phi(r, \epsilon)}{r} \tilde{B} g^\prime(\epsilon) d\epsilon,
 
-where the integration limits :math:`(r, r_0)` extend across one grid interval or a pixel, :math:`r_0 = n\Delta`, :math:`r = (n-1)\Delta`.
 
-Evaluation of the superposition integral, the driven part of the solution, is
-achieved by assuming the driving function :math:`f(r)` or :math:`g^\prime(R)` is
-constant (zero-order hold approximation) :math:`f(\epsilon) \sim f(r_0)`, or 
-linear (first-order hold approximation) across a grid interval, :math:`f(\epsilon) \sim p + q\epsilon`. The integrand the separates into a sum over :math:`h_k` terms, 
+with :math:`\Phi(r, r_0) = diag[(r_0/r)^{\lambda_1}, ..., (r_0/r)^{\lambda_K}] \equiv diag[(\frac{n}{n-1})^{\lambda_1}, ..., (\frac{n}{n-1})^{\lambda_K}]`, as
+the integration limits :math:`(r, r_0)` extend across one grid interval or a pixel, :math:`r_0 = n\Delta`, :math:`r = (n-1)\Delta`.
+
+To evaluate the (superposition) integral, the driven part of the solution, the
+driving function :math:`f(\epsilon)` or :math:`g^\prime(\epsilon)` is assumed to
+either be constant across each grid interval, the *zero-order hold* approximation, :math:`f(\epsilon) \sim f(r_0)`, or linear, a *first-order hold* approximation, :math:`f(\epsilon) \sim p + q\epsilon`. The integrand then separates into a
+ sum over terms multiplied by :math:`h_k`, 
 
  .. math::
 
-    \sum_k h_k f(r_0) \int_{r_0}^{r} \Phi(r, \epsilon)_k d\epsilon
+    \sum_k h_k f(r_0) \int_{r_0}^{r} \Phi_k(r, \epsilon) d\epsilon
 
 with each integral:
 
  .. math::
 
-  \int_{r_0}^{r} \left(\frac{\epsilon}{r}\right)^\lambda_k d\epsilon = \frac{r}{r_0}\left[ 1 - \left(\frac{r}{r_0}\right)^{\lambda_k + 1}\right] = \frac{n-1}{n} \left[ 1 - \left(\frac{n}{n-1}\right)^{\lambda_k+1} \right]
+  \int_{r_0}^{r} \left(\frac{\epsilon}{r}\right)^\lambda_k d\epsilon = \frac{r}{r_0}\left[ 1 - \left(\frac{r}{r_0}\right)^{\lambda_k + 1}\right] = \frac{(n-1)^a}{\lambda_k + a} \left[ 1 - \left(\frac{n}{n-1}\right)^{\lambda_k+a} \right],
 
-
-For the inverse transform, there is an additional factor :math:`\frac{1}{\pi r}` and hence the integrand has the power of :math:`\lambda` reduced by -1.
+where, the right-most-side of the equation has an additional parameter, :math:`a` to generalize the power of :math:`\lambda_k`.  For the inverse transform, there is an additional factor :math:`\frac{1}{\pi r}` in the state equation, and hence the integrand has :math:`\lambda_k` power, reduced by -1. While, for the 
+first-order hold approximation, the linear :math:`\epsilon` term increases :math:`\lambda_k` by +1. 
 
 
 .. figure:: https://cloud.githubusercontent.com/assets/10932229/13544803/13bf0d0e-e2cf-11e5-97d5-bece1e61d904.png 
@@ -107,15 +109,17 @@ For the inverse transform, there is an additional factor :math:`\frac{1}{\pi r}`
    Recursion: pixel value from adjacent outer-pixel
 
 
-forward transform
+Forward transform becomes:
 
 .. math:: 
 
   x_{n-1} &= \Phi_n x_n + B_{0n} f_n + B_{1n} f_{n-1}  
 
-  g_n &= \tilde{C} x_n
+  g_n &= \tilde{C} x_n,
 
-inverse transform
+where :math:`B_{1n}=0` for the zero-order hold approximation.
+
+Inverse transform:
 
 .. math:: 
 
@@ -192,7 +196,7 @@ Citation
 --------
 [1] `E. W. Hansen and P.-L. Law, "Recursive methods for computing the Abel transform and its inverse*, J. Opt. Soc. A2, 510-520 (1985). <http://dx.doi.org/10.1364/JOSAA.2.000510>`_
 
-[2] `E. W. Hansen, "Fast Hankel Transform", IEEE Trans. Acoust. Speech Signal Proc. 33, 666 (1985) <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
+[2] `E. W. Hansen, "Fast Hankel Transform", IEEE Trans. Acoust. Speech Signal Proc. 33, 666 (1985). <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
 
 [3] J. R. Gascooke, PhD Thesis: *"Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation"*, Flinders University (2000).
 Available in `PDF format <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`_
