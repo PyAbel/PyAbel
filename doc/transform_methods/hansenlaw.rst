@@ -8,19 +8,21 @@ Hansen-Law
 Introduction
 ------------
 
-The Hansen and Law transform [1, 2] is a fast (linear time) Abel transform,
-interpreted as a linear system, with the input and output, the Abel transform pair.  
+The Hansen and Law transform [1, 2] is a fast (linear time) Abel transform.
  
 From the abstract [1]:
 
-*... new family of algorithms, principally for Abel inversion, that are 
+*"... new family of algorithms, principally for Abel inversion, that are 
 recursive and hence computationally efficient. The methods are based on a 
 linear, space-variant, state-variable model of the Abel transform. The model 
-is the basis for deterministic algorithms, applicable when data are noise free, 
-and least-squares estimation (Kalman filter) algorithms, which accommodate 
-the noisy data case.*
+is the basis for deterministic algorithms."*
 
-The key advantage of the algorithm that is is fast, providing both the **forward** Abel and **inverse** Abel transform.
+and [2]:
+
+*"... Abel transform, which maps an axisymmetric two-dimensional function into a line integral projection."*
+
+
+The `hansenlaw` algorithm is efficient and it provides both the **forward** Abel and **inverse** Abel transform.
 
 
 How it works
@@ -35,7 +37,7 @@ How it works
    Projection geometry (Fig. 1 [1])
 
 For an axis-symmetric source image the projection of a source image, 
-:math:`f(r)`, is given by the forward Abel transform:
+:math:`g(R)`, is given by the forward Abel transform:
 
 .. math:: g(R) = 2 \int_R^\infty \frac{f(r) r}{\sqrt{r^2 - R^2}} dr 
 
@@ -43,33 +45,32 @@ The corresponding inverse Abel transform is:
 
 .. math:: f(r) = -\frac{1}{\pi}  \int_r^\infty \frac{g^\prime(R)}{\sqrt{R^2 - r^2}} dR
 
-The Hansen and Law method makes the coordinate transformation to model the Abel transform as a set of linear differential equation, with the driving function
-either the source image :math:`f(r)` (for the forward transform) or the 
-projection image gradient :math:`g(R)` (inverse transform). 
-
-The state equations are, forward:
-
- .. math::
-
-  x^\prime(r) = -\frac{1}{r} \tilde{A} x(r) + \frac{1}{\pi r} \tilde{B} f(R) 
-
-and inverse:
+The Hansen and Law method makes a coordinate transformation to model the Abel transform as a set of linear differential equation, with the driving function
+either the source image :math:`f(r)`,  for the forward transform, or the 
+projection image gradient :math:`g^\prime(R)`, for the inverse transform. 
+The resulting state equations are, for the forward transform:
 
  .. math::
 
-   x^\prime(R) = -\frac{1}{R} \tilde{A} x(R) - 2\tilde{B} f(R)      
+  x^\prime(r) = -\frac{1}{r} \tilde{A} x(r) + \frac{1}{\pi r} \tilde{B} f(R),
 
-where :math:`[\tilde{A}, \tilde{B}, \tilde{C}]` realize the impulse response: :math:`\tilde{h}(t) = \tilde{C} \exp{(\tilde{A} t)}\tilde{B} = \frac{1}{\sqrt{1-\exp{(-2t)}}}`.
+with inverse:
+
+ .. math::
+
+   x^\prime(R) = -\frac{1}{R} \tilde{A} x(R) - 2\tilde{B} f(R),      
+
+where :math:`[\tilde{A}, \tilde{B}, \tilde{C}]` realize the impulse response: :math:`\tilde{h}(t) = \tilde{C} \exp{(\tilde{A} t)}\tilde{B} = \left[1-e^{-2t}\right]^{-\frac{1}{2}}`, with:
 
   .. math:: 
 
-    \tilde{A} = diag[\lambda_1, \lambda_2, ..., \lambda_K]
+    \tilde{A} = \rm{diag}[\lambda_1, \lambda_2, ..., \lambda_K]
 
     \tilde{B} = [h_1, h_2, ..., h_K]^T
 
     \tilde{C} = [1, 1, ..., 1]
 
-with the solutions, forward:
+The differential equations have the transform solutions, forward:
 
  .. math:: x(r) = \Phi(r, r_0) x(r_0) + 2 \int_{r_0}^{r} \Phi(r, \epsilon) \tilde{B} f(\epsilon) d\epsilon.
 
@@ -78,13 +79,11 @@ and, inverse:
  .. math:: x(r) = \Phi(r, r_0) x(r_0) - \frac{1}{\pi} \int_{r_0}^{r} \frac{\Phi(r, \epsilon)}{r} \tilde{B} g^\prime(\epsilon) d\epsilon,
 
 
-with :math:`\Phi(r, r_0) = diag[(r_0/r)^{\lambda_1}, ..., (r_0/r)^{\lambda_K}] \equiv diag[(\frac{n}{n-1})^{\lambda_1}, ..., (\frac{n}{n-1})^{\lambda_K}]`, as
-the integration limits :math:`(r, r_0)` extend across one grid interval or a pixel, :math:`r_0 = n\Delta`, :math:`r = (n-1)\Delta`.
+with :math:`\Phi(r, r_0) = \rm{diag}[(\frac{r_0}{r})^{\lambda_1}, ..., (\frac{r_0}{r})^{\lambda_K}] \equiv \rm{diag}[(\frac{n}{n-1})^{\lambda_1}, ..., (\frac{n}{n-1})^{\lambda_K}]`, where the integration limits :math:`(r, r_0)` extend across one grid interval or a pixel, so :math:`r_0 = n\Delta`, :math:`r = (n-1)\Delta`.
 
 To evaluate the (superposition) integral, the driven part of the solution, the
 driving function :math:`f(\epsilon)` or :math:`g^\prime(\epsilon)` is assumed to
-either be constant across each grid interval, the *zero-order hold* approximation, :math:`f(\epsilon) \sim f(r_0)`, or linear, a *first-order hold* approximation, :math:`f(\epsilon) \sim p + q\epsilon`. The integrand then separates into a
- sum over terms multiplied by :math:`h_k`, 
+either be constant across each grid interval, the **zero-order hold** approximation, :math:`f(\epsilon) \sim f(r_0)`, or linear, a **first-order hold** approximation, :math:`f(\epsilon) \sim p + q\epsilon = (r_0f(r) - rf(r_0))/\Delta + (f(r_0) - f(r))\epsilon/\Delta`. The integrand then separates into a sum over terms multiplied by :math:`h_k`, 
 
  .. math::
 
