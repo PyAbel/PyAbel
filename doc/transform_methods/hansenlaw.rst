@@ -22,7 +22,7 @@ and [2]:
 *"... Abel transform, which maps an axisymmetric two-dimensional function into a line integral projection."*
 
 
-The `hansenlaw` algorithm is efficient and it provides both the **forward** Abel and **inverse** Abel transform.
+The algorithm is efficient, one of the few methods to provide both the **forward** Abel and **inverse** Abel transform.
 
 
 How it works
@@ -82,12 +82,7 @@ Inverse transform:
 Note the only difference between the *forward* and *inverse* algorithms is 
 the exchange of :math:`f_n` with :math:`g^\prime_n` (or :math:`g_n`).
 
-|
-|
-
-:math:`\Phi_n` and :math:`\Gamma_n` are functions with predetermined 
-parameter constants, all listed in [1].
-
+Details on the evaluation of :math:`\Phi, B_{0n},` and :math:`B_{1n}` are given below, themath_.
 
 The algorithm iterates along each individual row of the image, starting at 
 the out edge, ending at the center-line. Since all rows in an image can be 
