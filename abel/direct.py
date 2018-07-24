@@ -18,6 +18,7 @@ except (ImportError, UnicodeDecodeError):
 # numerical integration
 #
 # Roman Yurchak - Laboratoire LULI, Ecole Polytechnique/CNRS/CEA, France
+# 07.2018: DH fixed the correction for the case where r[0] = 0
 # 03.2018: DH changed the default grid from 0.5, 1.5 ... to 0, 1, 2.
 # 01.2018: DH dhanged the integration method to trapz
 # 12.2015: RY Added a pure python implementation
@@ -48,7 +49,6 @@ def _construct_r_grid(n, dr=None, r=None):
         if isinstance(dr, np.ndarray):
             raise NotImplementedError
         r = (np.arange(n))*dr
-        r[0] = 1e-16 # avoids returning np.nan
     return r, dr
 
 
@@ -219,8 +219,18 @@ def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
         f_r = (f[:, 1:] - f[:, :N1-1])/np.diff(r)[None, :]
 
         for i, row in enumerate(f):  # loop over rows (z)
-            out[i, :-1] += I_sqrt[II+1 == JJ]*f_r[i] \
+            corr  = I_sqrt[II+1 == JJ]*f_r[i] \
                     + np.arccosh(r[1:]/r[:-1])*(row[:-1] - f_r[i]*r[:-1])
+
+            
+            if np.isclose(r[0], 0):  # special case for r[0] = 0 
+                corr0 = I_sqrt[II+1 == JJ][0]*f_r[i,0] \
+                        + (row[0] - f_r[i,0]*r[0])
+                out[i, 1:-1] += corr[1:]
+                out[i, 0]    += corr0 
+            else:
+                out[i, :-1] = corr
+            
 
     return out
 
