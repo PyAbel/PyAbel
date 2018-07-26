@@ -52,7 +52,7 @@ from scipy.ndimage import interpolation
 #############################################################################
 
 
-def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=1, 
+def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0, 
                         sub_pixel_shift=-0.35, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of:
 
@@ -112,16 +112,20 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=1,
 
     hold_order : int 0 or 1
         First- or zero-order hold approximation used in the evaluation of
-        state equation integral.  `1` (default) yields a more accurate
-        transform. `0` gives the same result as the original implementation
-        of the `hansenlaw` method. 
+        state equation integral. `0` (default) gives the same result as the 
+        original implementation of the `hansenlaw` method. It is applicable
+        for pixel images, where the intensity of the driving function
+        (gradient for the inverse transform, original image for the forward
+        transform).  `1` assumes a linear intensity variation across
+        a 'pixel'. This may yield a more accurate transform for continuoulsy
+        varying functions.
 
     sub_pixel_shift : float -0.35 default
         For the zero-order hold approximation `hold_order=0`, a sub-pixel 
         left-shift of the driving function (image-forward or gradient-inverse)
         improves the transform alignment with the other PyAbel methods,
-        and Abel transform-pair functions.  See the discussion in
-        `PR #211 <https://github.com/PyAbel/PyAbel/pull/211>`_
+        and Abel transform-pair functions.  See the discussion in/conclusions
+        of `PR #211 <https://github.com/PyAbel/PyAbel/pull/211>`_
 
     Returns
     -------
@@ -175,7 +179,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=1,
         B1 = gamma0
         B0 = gamma0*0  # empty array
         # sub-pixel left shift improves transform alignment, see PR #211
-        drive = interpolation.shift(drive, (0, -0.35))
+        drive = interpolation.shift(drive, (0, sub_pixel_shift))
 
     else:  # Hansen first-order hold approximation
         gamma1 = I(n, lam, a+1)*h
@@ -191,7 +195,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=1,
                                  + B1[indx][:, None]*drive[:, col]
         aim[:, col] = x.sum(axis=0)
 
-    # missing columns at each side
+    # missing column at each side of image
     aim[:, 0] = aim[:, 1]
     aim[:, -1] = aim[:, -2]
 

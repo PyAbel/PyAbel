@@ -49,7 +49,8 @@ def _construct_r_grid(n, dr=None, r=None):
         if isinstance(dr, np.ndarray):
             raise NotImplementedError
         r = np.arange(n)*dr
-        r[0] = 1.0e-16 
+        subr = r < 1.0e-10
+        r[subr] = 1.0e-10
     return r, dr
 
 
@@ -217,7 +218,6 @@ def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
     see: https://github.com/luli/hedp/blob/master/hedp/math/abel.py#L87-L104
     """
     if correction == 1:
-
         # precompute a few variables outside the loop:
         f_r = (f[:, 1:] - f[:, :-1])/np.diff(r)[None, :]
         isqrt = I_sqrt[II+1 == JJ]
