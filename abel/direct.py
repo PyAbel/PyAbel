@@ -218,7 +218,7 @@ def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
         f_r = (f[:, 1:] - f[:, :-1])/np.diff(r)[None, :]
         isqrt = I_sqrt[II+1 == JJ]
 
-        if np.isclose(r[0], 0):  # special case for r[0] = 0
+        if r[0]<(r[1]*1e-8):  # special case for r[0] = 0
             ratio = np.append(np.cosh(1), r[2:]/r[1:-1])
         else:
             ratio = r[1:]/r[:-1]
