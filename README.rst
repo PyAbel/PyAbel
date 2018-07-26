@@ -119,6 +119,40 @@ Documentation
 General information about the various Abel transforms available in PyAbel is available at the links above. The complete documentation for all of the methods in PyAbel is hosted at https://pyabel.readthedocs.io.
 
 
+Conventions
+-----------
+
+The PyAbel code adheres to the following conventions:
+
+- 
+    **Image orientation:** PyAbel adopts the "television" convention, where ``IM[0,0]`` refers to the **upper** left corner of the image. (This means that ``plt.imshow(IM)`` should display the image in the proper orientation, without the need to use the ``origin='lower'`` keyword.) As an example, the x,y-grid for a 5x5 image can be generated using:
+
+    .. code-block:: python
+
+        x = np.linspace(-2,2,5)
+        X,Y = np.meshgrid(x, -x) # notice the minus sign in front of the y-coordinate
+    
+- 
+    **Angle:** All angles in PyAbel are measured in radians. When an absolute angle is defined, zero-angle corresponds to the upwards, vertical direction. Positive values are on the right side, and negative values on the left side. The range of angles is from -Pi to +Pi. The polar grid for a 5x5 image can be generated (following the code above) using:
+
+    .. code-block:: python
+
+        R = np.sqrt(X**2 + Y**2)
+        THETA = np.arctan2(X, Y)
+
+
+    where the usual ``(Y, X)`` convention of ``arctan2`` has been reversed in order to place zero-angle in the vertical direction. Consequently, to convert the angular grid back to the Cartesian grid, we use:
+  
+    .. code-block:: python
+
+        X = R*np.sin(THETA)
+        Y = R*np.cos(THETA)
+    
+
+- 
+    **Image center:** Fundamentally, the Abel and inverse-Abel transforms in PyAbel consider the center of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The center pixel is effectively "shared" between both halves of the image.) In most situations, the center is specified using the ``center`` keyword in ``abel.Transform`` (or directly using ``abel.center.center_image`` to find the true center of your image. This processing step takes care of locating the center of the image in the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image.
+
+
 Support
 -------
 If you have a question or suggestion about PyAbel, the best way to contact the PyAbel Developers Team is to `open a new issue <https://github.com/PyAbel/PyAbel/issues>`_.
