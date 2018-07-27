@@ -179,7 +179,6 @@ def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
     else:
         int_opts = {'x': r}
 
-    N1 = f.shape[1]
     out = np.zeros(f.shape)
     R, Y = np.meshgrid(r, r, indexing='ij')
 
