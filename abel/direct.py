@@ -18,12 +18,12 @@ except (ImportError, UnicodeDecodeError):
 # numerical integration
 #
 # Roman Yurchak - Laboratoire LULI, Ecole Polytechnique/CNRS/CEA, France
-#
-# 01.2018: Changed the integration method to trapz
-# 12.2015: Added a pure python implementation following a dissuasion
-#                                                     with Dan Hickstein
-# 11.2015: Moved to PyAbel, added more unit tests, reorganized code base
-#    2012: First implementation in hedp.math.abel
+# 07.2018: DH fixed the correction for the case where r[0] = 0
+# 03.2018: DH changed the default grid from 0.5, 1.5 ... to 0, 1, 2.
+# 01.2018: DH dhanged the integration method to trapz
+# 12.2015: RY Added a pure python implementation
+# 11.2015: RY moved to PyAbel, added more unit tests, reorganized code base
+#    2012: RY first implementation in hedp.math.abel
 ###########################################################################
 
 
@@ -42,13 +42,13 @@ def _construct_r_grid(n, dr=None, r=None):
             raise ValueError('The input parameter r should be a 1D array'
                              'of shape = ({},), got shape = {}'.format(
                                                                 n, r.shape))
-        # not so sure about this, needs verification
+        # not so sure about this, needs verification -RY
         dr = np.gradient(r)
 
     else:
         if isinstance(dr, np.ndarray):
             raise NotImplementedError
-        r = (np.arange(n) + 0.5)*dr
+        r = (np.arange(n))*dr
     return r, dr
 
 
@@ -124,11 +124,7 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
     r, dr = _construct_r_grid(f.shape[1], dr=dr, r=r)
 
     if direction == "inverse":
-        # a derivative function must be provided
-        f = derivative(f)/dr
-        # setting the derivative at the origin to 0
-        # f[:,0] = 0
-    if direction == "inverse":
+        f = derivative(f)/dr 
         f *= - 1./np.pi
     else:
         f *= 2*r[None, :]
@@ -183,7 +179,6 @@ def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
     else:
         int_opts = {'x': r}
 
-    N1 = f.shape[1]
     out = np.zeros(f.shape)
     R, Y = np.meshgrid(r, r, indexing='ij')
 
@@ -209,18 +204,28 @@ def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
 
 
     """
-    Compute the correction
-    Pre-calculated analytical integration of the cell with the singular value
-    Assuming a piecewise linear behaviour of the data
+    Compute the correction. Here we apply an
+    analytical integration of the cell with the singular value,
+    assuming a piecewise linear behaviour of the data.
+    The analytical abel transform for this trapezoid is:
     c0*acosh(r1/y) - c_r*y*acosh(r1/y) + c_r*sqrt(r1**2 - y**2)
+    see: https://github.com/luli/hedp/blob/master/hedp/math/abel.py#L87-L104
     """
     if correction == 1:
-        # computing forward derivative of the data
-        f_r = (f[:, 1:] - f[:, :N1-1])/np.diff(r)[None, :]
+
+        # precompute a few variables outside the loop:
+        f_r = (f[:, 1:] - f[:, :-1])/np.diff(r)[None, :]
+        isqrt = I_sqrt[II+1 == JJ]
+
+        if r[0]<(r[1]*1e-8):  # special case for r[0] = 0
+            ratio = np.append(np.cosh(1), r[2:]/r[1:-1])
+        else:
+            ratio = r[1:]/r[:-1]
+        
+        acr = np.arccosh(ratio)
 
         for i, row in enumerate(f):  # loop over rows (z)
-            out[i, :-1] += I_sqrt[II+1 == JJ]*f_r[i] \
-                    + np.arccosh(r[1:]/r[:-1])*(row[:-1] - f_r[i]*r[:-1])
+            out[i, :-1] += isqrt*f_r[i] + acr*(row[:-1] - f_r[i]*r[:-1])
 
     return out
 

@@ -75,8 +75,13 @@ cpdef _cabel_direct_integral(double [:, ::1] f, double [::1] r, int correction):
                    # Integration of the cell with the singular value
                    # Assuming a piecewise linear behaviour of the data
                    # c0*acosh(r1/y) - c_r*y*acosh(r1/y) + c_r*sqrt(r1**2 - y**2)
-                   s = s + I_sqrt[j,j+1]*f_r[i,j] \
-                           + acosh(r[j+1]/r[j])*(f[i,j] - f_r[i,j]*r[j])
+                   
+                   if j == 0 and r[0]<(1e-8*r[1]):
+                       s = s + I_sqrt[j,j+1]*f_r[i,j] \
+                               + 1*(f[i,j] - f_r[i,j]*r[j])
+                   else:
+                       s = s + I_sqrt[j,j+1]*f_r[i,j] \
+                               + acosh(r[j+1]/r[j])*(f[i,j] - f_r[i,j]*r[j])
 
                 out[i,j] = s
 
