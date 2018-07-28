@@ -52,7 +52,7 @@ from scipy.ndimage import interpolation
 #############################################################################
 
 
-def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0, 
+def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
                         sub_pixel_shift=-0.35, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of:
 
@@ -64,7 +64,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     `E. W. Hansen and P.-L. Law
     "Recursive methods for computing the Abel transform and its inverse"
     J. Opt. Soc. Am. A 2, 510-520 (1985)
-    <https://dx.doi.org/10.1364/JOSAA.2.000510>`_ 
+    <https://dx.doi.org/10.1364/JOSAA.2.000510>`_
 
     This function performs the Hansen-Law transform on only one "right-side"
     image: ::
@@ -112,7 +112,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
     hold_order : int 0 or 1
         First- or zero-order hold approximation used in the evaluation of
-        state equation integral. `0` (default) gives the same result as the 
+        state equation integral. `0` (default) gives the same result as the
         original implementation of the `hansenlaw` method. It is applicable
         for pixel images, where the intensity of the driving function
         (gradient for the inverse transform, original image for the forward
@@ -121,7 +121,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         varying functions.
 
     sub_pixel_shift : float -0.35 default
-        For the zero-order hold approximation `hold_order=0`, a sub-pixel 
+        For the zero-order hold approximation `hold_order=0`, a sub-pixel
         left-shift of the driving function (image-forward or gradient-inverse)
         improves the transform alignment with the other PyAbel methods,
         and Abel transform-pair functions.  See the discussion in/conclusions
