@@ -10,7 +10,7 @@ Introduction
 
 The Hansen and Law transform [1, 2] is a fast (linear time) Abel transform.
  
-From the abstract [1]:
+In their words, Hansen and Law [1] present:
 
 *"... new family of algorithms, principally for Abel inversion, that are 
 recursive and hence computationally efficient. The methods are based on a 
@@ -194,9 +194,8 @@ first-order hold approximation, the linear :math:`\epsilon` term increases :math
 
 Citation
 --------
-[1] `E. W. Hansen and P.-L. Law, "Recursive methods for computing the Abel transform and its inverse*, J. Opt. Soc. A2, 510-520 (1985). <http://dx.doi.org/10.1364/JOSAA.2.000510>`_
+[1] `E. W. Hansen and P.-L. Law, "Recursive methods for computing the Abel transform and its inverse", J. Opt. Soc. A2, 510-520 (1985). <http://dx.doi.org/10.1364/JOSAA.2.000510>`_
 
 [2] `E. W. Hansen, "Fast Hankel Transform", IEEE Trans. Acoust. Speech Signal Proc. 33, 666 (1985). <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
 
-[3] J. R. Gascooke, PhD Thesis: *"Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation"*, Flinders University (2000).
-Available in `PDF format <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`_
+[3] `J. R. Gascooke, PhD Thesis: "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation", Flinders University (2000). <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`_

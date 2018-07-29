@@ -84,7 +84,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         .         +--------      +--------+
 
         In accordance with all PyAbel methods the image center ``o`` is
-        defined to be mix-pixel i.e. an odd number of columns, for the
+        defined to be mid-pixel i.e. an odd number of columns, for the
         full image.
 
 
@@ -105,27 +105,31 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         Right-side half-image (or quadrant). See figure below.
 
     dr : float
-        Sampling size (=1 for pixel images), used for Jacobian scaling.
+        Sampling size, used for Jacobian scaling.
+        Default: `1` (appliable for pixel images).
 
     direction : string 'forward' or 'inverse'
         ``forward`` or ``inverse`` Abel transform.
+        Default: 'inverse'.
 
     hold_order : int 0 or 1
-        First- or zero-order hold approximation used in the evaluation of
-        state equation integral. `0` (default) gives the same result as the
-        original implementation of the `hansenlaw` method. It is applicable
-        for pixel images, where the intensity of the driving function
-        (gradient for the inverse transform, original image for the forward
-        transform).  `1` assumes a linear intensity variation across
-        a 'pixel'. This may yield a more accurate transform for continuoulsy
-        varying functions.
+        The order of the hold approximation used in the evaluation of state
+        equation integral. `0` gives the same result as the original PyAbel
+        implementatio of the `hansenlaw` method. It is applicable for pixel
+        images, where the intensity of the driving function (gradient for the
+        inverse transform, input image for the forward transform) is constant
+        between grid points. `1` assumes a linear intensity variation between
+        grid points, which may yield a more accurate transform for continuously
+        varying intensity functions (see PR 211).
+        Default: `0`.
 
-    sub_pixel_shift : float -0.35 default
+    sub_pixel_shift : float 
         For the zero-order hold approximation `hold_order=0`, a sub-pixel
         left-shift of the driving function (image-forward or gradient-inverse)
         improves the transform alignment with the other PyAbel methods,
-        and Abel transform-pair functions.  See the discussion in/conclusions
-        of `PR #211 <https://github.com/PyAbel/PyAbel/pull/211>`_
+        and Abel transform-pair functions.  See the discussion in final summary
+        of `PR #211 <https://github.com/PyAbel/PyAbel/pull/211>`_ 
+        Default: -0.35.
 
     Returns
     -------
