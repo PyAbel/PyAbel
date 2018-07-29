@@ -198,4 +198,4 @@ Citation
 
 [2] `E. W. Hansen, "Fast Hankel Transform", IEEE Trans. Acoust. Speech Signal Proc. 33, 666 (1985). <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
 
-[3] `J. R. Gascooke, PhD Thesis: "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation", Flinders University (2000). <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`_
+[3] `J. R. Gascooke, PhD Thesis: "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation", Flinders University (2000). <https://github.com/PyAbel/abel_info>`_
