@@ -114,9 +114,10 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
     hold_order : int 0 or 1
         The order of the hold approximation, used to evaluate the state equation
-        integral. `0` is applicable for pixel images, where the intensity of
-        the driving function (the image gradient [inverse transform], or the
-        original image [forward transform]) is constant between grid points.
+        integral. 
+        `0` assumes a constant intensity across a pixel (between grid points)
+        for the driving function (the image gradient for the inverse transform,
+        or the original image, for the forward transform).
         `1` assumes a linear intensity variation between grid points, which may
         yield a more accurate transform for some functions (see PR 211).
         Default: `0`.
