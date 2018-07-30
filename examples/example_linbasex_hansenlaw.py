@@ -50,7 +50,8 @@ ax3.set_aspect('equal')
 ax3.set_title("hansenlaw")
 
 ax1.plot(LIM.radial, LIM.Beta[0], 'r-', label='linbasex')
-ax1.plot(HIM.angular_integration[1]/HIM.angular_integration[1].max(),
+ax1.plot(HIM.angular_integration[0],
+         HIM.angular_integration[1]/HIM.angular_integration[1].max(),
          'b-', label='hansenlaw')
 ax1.legend(loc=0, labelspacing=0.1, frameon=False, numpoints=1, fontsize=10)
 proj_angles *= 100/np.pi
