@@ -113,14 +113,12 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         Default: 'inverse'.
 
     hold_order : int 0 or 1
-        The order of the hold approximation used in the evaluation of state
-        equation integral. `0` gives the same result as the original PyAbel
-        implementatio of the `hansenlaw` method. It is applicable for pixel
-        images, where the intensity of the driving function (gradient for the
-        inverse transform, input image for the forward transform) is constant
-        between grid points. `1` assumes a linear intensity variation between
-        grid points, which may yield a more accurate transform for continuously
-        varying intensity functions (see PR 211).
+        The order of the hold approximation, used to evaluate the state equation
+        integral. `0` is applicable for pixel images, where the intensity of
+        the driving function (the image gradient [inverse transform], or the
+        original image [forward transform]) is constant between grid points.
+        `1` assumes a linear intensity variation between grid points, which may
+        yield a more accurate transform for some functions (see PR 211).
         Default: `0`.
 
     sub_pixel_shift : float 
