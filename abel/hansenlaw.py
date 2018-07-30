@@ -164,7 +164,8 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     rows, cols = image.shape
 
     if direction == 'forward':
-        drive = -2*dr*np.pi*image.copy()  # include Jacobian
+        # copy image for the driving function, include Jacobian factor,
+        drive = -2*dr*np.pi*np.array(image)
         a = 1  # integration increases lambda + 1
     else:  # inverse Abel transform
         drive = np.gradient(image, dr, axis=-1)
