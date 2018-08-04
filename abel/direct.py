@@ -124,7 +124,7 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
     r, dr = _construct_r_grid(f.shape[1], dr=dr, r=r)
 
     if direction == "inverse":
-        f = derivative(f)/dr 
+        f = derivative(f)/dr
         f *= - 1./np.pi
     else:
         f *= 2*r[None, :]
@@ -193,7 +193,7 @@ def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
     I_isqrt[mask] = 1./I_sqrt[mask]
 
     # create a mask that just shows the first two points of the integral
-    mask2 = ((II>JJ-2) & (II < JJ+1))
+    mask2 = ((II > JJ-2) & (II < JJ+1))
 
     for i, row in enumerate(f):  # loop over rows (z)
         P = row[None, :] * I_isqrt  # set up the integral
@@ -201,7 +201,6 @@ def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
 
         # correct for the extra triangle at the start of the integral
         out[i, :] = out[i, :] - 0.5*int_func(P*mask2, axis=1, **int_opts)
-
 
     """
     Compute the correction. Here we apply an
@@ -217,11 +216,11 @@ def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
         f_r = (f[:, 1:] - f[:, :-1])/np.diff(r)[None, :]
         isqrt = I_sqrt[II+1 == JJ]
 
-        if r[0]<(r[1]*1e-8):  # special case for r[0] = 0
+        if r[0] < r[1]*1e-8:  # special case for r[0] = 0
             ratio = np.append(np.cosh(1), r[2:]/r[1:-1])
         else:
             ratio = r[1:]/r[:-1]
-        
+
         acr = np.arccosh(ratio)
 
         for i, row in enumerate(f):  # loop over rows (z)

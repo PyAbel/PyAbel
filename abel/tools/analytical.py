@@ -371,11 +371,11 @@ class SampleImage(BaseAnalytical):
         super(SampleImage, self).__init__(n, r_max=n2, symmetric=True)
 
         if name == 'dribinski':
-            self.r *= 180/n2
+            scale = 180*2/n
         elif name == 'Ominus':
-            self.r *= 501/n2
+            scale = 501*2/n
 
-        X, Y = np.meshgrid(self.r, self.r)
+        X, Y = np.meshgrid(self.r*scale, self.r*scale)
         R, THETA = abel.tools.polar.cart2polar(X, Y)
 
         if self.name == "dribinski":

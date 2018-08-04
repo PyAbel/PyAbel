@@ -120,7 +120,7 @@ _linbasex_parameter_docstring = \
 
 def linbasex_transform(IM, proj_angles=[0, np.pi/2],
                        legendre_orders=[0, 2], radial_step=1, smoothing=0.5,
-                       rcond=0.0005, threshold=0.2, basis_dir='./',
+                       rcond=0.0005, threshold=0.2, basis_dir=None,
                        return_Beta=False, clip=0, norm_range=(0, -1),
                        direction="inverse", verbose=False, **kwargs):
     """wrapper function for linebasex to process supplied quadrant-image as a full-image.

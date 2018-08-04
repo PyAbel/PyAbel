@@ -112,7 +112,7 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
         IM = shift(IM, -1/2)
 
     # make sure that the data is the right shape (1D must be converted to 2D):
-    IM = np.atleast_2d(IM)
+    IM = np.atleast_2d(IM.copy())
 
     # we would like to work from the outside to the inside of the image, 
     # so flip the image to put the "outside" at low index values.

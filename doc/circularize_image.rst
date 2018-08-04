@@ -21,7 +21,14 @@ compares the radial positions of strong features in angular slice intensity prof
         ^        ^    slice#
     radial peak position
 
-Peak alignment is achieved through a radial scaling factor :math:`R_i(actual) = R_i \times scalefactor_i`. The scalefactor is determined by a choice or methods, ``argmax``, where :math:`scalefactor_i = R_0/R_i`, with :math:`R_0` a reference peak. Or ``lsq``, which directly determines the radial scaling factor that best aligns adjacent slice intensity profiles.
+Peak alignment is achieved through a radial scaling factor :math:`R_i(actual) = R_i \times scalefactor_i`. The scalefactor is determined by a choice of methods, ``argmax``, where :math:`scalefactor_i = R_0/R_i`, with :math:`R_0` a reference peak. Or ``lsq``, which directly determines the radial scaling factor that best aligns adjacent slice intensity profiles.
+
+This is a simplified radial scaling version of the algorithm described in 
+`J. R. Gascooke and S. T. Gibson and W. D. Lawrance: 'A "circularisation"
+method to repair deformations and determine the centre of velocity map 
+images' J. Chem. Phys. 147, 013924 (2017).
+<https://dx.doi.org/10.1063/1.4981024>`_
+
 
 Implementation
 --------------

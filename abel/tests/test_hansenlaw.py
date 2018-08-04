@@ -70,6 +70,7 @@ def test_hansenlaw_forward_curveA():
     Aproj = abel.hansenlaw.hansenlaw_transform(curveA.func, curveA.dr,
                                                direction='forward')
 
+
     assert_allclose(curveA.abel, Aproj, rtol=0, atol=8.0e-2)
 
 
