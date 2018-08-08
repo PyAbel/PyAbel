@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # This example compares the available inverse Abel transform methods
-# currently - direct, hansenlaw, and basex 
+# currently - direct, hansenlaw, and basex
 # processing the O2- photoelectron velocity-map image
 #
 # Note it transforms only the Q0 (top-right) quadrant
@@ -18,27 +18,29 @@ import abel
 import collections
 import matplotlib.pylab as plt
 from time import time
+import bz2
 
 # inverse Abel transform methods -----------------------------
 #   dictionary of method: function()
 
 transforms = {
-  "basex": abel.basex.basex_transform,   
+  "basex": abel.basex.basex_transform,
   "linbasex": abel.linbasex.linbasex_transform,
-  "direct": abel.direct.direct_transform,      
+  "direct": abel.direct.direct_transform,
   "hansenlaw": abel.hansenlaw.hansenlaw_transform,
   "onion_bordas": abel.onion_bordas.onion_bordas_transform,
-  "onion_dasch": abel.dasch.onion_peeling_transform, 
+  "onion_dasch": abel.dasch.onion_peeling_transform,
   "three_point": abel.dasch.three_point_transform,
   "two_point" : abel.dasch.two_point_transform,
 }
-# sort dictionary 
+# sort dictionary
 transforms = collections.OrderedDict(sorted(transforms.items()))
 ntrans = np.size(transforms.keys())  # number of transforms
 
 
 # Image:   O2- VMI 1024x1024 pixel ------------------
-IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
+imagefile = bz2.BZ2File('data/O2-ANU1024.txt.bz2')
+IM = np.loadtxt(imagefile)
 
 # recenter the image to mid-pixel (odd image width)
 IModd = abel.tools.center.center_image(IM, center="slice", odd_size=True)
@@ -54,9 +56,9 @@ Q0fresh = Q0.copy()    # keep clean copy
 print ("quadrant shape {}".format(Q0.shape))
 
 # Intensity mask used for intensity normalization
-#   quadrant image region of bright pixels 
+#   quadrant image region of bright pixels
 mask = np.zeros(Q0.shape, dtype=bool)
-mask[500:512, 358:365] = True   
+mask[500:512, 358:365] = True
 
 # process Q0 quadrant using each method --------------------
 
@@ -68,14 +70,14 @@ for q, method in enumerate(transforms.keys()):
 
     Q0 = Q0fresh.copy()   # top-right quadrant of O2- image
 
-    print ("\n------- {:s} inverse ...".format(method))  
+    print ("\n------- {:s} inverse ...".format(method))
     t0 = time()
 
     # inverse Abel transform using 'method'
     if method == 'linbasex':
         IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
                                   basis_dir='bases',
-                                  proj_angles=np.arange(0, np.pi/3, np.pi/18)) 
+                                  proj_angles=np.arange(0, np.pi/3, np.pi/18))
     else:
         IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
                                   basis_dir='bases')
@@ -86,11 +88,11 @@ for q, method in enumerate(transforms.keys()):
                                                        dr=0.1)
 
     # normalize image intensity and speed distribution
-    IAQ0 /= IAQ0[mask].max()  
+    IAQ0 /= IAQ0[mask].max()
     speed /= speed[radial > 50].max()
 
     # keep data for plots
-    iabelQ.append(IAQ0)  
+    iabelQ.append(IAQ0)
     sp.append((radial, speed))
     meth.append(method)
 
@@ -119,13 +121,13 @@ for q in range(4):
     ax1.plot(*(sp[iq]), label=meth[iq], alpha=0.5)
     iq += 1
     if iq < len(transforms):
-        Q[q][indx] = np.triu(iabelQ[iq])[indx] 
+        Q[q][indx] = np.triu(iabelQ[iq])[indx]
         ann_plt(q, 1, meth[iq])
         ax1.plot(*(sp[iq]), label=meth[iq], alpha=0.5)
     iq += 1
 
 # reassemble image from transformed (part-)quadrants
-im = abel.tools.symmetry.put_image_quadrants((Q[0], Q[1], Q[2], Q[3]), 
+im = abel.tools.symmetry.put_image_quadrants((Q[0], Q[1], Q[2], Q[3]),
                                               original_image_shape=IModd.shape)
 
 ax0.axis('off')

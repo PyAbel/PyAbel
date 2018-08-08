@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import numpy as np
 import abel
 import matplotlib.pylab as plt
+import bz2
 
 # Hansen and Law inverse Abel transform of velocity-map imaged electrons
 # from O2- photodetachement at 454 nm. The spectrum was recorded in 2010  
@@ -15,7 +16,8 @@ import matplotlib.pylab as plt
 # load image as a numpy array
 # use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
 print('HL: loading "data/O2-ANU1024.txt.bz2"')
-IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
+imagefile = bz2.BZ2File('data/O2-ANU1024.txt.bz2')
+IM = np.loadtxt(imagefile)
 
 rows, cols = IM.shape    # image size
 
