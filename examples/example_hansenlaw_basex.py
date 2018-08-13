@@ -15,12 +15,13 @@ import abel
 import scipy.misc
 from scipy.ndimage.interpolation import shift
 from scipy.ndimage import zoom
+import bz2
 
 # This example demonstrates both Hansen and Law inverse Abel transform
-# and basex for an image obtained using a velocity map imaging (VMI) 
-# photoelecton spectrometer to record the photoelectron angular distribution 
+# and basex for an image obtained using a velocity map imaging (VMI)
+# photoelecton spectrometer to record the photoelectron angular distribution
 # resulting  from photodetachement of O2- at 454 nm.
-# This spectrum was recorded in 2010  
+# This spectrum was recorded in 2010
 # ANU / The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 #
@@ -38,7 +39,9 @@ output_plot  = 'plot_' + name + '_comparison_HansenLaw.png'
 
 # Load an image file as a numpy array
 print('Loading ' + filename)
-im = np.loadtxt(filename)
+imagefile = bz2.BZ2File(filename)
+im = np.loadtxt(imagefile)
+
 print("scaling image to size 501 reduce the time of the basis set calculation")
 im = zoom(im, 0.4892578125)
 (rows, cols) = np.shape(im)
@@ -59,13 +62,13 @@ print ('image size {:d}x{:d}'.format(rows,cols))
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
-reconH = abel.Transform(im, method="hansenlaw", direction="inverse", 
+reconH = abel.Transform(im, method="hansenlaw", direction="inverse",
                         verbose=True, symmetry_axis=None).transform
 rH, speedsH = abel.tools.vmi.angular_integration(reconH)
 
 # Basex inverse Abel transform
 print('Performing basex inverse Abel transform:')
-reconB = abel.Transform(im, method="basex", direction="inverse", 
+reconB = abel.Transform(im, method="basex", direction="inverse",
                         verbose=True, symmetry_axis=None,
                         transform_options=dict(basis_dir='bases')).transform
 rB, speedsB = abel.tools.vmi.angular_integration(reconB)
@@ -86,7 +89,7 @@ ax1.set_title('velocity map image: size {:d}x{:d}'.format(rows, cols))
 
 # Plot the 2D transform
 reconH2 = reconH[:,:c2]
-reconB2 = reconB[:,c2:] 
+reconB2 = reconB[:,c2:]
 recon = np.concatenate((reconH2,reconB2), axis=1)
 im2 = ax2.imshow(recon, origin='lower', aspect='auto', vmin=0,
                  vmax=recon[:r2-50,:c2-50].max())
