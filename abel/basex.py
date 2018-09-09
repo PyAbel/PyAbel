@@ -26,8 +26,8 @@ from ._version import __version__
 # V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, and H. Reisler,
 # Review of Scientific Instruments 73, 2634 (2002).
 #
-# 
-# version 0.62 - 2016-03-07 
+#
+# version 0.62 - 2016-03-07
 #   DH changed all linear algebra steps from numpy to scipy
 #   Scipy uses fortran fftpack, so it will be faster on some systems
 #   or the same speed as numpy in most cases.
@@ -53,27 +53,27 @@ from ._version import __version__
 
 def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=True,
                     direction='inverse'):
-    """ 
-    This function performs the BASEX (BAsis Set EXpansion) 
-    Abel Transform. It works on a "right side" image. I.e., 
+    """
+    This function performs the BASEX (BAsis Set EXpansion)
+    Abel Transform. It works on a "right side" image. I.e.,
     it works on just half of a cylindrically symmetric
-    object and ``data[0,0]`` should correspond to a central pixel. 
-    To perform a BASEX transorm on 
+    object and ``data[0,0]`` should correspond to a central pixel.
+    To perform a BASEX transorm on
     a whole image, use ::
-    
+
         abel.Transform(image, method='basex', direction='inverse').transform
 
-    This BASEX implementation only works with images that have an 
+    This BASEX implementation only works with images that have an
     odd-integer width.
-    
+
     Note: only the `direction="inverse"` transform is currently implemented.
-    
+
 
     Parameters
     ----------
     data : a NxM numpy array
         The image to be inverse transformed. The width (M) must be odd and ``data[:,0]``
-        should correspond to the central column of the image. 
+        should correspond to the central column of the image.
     nbf : str or list
         number of basis functions. If ``nbf='auto'``, it is set to ``(n//2 + 1)``.
         *This is what you should always use*,
@@ -86,7 +86,7 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
         path to the directory for saving / loading the basis set coefficients.
         If None, the basis set will not be saved to disk.
     dr : float
-        size of one pixel in the radial direction. 
+        size of one pixel in the radial direction.
         This only affects the absolute scaling of the transformed image.
     verbose : boolean
         Determines if statements should be printed.
@@ -101,7 +101,7 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
         the transformed (half) image
 
     """
-    
+
     if direction != 'inverse':
         raise ValueError('Forward BASEX transform not implemented')
 
@@ -126,11 +126,11 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
         Mc_horz, vert_left, horz_right = get_bs_basex_cached(
             n_vert=n[0], n_horz=n[1], nbf=nbf, reg=reg, basis_dir=basis_dir,
             verbose=verbose)
-            
+
     # Do the actual transform:
     recon = basex_core_transform(full_image, M_vert, M_horz,
                                   Mc_vert, Mc_horz, vert_left, horz_right, dr)
-                                  
+
     if data_ndim == 1:  # taking the middle row, since the rest are zeroes
         recon = recon[recon.shape[0] - recon.shape[0]//2 - 1]
     if h == 1:
@@ -143,9 +143,9 @@ def basex_core_transform(rawdata, M_vert, M_horz, Mc_vert,
                          Mc_horz, vert_left, horz_right, dr=1.0):
     """
     This is the internal function
-    that does the actual BASEX transform. It requires 
-    that the matrices of basis set coefficients be passed. 
-    
+    that does the actual BASEX transform. It requires
+    that the matrices of basis set coefficients be passed.
+
 
     Parameters
     ----------
@@ -188,11 +188,11 @@ def _get_left_right_matrices(M_vert, M_horz, Mc_vert, Mc_horz, reg):
 
     vert_left  = scipy.dot( inv(scipy.dot(Mc_vert.T, Mc_vert) + E_vert),  Mc_vert.T)
     horz_right = scipy.dot( M_horz, inv(scipy.dot(M_horz.T, M_horz) + E_horz) )
-    
-    # previously: 
+
+    # previously:
     # vert_left = inv(Mc_vert.T.dot(Mc_vert) + E_vert).dot(Mc_vert.T)
     # horz_right = M_horz.dot(inv(M_horz.T.dot(M_horz) + E_horz))
-    
+
 
     return vert_left, horz_right
 
@@ -254,7 +254,7 @@ def get_bs_basex_cached(n_vert, n_horz,
         Abel inverse transform will be performed on a
         ``n_vert x n_horz`` area of the image
     nbf : int or list
-        number of basis functions. If ``nbf='auto'``, 
+        number of basis functions. If ``nbf='auto'``,
         ``n_horz`` is set to ``(n//2 + 1)``.
     reg : float
         regularization parameter
