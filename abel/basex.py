@@ -112,9 +112,9 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
     if data.shape[0] == 1:
         data_ndim = 1
     elif data.shape[1] == 1:
-        raise ValueError('Wrong input shape for \
-                            data {0}, should be (N1, N2) \
-                            or (1, N), not (N, 1)'.format(data.shape))
+        raise ValueError('Wrong input shape for '
+                         'data {0}, should be (N1, N2) '
+                         'or (1, N), not (N, 1)'.format(data.shape))
     else:
         data_ndim = 2
 
@@ -207,23 +207,23 @@ def _nbf_default(n_vert, n_horz, nbf):
         nbf = [n_vert, n_horz//2 + 1]
     elif isinstance(nbf, (int, long)):
         if nbf != n_horz//2 + 1:
-            print('Warning: the number of basis functions \
-                    nbf = {} != (n//2 + 1)  = {}\n'.format(
+            print('Warning: the number of basis functions '
+                  'nbf = {} != (n//2 + 1)  = {}\n'.format(
                         nbf, n_horz//2 + 1))
-            print('This behaviour is currently not tested \
-                    and should not be used \
-                    unless you know exactly what you are doing. \
-                    Setting nbf="auto" is best for now.')
+            print('This behaviour is currently not tested '
+                  'and should not be used '
+                  'unless you know exactly what you are doing. '
+                  'Setting nbf="auto" is best for now.')
         nbf = [nbf]*2  # Setting identical number of vert and horz functions
     elif isinstance(nbf, (list, tuple)):
         if nbf[-1] != n_horz//2 + 1:
-            print('Warning: the number of basis functions \
-                    nbf = {} != (n//2 + 1) = {}\n'.format(
+            print('Warning: the number of basis functions '
+                  'nbf = {} != (n//2 + 1) = {}\n'.format(
                         nbf[-1], n_horz//2 + 1))
-            print('This behaviour is currently not tested \
-                    and should not be used \
-                    unless you know exactly what you are doing. \
-                    Setting nbf="auto" is best for now.')
+            print('This behaviour is currently not tested '
+                  'and should not be used '
+                  'unless you know exactly what you are doing. '
+                  'Setting nbf="auto" is best for now.')
         if len(nbf) < 2:
             nbf = nbf*2
             # In case user inputs [nbf] instead of [nbf_vert, nbf_horz]
@@ -267,7 +267,7 @@ def get_bs_basex_cached(n_vert, n_horz,
     nbf = _nbf_default(n_vert, n_horz, nbf)
     nbf_vert, nbf_horz = nbf[0], nbf[1]
 
-    basis_name = "basex_basis_{}_{}_{}_{}.npy".format(
+    basis_name = 'basex_basis_{}_{}_{}_{}.npy'.format(
                         n_vert, n_horz, nbf_vert, nbf_horz)
 
     M_horz = None
@@ -275,25 +275,23 @@ def get_bs_basex_cached(n_vert, n_horz,
         path_to_basis_file = os.path.join(basis_dir, basis_name)
         if os.path.exists(path_to_basis_file):  # Use existing basis set
             if verbose:
-                print('Loading basis sets...           ')
+                print('Loading basis sets...')
                 # saved as a .npy file
             try:
                 M_vert, M_horz, Mc_vert, Mc_horz, vert_left, \
                     horz_right, M_version = np.load(path_to_basis_file)
             except ValueError:
-                raise print("Cached basis file incompatible. \
-                    Please delete the saved basis file and try again.")
+                raise print('Cached basis file incompatible. '
+                            'Please delete the saved basis file and try again.')
 
     if M_horz is None:  # generate the basis set
         if verbose:
             print('A suitable basis set was not found.',
                   'A new basis set will be generated.',
-                  'This may take a few minutes. ', end='')
+                  'This may take a few minutes.', sep='\n')
             if basis_dir is not None:
-                print('But don\'t worry, \
-                       it will be saved to disk for future use.\n')
-            else:
-                print(' ')
+                print('But don\'t worry, '
+                      'it will be saved to disk for future use.')
 
         M_vert, M_horz, Mc_vert, Mc_horz = _bs_basex(
             n_vert, n_horz, nbf_vert, nbf_horz, verbose=verbose)
@@ -305,8 +303,8 @@ def get_bs_basex_cached(n_vert, n_horz,
                     (M_vert, M_horz, Mc_vert, Mc_horz, vert_left,
                         horz_right,  np.array(__version__)))
             if verbose:
-                print('Basis set saved for later use to,')
-                print(' '*10 + '{}'.format(path_to_basis_file))
+                print('Basis set saved for later use to')
+                print('  {}'.format(path_to_basis_file))
     return M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right
 
 MAX_BASIS_SET_OFFSET = 4000
@@ -338,17 +336,17 @@ def _bs_basex(n_vert=1001, n_horz=501,
     """
 
     if n_horz % 2 == 0:
-        raise ValueError('The horizontal dimensions of the image (n_horz) \
-                          must be odd.')
+        raise ValueError('The horizontal dimensions of the image (n_horz) '
+                         'must be odd.')
 
     if nbf_horz > n_horz//2 + 1:
-        raise ValueError('The number of horizontal basis functions (nbf_horz) \
-                          cannot be greater than n_horz//2 + 1')
+        raise ValueError('The number of horizontal basis functions (nbf_horz) '
+                         'cannot be greater than n_horz//2 + 1')
 
     if nbf_vert > n_vert:
-        raise ValueError('The number of vertical basis functions (nbf_vert) \
-                          cannot be greater than \
-                          the number of vertical pixels (n_vert).')
+        raise ValueError('The number of vertical basis functions (nbf_vert) '
+                         'cannot be greater than '
+                         'the number of vertical pixels (n_vert).')
 
     Rm_h = n_horz//2 + 1
 
@@ -364,8 +362,8 @@ def _bs_basex(n_vert=1001, n_horz=501,
     gammaln_0o5 = gammaln(0.5)
 
     if verbose:
-        print('Generating horizontal BASEX basis sets for \
-               n_horz = {}, nbf_vert = {}:\n'.format(n_horz, nbf_vert))
+        print('Generating horizontal BASEX basis sets for '
+              'n_horz = {}, nbf_vert = {}:\n'.format(n_horz, nbf_vert))
         sys.stdout.write('0')
         sys.stdout.flush()
 
@@ -414,7 +412,7 @@ def _bs_basex(n_vert=1001, n_horz=501,
             sys.stdout.flush()
 
     if verbose:
-        print("...{}".format(k+1))
+        print('...{}'.format(k+1))
     """
     # Axial functions
     """
@@ -423,8 +421,8 @@ def _bs_basex(n_vert=1001, n_horz=501,
     Mc_vert = np.zeros((n_vert, nbf_vert))
     Mc_vert[:, 0] = np.exp(-Z2_h)
     if verbose:
-        print('Generating vertical BASEX basis sets for n_vert = {}, \
-            nbf_vert = {}:\n'.format(n_vert, nbf_vert))
+        print('Generating vertical BASEX basis sets for n_vert = {}, '
+              'nbf_vert = {}:\n'.format(n_vert, nbf_vert))
         sys.stdout.flush()
 
     k = np.arange(1, nbf_vert)
@@ -434,5 +432,5 @@ def _bs_basex(n_vert=1001, n_horz=501,
     Mc_vert[1:, 1:] = np.exp(k2 * (1 + np.log(l2/k2)) - l2)
 
     if verbose:
-        print("...{}".format(k+1))
+        print('...{}'.format(k+1))
     return M_vert, M_horz, Mc_vert, Mc_horz
