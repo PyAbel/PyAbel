@@ -232,6 +232,12 @@ def _nbf_default(n_vert, n_horz, nbf):
     return nbf
 
 
+# Cached matrices and their parameters
+_prm = None  # [n_vert, n_horz, nbf_vert, nbf_horz]
+_M   = None  # [M_vert, M_horz, Mc_vert, Mc_horz]
+_reg = None  # reg
+_LR  = None  # [vert_left, horz_right]
+
 def get_bs_basex_cached(n_vert, n_horz,
                         nbf='auto', reg=0.0, basis_dir='.', verbose=False):
     """
@@ -239,7 +245,7 @@ def get_bs_basex_cached(n_vert, n_horz,
 
     Gets BASEX basis sets, using the disk as a cache
     (i.e. load from disk if they exist,
-    if not calculate them and save a copy on disk).
+    if not, calculate them and save a copy on disk).
     To prevent saving the basis sets to disk, set ``basis_dir=None``.
 
     Parameters
@@ -263,52 +269,70 @@ def get_bs_basex_cached(n_vert, n_horz,
         the matrices that compose the basis set.
     """
 
+    global _prm, _M, _reg, _LR
+
     # Sanitize nbf
     nbf = _nbf_default(n_vert, n_horz, nbf)
     nbf_vert, nbf_horz = nbf[0], nbf[1]
 
-    basis_name = 'basex_basis_{}_{}_{}_{}.npy'.format(
-                        n_vert, n_horz, nbf_vert, nbf_horz)
-
     M_horz = None
-    if basis_dir is not None:
-        path_to_basis_file = os.path.join(basis_dir, basis_name)
-        if os.path.exists(path_to_basis_file):  # Use existing basis set
-            if verbose:
-                print('Loading basis sets...')
-                # saved as a .npy file
-            try:
-                M_vert, M_horz, Mc_vert, Mc_horz, M_version = np.load(path_to_basis_file)
-            except ValueError:
-                print('Cached basis file incompatible.')
-
-    if M_horz is None:  # generate the basis set
+    # Check whether basis for these parameters is already loaded
+    if _prm == [n_vert, n_horz, nbf_vert, nbf_horz]:
         if verbose:
-            print('A suitable basis set was not found.',
-                  'A new basis set will be generated.',
-                  'This may take a few minutes.', sep='\n')
-            if basis_dir is not None:
-                print('But don\'t worry, it will be saved to disk for future use.')
-
-        M_vert, M_horz, Mc_vert, Mc_horz = _bs_basex(
-            n_vert, n_horz, nbf_vert, nbf_horz, verbose=verbose)
+            print('Using loaded basis sets')
+        M_vert, M_horz, Mc_vert, Mc_horz = _M
+    else:  # try to load basis
+        basis_name = 'basex_basis_{}_{}_{}_{}.npy'.format(
+                            n_vert, n_horz, nbf_vert, nbf_horz)
 
         if basis_dir is not None:
-            np.save(path_to_basis_file,
-                    (M_vert, M_horz, Mc_vert, Mc_horz, np.array(__version__)))
-            if verbose:
-                print('Basis set saved for later use to')
-                print('  {}'.format(path_to_basis_file))
+            path_to_basis_file = os.path.join(basis_dir, basis_name)
+            if os.path.exists(path_to_basis_file):  # Use existing basis set
+                if verbose:
+                    print('Loading basis sets...')
+                    # saved as a .npy file
+                try:
+                    M_vert, M_horz, Mc_vert, Mc_horz, M_version = np.load(path_to_basis_file)
+                except ValueError:
+                    print('Cached basis file incompatible.')
 
-    if verbose:
-        print('Applying regularization...')
-    vert_left, horz_right = _get_left_right_matrices(
-        M_vert, M_horz, Mc_vert, Mc_horz, reg)
+        if M_horz is None:  # generate the basis set
+            if verbose:
+                print('A suitable basis set was not found.',
+                      'A new basis set will be generated.',
+                      'This may take a few minutes.', sep='\n')
+                if basis_dir is not None:
+                    print('But don\'t worry, it will be saved to disk for future use.')
+
+            M_vert, M_horz, Mc_vert, Mc_horz = _bs_basex(
+                n_vert, n_horz, nbf_vert, nbf_horz, verbose=verbose)
+
+            if basis_dir is not None:
+                np.save(path_to_basis_file,
+                        (M_vert, M_horz, Mc_vert, Mc_horz, np.array(__version__)))
+                if verbose:
+                    print('Basis set saved for later use to')
+                    print('  {}'.format(path_to_basis_file))
+
+        _prm = [n_vert, n_horz, nbf_vert, nbf_horz]
+        _M   = [M_vert, M_horz, Mc_vert, Mc_horz]
+        _reg = None
+
+    vert_left = None
+    # Check whether transform matrices for this regularization are already loaded
+    if _reg == reg:
+        vert_left, horz_right = _LR
+    else:  # recalculate
+        if verbose:
+            print('Updating regularization...')
+        vert_left, horz_right = _get_left_right_matrices(*_M, reg=reg)
+        _reg = reg
+        _LR  = [vert_left, horz_right]
 
     return M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right
 
-MAX_BASIS_SET_OFFSET = 4000
 
+MAX_BASIS_SET_OFFSET = 4000
 
 def _bs_basex(n_vert=1001, n_horz=501,
               nbf_vert=1001, nbf_horz=251, verbose=True):
