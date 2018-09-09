@@ -283,7 +283,7 @@ def get_bs_basex_cached(n_vert, n_horz,
     # Check whether basis for these parameters is already loaded
     if _prm == [n_vert, n_horz, nbf_vert, nbf_horz]:
         if verbose:
-            print('Using loaded basis sets')
+            print('Using memory-cached basis sets')
         M_vert, M_horz, Mc_vert, Mc_horz = _M
     else:  # try to load basis
         basis_name = 'basex_basis_{}_{}_{}_{}.npy'.format(
