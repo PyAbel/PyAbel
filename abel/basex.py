@@ -27,7 +27,11 @@ from ._version import __version__
 # Review of Scientific Instruments 73, 2634 (2002).
 #
 #
-# version 0.62 - 2016-03-07
+# Version 0.63 - 2018-09-08
+#   MR enabled Tikhonov regularization.
+#   Also, basis and transform matrices are now kept in memory
+#   between invocations and reloaded/recalculated only when needed.
+# Version 0.62 - 2016-03-07
 #   DH changed all linear algebra steps from numpy to scipy
 #   Scipy uses fortran fftpack, so it will be faster on some systems
 #   or the same speed as numpy in most cases.
