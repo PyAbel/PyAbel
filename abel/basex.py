@@ -51,7 +51,7 @@ from ._version import __version__
 #############################################################################
 
 
-def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
+def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=True,
                     direction='inverse'):
     """ 
     This function performs the BASEX (BAsis Set EXpansion) 
@@ -80,6 +80,8 @@ def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
         since this BASEX implementation does not work reliably in other situations!
         In the future, you could use
         list, in format [nbf_vert, nbf_horz]
+    reg : float
+        regularization parameter
     basis_dir : str
         path to the directory for saving / loading the basis set coefficients.
         If None, the basis set will not be saved to disk.
@@ -122,7 +124,7 @@ def basex_transform(data, nbf='auto', basis_dir='./', dr=1.0, verbose=True,
     # load the basis sets:
     M_vert, M_horz, Mc_vert, \
         Mc_horz, vert_left, horz_right = get_bs_basex_cached(
-            n_vert=n[0], n_horz=n[1], nbf=nbf, basis_dir=basis_dir,
+            n_vert=n[0], n_horz=n[1], nbf=nbf, reg=reg, basis_dir=basis_dir,
             verbose=verbose)
             
     # Do the actual transform:
@@ -174,14 +176,14 @@ def basex_core_transform(rawdata, M_vert, M_horz, Mc_vert,
     return IM
 
 
-def _get_left_right_matrices(M_vert, M_horz, Mc_vert, Mc_horz):
+def _get_left_right_matrices(M_vert, M_horz, Mc_vert, Mc_horz, reg):
     """ An internal helper function for no-up/down-asymmetry BASEX:
         given basis sets  M_vert, M_horz, Mc_vert, Mc_horz,
         return M_left and M_right matrices
     """
 
     nbf_vert, nbf_horz = np.shape(M_vert)[1], np.shape(M_horz)[1]
-    q_vert, q_horz = 0, 0  # No Tikhonov regularization
+    q_vert, q_horz = reg, reg  # Tikhonov regularization parameters
     E_vert, E_horz = np.identity(nbf_vert)*q_vert, np.identity(nbf_horz)*q_horz
 
     vert_left  = scipy.dot( inv(scipy.dot(Mc_vert.T, Mc_vert) + E_vert),  Mc_vert.T)
@@ -231,7 +233,7 @@ def _nbf_default(n_vert, n_horz, nbf):
 
 
 def get_bs_basex_cached(n_vert, n_horz,
-                        nbf='auto', basis_dir='.', verbose=False):
+                        nbf='auto', reg=0.0, basis_dir='.', verbose=False):
     """
     Internal function.
 
@@ -248,6 +250,8 @@ def get_bs_basex_cached(n_vert, n_horz,
     nbf : int or list
         number of basis functions. If ``nbf='auto'``, 
         ``n_horz`` is set to ``(n//2 + 1)``.
+    reg : float
+        regularization parameter
     basis_dir : str
         path to the directory for saving / loading
         the basis set coefficients.
