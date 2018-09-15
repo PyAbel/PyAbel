@@ -75,11 +75,11 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
 
     Parameters
     ----------
-    data : a NxM numpy array
-        The image to be inverse transformed. The width (M) must be odd and ``data[:,0]``
+    data : an m x n numpy array
+        The image to be inverse transformed. The width (n) must be odd, and ``data[:,0]``
         should correspond to the central column of the image.
     nbf : str or int
-        number of basis functions. If ``nbf='auto'``, it is set to ``(M//2 + 1)``.
+        number of basis functions. If ``nbf='auto'``, it is set to ``(n//2 + 1)``.
         *This is what you should always use*,
         since this BASEX implementation does not work reliably in other situations!
         In the future, you could use other numbers
@@ -100,7 +100,7 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
 
     Returns
     -------
-    recon : NxM numpy array
+    recon : m x n numpy array
         the transformed (half) image
 
     """
@@ -122,11 +122,11 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
         data_ndim = 2
 
     full_image = np.hstack((np.fliplr(data), data[:, 1:]))
-    n = full_image.shape
+    n = full_image.shape[1]
 
     # load the basis sets:
     Ai = get_bs_basex_cached(
-            n_horz=n[1], nbf=nbf, reg=reg, basis_dir=basis_dir,
+            n, nbf=nbf, reg=reg, basis_dir=basis_dir,
             verbose=verbose)
 
     # Do the actual transform:
@@ -149,9 +149,9 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
 
     Parameters
     ----------
-    rawdata : NxM numpy array
+    rawdata : m x n numpy array
         the raw image. This is the full image, both left and right sides.
-    Ai : MxM numpy array
+    Ai : n x n numpy array
         2D array given by the transform-calculation function
     dr : float
         pixel size. This only affects the absolute scaling of the output.
@@ -159,7 +159,7 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
 
     Returns
     -------
-    IM : NxM numpy array
+    IM : m x n numpy array
         The abel-transformed image, a slice of the 3D distribution
     """
 
@@ -170,23 +170,23 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
     return IM
 
 
-def _get_Ai(M_horz, Mc_horz, reg):
+def _get_Ai(M, Mc, reg):
     """ An internal helper function for no-up/down-asymmetry BASEX:
-        given basis sets  M_horz, Mc_horz,
+        given basis sets M, Mc,
         return matrix of inverse Abel transform
     """
 
-    nbf_horz = np.shape(M_horz)[1]
+    nbf = np.shape(M)[1]
     # square of Tikhonov matrix
-    E_horz = np.identity(nbf_horz) * reg
+    E = np.identity(nbf) * reg
     # regularized inverse of basis projection
-    R = scipy.dot(M_horz, inv(scipy.dot(M_horz.T, M_horz) + E_horz))
+    R = scipy.dot(M, inv(scipy.dot(M.T, M) + E))
     # {expansion coefficients} = projection . R
     # image = {expansion coefficients} . {image basis}
     # so: image = projection . (R . {image basis})
     #     image = projection . Ai
     #     Ai = R . {image basis} is the matrix of the inverse Abel transform
-    Ai = scipy.dot(R, Mc_horz.T)
+    Ai = scipy.dot(R, Mc.T)
 
     # use an heuristic scaling factor to match the analytical abel transform
     # For more info see https://github.com/PyAbel/PyAbel/issues/4
@@ -196,17 +196,17 @@ def _get_Ai(M_horz, Mc_horz, reg):
     return Ai
 
 
-def _nbf_default(n_horz, nbf):
+def _nbf_default(n, nbf):
     """ An internal helper function for the asymmetric case
         to check that nbf = n//2 + 1 and print a warning otherwise
     """
     if nbf == 'auto':
-        nbf = n_horz//2 + 1
+        nbf = n//2 + 1
     elif isinstance(nbf, (int, long)):
-        if nbf != n_horz//2 + 1:
+        if nbf != n//2 + 1:
             print('Warning: the number of basis functions '
-                  'nbf = {} != (M//2 + 1)  = {}\n'.format(
-                        nbf, n_horz//2 + 1))
+                  'nbf = {} != (n//2 + 1)  = {}\n'.format(
+                        nbf, n//2 + 1))
             print('This behaviour is currently not tested '
                   'and should not be used '
                   'unless you know exactly what you are doing. '
@@ -217,12 +217,12 @@ def _nbf_default(n_horz, nbf):
 
 
 # Cached matrices and their parameters
-_prm = None  # [n_horz, nbf_horz]
-_M   = None  # [M_horz, Mc_horz]
+_prm = None  # [n, nbf]
+_M   = None  # [M, Mc]
 _reg = None  # reg
 _Ai  = None  # Ai
 
-def get_bs_basex_cached(n_horz, nbf='auto', reg=0.0,
+def get_bs_basex_cached(n, nbf='auto', reg=0.0,
                         basis_dir='.', verbose=False):
     """
     Internal function.
@@ -235,12 +235,12 @@ def get_bs_basex_cached(n_horz, nbf='auto', reg=0.0,
 
     Parameters
     ----------
-    n_horz : int
+    n : int
         Abel inverse transform will be performed on a
-        ``n_horz`` wide area of the image
+        ``n`` pixels wide area of the image
     nbf : int
         number of basis functions. If ``nbf='auto'``,
-        ``n_horz`` is set to ``(n//2 + 1)``.
+        ``n`` is set to ``(n//2 + 1)``.
     reg : float
         regularization parameter
     basis_dir : str
@@ -257,17 +257,16 @@ def get_bs_basex_cached(n_horz, nbf='auto', reg=0.0,
     global _prm, _M, _reg, _Ai
 
     # Sanitize nbf
-    nbf = _nbf_default(n_horz, nbf)
-    nbf_horz = nbf
+    nbf = _nbf_default(n, nbf)
 
-    M_horz = None
+    M = None
     # Check whether basis for these parameters is already loaded
-    if _prm == [n_horz, nbf_horz]:
+    if _prm == [n, nbf]:
         if verbose:
             print('Using memory-cached basis sets')
-        M_horz, Mc_horz = _M
+        M, Mc = _M
     else:  # try to load basis
-        basis_name = 'basex_basis_{}_{}.npy'.format(n_horz, nbf_horz)
+        basis_name = 'basex_basis_{}_{}.npy'.format(n, nbf)
 
         if basis_dir is not None:
             path_to_basis_file = os.path.join(basis_dir, basis_name)
@@ -276,11 +275,11 @@ def get_bs_basex_cached(n_horz, nbf='auto', reg=0.0,
                     print('Loading basis sets...')
                     # saved as a .npy file
                 try:
-                    M_horz, Mc_horz, M_version = np.load(path_to_basis_file)
+                    M, Mc, M_version = np.load(path_to_basis_file)
                 except ValueError:
                     print('Cached basis file incompatible.')
 
-        if M_horz is None:  # generate the basis set
+        if M is None:  # generate the basis set
             if verbose:
                 print('A suitable basis set was not found.',
                       'A new basis set will be generated.',
@@ -288,17 +287,17 @@ def get_bs_basex_cached(n_horz, nbf='auto', reg=0.0,
                 if basis_dir is not None:
                     print('But don\'t worry, it will be saved to disk for future use.')
 
-            M_horz, Mc_horz = _bs_basex(n_horz, nbf_horz, verbose=verbose)
+            M, Mc = _bs_basex(n, nbf, verbose=verbose)
 
             if basis_dir is not None:
                 np.save(path_to_basis_file,
-                        (M_horz, Mc_horz, np.array(__version__)))
+                        (M, Mc, np.array(__version__)))
                 if verbose:
                     print('Basis set saved for later use to')
                     print('  {}'.format(path_to_basis_file))
 
-        _prm = [n_horz, nbf_horz]
-        _M   = [M_horz, Mc_horz]
+        _prm = [n, nbf]
+        _M   = [M, Mc]
         _reg = None
 
     # Check whether transform matrices for this regularization are already loaded
@@ -316,71 +315,71 @@ def get_bs_basex_cached(n_horz, nbf='auto', reg=0.0,
 
 MAX_BASIS_SET_OFFSET = 4000
 
-def _bs_basex(n_horz=501, nbf_horz=251, verbose=True):
+def _bs_basex(n=501, nbf=251, verbose=True):
     """
     Generates basis sets for the BASEX method
     without assuming up/down symmetry.
 
     Parameters:
     -----------
-    n_horz : integer
+    n : integer
         Horizontal dimensions of the image in pixels.
         Must be odd. See https://github.com/PyAbel/PyAbel/issues/34
-    nbf_horz : integer
+    nbf : integer
         Number of basis functions in the x direction.
-        Must be less than or equal (default) to n_horz//2 + 1
+        Must be less than or equal (default) to n//2 + 1
 
     Returns:
     --------
-      M_horz, Mc_horz : numpy arrays
+      M, Mc : numpy arrays
     """
 
-    if n_horz % 2 == 0:
-        raise ValueError('The horizontal dimensions of the image (n_horz) '
+    if n % 2 == 0:
+        raise ValueError('The horizontal dimensions of the image (n) '
                          'must be odd.')
 
-    if nbf_horz > n_horz//2 + 1:
-        raise ValueError('The number of horizontal basis functions (nbf_horz) '
-                         'cannot be greater than n_horz//2 + 1')
+    if nbf > n//2 + 1:
+        raise ValueError('The number of horizontal basis functions (nbf) '
+                         'cannot be greater than n//2 + 1')
 
-    Rm_h = n_horz//2 + 1
+    Rm_h = n//2 + 1
 
-    I_h = np.arange(1, n_horz + 1)
+    I_h = np.arange(1, n + 1)
 
     R2_h = (I_h - Rm_h)**2
-    M_horz = np.zeros((n_horz, nbf_horz))
-    Mc_horz = np.zeros((n_horz, nbf_horz))
+    M = np.zeros((n, nbf))
+    Mc = np.zeros((n, nbf))
 
-    M_horz[:, 0] = 2*np.exp(-R2_h)
-    Mc_horz[:, 0] = np.exp(-R2_h)
+    M[:, 0] = 2*np.exp(-R2_h)
+    Mc[:, 0] = np.exp(-R2_h)
 
     gammaln_0o5 = gammaln(0.5)
 
     if verbose:
         print('Generating horizontal BASEX basis sets for '
-              'n_horz = {}:\n'.format(n_horz))
+              'n = {}:\n'.format(n))
         sys.stdout.write('0')
         sys.stdout.flush()
 
     # the number of elements used to calculate the projected coefficeints
-    delta = np.fmax(np.arange(nbf_horz)*32 - MAX_BASIS_SET_OFFSET,
+    delta = np.fmax(np.arange(nbf)*32 - MAX_BASIS_SET_OFFSET,
                     MAX_BASIS_SET_OFFSET)
-    for k in range(1, nbf_horz):
+    for k in range(1, nbf):
         k2 = k*k  # so we don't recalculate it all the time
         log_k2 = log(k2)
         angn = exp(k2 * (1 - log_k2) +
                    gammaln(k2 + 0.5) - gammaln_0o5)
-        M_horz[Rm_h-1, k] = 2 * angn
-        for l in range(1, n_horz - Rm_h + 1):
+        M[Rm_h-1, k] = 2 * angn
+        for l in range(1, n - Rm_h + 1):
             l2 = l*l
             log_l2 = log(l2)
 
             val = exp(k2 * (1 + log(l2/k2)) - l2)
 
-            Mc_horz[Rm_h - 1 + l, k] = val  # All rows below center
-            Mc_horz[Rm_h - 1 - l, k] = val  # All rows above center
+            Mc[Rm_h - 1 + l, k] = val  # All rows below center
+            Mc[Rm_h - 1 - l, k] = val  # All rows above center
 
-            aux = val + angn * Mc_horz[Rm_h - 1 + l, 0]
+            aux = val + angn * Mc[Rm_h - 1 + l, 0]
 
             p = np.arange(max(1, l2 - delta[k]),
                           min(k2 - 1,  l2 + delta[k]) + 1)
@@ -399,8 +398,8 @@ def _bs_basex(n_horz=501, nbf_horz=251, verbose=True):
             # End of vectorized third loop
             aux *= 2
 
-            M_horz[Rm_h - 1 + l, k] = aux  # All rows below center
-            M_horz[Rm_h - 1 - l, k] = aux  # All rows above center
+            M[Rm_h - 1 + l, k] = aux  # All rows below center
+            M[Rm_h - 1 - l, k] = aux  # All rows above center
 
         if verbose and k % 50 == 0:
             sys.stdout.write('...{}'.format(k))
@@ -409,4 +408,4 @@ def _bs_basex(n_horz=501, nbf_horz=251, verbose=True):
     if verbose:
         print('...{}'.format(k+1))
 
-    return M_horz, Mc_horz
+    return M, Mc
