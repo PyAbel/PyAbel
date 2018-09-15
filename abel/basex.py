@@ -126,12 +126,12 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
     n = full_image.shape
 
     # load the basis sets:
-    M_horz, Mc_horz, horz_right = get_bs_basex_cached(
+    Ai = get_bs_basex_cached(
             n_vert=n[0], n_horz=n[1], nbf=nbf, reg=reg, basis_dir=basis_dir,
             verbose=verbose)
 
     # Do the actual transform:
-    recon = basex_core_transform(full_image, M_horz, Mc_horz, horz_right, dr)
+    recon = basex_core_transform(full_image, Ai, dr)
 
     if data_ndim == 1:  # taking the middle row, since the rest are zeroes
         recon = recon[recon.shape[0] - recon.shape[0]//2 - 1]
@@ -141,7 +141,7 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
         return recon[:, w-1:]
 
 
-def basex_core_transform(rawdata, M_horz, Mc_horz, horz_right, dr=1.0):
+def basex_core_transform(rawdata, Ai, dr=1.0):
     """
     This is the internal function
     that does the actual BASEX transform. It requires
@@ -168,26 +168,31 @@ def basex_core_transform(rawdata, M_horz, Mc_horz, horz_right, dr=1.0):
     # For more info see https://github.com/PyAbel/PyAbel/issues/4
     MAGIC_NUMBER = 1.1122244156826457
     # Reconstructing image  - This is where the magic happens
-    IM = scipy.dot(scipy.dot(rawdata, horz_right), Mc_horz.T) * MAGIC_NUMBER/dr
+    IM = scipy.dot(rawdata, Ai) * MAGIC_NUMBER/dr
     # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, !! not
     # which should recreate the original image                  !! really
     return IM
 
 
-#!! rename
-def _get_left_right_matrices(M_horz, Mc_horz, reg):
+def _get_Ai(M_horz, Mc_horz, reg):
     """ An internal helper function for no-up/down-asymmetry BASEX:
         given basis sets  M_horz, Mc_horz,
-        return M_left and M_right matrices
+        return matrix of inverse Abel transform
     """
 
     nbf_horz = np.shape(M_horz)[1]
-    q_horz = reg  # Tikhonov regularization parameter
-    E_horz = np.identity(nbf_horz)*q_horz
+    # square of Tikhonov matrix
+    E_horz = np.identity(nbf_horz) * reg
+    # regularized inverse of basis projection
+    R = scipy.dot(M_horz, inv(scipy.dot(M_horz.T, M_horz) + E_horz))
+    # {expansion coefficients} = projection . R
+    # image = {expansion coefficients} . {image basis}
+    # so: image = projection . (R . {image basis})
+    #     image = projection . Ai
+    #     Ai = R . {image basis} is the matrix of the inverse Abel transform
+    Ai = scipy.dot(R, Mc_horz.T)
 
-    horz_right = scipy.dot( M_horz, inv(scipy.dot(M_horz.T, M_horz) + E_horz) )
-
-    return horz_right
+    return Ai
 
 
 def _nbf_default(n_vert, n_horz, nbf):
@@ -229,7 +234,7 @@ def _nbf_default(n_vert, n_horz, nbf):
 _prm = None  # [n_vert, n_horz, nbf_vert, nbf_horz]
 _M   = None  # [M_horz, Mc_horz]
 _reg = None  # reg
-_LR  = None  # horz_right  !!rename
+_Ai  = None  # Ai
 
 def get_bs_basex_cached(n_vert, n_horz,
                         nbf='auto', reg=0.0, basis_dir='.', verbose=False):
@@ -262,7 +267,7 @@ def get_bs_basex_cached(n_vert, n_horz,
         the matrices that compose the basis set.
     """
 
-    global _prm, _M, _reg, _LR
+    global _prm, _M, _reg, _Ai
 
     # Sanitize nbf
     nbf = _nbf_default(n_vert, n_horz, nbf)
@@ -313,15 +318,15 @@ def get_bs_basex_cached(n_vert, n_horz,
 
     # Check whether transform matrices for this regularization are already loaded
     if _reg == reg:
-        horz_right = _LR
+        Ai = _Ai
     else:  # recalculate
         if verbose:
             print('Updating regularization...')
-        horz_right = _get_left_right_matrices(*_M, reg=reg)
+        Ai = _get_Ai(*_M, reg=reg)
         _reg = reg
-        _LR  = horz_right
+        _Ai  = Ai
 
-    return M_horz, Mc_horz, horz_right
+    return Ai
 
 
 MAX_BASIS_SET_OFFSET = 4000
@@ -430,4 +435,4 @@ def _bs_basex(n_vert=1001, n_horz=501,
     if verbose:
         print('...{}'.format(k+1))
 
-    return M_horz, Mc_horz
+    return M_horz, Mc_horz #!!
