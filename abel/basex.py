@@ -187,10 +187,10 @@ def _get_left_right_matrices(M_vert, M_horz, Mc_vert, Mc_horz, reg):
     """
 
     nbf_vert, nbf_horz = np.shape(M_vert)[1], np.shape(M_horz)[1]
-    q_vert, q_horz = 0, reg  # Tikhonov regularization parameters
-    E_vert, E_horz = np.identity(nbf_vert)*q_vert, np.identity(nbf_horz)*q_horz
+    q_horz = reg  # Tikhonov regularization parameter
+    E_horz = np.identity(nbf_horz)*q_horz
 
-    vert_left  = scipy.dot( inv(scipy.dot(Mc_vert.T, Mc_vert) + E_vert),  Mc_vert.T)
+    vert_left  = inv(Mc_vert)
     horz_right = scipy.dot( M_horz, inv(scipy.dot(M_horz.T, M_horz) + E_horz) )
 
     # previously:
