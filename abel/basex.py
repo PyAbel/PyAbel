@@ -126,14 +126,12 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
     n = full_image.shape
 
     # load the basis sets:
-    M_vert, M_horz, Mc_vert, \
-        Mc_horz, vert_left, horz_right = get_bs_basex_cached(
+    M_horz, Mc_horz, horz_right = get_bs_basex_cached(
             n_vert=n[0], n_horz=n[1], nbf=nbf, reg=reg, basis_dir=basis_dir,
             verbose=verbose)
 
     # Do the actual transform:
-    recon = basex_core_transform(full_image, M_vert, M_horz,
-                                  Mc_vert, Mc_horz, vert_left, horz_right, dr)
+    recon = basex_core_transform(full_image, M_horz, Mc_horz, horz_right, dr)
 
     if data_ndim == 1:  # taking the middle row, since the rest are zeroes
         recon = recon[recon.shape[0] - recon.shape[0]//2 - 1]
@@ -143,8 +141,7 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
         return recon[:, w-1:]
 
 
-def basex_core_transform(rawdata, M_vert, M_horz, Mc_vert,
-                         Mc_horz, vert_left, horz_right, dr=1.0):
+def basex_core_transform(rawdata, M_horz, Mc_horz, horz_right, dr=1.0):
     """
     This is the internal function
     that does the actual BASEX transform. It requires
@@ -155,7 +152,7 @@ def basex_core_transform(rawdata, M_vert, M_horz, Mc_vert,
     ----------
     rawdata : NxM numpy array
         the raw image. This is the full image, both left and right sides.
-    M_vert_etc. : Numpy arrays
+    M_horz_etc. : Numpy arrays
         2D arrays given by the basis set calculation function
     dr : float
         pixel size. This only affects the absolute scaling of the output.
@@ -168,37 +165,32 @@ def basex_core_transform(rawdata, M_vert, M_horz, Mc_vert,
     """
 
     # Reconstructing image  - This is where the magic happens
-    Ci = scipy.dot(scipy.dot(vert_left, rawdata), horz_right) # previously: vert_left.dot(rawdata).dot(horz_right)
+    Ci = scipy.dot(rawdata, horz_right)
 
     # use an heuristic scaling factor to match the analytical abel transform
     # For more info see https://github.com/PyAbel/PyAbel/issues/4
     MAGIC_NUMBER = 1.1122244156826457
     Ci *= MAGIC_NUMBER/dr
-    IM = scipy.dot(scipy.dot(Mc_vert, Ci), Mc_horz.T)    # Previously: Mc_vert.dot(Ci).dot(Mc_horz.T)
+    IM = scipy.dot(Ci, Mc_horz.T)
     # P = dot(dot(Mc,Ci),M.T) # This calculates the projection,
     # which should recreate the original image
     return IM
 
 
-def _get_left_right_matrices(M_vert, M_horz, Mc_vert, Mc_horz, reg):
+#!! rename
+def _get_left_right_matrices(M_horz, Mc_horz, reg):
     """ An internal helper function for no-up/down-asymmetry BASEX:
-        given basis sets  M_vert, M_horz, Mc_vert, Mc_horz,
+        given basis sets  M_horz, Mc_horz,
         return M_left and M_right matrices
     """
 
-    nbf_vert, nbf_horz = np.shape(M_vert)[1], np.shape(M_horz)[1]
+    nbf_horz = np.shape(M_horz)[1]
     q_horz = reg  # Tikhonov regularization parameter
     E_horz = np.identity(nbf_horz)*q_horz
 
-    vert_left  = inv(Mc_vert)
     horz_right = scipy.dot( M_horz, inv(scipy.dot(M_horz.T, M_horz) + E_horz) )
 
-    # previously:
-    # vert_left = inv(Mc_vert.T.dot(Mc_vert) + E_vert).dot(Mc_vert.T)
-    # horz_right = M_horz.dot(inv(M_horz.T.dot(M_horz) + E_horz))
-
-
-    return vert_left, horz_right
+    return horz_right
 
 
 def _nbf_default(n_vert, n_horz, nbf):
@@ -238,9 +230,9 @@ def _nbf_default(n_vert, n_horz, nbf):
 
 # Cached matrices and their parameters
 _prm = None  # [n_vert, n_horz, nbf_vert, nbf_horz]
-_M   = None  # [M_vert, M_horz, Mc_vert, Mc_horz]
+_M   = None  # [M_horz, Mc_horz]
 _reg = None  # reg
-_LR  = None  # [vert_left, horz_right]
+_LR  = None  # horz_right  !!rename
 
 def get_bs_basex_cached(n_vert, n_horz,
                         nbf='auto', reg=0.0, basis_dir='.', verbose=False):
@@ -269,7 +261,7 @@ def get_bs_basex_cached(n_vert, n_horz,
 
     Returns
     -------
-    M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right: numpy arrays
+    M_horz, Mc_horz, horz_right: numpy arrays
         the matrices that compose the basis set.
     """
 
@@ -284,7 +276,7 @@ def get_bs_basex_cached(n_vert, n_horz,
     if _prm == [n_vert, n_horz, nbf_vert, nbf_horz]:
         if verbose:
             print('Using memory-cached basis sets')
-        M_vert, M_horz, Mc_vert, Mc_horz = _M
+        M_horz, Mc_horz = _M
     else:  # try to load basis
         basis_name = 'basex_basis_{}_{}_{}_{}.npy'.format(
                             n_vert, n_horz, nbf_vert, nbf_horz)
@@ -296,7 +288,7 @@ def get_bs_basex_cached(n_vert, n_horz,
                     print('Loading basis sets...')
                     # saved as a .npy file
                 try:
-                    M_vert, M_horz, Mc_vert, Mc_horz, M_version = np.load(path_to_basis_file)
+                    _, M_horz, _, Mc_horz, M_version = np.load(path_to_basis_file)
                 except ValueError:
                     print('Cached basis file incompatible.')
 
@@ -308,32 +300,31 @@ def get_bs_basex_cached(n_vert, n_horz,
                 if basis_dir is not None:
                     print('But don\'t worry, it will be saved to disk for future use.')
 
-            M_vert, M_horz, Mc_vert, Mc_horz = _bs_basex(
-                n_vert, n_horz, nbf_vert, nbf_horz, verbose=verbose)
+            M_horz, Mc_horz = _bs_basex(n_vert, n_horz, nbf_vert, nbf_horz, verbose=verbose)
 
             if basis_dir is not None:
                 np.save(path_to_basis_file,
-                        (M_vert, M_horz, Mc_vert, Mc_horz, np.array(__version__)))
+                        (M_horz, M_horz, Mc_horz, Mc_horz, np.array(__version__)))
+                        #!! change to M_horz, Mc_horz, np.array(__version__)
                 if verbose:
                     print('Basis set saved for later use to')
                     print('  {}'.format(path_to_basis_file))
 
         _prm = [n_vert, n_horz, nbf_vert, nbf_horz]
-        _M   = [M_vert, M_horz, Mc_vert, Mc_horz]
+        _M   = [M_horz, Mc_horz]
         _reg = None
 
-    vert_left = None
     # Check whether transform matrices for this regularization are already loaded
     if _reg == reg:
-        vert_left, horz_right = _LR
+        horz_right = _LR
     else:  # recalculate
         if verbose:
             print('Updating regularization...')
-        vert_left, horz_right = _get_left_right_matrices(*_M, reg=reg)
+        horz_right = _get_left_right_matrices(*_M, reg=reg)
         _reg = reg
-        _LR  = [vert_left, horz_right]
+        _LR  = horz_right
 
-    return M_vert, M_horz, Mc_vert, Mc_horz, vert_left, horz_right
+    return M_horz, Mc_horz, horz_right
 
 
 MAX_BASIS_SET_OFFSET = 4000
@@ -360,7 +351,7 @@ def _bs_basex(n_vert=1001, n_horz=501,
 
     Returns:
     --------
-      M_vert, M_horz, Mc_vert, Mc_horz : numpy arrays
+      M_horz, Mc_horz : numpy arrays
     """
 
     if n_horz % 2 == 0:
@@ -441,24 +432,5 @@ def _bs_basex(n_vert=1001, n_horz=501,
 
     if verbose:
         print('...{}'.format(k+1))
-    """
-    # Axial functions
-    """
-    Z2_h = np.arange(0, n_vert)**2
-    M_vert = np.zeros((n_vert, nbf_vert))
-    Mc_vert = np.zeros((n_vert, nbf_vert))
-    Mc_vert[:, 0] = np.exp(-Z2_h)
-    if verbose:
-        print('Generating vertical BASEX basis sets for n_vert = {}, '
-              'nbf_vert = {}:\n'.format(n_vert, nbf_vert))
-        sys.stdout.flush()
 
-    k = np.arange(1, nbf_vert)
-    k2 = (k*k)[None, :]
-    l = np.arange(1, n_vert)
-    l2 = (l*l)[:, None]
-    Mc_vert[1:, 1:] = np.exp(k2 * (1 + np.log(l2/k2)) - l2)
-
-    if verbose:
-        print('...{}'.format(k+1))
-    return M_vert, M_horz, Mc_vert, Mc_horz
+    return M_horz, Mc_horz
