@@ -164,16 +164,13 @@ def basex_core_transform(rawdata, M_horz, Mc_horz, horz_right, dr=1.0):
         The abel-transformed image, a slice of the 3D distribution
     """
 
-    # Reconstructing image  - This is where the magic happens
-    Ci = scipy.dot(rawdata, horz_right)
-
     # use an heuristic scaling factor to match the analytical abel transform
     # For more info see https://github.com/PyAbel/PyAbel/issues/4
     MAGIC_NUMBER = 1.1122244156826457
-    Ci *= MAGIC_NUMBER/dr
-    IM = scipy.dot(Ci, Mc_horz.T)
-    # P = dot(dot(Mc,Ci),M.T) # This calculates the projection,
-    # which should recreate the original image
+    # Reconstructing image  - This is where the magic happens
+    IM = scipy.dot(scipy.dot(rawdata, horz_right), Mc_horz.T) * MAGIC_NUMBER/dr
+    # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, !! not
+    # which should recreate the original image                  !! really
     return IM
 
 
