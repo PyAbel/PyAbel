@@ -78,12 +78,11 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
     data : a NxM numpy array
         The image to be inverse transformed. The width (M) must be odd and ``data[:,0]``
         should correspond to the central column of the image.
-    nbf : str or list
-        number of basis functions. If ``nbf='auto'``, it is set to ``(n//2 + 1)``.
+    nbf : str or int
+        number of basis functions. If ``nbf='auto'``, it is set to ``(M//2 + 1)``.
         *This is what you should always use*,
         since this BASEX implementation does not work reliably in other situations!
-        In the future, you could use
-        list, in format [nbf_vert, nbf_horz]
+        In the future, you could use other numbers
     reg : float
         regularization parameter
     basis_dir : str
@@ -127,7 +126,7 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
 
     # load the basis sets:
     Ai = get_bs_basex_cached(
-            n_vert=n[0], n_horz=n[1], nbf=nbf, reg=reg, basis_dir=basis_dir,
+            n_horz=n[1], nbf=nbf, reg=reg, basis_dir=basis_dir,
             verbose=verbose)
 
     # Do the actual transform:
@@ -152,8 +151,8 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
     ----------
     rawdata : NxM numpy array
         the raw image. This is the full image, both left and right sides.
-    M_horz_etc. : Numpy arrays
-        2D arrays given by the basis set calculation function
+    Ai : MxM numpy array
+        2D array given by the transform-calculation function
     dr : float
         pixel size. This only affects the absolute scaling of the output.
 
@@ -197,49 +196,34 @@ def _get_Ai(M_horz, Mc_horz, reg):
     return Ai
 
 
-def _nbf_default(n_vert, n_horz, nbf):
+def _nbf_default(n_horz, nbf):
     """ An internal helper function for the asymmetric case
         to check that nbf = n//2 + 1 and print a warning otherwise
     """
     if nbf == 'auto':
-        # nbf_vert = n_vert (if relevant)
-        # nbf_horz = n_horz//2 + 1
-        nbf = [n_vert, n_horz//2 + 1]
+        nbf = n_horz//2 + 1
     elif isinstance(nbf, (int, long)):
         if nbf != n_horz//2 + 1:
             print('Warning: the number of basis functions '
-                  'nbf = {} != (n//2 + 1)  = {}\n'.format(
+                  'nbf = {} != (M//2 + 1)  = {}\n'.format(
                         nbf, n_horz//2 + 1))
             print('This behaviour is currently not tested '
                   'and should not be used '
                   'unless you know exactly what you are doing. '
                   'Setting nbf="auto" is best for now.')
-        nbf = [nbf]*2  # Setting identical number of vert and horz functions
-    elif isinstance(nbf, (list, tuple)):
-        if nbf[-1] != n_horz//2 + 1:
-            print('Warning: the number of basis functions '
-                  'nbf = {} != (n//2 + 1) = {}\n'.format(
-                        nbf[-1], n_horz//2 + 1))
-            print('This behaviour is currently not tested '
-                  'and should not be used '
-                  'unless you know exactly what you are doing. '
-                  'Setting nbf="auto" is best for now.')
-        if len(nbf) < 2:
-            nbf = nbf*2
-            # In case user inputs [nbf] instead of [nbf_vert, nbf_horz]
     else:
-        raise ValueError('nbf must be set to "auto" or an integer or a list')
+        raise ValueError('nbf must be set to "auto" or an integer')
     return nbf
 
 
 # Cached matrices and their parameters
-_prm = None  # [n_vert, n_horz, nbf_vert, nbf_horz]
+_prm = None  # [n_horz, nbf_horz]
 _M   = None  # [M_horz, Mc_horz]
 _reg = None  # reg
 _Ai  = None  # Ai
 
-def get_bs_basex_cached(n_vert, n_horz,
-                        nbf='auto', reg=0.0, basis_dir='.', verbose=False):
+def get_bs_basex_cached(n_horz, nbf='auto', reg=0.0,
+                        basis_dir='.', verbose=False):
     """
     Internal function.
 
@@ -247,43 +231,43 @@ def get_bs_basex_cached(n_vert, n_horz,
     (i.e. load from disk if they exist,
     if not, calculate them and save a copy on disk).
     To prevent saving the basis sets to disk, set ``basis_dir=None``.
+    Loaded/calculated matrices are also cached in memory.
 
     Parameters
     ----------
-    n_vert, n_horz : int
+    n_horz : int
         Abel inverse transform will be performed on a
-        ``n_vert x n_horz`` area of the image
-    nbf : int or list
+        ``n_horz`` wide area of the image
+    nbf : int
         number of basis functions. If ``nbf='auto'``,
         ``n_horz`` is set to ``(n//2 + 1)``.
     reg : float
         regularization parameter
     basis_dir : str
         path to the directory for saving / loading
-        the basis set coefficients.
+        the basis sets.
         If None, the basis sets will not be saved to disk.
 
     Returns
     -------
-    M_horz, Mc_horz, horz_right: numpy arrays
-        the matrices that compose the basis set.
+    Ai: numpy array
+        the matrix of the inverse Abel transform.
     """
 
     global _prm, _M, _reg, _Ai
 
     # Sanitize nbf
-    nbf = _nbf_default(n_vert, n_horz, nbf)
-    nbf_vert, nbf_horz = nbf[0], nbf[1]
+    nbf = _nbf_default(n_horz, nbf)
+    nbf_horz = nbf
 
     M_horz = None
     # Check whether basis for these parameters is already loaded
-    if _prm == [n_vert, n_horz, nbf_vert, nbf_horz]:
+    if _prm == [n_horz, nbf_horz]:
         if verbose:
             print('Using memory-cached basis sets')
         M_horz, Mc_horz = _M
     else:  # try to load basis
-        basis_name = 'basex_basis_{}_{}_{}_{}.npy'.format(
-                            n_vert, n_horz, nbf_vert, nbf_horz)
+        basis_name = 'basex_basis_{}_{}.npy'.format(n_horz, nbf_horz)
 
         if basis_dir is not None:
             path_to_basis_file = os.path.join(basis_dir, basis_name)
@@ -292,7 +276,7 @@ def get_bs_basex_cached(n_vert, n_horz,
                     print('Loading basis sets...')
                     # saved as a .npy file
                 try:
-                    _, M_horz, _, Mc_horz, M_version = np.load(path_to_basis_file)
+                    M_horz, Mc_horz, M_version = np.load(path_to_basis_file)
                 except ValueError:
                     print('Cached basis file incompatible.')
 
@@ -304,17 +288,16 @@ def get_bs_basex_cached(n_vert, n_horz,
                 if basis_dir is not None:
                     print('But don\'t worry, it will be saved to disk for future use.')
 
-            M_horz, Mc_horz = _bs_basex(n_vert, n_horz, nbf_vert, nbf_horz, verbose=verbose)
+            M_horz, Mc_horz = _bs_basex(n_horz, nbf_horz, verbose=verbose)
 
             if basis_dir is not None:
                 np.save(path_to_basis_file,
-                        (M_horz, M_horz, Mc_horz, Mc_horz, np.array(__version__)))
-                        #!! change to M_horz, Mc_horz, np.array(__version__)
+                        (M_horz, Mc_horz, np.array(__version__)))
                 if verbose:
                     print('Basis set saved for later use to')
                     print('  {}'.format(path_to_basis_file))
 
-        _prm = [n_vert, n_horz, nbf_vert, nbf_horz]
+        _prm = [n_horz, nbf_horz]
         _M   = [M_horz, Mc_horz]
         _reg = None
 
@@ -333,24 +316,18 @@ def get_bs_basex_cached(n_vert, n_horz,
 
 MAX_BASIS_SET_OFFSET = 4000
 
-def _bs_basex(n_vert=1001, n_horz=501,
-              nbf_vert=1001, nbf_horz=251, verbose=True):
+def _bs_basex(n_horz=501, nbf_horz=251, verbose=True):
     """
     Generates basis sets for the BASEX method
     without assuming up/down symmetry.
 
     Parameters:
     -----------
-    n_vert : integer
-        Vertical dimensions of the image in pixels.
     n_horz : integer
         Horizontal dimensions of the image in pixels.
         Must be odd. See https://github.com/PyAbel/PyAbel/issues/34
-    nbf_vert : integer
-        Number of basis functions in the z-direction.
-        Must be less than or equal (default) to n_vert
     nbf_horz : integer
-        Number of basis functions in the x-direction.
+        Number of basis functions in the x direction.
         Must be less than or equal (default) to n_horz//2 + 1
 
     Returns:
@@ -365,11 +342,6 @@ def _bs_basex(n_vert=1001, n_horz=501,
     if nbf_horz > n_horz//2 + 1:
         raise ValueError('The number of horizontal basis functions (nbf_horz) '
                          'cannot be greater than n_horz//2 + 1')
-
-    if nbf_vert > n_vert:
-        raise ValueError('The number of vertical basis functions (nbf_vert) '
-                         'cannot be greater than '
-                         'the number of vertical pixels (n_vert).')
 
     Rm_h = n_horz//2 + 1
 
@@ -386,7 +358,7 @@ def _bs_basex(n_vert=1001, n_horz=501,
 
     if verbose:
         print('Generating horizontal BASEX basis sets for '
-              'n_horz = {}, nbf_vert = {}:\n'.format(n_horz, nbf_vert))
+              'n_horz = {}:\n'.format(n_horz))
         sys.stdout.write('0')
         sys.stdout.flush()
 
@@ -437,4 +409,4 @@ def _bs_basex(n_vert=1001, n_horz=501,
     if verbose:
         print('...{}'.format(k+1))
 
-    return M_horz, Mc_horz #!!
+    return M_horz, Mc_horz
