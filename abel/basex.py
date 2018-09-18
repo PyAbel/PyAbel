@@ -121,23 +121,23 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
     else:
         data_ndim = 2
 
-    full_image = np.hstack((np.fliplr(data), data[:, 1:]))
+    full_image = data
     n = full_image.shape[1]
 
     # load the basis sets:
     Ai = get_bs_basex_cached(
-            n, nbf=nbf, reg=reg, basis_dir=basis_dir,
+            2 * n - 1, nbf=nbf, reg=reg, basis_dir=basis_dir,
             verbose=verbose)
 
     # Do the actual transform:
     recon = basex_core_transform(full_image, Ai, dr)
 
     if data_ndim == 1:  # taking the middle row, since the rest are zeroes
-        recon = recon[recon.shape[0] - recon.shape[0]//2 - 1]
+        recon = recon[recon.shape[0] - recon.shape[0]//2 - 1] #??
     if h == 1:
-        return recon[w-1:]
+        return recon
     else:
-        return recon[:, w-1:]
+        return recon
 
 
 def basex_core_transform(rawdata, Ai, dr=1.0):
@@ -162,7 +162,11 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
     IM : m x n numpy array
         The abel-transformed image, a slice of the 3D distribution
     """
-
+    # fold the transform matrix to reproduce full-width result from half-width data
+    h, w = Ai.shape
+    Ai = Ai[h//2:, w//2:]  # lower right half (with centerline)
+    D = np.diag([1] + [2] * (Ai.shape[0] - 1))  # multiply by 2, except centerline
+    Ai = np.dot(D, Ai)
     # Reconstructing image  - This is where the magic happens
     IM = scipy.dot(rawdata, Ai) / dr
     # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, !! not
