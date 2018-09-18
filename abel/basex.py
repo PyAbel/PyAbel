@@ -150,7 +150,7 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
     Parameters
     ----------
     rawdata : m x n numpy array
-        the raw image. This is the full image, both left and right sides.
+        the raw image. This is the right half (with the axis) of the image.
     Ai : n x n numpy array
         2D array given by the transform-calculation function
     dr : float
@@ -162,11 +162,6 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
     IM : m x n numpy array
         The abel-transformed image, a slice of the 3D distribution
     """
-    # fold the transform matrix to reproduce full-width result from half-width data
-    h, w = Ai.shape
-    Ai = Ai[h//2:, w//2:]  # lower right half (with centerline)
-    D = np.diag([1] + [2] * (Ai.shape[0] - 1))  # multiply by 2, except centerline
-    Ai = np.dot(D, Ai)
     # Reconstructing image  - This is where the magic happens
     IM = scipy.dot(rawdata, Ai) / dr
     # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, !! not
@@ -191,6 +186,12 @@ def _get_Ai(M, Mc, reg):
     #     image = projection . Ai
     #     Ai = R . {image basis} is the matrix of the inverse Abel transform
     Ai = scipy.dot(R, Mc.T)
+
+    # fold to reproduce full-width result from half-width data
+    h, w = Ai.shape
+    Ai = Ai[h//2:, w//2:]  # lower right half (with centerline)
+    D = np.diag([1] + [2] * (Ai.shape[0] - 1))  # multiply by 2, except centerline
+    Ai = np.dot(D, Ai)
 
     # use an heuristic scaling factor to match the analytical abel transform
     # For more info see https://github.com/PyAbel/PyAbel/issues/4
