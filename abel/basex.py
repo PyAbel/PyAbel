@@ -185,11 +185,13 @@ def _get_Ai(M, Mc, reg):
     # so: image = projection . (R . {image basis})
     #     image = projection . Ai
     #     Ai = R . {image basis} is the matrix of the inverse Abel transform
-    Ai = scipy.dot(R, Mc.T)
+    # (calculate only lower right part)
+    w = Mc.shape[0]
+    R_ = R[w//2:, :]  # (lower)
+    McT_ = Mc.T[:, w//2:]  # (right)
+    Ai = scipy.dot(R_, McT_)
 
-    # fold to reproduce full-width result from half-width data
-    h, w = Ai.shape
-    Ai = Ai[h//2:, w//2:]  # lower right half (with centerline)
+    # ~folded to reproduce full-width result from half-width data
     D = np.diag([1] + [2] * (Ai.shape[0] - 1))  # multiply by 2, except centerline
     Ai = np.dot(D, Ai)
 
