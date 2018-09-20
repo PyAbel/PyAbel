@@ -334,7 +334,7 @@ def _bs_basex(n=251, nbf=251, verbose=True):
 
     if nbf > n:
         raise ValueError('The number of horizontal basis functions (nbf) '
-                         'cannot be greater than n//2 + 1')
+                         'cannot be greater than n')
 
     nf = 2 * n - 1  # full width
 
@@ -373,7 +373,7 @@ def _bs_basex(n=251, nbf=251, verbose=True):
             val = exp(k2 * (1 + log(l2/k2)) - l2)
 
             Mc[Rm_h - 1 + l, k] = val  # All rows below center
-            Mc[Rm_h - 1 - l, k] = val  # All rows above center
+            #Mc[Rm_h - 1 - l, k] = val  # All rows above center
 
             aux = val + angn * Mc[Rm_h - 1 + l, 0]
 
@@ -395,7 +395,7 @@ def _bs_basex(n=251, nbf=251, verbose=True):
             aux *= 2
 
             M[Rm_h - 1 + l, k] = aux  # All rows below center
-            M[Rm_h - 1 - l, k] = aux  # All rows above center
+            #M[Rm_h - 1 - l, k] = aux  # All rows above center
 
         if verbose and k % 50 == 0:
             sys.stdout.write('...{}'.format(k))
@@ -404,6 +404,8 @@ def _bs_basex(n=251, nbf=251, verbose=True):
     if verbose:
         print('...{}'.format(k+1))
 
+    # taking only needed halves
+    # (all the code above must be modified to work with halves throughout)
     M = M[n-1:, :]
     Mc = Mc[n-1:, :]
 
