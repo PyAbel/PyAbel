@@ -175,11 +175,8 @@ def _get_Ai(M, Mc, reg):
     nbf = np.shape(M)[1]
     # square of Tikhonov matrix
     E = np.diag([reg] * nbf)
-    # (calculate only lower right part of Ai, folded)
-    D = np.array([1] + [2] * (M.shape[0] - 1))  # multiply by 2, except centerline
-    M2 = M * D[:, None]
     # regularized inverse of basis projection
-    R = scipy.dot(M2, inv(scipy.dot(M.T, M2) + E))
+    R = scipy.dot(M, inv(scipy.dot(M.T, M) + E))
     # {expansion coefficients} = projection . R
     # image = {expansion coefficients} . {image basis}
     # so: image = projection . (R . {image basis})
