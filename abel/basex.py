@@ -64,7 +64,7 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0,
     This function performs the BASEX (BAsis Set EXpansion)
     Abel Transform. It works on a "right side" image. I.e.,
     it works on just half of a cylindrically symmetric
-    object and ``data[0,0]`` should correspond to a central pixel.
+    object, and ``data[0,0]`` should correspond to a central pixel.
     To perform a BASEX transorm on
     a whole image, use ::
 
@@ -87,7 +87,9 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0,
         does not work reliably in other situations!
         In the future, you could use other numbers
     reg : float
-        regularization parameter
+        regularization parameter, square of the Tikhonov factor.
+        ``reg=0`` means no regularization,
+        ``reg=100`` is a reasonable value for megapixel images.
     basis_dir : str
         path to the directory for saving / loading the basis set coefficients.
         If None, the basis set will not be saved to disk.
@@ -162,6 +164,15 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
     IM : m x n numpy array
         The abel-transformed image, a slice of the 3D distribution
     """
+
+    # Note that our images are stored with matrix rows corresponding to
+    # horizontal image lines. This is consistent with the Matlab and C++
+    # BASEX implementations, but is the opposite to the article notation.
+    # Thus all matrices are transposed and multiplied backwards with
+    # respect to the article.
+    # The vertical transform is not applied, since without regularization
+    # its overall effect is an identity transform.
+
     # Reconstructing image  - This is where the magic happens
     IM = scipy.dot(rawdata, Ai) / dr
     # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, !! not
@@ -174,6 +185,10 @@ def _get_Ai(M, Mc, reg):
         given basis sets M, Mc,
         return matrix of inverse Abel transform
     """
+
+    # Ai  is the overall (horizontal) transform matrix,
+    #     corresponds to A^T Z in the article
+    # reg corresponds to q_1^2 in the article
 
     if reg == 0.0:
         Ai = scipy.dot(inv(M.T), Mc.T)  # (this works only for nbf == n)
@@ -231,7 +246,8 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
 
     Gets BASEX basis sets, using the disk as a cache
     (i.e. load from disk if they exist,
-    if not, calculate them and save a copy on disk).
+    if not, calculate them and save a copy on disk)
+    and calculates the transform matrix.
     To prevent saving the basis sets to disk, set ``basis_dir=None``.
     Loaded/calculated matrices are also cached in memory.
 
@@ -246,8 +262,7 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
     reg : float
         regularization parameter
     basis_dir : str
-        path to the directory for saving / loading
-        the basis sets.
+        path to the directory for saving / loading the basis sets.
         If None, the basis sets will not be saved to disk.
 
     Returns
@@ -338,6 +353,11 @@ def _bs_basex(n=251, nbf=251, verbose=True):
     --------
       M, Mc : numpy arrays
     """
+
+    # Mc is the reconstructed-image basis (Gaussians),
+    #    corresponds to Z^T in the article
+    # M  is the basis projection,
+    #    corresponds to X^T in the article
 
     if nbf > n:
         raise ValueError('The number of horizontal basis functions (nbf) '
