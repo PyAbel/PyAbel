@@ -119,7 +119,7 @@ class AbelTiming(object):
                     if method[:-3] == 'basex':  # special case
                         # calculate and store basex basis matrix
                         t = time.time()
-                        basis[method[:-3]] = transform[method](ni, ni, basis_dir=None)
+                        basis[method[:-3]] = transform[method](w, basis_dir=None)
                         res['bs'][method].append((time.time()-t)*1000)
                     
                     elif method[:-3] == 'linbasex':  # special case
@@ -145,9 +145,9 @@ class AbelTiming(object):
                         if basis[method][0] is not None:
                             # have basis calculation
                             if method == 'basex':
-                                # pass a whole image to BASEX
+                                # don't unpack the transform matrix
                                 res[cal][method].append(Timer(
-                                   lambda: transform[method](whole_image, *basis[method])).
+                                   lambda: transform[method](half_image, basis[method])).
                                    timeit(number=transform_repeat)*1000/
                                    transform_repeat)
                              
