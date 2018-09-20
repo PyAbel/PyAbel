@@ -58,8 +58,8 @@ from ._version import __version__
 #############################################################################
 
 
-def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=True,
-                    direction='inverse'):
+def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0,
+                    verbose=True, direction='inverse'):
     """
     This function performs the BASEX (BAsis Set EXpansion)
     Abel Transform. It works on a "right side" image. I.e.,
@@ -83,8 +83,8 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
         should correspond to the central column of the image.
     nbf : str or int
         number of basis functions. If ``nbf='auto'``, it is set to ``n``.
-        *This is what you should always use*,
-        since this BASEX implementation does not work reliably in other situations!
+        *This is what you should always use*, since this BASEX implementation
+        does not work reliably in other situations!
         In the future, you could use other numbers
     reg : float
         regularization parameter
@@ -134,7 +134,7 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
     recon = basex_core_transform(data, Ai, dr)
 
     if data_ndim == 1:  # taking the middle row, since the rest are zeroes
-        recon = recon[recon.shape[0] - recon.shape[0]//2 - 1] #??
+        recon = recon[recon.shape[0] - recon.shape[0]//2 - 1]  # ??
     if h == 1:
         return recon
     else:
@@ -187,7 +187,8 @@ def _get_Ai(M, Mc, reg):
         # image = {expansion coefficients} . {image basis}
         # so: image = projection . (R . {image basis})
         #     image = projection . Ai
-        #     Ai = R . {image basis} is the matrix of the inverse Abel transform
+        #     Ai = R . {image basis}
+        # Ai is the matrix of the inverse Abel transform
         Ai = scipy.dot(R, Mc.T)
 
     # use an heuristic scaling factor to match the analytical abel transform
@@ -219,9 +220,9 @@ def _nbf_default(n, nbf):
 
 # Cached matrices and their parameters
 _prm = None  # [n, nbf]
-_M   = None  # [M, Mc]
+_M = None    # [M, Mc]
 _reg = None  # reg
-_Ai  = None  # Ai
+_Ai = None   # Ai
 
 def get_bs_basex_cached(n, nbf='auto', reg=0.0,
                         basis_dir='.', verbose=False):
@@ -286,7 +287,8 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
                       'A new basis set will be generated.',
                       'This may take a few minutes.', sep='\n')
                 if basis_dir is not None:
-                    print('But don\'t worry, it will be saved to disk for future use.')
+                    print('But don\'t worry, '
+                          'it will be saved to disk for future use.')
 
             M, Mc = _bs_basex(n, nbf, verbose=verbose)
 
@@ -298,10 +300,11 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
                     print('  {}'.format(path_to_basis_file))
 
         _prm = [n, nbf]
-        _M   = [M, Mc]
+        _M = [M, Mc]
         _reg = None
 
-    # Check whether transform matrices for this regularization are already loaded
+    # Check whether transform matrices for this regularization
+    # are already loaded
     if _reg == reg:
         Ai = _Ai
     else:  # recalculate
@@ -309,7 +312,7 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
             print('Updating regularization...')
         Ai = _get_Ai(*_M, reg=reg)
         _reg = reg
-        _Ai  = Ai
+        _Ai = Ai
 
     return Ai
 
@@ -325,7 +328,8 @@ def _bs_basex(n=251, nbf=251, verbose=True):
     -----------
     n : integer
         Horizontal dimensions of the half-width image in pixels.
-        Must inglude the axial pixel. See https://github.com/PyAbel/PyAbel/issues/34
+        Must inglude the axial pixel.
+        See https://github.com/PyAbel/PyAbel/issues/34
     nbf : integer
         Number of basis functions in the x direction.
         Must be less than or equal (default) to n
@@ -376,7 +380,7 @@ def _bs_basex(n=251, nbf=251, verbose=True):
             val = exp(k2 * (1 + log(l2/k2)) - l2)
 
             Mc[Rm_h - 1 + l, k] = val  # All rows below center
-            #Mc[Rm_h - 1 - l, k] = val  # All rows above center
+            # Mc[Rm_h - 1 - l, k] = val  # All rows above center
 
             aux = val + angn * Mc[Rm_h - 1 + l, 0]
 
@@ -398,7 +402,7 @@ def _bs_basex(n=251, nbf=251, verbose=True):
             aux *= 2
 
             M[Rm_h - 1 + l, k] = aux  # All rows below center
-            #M[Rm_h - 1 - l, k] = aux  # All rows above center
+            # M[Rm_h - 1 - l, k] = aux  # All rows above center
 
         if verbose and k % 50 == 0:
             sys.stdout.write('...{}'.format(k))
