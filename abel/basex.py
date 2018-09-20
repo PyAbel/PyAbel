@@ -68,7 +68,7 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
         abel.Transform(image, method='basex', direction='inverse').transform
 
     This BASEX implementation only works with images that have an
-    odd-integer width.
+    odd-integer full width.
 
     Note: only the `direction="inverse"` transform is currently implemented.
 
@@ -76,10 +76,10 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
     Parameters
     ----------
     data : an m x n numpy array
-        The image to be inverse transformed. The width (n) must be odd, and ``data[:,0]``
+        The image to be inverse transformed. ``data[:,0]``
         should correspond to the central column of the image.
     nbf : str or int
-        number of basis functions. If ``nbf='auto'``, it is set to ``(n//2 + 1)``.
+        number of basis functions. If ``nbf='auto'``, it is set to ``n``.
         *This is what you should always use*,
         since this BASEX implementation does not work reliably in other situations!
         In the future, you could use other numbers
@@ -121,16 +121,14 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
     else:
         data_ndim = 2
 
-    full_image = data
-    n = full_image.shape[1]
+    n = data.shape[1]
 
     # load the basis sets:
-    Ai = get_bs_basex_cached(
-            2 * n - 1, nbf=nbf, reg=reg, basis_dir=basis_dir,
-            verbose=verbose)
+    Ai = get_bs_basex_cached(n, nbf=nbf, reg=reg,
+                             basis_dir=basis_dir, verbose=verbose)
 
     # Do the actual transform:
-    recon = basex_core_transform(full_image, Ai, dr)
+    recon = basex_core_transform(data, Ai, dr)
 
     if data_ndim == 1:  # taking the middle row, since the rest are zeroes
         recon = recon[recon.shape[0] - recon.shape[0]//2 - 1] #??
@@ -142,9 +140,8 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0, verbose=T
 
 def basex_core_transform(rawdata, Ai, dr=1.0):
     """
-    This is the internal function
-    that does the actual BASEX transform. It requires
-    that the matrices of basis set coefficients be passed.
+    This is the internal function that does the actual BASEX transform.
+    It requires that the transform matrix be passed.
 
 
     Parameters
@@ -200,15 +197,14 @@ def _get_Ai(M, Mc, reg):
 
 def _nbf_default(n, nbf):
     """ An internal helper function for the asymmetric case
-        to check that nbf = n//2 + 1 and print a warning otherwise
+        to check that nbf = n and print a warning otherwise
     """
     if nbf == 'auto':
-        nbf = n//2 + 1
+        nbf = n
     elif isinstance(nbf, (int, long)):
-        if nbf != n//2 + 1:
+        if nbf != n:
             print('Warning: the number of basis functions '
-                  'nbf = {} != (n//2 + 1)  = {}\n'.format(
-                        nbf, n//2 + 1))
+                  'nbf = {} != n  = {}\n'.format(nbf, n))
             print('This behaviour is currently not tested '
                   'and should not be used '
                   'unless you know exactly what you are doing. '
@@ -239,10 +235,10 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
     ----------
     n : int
         Abel inverse transform will be performed on a
-        ``n`` pixels wide area of the image
+        ``n`` pixels wide area of the (half) image
     nbf : int
         number of basis functions. If ``nbf='auto'``,
-        ``n`` is set to ``(n//2 + 1)``.
+        ``n`` is set to ``n``.
     reg : float
         regularization parameter
     basis_dir : str
@@ -298,11 +294,6 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
                     print('Basis set saved for later use to')
                     print('  {}'.format(path_to_basis_file))
 
-        # only (lower) halves are needed
-        w = M.shape[0]
-        M = M[w//2:, :]
-        Mc = Mc[w//2:, :]
-
         _prm = [n, nbf]
         _M   = [M, Mc]
         _reg = None
@@ -322,7 +313,7 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
 
 MAX_BASIS_SET_OFFSET = 4000
 
-def _bs_basex(n=501, nbf=251, verbose=True):
+def _bs_basex(n=251, nbf=251, verbose=True):
     """
     Generates basis sets for the BASEX method
     without assuming up/down symmetry.
@@ -330,32 +321,30 @@ def _bs_basex(n=501, nbf=251, verbose=True):
     Parameters:
     -----------
     n : integer
-        Horizontal dimensions of the image in pixels.
-        Must be odd. See https://github.com/PyAbel/PyAbel/issues/34
+        Horizontal dimensions of the half-width image in pixels.
+        Must inglude the axial pixel. See https://github.com/PyAbel/PyAbel/issues/34
     nbf : integer
         Number of basis functions in the x direction.
-        Must be less than or equal (default) to n//2 + 1
+        Must be less than or equal (default) to n
 
     Returns:
     --------
       M, Mc : numpy arrays
     """
 
-    if n % 2 == 0:
-        raise ValueError('The horizontal dimensions of the image (n) '
-                         'must be odd.')
-
-    if nbf > n//2 + 1:
+    if nbf > n:
         raise ValueError('The number of horizontal basis functions (nbf) '
                          'cannot be greater than n//2 + 1')
 
-    Rm_h = n//2 + 1
+    nf = 2 * n - 1  # full width
 
-    I_h = np.arange(1, n + 1)
+    Rm_h = n
+
+    I_h = np.arange(1, nf + 1)
 
     R2_h = (I_h - Rm_h)**2
-    M = np.zeros((n, nbf))
-    Mc = np.zeros((n, nbf))
+    M = np.zeros((nf, nbf))
+    Mc = np.zeros((nf, nbf))
 
     M[:, 0] = 2*np.exp(-R2_h)
     Mc[:, 0] = np.exp(-R2_h)
@@ -377,7 +366,7 @@ def _bs_basex(n=501, nbf=251, verbose=True):
         angn = exp(k2 * (1 - log_k2) +
                    gammaln(k2 + 0.5) - gammaln_0o5)
         M[Rm_h-1, k] = 2 * angn
-        for l in range(1, n - Rm_h + 1):
+        for l in range(1, nf - Rm_h + 1):
             l2 = l*l
             log_l2 = log(l2)
 
@@ -414,5 +403,8 @@ def _bs_basex(n=501, nbf=251, verbose=True):
 
     if verbose:
         print('...{}'.format(k+1))
+
+    M = M[n-1:, :]
+    Mc = Mc[n-1:, :]
 
     return M, Mc
