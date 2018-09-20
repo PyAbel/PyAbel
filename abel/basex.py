@@ -172,17 +172,20 @@ def _get_Ai(M, Mc, reg):
         return matrix of inverse Abel transform
     """
 
-    nbf = np.shape(M)[1]
-    # square of Tikhonov matrix
-    E = np.diag([reg] * nbf)
-    # regularized inverse of basis projection
-    R = scipy.dot(M, inv(scipy.dot(M.T, M) + E))
-    # {expansion coefficients} = projection . R
-    # image = {expansion coefficients} . {image basis}
-    # so: image = projection . (R . {image basis})
-    #     image = projection . Ai
-    #     Ai = R . {image basis} is the matrix of the inverse Abel transform
-    Ai = scipy.dot(R, Mc.T)
+    if reg == 0.0:
+        Ai = scipy.dot(inv(M.T), Mc.T)  # (this works only for nbf == n)
+    else:
+        nbf = np.shape(M)[1]
+        # square of Tikhonov matrix
+        E = np.diag([reg] * nbf)
+        # regularized inverse of basis projection
+        R = scipy.dot(M, inv(scipy.dot(M.T, M) + E))
+        # {expansion coefficients} = projection . R
+        # image = {expansion coefficients} . {image basis}
+        # so: image = projection . (R . {image basis})
+        #     image = projection . Ai
+        #     Ai = R . {image basis} is the matrix of the inverse Abel transform
+        Ai = scipy.dot(R, Mc.T)
 
     # use an heuristic scaling factor to match the analytical abel transform
     # For more info see https://github.com/PyAbel/PyAbel/issues/4
