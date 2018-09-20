@@ -179,19 +179,16 @@ def _get_Ai(M, Mc, reg):
     # square of Tikhonov matrix
     E = np.identity(nbf) * reg
     # (calculate only lower right part of Ai, folded)
-    w = M.shape[0]
-    M_ = M[w//2:, :]  # (lower)
-    D = np.array([1] + [2] * (M_.shape[0] - 1))  # multiply by 2, except centerline
-    M2 = M_ * D[:, None]
+    D = np.array([1] + [2] * (M.shape[0] - 1))  # multiply by 2, except centerline
+    M2 = M * D[:, None]
     # regularized inverse of basis projection
-    R = scipy.dot(M2, inv(scipy.dot(M_.T, M2) + E))
+    R = scipy.dot(M2, inv(scipy.dot(M.T, M2) + E))
     # {expansion coefficients} = projection . R
     # image = {expansion coefficients} . {image basis}
     # so: image = projection . (R . {image basis})
     #     image = projection . Ai
     #     Ai = R . {image basis} is the matrix of the inverse Abel transform
-    McT_ = Mc.T[:, w//2:]  # (right)
-    Ai = scipy.dot(R, McT_)
+    Ai = scipy.dot(R, Mc.T)
 
     # use an heuristic scaling factor to match the analytical abel transform
     # For more info see https://github.com/PyAbel/PyAbel/issues/4
@@ -300,6 +297,11 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
                 if verbose:
                     print('Basis set saved for later use to')
                     print('  {}'.format(path_to_basis_file))
+
+        # only (lower) halves are needed
+        w = M.shape[0]
+        M = M[w//2:, :]
+        Mc = Mc[w//2:, :]
 
         _prm = [n, nbf]
         _M   = [M, Mc]
