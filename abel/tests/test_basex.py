@@ -13,10 +13,10 @@ import abel
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
 def test_basex_basis_sets_cache():
-    # n_vert, n_horz = 121,121
-    # nbf_vert, nbf_horz = 121, 61
-    n = 121
-    file_name = os.path.join(DATA_DIR, "basex_basis_{}_{}.npy".format(n, n//2+1))
+    # n = 61  (121 full width)
+    # nbf = 61
+    n = 61
+    file_name = os.path.join(DATA_DIR, "basex_basis_{}_{}.npy".format(n, n))
     if os.path.exists(file_name):
         os.remove(file_name)
     # 1st call generate and save
@@ -48,10 +48,10 @@ def test_basex_zeros():
 
 def test_basex_step_ratio():
     """Check a gaussian solution for BASEX"""
-    n = 51
+    n = 26
     r_max = 25
 
-    ref = abel.tools.analytical.GaussianAnalytical(n, r_max, symmetric=True,  sigma=10)
+    ref = abel.tools.analytical.GaussianAnalytical(n, r_max, symmetric=False, sigma=10)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
     Ai = abel.basex.get_bs_basex_cached(n, basis_dir=None, verbose=False)
