@@ -27,7 +27,10 @@ from ._version import __version__
 # Review of Scientific Instruments 73, 2634 (2002).
 #
 #
-# Version 0.63 - 2018-09-08
+# 2018-09-19
+#   MR switched to half-width transform.
+#   The results now match BASEX.exe.
+# 2018-09-08
 #   MR enabled Tikhonov regularization.
 #   Also, basis and transform matrices are now kept in memory
 #   between invocations and reloaded/recalculated only when needed.
