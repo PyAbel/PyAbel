@@ -12,18 +12,11 @@ Unit tests
 
 Before submitting at Pull Request, be sure to run the unit tests. The test suite can be run from within the PyAbel package with ::
 
-    nosetests  abel/tests/  --verbosity=2  --with-coverage --cover-package=abel
+    pytest abel/  -v  --cov=abel
 
-or, from any folder with ::
+Note that this requires that you have `pytest <https://docs.pytest.org/en/latest/>`_ and (optionally) `pytest-cov <https://pytest-cov.readthedocs.io/en/latest/>`_ installed. You can install these with ::
 
-    python  -c "import abel.tests; abel.tests.run_cli(coverage=True)"
-
-which performs an equivalent call.
-
-Note that this requires that you have `Nose <nose.readthedocs.io>`_ and (optionally) `Coverage <coverage.readthedocs.io>`_ installed. You can install these with ::
-
-    pip install nose
-    pip install coverage
+    pip install pytest pytest-cov
 
 
 Documentation

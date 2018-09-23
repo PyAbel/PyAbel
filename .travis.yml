@@ -11,11 +11,10 @@ matrix:
 install:
 - pip install --upgrade pip setuptools wheel
 - pip install --only-binary=numpy,scipy,cython numpy scipy cython
-- pip install coveralls
-- python setup.py build_ext -i
-- python setup.py install
+- pip install coveralls pytest pytest-cov
+- pip install .
 script:
-- nosetests -vv --with-coverage --cover-package=abel abel/tests
+- pytest -v --cov=abel abel
 deploy:
   provider: pypi
   user: DanHickstein
