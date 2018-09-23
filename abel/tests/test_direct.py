@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import time
-
 import numpy as np
-from unittest.case import SkipTest
 from numpy.testing import assert_allclose
-import scipy.ndimage as nd
+import pytest
+
 import abel
+
 
 def test_direct_shape():
     """Ensure that abel.direct.direct_transform() returns an array of the correct shape"""
@@ -46,12 +45,12 @@ def test_direct_gaussian():
     recon = abel.direct.direct_transform(ref.abel, dr=ref.dr, direction='inverse')
     ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='inverse')
     assert_allclose(ratio, 1.0, rtol=2e-2, atol=2e-2)
-    
 
+
+@pytest.mark.skipif(not abel.direct.cython_ext,
+                    reason='abel.direct C extension not installed')
 def test_direct_c_python_correspondence_with_correction():
     """ Check that both the C and Python backends are identical (correction=True)"""
-    # if not abel.direct.cython_ext:
-    #     raise SkipTest
     N = 10
     r = 0.5 + np.arange(N).astype('float64') 
     x = 2*r.reshape((1, -1))**2
@@ -60,10 +59,10 @@ def test_direct_c_python_correspondence_with_correction():
     assert_allclose(out1, out2, rtol=1e-9, atol=1e-9)
 
 
+@pytest.mark.skipif(not abel.direct.cython_ext,
+                    reason='abel.direct C extension not installed')
 def test_direct_c_python_correspondence():
     """ Check that both the C and Python backends are identical (correction=False)"""
-    # if not abel.direct.cython_ext:
-    #     raise SkipTest
     N = 10
     r = 0.5 + np.arange(N).astype('float64')
     x = 2*r.reshape((1, -1))**2
