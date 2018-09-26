@@ -27,6 +27,8 @@ from ._version import __version__
 # Review of Scientific Instruments 73, 2634 (2002).
 #
 #
+# 2018-09-25
+#   MR added basis correction near r = 0
 # 2018-09-19
 #   MR switched to half-width transform.
 #   The results now match BASEX.exe.
@@ -80,8 +82,8 @@ def basex_transform(data, nbf='auto', reg=0.0, bs_correction=False,
     Parameters
     ----------
     data : an m x n numpy array
-        The image to be inverse transformed. ``data[:,0]``
-        should correspond to the central column of the image.
+        the image to be transformed.
+        ``data[:,0]`` should correspond to the central column of the image.
     nbf : str or int
         number of basis functions. If ``nbf='auto'``, it is set to ``n``.
         *This is what you should always use*, since this BASEX implementation
@@ -101,9 +103,9 @@ def basex_transform(data, nbf='auto', reg=0.0, bs_correction=False,
         size of one pixel in the radial direction.
         This only affects the absolute scaling of the transformed image.
     verbose : boolean
-        Determines if statements should be printed.
+        determines whether statements should be printed.
     direction : str
-        The type of Abel transform to be performed.
+        the type of Abel transform to be performed.
         Currently only accepts value ``'inverse'``.
 
 
@@ -258,7 +260,7 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0, bs_correction=False,
     Parameters
     ----------
     n : int
-        Abel inverse transform will be performed on a
+        Abel inverse transform will be performed on an
         ``n`` pixels wide area of the (half) image
     nbf : int
         number of basis functions. If ``nbf='auto'``,
@@ -358,11 +360,11 @@ def _bs_basex(n=251, nbf=251, verbose=True):
     Parameters:
     -----------
     n : integer
-        Horizontal dimensions of the half-width image in pixels.
+        horizontal dimensions of the half-width image in pixels.
         Must inglude the axial pixel.
         See https://github.com/PyAbel/PyAbel/issues/34
     nbf : integer
-        Number of basis functions in the x direction.
+        number of basis functions in the x direction.
         Must be less than or equal (default) to n
 
     Returns:
