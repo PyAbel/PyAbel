@@ -58,7 +58,8 @@ from ._version import __version__
 #############################################################################
 
 
-def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0,
+def basex_transform(data, nbf='auto', reg=0.0, bs_correction=False,
+                    basis_dir='./', dr=1.0,
                     verbose=True, direction='inverse'):
     """
     This function performs the BASEX (BAsis Set EXpansion)
@@ -90,6 +91,9 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0,
         regularization parameter, square of the Tikhonov factor.
         ``reg=0`` means no regularization,
         ``reg=100`` is a reasonable value for megapixel images.
+    bs_correction : boolean
+        apply a correction to k = 0 basis functions in order to reduce
+        the artifact near r = 0.
     basis_dir : str
         path to the directory for saving / loading the basis set coefficients.
         If None, the basis set will not be saved to disk.
@@ -129,7 +133,7 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0,
     n = data.shape[1]
 
     # load the basis sets:
-    Ai = get_bs_basex_cached(n, nbf=nbf, reg=reg,
+    Ai = get_bs_basex_cached(n, nbf=nbf, reg=reg, bs_correction=bs_correction,
                              basis_dir=basis_dir, verbose=verbose)
 
     # Do the actual transform:
@@ -234,12 +238,12 @@ def _nbf_default(n, nbf):
 
 
 # Cached matrices and their parameters
-_prm = None  # [n, nbf]
+_prm = None  # [n, nbf, bs_correction]
 _M = None    # [M, Mc]
 _reg = None  # reg
 _Ai = None   # Ai
 
-def get_bs_basex_cached(n, nbf='auto', reg=0.0,
+def get_bs_basex_cached(n, nbf='auto', reg=0.0, bs_correction=False,
                         basis_dir='.', verbose=False):
     """
     Internal function.
@@ -261,6 +265,8 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
         ``n`` is set to ``n``.
     reg : float
         regularization parameter
+    bs_correction : boolean
+        apply a correction to k = 0 functions
     basis_dir : str
         path to the directory for saving / loading the basis sets.
         If None, the basis sets will not be saved to disk.
@@ -278,7 +284,7 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
 
     M = None
     # Check whether basis for these parameters is already loaded
-    if _prm == [n, nbf]:
+    if _prm == [n, nbf, bs_correction]:
         if verbose:
             print('Using memory-cached basis sets')
         M, Mc = _M
@@ -314,7 +320,17 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
                     print('Basis set saved for later use to')
                     print('  {}'.format(path_to_basis_file))
 
-        _prm = [n, nbf]
+        # Apply basis correction
+        if bs_correction:
+            # This is a dirty hack!
+            # See https://github.com/PyAbel/PyAbel/issues/230
+            l = min(nbf, 5)  # modifying at most 5 first points (what fits)
+            # image basis function k = 0
+            Mc[:l, 0] = [1.27, 0.19, -0.025, -0.015, -0.007][:l]
+            # its projection
+            M[:l, 0] = [1.65, 0.18, -0.15, -0.09, -0.04][:l]
+
+        _prm = [n, nbf, bs_correction]
         _M = [M, Mc]
         _reg = None
 
