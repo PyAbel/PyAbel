@@ -336,7 +336,8 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0, bs_correction=False,
 
                 # crop if loaded larger
                 if M.shape != (n, nbf):
-                    print('(cropped from {})'.format(best_file))
+                    if verbose:
+                        print('(cropped from {})'.format(best_file))
                     M = M[:n, :nbf]
                     Mc = Mc[:n, :nbf]
 
