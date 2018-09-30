@@ -7,6 +7,8 @@ from __future__ import unicode_literals
 
 from time import time
 import os.path
+from os import listdir
+import re
 from math import exp, log
 import sys
 
@@ -27,6 +29,10 @@ from ._version import __version__
 # Review of Scientific Instruments 73, 2634 (2002).
 #
 #
+# 2018-09-29
+#   MR improved loading cached basis sets:
+#   If the required basis is not available, but a larger compatible is,
+#   then the latter will be loaded and cropped to the required size.
 # 2018-09-25
 #   MR added basis correction near r = 0
 # 2018-09-19
@@ -264,7 +270,7 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0, bs_correction=False,
         ``n`` pixels wide area of the (half) image
     nbf : int
         number of basis functions. If ``nbf='auto'``,
-        ``n`` is set to ``n``.
+        ``nbf`` is set to ``n``.
     reg : float
         regularization parameter
     bs_correction : boolean
@@ -291,18 +297,48 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0, bs_correction=False,
             print('Using memory-cached basis sets')
         M, Mc = _M
     else:  # try to load basis
-        basis_name = 'basex_basis_{}_{}.npy'.format(n, nbf)
-
         if basis_dir is not None:
+            basis_name = 'basex_basis_{}_{}.npy'.format(n, nbf)
             path_to_basis_file = os.path.join(basis_dir, basis_name)
-            if os.path.exists(path_to_basis_file):  # Use existing basis set
+
+            # Try to find a suitable existing basis set
+            if os.path.exists(path_to_basis_file):  # have exactly needed
+                best_file = path_to_basis_file
+            else:
+                # Find the best (smallest among sufficient)
+                best_file = None
+                best_nbf = sys.maxint
+                for f in listdir(basis_dir):
+                    # filter BASEX basis files
+                    match = re.match(r'basex_basis_(\d+)_(\d+).npy$', f)
+                    if not match:
+                        continue
+                    # extract basis parameters
+                    f_n, f_nbf = map(int, match.groups())
+                    # must be large enough and smaller than previous best
+                    if f_nbf < nbf or f_nbf > best_nbf:
+                        continue
+                    # must be for a proper image size
+                    if f_n == f_nbf:  # !! modify accordingly for nbf != n
+                        # remember as new best
+                        best_file = f
+                        best_nbf = f_nbf
+
+            # If found, try to use it
+            if best_file:
                 if verbose:
                     print('Loading basis sets...')
                     # saved as a .npy file
                 try:
-                    M, Mc, M_version = np.load(path_to_basis_file)
+                    M, Mc, M_version = np.load(best_file)
                 except ValueError:
                     print('Cached basis file incompatible.')
+
+                # crop if loaded larger
+                if M.shape != (n, nbf):
+                    print('(cropped from {})'.format(best_file))
+                    M = M[:n, :nbf]
+                    Mc = Mc[:n, :nbf]
 
         if M is None:  # generate the basis set
             if verbose:
