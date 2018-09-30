@@ -71,7 +71,7 @@ def basex_transform(data, nbf='auto', reg=0.0, bs_correction=False,
                     verbose=True, direction='inverse'):
     """
     This function performs the BASEX (BAsis Set EXpansion)
-    Abel Transform. It works on a "right side" image. I.e.,
+    Abel transform. It works on a "right side" image. I.e.,
     it works on just half of a cylindrically symmetric
     object, and ``data[0,0]`` should correspond to a central pixel.
     To perform a BASEX transorm on
@@ -384,6 +384,30 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0, bs_correction=False,
         _Ai = Ai
 
     return Ai
+
+
+def basex_cleanup():
+    """
+    Utility function.
+
+    Frees the memory caches created by ``get_bs_basex_cached()``.
+    This is usually pointless, but might be required after working
+    with very large images, if more RAM is needed for further tasks.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
+    global _prm, _M, _reg, _Ai
+
+    _prm = None
+    _M = None
+    _reg = None
+    _Ai = None
 
 
 MAX_BASIS_SET_OFFSET = 4000
