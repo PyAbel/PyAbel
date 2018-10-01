@@ -8,7 +8,6 @@ import os.path
 import numpy as np
 import abel
 from scipy.linalg import inv
-from scipy import dot
 
 ###############################################################################
 #
@@ -44,8 +43,11 @@ _dasch_parameter_docstring = \
         sampling size (=1 for pixel images), used for Jacobian scaling.
         The resulting inverse transform is simply scaled by 1/dr.
 
-    direction: str
+    direction : str
         only the `direction="inverse"` transform is currently implemented
+
+    verbose : bool
+        trace printing
 
 
     Returns
@@ -55,20 +57,30 @@ _dasch_parameter_docstring = \
 
     """
 
+# cache basis
+_basis = None
+_method = None
 
-def two_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):
+
+def two_point_transform(IM, basis_dir='.', dr=1, direction="inverse",
+                        verbose=False):
     return _dasch_transform(IM, basis_dir=basis_dir, dr=dr,
-                            direction=direction, method="two_point")
+                            direction=direction, method="two_point",
+                            verbose=verbose)
 
 
-def three_point_transform(IM, basis_dir='.', dr=1, direction="inverse"):
+def three_point_transform(IM, basis_dir='.', dr=1, direction="inverse",
+                          verbose=False):
     return _dasch_transform(IM, basis_dir=basis_dir, dr=dr,
-                            direction=direction, method="three_point")
+                            direction=direction, method="three_point",
+                           verbose=verbose)
 
 
-def onion_peeling_transform(IM, basis_dir='.', dr=1, direction="inverse"):
+def onion_peeling_transform(IM, basis_dir='.', dr=1, direction="inverse",
+                            verbose=False):
     return _dasch_transform(IM, basis_dir=basis_dir, dr=dr,
-                            direction=direction, method="onion_peeling")
+                            direction=direction, method="onion_peeling",
+                            verbose=verbose)
 
 two_point_transform.__doc__ =\
             _dasch_parameter_docstring.replace("dasch_method", "two-point")
@@ -79,8 +91,9 @@ onion_peeling_transform.__doc__ =\
 
 
 def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse", 
-                     method="three_point"):
-    
+                     method="three_point", verbose=False):
+    global _basis, _method
+
     if direction != 'inverse':
         raise ValueError('Forward "two_point" transform not implemented')
 
@@ -95,9 +108,13 @@ def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse",
     if cols < 3 and method == "three_point":
         raise ValueError('"three_point" requires image width (cols) > 3')
     
-    D = abel.tools.basis.get_bs_cached(method, cols, basis_dir=basis_dir)
+    _basis = abel.tools.basis.get_bs_cached(method, cols, cols,
+                                            basis_dir=basis_dir,
+                                            cached_basis=(_basis, _method),
+                                            verbose=verbose)
+    _method = method
 
-    inv_IM = dasch_transform(IM, D)
+    inv_IM = dasch_transform(IM, _basis[:cols, :cols]) # sliced to image size
 
     if rows == 1:
         inv_IM = inv_IM[0]  # flatten array
@@ -229,7 +246,6 @@ def _bs_three_point(cols):
     D[0, 0] = I0(0, 1) - I1(0, 1) + 1/np.pi
 
     return D
-
 
 def _bs_onion_peeling(cols):
     """basis function for onion_peeling.

@@ -7,12 +7,13 @@ from __future__ import unicode_literals
 import os.path
 import numpy as np
 import abel
+import glob
 
-def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
-                  verbose=False):
+def get_bs_cached(method, cols, nbf, basis_dir='.', cached_basis=None,
+                  basis_options=dict(), verbose=False):
     """load basis set from disk, generate and store if not available.
 
-    Checks whether file ``{method}_basis_{cols}_{cols}*.npy`` is present in 
+    Checks whether file ``{method}_basis_{cols}_{nbf}*.npy`` is present in 
     `basis_dir` 
     (*) special case for ``linbasex``
          _{legendre_orders}_{proj_angles}_{radial_step}_{clip} 
@@ -31,6 +32,8 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
         ``three_point``, and ``two_point``
     cols : int
         width of image
+    nbf : int
+        number of basis functions (usually = cols)
     basis_dir : str
         path to the directory for saving / loading the basis
     verbose: boolean
@@ -38,14 +41,22 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
 
     Returns
     -------
-    D: numpy 2D array of shape (cols, cols)
+    D: numpy 2D array of shape (cols, nbf)
        basis operator array
 
     file.npy: file
-       saves basis to file name ``{method}_basis_{cols}_{cols}*.npy``
-       * == ``__{legendre_orders}_{proj_angles}_{radial_step}_{clip}`` for ``linbasex`` method
+       saves basis to file name ``{method}_basis_{cols}_{nbf}*.npy``
+       * == ``__{legendre_orders}_{proj_angles}_{radial_step}_{clip}`` for 
+       ``linbasex`` method
 
     """
+
+    if cached_basis is not None and cached_basis[0] is not None:
+        _basis, _method = cached_basis
+        if _basis.shape[0] >= cols and _method == method:
+            if verbose:
+                print('Using memory cached basis')
+            return _basis
 
     basis_generator = {
         "linbasex": abel.linbasex._bs_linbasex,
@@ -58,7 +69,7 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
         raise ValueError("basis generating function for method '{}' not know"
                          .format(method))
 
-    basis_name = "{}_basis_{}_{}".format(method, cols, cols)
+    basis_name = "{}_basis_{}_{}".format(method, cols, nbf)
     # special case linbasex requires additional identifying parameters
     # 
     # linbasex_basis_cols_cols_02_090_0.npy
@@ -78,7 +89,8 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
                     value = basis_options[key]
             else:
                 # missing option, use defaults
-                default = {'legendre_orders':'02', 'proj_angles':'050', 'radial_step':1, 'clip':0}
+                default = {'legendre_orders':'02', 'proj_angles':'050',
+                           'radial_step':1, 'clip':0}
                 value = default[key]
 
             basis_name += "_{}".format(value)
@@ -87,22 +99,20 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
 
     D = None
     if basis_dir is not None:
-        path_to_basis_file = os.path.join(basis_dir, basis_name)
-        if os.path.exists(path_to_basis_file):
-            if verbose:
-                print("Loading {} operator matrix...", method)
-            try:
-                D = np.load(path_to_basis_file)
-                return D 
-            except ValueError:
-                raise
-            except:
-                raise
-        
+        path_to_basis_files = os.path.join(basis_dir, method+'_basis*')
+        basis_files = glob.glob(path_to_basis_files)
+        for bf in basis_files:
+            if int(bf.split('_')[-2]) >= cols:  # relies on file order
+                if verbose:
+                    print("Loading {:s} basis {:s}".format(method, bf))
+                D = np.load(bf)
+                # trim to size
+                return D[:cols, :nbf] 
+
     if verbose:
-        print("A suitable operator matrix for '{}' was not found.\n"
+        print("A suitable basis for '{}' was not found.\n"
               .format(method), 
-              "A new operator matrix will be generated.")
+              "A new basis will be generated.")
         if basis_dir is not None:
             print("But don\'t worry, it will be saved to disk for future",
                   " use.\n")
@@ -112,6 +122,7 @@ def get_bs_cached(method, cols, basis_dir='.', basis_options=dict(),
     D = basis_generator[method](cols, **basis_options)
 
     if basis_dir is not None:
+        path_to_basis_file = os.path.join(basis_dir, basis_name)
         np.save(path_to_basis_file, D)
         if verbose:
             print("Operator matrix saved for later use to,")
