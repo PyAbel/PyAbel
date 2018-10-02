@@ -438,4 +438,117 @@ def _bs_linbasex(cols, proj_angles=[0, np.pi/2], legendre_orders=[0, 2],
 
     return Basis
 
+def get_bs_cached(cols, basis_dir='.', legendre_orders=[0, 2],
+                  proj_angles=[0, 45, 90, 135], 
+                  radial_step=1, clip=0, verbose=False):
+    """load basis set from disk, generate and store if not available.
+
+    Checks whether file:
+    ``linbasex_basis_{cols}_{legendre_orders}_{proj_angles}_{radial_step}_{clip}*.npy`` is present in `basis_dir` 
+
+    Either, read basis array or generate basis, saving it to the file.
+        
+
+    Parameters
+    ----------
+    cols : int
+        width of image
+
+    basis_dir : str
+        path to the directory for saving / loading the basis
+
+    legendre_orders : list
+        default [0, 2] = 0 order and 2nd order polynomials
+
+    proj_angles : list
+        default [0, 45, 90, 135] = 0, 45, 90, 135 degrees
+       
+    radial_step : int
+        pixel grid size, default 1
+
+    clip : int
+        image edge clipping, default 0 pixels
+
+    verbose: boolean
+        print information for debugging 
+
+    Returns
+    -------
+    D : tuple (B, Bpol)
+       of ndarrays B (pol, proj, cols, cols) Bpol (pol, proj) 
+
+    file.npy: file
+       saves basis to file name ``{method}_basis_{cols}_{nbf}*.npy``
+       * == ``__{legendre_orders}_{proj_angles}_{radial_step}_{clip}`` for 
+       ``linbasex`` method
+
+    """
+
+    # cached basis
+    global _basis
+
+    if _basis is not None and _basis[0] is not None:
+        # check matrix sizes
+        if _basis.shape[0] >= cols:
+            if verbose:
+                print('Using memory cached basis')
+            return _basis
+
+    basis_name = "{}_basis_{}_{}".format(method, cols, nbf)
+    # Fix Me! not a simple unique naming mechanism
+    for key in ['legendre_orders', 'proj_angles', 'radial_step', 'clip']:
+        if key in basis_options.keys():
+            if key == 'legendre_orders':
+                value = ''.join(map(str, basis_options[key]))
+            elif key == 'proj_angles':
+                # in radians, convert to % of pi
+                proj_angles_fractpi =\
+                     np.array(basis_options['proj_angles'])*100/np.pi
+                 
+                value = ''.join(map(str, proj_angles_fractpi.astype(int)))
+            else: 
+                value = basis_options[key]
+        else:
+            # missing option, use defaults
+            default = {'legendre_orders':'02', 'proj_angles':'050',
+                       'radial_step':1, 'clip':0}
+            value = default[key]
+
+        basis_name += "_{}".format(value)
+
+    basis_name += ".npy"
+
+    D = None
+    if basis_dir is not None:
+        path_to_basis_files = os.path.join(basis_dir, method+'_basis*')
+        basis_files = glob.glob(path_to_basis_files)
+        for bf in basis_files:
+            if int(bf.split('_')[-2]) >= cols:  # relies on file order
+                if verbose:
+                    print("Loading {:s} basis {:s}".format(method, bf))
+                D = np.load(bf)
+                # trim to size
+                return D[:cols, :nbf] 
+
+    if verbose:
+        print("A suitable basis for '{}' was not found.\n"
+              .format(method), 
+              "A new basis will be generated.")
+        if basis_dir is not None:
+            print("But don\'t worry, it will be saved to disk for future",
+                  " use.\n")
+        else:
+            pass
+
+    D = basis_generator[method](cols, **basis_options)
+
+    if basis_dir is not None:
+        path_to_basis_file = os.path.join(basis_dir, basis_name)
+        np.save(path_to_basis_file, D)
+        if verbose:
+            print("Operator matrix saved for later use to,")
+            print(' '*10 + '{}'.format(path_to_basis_file))
+
+    return D
+
 linbasex_transform.__doc__ += _linbasex_parameter_docstring

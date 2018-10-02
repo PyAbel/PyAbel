@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import os.path
 import numpy as np
+import glob
 import abel
 from scipy.linalg import inv
 
@@ -108,13 +109,10 @@ def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse",
     if cols < 3 and method == "three_point":
         raise ValueError('"three_point" requires image width (cols) > 3')
     
-    _basis = abel.tools.basis.get_bs_cached(method, cols, cols,
-                                            basis_dir=basis_dir,
-                                            cached_basis=(_basis, _method),
-                                            verbose=verbose)
-    _method = method
+    _basis = get_bs_cached(method, cols, basis_dir=basis_dir,
+                           verbose=verbose)
 
-    inv_IM = dasch_transform(IM, _basis[:cols, :cols]) # sliced to image size
+    inv_IM = dasch_transform(IM, _basis) # sliced to image size
 
     if rows == 1:
         inv_IM = inv_IM[0]  # flatten array
@@ -137,6 +135,7 @@ def dasch_transform(IM, D):
     inv_IM : 2D numpy array
         inverse Abel transform according to basis operator D 
     """
+
     # one-line Abel transform - dot product of each row of IM with D
     return np.tensordot(IM, D, axes=(1, 1))
 
@@ -270,5 +269,85 @@ def _bs_onion_peeling(cols):
 
     # operator used in Eq. (1)
     D = inv(W)   
-
+    
     return D
+
+
+def get_bs_cached(method, cols, basis_dir='.', verbose=False):
+    """load basis set from cache, or disk. Generate and store if not available.
+
+    Checks whether method basis has been previously calculated, or whether
+    file ``{method}_basis_{cols}.npy`` is present in `basis_dir`.
+
+    Either, assign, read or generate basis (saving it to the file).
+        
+
+    Parameters
+    ----------
+    method : str
+        Abel transform method ``onion_peeling``, ``three_point``, or
+        ``two_point``
+
+    cols : int
+        width of image
+
+    basis_dir : str
+        path to the directory for saving or loading the basis
+
+    verbose: boolean
+        print information for debugging 
+
+    Returns
+    -------
+    D: numpy 2D array of shape (cols, cols)
+       basis operator array for the associated method
+
+    file.npy: file
+       saves basis to file name ``{method}_basis_{cols}.npy``
+
+    """
+
+    global _basis, _method
+
+    # check whether basis is cached
+    if _basis is not None:
+        if _basis.shape[0] <= cols and _method == method:
+            if verbose:
+                print('Using memory cached basis')
+            return _basis[:cols, :cols]  # sliced to correct size
+
+    basis_name = "{}_basis_{}.npy".format(method, cols)
+    basis_generator = {
+        "onion_peeling": abel.dasch._bs_onion_peeling,
+        "three_point": abel.dasch._bs_three_point,
+        "two_point": abel.dasch._bs_two_point
+    }
+
+    # read basis if available
+    if basis_dir is not None:
+        path_to_basis_files = os.path.join(basis_dir, method+'_basis*')
+        basis_files = glob.glob(path_to_basis_files)
+        for bf in basis_files:
+            if int(bf.split('_')[-1].split('.')[0]) >= cols:
+                # relies on file order
+                if verbose:
+                    print("Loading {:s} basis {:s}".format(method, bf))
+                # slice to size
+                _basis = np.load(bf)[:cols, :cols]
+                return _basis
+
+    if verbose:
+        print("A suitable basis for '{:s}' was not found.".format(method),
+              "A new basis will be generated.")
+
+    _method = method
+    _basis = basis_generator[method](cols)
+
+    if basis_dir is not None:
+        path_to_basis_file = os.path.join(basis_dir, basis_name)
+        np.save(path_to_basis_file, _basis)
+        if verbose:
+            print("\n{:s} basis saved for later use to '{:s}"
+                  .format(method, path_to_basis_file))
+
+    return _basis
