@@ -331,15 +331,14 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0, bs_correction=False,
                     # saved as a .npy file
                 try:
                     M, Mc, M_version = np.load(best_file)
+                    # crop if loaded larger
+                    if M.shape != (n, nbf):
+                        M = M[:n, :nbf]
+                        Mc = Mc[:n, :nbf]
+                        if verbose:
+                            print('(cropped from {})'.format(best_file))
                 except ValueError:
                     print('Cached basis file incompatible.')
-
-                # crop if loaded larger
-                if M.shape != (n, nbf):
-                    if verbose:
-                        print('(cropped from {})'.format(best_file))
-                    M = M[:n, :nbf]
-                    Mc = Mc[:n, :nbf]
 
         if M is None:  # generate the basis set
             if verbose:
