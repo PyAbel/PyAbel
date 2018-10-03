@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 import abel
+import os
 import scipy
 from scipy.special import eval_legendre
 from scipy import ndimage
@@ -117,12 +118,17 @@ _linbasex_parameter_docstring = \
 
     """
 
+# cache basis
+_basis = None
+_los = None   # legendre_orders string
+_pas = None   # proj_angles string
+_radial_step = None 
+_clip = None   
 
-def linbasex_transform(IM, proj_angles=[0, np.pi/2],
+def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
                        legendre_orders=[0, 2], radial_step=1, smoothing=0.5,
-                       rcond=0.0005, threshold=0.2, basis_dir=None,
-                       return_Beta=False, clip=0, norm_range=(0, -1),
-                       direction="inverse", verbose=False, **kwargs):
+                       rcond=0.0005, threshold=0.2, return_Beta=False, clip=0,
+                       norm_range=(0, -1), direction="inverse", verbose=False):
     """wrapper function for linebasex to process supplied quadrant-image as a full-image.
 
     PyAbel transform functions operate on the right side of an image.
@@ -138,12 +144,12 @@ def linbasex_transform(IM, proj_angles=[0, np.pi/2],
 
     # inverse Abel transform
     recon, radial, Beta, QLz = linbasex_transform_full(full_image,
+                  basis_dir=basis_dir,
                   proj_angles=proj_angles, legendre_orders=legendre_orders,
                   radial_step=radial_step, smoothing=smoothing,
-                  basis_dir=basis_dir,
                   threshold=threshold, clip=clip,
                   norm_range=norm_range,
-                  verbose=verbose, **kwargs)
+                  verbose=verbose)
 
     # unpack right-side
     inv_IM = abel.tools.symmetry.get_image_quadrants(recon)[0]
@@ -154,13 +160,12 @@ def linbasex_transform(IM, proj_angles=[0, np.pi/2],
         return inv_IM
 
 
-def linbasex_transform_full(IM, proj_angles=[0, np.pi/2],
+def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
                             legendre_orders=[0, 2],
                             radial_step=1, smoothing=0.5,
                             rcond=0.0005, threshold=0.2, clip=0,
-                            basis_dir=None,
                             return_Beta=False, norm_range=(0, -1),
-                            direction="inverse", verbose=False, **kwargs):
+                            direction="inverse", verbose=False):
     """interface function that fetches/calculates the Basis and
        then evaluates the linbasex inverse Abel transform for the image.
 
@@ -178,13 +183,11 @@ def linbasex_transform_full(IM, proj_angles=[0, np.pi/2],
                          'must be square for a "linbasex" transform')
 
     # generate basis or read from file if available
-    Basis = abel.tools.basis.get_bs_cached("linbasex", cols,
-                  basis_dir=basis_dir,
-                  basis_options=dict(proj_angles=proj_angles,
+    _basis = get_bs_cached(cols, basis_dir=basis_dir, proj_angles=proj_angles,
                   legendre_orders=legendre_orders, radial_step=radial_step,
-                  clip=clip, verbose=verbose))
+                  clip=clip, verbose=verbose)
 
-    return _linbasex_transform_with_basis(IM, Basis, proj_angles=proj_angles,
+    return _linbasex_transform_with_basis(IM, _basis, proj_angles=proj_angles,
                                     legendre_orders=legendre_orders,
                                     radial_step=radial_step,
                                     rcond=rcond, smoothing=smoothing,
@@ -391,7 +394,7 @@ def _bas(ord, angle, COS, TRI):
 
 
 def _bs_linbasex(cols, proj_angles=[0, np.pi/2], legendre_orders=[0, 2],
-                 radial_step=1, clip=0, **kwargs):
+                 radial_step=1, clip=0):
 
     pol = len(legendre_orders)
     proj = len(proj_angles)
@@ -438,7 +441,7 @@ def _bs_linbasex(cols, proj_angles=[0, np.pi/2], legendre_orders=[0, 2],
 
     return Basis
 
-def get_bs_cached(cols, basis_dir='.', legendre_orders=[0, 2],
+def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
                   proj_angles=[0, 45, 90, 135], 
                   radial_step=1, clip=0, verbose=False):
     """load basis set from disk, generate and store if not available.
@@ -478,77 +481,60 @@ def get_bs_cached(cols, basis_dir='.', legendre_orders=[0, 2],
        of ndarrays B (pol, proj, cols, cols) Bpol (pol, proj) 
 
     file.npy: file
-       saves basis to file name ``{method}_basis_{cols}_{nbf}*.npy``
-       * == ``__{legendre_orders}_{proj_angles}_{radial_step}_{clip}`` for 
-       ``linbasex`` method
+       saves basis to file name ``linbasex_basis_{cols}_{legendre_orders}_{proj_angles}_{radial_step}_{clip}.npy`` 
 
     """
 
     # cached basis
-    global _basis
+    global _basis, _los, _pas, _radial_step, _clip
 
-    if _basis is not None and _basis[0] is not None:
-        # check matrix sizes
-        if _basis.shape[0] >= cols:
+    # legendre_orders string
+    los = ''.join(map(str, legendre_orders))
+    # convert to % of pi
+    proj_angles_fractpi = np.array(proj_angles)*100/np.pi
+    # projection angles string
+    pas = ''.join(map(str, proj_angles_fractpi.astype(int)))
+
+    if _basis is not None:
+        # check basis array sizes, warning may not be unique
+        if _basis.shape == (2*cols, cols+1):
+            if _los == los and _pas == pas and _radial_step == radial_step and\
+               _clip == clip:
+                if verbose:
+                    print('Using memory cached basis')
+                return _basis
+
+    # Fix Me! not a simple unique naming mechanism
+    basis_name = "linbasex_basis_{}_{}_{}_{}_{}.npy".format(cols, los, pas,
+                                                            radial_step, clip)
+
+    _los = los
+    _pas = pas
+    _radial_step = radial_step
+    _clip = clip
+    if basis_dir is not None:
+        path_to_basis_file = os.path.join(basis_dir, basis_name)
+        if os.path.exists(path_to_basis_file):
             if verbose:
-                print('Using memory cached basis')
+                print('loading {} ...'.format(path_to_basis_file))
+            _basis = np.load(path_to_basis_file)
             return _basis
 
-    basis_name = "{}_basis_{}_{}".format(method, cols, nbf)
-    # Fix Me! not a simple unique naming mechanism
-    for key in ['legendre_orders', 'proj_angles', 'radial_step', 'clip']:
-        if key in basis_options.keys():
-            if key == 'legendre_orders':
-                value = ''.join(map(str, basis_options[key]))
-            elif key == 'proj_angles':
-                # in radians, convert to % of pi
-                proj_angles_fractpi =\
-                     np.array(basis_options['proj_angles'])*100/np.pi
-                 
-                value = ''.join(map(str, proj_angles_fractpi.astype(int)))
-            else: 
-                value = basis_options[key]
-        else:
-            # missing option, use defaults
-            default = {'legendre_orders':'02', 'proj_angles':'050',
-                       'radial_step':1, 'clip':0}
-            value = default[key]
-
-        basis_name += "_{}".format(value)
-
-    basis_name += ".npy"
-
-    D = None
-    if basis_dir is not None:
-        path_to_basis_files = os.path.join(basis_dir, method+'_basis*')
-        basis_files = glob.glob(path_to_basis_files)
-        for bf in basis_files:
-            if int(bf.split('_')[-2]) >= cols:  # relies on file order
-                if verbose:
-                    print("Loading {:s} basis {:s}".format(method, bf))
-                D = np.load(bf)
-                # trim to size
-                return D[:cols, :nbf] 
-
     if verbose:
-        print("A suitable basis for '{}' was not found.\n"
-              .format(method), 
+        print("A suitable basis for linbasex was not found.\n"
               "A new basis will be generated.")
-        if basis_dir is not None:
-            print("But don\'t worry, it will be saved to disk for future",
-                  " use.\n")
-        else:
-            pass
 
-    D = basis_generator[method](cols, **basis_options)
+    _basis = _bs_linbasex(cols, proj_angles=proj_angles,
+                     legendre_orders=legendre_orders, radial_step=radial_step,
+                     clip=clip)
 
     if basis_dir is not None:
         path_to_basis_file = os.path.join(basis_dir, basis_name)
-        np.save(path_to_basis_file, D)
+        np.save(path_to_basis_file, _basis)
         if verbose:
-            print("Operator matrix saved for later use to,")
-            print(' '*10 + '{}'.format(path_to_basis_file))
+            print("linbasex basis saved for later use to {}"
+                  .format(path_to_basis_file))
 
-    return D
+    return _basis
 
 linbasex_transform.__doc__ += _linbasex_parameter_docstring
