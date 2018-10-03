@@ -19,26 +19,6 @@ dasch_transforms = {\
 "onion_peeling": abel.dasch.onion_peeling_transform
 }
 
-def test_dasch_basis_sets_cache():
-    n = 121
-
-    for method in dasch_transforms.keys():
-        file_name = os.path.join(DATA_DIR, "{}_basis_{}_{}.npy".
-                                 format(method, n, n))
-
-        if os.path.exists(file_name):
-            os.remove(file_name)
-        # 1st call generate and save
-        abel.tools.basis.get_bs_cached(method, n, basis_dir=DATA_DIR, 
-                                 verbose=False)
-        # 2nd call load from file
-        abel.tools.basis.get_bs_cached(method, n, basis_dir=DATA_DIR, 
-                                 verbose=False)
-
-        # clean-up
-        if os.path.exists(file_name):
-            os.remove(file_name)
-
 def test_dasch_shape():
     n = 21
     x = np.ones((n, n), dtype='float32')
