@@ -69,7 +69,7 @@ _linbasex_parameter_docstring = \
         set rcond to zero to switch conditioning off.
         Note: In the presence of noise the equation system may be ill posed.
         Increasing rcond smoothes the result, lowering it beyond a minimum
-        renders the solution unstable. Tweak rcond to get a "reasonable" 
+        renders the solution unstable. Tweak rcond to get a "reasonable"
         solution with acceptable resolution.
     clip : int
         clip first vectors (smallest Newton spheres) to avoid singularities
@@ -81,7 +81,7 @@ _linbasex_parameter_docstring = \
         becomes 1.
     threshold : float
         threshold for normalization of higher order Newton spheres (default 0.2)
-        Set all Beta[j], j>=1 to zero if the associated Beta[0] is smaller 
+        Set all Beta[j], j>=1 to zero if the associated Beta[0] is smaller
         than threshold.
     return_Beta : bool
         return the Beta array of Newton spheres, as the tuple: radial-grid, Beta
@@ -105,8 +105,8 @@ _linbasex_parameter_docstring = \
 
     radial-grid, Beta, projections : tuple
        (if :attr:`return_Beta=True`)
-  
-       contributions of each spherical harmonic :math:`Y_{i0}` to the 3D 
+
+       contributions of each spherical harmonic :math:`Y_{i0}` to the 3D
        distribution contain all the information one can get from an experiment.
        For the case :attr:`legendre_orders=[0, 2]`:
 
@@ -122,8 +122,9 @@ _linbasex_parameter_docstring = \
 _basis = None
 _los = None   # legendre_orders string
 _pas = None   # proj_angles string
-_radial_step = None 
-_clip = None   
+_radial_step = None
+_clip = None
+
 
 def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
                        legendre_orders=[0, 2], radial_step=1, smoothing=0.5,
@@ -140,16 +141,16 @@ def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
 
     quad_rows, quad_cols = IM.shape
     full_image = abel.tools.symmetry.put_image_quadrants((IM, IM, IM, IM),
-                       original_image_shape=(quad_rows*2-1, quad_cols*2-1))
+                 original_image_shape=(quad_rows*2-1, quad_cols*2-1))
 
     # inverse Abel transform
     recon, radial, Beta, QLz = linbasex_transform_full(full_image,
-                  basis_dir=basis_dir,
-                  proj_angles=proj_angles, legendre_orders=legendre_orders,
-                  radial_step=radial_step, smoothing=smoothing,
-                  threshold=threshold, clip=clip,
-                  norm_range=norm_range,
-                  verbose=verbose)
+                               basis_dir=basis_dir, proj_angles=proj_angles,
+                               legendre_orders=legendre_orders,
+                               radial_step=radial_step, smoothing=smoothing,
+                               threshold=threshold, clip=clip,
+                               norm_range=norm_range,
+                               verbose=verbose)
 
     # unpack right-side
     inv_IM = abel.tools.symmetry.get_image_quadrants(recon)[0]
@@ -243,6 +244,7 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
 
     # Fix Me! Issue #202 the correct scaling factor for inv_IM intensity?
     return inv_IM, radial, Beta, QLz
+
 
 linbasex_transform_full.__doc__ = _linbasex_parameter_docstring
 
@@ -441,16 +443,17 @@ def _bs_linbasex(cols, proj_angles=[0, np.pi/2], legendre_orders=[0, 2],
 
     return Basis
 
+
 def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
-                  proj_angles=[0, 45, 90, 135], 
+                  proj_angles=[0, 45, 90, 135],
                   radial_step=1, clip=0, verbose=False):
     """load basis set from disk, generate and store if not available.
 
     Checks whether file:
-    ``linbasex_basis_{cols}_{legendre_orders}_{proj_angles}_{radial_step}_{clip}*.npy`` is present in `basis_dir` 
+    ``linbasex_basis_{cols}_{legendre_orders}_{proj_angles}_{radial_step}_{clip}*.npy`` is present in `basis_dir`
 
     Either, read basis array or generate basis, saving it to the file.
-        
+
 
     Parameters
     ----------
@@ -465,7 +468,7 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
 
     proj_angles : list
         default [0, 45, 90, 135] = 0, 45, 90, 135 degrees
-       
+
     radial_step : int
         pixel grid size, default 1
 
@@ -473,15 +476,15 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
         image edge clipping, default 0 pixels
 
     verbose: boolean
-        print information for debugging 
+        print information for debugging
 
     Returns
     -------
     D : tuple (B, Bpol)
-       of ndarrays B (pol, proj, cols, cols) Bpol (pol, proj) 
+       of ndarrays B (pol, proj, cols, cols) Bpol (pol, proj)
 
     file.npy: file
-       saves basis to file name ``linbasex_basis_{cols}_{legendre_orders}_{proj_angles}_{radial_step}_{clip}.npy`` 
+       saves basis to file name ``linbasex_basis_{cols}_{legendre_orders}_{proj_angles}_{radial_step}_{clip}.npy``
 
     """
 
