@@ -445,7 +445,7 @@ def _bs_linbasex(cols, proj_angles=[0, np.pi/2], legendre_orders=[0, 2],
 
 
 def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
-                  proj_angles=[0, 45, 90, 135],
+                  proj_angles=[0, np.pi/2],
                   radial_step=1, clip=0, verbose=False):
     """load basis set from disk, generate and store if not available.
 
@@ -467,7 +467,7 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
         default [0, 2] = 0 order and 2nd order polynomials
 
     proj_angles : list
-        default [0, 45, 90, 135] = 0, 45, 90, 135 degrees
+        default [0, np.pi/2] in radians
 
     radial_step : int
         pixel grid size, default 1
