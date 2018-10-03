@@ -537,4 +537,31 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
 
     return _basis
 
+
+def basis_cleanup():
+    """
+    Utility function.
+
+    Frees the memory caches created by ``get_bs_cached()``.
+    This is usually pointless, but might be required after working
+    with very large images, if more RAM is needed for further tasks.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
+
+    global _basis, _los, _pas, _radial_step, _clip
+
+    _basis = None
+    _los = None
+    _pas = None
+    _radial_step = None
+    _clip = None
+
+
 linbasex_transform.__doc__ += _linbasex_parameter_docstring
