@@ -315,7 +315,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
     if _basis is not None:
         if _basis.shape[0] >= cols and _method == method:
             if verbose:
-                print('Using memory cached basis')
+                print('Using memory cached basis shape {}'.format(_basis.shape))
             return _basis[:cols, :cols]  # sliced to correct size
 
     basis_name = "{}_basis_{}.npy".format(method, cols)
