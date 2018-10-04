@@ -313,7 +313,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
 
     # check whether basis is cached
     if _basis is not None:
-        if _basis.shape[0] <= cols and _method == method:
+        if _basis.shape[0] >= cols and _method == method:
             if verbose:
                 print('Using memory cached basis')
             return _basis[:cols, :cols]  # sliced to correct size
@@ -324,6 +324,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
         "three_point": abel.dasch._bs_three_point,
         "two_point": abel.dasch._bs_two_point
     }
+
     _method = method
 
     # read basis if available
