@@ -144,26 +144,18 @@ class AbelTiming(object):
                     if method in basis.keys():
                         if basis[method][0] is not None:
                             # have basis calculation
-                            if method == 'basex':
-                                # don't unpack the transform matrix
-                                res[cal][method].append(Timer(
-                                   lambda: transform[method](half_image, basis[method])).
-                                   timeit(number=transform_repeat)*1000/
-                                   transform_repeat)
-                             
-                            elif method == 'linbasex':
+                            if method == 'linbasex':
                                  # pass a whole image to linbasex
-                                 # also, don't unpack the basis set
                                  res[cal][method].append(Timer(
                                     lambda: transform[method](whole_image, basis[method])).
                                     timeit(number=transform_repeat)*1000/
                                     transform_repeat)       
                             else:
-                                
                                 res[cal][method].append(Timer(
-                                   lambda: transform[method](half_image, *basis[method])).
+                                   lambda: transform[method](half_image, basis[method])).
                                    timeit(number=transform_repeat)*1000/
                                    transform_repeat)
+                             
                         else:
                             # no calculation available
                             res[cal][method].append(np.nan)

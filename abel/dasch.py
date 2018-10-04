@@ -324,6 +324,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
         "three_point": abel.dasch._bs_three_point,
         "two_point": abel.dasch._bs_two_point
     }
+    _method = method
 
     # read basis if available
     if basis_dir is not None:
@@ -342,7 +343,6 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
         print("A suitable basis for '{:s}' was not found.".format(method),
               "A new basis will be generated.")
 
-    _method = method
     _basis = basis_generator[method](cols)
 
     if basis_dir is not None:
