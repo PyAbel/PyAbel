@@ -5,17 +5,16 @@ matrix:
   - python: '3.6'
     env: DEPS="numpy scipy nose cython"
   - python: '3.5'
-    env: DEPS="numpy scipy nose cython"
+    env: DEPS="numpy scipy nose"
   - python: '2.7'
     env: DEPS="numpy scipy nose cython"
 install:
-- pip install --upgrade pip setuptools wheel
-- pip install --only-binary=numpy,scipy,cython numpy scipy cython
-- pip install coveralls
-- python setup.py build_ext -i
-- python setup.py install
+  - pip install --upgrade pip setuptools wheel
+  - "pip install ${DEPS}"
+  - pip install coveralls pytest pytest-cov
+  - pip install .
 script:
-- nosetests -vv --with-coverage --cover-package=abel abel/tests
+  - cd tmp/; pytest -v --cov=abel --pyargs abel
 deploy:
   provider: pypi
   user: DanHickstein

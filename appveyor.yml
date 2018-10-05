@@ -31,17 +31,15 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - "conda create -q -n abel-env python=%PYTHON_VERSION% numpy scipy nose cython==0.24.1"
+  - "conda create -q -n abel-env python=%PYTHON_VERSION% numpy scipy cython==0.24.1"
   - activate abel-env
-  - pip install coverage
+  - pip install coverage pytest pytest-cov
   - dir 
   - "cd C:\\projects\\PyAbel"
-#  - python setup.py build_ext --inplace
-  - python setup.py install
+  - pip install .
 
 
 
 test_script:
   - "cd C:\\"
-  - python -c "import abel.tests; abel.tests.run_cli(coverage=True)"
-
+  - pytest --cov=abel --pyargs abel

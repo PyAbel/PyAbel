@@ -177,13 +177,3 @@ abel.benchmark module
     :members:
     :undoc-members:
     :show-inheritance:
-
-abel.tests module
------------------
-
-.. automodule:: abel.tests.run
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
