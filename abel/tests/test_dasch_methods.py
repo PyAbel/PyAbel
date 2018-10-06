@@ -8,9 +8,6 @@ import os.path
 
 import numpy as np
 import abel
-from abel.benchmark import absolute_ratio_benchmark
-
-DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
 dasch_transforms = {
  "two_point": abel.dasch.two_point_transform,
@@ -42,7 +39,7 @@ def test_dasch_basis_source():
     q = abel.tools.symmetry.get_image_quadrants(im)[0]
 
     # clean up any old basis files
-    fn = f'three_point_basis_{q.shape[0]:}.npy'
+    fn = 'three_point_basis_{}.npy'.format(q.shape[0])
     if os.path.exists(fn):
         os.system(f'rm {fn:}')
 
