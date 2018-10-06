@@ -94,6 +94,8 @@ _linbasex_parameter_docstring = \
     direction : str
         "inverse" - only option for this method.
         Abel transform direction.
+    dr : None
+        dummy variable for call compatibility with the other methods
     verbose : bool
         print information about processing (normally used for debugging)
 
@@ -129,7 +131,8 @@ _clip = None
 def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
                        legendre_orders=[0, 2], radial_step=1, smoothing=0.5,
                        rcond=0.0005, threshold=0.2, return_Beta=False, clip=0,
-                       norm_range=(0, -1), direction="inverse", verbose=False):
+                       norm_range=(0, -1), direction="inverse", verbose=False,
+                       dr=None):
     """wrapper function for linebasex to process supplied quadrant-image as a full-image.
 
     PyAbel transform functions operate on the right side of an image.

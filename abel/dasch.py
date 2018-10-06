@@ -61,6 +61,7 @@ _dasch_parameter_docstring = \
 # cache basis
 _basis = None
 _method = None
+_source = None   # 'cache', 'generated', or 'file', for unit testing
 
 
 def two_point_transform(IM, basis_dir='.', dr=1, direction="inverse",
@@ -309,13 +310,14 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
 
     """
 
-    global _basis, _method
+    global _basis, _method, _source
 
     # check whether basis is cached
     if _basis is not None:
         if _basis.shape[0] >= cols and _method == method:
             if verbose:
                 print('Using memory cached basis shape {}'.format(_basis.shape))
+            _source = 'cache'
             return _basis[:cols, :cols]  # sliced to correct size
 
     basis_name = "{}_basis_{}.npy".format(method, cols)
@@ -338,6 +340,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
                     print("Loading {:s} basis {:s}".format(method, bf))
                 # slice to size
                 _basis = np.load(bf)[:cols, :cols]
+                _source = 'file'
                 return _basis
 
     if verbose:
@@ -345,6 +348,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
               "A new basis will be generated.")
 
     _basis = basis_generator[method](cols)
+    _source = 'generated'
 
     if basis_dir is not None:
         path_to_basis_file = os.path.join(basis_dir, basis_name)
@@ -356,7 +360,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
     return _basis
 
 
-def basis_cleanup():
+def basis_cache_cleanup():
     """
     Utility function.
 
@@ -377,3 +381,4 @@ def basis_cleanup():
 
     _basis = None
     _method = None
+    _source = None
