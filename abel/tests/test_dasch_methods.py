@@ -41,7 +41,7 @@ def test_dasch_basis_source():
     # clean up any old basis files
     fn = 'three_point_basis_{}.npy'.format(q.shape[0])
     if os.path.exists(fn):
-        os.system(f'rm {fn:}')
+        os.system('rm {}'.format(fn))
 
     gb = abel.dasch.three_point_transform(q)
     np.testing.assert_equal(abel.dasch._source, 'generated')
