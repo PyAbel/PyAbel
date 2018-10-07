@@ -16,8 +16,6 @@ import sys
 import numpy as np
 from scipy.special import gammaln
 from scipy.linalg import inv
-from scipy.ndimage import median_filter, gaussian_filter, center_of_mass
-import scipy
 
 from ._version import __version__
 
@@ -31,6 +29,8 @@ from ._version import __version__
 #
 # 2018-10-07
 #   MR added intensity correction.
+#   Also smaller basis sets are now reused when generating larger ones.
+#   Removed unnecessary scipy methods (scipy.dot is actually numpy.dot).
 # 2018-10-03
 #   MR completely rewrote basis generation (half-width, efficiency).
 #   Switched from (n, nbf) to (n, sigma) basis specification;
@@ -192,7 +192,7 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
     # its overall effect is an identity transform.
 
     # Reconstructing image  - This is where the magic happens
-    IM = scipy.dot(rawdata, Ai) / dr
+    IM = rawdata.dot(Ai) / dr
     # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, !! not
     # which should recreate the original image                  !! really
     return IM
