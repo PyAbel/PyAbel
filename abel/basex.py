@@ -29,16 +29,18 @@ from ._version import __version__
 # Review of Scientific Instruments 73, 2634 (2002).
 #
 #
+# 2018-10-07
+#   MR added intensity correction.
 # 2018-10-03
 #   MR completely rewrote basis generation (half-width, efficiency).
 #   Switched from (n, nbf) to (n, sigma) basis specification;
 #   nbf is now determined automatically, and nbf != n actually works.
+#   The regularization parameter now differs from BASEX.exe by a factor
+#   of 4/pi (BASEX.exe had an incorrect prefactor in basis projections).
 # 2018-09-29
 #   MR improved loading cached basis sets:
 #   If the required basis is not available, but a larger compatible is,
 #   then the latter will be loaded and cropped to the required size.
-# 2018-09-25
-#   MR added basis correction near r = 0
 # 2018-09-19
 #   MR switched to half-width transform.
 #   The results now match BASEX.exe.
@@ -70,7 +72,7 @@ from ._version import __version__
 #############################################################################
 
 
-def basex_transform(data, sigma=1.0, reg=0.0, bs_correction=False,
+def basex_transform(data, sigma=1.0, reg=0.0, correction=False,
                     basis_dir='./', dr=1.0,
                     verbose=True, direction='inverse'):
     """
@@ -103,9 +105,9 @@ def basex_transform(data, sigma=1.0, reg=0.0, bs_correction=False,
         regularization parameter, square of the Tikhonov factor.
         ``reg=0`` means no regularization,
         ``reg=100`` is a reasonable value for megapixel images.
-    bs_correction : boolean
-        apply a correction to k = 0 basis functions in order to reduce
-        the artifact near r = 0.
+    correction : boolean
+        apply intensity correction in order to reduce method artifacts
+        (intensity normalization and oscillations)
     basis_dir : str
         path to the directory for saving / loading the basis set coefficients.
         If None, the basis set will not be saved to disk.
@@ -145,8 +147,7 @@ def basex_transform(data, sigma=1.0, reg=0.0, bs_correction=False,
     n = data.shape[1]
 
     # load the basis sets:
-    Ai = get_bs_basex_cached(n, sigma=sigma, reg=reg,
-                             bs_correction=bs_correction,
+    Ai = get_bs_basex_cached(n, sigma=sigma, reg=reg, correction=correction,
                              basis_dir=basis_dir, verbose=verbose)
 
     # Do the actual transform:
@@ -235,12 +236,12 @@ def _nbf(n, sigma):
 
 
 # Cached matrices and their parameters
-_prm = None  # [n, sigma, bs_correction]
-_M = None    # [M, Mc]
-_reg = None  # reg
-_Ai = None   # Ai
+_bs_prm = None  # [n, sigma]
+_bs = None      # [M, Mc]
+_tr_prm = None  # [reg, correction]
+_tr = None      # Ai
 
-def get_bs_basex_cached(n, sigma=1.0, reg=0.0, bs_correction=False,
+def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
                         basis_dir='.', verbose=False):
     """
     Internal function.
@@ -261,28 +262,30 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, bs_correction=False,
         width parameter for basis functions
     reg : float
         regularization parameter
-    bs_correction : boolean
-        apply a correction to k = 0 functions
+    correction : boolean
+        apply intensity correction.
+        Corrects wrong intensity normalization (seen for narrow basis sets)
+        and intensity oscillations (seen for broad basis sets).
     basis_dir : str
         path to the directory for saving / loading the basis sets.
         If None, the basis sets will not be saved to disk.
 
     Returns
     -------
-    Ai: numpy array
+    Ai : n x n numpy array
         the matrix of the inverse Abel transform.
     """
 
-    global _prm, _M, _reg, _Ai
+    global _bs_prm, _bs, _tr_prm, _tr
 
     sigma = float(sigma)  # (ensure FP format)
     nbf = _nbf(n, sigma)
     M = None
     # Check whether basis for these parameters is already loaded
-    if _prm == [n, sigma, bs_correction]:
+    if _bs_prm == [n, sigma]:
         if verbose:
             print('Using memory-cached basis sets')
-        M, Mc = _M
+        M, Mc = _bs
     else:  # try to load basis
         if basis_dir is not None:
             basis_name = 'basex_basis_{}_{}.npy'.format(n, sigma)
@@ -345,30 +348,25 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, bs_correction=False,
                     print('Basis set saved for later use to')
                     print('  {}'.format(path_to_basis_file))
 
-        # Apply basis correction
-        if bs_correction:
-            # This is a dirty hack!  ?? what if sigma != 1.0?
-            # See https://github.com/PyAbel/PyAbel/issues/230
-            l = min(nbf, 5)  # modifying at most 5 first points (what fits)
-            # image basis function k = 0
-            Mc[:l, 0] = [1.27, 0.19, -0.025, -0.015, -0.007][:l]
-            # its projection
-            M[:l, 0] = [1.65, 0.18, -0.15, -0.09, -0.04][:l]
-
-        _prm = [n, sigma, bs_correction]
-        _M = [M, Mc]
-        _reg = None
+        _bs_prm = [n, sigma]
+        _bs = [M, Mc]
+        _tr_prm = None
 
     # Check whether transform matrices for this regularization
     # are already loaded
-    if _reg == reg:
-        Ai = _Ai
+    if _tr_prm == [reg, correction]:
+        Ai = _tr
     else:  # recalculate
         if verbose:
             print('Updating regularization...')
-        Ai = _get_Ai(*_M, reg=reg)
-        _reg = reg
-        _Ai = Ai
+        Ai = _get_Ai(*_bs, reg=reg)
+        if correction:
+            if verbose:
+                print('Calculating correction...')
+            cor = get_basex_correction(Ai)
+            Ai = np.multiply(Ai, cor)
+        _tr_prm = [reg, correction]
+        _tr = Ai
 
     return Ai
 
@@ -391,10 +389,46 @@ def basex_cleanup():
     """
     global _prm, _M, _reg, _Ai
 
-    _prm = None
-    _M = None
-    _reg = None
-    _Ai = None
+    _bs_prm = None
+    _bs = None
+    _tr_prm = None
+    _tr = None
+
+
+def get_basex_correction(Ai):
+    """
+    Internal function.
+
+    The default BASEX basis and the way its projection is calculated
+    leads to artifacts in the reconstructed distribution
+    (incorrect overall intensity for ``sigma`` = 1,
+    intensity oscillations for other ``sigma`` values,
+    intensity fluctuations (and drop-off for ``reg`` > 0) near r = 0).
+    This function generates the intensity correction profile
+    from the BASEX result for what should be a flat distribution.
+
+    Parameters
+    ----------
+    Ai : n x n numpy array
+        the matrix of the inverse Abel transform.
+
+    Returns
+    -------
+    cor : 1 x n numpy array
+        the intensity correction profile.
+    """
+
+    n = Ai.shape[0]
+    # generate projection of uniform ball with radius R = n - 1/2
+    R2 = (n - 0.5)**2
+    r = np.arange(float(n))
+    proj = 2 * np.sqrt(R2 - r * r)
+    # get its inverse Abel transform
+    tran = basex_core_transform(proj, Ai)
+    # correction profile
+    cor = np.ones_like(r) / tran
+
+    return cor
 
 
 def _bs_basex(n=251, sigma=1.0, verbose=True):
@@ -412,7 +446,7 @@ def _bs_basex(n=251, sigma=1.0, verbose=True):
 
     Returns:
     --------
-    M, Mc : numpy arrays
+    M, Mc : n x nbf numpy arrays
         ``Mc`` is the reconstructed-image basis rho_k(r_i) (~Gaussians),
                corresponds to Z^T in the article.
         ``M``  is the projected basis chi_k(x_i),
