@@ -296,23 +296,29 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
                 best_file = path_to_basis_file
             else:
                 # Find the best (smallest among sufficient)
+                # and the largest (to extend if not sufficient)
                 best_file = None
                 best_n = sys.maxint
+                largest_file = None
+                largest_n = 0
+                mask = re.compile(r'basex_basis_(\d+)_{}.npy$'.format(sigma))
                 for f in listdir(basis_dir):
                     # filter BASEX basis files
-                    match = re.match(r'basex_basis_(\d+)_(\d+\.\d+).npy$', f)
+                    match = mask.match(f)
                     if not match:
                         continue
-                    # extract basis parameters
-                    f_n, f_sigma = int(match.group(1)), float(match.group(2))
+                    # extract basis image size (sigma was fixed above)
+                    f_n = int(match.group(1))
                     # must be large enough and smaller than previous best
-                    if f_n < n or f_n > best_n:
-                        continue
-                    # must have the same sigma
-                    if f_sigma == sigma:
+                    if f_n >= n and f_n < best_n:
                         # remember as new best
                         best_file = f
                         best_n = f_n
+                    # largest must be just larger than previous
+                    if f_n > largest_n:
+                        # remember as new largest
+                        largest_file = f
+                        largest_n = f_n
 
             # If found, try to use it
             if best_file:
@@ -339,7 +345,17 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
                     print('But don\'t worry, '
                           'it will be saved to disk for future use.')
 
-            M, Mc = _bs_basex(n, sigma, verbose=verbose)
+            # Try to extend the largest available
+            oldM = None  # (old Mc is not needed)
+            if largest_file:
+                try:
+                    oldM, oldMc, M_version = np.load(largest_file)
+                    if verbose:
+                        print('(extending {})'.format(largest_file))
+                except ValueError:
+                    pass
+
+            M, Mc = _bs_basex(n, sigma, oldM, verbose=verbose)
 
             if basis_dir is not None:
                 np.save(path_to_basis_file,
@@ -431,7 +447,7 @@ def get_basex_correction(Ai):
     return cor
 
 
-def _bs_basex(n=251, sigma=1.0, verbose=True):
+def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
     """
     Generates horizontal basis sets for the BASEX method.
 
@@ -443,6 +459,10 @@ def _bs_basex(n=251, sigma=1.0, verbose=True):
         See https://github.com/PyAbel/PyAbel/issues/34
     sigma : float
         width parameter for basis functions
+    oldM : numpy array
+        projected basis matrix for the same ``sigma`` but a smaller image size.
+        Can be supplied to avoid recalculating matrix elements
+        that are already available.
 
     Returns:
     --------
@@ -477,6 +497,11 @@ def _bs_basex(n=251, sigma=1.0, verbose=True):
     Mc = np.empty((n, nbf))
     M = np.empty((n, nbf))
     # (indexing is Mc[r, k], M[x, k])
+    old_n, old_nbf = 0, 0
+    # reuse old elements, if available
+    if oldM is not None:
+        old_n, old_nbf = oldM.shape
+        M[:old_n, :old_nbf] = oldM / sigma  # (full M will be *= sigma later)
 
     # Cases k = 0 and x = 0 (r = 0) are special, since general expressions
     # are valid only if considered as limits; here they are computed
@@ -505,6 +530,9 @@ def _bs_basex(n=251, sigma=1.0, verbose=True):
         # Calculate chi_k(x) at each x_i
         M[0, k] = exp(ek + G[0])  # (u^(2l) = 1 for l = 0, otherwise 0)
         for i, u2 in enumerate(U2[1:], 1):
+            # skip what was already filled
+            if i < old_n and k < old_nbf:
+                continue
             # index of the largest component
             lmax = min(int(u2), k2)
             # halfwidth of the important range
