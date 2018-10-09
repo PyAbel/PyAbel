@@ -298,7 +298,7 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
                 # Find the best (smallest among sufficient)
                 # and the largest (to extend if not sufficient)
                 best_file = None
-                best_n = sys.maxint
+                best_n = sys.maxsize
                 largest_file = None
                 largest_n = 0
                 mask = re.compile(r'basex_basis_(\d+)_{}.npy$'.format(sigma))
@@ -346,14 +346,12 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
                           'it will be saved to disk for future use.')
 
             # Try to extend the largest available
-            oldM = None  # (old Mc is not needed)
-            if largest_file:
-                try:
-                    oldM, oldMc, M_version = np.load(largest_file)
-                    if verbose:
-                        print('(extending {})'.format(largest_file))
-                except ValueError:
-                    pass
+            try:
+                oldM, oldMc, M_version = np.load(largest_file)
+                if verbose:
+                    print('(extending {})'.format(largest_file))
+            except:
+                oldM = None  # (old Mc is not needed)
 
             M, Mc = _bs_basex(n, sigma, oldM, verbose=verbose)
 
