@@ -301,7 +301,7 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
                 best_n = sys.maxsize
                 largest_file = None
                 largest_n = 0
-                mask = re.compile(r'basex_basis_(\d+)_{}.npy$'.format(sigma))
+                mask = re.compile(r'basex_basis_(\d+)_{}\.npy$'.format(sigma))
                 for f in listdir(basis_dir):
                     # filter BASEX basis files
                     match = mask.match(f)
