@@ -155,7 +155,6 @@ class AbelTiming(object):
                                    lambda: transform[method](half_image, basis[method])).
                                    timeit(number=transform_repeat)*1000/
                                    transform_repeat)
-                             
                         else:
                             # no calculation available
                             res[cal][method].append(np.nan)

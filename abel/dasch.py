@@ -360,7 +360,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
     return _basis
 
 
-def basis_cache_cleanup():
+def cache_cleanup():
     """
     Utility function.
 
