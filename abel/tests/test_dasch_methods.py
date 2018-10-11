@@ -34,11 +34,11 @@ def test_dasch_zeros():
         np.testing.assert_allclose(recon, 0)
 
 
-def test_dasch_basis_source():
+def test_dasch_deconvolution_array_sources():
     im = abel.tools.analytical.SampleImage(101).image
     q = abel.tools.symmetry.get_image_quadrants(im)[0]
 
-    # clean up any old basis files
+    # clean up any old deconvolution array files
     fn = 'three_point_basis_{}.npy'.format(q.shape[0])
     if os.path.exists(fn):
         os.system('rm {}'.format(fn))
@@ -50,7 +50,7 @@ def test_dasch_basis_source():
     np.testing.assert_equal(abel.dasch._source, 'cache')
     np.testing.assert_allclose(gb, cb)
 
-    abel.dasch.basis_cache_cleanup()
+    abel.dasch.cache_cleanup()
     fb = abel.dasch.three_point_transform(q)
     np.testing.assert_equal(abel.dasch._source, 'file')
     np.testing.assert_allclose(gb, fb)
@@ -114,6 +114,6 @@ def test_dasch_cyl_gaussian(n=101):
 if __name__ == "__main__":
     test_dasch_shape()
     test_dasch_zeros()
-    test_dasch_basis_source()
+    test_dasch_deconvolution_array_sources()
     test_dasch_1d_gaussian()
     test_dasch_cyl_gaussian()

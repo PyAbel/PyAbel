@@ -12,7 +12,7 @@ from scipy.linalg import inv
 
 ###############################################################################
 #
-#  Dasch two-point, three_point, and onion-peeling  deconvolution
+#  Dasch two-point, three_point, and onion-peeling deconvolution
 #    as described in Applied Optics 31, 1146 (1992), page 1147-8 sect. B & C.
 #        https://www.osapublishing.org/ao/abstract.cfm?uri=ao-31-8-1146
 #    see also discussion in PR #155  https://github.com/PyAbel/PyAbel/pull/155
@@ -37,8 +37,9 @@ _dasch_parameter_docstring = \
 
     basis_dir: str
         path to the directory for saving / loading
-        the "dasch_method" operator matrix.
-        If None, the operator matrix will not be saved to disk.
+        the "dasch_method" deconvolution operator array. Here, called
+        `basis_dir` for consistency with the other true basis methods.
+        If `None`, the operator array will not be saved to disk.
 
     dr : float
         sampling size (=1 for pixel images), used for Jacobian scaling.
@@ -58,8 +59,8 @@ _dasch_parameter_docstring = \
 
     """
 
-# cache basis
-_basis = None
+# cache deconvolution operator array
+_D = None
 _method = None
 _source = None   # 'cache', 'generated', or 'file', for unit testing
 
@@ -95,7 +96,7 @@ onion_peeling_transform.__doc__ =\
 
 def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse",
                      method="three_point", verbose=False):
-    global _basis, _method
+    global _D, _method
 
     if direction != 'inverse':
         raise ValueError('Forward "two_point" transform not implemented')
@@ -111,10 +112,9 @@ def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse",
     if cols < 3 and method == "three_point":
         raise ValueError('"three_point" requires image width (cols) > 3')
 
-    _basis = get_bs_cached(method, cols, basis_dir=basis_dir,
-                           verbose=verbose)
+    _D = get_bs_cached(method, cols, basis_dir=basis_dir, verbose=verbose)
 
-    inv_IM = dasch_transform(IM, _basis)
+    inv_IM = dasch_transform(IM, _D)
 
     if rows == 1:
         inv_IM = inv_IM[0]  # flatten array
@@ -123,19 +123,20 @@ def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse",
 
 
 def dasch_transform(IM, D):
-    """Inverse Abel transform using a given D-operator basis matrix.
+    """Inverse Abel transform using the given deconvolution D-operator array.
 
     Parameters
     ----------
     IM : 2D numpy array
         image data
+
     D : 2D numpy array
-        D-operator basis shape (cols, cols)
+        deconvolution operator array, of shape (cols, cols)
 
     Returns
     -------
     inv_IM : 2D numpy array
-        inverse Abel transform according to basis operator D
+        inverse Abel transform according to deconvolution operator D
     """
 
     # one-line Abel transform - dot product of each row of IM with D
@@ -143,7 +144,7 @@ def dasch_transform(IM, D):
 
 
 def _bs_two_point(cols):
-    """basis function for two_point.
+    """deconvolution function for two_point.
 
     Parameters
     ----------
@@ -151,7 +152,7 @@ def _bs_two_point(cols):
         width of the image
     """
 
-    # basis function Eq. (9)  for j >= i
+    # function Eq. (9)  for j >= i
     def J(i, j):
         return np.log((np.sqrt((j + 1)**2 - i**2) + j + 1) /
                       (np.sqrt(j**2 - i**2) + j))/np.pi
@@ -179,7 +180,7 @@ def _bs_two_point(cols):
 
 
 def _bs_three_point(cols):
-    """basis function for three_point.
+    """deconvolution function for three_point.
 
     Parameters
     ----------
@@ -187,7 +188,7 @@ def _bs_three_point(cols):
         width of the image
     """
 
-    # basis function Eq. (7)  for j >= i
+    # function Eq. (7)  for j >= i
     def I0diag(i, j):
         return np.log((np.sqrt((2*j+1)**2-4*i**2) + 2*j+1)/(2*j))/(2*np.pi)
 
@@ -250,7 +251,7 @@ def _bs_three_point(cols):
 
 
 def _bs_onion_peeling(cols):
-    """basis function for onion_peeling.
+    """deconvolution function for onion_peeling.
 
     Parameters
     ----------
@@ -258,7 +259,7 @@ def _bs_onion_peeling(cols):
         width of the image
     """
 
-    # basis weight matrix
+    # weight matrix
     W = np.zeros((cols, cols))
 
     # diagonal elements i = j, Eq. (11)
@@ -277,12 +278,15 @@ def _bs_onion_peeling(cols):
 
 
 def get_bs_cached(method, cols, basis_dir='.', verbose=False):
-    """load basis set from cache, or disk. Generate and store if not available.
+    """load Dasch method deconvolution operator array from cache, or disk.
+    Generate and store if not available.
 
-    Checks whether method basis has been previously calculated, or whether
-    file ``{method}_basis_{cols}.npy`` is present in `basis_dir`.
+    Checks whether ``method`` deconvolution array has been previously
+    calculated, or whether the file ``{method}_basis_{cols}.npy`` is
+    present in `basis_dir`.
 
-    Either, assign, read or generate basis (saving it to the file).
+    Either, assign, read, or generate the deconvolution array
+    (saving it to file).
 
 
     Parameters
@@ -294,34 +298,37 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
     cols : int
         width of image
 
-    basis_dir : str
-        path to the directory for saving or loading the basis
+    basis_dir : str or None
+        path to the directory for saving or loading the deconvolution array.
+        For `None` do not save the deconvolution operator array
 
     verbose: boolean
-        print information for debugging
+        print information (mainly for debugging purposes)
 
     Returns
     -------
     D: numpy 2D array of shape (cols, cols)
-       basis operator array for the associated method
+       deconvolution operator array for the associated method
 
     file.npy: file
-       saves basis to file name ``{method}_basis_{cols}.npy``
+       saves `D`, the deconvolution array to file name:
+       ``{method}_basis_{cols}.npy``
 
     """
 
-    global _basis, _method, _source
+    global _D, _method, _source
 
-    # check whether basis is cached
-    if _basis is not None:
-        if _basis.shape[0] >= cols and _method == method:
+    # check whether the deconvolution operator array is cached
+    if _D is not None:
+        if _D.shape[0] >= cols and _method == method:
             if verbose:
-                print('Using memory cached basis shape {}'.format(_basis.shape))
+                print('Using memory cached deconvolution operator array,'
+                      ' shape {}'.format(_D.shape))
             _source = 'cache'
-            return _basis[:cols, :cols]  # sliced to correct size
+            return _D[:cols, :cols]  # sliced to correct size
 
-    basis_name = "{}_basis_{}.npy".format(method, cols)
-    basis_generator = {
+    D_name = "{}_basis_{}.npy".format(method, cols)
+    D_generator = {
         "onion_peeling": abel.dasch._bs_onion_peeling,
         "three_point": abel.dasch._bs_three_point,
         "two_point": abel.dasch._bs_two_point
@@ -329,7 +336,7 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
 
     _method = method
 
-    # read basis if available
+    # read deconvolution operator array if available
     if basis_dir is not None:
         path_to_basis_files = os.path.join(basis_dir, method+'_basis*')
         basis_files = glob.glob(path_to_basis_files)
@@ -337,27 +344,29 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
             if int(bf.split('_')[-1].split('.')[0]) >= cols:
                 # relies on file order
                 if verbose:
-                    print("Loading {:s} basis {:s}".format(method, bf))
+                    print("Loading deconvolution operator array from"
+                          " file {:s}".format(bf))
                 # slice to size
-                _basis = np.load(bf)[:cols, :cols]
+                _D = np.load(bf)[:cols, :cols]
                 _source = 'file'
-                return _basis
+                return _D
 
     if verbose:
-        print("A suitable basis for '{:s}' was not found.".format(method),
-              "A new basis will be generated.")
+        print("A suitable deconvolution array for '{:s}' was not found.".
+              format(method))
+        print("A new array will be generated.")
 
-    _basis = basis_generator[method](cols)
+    _D = D_generator[method](cols)
     _source = 'generated'
 
     if basis_dir is not None:
-        path_to_basis_file = os.path.join(basis_dir, basis_name)
-        np.save(path_to_basis_file, _basis)
+        path_to_basis_file = os.path.join(basis_dir, D_name)
+        np.save(path_to_basis_file, _D)
         if verbose:
-            print("\n{:s} basis saved for later use to '{:s}"
-                  .format(method, path_to_basis_file))
+            print("\ndeconvolution operator array saved to '{:s}"
+                  .format(path_to_basis_file))
 
-    return _basis
+    return _D
 
 
 def cache_cleanup():
@@ -377,8 +386,8 @@ def cache_cleanup():
     None
     """
 
-    global _basis, _method
+    global _D, _method
 
-    _basis = None
+    _D = None
     _method = None
     _source = None
