@@ -514,7 +514,7 @@ def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
     for k in range(1, nbf):
         k2 = k * k
         # prefactor ln[(e/k^2)^(k^2)]
-        ek = (1 - log(k2)) * k2 if k2 else 1.0
+        ek = (1 - log(k2)) * k2
 
         # Basis function rho_k(r)
         Mc[0, k] = 0
