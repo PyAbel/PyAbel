@@ -105,7 +105,7 @@ _linbasex_parameter_docstring = \
     inv_IM : numpy 2D array
        inverse Abel transformed image
 
-    radial-grid, Beta, projections : tuple
+    radial, Beta, projections : tuple
        (if :attr:`return_Beta=True`)
 
        contributions of each spherical harmonic :math:`Y_{i0}` to the 3D
@@ -129,7 +129,7 @@ _clip = None
 
 
 def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
-                       legendre_orders=[0, 2], radial_step=1, smoothing=0.5,
+                       legendre_orders=[0, 2], radial_step=1, smoothing=0,
                        rcond=0.0005, threshold=0.2, return_Beta=False, clip=0,
                        norm_range=(0, -1), direction="inverse", verbose=False,
                        dr=None):
@@ -166,7 +166,7 @@ def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
 
 def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
                             legendre_orders=[0, 2],
-                            radial_step=1, smoothing=0.5,
+                            radial_step=1, smoothing=0,
                             rcond=0.0005, threshold=0.2, clip=0,
                             return_Beta=False, norm_range=(0, -1),
                             direction="inverse", verbose=False):
@@ -180,7 +180,8 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
     rows, cols = IM.shape
 
     if cols % 2 == 0:
-        raise ValueError('image width ({}) must be odd and equal to the height'.format(cols))
+        raise ValueError('image width ({}) must be odd and equal to the height'
+                         .format(cols))
 
     if rows != cols:
         raise ValueError('image has shape ({}, {}), '.format(rows, cols) +
@@ -201,7 +202,7 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
 
 def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
                                    legendre_orders=[0, 2], radial_step=1,
-                                   rcond=0.0005, smoothing=0.5, threshold=0.2,
+                                   rcond=0.0005, smoothing=0, threshold=0.2,
                                    clip=0, norm_range=(0, -1)):
     """linbasex inverse Abel transform evaluated with supplied basis set Basis.
 
@@ -272,12 +273,13 @@ def _SL(i, x, y, Beta_convol, index, legendre_orders):
     r = np.sqrt(x**2 + y**2 + 0.1)  # + 0.1 to avoid divison by zero.
 
     # normalize: divison by circumference.
-    BB = np.interp(r, index, Beta_convol[i, :], left=0)/(2*np.pi*r)
+    # @stggh 2/r to correctly normalize intensity cf O2 PES
+    BB = np.interp(r, index, Beta_convol[i, :], left=0)/(4*np.pi*r*r)
 
     return BB*eval_legendre(legendre_orders[i], x/r)
 
 
-def _Slices(Beta, legendre_orders, smoothing=0.5):
+def _Slices(Beta, legendre_orders, smoothing=0):
     """Convolve Beta with a Gaussian function of 1/e width smoothing.
 
     """
