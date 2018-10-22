@@ -99,7 +99,6 @@ The implementation named `<implementation>`, located under `abel/<implementation
 
  -  ``<implemenation>_transform`` :  core transform (when defined)
  -  ``_bs_<implementation>`` :  function that generates  the basis sets (if necessary)
- -  ``abel.tools.basis.py`` : (if necessary) modify this file to provide for loading the basis sets from disk, or calling the generator function
 
 
 Unit tests
