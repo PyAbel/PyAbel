@@ -7,6 +7,7 @@ from numpy.testing import assert_allclose
 from scipy.special import hermite
 from math import factorial
 
+import abel
 from abel.tools.polynomial import Polynomial, PiecewisePolynomial
 
 
@@ -81,8 +82,32 @@ def test_polynomial_gaussian():
     assert_allclose(P.abel, abel, atol=1.0e-4)
 
 
+def test_polynomial_smoothstep():
+    """
+    Testing cubic smoothstep function,
+    using ``direct`` inverse transform.
+    """
+    n = 100
+    r = np.arange(float(n))
+    r_min = 20
+    r_max = 80
+    w = 10
+    h = 3
+
+    c = [1/2, 3/4, 0, -1/4]
+    P = PiecewisePolynomial(r, [(r_min - w, r_min + w, c, r_min, w),
+                                (r_min + w, r_max - w, [1]),
+                                (r_max - w, r_max + w, c, r_max, -w)])
+    P *= h
+
+    recon = abel.direct.direct_transform(P.abel, backend='python')
+
+    assert_allclose(P.func, recon, atol=2.0e-2)
+
+
 if __name__ == '__main__':
     test_polynomial_shape()
     test_polynomial_zeros()
     test_polynomial_step()
     test_polynomial_gaussian()
+    test_polynomial_smoothstep()
