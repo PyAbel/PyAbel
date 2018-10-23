@@ -10,5 +10,6 @@ from . import io
 from . import math
 from . import polar
 from . import symmetry
+from . import polynomial
 from . import transform_pairs
 from . import vmi
