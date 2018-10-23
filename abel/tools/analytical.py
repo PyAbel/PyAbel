@@ -163,6 +163,111 @@ class StepAnalytical(BaseAnalytical):
         return d
 
 
+class Polynomial(BaseAnalytical):
+    def __init__(self, n, r_max,
+                 r_1, r_2, c, r_0=0.0, s=1.0, reduced=False,
+                 symmetric=True):
+        """
+        Define a polynomial function and calculate its analytical
+        Abel transform.
+
+        Parameters
+        ----------
+        n : int
+            number of points along the r axis
+        r_max : float
+            range of the symmetric r interval
+        symmetric : if True
+            the r interval is [-r_max, r_max]
+            (and n should be odd)
+            otherwise the r interval is [0, r_max]
+        r_1, r_2 : float
+            r bounds of the polynomial function if r > 0
+            (symetic function is constructed for r < 0),
+            outside [r_1, r_2] the function is set to zero
+        c: numpy array
+            polynomial coefficients in order of increasing degree:
+            [c_0, c_1, c_2] means c_1 + c_1 r + c_2 r^2
+        r_0 : float, optional
+            origin shift: the polynomial is defined as
+            c_1 + c_1 (r - r_0) + c_2 (r - r_0)^2 + ...
+        s : float, optional
+            r stretching factor (around r_0): the polynomial is defined as
+            c_1 + c_1 (r/s) + c_2 (r/s)^2 + ...
+        reduced : boolean, optional
+            internally reduce the r range to [0, 1];
+            useful to avoid floating-point overflows for high degrees
+            at large r (and might improve numerical accuracy)
+        """
+        super(Polynomial, self).__init__(n, r_max, symmetric)
+
+        # take r >= 0 part
+        if symmetric:
+            r = self.r[n//2:]
+        else:
+            r = self.r
+
+        P = abel.tools.polynomial.Polynomial(r, r_1, r_2, c, r_0, s, reduced)
+        self.func = P.func
+        self.abel = P.abel
+
+        # mirror to negative r, if needed
+        if symmetric:
+            self.func = np.hstack((self.func[:0:-1], self.func))
+            self.abel = np.hstack((self.abel[:0:-1], self.abel))
+
+        self.mask_valid = np.ones_like(self.func)
+
+
+class PiecewisePolynomial(BaseAnalytical):
+    def __init__(self, n, r_max,
+                 ranges,
+                 symmetric=True):
+        """
+        Define a piecewise polynomial function (sum of ``Polynomial``s)
+        and calculate its analytical Abel transform.
+
+        Parameters
+        ----------
+        n : int
+            number of points along the r axis
+        r_max : float
+            range of the symmetric r interval
+        symmetric : if True
+            the r interval is [-r_max, r_max]
+            (and n should be odd)
+            otherwise the r interval is [0, r_max]
+        ranges : iterable of unpackable
+            (list of tuples of) polynomial parameters for each piece:
+            [(r_1_1st, r_2_1st, c_1st),
+             (r_1_2nd, r_2_2nd, c_2nd),
+             ...
+             (r_1_nth, r_2_nth, c_nth)]
+            according to ``Polynomial`` conventions.
+            All ranges are independent (may overlap and have gaps, may define
+            polynomials of any degrees) and may include optional ``Polynomial``
+            parameters
+        """
+        super(PiecewisePolynomial, self).__init__(n, r_max, symmetric)
+
+        # take r >= 0 part
+        if symmetric:
+            r = self.r[n//2:]
+        else:
+            r = self.r
+
+        P = abel.tools.polynomial.PiecewisePolynomial(r, ranges)
+        self.func = P.func
+        self.abel = P.abel
+
+        # mirror to negative r, if needed
+        if symmetric:
+            self.func = np.hstack((self.func[:0:-1], self.func))
+            self.abel = np.hstack((self.abel[:0:-1], self.abel))
+
+        self.mask_valid = np.ones_like(self.func)
+
+
 class GaussianAnalytical(BaseAnalytical):
     def __init__(self, n, r_max, sigma=1.0, A0=1.0,
                  ratio_valid_sigma=2.0, symmetric=True):
