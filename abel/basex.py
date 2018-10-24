@@ -17,6 +17,8 @@ import numpy as np
 from scipy.special import gammaln
 from scipy.linalg import inv
 
+from abel.tools.polynomial import PiecewisePolynomial
+
 from ._version import __version__
 
 #############################################################################
@@ -377,7 +379,7 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
         if correction:
             if verbose:
                 print('Calculating correction...')
-            cor = get_basex_correction(Ai)
+            cor = get_basex_correction(Ai, sigma)
             Ai = np.multiply(Ai, cor)
         _tr_prm = [reg, correction]
         _tr = Ai
@@ -409,38 +411,51 @@ def basex_cleanup():
     _tr = None
 
 
-def get_basex_correction(Ai):
+def get_basex_correction(Ai, sigma):
     """
     Internal function.
 
     The default BASEX basis and the way its projection is calculated
-    leads to artifacts in the reconstructed distribution
-    (incorrect overall intensity for ``sigma`` = 1,
+    leads to artifacts in the reconstructed distribution --
+    incorrect overall intensity for ``sigma`` = 1,
     intensity oscillations for other ``sigma`` values,
-    intensity fluctuations (and drop-off for ``reg`` > 0) near r = 0).
+    intensity fluctuations (and drop-off for ``reg`` > 0) near r = 0.
     This function generates the intensity correction profile
-    from the BASEX result for what should be a flat distribution.
+    from the BASEX result for a step function with a soft edge (to avoid
+    ringing) aligned with the last basis function.
 
     Parameters
     ----------
     Ai : n x n numpy array
-        the matrix of the inverse Abel transform.
+        matrix of the inverse Abel transform.
+    sigma : float
+        basis sigma parameter
 
     Returns
     -------
     cor : 1 x n numpy array
-        the intensity correction profile.
+        intensity correction profile.
     """
-
     n = Ai.shape[0]
-    # generate projection of uniform ball with radius R = n - 1/2
-    R2 = (n - 0.5)**2
+    nbf = _nbf(n, sigma)
+
+    # Generate soft step function and its projection
     r = np.arange(float(n))
-    proj = 2 * np.sqrt(R2 - r * r)
-    # get its inverse Abel transform
-    tran = basex_core_transform(proj, Ai)
-    # correction profile
-    cor = np.ones_like(r) / tran
+    # edge center, aligned with the last basis function
+    c = (nbf - 0.5) * sigma
+    # soft-edge halfwidth
+    w = sigma
+    # soft step: stitched constant (shelf) and 2 parabolas (soft edge)
+    step = PiecewisePolynomial(r, [(0, c - w, [1]),
+                                   (c - w, c, [1, 0, -1/2], c - w, w),
+                                   (c, c + w, [0, 0, 1/2], c + w, w)])
+    # (this is more numerically stable at large r than cubic smoothstep)
+
+    # get BASEX inverse Abel transform of the projection
+    tran = basex_core_transform(step.abel, Ai)
+
+    # correction profile = expected / BASEX result
+    cor = step.func / tran
 
     return cor
 
