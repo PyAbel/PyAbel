@@ -8,6 +8,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 
 import abel
+from abel.tools.analytical import GaussianAnalytical
 
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
@@ -34,7 +35,8 @@ def test_basex_shape():
 
     recon = abel.basex.basex_core_transform(x, Ai)
 
-    assert recon.shape == (n, n) 
+    assert recon.shape == (n, n)
+
 
 def test_basex_zeros():
     n = 21
@@ -46,25 +48,54 @@ def test_basex_zeros():
     assert_allclose(recon, 0)
 
 
-def test_basex_step_ratio():
+def test_basex_gaussian(sigma, reg, cor, tol):
     """Check a gaussian solution for BASEX"""
-    n = 26
-    r_max = 25
+    n = 100
+    r_max = n - 1
 
-    ref = abel.tools.analytical.GaussianAnalytical(n, r_max, symmetric=False, sigma=10)
-    tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
+    ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=30)
+    tr = np.tile(ref.abel[None, :], (n, 1))  # make a 2D array from 1D
 
-    Ai = abel.basex.get_bs_basex_cached(n, basis_dir=None, verbose=False)
+    correction = cor if isinstance(cor, bool) else False
+
+    Ai = abel.basex.get_bs_basex_cached(n, sigma=sigma, reg=reg,
+                                        correction=correction,
+                                        basis_dir=None, verbose=False)
 
     recon = abel.basex.basex_core_transform(tr, Ai)
-    recon1d = recon[n//2 + n%2]
+    recon = recon[n // 2 + n % 2]
 
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)
+    ref = ref.func
+    if not isinstance(cor, bool):
+        # old-style intensity correction
+        recon /= cor
+        # skip artifact from k = 0 near r = 0
+        # see https://github.com/PyAbel/PyAbel/issues/230
+        cut = int(2 * sigma)
+        recon = recon[cut:]
+        ref = ref[cut:]
 
-    assert_allclose( ratio , 1.0, rtol=3e-2, atol=0)
+    assert_allclose(recon, ref, atol=tol)
+
 
 if __name__ == '__main__':
     test_basex_basis_sets_cache()
     test_basex_shape()
     test_basex_zeros()
-    test_basex_step_ratio()
+
+    # default parameters
+    # (intensity correction using "magic number",
+    #  see https://github.com/PyAbel/PyAbel/issues/230)
+    test_basex_gaussian(sigma=1, reg=0, cor=1.015, tol=3e-3)
+
+    # default parameters, corrected
+    test_basex_gaussian(sigma=1, reg=0, cor=True, tol=7e-4)
+
+    # large sigma (oscillating)
+    test_basex_gaussian(sigma=3, reg=0, cor=1, tol=3e-2)
+
+    # large sigma, corrected
+    test_basex_gaussian(sigma=3, reg=0, cor=True, tol=2e-3)
+
+    # small sigma, regularized, corrected
+    test_basex_gaussian(sigma=0.7, reg=10, cor=True, tol=6e-3)
