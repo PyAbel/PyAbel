@@ -15,9 +15,11 @@ DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
 def test_basex_basis_sets_cache():
     # n = 61  (121 full width)
-    # nbf = 61
+    # sigma = 1  (nbf = 61)
     n = 61
-    file_name = os.path.join(DATA_DIR, "basex_basis_{}_{}.npy".format(n, n))
+    sigma = 1.0
+    file_name = os.path.join(DATA_DIR,
+                             "basex_basis_{}_{}.npy".format(n, sigma))
     if os.path.exists(file_name):
         os.remove(file_name)
     # 1st call generate and save
@@ -48,7 +50,7 @@ def test_basex_zeros():
     assert_allclose(recon, 0)
 
 
-def test_basex_gaussian(sigma, reg, cor, tol):
+def basex_gaussian(sigma, reg, cor, tol):
     """Check a gaussian solution for BASEX"""
     n = 100
     r_max = n - 1
@@ -78,24 +80,44 @@ def test_basex_gaussian(sigma, reg, cor, tol):
     assert_allclose(recon, ref, atol=tol)
 
 
+def test_basex_gaussian():
+    """Check a gaussian solution for BASEX:
+       default parameters"""
+    # (intensity correction using "magic number",
+    #  see https://github.com/PyAbel/PyAbel/issues/230)
+    basex_gaussian(sigma=1, reg=0, cor=1.015, tol=3e-3)
+
+
+def test_basex_gaussian_corrected():
+    """Check a gaussian solution for BASEX:
+       default parameters, corrected"""
+    basex_gaussian(sigma=1, reg=0, cor=True, tol=7e-4)
+
+
+def test_basex_gaussian_sigma_3():
+    """Check a gaussian solution for BASEX:
+       large sigma (oscillating)"""
+    basex_gaussian(sigma=3, reg=0, cor=1, tol=3e-2)
+
+
+def test_basex_gaussian_sigma_3_corrected():
+    """Check a gaussian solution for BASEX:
+       large sigma (oscillating)"""
+    basex_gaussian(sigma=3, reg=0, cor=True, tol=2e-3)
+
+
+def test_basex_gaussian_sigma_07_reg_10_corrected():
+    """Check a gaussian solution for BASEX:
+       small sigma, regularized, corrected"""
+    basex_gaussian(sigma=0.7, reg=10, cor=True, tol=6e-3)
+
+
 if __name__ == '__main__':
     test_basex_basis_sets_cache()
     test_basex_shape()
     test_basex_zeros()
-
-    # default parameters
-    # (intensity correction using "magic number",
-    #  see https://github.com/PyAbel/PyAbel/issues/230)
-    test_basex_gaussian(sigma=1, reg=0, cor=1.015, tol=3e-3)
-
-    # default parameters, corrected
-    test_basex_gaussian(sigma=1, reg=0, cor=True, tol=7e-4)
-
-    # large sigma (oscillating)
-    test_basex_gaussian(sigma=3, reg=0, cor=1, tol=3e-2)
-
-    # large sigma, corrected
-    test_basex_gaussian(sigma=3, reg=0, cor=True, tol=2e-3)
-
-    # small sigma, regularized, corrected
-    test_basex_gaussian(sigma=0.7, reg=10, cor=True, tol=6e-3)
+    test_basex_gaussian()
+    test_basex_gaussian_corrected()
+    test_basex_gaussian_sigma_3()
+    test_basex_gaussian_sigma_3_corrected()
+    test_basex_gaussian_sigma_07_reg_10_corrected()
