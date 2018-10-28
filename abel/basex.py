@@ -391,7 +391,7 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
     return Ai
 
 
-def basex_cleanup():
+def cache_cleanup():
     """
     Utility function.
 
