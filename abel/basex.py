@@ -294,12 +294,15 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
         M, Mc = _bs
     else:  # try to load basis
         if basis_dir is not None:
-            basis_name = 'basex_basis_{}_{}.npy'.format(n, sigma)
-            path_to_basis_file = os.path.join(basis_dir, basis_name)
+            basis_file = 'basex_basis_{}_{}.npy'.format(n, sigma)
+
+            def full_path(file_name):
+                return os.path.join(basis_dir, file_name)
 
             # Try to find a suitable existing basis set
-            if os.path.exists(path_to_basis_file):  # have exactly needed
-                best_file = path_to_basis_file
+            if os.path.exists(full_path(basis_file)):
+                # have exactly needed
+                best_file = basis_file
             else:
                 # Find the best (smallest among sufficient)
                 # and the largest (to extend if not sufficient)
@@ -332,7 +335,7 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
                     print('Loading basis sets...')
                     # saved as a .npy file
                 try:
-                    M, Mc, M_version = np.load(best_file)
+                    M, Mc, M_version = np.load(full_path(best_file))
                     # crop if loaded larger
                     if M.shape != (n, nbf):
                         M = M[:n, :nbf]
@@ -353,7 +356,7 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
 
             # Try to extend the largest available
             try:
-                oldM, oldMc, M_version = np.load(largest_file)
+                oldM, oldMc, M_version = np.load(full_path(largest_file))
                 if verbose:
                     print('(extending {})'.format(largest_file))
             except:
@@ -362,11 +365,11 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
             M, Mc = _bs_basex(n, sigma, oldM, verbose=verbose)
 
             if basis_dir is not None:
-                np.save(path_to_basis_file,
+                np.save(full_path(basis_file),
                         (M, Mc, np.array(__version__)))
                 if verbose:
                     print('Basis set saved for later use to')
-                    print('  {}'.format(path_to_basis_file))
+                    print('  {}'.format(basis_file))
 
         _bs_prm = [n, sigma]
         _bs = [M, Mc]
@@ -407,7 +410,7 @@ def cache_cleanup():
     -------
     None
     """
-    global _prm, _M, _reg, _Ai
+    global _bs_prm, _bs, _tr_prm, _tr
 
     _bs_prm = None
     _bs = None
