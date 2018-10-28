@@ -31,6 +31,8 @@ from ._version import __version__
 # https://doi.org/10.1063/1.1482156
 #
 #
+# 2018-10-27
+#   MR exposed BASIS_SET_CUTOFF for speed/accuracy control.
 # 2018-10-07
 #   MR added intensity correction.
 #   Also smaller basis sets are now reused when generating larger ones.
@@ -462,6 +464,24 @@ def get_basex_correction(Ai, sigma):
     return cor
 
 
+# The analytical expresion for the k-th basis-function projection
+# involves a sum of k^2 terms, most of which are very small.
+# Setting BASIS_SET_CUTOFF = c truncates this sum to ±ck terms
+# around the maximum.
+# The computation time is roughly proportional to this parameter,
+# while the accuracy (at least for n, k < 10000) is as follows:
+#   cutoff   relative error
+#     4        < 2e-4
+#     5        < 2e-6
+#     6        < 7e-9
+#     7        < 1e-11
+#     8        < 6e-15
+#     9        < 1e-15
+# The last one reaches the 64-bit floating-point precision,
+# so going beyond that is useless.
+# See https://github.com/PyAbel/PyAbel/issues/230
+BASIS_SET_CUTOFF = 6  # highest speed with reasonable accuracy
+
 def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
     """
     Generates horizontal basis sets for the BASEX method.
@@ -551,7 +571,7 @@ def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
             # index of the largest component
             lmax = min(int(u2), k2)
             # halfwidth of the important range
-            delta = 7 * k  # "7" reproduces the old method accuracy (~1e-8 abs)
+            delta = int(BASIS_SET_CUTOFF * k)
             # summation limits: +-delta from the maximum, but within [0, k^2]
             minl = max(0, lmax - delta)
             maxl = min(lmax + delta, k2)
