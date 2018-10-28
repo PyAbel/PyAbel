@@ -99,14 +99,14 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=False,
 
     Parameters
     ----------
-    data : an m x n numpy array
+    data : ``m`` × ``n`` numpy array
         the image to be transformed.
         ``data[:,0]`` should correspond to the central column of the image.
     sigma : float
         width parameter for basis functions, see equation (14) in the article.
         Determines the number of basis functions (``n / sigma`` rounded).
-        Can be any positive number, but using sigma < 1 is not very meaningful
-        and requires regularization.
+        Can be any positive number, but using ``sigma`` < 1
+        is not very meaningful and requires regularization.
     reg : float
         regularization parameter, square of the Tikhonov factor.
         ``reg=0`` means no regularization,
@@ -115,13 +115,13 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=False,
         apply intensity correction in order to reduce method artifacts
         (intensity normalization and oscillations)
     basis_dir : str
-        path to the directory for saving / loading the basis set coefficients.
-        If None, the basis set will not be saved to disk.
+        path to the directory for saving / loading the basis-set coefficients.
+        If ``None``, the basis set will not be saved to disk.
     dr : float
         size of one pixel in the radial direction.
         This only affects the absolute scaling of the transformed image.
     verbose : boolean
-        determines whether statements should be printed.
+        determines whether statements should be printed
     direction : str
         the type of Abel transform to be performed.
         Currently only accepts value ``'inverse'``.
@@ -129,7 +129,7 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=False,
 
     Returns
     -------
-    recon : m x n numpy array
+    recon : ``m`` × ``n`` numpy array
         the transformed (half) image
 
     """
@@ -175,9 +175,9 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
 
     Parameters
     ----------
-    rawdata : m x n numpy array
+    rawdata : ``m`` × ``n`` numpy array
         the raw image. This is the right half (with the axis) of the image.
-    Ai : n x n numpy array
+    Ai : ``n`` × ``n`` numpy array
         2D array given by the transform-calculation function
     dr : float
         pixel size. This only affects the absolute scaling of the output.
@@ -186,7 +186,7 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
     Returns
     -------
     IM : m x n numpy array
-        The Abel-transformed image, a slice of the 3D distribution
+        the Abel-transformed image, a slice of the 3D distribution
     """
 
     # Note that our images are stored with matrix rows corresponding to
@@ -270,16 +270,17 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
         regularization parameter
     correction : boolean
         apply intensity correction.
-        Corrects wrong intensity normalization (seen for narrow basis sets)
-        and intensity oscillations (seen for broad basis sets).
+        Corrects wrong intensity normalization (seen for narrow basis sets),
+        intensity oscillations (seen for broad basis sets),
+        and intensity drop-off near *r* = 0 due to regularization.
     basis_dir : str
         path to the directory for saving / loading the basis sets.
-        If None, the basis sets will not be saved to disk.
+        If ``None``, the basis sets will not be saved to disk.
 
     Returns
     -------
-    Ai : n x n numpy array
-        the matrix of the inverse Abel transform.
+    Ai : ``n`` × ``n`` numpy array
+        the matrix of the inverse Abel transform
     """
 
     global _bs_prm, _bs, _tr_prm, _tr
@@ -433,15 +434,15 @@ def get_basex_correction(Ai, sigma):
 
     Parameters
     ----------
-    Ai : n x n numpy array
-        matrix of the inverse Abel transform.
+    Ai : ``n`` × ``n`` numpy array
+        matrix of the inverse Abel transform
     sigma : float
-        basis sigma parameter
+        basis width parameter
 
     Returns
     -------
-    cor : 1 x n numpy array
-        intensity correction profile.
+    cor : 1 × ``n`` numpy array
+        intensity correction profile
     """
     n = Ai.shape[0]
     nbf = _nbf(n, sigma)
