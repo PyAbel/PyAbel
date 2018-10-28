@@ -24,9 +24,11 @@ from ._version import __version__
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
 #
-# Please cite: "The Gaussian basis-set expansion Abel transform method"
+# Please cite: "Reconstruction of Abel-transformable images:
+# The Gaussian basis-set expansion Abel transform method"
 # V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, and H. Reisler,
 # Review of Scientific Instruments 73, 2634 (2002).
+# https://doi.org/10.1063/1.1482156
 #
 #
 # 2018-10-07
