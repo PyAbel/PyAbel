@@ -99,13 +99,13 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=False,
 
     Parameters
     ----------
-    data : ``m`` × ``n`` numpy array
+    data : **m** × **n** numpy array
         the image to be transformed.
         ``data[:,0]`` should correspond to the central column of the image.
     sigma : float
         width parameter for basis functions, see equation (14) in the article.
-        Determines the number of basis functions (``n / sigma`` rounded).
-        Can be any positive number, but using ``sigma`` < 1
+        Determines the number of basis functions (**n**/**sigma** rounded).
+        Can be any positive number, but using **sigma** < 1
         is not very meaningful and requires regularization.
     reg : float
         regularization parameter, square of the Tikhonov factor.
@@ -129,7 +129,7 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=False,
 
     Returns
     -------
-    recon : ``m`` × ``n`` numpy array
+    recon : **m** × **n** numpy array
         the transformed (half) image
 
     """
@@ -175,9 +175,9 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
 
     Parameters
     ----------
-    rawdata : ``m`` × ``n`` numpy array
+    rawdata : **m** × **n** numpy array
         the raw image. This is the right half (with the axis) of the image.
-    Ai : ``n`` × ``n`` numpy array
+    Ai : **n** × **n** numpy array
         2D array given by the transform-calculation function
     dr : float
         pixel size. This only affects the absolute scaling of the output.
@@ -185,7 +185,7 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
 
     Returns
     -------
-    IM : m x n numpy array
+    IM : **m** × **n** numpy array
         the Abel-transformed image, a slice of the 3D distribution
     """
 
@@ -235,8 +235,8 @@ def _get_Ai(M, Mc, reg):
 def _nbf(n, sigma):
     """
     Internal helper function.
-    Calculates the number of basis functions ``nbf`` from
-    the half-image width ``n`` and the basis width parameter ``sigma``.
+    Calculates the number of basis functions **nbf** from
+    the half-image width **n** and the basis width parameter **sigma**.
     """
     return int(round(n / sigma))
 
@@ -263,7 +263,7 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
     ----------
     n : int
         Abel inverse transform will be performed on an
-        ``n`` pixels wide area of the (half) image
+        **n** pixels wide area of the (half) image
     sigma : float
         width parameter for basis functions
     reg : float
@@ -279,7 +279,7 @@ def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
 
     Returns
     -------
-    Ai : ``n`` × ``n`` numpy array
+    Ai : **n** × **n** numpy array
         the matrix of the inverse Abel transform
     """
 
@@ -425,23 +425,23 @@ def get_basex_correction(Ai, sigma):
 
     The default BASEX basis and the way its projection is calculated
     leads to artifacts in the reconstructed distribution --
-    incorrect overall intensity for ``sigma`` = 1,
-    intensity oscillations for other ``sigma`` values,
-    intensity fluctuations (and drop-off for ``reg`` > 0) near r = 0.
+    incorrect overall intensity for **sigma** = 1,
+    intensity oscillations for other **sigma** values,
+    intensity fluctuations (and drop-off for **reg** > 0) near *r* = 0.
     This function generates the intensity correction profile
     from the BASEX result for a step function with a soft edge (to avoid
     ringing) aligned with the last basis function.
 
     Parameters
     ----------
-    Ai : ``n`` × ``n`` numpy array
+    Ai : **n** × **n** numpy array
         matrix of the inverse Abel transform
     sigma : float
         basis width parameter
 
     Returns
     -------
-    cor : 1 × ``n`` numpy array
+    cor : 1 × **n** numpy array
         intensity correction profile
     """
     n = Ai.shape[0]
