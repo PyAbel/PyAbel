@@ -54,35 +54,32 @@ class BaseAnalytical(object):
 
 
 class StepAnalytical(BaseAnalytical):
+    """
+    Define a symmetric step function and calculate its analytical
+    Abel transform. See examples/example_step.py
+
+    Parameters
+    ----------
+    n : int
+        number of points along the r axis
+    r_max : float
+        range of the r interval
+    symmetric : boolean
+        if True, the r interval is [-r_max, r_max] (and n should be odd),
+        otherwise the r interval is [0, r_max]
+    r1, r2 : float
+        bounds of the step function if r > 0
+        (symmetric function is constructed for r < 0)
+    A0: float
+        height of the step
+    ratio_valid_step: float
+        in the benchmark take only the central ratio*100% of the step
+        (exclude possible artefacts on the edges)
+    """
+    # see https://github.com/PyAbel/PyAbel/pull/16
 
     def __init__(self, n, r_max, r1, r2, A0=1.0,
                  ratio_valid_step=1.0, symmetric=True):
-        """
-        Define a symmetric step function and calculate its analytical
-        Abel transform. See examples/example_step.py
-
-        Parameters
-        ----------
-        n : int
-            number of points along the r axis
-        r_max : float
-            range of the r interval
-        symmetric : boolean
-            if True, the r interval is [-r_max, r_max] (and n should be odd),
-            otherwise the r interval is [0, r_max]
-        r1, r2 : float
-            bounds of the step function if r > 0
-            (symmetric function is constructed for r < 0)
-        A0: float
-            height of the step
-        ratio_valid_step: float
-            in the benchmark take only the central ratio*100% of the step
-            (exclude possible artefacts on the edges)
-
-        see https://github.com/PyAbel/PyAbel/pull/16
-
-        """
-
         super(StepAnalytical, self).__init__(n, r_max, symmetric)
 
         self.r1, self.r2 = r1, r2
@@ -163,40 +160,41 @@ class StepAnalytical(BaseAnalytical):
 
 
 class Polynomial(BaseAnalytical):
+    """
+    Define a polynomial function and calculate its analytical
+    Abel transform.
+
+    Parameters
+    ----------
+    n : int
+        number of points along the *r* axis
+    r_max : float
+        range of the *r* interval
+    symmetric : boolean
+        if ``True``, the *r* interval is [−\ **r_max**, +\ **r_max**]
+        (and **n** should be odd),
+        otherwise the *r* interval is [0, **r_max**]
+    r_1, r_2 : float
+        *r* bounds of the polynomial function if *r* > 0;
+        outside [**r_1**, **r_2**] the function is set to zero
+        (symmetric function is constructed for *r* < 0)
+    c: numpy array
+        polynomial coefficients in order of increasing degree:
+        [c₀, c₁, c₂] means c₀ + c₁ *r* + c₂ *r*\ ²
+    r_0 : float, optional
+        origin shift: the polynomial is defined as
+        c₀ + c₁ (*r* − **r_0**) + c₂ (*r* − **r_0**)² + ...
+    s : float, optional
+        *r* stretching factor (around **r_0**): the polynomial is defined as
+        c₀ + c₁ (*r*/s) + c₂ (*r*/s)² + ...
+    reduced : boolean, optional
+        internally rescale the *r* range to [0, 1];
+        useful to avoid floating-point overflows for high degrees
+        at large *r* (and might improve numerical accuracy)
+    """
     def __init__(self, n, r_max,
                  r_1, r_2, c, r_0=0.0, s=1.0, reduced=False,
                  symmetric=True):
-        """
-        Define a polynomial function and calculate its analytical
-        Abel transform.
-
-        Parameters
-        ----------
-        n : int
-            number of points along the r axis
-        r_max : float
-            range of the r interval
-        symmetric : boolean
-            if True, the r interval is [-r_max, r_max] (and n should be odd),
-            otherwise the r interval is [0, r_max]
-        r_1, r_2 : float
-            r bounds of the polynomial function if r > 0,
-            outside [r_1, r_2] the function is set to zero
-            (symmetric function is constructed for r < 0)
-        c: numpy array
-            polynomial coefficients in order of increasing degree:
-            [c_0, c_1, c_2] means c_1 + c_1 r + c_2 r^2
-        r_0 : float, optional
-            origin shift: the polynomial is defined as
-            c_1 + c_1 (r - r_0) + c_2 (r - r_0)^2 + ...
-        s : float, optional
-            r stretching factor (around r_0): the polynomial is defined as
-            c_1 + c_1 (r/s) + c_2 (r/s)^2 + ...
-        reduced : boolean, optional
-            internally reduce the r range to [0, 1];
-            useful to avoid floating-point overflows for high degrees
-            at large r (and might improve numerical accuracy)
-        """
         super(Polynomial, self).__init__(n, r_max, symmetric)
 
         # take r >= 0 part
@@ -218,33 +216,36 @@ class Polynomial(BaseAnalytical):
 
 
 class PiecewisePolynomial(BaseAnalytical):
+    """
+    Define a piecewise polynomial function (sum of ``Polynomial``\ s)
+    and calculate its analytical Abel transform.
+
+    Parameters
+    ----------
+    n : int
+        number of points along the *r* axis
+    r_max : float
+        range of the *r* interval
+    symmetric : boolean
+        if ``True``, the *r* interval is [−\ **r_max**, +\ **r_max**]
+        (and **n** should be odd),
+        otherwise the *r* interval is [0, **r_max**]
+    ranges : iterable of unpackable
+        (list of tuples of) polynomial parameters for each piece::
+
+           [(r_1_1st, r_2_1st, c_1st),
+            (r_1_2nd, r_2_2nd, c_2nd),
+            ...
+            (r_1_nth, r_2_nth, c_nth)]
+
+        according to ``Polynomial`` conventions.
+        All ranges are independent (may overlap and have gaps, may define
+        polynomials of any degrees) and may include optional ``Polynomial``
+        parameters
+    """
     def __init__(self, n, r_max,
                  ranges,
                  symmetric=True):
-        """
-        Define a piecewise polynomial function (sum of ``Polynomial``s)
-        and calculate its analytical Abel transform.
-
-        Parameters
-        ----------
-        n : int
-            number of points along the r axis
-        r_max : float
-            range of the r interval
-        symmetric : boolean
-            if True, the r interval is [-r_max, r_max] (and n should be odd),
-            otherwise the r interval is [0, r_max]
-        ranges : iterable of unpackable
-            (list of tuples of) polynomial parameters for each piece:
-            [(r_1_1st, r_2_1st, c_1st),
-             (r_1_2nd, r_2_2nd, c_2nd),
-             ...
-             (r_1_nth, r_2_nth, c_nth)]
-            according to ``Polynomial`` conventions.
-            All ranges are independent (may overlap and have gaps, may define
-            polynomials of any degrees) and may include optional ``Polynomial``
-            parameters
-        """
         super(PiecewisePolynomial, self).__init__(n, r_max, symmetric)
 
         # take r >= 0 part
@@ -266,33 +267,32 @@ class PiecewisePolynomial(BaseAnalytical):
 
 
 class GaussianAnalytical(BaseAnalytical):
+    """
+    Define a gaussian function and calculate its analytical
+    Abel transform. See examples/example_gaussian.py
+
+    Parameters
+    ----------
+    n : int
+        number of points along the r axis
+    r_max : float
+        range of the r interval
+    symmetric : boolean
+        if True, the r interval is [-r_max, r_max] (and n should be odd),
+        otherwise, the r interval is [0, r_max]
+    sigma : floats
+        sigma parameter for the gaussian
+    A0 : float
+        amplitude of the gaussian
+    ratio_valid_sigma : float
+        in the benchmark ta
+        0 < r < ration_valid_sigma * sigma
+        (exclude possible artefacts on the axis, and )
+    """
+    # Source: http://mathworld.wolfram.com/AbelTransform.html
+
     def __init__(self, n, r_max, sigma=1.0, A0=1.0,
                  ratio_valid_sigma=2.0, symmetric=True):
-        """
-        Define a gaussian function and calculate its analytical
-        Abel transform. See examples/example_gaussian.py
-
-        Parameters
-        ----------
-        n : int
-            number of points along the r axis
-        r_max : float
-            range of the r interval
-        symmetric : boolean
-            if True, the r interval is [-r_max, r_max] (and n should be odd),
-            otherwise, the r interval is [0, r_max]
-        sigma : floats
-            sigma parameter for the gaussian
-        A0 : float
-            amplitude of the gaussian
-        ratio_valid_sigma : float
-            in the benchmark ta
-            0 < r < ration_valid_sigma * sigma
-            (exclude possible artefacts on the axis, and )
-
-        Source: http://mathworld.wolfram.com/AbelTransform.html
-        """
-
         super(GaussianAnalytical, self).__init__(n, r_max, symmetric)
 
         self.sigma = sigma
@@ -378,35 +378,34 @@ class TransformPair(BaseAnalytical):
 
 
 class SampleImage(BaseAnalytical):
+    """
+    Sample images, made up of Gaussian functions
 
+    Parameters
+    ----------
+    n : integer
+        image size n rows x n cols
+
+    name : str
+        one of "dribinski" or "Ominus"
+
+    sigma : float
+        Gaussian 1/e width (pixels)
+
+    temperature : float
+        for 'Ominus' only
+        anion levels have Boltzmann population weight
+        (2J+1) exp(-177.1 h c 100/k/temperature)
+
+    Attributes
+    ----------
+    image : 2D numpy array
+         image
+
+    name : str
+         sample image name
+    """
     def __init__(self, n=361, name="dribinski", sigma=2, temperature=200):
-        """
-        Sample images, made up of Gaussian functions
-
-        Parameters
-        ----------
-        n : integer
-            image size n rows x n cols
-
-        name : str
-            one of "dribinski" or "Ominus"
-
-        sigma : float
-            Gaussian 1/e width (pixels)
-
-        temperature : float
-            for 'Ominus' only
-            anion levels have Boltzmann population weight
-            (2J+1) exp(-177.1 h c 100/k/temperature)
-
-        Attributes
-        ----------
-        image : 2D numpy array
-             image
-
-        name : str
-             sample image name
-        """
 
         def _gauss(r, r0, sigma):
             return np.exp(-(r-r0)**2/sigma**2)
