@@ -7,37 +7,38 @@ from scipy.special import binom
 
 
 class Polynomial(object):
+    """
+    Polynomial function and its Abel transform.
+
+    Supports multiplication and division by numbers.
+
+    Parameters
+    ----------
+    r : numpy array
+        *r* values at which the function is generated
+        (and *x* values for its Abel transform);
+        must be non-negative and in ascending order
+    r_min, r_max : float
+        *r* domain:
+        the function is defined as the polynomial on [**r_min**, **r_max**]
+        and zero outside it;
+        0 ≤ **r_min** < **r_max** ≲ **max r**
+        (**r_max** might exceed maximal **r**, but usually by < 1 pixel)
+    c: numpy array
+        polynomial coefficients in order of increasing degree:
+        [c₀, c₁, c₂] means c₀ + c₁ *r* + c₂ *r*\ ²
+    r_0 : float, optional
+        origin shift: the polynomial is defined as
+        c₀ + c₁ (*r* − **r_0**) + c₂ (*r* − **r_0**)² + ...
+    s : float, optional
+        *r* stretching factor (around **r_0**): the polynomial is defined as
+        c₀ + c₁ (*r*/**s**) + c₂ (*r*/**s**)² + ...
+    reduced : boolean, optional
+        internally rescale the *r* range to [0, 1];
+        useful to avoid floating-point overflows for high degrees
+        at large r (and might improve numeric accuracy)
+    """
     def __init__(self, r, r_min, r_max, c, r_0=0.0, s=1.0, reduced=False):
-        """
-        Polynomial function and its Abel transform.
-
-        Parameters
-        ----------
-        r : numpy array
-            r values at which the function is generated
-            (and x values for its Abel transform);
-            must be non-negative and in ascending order
-        r_min, r_max : float
-            r domain:
-            the function is defined as the polynomial on [r_min, r_max]
-            and zero outside it;
-            0 <= ``r_min`` < ``r_max`` <~ max r
-            (``r_max`` might exceed maximal ``r``, but usually by < 1 pixel)
-        c: numpy array
-            polynomial coefficients in order of increasing degree:
-            [c_0, c_1, c_2] means c_1 + c_1 r + c_2 r^2
-        r_0 : float, optional
-            origin shift: the polynomial is defined as
-            c_1 + c_1 (r - r_0) + c_2 (r - r_0)^2 + ...
-        s : float, optional
-            r stretching factor (around r_0): the polynomial is defined as
-            c_1 + c_1 (r/s) + c_2 (r/s)^2 + ...
-        reduced : boolean, optional
-            internally reduce the r range to [0, 1];
-            useful to avoid floating-point overflows for high degrees
-            at large r (and might improve numeric accuracy)
-        """
-
         # remove zero high-order terms
         c = np.array(np.trim_zeros(c, 'b'), float)
         # if all coefficients are zero
@@ -189,28 +190,31 @@ class Polynomial(object):
 
 
 class PiecewisePolynomial(Polynomial):
+    """
+    Piecewise polynomial function (sum of ``Polynomial``\ s)
+    and its Abel transform.
+
+    Supports multiplication and division by numbers.
+
+    Parameters
+    ----------
+    r : numpy array
+        *r* values at which the function is generated
+        (and *x* values for its Abel transform)
+    ranges : iterable of unpackable
+        (list of tuples of) polynomial parameters for each piece::
+
+           [(r_min_1st, r_max_1st, c_1st),
+            (r_min_2nd, r_max_2nd, c_2nd),
+            ...
+            (r_min_nth, r_max_nth, c_nth)]
+
+        according to ``Polynomial`` conventions.
+        All ranges are independent (may overlap and have gaps, may define
+        polynomials of any degrees) and may include optional ``Polynomial``
+        parameters
+    """
     def __init__(self, r, ranges):
-        """
-        Piecewise polynomial function (sum of ``Polynomial``s)
-        and its Abel transform.
-
-        Parameters
-        ----------
-        r : numpy array
-            r values at which the function is generated
-            (and x values for its Abel transform)
-        ranges : iterable of unpackable
-            (list of tuples of) polynomial parameters for each piece:
-            [(r_min_1st, r_max_1st, c_1st),
-             (r_min_2nd, r_max_2nd, c_2nd),
-             ...
-             (r_min_nth, r_max_nth, c_nth)]
-            according to ``Polynomial`` conventions.
-            All ranges are independent (may overlap and have gaps, may define
-            polynomials of any degrees) and may include optional ``Polynomial``
-            parameters
-        """
-
         self.p = []
         for rng in ranges:
             self.p.append(Polynomial(r, *rng))
