@@ -470,8 +470,8 @@ def get_basex_correction(Ai, sigma):
 
 # The analytical expresion for the k-th basis-function projection
 # involves a sum of k^2 terms, most of which are very small.
-# Setting BASIS_SET_CUTOFF = c truncates this sum to ±ck terms
-# around the maximum.
+# Setting BASIS_SET_CUTOFF = c truncates this sum to ±cu terms
+# around the maximum (u = x / sigma).
 # The computation time is roughly proportional to this parameter,
 # while the accuracy (at least for n, k < 10000) is as follows:
 #   cutoff   relative error
@@ -484,7 +484,7 @@ def get_basex_correction(Ai, sigma):
 # The last one reaches the 64-bit floating-point precision,
 # so going beyond that is useless.
 # See https://github.com/PyAbel/PyAbel/issues/230
-BASIS_SET_CUTOFF = 6  # highest speed with reasonable accuracy
+BASIS_SET_CUTOFF = 9  # numerically exact
 
 def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
     """
@@ -572,11 +572,15 @@ def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
             # skip what was already filled
             if i < old_n and k < old_nbf:
                 continue
+            u = U[i]
+            if u > k + 8:  # beyond outer shoulder
+                M[i, k] = 0.0
+                continue
             # index of the largest component
             lmax = min(int(u2), k2)
             # halfwidth of the important range
-            delta = int(BASIS_SET_CUTOFF * k)
-            # summation limits: +-delta from the maximum, but within [0, k^2]
+            delta = int(BASIS_SET_CUTOFF * (u + 2))
+            # summation limits: ±delta from the maximum, but within [0, k^2]
             minl = max(0, lmax - delta)
             maxl = min(lmax + delta, k2)
             # list of ln[u^(2l)]
