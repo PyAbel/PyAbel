@@ -43,7 +43,7 @@ class AbelTiming(object):
             maximum n run for the "slow" transform methods, so far including 
             only the "direct_python" implementation.
         """
-        from timeit import Timer
+        from timeit import Timer, default_timer
         import time
 
         self.n = n
@@ -118,20 +118,20 @@ class AbelTiming(object):
                 
                     if method[:-3] == 'basex':  # special case
                         # calculate and store basex basis matrix
-                        t = time.time()
+                        t = default_timer()
                         basis[method[:-3]] = transform[method](w, basis_dir=None)
-                        res['bs'][method].append((time.time()-t)*1000)
+                        res['bs'][method].append((default_timer()-t)*1000)
                     
                     elif method[:-3] == 'linbasex':  # special case
-                        t = time.time()
+                        t = default_timer()
                         basis[method[:-3]] = transform[method](ni)
-                        res['bs'][method].append((time.time()-t)*1000)
+                        res['bs'][method].append((default_timer()-t)*1000)
                     else:
                         # calculate and store basis matrix
-                        t = time.time()
+                        t = default_timer()
                         # store basis calculation. NB a tuple to accomodate basex
                         basis[method[:-3]] = transform[method](w), 
-                        res['bs'][method].append((time.time()-t)*1000)
+                        res['bs'][method].append((default_timer()-t)*1000)
                         
                 else:
                     basis[method[:-3]] = None,
