@@ -153,8 +153,8 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=False,
     n = data.shape[1]
 
     # load the basis sets:
-    Ai = get_bs_basex_cached(n, sigma=sigma, reg=reg, correction=correction,
-                             basis_dir=basis_dir, verbose=verbose)
+    Ai = get_bs_cached(n, sigma=sigma, reg=reg, correction=correction,
+                       basis_dir=basis_dir, verbose=verbose)
 
     # Do the actual transform:
     recon = basex_core_transform(data, Ai, dr)
@@ -247,8 +247,8 @@ _bs = None      # [M, Mc]
 _tr_prm = None  # [reg, correction]
 _tr = None      # Ai
 
-def get_bs_basex_cached(n, sigma=1.0, reg=0.0, correction=False,
-                        basis_dir='.', verbose=False):
+def get_bs_cached(n, sigma=1.0, reg=0.0, correction=False,
+                  basis_dir='.', verbose=False):
     """
     Internal function.
 
@@ -399,7 +399,7 @@ def cache_cleanup():
     """
     Utility function.
 
-    Frees the memory caches created by ``get_bs_basex_cached()``.
+    Frees the memory caches created by ``get_bs_cached()``.
     This is usually pointless, but might be required after working
     with very large images, if more RAM is needed for further tasks.
 

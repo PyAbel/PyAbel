@@ -8,7 +8,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 
 import abel
-from abel.basex import get_bs_basex_cached, cache_cleanup
+from abel.basex import get_bs_cached, cache_cleanup
 from abel.tools.analytical import GaussianAnalytical
 
 
@@ -28,9 +28,9 @@ def test_basex_basis_sets_cache():
     if os.path.exists(file_name):
         os.remove(file_name)
     # 1st call generate and save
-    get_bs_basex_cached(n, basis_dir=DATA_DIR, verbose=False)
+    get_bs_cached(n, basis_dir=DATA_DIR, verbose=False)
     # 2nd call load from file
-    get_bs_basex_cached(n, basis_dir=DATA_DIR, verbose=False)
+    get_bs_cached(n, basis_dir=DATA_DIR, verbose=False)
     if os.path.exists(file_name):
         os.remove(file_name)
 
@@ -52,18 +52,18 @@ def test_basex_basis_sets_resize():
     # make sure that basis files do not exist
     remove_files()
     # generate small basis and save
-    Ai_s = get_bs_basex_cached(n_s, basis_dir=DATA_DIR, verbose=False)
+    Ai_s = get_bs_cached(n_s, basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # extend to large basis and save
-    Ai_s_l = get_bs_basex_cached(n_l, basis_dir=DATA_DIR, verbose=False)
+    Ai_s_l = get_bs_cached(n_l, basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # delete basis files
     remove_files()
     # generate large basis and save
-    Ai_l = get_bs_basex_cached(n_l, basis_dir=DATA_DIR, verbose=False)
+    Ai_l = get_bs_cached(n_l, basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # crop large basis to small
-    Ai_l_s = get_bs_basex_cached(n_s, basis_dir=DATA_DIR, verbose=False)
+    Ai_l_s = get_bs_cached(n_s, basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # delete basis files (clean-up)
     remove_files()
@@ -75,7 +75,7 @@ def test_basex_basis_sets_resize():
 def test_basex_shape():
     n = 21
     x = np.ones((n, n), dtype='float32')
-    Ai = abel.basex.get_bs_basex_cached(n, basis_dir=None, verbose=False)
+    Ai = abel.basex.get_bs_cached(n, basis_dir=None, verbose=False)
 
     recon = abel.basex.basex_core_transform(x, Ai)
 
@@ -85,7 +85,7 @@ def test_basex_shape():
 def test_basex_zeros():
     n = 21
     x = np.zeros((n, n), dtype='float32')
-    Ai = abel.basex.get_bs_basex_cached(n, basis_dir=None, verbose=False)
+    Ai = abel.basex.get_bs_cached(n, basis_dir=None, verbose=False)
 
     recon = abel.basex.basex_core_transform(x, Ai)
 
@@ -102,9 +102,9 @@ def basex_gaussian(sigma, reg, cor, tol):
 
     correction = cor if isinstance(cor, bool) else False
 
-    Ai = abel.basex.get_bs_basex_cached(n, sigma=sigma, reg=reg,
-                                        correction=correction,
-                                        basis_dir=None, verbose=False)
+    Ai = abel.basex.get_bs_cached(n, sigma=sigma, reg=reg,
+                                  correction=correction,
+                                  basis_dir=None, verbose=False)
 
     recon = abel.basex.basex_core_transform(tr, Ai)
     recon = recon[n // 2 + n % 2]
