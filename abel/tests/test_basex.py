@@ -52,24 +52,24 @@ def basex_basis_sets_resize(sigma):
     remove_files()
     cache_cleanup()
     # generate small basis and save
-    Ai_s = get_bs_cached(n_s, basis_dir=DATA_DIR, verbose=False)
+    Ai_s = get_bs_cached(n_s, sigma, basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # extend to large basis and save
-    Ai_s_l = get_bs_cached(n_l, basis_dir=DATA_DIR, verbose=False)
+    Ai_s_l = get_bs_cached(n_l, sigma, basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # delete basis files
     remove_files()
     # generate large basis and save
-    Ai_l = get_bs_cached(n_l, basis_dir=DATA_DIR, verbose=False)
+    Ai_l = get_bs_cached(n_l, sigma, basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # crop large basis to small
-    Ai_l_s = get_bs_cached(n_s, basis_dir=DATA_DIR, verbose=False)
+    Ai_l_s = get_bs_cached(n_s, sigma, basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # delete basis files (clean-up)
     remove_files()
 
-    assert np.array_equal(Ai_s, Ai_l_s)
-    assert np.array_equal(Ai_l, Ai_s_l)
+    assert_allclose(Ai_s, Ai_l_s, atol=1e-15, rtol=1e-15)
+    assert_allclose(Ai_l, Ai_s_l, atol=1e-15, rtol=1e-15)
 
 
 def test_basex_basis_sets_resize_1():
