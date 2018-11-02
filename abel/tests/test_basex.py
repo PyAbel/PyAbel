@@ -35,10 +35,9 @@ def test_basex_basis_sets_cache():
         os.remove(file_name)
 
 
-def test_basex_basis_sets_resize():
+def basex_basis_sets_resize(sigma):
     n_s = 50
     n_l = 100
-    sigma = 1.0
     file_name_s = get_basis_file_name(n_s, sigma)
     file_name_l = get_basis_file_name(n_l, sigma)
 
@@ -49,8 +48,9 @@ def test_basex_basis_sets_resize():
         if os.path.exists(file_name_l):
             os.remove(file_name_l)
 
-    # make sure that basis files do not exist
+    # make sure that basis files do not exist and are not cached
     remove_files()
+    cache_cleanup()
     # generate small basis and save
     Ai_s = get_bs_cached(n_s, basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
@@ -70,6 +70,17 @@ def test_basex_basis_sets_resize():
 
     assert np.array_equal(Ai_s, Ai_l_s)
     assert np.array_equal(Ai_l, Ai_s_l)
+
+
+def test_basex_basis_sets_resize_1():
+    """Test basis resize with default sigma=1"""
+    basex_basis_sets_resize(1)
+
+
+def test_basex_basis_sets_resize_1_5():
+    """Test basis resize with sigma=1.5
+       (with n not aligned)"""
+    basex_basis_sets_resize(1.5)
 
 
 def test_basex_shape():
@@ -156,7 +167,8 @@ def test_basex_gaussian_sigma_07_reg_10_corrected():
 
 if __name__ == '__main__':
     test_basex_basis_sets_cache()
-    test_basex_basis_sets_resize()
+    test_basex_basis_sets_resize_1()
+    test_basex_basis_sets_resize_1_5()
     test_basex_shape()
     test_basex_zeros()
     test_basex_gaussian()
