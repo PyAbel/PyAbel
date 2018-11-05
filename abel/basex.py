@@ -99,7 +99,7 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=False,
 
     Parameters
     ----------
-    data : **m** × **n** numpy array
+    data : m × n numpy array
         the image to be transformed.
         ``data[:,0]`` should correspond to the central column of the image.
     sigma : float
@@ -129,7 +129,7 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=False,
 
     Returns
     -------
-    recon : **m** × **n** numpy array
+    recon : m × n numpy array
         the transformed (half) image
 
     """
@@ -175,9 +175,9 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
 
     Parameters
     ----------
-    rawdata : **m** × **n** numpy array
+    rawdata : m × n numpy array
         the raw image. This is the right half (with the axis) of the image.
-    Ai : **n** × **n** numpy array
+    Ai : n × n numpy array
         2D array given by the transform-calculation function
     dr : float
         pixel size. This only affects the absolute scaling of the output.
@@ -185,7 +185,7 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
 
     Returns
     -------
-    IM : **m** × **n** numpy array
+    IM : m × n numpy array
         the Abel-transformed image, a slice of the 3D distribution
     """
 
@@ -279,7 +279,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=False,
 
     Returns
     -------
-    Ai : **n** × **n** numpy array
+    Ai : n × n numpy array
         the matrix of the inverse Abel transform
     """
 
@@ -434,7 +434,7 @@ def get_basex_correction(Ai, sigma):
 
     Parameters
     ----------
-    Ai : **n** × **n** numpy array
+    Ai : n × n numpy array
         matrix of the inverse Abel transform
     sigma : float
         basis width parameter

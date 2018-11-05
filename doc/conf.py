@@ -136,6 +136,9 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+# Properly format combined parameters with common type/description.
+napoleon_use_param = False
+
 
 # -- Options for HTML output ----------------------------------------------
 
