@@ -285,9 +285,9 @@ class GaussianAnalytical(BaseAnalytical):
     A0 : float
         amplitude of the gaussian
     ratio_valid_sigma : float
-        in the benchmark ta
+        in the benchmark take only the range
         0 < r < ration_valid_sigma * sigma
-        (exclude possible artefacts on the axis, and )
+        (exclude possible artefacts on the axis and the possibly clipped tail)
     """
     # Source: http://mathworld.wolfram.com/AbelTransform.html
 
