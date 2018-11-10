@@ -16,7 +16,8 @@ DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
 
 def get_basis_file_name(n, sigma):
-    return os.path.join(DATA_DIR, 'basex_basis_{}_{}.npy'.format(n, sigma))
+    return os.path.join(DATA_DIR,
+                        'basex_basis_{}_{}.npy'.format(n, float(sigma)))
 
 
 def test_basex_basis_sets_cache():
@@ -52,18 +53,22 @@ def basex_basis_sets_resize(sigma):
     remove_files()
     cache_cleanup()
     # generate small basis and save
-    Ai_s = get_bs_cached(n_s, sigma, basis_dir=DATA_DIR, verbose=False)
+    Ai_s = get_bs_cached(n_s, sigma, correction=False,
+                         basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # extend to large basis and save
-    Ai_s_l = get_bs_cached(n_l, sigma, basis_dir=DATA_DIR, verbose=False)
+    Ai_s_l = get_bs_cached(n_l, sigma, correction=False,
+                           basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # delete basis files
     remove_files()
     # generate large basis and save
-    Ai_l = get_bs_cached(n_l, sigma, basis_dir=DATA_DIR, verbose=False)
+    Ai_l = get_bs_cached(n_l, sigma, correction=False,
+                         basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # crop large basis to small
-    Ai_l_s = get_bs_cached(n_s, sigma, basis_dir=DATA_DIR, verbose=False)
+    Ai_l_s = get_bs_cached(n_s, sigma, correction=False,
+                           basis_dir=DATA_DIR, verbose=False)
     cache_cleanup()
     # delete basis files (clean-up)
     remove_files()
@@ -121,7 +126,7 @@ def basex_gaussian(sigma, reg, cor, tol):
     recon = recon[n // 2 + n % 2]
 
     ref = ref.func
-    if not isinstance(cor, bool):
+    if cor is not True:
         # old-style intensity correction
         recon /= cor
         # skip artifact from k = 0 near r = 0
@@ -138,18 +143,18 @@ def test_basex_gaussian():
        default parameters"""
     # (intensity correction using "magic number",
     #  see https://github.com/PyAbel/PyAbel/issues/230)
-    basex_gaussian(sigma=1, reg=0, cor=1.015, tol=3e-3)
-
-
-def test_basex_gaussian_corrected():
-    """Check a gaussian solution for BASEX:
-       default parameters, corrected"""
     basex_gaussian(sigma=1, reg=0, cor=True, tol=7e-4)
+
+
+def test_basex_gaussian_uncorrected():
+    """Check a gaussian solution for BASEX:
+       default parameters, without correction"""
+    basex_gaussian(sigma=1, reg=0, cor=1.015, tol=3e-3)
 
 
 def test_basex_gaussian_sigma_3():
     """Check a gaussian solution for BASEX:
-       large sigma (oscillating)"""
+       large sigma (oscillating), without correction"""
     basex_gaussian(sigma=3, reg=0, cor=1, tol=3e-2)
 
 
@@ -172,7 +177,7 @@ if __name__ == '__main__':
     test_basex_shape()
     test_basex_zeros()
     test_basex_gaussian()
-    test_basex_gaussian_corrected()
+    test_basex_gaussian_uncorrected()
     test_basex_gaussian_sigma_3()
     test_basex_gaussian_sigma_3_corrected()
     test_basex_gaussian_sigma_07_reg_10_corrected()

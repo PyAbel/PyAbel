@@ -78,7 +78,7 @@ from ._version import __version__
 #############################################################################
 
 
-def basex_transform(data, sigma=1.0, reg=0.0, correction=False,
+def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
                     basis_dir='./', dr=1.0,
                     verbose=True, direction='inverse'):
     """
@@ -247,7 +247,7 @@ _bs = None      # [M, Mc]
 _tr_prm = None  # [reg, correction]
 _tr = None      # Ai
 
-def get_bs_cached(n, sigma=1.0, reg=0.0, correction=False,
+def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
                   basis_dir='.', verbose=False):
     """
     Internal function.
