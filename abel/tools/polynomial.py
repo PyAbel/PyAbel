@@ -3,7 +3,6 @@ from __future__ import division
 
 import numpy as np
 from scipy.linalg import pascal, toeplitz
-from scipy.special import binom
 
 
 class Polynomial(object):
@@ -106,28 +105,20 @@ class Polynomial(object):
         def a(k):
             odd_k = k % 2
             # max. x power
-            K = k - 1 if odd_k else k
-            # generate coefficients for all x^l r^{k - l} terms
-            C = [0] * (K + 1)  # only even indices are actually used
-            if odd_k:
-                c = 1 / (k + 1)
-                C[0] = c
-                for l in range(K - 2, -1, -2):
-                    c *= (l + 3) / (l + 2)
-                    C[K - l] = c
-                # C[K] is also used for x^{k+1} ln(r + y)
-            else:  # even k
-                c = 1 / abs(binom(-3/2, k / 2))
-                C[K] = c
-                for l in range(0, K + 1, 2):
-                    C[K - l] = c
-                    c *= (l + 1) / (l + 2)
+            K = k - odd_k  # (k - 1 for odd k)
+            # generate coefficients for all x^m r^{k - m} terms
+            # (only even indices are actually used;
+            #  for odd k, C[K] is also used for x^{k+1} ln(r + y))
+            C = [0] * (K + 1)
+            C[0] = 1 / (k + 1)
+            for m in range(k, 1, -2):
+                C[k - m + 2] = C[k - m] * m / (m - 1)
             # sum all terms using Horner's method in x
             a = C[K] * Dyr[k - K]
             if odd_k:
                 a += C[K] * x2 * Dlnry
-            for l in range(K - 2, -1, -2):
-                a = a * x2 + C[l] * Dyr[k - l]
+            for m in range(K - 2, -1, -2):
+                a = a * x2 + C[m] * Dyr[k - m]
             return a
 
         # Generate the polynomial function
