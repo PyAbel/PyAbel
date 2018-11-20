@@ -18,42 +18,44 @@ import warnings
 #
 ##############################################################################
 
-_transform_pairs_docstring = \
-    r"""Analytical function Abel transform pairs
+__doc__ = """
+Analytical function Abel transform pairs
 
-    profiles 1-7, table 1 of:
-     `G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31-41 (2006)
-     <http://doi:10.1016/j.sab.2005.11.009>`_
+profiles 1--7, table 1 of:
+    `G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31-41 (2006)
+    <http://doi:10.1016/j.sab.2005.11.009>`_
 
-    Note: profile4 does not produce a correct Abel transform pair due
-          to typographical errors in the publications
+Note:
+    profile4 does not produce a correct Abel transform pair due
+    to typographical errors in the publications
 
-    profile 8, curve B in table 2 of:
-     `Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985)
-     <http://doi:10.1364/JOSAA.2.000510>`_
+profile 8, curve B in table 2 of:
+    `Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985)
+    <http://doi:10.1364/JOSAA.2.000510>`_
 
-    Note: the transform pair functions are more conveniently accessed via
-      the class::
+Note:
+    the transform pair functions are more conveniently accessed via
+    the class ::
 
-         func = abel.tools.analytical.TransformPair(n, profile=nprofile)
+        func = abel.tools.analytical.TransformPair(n, profile=nprofile)
 
-      which sets the radial range r and provides attributes:
-          ``.func`` (source), ``.abel`` (projection), ``.r`` (radial range),
-          ``.dr`` (step), ``.label`` (the profile name)
+    which sets the radial range r and provides attributes
+    ``.func`` (source), ``.abel`` (projection), ``.r`` (radial range),
+    ``.dr`` (step), ``.label`` (the profile name)
 
 
-    Parameters
-    ----------
-    r : floats or numpy 1D array of floats
-       value or grid to evaluate the function pair: ``0 < r < 1``
+Parameters
+----------
+r : floats or numpy 1D array of floats
+    value or grid to evaluate the function pair: ``0 < r < 1``
 
-    Returns
-    -------
-    source, projection : tuple of 1D numpy arrays of shape `r`
-        source function profile (inverse Abel transform of projection),
-        projection functon profile (forward Abel transform of source)
+Returns
+-------
+source, projection : tuple of 1D numpy arrays of shape `r`
+    source function profile (inverse Abel transform of projection),
+    projection functon profile (forward Abel transform of source)
 
-   """
+"""
 
 
 def a(n, r):
@@ -71,38 +73,38 @@ def profile1(r):
     `Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
     <https://doi.org/10.1364/AO.5.001057>`_
 
-     .. math::
+    .. math::
 
-          \epsilon(r) &= 0.75 + 12r^2 - 32r^3  & 0 \le r \le 0.25
+        \epsilon(r) &= 0.75 + 12r^2 - 32r^3  & 0 \le r \le 0.25
 
-          \epsilon(r) &= \\frac{16}{27}(1 + 6r - 15r^2 + 8r^3)
-                      & 0.25 \lt r \le 1
+        \epsilon(r) &= \\frac{16}{27}(1 + 6r - 15r^2 + 8r^3)
+                    & 0.25 \lt r \le 1
 
-          I(r) &= \\frac{1}{108}(128a_1 +a_{0.25}) + \\frac{2}{27}r^2
-                    (283a_{0.25} - 112a_1) +
+        I(r) &= \\frac{1}{108}(128a_1 +a_{0.25}) + \\frac{2}{27}r^2
+                  (283a_{0.25} - 112a_1) +
 
-          & \,\,\,\, \\frac{8}{9}r^2\left[4(1+r^2)\ln\\frac{1+a_1}{r} -
-            (4+31r^2)\ln\\frac{0.25+a_{0.25}}{r}\\right] &  0 \le r \le 0.25
+        & \,\,\,\, \\frac{8}{9}r^2\left[4(1+r^2)\ln\\frac{1+a_1}{r} -
+          (4+31r^2)\ln\\frac{0.25+a_{0.25}}{r}\\right] &  0 \le r \le 0.25
 
-          I(r) &= \\frac{32}{27}\left[a_1 - 7a_1 r + 3r^2(1+r^2)
-                  \ln\\frac{1+a_1}{r}\\right]  & 0.25 \lt r \le 1
+        I(r) &= \\frac{32}{27}\left[a_1 - 7a_1 r + 3r^2(1+r^2)
+                \ln\\frac{1+a_1}{r}\\right]  & 0.25 \lt r \le 1
 
-     ::
+    ::
 
-                          profile1
-                 source                projection
-           ┼+1.3                  ┼+1.3               
-           │                      o   o               
-           │     x                │     o             
-           │   x   x              │       o           
-           │ x                    │                   
-           x         x            │         o         
-           │           x          │                   
-           │                      │           o       
-           │             x        │                   
-           │                      │             o     
-           ┼+0─────────────x──┼   ┼+0─────────────o──┼
-           0          r      +1   0          r      +1
+                       profile1
+              source                projection
+        ┼+1.3                  ┼+1.3               
+        │                      o   o               
+        │     x                │     o             
+        │   x   x              │       o           
+        │ x                    │                   
+        x         x            │         o         
+        │           x          │                   
+        │                      │           o       
+        │             x        │                   
+        │                      │             o     
+        ┼+0─────────────x──┼   ┼+0─────────────o──┼
+        0          r      +1   0          r      +1
 
     """
 
@@ -150,29 +152,29 @@ def profile2(r):
     `Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
     <https://doi.org/10.1364/AO.5.001057>`_
 
-     .. math::
+    .. math::
 
-       \epsilon(r) &= 1 - 3r^2 + 2r^3 & 0 \le r \le 1
+        \epsilon(r) &= 1 - 3r^2 + 2r^3 & 0 \le r \le 1
 
-       I(r) &= a_1\left(1-\\frac{5}{2}r^2\\right) + 
-               \\frac{3}{2}r^4\ln\\frac{1+a_1}{r} & 0 \le r \le 1
+        I(r) &= a_1\left(1-\\frac{5}{2}r^2\\right) +
+                \\frac{3}{2}r^4\ln\\frac{1+a_1}{r} & 0 \le r \le 1
 
-     ::
+    ::
 
-                          profile2
-                 source                projection
-           ┼+1.1                  ┼+1.1               
-           x x                    o o                 
-           │   x                  │   o               
-           │     x                │     o             
-           │       x              │                   
-           │                      │       o           
-           │         x            │                   
-           │                      │         o         
-           │           x          │           o       
-           │             x        │                   
-           ┼+0─────────────x──┼   ┼+0───────────o────┼
-           0          r      +1   0          r      +1
+                       profile2
+              source                projection
+        ┼+1.1                  ┼+1.1               
+        x x                    o o                 
+        │   x                  │   o               
+        │     x                │     o             
+        │       x              │                   
+        │                      │       o           
+        │         x            │                   
+        │                      │         o         
+        │           x          │           o       
+        │             x        │                   
+        ┼+0─────────────x──┼   ┼+0───────────o────┼
+        0          r      +1   0          r      +1
 
     """
 
@@ -195,7 +197,7 @@ def profile3(r):
     `Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
     <https://doi.org/10.1364/AO.5.001057>`_
 
-     .. math::
+    .. math::
 
         \epsilon(r) &= 1-2r^2  & 0 \le r \le 0.5
 
@@ -204,26 +206,25 @@ def profile3(r):
         I(r) &= \\frac{4a_1}{3}(1+2r^2)-\\frac{2 a_{0.5}}{3}(1+8r^2) -
                 4r^2\ln\\frac{1-a_1}{0.5+a_{0.5}} & 0 \le r \le 0.5
 
-        I(r) &= \\frac{4a_1}{3}(1+2r^2)-4r^2\ln\\frac{1-a_1}{r} & 
+        I(r) &= \\frac{4a_1}{3}(1+2r^2)-4r^2\ln\\frac{1-a_1}{r} &
                 0.5 \lt r \le 1
 
+    ::
 
-     ::
-
-                          profile3
-                 source                projection
-           ┼+1.1                  ┼+1.1               
-           x x x                  o o                 
-           │                      │   o               
-           │     x                │     o             
-           │       x              │                   
-           │                      │       o           
-           │         x            │                   
-           │                      │         o         
-           │           x          │                   
-           │                      │           o       
-           ┼+0───────────x────┼   ┼+0───────────o────┼
-           0          r      +1   0          r      +1
+                       profile3
+              source                projection
+        ┼+1.1                  ┼+1.1               
+        x x x                  o o                 
+        │                      │   o               
+        │     x                │     o             
+        │       x              │                   
+        │                      │       o           
+        │         x            │                   
+        │                      │         o         
+        │           x          │                   
+        │                      │           o       
+        ┼+0───────────x────┼   ┼+0───────────o────┼
+        0          r      +1   0          r      +1
 
     """
 
@@ -263,40 +264,40 @@ def profile4(r):
 
     WARNING: projection function pair incorrect due to typo errors in Table 1.
 
-     .. math::
+    .. math::
 
-         \epsilon(r) &= 0.1 + 5.5r^2 - 5.25r^3 & 0 \le r \le 0.7
+        \epsilon(r) &= 0.1 + 5.5r^2 - 5.25r^3 & 0 \le r \le 0.7
 
-         \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3
-                     & 0.7 \lt r \le1
+        \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3
+                    & 0.7 \lt r \le1
 
-         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (217.557a_{0.7} -
-         193.30083a_1)r^2 + 
+        I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (217.557a_{0.7} -
+        193.30083a_1)r^2 +
 
-           & \,\,\, 155.56r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} + 
-             r^4\left(55.5525\ln\\frac{1 + a_1}{r} - 59.49\ln\\frac{0.7 + 
-             a_{0.7}}{r}\\right)  & 0 \le r \le 0.7
+          & \,\,\, 155.56r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} +
+            r^4\left(55.5525\ln\\frac{1 + a_1}{r} - 59.49\ln\\frac{0.7 +
+            a_{0.7}}{r}\\right)  & 0 \le r \le 0.7
 
-         I(r) &= -14.811667a_1 - 193.30083a_1 r^2 + r^2(155.56 + 55.5525r^2)
-                 \ln\\frac{1 + a_1}{r} & 0.7 \lt r \le 1
+        I(r) &= -14.811667a_1 - 193.30083a_1 r^2 + r^2(155.56 + 55.5525r^2)
+                \ln\\frac{1 + a_1}{r} & 0.7 \lt r \le 1
 
 
- ::
+    ::
 
-                          profile4     (incorrect)
-                 source                projection
-           ┼+2.2                  ┼+2.2       o       
-           │                      │         o   o     
-           │                      │       o       o   
-           │                      │     o             
-           │                      │                   
-           │                      │ o o             o 
-           │           x x        o                   
-           │         x     x      │                   
-           │       x              │                   
-           │     x                │                   
-           ┼+0─x─────────────x┼   ┼+0────────────────┼
-           0          r      +1   0          r      +1
+                       profile4     (incorrect)
+              source                projection
+        ┼+2.2                  ┼+2.2       o       
+        │                      │         o   o     
+        │                      │       o       o   
+        │                      │     o             
+        │                      │                   
+        │                      │ o o             o 
+        │           x x        o                   
+        │         x     x      │                   
+        │       x              │                   
+        │     x                │                   
+        ┼+0─x─────────────x┼   ┼+0────────────────┼
+        0          r      +1   0          r      +1
 
 
     """
@@ -373,28 +374,28 @@ def profile4(r):
 def profile5(r):
     """**profile5**: `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_
 
-     .. math::
+    .. math::
 
-      \epsilon(r) &= 1 & 0 \le r \le 1
+        \epsilon(r) &= 1 & 0 \le r \le 1
 
-      I(r) &= 2a_1 & 0 \le r \le 1
+        I(r) &= 2a_1 & 0 \le r \le 1
 
- ::
+    ::
 
-                          profile5
-                 source                projection
-           ┼+2.1                  ┼+2.1               
-           │                      │     o o           
-           │                      │         o o       
-           │                      │             o     
-           │                      │                   
-           │                      │               o   
-           x x x x x x x x x x    │                   
-           │                      │                 o 
-           │                      │                   
-           │                      │                   
-           ┼+0────────────────┼   ┼+0────────────────┼
-           0          r      +1   0          r      +1
+                       profile5
+              source                projection
+        ┼+2.1                  ┼+2.1               
+        │                      │     o o           
+        │                      │         o o       
+        │                      │             o     
+        │                      │                   
+        │                      │               o   
+        x x x x x x x x x x    │                   
+        │                      │                 o 
+        │                      │                   
+        │                      │                   
+        ┼+0────────────────┼   ┼+0────────────────┼
+        0          r      +1   0          r      +1
 
     """
 
@@ -413,30 +414,30 @@ def profile5(r):
 def profile6(r):
     """**profile6**: `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_
 
-     .. math::
+    .. math::
 
-         \epsilon(r) &= (1-r^2)^{-\\frac{3}{2}} \exp\left[1.1^2\left(
-                         1 - \\frac{1}{1-r^2}\\right)\\right] & 0 \le r \le 1
+        \epsilon(r) &= (1-r^2)^{-\\frac{3}{2}} \exp\left[1.1^2\left(
+                        1 - \\frac{1}{1-r^2}\\right)\\right] & 0 \le r \le 1
 
-         I(r) &= \\frac{\sqrt{\pi}}{1.1a_1} \exp\left[1.1^2\left(
-                         1 - \\frac{1}{1-r^2}\\right)\\right] & 0 \le r \le 1
+        I(r) &= \\frac{\sqrt{\pi}}{1.1a_1} \exp\left[1.1^2\left(
+                        1 - \\frac{1}{1-r^2}\\right)\\right] & 0 \le r \le 1
 
- ::
+    ::
 
-                          profile6
-                 source                projection
-           ┼+1.8                  ┼+1.8               
-           │                      o o o               
-           │                      │     o o           
-           │                      │         o         
-           │                      │                   
-           x x x x x x x          │           o       
-           │             x        │                   
-           │                      │             o     
-           │               x      │                   
-           │                      │               o   
-           ┼+0────────────────┼   ┼+0────────────────┼
-           0          r      +1   0          r      +1
+                       profile6
+              source                projection
+        ┼+1.8                  ┼+1.8               
+        │                      o o o               
+        │                      │     o o           
+        │                      │         o         
+        │                      │                   
+        x x x x x x x          │           o       
+        │             x        │                   
+        │                      │             o     
+        │               x      │                   
+        │                      │               o   
+        ┼+0────────────────┼   ┼+0────────────────┼
+        0          r      +1   0          r      +1
 
     """
 
@@ -457,28 +458,28 @@ def profile7(r):
     `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996)
     <https://doi.org/10.1016/j.amc.2014.03.043>`_
 
-     .. math::
+    .. math::
 
-       \epsilon(r) &= \\frac{1}{2}(1+10r^2-23r^4+12r^6) & 0 \le r \le 1
+        \epsilon(r) &= \\frac{1}{2}(1+10r^2-23r^4+12r^6) & 0 \le r \le 1
 
-       I(r) &= \\frac{8}{105}a_1(19 + 34r^2 - 125r^4 + 72r^6) & 0 \le r \le 1
+        I(r) &= \\frac{8}{105}a_1(19 + 34r^2 - 125r^4 + 72r^6) & 0 \le r \le 1
 
-     ::
+    ::
 
-                          profile7
-                 source                projection
-           ┼+1.7                  ┼+1.7               
-           │                      o o o o o           
-           │                      │         o         
-           │                      │                   
-           │       x x x          │           o       
-           │     x       x        │                   
-           │                      │             o     
-           │   x                  │                   
-           x x             x      │                   
-           │                      │               o   
-           ┼+0───────────────x┼   ┼+0────────────────┼
-           0          r      +1   0          r      +1
+                       profile7
+              source                projection
+        ┼+1.7                  ┼+1.7               
+        │                      o o o o o           
+        │                      │         o         
+        │                      │                   
+        │       x x x          │           o       
+        │     x       x        │                   
+        │                      │             o     
+        │   x                  │                   
+        x x             x      │                   
+        │                      │               o   
+        ┼+0───────────────x┼   ┼+0────────────────┼
+        0          r      +1   0          r      +1
 
     """
 
@@ -499,7 +500,7 @@ def profile8(r):
     Curve B table 2 of `Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985)
     <http://doi:10.1364/JOSAA.2.000510>`_
 
-     .. math::
+    .. math::
 
         \epsilon(r) &= (1-r^2)^{-\\frac{3}{2}}
                         \exp\left[\\frac{(1.1r)^2}{r^2-1}\\right]
@@ -509,20 +510,20 @@ def profile8(r):
 
     ::
 
-                          profile8
-                 source                projection
-           ┼+1.8                  ┼+1.8               
-           │                      o o o               
-           │                      │     o o           
-           │                      │         o         
-           │                      │                   
-           x x x x x x x          │           o       
-           │             x        │                   
-           │                      │             o     
-           │               x      │                   
-           │                      │               o   
-           ┼+0────────────────┼   ┼+0────────────────┼
-           0          r      +1   0          r      +1
+                       profile8
+              source                projection
+        ┼+1.8                  ┼+1.8               
+        │                      o o o               
+        │                      │     o o           
+        │                      │         o         
+        │                      │                   
+        x x x x x x x          │           o       
+        │             x        │                   
+        │                      │             o     
+        │               x      │                   
+        │                      │               o   
+        ┼+0────────────────┼   ┼+0────────────────┼
+        0          r      +1   0          r      +1
 
     """
 

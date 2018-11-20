@@ -38,11 +38,11 @@ _linbasex_parameter_docstring = \
     Charged Particle Velocity Map Image Reconstruction with One-Dimensional Projections of Spherical Functions.` Review of Scientific Instruments 84, no. 3 (March 1, 2013): 033101–033101 – 10.
     <http://dx.doi.org/10.1063/1.4793404>`_
 
-     ``linbasex``models the image using a sum of Legendre polynomials at each
-     radial pixel, As such, it should only be applied to situations that can
-     be adequately represented by Legendre polynomials, i.e., images that
-     feature spherical-like structures.  The reconstructed 3D object is
-     obtained by adding all the contributions, from which slices are derived.
+    ``linbasex`` models the image using a sum of Legendre polynomials at each
+    radial pixel, As such, it should only be applied to situations that can
+    be adequately represented by Legendre polynomials, i.e., images that
+    feature spherical-like structures.  The reconstructed 3D object is
+    obtained by adding all the contributions, from which slices are derived.
 
 
     Parameters
@@ -54,9 +54,11 @@ _linbasex_parameter_docstring = \
         e.g. :math:`[0, \pi/2]` or :math:`[0, 0.955, \pi/2]` or :math:`[0, \pi/4, \pi/2, 3\pi/4]`
     legendre_orders : list
         orders of Legendre polynomials to be used as the expansion
-            even polynomials [0, 2, ...] gerade
-            odd polynomials [1, 3, ...] ungerade
-            all orders [0, 1, 2, ...].
+
+        * even polynomials [0, 2, ...] gerade
+        * odd polynomials [1, 3, ...] ungerade
+        * all orders [0, 1, 2, ...].
+
         In a single photon experiment there are only anisotropies up to
         second order. The interaction of 4 photons (four wave mixing) yields
         anisotropies up to order 8.
@@ -90,6 +92,7 @@ _linbasex_parameter_docstring = \
             Beta[0] vs radius -> speed distribution
 
             Beta[2] vs radius -> anisotropy of each Newton sphere
+
         see 'Returns'.
     direction : str
         "inverse" - only option for this method.
