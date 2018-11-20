@@ -7,6 +7,8 @@ from __future__ import unicode_literals
 
 from time import time
 import os.path
+from os import listdir
+import re
 from math import exp, log
 import sys
 
@@ -14,19 +16,37 @@ import sys
 import numpy as np
 from scipy.special import gammaln
 from scipy.linalg import inv
-from scipy.ndimage import median_filter, gaussian_filter, center_of_mass
-import scipy
+
+from abel.tools.polynomial import PiecewisePolynomial
 
 from ._version import __version__
 
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
 #
-# Please cite: "The Gaussian basis-set expansion Abel transform method"
+# Please cite: "Reconstruction of Abel-transformable images:
+# The Gaussian basis-set expansion Abel transform method"
 # V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, and H. Reisler,
 # Review of Scientific Instruments 73, 2634 (2002).
+# https://doi.org/10.1063/1.1482156
 #
 #
+# 2018-10-27
+#   MR exposed BASIS_SET_CUTOFF for speed/accuracy control.
+# 2018-10-07
+#   MR added intensity correction.
+#   Also smaller basis sets are now reused when generating larger ones.
+#   Removed unnecessary scipy methods (scipy.dot is actually numpy.dot).
+# 2018-10-03
+#   MR completely rewrote basis generation (half-width, efficiency).
+#   Switched from (n, nbf) to (n, sigma) basis specification;
+#   nbf is now determined automatically, and nbf != n actually works.
+#   The regularization parameter now differs from BASEX.exe by a factor
+#   of 4/pi (BASEX.exe had an incorrect prefactor in basis projections).
+# 2018-09-29
+#   MR improved loading cached basis sets:
+#   If the required basis is not available, but a larger compatible is,
+#   then the latter will be loaded and cropped to the required size.
 # 2018-09-19
 #   MR switched to half-width transform.
 #   The results now match BASEX.exe.
@@ -58,11 +78,12 @@ from ._version import __version__
 #############################################################################
 
 
-def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0,
+def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
+                    basis_dir='./', dr=1.0,
                     verbose=True, direction='inverse'):
     """
     This function performs the BASEX (BAsis Set EXpansion)
-    Abel Transform. It works on a "right side" image. I.e.,
+    Abel transform. It works on a "right side" image. I.e.,
     it works on just half of a cylindrically symmetric
     object, and ``data[0,0]`` should correspond to a central pixel.
     To perform a BASEX transorm on
@@ -78,34 +99,37 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0,
 
     Parameters
     ----------
-    data : an m x n numpy array
-        The image to be inverse transformed. ``data[:,0]``
-        should correspond to the central column of the image.
-    nbf : str or int
-        number of basis functions. If ``nbf='auto'``, it is set to ``n``.
-        *This is what you should always use*, since this BASEX implementation
-        does not work reliably in other situations!
-        In the future, you could use other numbers
+    data : m × n numpy array
+        the image to be transformed.
+        ``data[:,0]`` should correspond to the central column of the image.
+    sigma : float
+        width parameter for basis functions, see equation (14) in the article.
+        Determines the number of basis functions (**n**/**sigma** rounded).
+        Can be any positive number, but using **sigma** < 1
+        is not very meaningful and requires regularization.
     reg : float
         regularization parameter, square of the Tikhonov factor.
         ``reg=0`` means no regularization,
         ``reg=100`` is a reasonable value for megapixel images.
+    correction : boolean
+        apply intensity correction in order to reduce method artifacts
+        (intensity normalization and oscillations)
     basis_dir : str
-        path to the directory for saving / loading the basis set coefficients.
-        If None, the basis set will not be saved to disk.
+        path to the directory for saving / loading the basis-set coefficients.
+        If ``None``, the basis set will not be saved to disk.
     dr : float
         size of one pixel in the radial direction.
         This only affects the absolute scaling of the transformed image.
     verbose : boolean
-        Determines if statements should be printed.
+        determines whether statements should be printed
     direction : str
-        The type of Abel transform to be performed.
+        the type of Abel transform to be performed.
         Currently only accepts value ``'inverse'``.
 
 
     Returns
     -------
-    recon : m x n numpy array
+    recon : m × n numpy array
         the transformed (half) image
 
     """
@@ -129,8 +153,8 @@ def basex_transform(data, nbf='auto', reg=0.0, basis_dir='./', dr=1.0,
     n = data.shape[1]
 
     # load the basis sets:
-    Ai = get_bs_basex_cached(n, nbf=nbf, reg=reg,
-                             basis_dir=basis_dir, verbose=verbose)
+    Ai = get_bs_cached(n, sigma=sigma, reg=reg, correction=correction,
+                       basis_dir=basis_dir, verbose=verbose)
 
     # Do the actual transform:
     recon = basex_core_transform(data, Ai, dr)
@@ -151,9 +175,9 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
 
     Parameters
     ----------
-    rawdata : m x n numpy array
+    rawdata : m × n numpy array
         the raw image. This is the right half (with the axis) of the image.
-    Ai : n x n numpy array
+    Ai : n × n numpy array
         2D array given by the transform-calculation function
     dr : float
         pixel size. This only affects the absolute scaling of the output.
@@ -161,8 +185,8 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
 
     Returns
     -------
-    IM : m x n numpy array
-        The abel-transformed image, a slice of the 3D distribution
+    IM : m × n numpy array
+        the Abel-transformed image, a slice of the 3D distribution
     """
 
     # Note that our images are stored with matrix rows corresponding to
@@ -174,7 +198,7 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
     # its overall effect is an identity transform.
 
     # Reconstructing image  - This is where the magic happens
-    IM = scipy.dot(rawdata, Ai) / dr
+    IM = rawdata.dot(Ai) / dr
     # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, !! not
     # which should recreate the original image                  !! really
     return IM
@@ -185,62 +209,46 @@ def _get_Ai(M, Mc, reg):
         given basis sets M, Mc,
         return matrix of inverse Abel transform
     """
-
     # Ai  is the overall (horizontal) transform matrix,
-    #     corresponds to A^T Z in the article
-    # reg corresponds to q_1^2 in the article
+    #     corresponds to A^T Z in the article.
+    # reg corresponds to q_1^2 in the article.
 
-    if reg == 0.0:
-        Ai = scipy.dot(inv(M.T), Mc.T)  # (this works only for nbf == n)
+    n, nbf = M.shape
+    if reg == 0.0 and nbf == n:
+        Ai = inv(M.T).dot(Mc.T)
     else:
-        nbf = np.shape(M)[1]
         # square of Tikhonov matrix
         E = np.diag([reg] * nbf)
         # regularized inverse of basis projection
-        R = scipy.dot(M, inv(scipy.dot(M.T, M) + E))
+        R = M.dot(inv((M.T).dot(M) + E))
         # {expansion coefficients} = projection . R
         # image = {expansion coefficients} . {image basis}
         # so: image = projection . (R . {image basis})
         #     image = projection . Ai
         #     Ai = R . {image basis}
         # Ai is the matrix of the inverse Abel transform
-        Ai = scipy.dot(R, Mc.T)
-
-    # use an heuristic scaling factor to match the analytical abel transform
-    # For more info see https://github.com/PyAbel/PyAbel/issues/4
-    MAGIC_NUMBER = 1.1122244156826457
-    Ai *= MAGIC_NUMBER
+        Ai = R.dot(Mc.T)
 
     return Ai
 
 
-def _nbf_default(n, nbf):
-    """ An internal helper function for the asymmetric case
-        to check that nbf = n and print a warning otherwise
+def _nbf(n, sigma):
     """
-    if nbf == 'auto':
-        nbf = n
-    elif isinstance(nbf, (int, long)):
-        if nbf != n:
-            print('Warning: the number of basis functions '
-                  'nbf = {} != n  = {}\n'.format(nbf, n))
-            print('This behaviour is currently not tested '
-                  'and should not be used '
-                  'unless you know exactly what you are doing. '
-                  'Setting nbf="auto" is best for now.')
-    else:
-        raise ValueError('nbf must be set to "auto" or an integer')
-    return nbf
+    Internal helper function.
+    Calculates the number of basis functions **nbf** from
+    the half-image width **n** and the basis width parameter **sigma**.
+    """
+    return int(round(n / sigma))
 
 
 # Cached matrices and their parameters
-_prm = None  # [n, nbf]
-_M = None    # [M, Mc]
-_reg = None  # reg
-_Ai = None   # Ai
+_bs_prm = None  # [n, sigma]
+_bs = None      # [M, Mc]
+_tr_prm = None  # [reg, correction]
+_tr = None      # Ai
 
-def get_bs_basex_cached(n, nbf='auto', reg=0.0,
-                        basis_dir='.', verbose=False):
+def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
+                  basis_dir='.', verbose=False):
     """
     Internal function.
 
@@ -254,45 +262,87 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
     Parameters
     ----------
     n : int
-        Abel inverse transform will be performed on a
-        ``n`` pixels wide area of the (half) image
-    nbf : int
-        number of basis functions. If ``nbf='auto'``,
-        ``n`` is set to ``n``.
+        Abel inverse transform will be performed on an
+        **n** pixels wide area of the (half) image
+    sigma : float
+        width parameter for basis functions
     reg : float
         regularization parameter
+    correction : boolean
+        apply intensity correction.
+        Corrects wrong intensity normalization (seen for narrow basis sets),
+        intensity oscillations (seen for broad basis sets),
+        and intensity drop-off near *r* = 0 due to regularization.
     basis_dir : str
         path to the directory for saving / loading the basis sets.
-        If None, the basis sets will not be saved to disk.
+        If ``None``, the basis sets will not be saved to disk.
 
     Returns
     -------
-    Ai: numpy array
-        the matrix of the inverse Abel transform.
+    Ai : n × n numpy array
+        the matrix of the inverse Abel transform
     """
 
-    global _prm, _M, _reg, _Ai
+    global _bs_prm, _bs, _tr_prm, _tr
 
-    # Sanitize nbf
-    nbf = _nbf_default(n, nbf)
-
+    sigma = float(sigma)  # (ensure FP format)
+    nbf = _nbf(n, sigma)
     M = None
     # Check whether basis for these parameters is already loaded
-    if _prm == [n, nbf]:
+    if _bs_prm == [n, sigma]:
         if verbose:
             print('Using memory-cached basis sets')
-        M, Mc = _M
+        M, Mc = _bs
     else:  # try to load basis
-        basis_name = 'basex_basis_{}_{}.npy'.format(n, nbf)
-
         if basis_dir is not None:
-            path_to_basis_file = os.path.join(basis_dir, basis_name)
-            if os.path.exists(path_to_basis_file):  # Use existing basis set
+            basis_file = 'basex_basis_{}_{}.npy'.format(n, sigma)
+
+            def full_path(file_name):
+                return os.path.join(basis_dir, file_name)
+
+            # Try to find a suitable existing basis set
+            if os.path.exists(full_path(basis_file)):
+                # have exactly needed
+                best_file = basis_file
+            else:
+                # Find the best (smallest among sufficient)
+                # and the largest (to extend if not sufficient)
+                best_file = None
+                best_n = sys.maxsize
+                largest_file = None
+                largest_n = 0
+                mask = re.compile(r'basex_basis_(\d+)_{}\.npy$'.format(sigma))
+                for f in listdir(basis_dir):
+                    # filter BASEX basis files
+                    match = mask.match(f)
+                    if not match:
+                        continue
+                    # extract basis image size (sigma was fixed above)
+                    f_n = int(match.group(1))
+                    # must be large enough and smaller than previous best
+                    if f_n >= n and f_n < best_n:
+                        # remember as new best
+                        best_file = f
+                        best_n = f_n
+                    # largest must be just larger than previous
+                    if f_n > largest_n:
+                        # remember as new largest
+                        largest_file = f
+                        largest_n = f_n
+
+            # If found, try to use it
+            if best_file:
                 if verbose:
                     print('Loading basis sets...')
                     # saved as a .npy file
                 try:
-                    M, Mc, M_version = np.load(path_to_basis_file)
+                    M, Mc, M_version = np.load(full_path(best_file))
+                    # crop if loaded larger
+                    if M.shape != (n, nbf):
+                        M = M[:n, :nbf]
+                        Mc = Mc[:n, :nbf]
+                        if verbose:
+                            print('(cropped from {})'.format(best_file))
                 except ValueError:
                     print('Cached basis file incompatible.')
 
@@ -305,135 +355,246 @@ def get_bs_basex_cached(n, nbf='auto', reg=0.0,
                     print('But don\'t worry, '
                           'it will be saved to disk for future use.')
 
-            M, Mc = _bs_basex(n, nbf, verbose=verbose)
+            # Try to extend the largest available
+            try:
+                oldM, oldMc, M_version = np.load(full_path(largest_file))
+                if verbose:
+                    print('(extending {})'.format(largest_file))
+            except:
+                oldM = None  # (old Mc is not needed)
+
+            M, Mc = _bs_basex(n, sigma, oldM, verbose=verbose)
 
             if basis_dir is not None:
-                np.save(path_to_basis_file,
+                np.save(full_path(basis_file),
                         (M, Mc, np.array(__version__)))
                 if verbose:
                     print('Basis set saved for later use to')
-                    print('  {}'.format(path_to_basis_file))
+                    print('  {}'.format(basis_file))
 
-        _prm = [n, nbf]
-        _M = [M, Mc]
-        _reg = None
+        _bs_prm = [n, sigma]
+        _bs = [M, Mc]
+        _tr_prm = None
 
     # Check whether transform matrices for this regularization
     # are already loaded
-    if _reg == reg:
-        Ai = _Ai
+    if _tr_prm == [reg, correction]:
+        Ai = _tr
     else:  # recalculate
         if verbose:
             print('Updating regularization...')
-        Ai = _get_Ai(*_M, reg=reg)
-        _reg = reg
-        _Ai = Ai
+        Ai = _get_Ai(*_bs, reg=reg)
+        if correction:
+            if verbose:
+                print('Calculating correction...')
+            cor = get_basex_correction(Ai, sigma)
+            Ai = np.multiply(Ai, cor)
+        _tr_prm = [reg, correction]
+        _tr = Ai
 
     return Ai
 
 
-MAX_BASIS_SET_OFFSET = 4000
-
-def _bs_basex(n=251, nbf=251, verbose=True):
+def cache_cleanup():
     """
-    Generates basis sets for the BASEX method
-    without assuming up/down symmetry.
+    Utility function.
+
+    Frees the memory caches created by ``get_bs_cached()``.
+    This is usually pointless, but might be required after working
+    with very large images, if more RAM is needed for further tasks.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
+    global _bs_prm, _bs, _tr_prm, _tr
+
+    _bs_prm = None
+    _bs = None
+    _tr_prm = None
+    _tr = None
+
+
+def get_basex_correction(Ai, sigma):
+    """
+    Internal function.
+
+    The default BASEX basis and the way its projection is calculated
+    leads to artifacts in the reconstructed distribution --
+    incorrect overall intensity for **sigma** = 1,
+    intensity oscillations for other **sigma** values,
+    intensity fluctuations (and drop-off for **reg** > 0) near *r* = 0.
+    This function generates the intensity correction profile
+    from the BASEX result for a step function with a soft edge (to avoid
+    ringing) aligned with the last basis function.
+
+    Parameters
+    ----------
+    Ai : n × n numpy array
+        matrix of the inverse Abel transform
+    sigma : float
+        basis width parameter
+
+    Returns
+    -------
+    cor : 1 × **n** numpy array
+        intensity correction profile
+    """
+    n = Ai.shape[0]
+    nbf = _nbf(n, sigma)
+
+    # Generate soft step function and its projection
+    r = np.arange(float(n))
+    # edge center, aligned with the last basis function
+    c = (nbf - 0.5) * sigma
+    # soft-edge halfwidth
+    w = sigma
+    # soft step: stitched constant (shelf) and 2 parabolas (soft edge)
+    step = PiecewisePolynomial(r, [(0, c - w, [1]),
+                                   (c - w, c, [1, 0, -1/2], c - w, w),
+                                   (c, c + w, [0, 0, 1/2], c + w, w)])
+    # (this is more numerically stable at large r than cubic smoothstep)
+
+    # get BASEX inverse Abel transform of the projection
+    tran = basex_core_transform(step.abel, Ai)
+
+    # correction profile = expected / BASEX result
+    cor = step.func / tran
+
+    return cor
+
+
+# The analytical expresion for the k-th basis-function projection
+# involves a sum of k^2 terms, most of which are very small.
+# Setting BASIS_SET_CUTOFF = c truncates this sum to ±cu terms
+# around the maximum (u = x / sigma).
+# The computation time is roughly proportional to this parameter,
+# while the accuracy (at least for n, k < 10000) is as follows:
+#   cutoff   relative error
+#     4        < 2e-4
+#     5        < 2e-6
+#     6        < 7e-9
+#     7        < 1e-11
+#     8        < 6e-15
+#     9        < 1e-15
+# The last one reaches the 64-bit floating-point precision,
+# so going beyond that is useless.
+# See https://github.com/PyAbel/PyAbel/issues/230
+BASIS_SET_CUTOFF = 9  # numerically exact
+
+def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
+    """
+    Generates horizontal basis sets for the BASEX method.
 
     Parameters:
     -----------
     n : integer
-        Horizontal dimensions of the half-width image in pixels.
-        Must inglude the axial pixel.
+        horizontal dimensions of the half-width image in pixels.
+        Must include the axial pixel.
         See https://github.com/PyAbel/PyAbel/issues/34
-    nbf : integer
-        Number of basis functions in the x direction.
-        Must be less than or equal (default) to n
+    sigma : float
+        width parameter for basis functions
+    oldM : numpy array
+        projected basis matrix for the same ``sigma`` but a smaller image size.
+        Can be supplied to avoid recalculating matrix elements
+        that are already available.
 
     Returns:
     --------
-      M, Mc : numpy arrays
+    M, Mc : n x nbf numpy arrays
+        ``Mc`` is the reconstructed-image basis rho_k(r_i) (~Gaussians),
+               corresponds to Z^T in the article.
+        ``M``  is the projected basis chi_k(x_i),
+               corresponds to X^T in the article.
     """
 
-    # Mc is the reconstructed-image basis (Gaussians),
-    #    corresponds to Z^T in the article
-    # M  is the basis projection,
-    #    corresponds to X^T in the article
-
-    if nbf > n:
-        raise ValueError('The number of horizontal basis functions (nbf) '
-                         'cannot be greater than n')
-
-    nf = 2 * n - 1  # full width
-
-    Rm_h = n
-
-    I_h = np.arange(1, nf + 1)
-
-    R2_h = (I_h - Rm_h)**2
-    M = np.zeros((nf, nbf))
-    Mc = np.zeros((nf, nbf))
-
-    M[:, 0] = 2*np.exp(-R2_h)
-    Mc[:, 0] = np.exp(-R2_h)
-
-    gammaln_0o5 = gammaln(0.5)
+    sigma = float(sigma)  # (ensure FP type)
+    nbf = _nbf(n, sigma)  # number of basis functions
 
     if verbose:
         print('Generating horizontal BASEX basis sets for '
-              'n = {}:\n'.format(n))
-        sys.stdout.write('0')
+              'n = {}, sigma = {} (nbf = {}):'.format(n, sigma, nbf))
+        print('k = 0...', end='')
         sys.stdout.flush()
 
-    # the number of elements used to calculate the projected coefficeints
-    delta = np.fmax(np.arange(nbf)*32 - MAX_BASIS_SET_OFFSET,
-                    MAX_BASIS_SET_OFFSET)
+    # Precompute tables of ln Gamma(...) terms;
+    # notice that index i corresponds to argument i + 1 (and i + 1/2).
+    maxk2 = (nbf - 1)**2
+    # for Gamma(k^2 + 1) and Gamma(l + 1)
+    lngamma = gammaln(np.arange(maxk2 + 1) + 1)
+    # for Gamma(k^2 - l + 1) - Gamma(k^2 - l + 1/2)
+    Dlngamma = lngamma - gammaln(np.arange(maxk2 + 1) + 1/2)
+
+    # reduced coordinates u = x/sigma (or r/sigma) and their squares
+    U = np.arange(float(n)) / sigma
+    U2 = U * U
+
+    Mc = np.empty((n, nbf))
+    M = np.empty((n, nbf))
+    # (indexing is Mc[r, k], M[x, k])
+    old_n, old_nbf = 0, 0
+    # reuse old elements, if available
+    if oldM is not None:
+        old_n, old_nbf = oldM.shape
+        M[:old_n, :old_nbf] = oldM / sigma  # (full M will be *= sigma later)
+
+    # Cases k = 0 and x = 0 (r = 0) are special, since general expressions
+    # are valid only if considered as limits; here they are computed
+    # separately, using expressions that result from taking these limits.
+    # In all cases the sigma factor in projections is applied afterwards.
+
+    # rho_0(r) = exp(-u^2)
+    Mc[:, 0] = np.exp(-U2)
+    # chi_0(x) = sqrt(pi) sigma exp(-u^2) = Gamma(1/2) sigma exp(-u^2)
+    M[:, 0] = np.exp(gammaln(1/2) - U2)
+
     for k in range(1, nbf):
-        k2 = k*k  # so we don't recalculate it all the time
-        log_k2 = log(k2)
-        angn = exp(k2 * (1 - log_k2) +
-                   gammaln(k2 + 0.5) - gammaln_0o5)
-        M[Rm_h-1, k] = 2 * angn
-        for l in range(1, nf - Rm_h + 1):
-            l2 = l*l
-            log_l2 = log(l2)
+        k2 = k * k
+        # prefactor ln[(e/k^2)^(k^2)]
+        ek = (1 - log(k2)) * k2
 
-            val = exp(k2 * (1 + log(l2/k2)) - l2)
+        # Basis function rho_k(r)
+        Mc[0, k] = 0
+        Mc[1:, k] = np.exp(ek + np.log(U[1:]) * 2 * k2 - U2[1:])
 
-            Mc[Rm_h - 1 + l, k] = val  # All rows below center
-            # Mc[Rm_h - 1 - l, k] = val  # All rows above center
-
-            aux = val + angn * Mc[Rm_h - 1 + l, 0]
-
-            p = np.arange(max(1, l2 - delta[k]),
-                          min(k2 - 1,  l2 + delta[k]) + 1)
-            """
-            We use here the fact that for p, k real and positive
-            np.log(np.arange(p, k)).sum() == gammaln(k) - gammaln(p)
-            where gammaln is scipy.misc.gammaln
-            (i.e. the log of the Gamma function)
-            The following line corresponds to the vectorized third
-            loop of the original BASIS2.m matlab file.
-            """
-            aux += np.exp(
-                k2 - l2 - k2*log_k2 + p*log_l2 +
-                gammaln(k2 + 1) - gammaln(p + 1) + gammaln(k2 - p + 0.5) -
-                gammaln_0o5 - gammaln(k2 - p + 1)).sum()
-            # End of vectorized third loop
-            aux *= 2
-
-            M[Rm_h - 1 + l, k] = aux  # All rows below center
-            # M[Rm_h - 1 - l, k] = aux  # All rows above center
+        # Projected basis function chi_k(x)
+        # full range of l
+        L = np.arange(k2 + 1)
+        # all ln Gamma(...) terms
+        G = lngamma[k2] - lngamma[L] - Dlngamma[k2 - L]
+        # Calculate chi_k(x) at each x_i
+        M[0, k] = exp(ek + G[0])  # (u^(2l) = 1 for l = 0, otherwise 0)
+        for i, u2 in enumerate(U2[1:], 1):
+            # skip what was already filled
+            if i < old_n and k < old_nbf:
+                continue
+            u = U[i]
+            if u > k + 8:  # beyond outer shoulder
+                M[i, k] = 0.0
+                continue
+            # index of the largest component
+            lmax = min(int(u2), k2)
+            # halfwidth of the important range
+            delta = int(BASIS_SET_CUTOFF * (u + 2))
+            # summation limits: ±delta from the maximum, but within [0, k^2]
+            minl = max(0, lmax - delta)
+            maxl = min(lmax + delta, k2)
+            # list of ln[u^(2l)]
+            lnu2L = log(u2) * L[minl:maxl+1]
+            # sum over the important range
+            M[i, k] = np.exp(ek - u2 + G[minl:maxl+1] + lnu2L).sum()
 
         if verbose and k % 50 == 0:
-            sys.stdout.write('...{}'.format(k))
+            print('{}...'.format(k), end='')
             sys.stdout.flush()
 
     if verbose:
-        print('...{}'.format(k+1))
+        print(k + 1)
 
-    # taking only needed halves
-    # (all the code above must be modified to work with halves throughout)
-    M = M[n-1:, :]
-    Mc = Mc[n-1:, :]
+    M *= sigma  # applying the sigma factor
 
     return M, Mc

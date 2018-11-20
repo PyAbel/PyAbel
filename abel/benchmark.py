@@ -50,7 +50,7 @@ class AbelTiming(object):
 
         transform = {
             'basex': basex.basex_core_transform,
-            'basex_bs': basex.get_bs_basex_cached,
+            'basex_bs': basex.get_bs_cached,
             'direct_Python': direct.direct_transform,
             'direct_C': direct.direct_transform,
             'hansenlaw': hansenlaw.hansenlaw_transform,

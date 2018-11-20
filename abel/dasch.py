@@ -386,7 +386,7 @@ def cache_cleanup():
     None
     """
 
-    global _D, _method
+    global _D, _method, _source
 
     _D = None
     _method = None

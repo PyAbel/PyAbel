@@ -7,7 +7,7 @@ import scipy.constants as const
 import scipy.interpolate
 
 # This file includes functions that have a known analytical Abel transform.
-# They are used in unit testing as well for comparing different Abel
+# They are used in unit testing and for comparing different Abel
 # impementations.
 
 
@@ -37,8 +37,8 @@ class BaseAnalytical(object):
             maximum r interval
 
         symmetric: boolean
-            if True the r interval is [-r_max, r_max]  (and n should be odd)
-                          otherwise the r interval is [0, r_max]
+            if True, the r interval is [-r_max, r_max] (and n should be odd),
+            otherwise, the r interval is [0, r_max]
         """
         self.n = n
         self.r_max = r_max
@@ -54,36 +54,32 @@ class BaseAnalytical(object):
 
 
 class StepAnalytical(BaseAnalytical):
+    """
+    Define a symmetric step function and calculate its analytical
+    Abel transform. See examples/example_step.py
+
+    Parameters
+    ----------
+    n : int
+        number of points along the r axis
+    r_max : float
+        range of the r interval
+    symmetric : boolean
+        if True, the r interval is [-r_max, r_max] (and n should be odd),
+        otherwise the r interval is [0, r_max]
+    r1, r2 : float
+        bounds of the step function if r > 0
+        (symmetric function is constructed for r < 0)
+    A0: float
+        height of the step
+    ratio_valid_step: float
+        in the benchmark take only the central ratio*100% of the step
+        (exclude possible artefacts on the edges)
+    """
+    # see https://github.com/PyAbel/PyAbel/pull/16
 
     def __init__(self, n, r_max, r1, r2, A0=1.0,
                  ratio_valid_step=1.0, symmetric=True):
-        """
-        Define a a symmetric step function and calculate it's analytical
-        Abel transform. See examples/example_step.py
-
-        Parameters
-        ----------
-        n : int
-            number of points along the r axis
-        r_max: float
-            range of the symmetric r interval
-        symmetric: if True
-            the r interval is [-r_max, r_max]
-            (and n should be odd)
-            otherwise the r interval is [0, r_max]
-        r1, r2: floats
-            bounds of the step function if r > 0
-            (symetic function is constructed for r < 0)
-        A0: float
-            height of the step
-        ratio_valid_step: float
-            in the benchmark take only the central ratio*100% of the step
-            (exclude possible artefacts on the edges)
-
-        see https://github.com/PyAbel/PyAbel/pull/16
-
-        """
-
         super(StepAnalytical, self).__init__(n, r_max, symmetric)
 
         self.r1, self.r2 = r1, r2
@@ -104,7 +100,7 @@ class StepAnalytical(BaseAnalytical):
 
     def abel_step_analytical(self, r, A0, r0, r1):
         """
-        Directed Abel transform of a step function located between r0 and r1,
+        Forward Abel transform of a step function located between r0 and r1,
         with a height A0
 
         ::
@@ -119,17 +115,17 @@ class StepAnalytical(BaseAnalytical):
 
         Parameters
         ----------
-        r1 : 1D array,
+        r1 : 1D array
             vecor of positions along the r axis. Must start with 0.
-        r0, r1 : floats,
+        r0, r1 : float
             positions of the step along the r axis
-        A0 : float or 1D array:
-            height of the step. If 1D array the height can be variable
-            along the Z axis
+        A0 : float or 1D array
+            height of the step. If 1D array, the height can be variable
+            along the z axis
 
         Returns
         -------
-            1D array if A0 is a float, a 2D array otherwise
+            1D array, if A0 is a float, a 2D array otherwise
         """
 
         if np.all(r[[0, -1]]):
@@ -151,7 +147,7 @@ class StepAnalytical(BaseAnalytical):
 
     def sym_abel_step_1d(self, r, A0, r0, r1):
         """
-        Produces a symmetrical analytical transform of a 1d step
+        Produces a symmetrical analytical transform of a 1D step
         """
         A0 = np.atleast_1d(A0)
         d = np.empty(A0.shape + r.shape)
@@ -163,35 +159,140 @@ class StepAnalytical(BaseAnalytical):
         return d
 
 
+class Polynomial(BaseAnalytical):
+    """
+    Define a polynomial function and calculate its analytical
+    Abel transform.
+
+    Parameters
+    ----------
+    n : int
+        number of points along the *r* axis
+    r_max : float
+        range of the *r* interval
+    symmetric : boolean
+        if ``True``, the *r* interval is [−\ **r_max**, +\ **r_max**]
+        (and **n** should be odd),
+        otherwise the *r* interval is [0, **r_max**]
+    r_1, r_2 : float
+        *r* bounds of the polynomial function if *r* > 0;
+        outside [**r_1**, **r_2**] the function is set to zero
+        (symmetric function is constructed for *r* < 0)
+    c: numpy array
+        polynomial coefficients in order of increasing degree:
+        [c₀, c₁, c₂] means c₀ + c₁ *r* + c₂ *r*\ ²
+    r_0 : float, optional
+        origin shift: the polynomial is defined as
+        c₀ + c₁ (*r* − **r_0**) + c₂ (*r* − **r_0**)² + ...
+    s : float, optional
+        *r* stretching factor (around **r_0**): the polynomial is defined as
+        c₀ + c₁ (*r*/s) + c₂ (*r*/s)² + ...
+    reduced : boolean, optional
+        internally rescale the *r* range to [0, 1];
+        useful to avoid floating-point overflows for high degrees
+        at large *r* (and might improve numerical accuracy)
+    """
+    def __init__(self, n, r_max,
+                 r_1, r_2, c, r_0=0.0, s=1.0, reduced=False,
+                 symmetric=True):
+        super(Polynomial, self).__init__(n, r_max, symmetric)
+
+        # take r >= 0 part
+        if symmetric:
+            r = self.r[n//2:]
+        else:
+            r = self.r
+
+        P = abel.tools.polynomial.Polynomial(r, r_1, r_2, c, r_0, s, reduced)
+        self.func = P.func
+        self.abel = P.abel
+
+        # mirror to negative r, if needed
+        if symmetric:
+            self.func = np.hstack((self.func[:0:-1], self.func))
+            self.abel = np.hstack((self.abel[:0:-1], self.abel))
+
+        self.mask_valid = np.ones_like(self.func)
+
+
+class PiecewisePolynomial(BaseAnalytical):
+    """
+    Define a piecewise polynomial function (sum of ``Polynomial``\ s)
+    and calculate its analytical Abel transform.
+
+    Parameters
+    ----------
+    n : int
+        number of points along the *r* axis
+    r_max : float
+        range of the *r* interval
+    symmetric : boolean
+        if ``True``, the *r* interval is [−\ **r_max**, +\ **r_max**]
+        (and **n** should be odd),
+        otherwise the *r* interval is [0, **r_max**]
+    ranges : iterable of unpackable
+        (list of tuples of) polynomial parameters for each piece::
+
+           [(r_1_1st, r_2_1st, c_1st),
+            (r_1_2nd, r_2_2nd, c_2nd),
+            ...
+            (r_1_nth, r_2_nth, c_nth)]
+
+        according to ``Polynomial`` conventions.
+        All ranges are independent (may overlap and have gaps, may define
+        polynomials of any degrees) and may include optional ``Polynomial``
+        parameters
+    """
+    def __init__(self, n, r_max,
+                 ranges,
+                 symmetric=True):
+        super(PiecewisePolynomial, self).__init__(n, r_max, symmetric)
+
+        # take r >= 0 part
+        if symmetric:
+            r = self.r[n//2:]
+        else:
+            r = self.r
+
+        P = abel.tools.polynomial.PiecewisePolynomial(r, ranges)
+        self.func = P.func
+        self.abel = P.abel
+
+        # mirror to negative r, if needed
+        if symmetric:
+            self.func = np.hstack((self.func[:0:-1], self.func))
+            self.abel = np.hstack((self.abel[:0:-1], self.abel))
+
+        self.mask_valid = np.ones_like(self.func)
+
+
 class GaussianAnalytical(BaseAnalytical):
+    """
+    Define a gaussian function and calculate its analytical
+    Abel transform. See examples/example_gaussian.py
+
+    Parameters
+    ----------
+    n : int
+        number of points along the r axis
+    r_max : float
+        range of the r interval
+    symmetric : boolean
+        if True, the r interval is [-r_max, r_max] (and n should be odd),
+        otherwise, the r interval is [0, r_max]
+    sigma : floats
+        sigma parameter for the gaussian
+    A0 : float
+        amplitude of the gaussian
+    ratio_valid_sigma : float
+        in the benchmark take only the range
+        0 < r < ration_valid_sigma * sigma
+        (exclude possible artefacts on the axis and the possibly clipped tail)
+    """
+    # Source: http://mathworld.wolfram.com/AbelTransform.html
+
     def __init__(self, n, r_max, sigma=1.0, A0=1.0,
                  ratio_valid_sigma=2.0, symmetric=True):
-        """
-        Define a gaussian function and calculate its analytical
-        Abel transform. See examples/example_gaussian.py
-
-        Parameters
-        ----------
-        n : int
-            number of points along the r axis
-        r_max: float
-            range of the symmetric r interval
-        symmetric: if True
-            the r interval is [-r_max, r_max]
-            (and n should be odd)
-            otherwise the r interval is [0, r_max]
-        sigma: floats
-            sigma parameter for the gaussian
-        A0: float
-            amplitude of the gaussian
-        ratio_valid_sigma: float
-            in the benchmark ta
-            0 < r < ration_valid_sigma * sigma
-            (exclude possible artefacts on the axis, and )
-
-        Source: http://mathworld.wolfram.com/AbelTransform.html
-        """
-
         super(GaussianAnalytical, self).__init__(n, r_max, symmetric)
 
         self.sigma = sigma
@@ -242,7 +343,7 @@ class TransformPair(BaseAnalytical):
     """
 
     def __init__(self, n, profile=5):
-        """Create Abel transform pair for profile `n`.
+        """Create Abel transform pair for given profile number.
 
         Parameters
         ----------
@@ -264,7 +365,7 @@ class TransformPair(BaseAnalytical):
         r[-1] -= 1.0e-8
 
         if profile > 8:
-            raise ValueError('only 1-8 profiles:'
+            raise ValueError('Only 1-8 profiles: '
                              'see "abel/tools/transform_pairs.py"')
 
         self.label = 'profile{}'.format(profile)
@@ -277,35 +378,34 @@ class TransformPair(BaseAnalytical):
 
 
 class SampleImage(BaseAnalytical):
+    """
+    Sample images, made up of Gaussian functions
 
+    Parameters
+    ----------
+    n : integer
+        image size n rows x n cols
+
+    name : str
+        one of "dribinski" or "Ominus"
+
+    sigma : float
+        Gaussian 1/e width (pixels)
+
+    temperature : float
+        for 'Ominus' only
+        anion levels have Boltzmann population weight
+        (2J+1) exp(-177.1 h c 100/k/temperature)
+
+    Attributes
+    ----------
+    image : 2D numpy array
+         image
+
+    name : str
+         sample image name
+    """
     def __init__(self, n=361, name="dribinski", sigma=2, temperature=200):
-        """
-        Sample images, made up of Gaussian functions
-
-        Parameters
-        ----------
-        n : integer
-            image size n rows x n cols
-
-        name : str
-            one of "dribinski" or "Ominus"
-
-        sigma : float
-            Gaussian 1/e width (pixels)
-
-        temperature : float
-            for 'Ominus' only
-            anion levels have Boltzmann population weight
-            (2J+1) exp(-177.1 h c 100/k/temperature)
-
-        Attributes
-        ----------
-        image : 2D np.array
-             image
-
-        name : str
-             sample image name
-        """
 
         def _gauss(r, r0, sigma):
             return np.exp(-(r-r0)**2/sigma**2)
@@ -315,7 +415,7 @@ class SampleImage(BaseAnalytical):
             Sample test image used in the BASEX paper
             Rev. Sci. Instrum. 73, 2634 (2002)
 
-            9x Gaussian functions of half-width 4 pixel +
+            9 Gaussian functions of half-width 4 pixel +
             1 background Gaussian of width 3600
 
             anisotropy - ß = -1  for cosθ term
@@ -357,7 +457,7 @@ class SampleImage(BaseAnalytical):
             t6 = _gauss(r, 324*rfact, sigma)  # 3P0 <- 2P1/2
 
             # intensities = fine-structure known ratios
-            # 2P1/2 transtions scaled by temperature dependent Boltzmann factor
+            # 2P1/2 transtions scaled by temperature-dependent Boltzmann factor
             t = t1 + 0.8*t2 + 0.36*t3 + (0.2*t4 + 0.36*t5 + 0.16*t6)*boltzmann
 
             # anisotropy
@@ -385,4 +485,4 @@ class SampleImage(BaseAnalytical):
                         / 2
             self.image = _Ominus(R, THETA, sigma=sigma, boltzmann=boltzmann)
         else:
-            raise ValueError('sample image name not recognized')
+            raise ValueError('Sample image name not recognized')

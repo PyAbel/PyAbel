@@ -103,6 +103,14 @@ abel.tools.polar module
     :undoc-members:
     :show-inheritance:
 
+abel.tools.polynomial module
+-----------------------
+
+.. automodule:: abel.tools.polynomial
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 abel.tools.transform_pairs module
 ----------------------------------
 

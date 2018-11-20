@@ -546,7 +546,7 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
     return _basis
 
 
-def basis_cache_cleanup():
+def cache_cleanup():
     """
     Utility function.
 
