@@ -164,6 +164,8 @@ class Polynomial(BaseAnalytical):
     Define a polynomial function and calculate its analytical
     Abel transform.
 
+    (See :ref:`Polynomials` for details and examples.)
+
     Parameters
     ----------
     n : int
