@@ -13,14 +13,15 @@ Introduction
 
 ``PyAbel`` is a Python package that provides functions for the forward and inverse `Abel transforms <https://en.wikipedia.org/wiki/Abel_transform>`_. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
 
+.. image:: https://user-images.githubusercontent.com/1107796/48970223-1b477b80-efc7-11e8-9feb-c614d6cadab6.png
+   :width: 500px
+   :alt: PyAbel
+   :align: right
+
 Inverse Abel transforms play an important role in analyzing the projections of angle-resolved photoelectron/photoion spectra, plasma plumes, flames, and solar occultation.
 
 PyAbel provides efficient implementations of several Abel transform algorithms, as well as related tools for centering images, symmetrizing images, and calculating properties such as the radial intensity distribution and the anisotropy parameters.
 
-.. image:: https://cloud.githubusercontent.com/assets/1107796/13302896/7c7e74e2-db09-11e5-9683-a8f2c523af94.png
-   :width: 430px
-   :alt: PyAbel
-   :align: right
 
 
 Transform Methods
@@ -44,15 +45,11 @@ The outcome of the numerical Abel Transform depends on the exact method used. So
 
     8. ``linbasex`` - the 1D-spherical basis set expansion of Gerber *et al.*
 
-    9. ``fh`` - Fourier–Hankel method (not yet implemented).
-
-    10. ``pop`` - polar onion peeling method (not yet implemented).
-
 
 Installation
 ------------
 
-PyAbel requires Python 2.7 or 3.3-3.5. Numpy and Scipy are also required, and Matplotlib is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
+PyAbel requires Python 2.7 or 3.5-3.7. `Numpy <http://www.numpy.org/>`_ and `Scipy <https://www.scipy.org/>`_ are also required, and Matplotlib is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
 
 With pip
 ~~~~~~~~
