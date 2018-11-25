@@ -4,6 +4,8 @@ matrix:
   include:
   - python: '3.7'
     env: DEPS="numpy scipy nose cython"
+    sudo: true
+    dist: xenial
   - python: '3.6'
     env: DEPS="numpy scipy nose cython"
   - python: '2.7'
