@@ -15,7 +15,7 @@ examples/*.dat
 *.c
 *.so
 *.png
-
+*pytest_cache*
 doc/_build/
 abel/tools/center.py.orig
 abel/tools/vmi.py.orig

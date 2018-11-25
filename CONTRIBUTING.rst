@@ -11,6 +11,10 @@ Unit tests
 ----------
 
 Before submitting at Pull Request, be sure to run the unit tests. The test suite can be run from within the PyAbel package with ::
+    
+    pytest
+    
+For more detailed information, the following can be used:  ::
 
     pytest abel/  -v  --cov=abel
 

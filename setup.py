@@ -115,7 +115,6 @@ setup(name='PyAbel',
       packages=find_packages(),
       install_requires=install_requires,
       package_data={'abel': ['tests/data/*' ]},
-      test_suite="abel.tests.run_cli",
       long_description=long_description,
       classifiers=[
       # How mature is this project? Common values are
