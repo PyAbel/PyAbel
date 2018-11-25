@@ -71,14 +71,6 @@ abel.tools.analytical module
     :undoc-members:
     :show-inheritance:
 
-abel.tools.basis module
-------------------------
-
-.. automodule:: abel.tools.basis
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 abel.tools.center module
 ------------------------
 
@@ -107,6 +99,14 @@ abel.tools.polar module
 -----------------------
 
 .. automodule:: abel.tools.polar
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.tools.polynomial module
+-----------------------
+
+.. automodule:: abel.tools.polynomial
     :members:
     :undoc-members:
     :show-inheritance:

@@ -34,8 +34,8 @@ def test_linbasex_forward_dribinski_image():
 
     # inverse Abel transform
     ifIM = abel.Transform(fIM.transform, method='linbasex',
-                          transform_options=dict(sig_s=0, inc=1, 
-                                            un=[0, 2], an=[0, np.pi/2],
+                          transform_options=dict(legendre_orders=[0, 2], 
+                                            proj_angles=[0, np.pi/2],
                                             return_Beta=True))
 
     # speed distribution

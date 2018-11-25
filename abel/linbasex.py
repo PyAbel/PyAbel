@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 import abel
+import os
 import scipy
 from scipy.special import eval_legendre
 from scipy import ndimage
@@ -68,7 +69,7 @@ _linbasex_parameter_docstring = \
         set rcond to zero to switch conditioning off.
         Note: In the presence of noise the equation system may be ill posed.
         Increasing rcond smoothes the result, lowering it beyond a minimum
-        renders the solution unstable. Tweak rcond to get a "reasonable" 
+        renders the solution unstable. Tweak rcond to get a "reasonable"
         solution with acceptable resolution.
     clip : int
         clip first vectors (smallest Newton spheres) to avoid singularities
@@ -80,7 +81,7 @@ _linbasex_parameter_docstring = \
         becomes 1.
     threshold : float
         threshold for normalization of higher order Newton spheres (default 0.2)
-        Set all Beta[j], j>=1 to zero if the associated Beta[0] is smaller 
+        Set all Beta[j], j>=1 to zero if the associated Beta[0] is smaller
         than threshold.
     return_Beta : bool
         return the Beta array of Newton spheres, as the tuple: radial-grid, Beta
@@ -93,6 +94,8 @@ _linbasex_parameter_docstring = \
     direction : str
         "inverse" - only option for this method.
         Abel transform direction.
+    dr : None
+        dummy variable for call compatibility with the other methods
     verbose : bool
         print information about processing (normally used for debugging)
 
@@ -102,10 +105,10 @@ _linbasex_parameter_docstring = \
     inv_IM : numpy 2D array
        inverse Abel transformed image
 
-    radial-grid, Beta, projections : tuple
+    radial, Beta, projections : tuple
        (if :attr:`return_Beta=True`)
-  
-       contributions of each spherical harmonic :math:`Y_{i0}` to the 3D 
+
+       contributions of each spherical harmonic :math:`Y_{i0}` to the 3D
        distribution contain all the information one can get from an experiment.
        For the case :attr:`legendre_orders=[0, 2]`:
 
@@ -117,12 +120,19 @@ _linbasex_parameter_docstring = \
 
     """
 
+# cache basis
+_basis = None
+_los = None   # legendre_orders string
+_pas = None   # proj_angles string
+_radial_step = None
+_clip = None
 
-def linbasex_transform(IM, proj_angles=[0, np.pi/2],
-                       legendre_orders=[0, 2], radial_step=1, smoothing=0.5,
-                       rcond=0.0005, threshold=0.2, basis_dir=None,
-                       return_Beta=False, clip=0, norm_range=(0, -1),
-                       direction="inverse", verbose=False, **kwargs):
+
+def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
+                       legendre_orders=[0, 2], radial_step=1, smoothing=0,
+                       rcond=0.0005, threshold=0.2, return_Beta=False, clip=0,
+                       norm_range=(0, -1), direction="inverse", verbose=False,
+                       dr=None):
     """wrapper function for linebasex to process supplied quadrant-image as a full-image.
 
     PyAbel transform functions operate on the right side of an image.
@@ -134,16 +144,16 @@ def linbasex_transform(IM, proj_angles=[0, np.pi/2],
 
     quad_rows, quad_cols = IM.shape
     full_image = abel.tools.symmetry.put_image_quadrants((IM, IM, IM, IM),
-                       original_image_shape=(quad_rows*2-1, quad_cols*2-1))
+                 original_image_shape=(quad_rows*2-1, quad_cols*2-1))
 
     # inverse Abel transform
     recon, radial, Beta, QLz = linbasex_transform_full(full_image,
-                  proj_angles=proj_angles, legendre_orders=legendre_orders,
-                  radial_step=radial_step, smoothing=smoothing,
-                  basis_dir=basis_dir,
-                  threshold=threshold, clip=clip,
-                  norm_range=norm_range,
-                  verbose=verbose, **kwargs)
+                               basis_dir=basis_dir, proj_angles=proj_angles,
+                               legendre_orders=legendre_orders,
+                               radial_step=radial_step, smoothing=smoothing,
+                               threshold=threshold, clip=clip,
+                               norm_range=norm_range,
+                               verbose=verbose)
 
     # unpack right-side
     inv_IM = abel.tools.symmetry.get_image_quadrants(recon)[0]
@@ -154,13 +164,12 @@ def linbasex_transform(IM, proj_angles=[0, np.pi/2],
         return inv_IM
 
 
-def linbasex_transform_full(IM, proj_angles=[0, np.pi/2],
+def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
                             legendre_orders=[0, 2],
-                            radial_step=1, smoothing=0.5,
+                            radial_step=1, smoothing=0,
                             rcond=0.0005, threshold=0.2, clip=0,
-                            basis_dir=None,
                             return_Beta=False, norm_range=(0, -1),
-                            direction="inverse", verbose=False, **kwargs):
+                            direction="inverse", verbose=False):
     """interface function that fetches/calculates the Basis and
        then evaluates the linbasex inverse Abel transform for the image.
 
@@ -171,20 +180,19 @@ def linbasex_transform_full(IM, proj_angles=[0, np.pi/2],
     rows, cols = IM.shape
 
     if cols % 2 == 0:
-        raise ValueError('image width ({}) must be odd and equal to the height'.format(cols))
+        raise ValueError('image width ({}) must be odd and equal to the height'
+                         .format(cols))
 
     if rows != cols:
         raise ValueError('image has shape ({}, {}), '.format(rows, cols) +
                          'must be square for a "linbasex" transform')
 
     # generate basis or read from file if available
-    Basis = abel.tools.basis.get_bs_cached("linbasex", cols,
-                  basis_dir=basis_dir,
-                  basis_options=dict(proj_angles=proj_angles,
+    _basis = get_bs_cached(cols, basis_dir=basis_dir, proj_angles=proj_angles,
                   legendre_orders=legendre_orders, radial_step=radial_step,
-                  clip=clip, verbose=verbose))
+                  clip=clip, verbose=verbose)
 
-    return _linbasex_transform_with_basis(IM, Basis, proj_angles=proj_angles,
+    return _linbasex_transform_with_basis(IM, _basis, proj_angles=proj_angles,
                                     legendre_orders=legendre_orders,
                                     radial_step=radial_step,
                                     rcond=rcond, smoothing=smoothing,
@@ -194,7 +202,7 @@ def linbasex_transform_full(IM, proj_angles=[0, np.pi/2],
 
 def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
                                    legendre_orders=[0, 2], radial_step=1,
-                                   rcond=0.0005, smoothing=0.5, threshold=0.2,
+                                   rcond=0.0005, smoothing=0, threshold=0.2,
                                    clip=0, norm_range=(0, -1)):
     """linbasex inverse Abel transform evaluated with supplied basis set Basis.
 
@@ -241,6 +249,7 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
     # Fix Me! Issue #202 the correct scaling factor for inv_IM intensity?
     return inv_IM, radial, Beta, QLz
 
+
 linbasex_transform_full.__doc__ = _linbasex_parameter_docstring
 
 
@@ -264,12 +273,13 @@ def _SL(i, x, y, Beta_convol, index, legendre_orders):
     r = np.sqrt(x**2 + y**2 + 0.1)  # + 0.1 to avoid divison by zero.
 
     # normalize: divison by circumference.
-    BB = np.interp(r, index, Beta_convol[i, :], left=0)/(2*np.pi*r)
+    # @stggh 2/r to correctly normalize intensity cf O2 PES
+    BB = np.interp(r, index, Beta_convol[i, :], left=0)/(4*np.pi*r*r)
 
     return BB*eval_legendre(legendre_orders[i], x/r)
 
 
-def _Slices(Beta, legendre_orders, smoothing=0.5):
+def _Slices(Beta, legendre_orders, smoothing=0):
     """Convolve Beta with a Gaussian function of 1/e width smoothing.
 
     """
@@ -391,7 +401,7 @@ def _bas(ord, angle, COS, TRI):
 
 
 def _bs_linbasex(cols, proj_angles=[0, np.pi/2], legendre_orders=[0, 2],
-                 radial_step=1, clip=0, **kwargs):
+                 radial_step=1, clip=0):
 
     pol = len(legendre_orders)
     proj = len(proj_angles)
@@ -437,5 +447,129 @@ def _bs_linbasex(cols, proj_angles=[0, np.pi/2], legendre_orders=[0, 2],
     Basis = np.concatenate((Bpol), axis=0)
 
     return Basis
+
+
+def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
+                  proj_angles=[0, np.pi/2],
+                  radial_step=1, clip=0, verbose=False):
+    """load basis set from disk, generate and store if not available.
+
+    Checks whether file:
+    ``linbasex_basis_{cols}_{legendre_orders}_{proj_angles}_{radial_step}_{clip}*.npy`` is present in `basis_dir`
+
+    Either, read basis array or generate basis, saving it to the file.
+
+
+    Parameters
+    ----------
+    cols : int
+        width of image
+
+    basis_dir : str
+        path to the directory for saving / loading the basis
+
+    legendre_orders : list
+        default [0, 2] = 0 order and 2nd order polynomials
+
+    proj_angles : list
+        default [0, np.pi/2] in radians
+
+    radial_step : int
+        pixel grid size, default 1
+
+    clip : int
+        image edge clipping, default 0 pixels
+
+    verbose: boolean
+        print information for debugging
+
+    Returns
+    -------
+    D : tuple (B, Bpol)
+       of ndarrays B (pol, proj, cols, cols) Bpol (pol, proj)
+
+    file.npy: file
+       saves basis to file name ``linbasex_basis_{cols}_{legendre_orders}_{proj_angles}_{radial_step}_{clip}.npy``
+
+    """
+
+    # cached basis
+    global _basis, _los, _pas, _radial_step, _clip
+
+    # legendre_orders string
+    los = ''.join(map(str, legendre_orders))
+    # convert to % of pi
+    proj_angles_fractpi = np.array(proj_angles)*100/np.pi
+    # projection angles string
+    pas = ''.join(map(str, proj_angles_fractpi.astype(int)))
+
+    if _basis is not None:
+        # check basis array sizes, warning may not be unique
+        if _basis.shape == (2*cols, cols+1):
+            if _los == los and _pas == pas and _radial_step == radial_step and\
+               _clip == clip:
+                if verbose:
+                    print('Using memory cached basis')
+                return _basis
+
+    # Fix Me! not a simple unique naming mechanism
+    basis_name = "linbasex_basis_{}_{}_{}_{}_{}.npy".format(cols, los, pas,
+                                                            radial_step, clip)
+
+    _los = los
+    _pas = pas
+    _radial_step = radial_step
+    _clip = clip
+    if basis_dir is not None:
+        path_to_basis_file = os.path.join(basis_dir, basis_name)
+        if os.path.exists(path_to_basis_file):
+            if verbose:
+                print('loading {} ...'.format(path_to_basis_file))
+            _basis = np.load(path_to_basis_file)
+            return _basis
+
+    if verbose:
+        print("A suitable basis for linbasex was not found.\n"
+              "A new basis will be generated.")
+
+    _basis = _bs_linbasex(cols, proj_angles=proj_angles,
+                     legendre_orders=legendre_orders, radial_step=radial_step,
+                     clip=clip)
+
+    if basis_dir is not None:
+        path_to_basis_file = os.path.join(basis_dir, basis_name)
+        np.save(path_to_basis_file, _basis)
+        if verbose:
+            print("linbasex basis saved for later use to {}"
+                  .format(path_to_basis_file))
+
+    return _basis
+
+
+def cache_cleanup():
+    """
+    Utility function.
+
+    Frees the memory caches created by ``get_bs_cached()``.
+    This is usually pointless, but might be required after working
+    with very large images, if more RAM is needed for further tasks.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
+
+    global _basis, _los, _pas, _radial_step, _clip
+
+    _basis = None
+    _los = None
+    _pas = None
+    _radial_step = None
+    _clip = None
+
 
 linbasex_transform.__doc__ += _linbasex_parameter_docstring

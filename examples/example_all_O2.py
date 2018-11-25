@@ -74,13 +74,8 @@ for q, method in enumerate(transforms.keys()):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    if method == 'linbasex':
-        IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
-                                  basis_dir='bases',
-                                  proj_angles=np.arange(0, np.pi/3, np.pi/18))
-    else:
-        IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
-                                  basis_dir='bases')
+    IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
+                              basis_dir='bases')
     print ("                    {:.1f} sec".format(time()-t0))
 
     # polar projection and speed profile

@@ -43,14 +43,14 @@ class AbelTiming(object):
             maximum n run for the "slow" transform methods, so far including 
             only the "direct_python" implementation.
         """
-        from timeit import Timer
+        from timeit import Timer, default_timer
         import time
 
         self.n = n
 
         transform = {
             'basex': basex.basex_core_transform,
-            'basex_bs': basex.get_bs_basex_cached,
+            'basex_bs': basex.get_bs_cached,
             'direct_Python': direct.direct_transform,
             'direct_C': direct.direct_transform,
             'hansenlaw': hansenlaw.hansenlaw_transform,
@@ -118,20 +118,20 @@ class AbelTiming(object):
                 
                     if method[:-3] == 'basex':  # special case
                         # calculate and store basex basis matrix
-                        t = time.time()
+                        t = default_timer()
                         basis[method[:-3]] = transform[method](w, basis_dir=None)
-                        res['bs'][method].append((time.time()-t)*1000)
+                        res['bs'][method].append((default_timer()-t)*1000)
                     
                     elif method[:-3] == 'linbasex':  # special case
-                        t = time.time()
+                        t = default_timer()
                         basis[method[:-3]] = transform[method](ni)
-                        res['bs'][method].append((time.time()-t)*1000)
+                        res['bs'][method].append((default_timer()-t)*1000)
                     else:
                         # calculate and store basis matrix
-                        t = time.time()
+                        t = default_timer()
                         # store basis calculation. NB a tuple to accomodate basex
                         basis[method[:-3]] = transform[method](w), 
-                        res['bs'][method].append((time.time()-t)*1000)
+                        res['bs'][method].append((default_timer()-t)*1000)
                         
                 else:
                     basis[method[:-3]] = None,
@@ -144,24 +144,15 @@ class AbelTiming(object):
                     if method in basis.keys():
                         if basis[method][0] is not None:
                             # have basis calculation
-                            if method == 'basex':
-                                # don't unpack the transform matrix
-                                res[cal][method].append(Timer(
-                                   lambda: transform[method](half_image, basis[method])).
-                                   timeit(number=transform_repeat)*1000/
-                                   transform_repeat)
-                             
-                            elif method == 'linbasex':
+                            if method == 'linbasex':
                                  # pass a whole image to linbasex
-                                 # also, don't unpack the basis set
                                  res[cal][method].append(Timer(
                                     lambda: transform[method](whole_image, basis[method])).
                                     timeit(number=transform_repeat)*1000/
                                     transform_repeat)       
                             else:
-                                
                                 res[cal][method].append(Timer(
-                                   lambda: transform[method](half_image, *basis[method])).
+                                   lambda: transform[method](half_image, basis[method])).
                                    timeit(number=transform_repeat)*1000/
                                    transform_repeat)
                         else:
