@@ -175,6 +175,7 @@ Citation
 First and foremost, please cite the paper(s) corresponding to the implementation of the Abel Transform that you use in your work. The references can be found at the links above.
 
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project.
+`DOI:10.5281/zenodo.244166 <http://dx.doi.org/10.5281/zenodo.244166>`_
 
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.47423.svg
    :target: http://dx.doi.org/10.5281/zenodo.47423
