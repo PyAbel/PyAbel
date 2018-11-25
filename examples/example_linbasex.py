@@ -40,7 +40,8 @@ clip = 0
 LIM = abel.Transform(IM, method="linbasex", center="convolution",
                      center_options=dict(square=True),
                      transform_options=dict(basis_dir=None, return_Beta=True,
-                                            un=un, proj_angles=proj_angles,
+                                            legendre_orders=un,
+                                            proj_angles=proj_angles,
                                             smoothing=smoothing,
                                             radial_step=radial_step, clip=clip,
                                             threshold=threshold)) 
