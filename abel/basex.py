@@ -148,11 +148,11 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
 
     # load the basis sets and compute the transform matrix
     A = get_bs_cached(n, sigma=sigma, reg=reg, correction=correction,
-                      basis_dir=basis_dir, verbose=verbose,
+                      basis_dir=basis_dir, dr=dr, verbose=verbose,
                       direction=direction)
 
     # do the actual transform
-    recon = basex_core_transform(data, A, dr)
+    recon = basex_core_transform(data, A)
 
     if data_ndim == 1:  # taking the middle row, since the rest are zeroes
         recon = recon[recon.shape[0] - recon.shape[0]//2 - 1]  # ??
@@ -162,7 +162,7 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
         return recon
 
 
-def basex_core_transform(rawdata, A, dr=1.0):
+def basex_core_transform(rawdata, A):
     """
     Internal function that does the actual BASEX transform.
     It requires that the transform matrix be passed.
@@ -173,8 +173,6 @@ def basex_core_transform(rawdata, A, dr=1.0):
         right half (with the axis) of the input image.
     Ai : n × n numpy array
         2D array given by the transform-calculation function
-    dr : float
-        pixel size. This only affects the absolute scaling of the output.
 
     Returns
     -------
@@ -191,13 +189,7 @@ def basex_core_transform(rawdata, A, dr=1.0):
     # its overall effect is an identity transform.
 
     # transform the image
-    IM = rawdata.dot(A)
-
-    # apply intensity scaling, if needed
-    if dr == 1.0:
-        return IM
-    else:
-        return IM / dr
+    return rawdata.dot(A)
 
 
 def _get_A(M, Mc, reg, direction):
@@ -255,7 +247,7 @@ _tri_prm = None  # [reg, correction]
 _tri = None      # Ai
 
 def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
-                  basis_dir='.', verbose=False, direction='inverse'):
+                  basis_dir='.', dr=1.0, verbose=False, direction='inverse'):
     """
     Internal function.
 
@@ -283,6 +275,8 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
     basis_dir : str
         path to the directory for saving / loading the basis sets.
         If ``None``, the basis sets will not be saved to disk.
+    dr : float
+        pixel size. This only affects the absolute scaling of the output.
     verbose : boolean
         determines whether statements should be printed
     direction : str ('forward' or 'inverse')
@@ -409,6 +403,13 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
         else:  # 'inverse'
             _tri_prm = [reg, correction]
             _tri = A
+
+    # Apply intensity scaling, if needed
+    if dr != 1.0:
+        if direction == 'forward':
+            A *= dr
+        else:
+            A /= dr
 
     return A
 
