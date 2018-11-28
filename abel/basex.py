@@ -107,22 +107,25 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
         is not very meaningful and requires regularization.
     reg : float
         regularization parameter, square of the Tikhonov factor.
-        ``reg=0`` means no regularization,
-        ``reg=100`` is a reasonable value for megapixel images.
+
+            ``reg=0`` means no regularization,
+
+            ``reg=100`` is a reasonable value for megapixel images.
+
         Forward transform requires regularization only if **sigma** < 1,
         and **reg** should be ≪ 1.
     correction : boolean
         apply intensity correction in order to reduce method artifacts
         (intensity normalization and oscillations)
     basis_dir : str
-        path to the directory for saving / loading the basis-set coefficients.
+        path to the directory for saving / loading the basis sets.
         If ``None``, the basis set will not be saved to disk.
     dr : float
         size of one pixel in the radial direction.
         This only affects the absolute scaling of the transformed image.
     verbose : boolean
         determines whether statements should be printed
-    direction : str ('forward' or 'inverse')
+    direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
 
     Returns
@@ -261,8 +264,8 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
     Parameters
     ----------
     n : int
-        Abel inverse transform will be performed on an
-        **n** pixels wide area of the (half) image
+        Abel transform will be performed on an **n** pixels wide area
+        of the (half) image
     sigma : float
         width parameter for basis functions
     reg : float
@@ -279,7 +282,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
         pixel size. This only affects the absolute scaling of the output.
     verbose : boolean
         determines whether statements should be printed
-    direction : str ('forward' or 'inverse')
+    direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
 
     Returns
@@ -426,9 +429,13 @@ def cache_cleanup(select='all'):
     ----------
     select : str
         selects which caches to clean:
-        ``'all'`` (default) everything, including basis;
-        ``'forward'`` forward transform;
-        ``'inverse'`` inverse transform.
+
+        ``all`` (default)
+            everything, including basis;
+        ``forward``
+            forward transform;
+        ``inverse``
+            inverse transform.
 
     Returns
     -------
@@ -466,12 +473,12 @@ def get_basex_correction(A, sigma, direction):
         matrix of the Abel transform
     sigma : float
         basis width parameter
-    direction : str ('forward' or 'inverse')
+    direction : str: ``'forward'`` or ``'inverse'``
         type of the Abel transform
 
     Returns
     -------
-    cor : 1 × **n** numpy array
+    cor : 1 × n numpy array
         intensity correction profile
     """
     n = A.shape[0]
@@ -489,7 +496,7 @@ def get_basex_correction(A, sigma, direction):
                                    (c, c + w, [0, 0, 1/2], c + w, w)])
     # (this is more numerically stable at large r than cubic smoothstep)
 
-    # get BASEX Abel transform of the projection
+    # get BASEX Abel transform of the step
     # and set correction profile = expected / BASEX result
     if direction == 'forward':
         tran = basex_core_transform(step.func, A)
@@ -523,8 +530,8 @@ def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
     """
     Generates horizontal basis sets for the BASEX method.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     n : int
         horizontal dimensions of the half-width image in pixels.
         Must include the axial pixel.
@@ -536,13 +543,15 @@ def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
         Can be supplied to avoid recalculating matrix elements
         that are already available.
 
-    Returns:
-    --------
-    M, Mc : **n** × **nbf** numpy array
-        **Mc** is the reconstructed-image basis rho_k(r_i) (~Gaussians),
-               corresponds to Z^T in the article.
-        **M**  is the projected basis chi_k(x_i),
-               corresponds to X^T in the article.
+    Returns
+    -------
+    M, Mc : n × nbf numpy array
+        Mc
+            is the reconstructed-image basis rho_k(r_i) (~Gaussians),
+            corresponds to Z^T in the article.
+        M
+            is the projected basis chi_k(x_i),
+            corresponds to X^T in the article.
     """
 
     sigma = float(sigma)  # (ensure FP type)
