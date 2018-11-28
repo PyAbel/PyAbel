@@ -170,6 +170,44 @@ def test_basex_gaussian_sigma_07_reg_10_corrected():
     basex_gaussian(sigma=0.7, reg=10, cor=True, tol=6e-3)
 
 
+def basex_forward_gaussian(sigma, reg, atol, rtol):
+    """Check a gaussian solution for BASEX"""
+    n = 100
+    r_max = n - 1
+
+    ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=30)
+    tr = np.tile(ref.func[None, :], (n, 1))  # make a 2D array from 1D
+
+    Ai = abel.basex.get_bs_cached(n, sigma=sigma, reg=reg,
+                                  basis_dir=None, verbose=False,
+                                  direction='forward')
+
+    proj = abel.basex.basex_core_transform(tr, Ai)
+    proj = proj[n // 2 + n % 2]
+
+    ref = ref.abel
+
+    assert_allclose(proj, ref, atol=atol, rtol=rtol)
+
+
+def test_basex_forward_gaussian():
+    """Check a gaussian solution for BASEX forward transform:
+       default parameters"""
+    basex_forward_gaussian(sigma=1, reg=0, atol=1e-3, rtol=2e-3)
+
+
+def test_basex_forward_gaussian_3():
+    """Check a gaussian solution for BASEX forward transform:
+       large sigma"""
+    basex_forward_gaussian(sigma=3, reg=0, atol=1e-3, rtol=4e-3)
+
+
+def test_basex_forward_gaussian_07():
+    """Check a gaussian solution for BASEX forward transform:
+       small sigma, regularized"""
+    basex_forward_gaussian(sigma=0.7, reg=1e-6, atol=1e-3, rtol=1e-2)
+
+
 if __name__ == '__main__':
     test_basex_basis_sets_cache()
     test_basex_basis_sets_resize_1()
@@ -181,3 +219,6 @@ if __name__ == '__main__':
     test_basex_gaussian_sigma_3()
     test_basex_gaussian_sigma_3_corrected()
     test_basex_gaussian_sigma_07_reg_10_corrected()
+    test_basex_forward_gaussian()
+    test_basex_forward_gaussian_3()
+    test_basex_forward_gaussian_07()

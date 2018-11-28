@@ -411,7 +411,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
     if dr != 1.0:
         if direction == 'forward':
             A *= dr
-        else:
+        else:  # 'inverse'
             A /= dr
 
     return A
