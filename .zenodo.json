@@ -1,0 +1,22 @@
+{
+  "creators": [
+    {
+      "affiliation": "Australian National University",
+      "name": "Gibson, Stephen",
+    },
+    {
+      "name": "Hickstein, Daniel",
+    },
+    {
+      "name": "Yurchak, Roman",
+    },
+    {
+      "name": "Ryazanov, Mikhail",
+    },
+    {
+      "name": "Shih, Gilbert",
+    } 
+  ],
+  "license": "MIT",
+  "upload_type": "software"
+}
