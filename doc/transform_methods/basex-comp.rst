@@ -1,5 +1,7 @@
 :orphan:
 
+.. _BASEXcomp:
+
 BASEX: computational details
 ============================
 
@@ -64,14 +66,37 @@ and the integrals are also expressed through the `gamma function
     \int_0^\infty t^{k^2-l} e^{-t} \frac1{2\sqrt{t}} \,dt =
     \frac12 \Gamma\left(k^2 - l + \frac12\right).
 
-The complete expression for the projections is thus
+The complete expression for the projections (in a reduced form, :math:`u =
+x/\sigma`) is thus
 
 .. math::
-    \chi_k(u) = \sigma A_k e^{-u^2} \sum_{l=0}^{k^2}
+    \chi_k(u) = A_k \sigma e^{-u^2} \sum_{l=0}^{k^2}
         \frac{\Gamma(k^2 + 1) \, \Gamma\left(k^2 - l + \frac12\right)}
              {\Gamma(l + 1) \, \Gamma(k^2 - l + 1)}
         u^{2l}.
 
+The case :math:`k = 0` is special, since formally :math:`A_0 = (e/0)^{0}`,
+which is undefined. However, taking the limit :math:`k \to 0`, we obtain
+
+.. math::
+    \rho_0(u) = e^{-u^2},
+
+the Abel transform of which is simply
+
+.. math::
+    \chi_0(u) = \sqrt{\pi}\,\sigma e^{-u^2}.
+
+.. note::
+    The original MATLAB implementation by Dribinski used an incorrect prefactor
+    “2” instead if “:math:`\sqrt{\pi}`” in calculations of the basis
+    projections :math:`\chi_k` (in the above expression the :math:`\sqrt{\pi}`
+    factor for :math:`k > 0` is invisibly present in the :math:`\Gamma(\ldots +
+    1/2)` terms). The `BASEX.exe` program by Karpichev also uses these
+    MATLAB-generated basis sets and has the same problem, producing intensities
+    off by a factor of :math:`\sqrt{\pi}/2` and applying regularization with a
+    strength off by a square of that factor.
+
+    We use the correct expressions for all calculations.
 
 Computations
 ------------
@@ -163,3 +188,50 @@ u^2` and :math:`\delta = 9\,u`.
 
 Since :math:`\max u = K`, the total time complexity of computing :math:`K`
 basis projections at :math:`N` points is :math:`O(NK^2)`.
+
+
+----
+
+
+Intensity correction
+--------------------
+
+The Gaussian-like BASEX basis functions do not sum to unity:
+
+.. plot:: transform_methods/basex-basis.py
+
+so they cannot describe a flat distribution, and for :math:`\sigma \ne 1` these
+intensity oscillations are visible in the reconstructed distributions. In
+addition, the basis projections are sampled only at pixel centers, which does
+not satisfy the requirements of the `sampling theorem
+<https://en.wikipedia.org/wiki/Nyquist–Shannon_sampling_theorem>`_ for their
+adequate representation. In particular, this leads to a reconstructed-intensity
+bias in the most useful :math:`\sigma = 1` case.
+
+Moreover, the :math:`k = 0` basis function is broader than the :math:`k > 0`
+functions, and :math:`\rho_k(r = 0) = 0` for all :math:`k > 0`, whereas
+:math:`\rho_k(r \ne 0) \ne 0`. In other words, the region near the symmetry
+axis is treated quite differently from the rest of the image, which leads to an
+artifact near :math:`r = 0` in the reconstructed distributions.
+
+Another problem arises when `Tikhonov regularization
+<https://en.wikipedia.org/wiki/Tikhonov_regularization>`_ is applied. Since it
+includes the norm of the solution in its minimization criterion, this generally
+leads to some intensity drop in the reconstructed distributions, especially
+near the symmetry axis.
+
+In order to reduce these problems, PyAbel can use an automatic “intensity
+correction”. It is based on the linearity of the transform and uses a
+“calibration” distribution with a known analytical Abel transform.
+
+Specifically, a flat distribution (with a soft edge, to avoid ringing artifacts
+near the image boundary) and its analytical Abel transform are generated. Then
+the BASEX transform with the desired parameters is applied to that Abel
+transform, what should reconstruct the initial flat distribution, but actually
+includes the artifacts described above. The ratio of the desired flat
+distribution to this BASEX result is then taken as the intensity correction
+profile and is applied to the BASEX transform of the actual data.
+
+Although this correction procedure does not reproduce analytical results for
+*all* distributions (except the calibration distribution itself), it greatly
+reduces the method artifacts in most cases.
