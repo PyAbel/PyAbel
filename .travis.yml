@@ -2,12 +2,14 @@ language: python
 sudo: false
 matrix:
   include:
+  - python: '3.7'
+    env: DEPS="numpy scipy cython"
+    sudo: true
+    dist: xenial
   - python: '3.6'
-    env: DEPS="numpy scipy nose cython"
-  - python: '3.5'
-    env: DEPS="numpy scipy nose"
+    env: DEPS="numpy scipy cython"
   - python: '2.7'
-    env: DEPS="numpy scipy nose cython"
+    env: DEPS="numpy scipy cython"
 install:
   - pip install --upgrade pip setuptools wheel
   - "pip install ${DEPS}"

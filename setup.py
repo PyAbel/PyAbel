@@ -103,7 +103,9 @@ if _cython_installed and not on_rtd:
 else:
     setup_args = {}
 
-
+with open('README.rst') as file:
+    long_description = file.read()
+    
 setup(name='PyAbel',
       version=version,
       description='A Python package for forward and inverse Abel transforms',
@@ -113,6 +115,7 @@ setup(name='PyAbel',
       packages=find_packages(),
       install_requires=install_requires,
       package_data={'abel': ['tests/data/*' ]},
+      long_description=long_description,
       classifiers=[
       # How mature is this project? Common values are
       #   3 - Alpha
@@ -136,9 +139,8 @@ setup(name='PyAbel',
       'Programming Language :: Python :: 2',
       'Programming Language :: Python :: 2.7',
       'Programming Language :: Python :: 3',
-      'Programming Language :: Python :: 3.3',
-      'Programming Language :: Python :: 3.4',
-      'Programming Language :: Python :: 3.5',
+      'Programming Language :: Python :: 3.6',
+      'Programming Language :: Python :: 3.7',
       ],
       **setup_args
      )
