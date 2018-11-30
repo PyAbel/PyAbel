@@ -57,6 +57,7 @@ which should launch a browser window displaying the docs. When you save a change
 
 Alternatively, `restview <https://pypi.python.org/pypi/restview>`_ is a nice way to preview the ``.rst`` files.
 
+
 Before merging
 --------------
 
@@ -123,12 +124,20 @@ Dependencies
 
 The current list of dependencies can be found in `setup.py <https://github.com/PyAbel/PyAbel/blob/master/setup.py>`_. Please refrain from adding new dependencies, unless it cannot be avoided.
 
+
 Change Log
 ----------
 
 If the change is significant (more than just a typo-fix), please leave a short note about the change in `CHANGELOG.rst <https://github.com/PyAbel/PyAbel/blob/master/CHANGELOG.rst>`_
 
+
 Releasing on PyPi
 -----------------
 
 PyAbel should be automatically released on PyPi (see PR `#161 <https://github.com/PyAbel/PyAbel/pull/161>`_) whenever a new release is drafted on GitHub via the "Draft New Release" button on the `Releases page <https://github.com/PyAbel/PyAbel/releases>`_. Just remember to increment the version number in abel/_version.py first.
+
+
+Citations
+---------
+
+Each version of PyAbel that is released triggers a new DOI on Zenodo, so that people can cite the project. If you would like you name added to the author list on Zenodo, please include it in ``.zenodo.json``. 
