@@ -142,8 +142,7 @@ Example
 
 Consider a two-sided step function with soft edges:
 
-.. image::
-    smoothstep.svg
+.. plot:: tools/smoothstep.py
 
 The edges can be represented by the cubic `smoothstep
 <https://en.wikipedia.org/wiki/Smoothstep>`_ function
