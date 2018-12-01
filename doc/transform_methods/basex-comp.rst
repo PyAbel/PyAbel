@@ -7,7 +7,8 @@ BASEX: computational details
 
 The BASEX article does not provide the derivation of the basis projections and
 is very terse regarding their computation, so here we provide the missing
-explanations.
+explanations. The differences in the PyAbel implementation of the method are
+also discussed below.
 
 
 Basis projections
@@ -235,3 +236,63 @@ profile and is applied to the BASEX transform of the actual data.
 Although this correction procedure does not reproduce analytical results for
 *all* distributions (except the calibration distribution itself), it greatly
 reduces the method artifacts in most cases.
+
+
+Vertical transform
+------------------
+
+(See `this discussion
+<https://github.com/PyAbel/PyAbel/issues/225#issuecomment-421698132>`_ about
+notation and details of the original implementation.)
+
+Besides the horizontal transform that realizes the inverse Abel transform, the
+BASEX article and the `BASEX.exe` program also apply a vertical transform to
+the data. It is performed by multiplying the data by :math:`\mathbf B` in
+equation (13) to obtain the expansion coefficients and then multiplying these
+coefficients by :math:`\mathbf Z` in equation (9) to obtain the reconstructed
+image.
+
+However, regularization is never applied to the vertical transform
+(:math:`q_2^2 = 0`), so when :math:`\mathbf Z` has full rank (:math:`\sigma =
+1`, the “narrow” basis set in `BASEX.exe`), the overall vertical transform is
+
+.. math::
+    \mathbf{BZ} =
+    \mathbf Z^{\mathrm T}\left(\mathbf{ZZ}^{\mathrm T}\right)^{-1} \mathbf Z =
+    \mathbf I,
+
+that is, an identity transform, having no effect on the final results.
+
+When :math:`\mathbf Z` is not of full rank, for example, for the “broad” basis
+set (:math:`\sigma = 2`), the transform is no longer an identity, but actually
+has some undesirable properties.
+
+First, it is not strictly translationally invariant (see the plot of the basis
+functions above) and thus is in fact not applied by the `BASEX.exe` program
+when “Line-by-line reconstruction” is chosen.
+
+Second, far from the edges this transform is close to a convolution with the
+following functions:
+
+.. plot:: transform_methods/basex-vert.py
+
+so, in addition to the possibly useful vertical smoothing, it also introduces
+noticeable ringing artifacts.
+
+Therefore in the PyAbel BASEX implementation we never apply the vertical
+transform. If the vertical smoothing for :math:`\sigma > 1` is desirable, it
+can be achieved by applying a vertical Gaussian blur to the transformed image.
+
+The behavior of the original `BASEX.exe` program with top–bottom symmetry and
+the “broad” basis set can be reproduced by replacing the line ::
+
+    return rawdata.dot(A)
+
+in :py:func:`abel.basex.basex_core_transform` with the following code::
+
+    Mc = (_bs[1])[::-1]  # PyAbel and BASEX.exe use different coordinates
+    V = Mc.dot(inv((Mc.T).dot(Mc))).dot(Mc.T)
+    return V.dot(rawdata).dot(A)
+
+and using the code example from BASEX/:ref:`BASEXhowto` with a additional
+``sigma=2`` parameter in ``transform_options``.

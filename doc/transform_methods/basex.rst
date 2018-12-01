@@ -1,3 +1,5 @@
+.. _BASEX:
+
 BASEX
 =====
 
@@ -6,7 +8,7 @@ Introduction
 ------------
 
 The BASEX (“basis set expansion”) Abel transform method utilizes well-behaved functions (i.e., functions that have a known analytic Abel transform) to transform images.
-In the current iteration of PyAbel, these functions (called basis functions) are modified Gaussian-like functions, following the original description of the method, developed in 2002 at USC and UC Irvine by Dribinski, Ossadtchi, Mandelshtam, and Reisler [Dribinski2002]_.
+In the current iteration of PyAbel, these functions (called basis functions) are Gaussian-like functions, following the original description of the method, developed in 2002 at USC and UC Irvine by Dribinski, Ossadtchi, Mandelshtam, and Reisler [Dribinski2002]_.
 
 
 How it works
@@ -15,7 +17,7 @@ How it works
 This method is based on expressing line-of-sight projection images (``raw_data``) as sums of functions that have known analytic Abel inverses. The provided raw images are expanded in a basis set composed of these basis functions, with the expansion coefficients determined through a least-squares fitting process.
 These coefficients are then applied to the (known) analytic inverse of these basis functions, which directly provides the Abel inverse of the raw images. Thus, the transform can be completed using simple linear algebra.
 
-In the current iteration of PyAbel, these basis functions are Gaussian-like (see equations 14 and 15 in [Dribinski2002]_). The process of evaluating these functions is computationally intensive, and the basis set generation process can take several seconds to minutes for larger images (larger than ~1000×1000 pixels). However, once calculated, these basis sets can be reused, and are therefore stored on disk and loaded quickly for future use.
+In the current iteration of PyAbel, these basis functions are Gaussian-like (see equations (14) and (15) in [Dribinski2002]_). The process of evaluating these functions is computationally intensive, and the basis-set generation process can take several seconds to minutes for larger images (larger than ~1000×1000 pixels). However, once calculated, these basis sets can be reused, and are therefore stored on disk and loaded quickly for future use.
 The transform then proceeds very quickly, since each raw image Abel inversion is a simple matrix multiplication.
 
 
@@ -35,6 +37,8 @@ According to Dribinski et al., BASEX has several advantages:
 5. BASEX-reconstructed images have an exact analytical expression, which allows an analytical high-resolution calculation of the speed distribution, without increasing computation time.
 
 
+.. _BASEXhowto:
+
 How to use it
 -------------
 
@@ -46,7 +50,7 @@ The additional BASEX parameters are described in :py:func:`abel.basex.basex_tran
 
 If you would like to access the BASEX algorithm directly (to transform a right-side half-image), you can use :py:func:`abel.basex.basex_transform`.
 
-The behavior of the original `BASEX.exe` program by Karpichev with top-bottom symmetry and the “narrow” basis set can be reproduced as follows::
+The behavior of the original `BASEX.exe` program by Karpichev with top–bottom symmetry and the “narrow” basis set can be reproduced as follows::
 
     rescale = math.sqrt(math.pi) / 2
 

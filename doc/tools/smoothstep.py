@@ -50,7 +50,7 @@ plt.text(rmax + w/2, 1, '$w$', textprm)
 
 plt.plot(r, map(smoothstep, r), color='red')
 
-plt.tight_layout(pad=1)
+plt.tight_layout()
 
 #plt.show()
 #plt.savefig('smoothstep.svg')

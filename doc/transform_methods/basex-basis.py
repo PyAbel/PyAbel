@@ -29,16 +29,16 @@ for k, c in enumerate(colors):
 plt.plot(x, sum([rho(x, k) for k in range(n)]),
          color='black', label=r'$\sum\rho_k$')
 
-plt.xlabel('$r$')
+plt.xlabel('$u = r/\sigma$')
 plt.xlim((0, n - 1))
 plt.grid(axis='x')
 
-plt.ylabel(r'$\rho_k(r)$')
+plt.ylabel(r'$\rho_k(u)$')
 plt.ylim((0, 1.5))
 plt.yticks(np.arange(0, 2, 0.5))
 
 plt.legend()
-plt.tight_layout(pad=1)
+plt.tight_layout()
 
 #plt.show()
 #plt.savefig('basex-basis.svg')
