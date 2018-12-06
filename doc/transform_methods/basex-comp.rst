@@ -34,7 +34,7 @@ rectangular coordinates:
     \chi_k(x) =
     \int_{-\infty}^\infty \rho_k(r) \,dy =
     2 \int_0^\infty \rho_k(r) \,dy,
-    
+
 .. math::
     r = \sqrt{x^2 + y^2}.
 

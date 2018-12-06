@@ -7,7 +7,7 @@ BASEX
 Introduction
 ------------
 
-The BASEX (“basis set expansion”) Abel transform method utilizes well-behaved functions (i.e., functions that have a known analytic Abel transform) to transform images.
+The BASEX (“basis set expansion”) Abel-transform method utilizes well-behaved functions (i.e., functions that have a known analytic Abel transform) to transform images.
 In the current iteration of PyAbel, these functions (called basis functions) are Gaussian-like functions, following the original description of the method, developed in 2002 at USC and UC Irvine by Dribinski, Ossadtchi, Mandelshtam, and Reisler [Dribinski2002]_.
 
 
@@ -18,7 +18,7 @@ This method is based on expressing line-of-sight projection images (``raw_data``
 These coefficients are then applied to the (known) analytic inverse of these basis functions, which directly provides the Abel inverse of the raw images. Thus, the transform can be completed using simple linear algebra.
 
 In the current iteration of PyAbel, these basis functions are Gaussian-like (see equations (14) and (15) in [Dribinski2002]_). The process of evaluating these functions is computationally intensive, and the basis-set generation process can take several seconds to minutes for larger images (larger than ~1000×1000 pixels). However, once calculated, these basis sets can be reused, and are therefore stored on disk and loaded quickly for future use.
-The transform then proceeds very quickly, since each raw image Abel inversion is a simple matrix multiplication.
+The transform then proceeds very quickly, since each raw-image Abel inversion is a simple matrix multiplication.
 
 
 When to use it
@@ -34,7 +34,7 @@ According to Dribinski et al., BASEX has several advantages:
 
 4. Resolution of images reconstructed with BASEX is superior to those obtained with the Fourier–Hankel method, particularly for noisy projections. However, to obtain maximal resolution, it is important to properly center the projections prior to transforming with BASEX.
 
-5. BASEX-reconstructed images have an exact analytical expression, which allows an analytical high-resolution calculation of the speed distribution, without increasing computation time.
+5. BASEX-reconstructed images have an exact analytical expression, which allows an analytical high-resolution calculation of the speed distribution, without increasing computation time. (This is not yet implemented in PyAbel.)
 
 
 .. _BASEXhowto:
