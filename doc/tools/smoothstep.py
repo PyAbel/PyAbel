@@ -48,7 +48,7 @@ plt.text(rmin + w/2, 1, '$w$', textprm)
 plt.text(rmax - w/2, 1, '$w$', textprm)
 plt.text(rmax + w/2, 1, '$w$', textprm)
 
-plt.plot(r, map(smoothstep, r), color='red')
+plt.plot(r, [smoothstep(ri) for ri in r], color='red')
 
 plt.tight_layout()
 
