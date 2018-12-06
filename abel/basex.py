@@ -31,6 +31,8 @@ from ._version import __version__
 # https://doi.org/10.1063/1.1482156
 #
 #
+# 2018-10-29
+#   MR added forward transform.
 # 2018-10-27
 #   MR exposed BASIS_SET_CUTOFF for speed/accuracy control.
 # 2018-10-07
@@ -86,16 +88,12 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
     Abel transform. It works on a "right side" image. I.e.,
     it works on just half of a cylindrically symmetric
     object, and ``data[0,0]`` should correspond to a central pixel.
-    To perform a BASEX transorm on
-    a whole image, use ::
+    To perform a BASEX transform on a whole image, use ::
 
         abel.Transform(image, method='basex', direction='inverse').transform
 
     This BASEX implementation only works with images that have an
     odd-integer full width.
-
-    Note: only the `direction="inverse"` transform is currently implemented.
-
 
     Parameters
     ----------
@@ -109,33 +107,32 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
         is not very meaningful and requires regularization.
     reg : float
         regularization parameter, square of the Tikhonov factor.
-        ``reg=0`` means no regularization,
-        ``reg=100`` is a reasonable value for megapixel images.
+
+            ``reg=0`` means no regularization,
+
+            ``reg=100`` is a reasonable value for megapixel images.
+
+        Forward transform requires regularization only if **sigma** < 1,
+        and **reg** should be ≪ 1.
     correction : boolean
         apply intensity correction in order to reduce method artifacts
         (intensity normalization and oscillations)
     basis_dir : str
-        path to the directory for saving / loading the basis-set coefficients.
+        path to the directory for saving / loading the basis sets.
         If ``None``, the basis set will not be saved to disk.
     dr : float
         size of one pixel in the radial direction.
         This only affects the absolute scaling of the transformed image.
     verbose : boolean
         determines whether statements should be printed
-    direction : str
-        the type of Abel transform to be performed.
-        Currently only accepts value ``'inverse'``.
-
+    direction : str: ``'forward'`` or ``'inverse'``
+        type of Abel transform to be performed
 
     Returns
     -------
     recon : m × n numpy array
         the transformed (half) image
-
     """
-
-    if direction != 'inverse':
-        raise ValueError('Forward BASEX transform not implemented')
 
     # make sure that the data is the right shape (1D must be converted to 2D):
     data = np.atleast_2d(data)
@@ -152,12 +149,13 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
 
     n = data.shape[1]
 
-    # load the basis sets:
-    Ai = get_bs_cached(n, sigma=sigma, reg=reg, correction=correction,
-                       basis_dir=basis_dir, verbose=verbose)
+    # load the basis sets and compute the transform matrix
+    A = get_bs_cached(n, sigma=sigma, reg=reg, correction=correction,
+                      basis_dir=basis_dir, dr=dr, verbose=verbose,
+                      direction=direction)
 
-    # Do the actual transform:
-    recon = basex_core_transform(data, Ai, dr)
+    # do the actual transform
+    recon = basex_core_transform(data, A)
 
     if data_ndim == 1:  # taking the middle row, since the rest are zeroes
         recon = recon[recon.shape[0] - recon.shape[0]//2 - 1]  # ??
@@ -167,26 +165,22 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
         return recon
 
 
-def basex_core_transform(rawdata, Ai, dr=1.0):
+def basex_core_transform(rawdata, A):
     """
-    This is the internal function that does the actual BASEX transform.
+    Internal function that does the actual BASEX transform.
     It requires that the transform matrix be passed.
-
 
     Parameters
     ----------
     rawdata : m × n numpy array
-        the raw image. This is the right half (with the axis) of the image.
+        right half (with the axis) of the input image.
     Ai : n × n numpy array
         2D array given by the transform-calculation function
-    dr : float
-        pixel size. This only affects the absolute scaling of the output.
-
 
     Returns
     -------
     IM : m × n numpy array
-        the Abel-transformed image, a slice of the 3D distribution
+        the Abel-transformed image
     """
 
     # Note that our images are stored with matrix rows corresponding to
@@ -197,39 +191,42 @@ def basex_core_transform(rawdata, Ai, dr=1.0):
     # The vertical transform is not applied, since without regularization
     # its overall effect is an identity transform.
 
-    # Reconstructing image  - This is where the magic happens
-    IM = rawdata.dot(Ai) / dr
-    # P = dot(dot(Mc,Ci),M.T) # This calculates the projection, !! not
-    # which should recreate the original image                  !! really
-    return IM
+    # transform the image
+    return rawdata.dot(A)
 
 
-def _get_Ai(M, Mc, reg):
-    """ An internal helper function for no-up/down-asymmetry BASEX:
-        given basis sets M, Mc,
-        return matrix of inverse Abel transform
+def _get_A(M, Mc, reg, direction):
+    """ Internal helper function.
+        Calculates the forward/inverse Abel-transform matrix
+        from basis matrices for given regularization parameter.
     """
-    # Ai  is the overall (horizontal) transform matrix,
+    # A   is the overall (horizontal) transform matrix,
     #     corresponds to A^T Z in the article.
     # reg corresponds to q_1^2 in the article.
 
+    # basis matrices for input and output spaces
+    if direction == 'forward':
+        Bi, Bo = Mc, M  # image -> projection
+    else:  # 'inverse'
+        Bi, Bo = M, Mc  # projection -> image
+
     n, nbf = M.shape
     if reg == 0.0 and nbf == n:
-        Ai = inv(M.T).dot(Mc.T)
+        A = inv(Bi.T).dot(Bo.T)
     else:
         # square of Tikhonov matrix
         E = np.diag([reg] * nbf)
-        # regularized inverse of basis projection
-        R = M.dot(inv((M.T).dot(M) + E))
-        # {expansion coefficients} = projection . R
-        # image = {expansion coefficients} . {image basis}
-        # so: image = projection . (R . {image basis})
-        #     image = projection . Ai
-        #     Ai = R . {image basis}
-        # Ai is the matrix of the inverse Abel transform
-        Ai = R.dot(Mc.T)
+        # regularized inverse of input basis
+        R = Bi.dot(inv((Bi.T).dot(Bi) + E))
+        # {expansion coefficients} = input . R
+        # output = {expansion coefficients} . {output basis}
+        # so: output = input . (R . {output basis})
+        #     output = input . A
+        #     A = R . {output basis}
+        # A is the matrix of the Abel transform
+        A = R.dot(Bo.T)
 
-    return Ai
+    return A
 
 
 def _nbf(n, sigma):
@@ -242,13 +239,18 @@ def _nbf(n, sigma):
 
 
 # Cached matrices and their parameters
-_bs_prm = None  # [n, sigma]
-_bs = None      # [M, Mc]
-_tr_prm = None  # [reg, correction]
-_tr = None      # Ai
+# basis set
+_bs_prm = None   # [n, sigma]
+_bs = None       # [M, Mc]
+# forward transform
+_trf_prm = None  # [reg, correction, dr]
+_trf = None      # Af
+# inverse transform
+_tri_prm = None  # [reg, correction, dr]
+_tri = None      # Ai
 
 def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
-                  basis_dir='.', verbose=False):
+                  basis_dir='.', dr=1.0, verbose=False, direction='inverse'):
     """
     Internal function.
 
@@ -262,8 +264,8 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
     Parameters
     ----------
     n : int
-        Abel inverse transform will be performed on an
-        **n** pixels wide area of the (half) image
+        Abel transform will be performed on an **n** pixels wide area
+        of the (half) image
     sigma : float
         width parameter for basis functions
     reg : float
@@ -276,14 +278,20 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
     basis_dir : str
         path to the directory for saving / loading the basis sets.
         If ``None``, the basis sets will not be saved to disk.
+    dr : float
+        pixel size. This only affects the absolute scaling of the output.
+    verbose : boolean
+        determines whether statements should be printed
+    direction : str: ``'forward'`` or ``'inverse'``
+        type of Abel transform to be performed
 
     Returns
     -------
     Ai : n × n numpy array
-        the matrix of the inverse Abel transform
+        matrix of the Abel transform (forward or inverse)
     """
 
-    global _bs_prm, _bs, _tr_prm, _tr
+    global _bs_prm, _bs, _trf_prm, _trf, _tri_prm, _tri
 
     sigma = float(sigma)  # (ensure FP format)
     nbf = _nbf(n, sigma)
@@ -374,28 +382,41 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
 
         _bs_prm = [n, sigma]
         _bs = [M, Mc]
-        _tr_prm = None
+        _trf_prm = None
+        _tri_prm = None
 
-    # Check whether transform matrices for this regularization
-    # are already loaded
-    if _tr_prm == [reg, correction]:
-        Ai = _tr
+    # Check whether transform matrices for these parameters
+    # are already created
+    if direction == 'forward' and _trf_prm == [reg, correction, dr]:
+        A = _trf
+    elif direction == 'inverse' and _tri_prm == [reg, correction, dr]:
+        A = _tri
     else:  # recalculate
         if verbose:
             print('Updating regularization...')
-        Ai = _get_Ai(*_bs, reg=reg)
+        A = _get_A(*_bs, reg=reg, direction=direction)
         if correction:
             if verbose:
                 print('Calculating correction...')
-            cor = get_basex_correction(Ai, sigma)
-            Ai = np.multiply(Ai, cor)
-        _tr_prm = [reg, correction]
-        _tr = Ai
+            cor = get_basex_correction(A, sigma, direction)
+            A = np.multiply(A, cor)
+        if direction == 'forward':
+            _trf_prm = [reg, correction, dr]
+            _trf = A
+        else:  # 'inverse'
+            _tri_prm = [reg, correction, dr]
+            _tri = A
+        # apply intensity scaling, if needed
+        if dr != 1.0:
+            if direction == 'forward':
+                A *= dr
+            else:  # 'inverse'
+                A /= dr
 
-    return Ai
+    return A
 
 
-def cache_cleanup():
+def cache_cleanup(select='all'):
     """
     Utility function.
 
@@ -405,21 +426,34 @@ def cache_cleanup():
 
     Parameters
     ----------
-    None
+    select : str
+        selects which caches to clean:
+
+        ``all`` (default)
+            everything, including basis;
+        ``forward``
+            forward transform;
+        ``inverse``
+            inverse transform.
 
     Returns
     -------
     None
     """
-    global _bs_prm, _bs, _tr_prm, _tr
+    global _bs_prm, _bs, _trf_prm, _trf, _tri_prm, _tri
 
-    _bs_prm = None
-    _bs = None
-    _tr_prm = None
-    _tr = None
+    if select == 'all':
+        _bs_prm = None
+        _bs = None
+    if select in ('all', 'forward'):
+        _trf_prm = None
+        _trf = None
+    if select in ('all', 'inverse'):
+        _tri_prm = None
+        _tri = None
 
 
-def get_basex_correction(Ai, sigma):
+def get_basex_correction(A, sigma, direction):
     """
     Internal function.
 
@@ -434,17 +468,19 @@ def get_basex_correction(Ai, sigma):
 
     Parameters
     ----------
-    Ai : n × n numpy array
-        matrix of the inverse Abel transform
+    A : n × n numpy array
+        matrix of the Abel transform
     sigma : float
         basis width parameter
+    direction : str: ``'forward'`` or ``'inverse'``
+        type of the Abel transform
 
     Returns
     -------
-    cor : 1 × **n** numpy array
+    cor : 1 × n numpy array
         intensity correction profile
     """
-    n = Ai.shape[0]
+    n = A.shape[0]
     nbf = _nbf(n, sigma)
 
     # Generate soft step function and its projection
@@ -459,11 +495,14 @@ def get_basex_correction(Ai, sigma):
                                    (c, c + w, [0, 0, 1/2], c + w, w)])
     # (this is more numerically stable at large r than cubic smoothstep)
 
-    # get BASEX inverse Abel transform of the projection
-    tran = basex_core_transform(step.abel, Ai)
-
-    # correction profile = expected / BASEX result
-    cor = step.func / tran
+    # get BASEX Abel transform of the step
+    # and set correction profile = expected / BASEX result
+    if direction == 'forward':
+        tran = basex_core_transform(step.func, A)
+        cor = step.abel / tran
+    else:  # 'inverse'
+        tran = basex_core_transform(step.abel, A)
+        cor = step.func / tran
 
     return cor
 
@@ -490,26 +529,28 @@ def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
     """
     Generates horizontal basis sets for the BASEX method.
 
-    Parameters:
-    -----------
-    n : integer
+    Parameters
+    ----------
+    n : int
         horizontal dimensions of the half-width image in pixels.
         Must include the axial pixel.
         See https://github.com/PyAbel/PyAbel/issues/34
     sigma : float
         width parameter for basis functions
     oldM : numpy array
-        projected basis matrix for the same ``sigma`` but a smaller image size.
+        projected basis matrix for the same **sigma** but a smaller image size.
         Can be supplied to avoid recalculating matrix elements
         that are already available.
 
-    Returns:
-    --------
-    M, Mc : n x nbf numpy arrays
-        ``Mc`` is the reconstructed-image basis rho_k(r_i) (~Gaussians),
-               corresponds to Z^T in the article.
-        ``M``  is the projected basis chi_k(x_i),
-               corresponds to X^T in the article.
+    Returns
+    -------
+    M, Mc : n × nbf numpy array
+        Mc
+            is the reconstructed-image basis rho_k(r_i) (~Gaussians),
+            corresponds to Z^T in the article.
+        M
+            is the projected basis chi_k(x_i),
+            corresponds to X^T in the article.
     """
 
     sigma = float(sigma)  # (ensure FP type)
