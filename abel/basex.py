@@ -243,10 +243,10 @@ def _nbf(n, sigma):
 _bs_prm = None   # [n, sigma]
 _bs = None       # [M, Mc]
 # forward transform
-_trf_prm = None  # [reg, correction]
+_trf_prm = None  # [reg, correction, dr]
 _trf = None      # Af
 # inverse transform
-_tri_prm = None  # [reg, correction]
+_tri_prm = None  # [reg, correction, dr]
 _tri = None      # Ai
 
 def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
@@ -387,9 +387,9 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
 
     # Check whether transform matrices for these parameters
     # are already created
-    if direction == 'forward' and _trf_prm == [reg, correction]:
+    if direction == 'forward' and _trf_prm == [reg, correction, dr]:
         A = _trf
-    elif direction == 'inverse' and _tri_prm == [reg, correction]:
+    elif direction == 'inverse' and _tri_prm == [reg, correction, dr]:
         A = _tri
     else:  # recalculate
         if verbose:
@@ -401,18 +401,17 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
             cor = get_basex_correction(A, sigma, direction)
             A = np.multiply(A, cor)
         if direction == 'forward':
-            _trf_prm = [reg, correction]
+            _trf_prm = [reg, correction, dr]
             _trf = A
         else:  # 'inverse'
-            _tri_prm = [reg, correction]
+            _tri_prm = [reg, correction, dr]
             _tri = A
-
-    # Apply intensity scaling, if needed
-    if dr != 1.0:
-        if direction == 'forward':
-            A *= dr
-        else:  # 'inverse'
-            A /= dr
+        # apply intensity scaling, if needed
+        if dr != 1.0:
+            if direction == 'forward':
+                A *= dr
+            else:  # 'inverse'
+                A /= dr
 
     return A
 
