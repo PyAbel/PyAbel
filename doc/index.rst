@@ -14,12 +14,12 @@ Contents:
    :maxdepth: 2
 
    readme_link
-   contributing_link
    abel
    transform_methods
    anisotropy_parameter
    circularize_image
    examples
+   contributing_link
    
 
 
