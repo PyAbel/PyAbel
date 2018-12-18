@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 import numpy as np
-import warnings
 
 ##############################################################################
 #
@@ -24,10 +23,6 @@ Analytical function Abel transform pairs
 profiles 1--7, table 1 of:
     `G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31-41 (2006)
     <http://doi:10.1016/j.sab.2005.11.009>`_
-
-Note:
-    profile4 does not produce a correct Abel transform pair due
-    to typographical errors in the publications
 
 profile 8, curve B in table 2 of:
     `Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985)
@@ -262,29 +257,31 @@ def profile4(r):
     """**profile4**: `Alvarez, Rodero, Quintero Spectochim. Acta B 57,
     1665-1680 (2002) <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
 
-    WARNING: projection function pair incorrect due to typo errors in Table 1.
+    Note:
+        Published projection has misprints
+        (“19\ **3**\ .30083” instead of “19\ **6**\ .30083” in both cases).
 
     .. math::
 
-        \epsilon(r) &= 0.1 + 5.5r^2 - 5.25r^3 & 0 \le r \le 0.7
+        \epsilon(r) &= 0.1 + 5.51r^2 - 5.25r^3 & 0 \le r \le 0.7
 
         \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3
                     & 0.7 \lt r \le1
 
         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (217.557a_{0.7} -
-        193.30083a_1)r^2 +
+        196.30083a_1)r^2 +
 
           & \,\,\, 155.56r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} +
             r^4\left(55.5525\ln\\frac{1 + a_1}{r} - 59.49\ln\\frac{0.7 +
             a_{0.7}}{r}\\right)  & 0 \le r \le 0.7
 
-        I(r) &= -14.811667a_1 - 193.30083a_1 r^2 + r^2(155.56 + 55.5525r^2)
+        I(r) &= -14.811667a_1 - 196.30083a_1 r^2 + r^2(155.56 + 55.5525r^2)
                 \ln\\frac{1 + a_1}{r} & 0.7 \lt r \le 1
 
 
     ::
 
-                       profile4     (incorrect)
+                       profile4
               source                projection
         ┼+2.2                  ┼+2.2       o       
         │                      │         o   o     
@@ -319,28 +316,21 @@ def profile4(r):
     def proj_left(x):
         """Profile4 projection x < 0.7 of right function part.
 
-           Note: Published coefficients for function are incorrect.
-           Better values for the coefficients (determined from a leastsquares
-           fit to the forward transform of the source profile, might be:
-           [22.68862, -14.811667,  129.1, -118.8,   111.7,    18.9,   -22.5]
-
         """
 
         a7 = a(0.7, x)
         a1 = a(1, x)
-        return 22.68862*a7 - 14.811667*a1 + (217.557*a7 - 193.30083*a1)*x**2 +\
+        return 22.68862*a7 - 14.811667*a1 + (217.557*a7 - 196.30083*a1)*x**2 +\
                +155.56*x**2*np.log((1 + a1)/(0.7 + a7)) +\
                x**4*(55.5525*np.log((1 + a1)/x) - 59.49*np.log((0.7 + a7)/x))
 
     def proj_right(x):
-        """ profile4 projection x > 0.7
+        """Profile4 projection x > 0.7.
 
-           Note: published coefficients are incorrect. 193.30083 -> 196.258
-           produces a better profile.
         """
 
         a1 = a(1, x)
-        return -14.811667*a1 - 193.30083*a1*x**2 +\
+        return -14.811667*a1 - 196.30083*a1*x**2 +\
                x**2*(155.56 + 55.5525*x**2)*np.log((1 + a1)/x)
 
     if np.any(r <= 0) or np.any(r > 1):
@@ -348,10 +338,6 @@ def profile4(r):
 
     if not hasattr(r, '__len__'):
         r = np.asarray([r])
-
-    warnmsg = 'Abel profile4 projection incorrect, due to typographical' +\
-              ' errors for the published coefficients'
-    warnings.warn(warnmsg)
 
     # left side r <= 0.7 of source, projection profile
     rl = r[r <= 0.7]
