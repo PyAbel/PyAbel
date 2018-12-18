@@ -1,5 +1,3 @@
-:orphan:
-
 .. _Polynomials:
 
 Polynomials

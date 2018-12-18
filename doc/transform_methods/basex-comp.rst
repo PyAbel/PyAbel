@@ -1,14 +1,12 @@
-:orphan:
-
 .. _BASEXcomp:
 
 BASEX: computational details
 ============================
 
-The BASEX article does not provide the derivation of the basis projections and
-is very terse regarding their computation, so here we provide the missing
-explanations. The differences in the PyAbel implementation of the method are
-also discussed below.
+To complement the general description given in the BASEX article, here we
+provide the full derivation of the basis projections and the details needed for
+their efficient computation. The differences in the PyAbel implementation of
+the method are also discussed below.
 
 
 Basis projections
@@ -98,6 +96,7 @@ the Abel transform of which is simply
     strength off by a square of that factor.
 
     We use the correct expressions for all calculations.
+
 
 Computations
 ------------

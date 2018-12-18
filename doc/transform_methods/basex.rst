@@ -77,6 +77,13 @@ PyAbel improvements
 
 * The forward Abel transform is also implemented, using the same method but swapping the basis functions and their projections.
 
+Some additional information on the implementation is given in :ref:`BASEXcomp`.
+
+.. toctree::
+    :hidden:
+
+    basex-comp
+
 
 Citation
 --------
