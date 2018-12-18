@@ -24,10 +24,6 @@ profiles 1--7, table 1 of:
     `G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31-41 (2006)
     <http://doi:10.1016/j.sab.2005.11.009>`_
 
-profile 8, curve B in table 2 of:
-    `Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985)
-    <http://doi:10.1364/JOSAA.2.000510>`_
-
 Note:
     the transform pair functions are more conveniently accessed via
     the class ::
@@ -477,50 +473,5 @@ def profile7(r):
 
     source = (1 + 10*r**2 - 23*r**4 + 12*r**6)/2
     projection = a(1, r)*(19 + 34*r**2 - 125*r**4 + 72*r**6)*8/105
-
-    return source, projection
-
-
-def profile8(r):
-    """**profile8**:
-    Curve B table 2 of `Hansen and Law J. Opt. Soc. Am. A 2 510-520 (1985)
-    <http://doi:10.1364/JOSAA.2.000510>`_
-
-    .. math::
-
-        \epsilon(r) &= (1-r^2)^{-\\frac{3}{2}}
-                        \exp\left[\\frac{(1.1r)^2}{r^2-1}\\right]
-
-        I(r) &= \\frac{\pi^\\frac{1}{2}}{1.1}(1-r^2)^{-\\frac{1}{2}}
-                 \exp\left[\\frac{(1.1r)^2}{r^2-1}\\right]
-
-    ::
-
-                       profile8
-              source                projection
-        ┼+1.8                  ┼+1.8               
-        │                      o o o               
-        │                      │     o o           
-        │                      │         o         
-        │                      │                   
-        x x x x x x x          │           o       
-        │             x        │                   
-        │                      │             o     
-        │               x      │                   
-        │                      │               o   
-        ┼+0────────────────┼   ┼+0────────────────┼
-        0          r      +1   0          r      +1
-
-    """
-
-    if np.any(r < 0) or np.any(r > 1):
-        raise ValueError('r must be 0 <= r <= 1')
-
-    if not hasattr(r, '__len__'):
-        r = np.asarray([r])
-
-    source = np.power(1-r**2, -3/2)*np.exp((1.1*r)**2/(r**2 - 1))
-    projection = np.sqrt(np.pi)*np.power(1 - r**2, -1/2)*np.exp((1.1*r)**2
-                                                        / (r**2 - 1))/1.1
 
     return source, projection
