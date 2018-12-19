@@ -1,4 +1,4 @@
-Example: Basex Photoelectron
+Example: Basex photoelectron
 ============================
 
 

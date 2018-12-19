@@ -24,6 +24,7 @@ numerical effort for the interpretation of VM-images considerably. The obtained
 results produce directly the coefficients of the involved spherical functions, 
 making the reconstruction of sliced Newton spheres obsolete.*
 
+
 How it works
 ------------
 
@@ -130,6 +131,7 @@ and returns the attributes above, would be e.g. ::
 Alternatively, the linbasex algorithm :func:`abel.linbasex.linbasex_transform_full()` directly 
 transforms the full image, with the attributes returned as a tuple in this case.
 
+
 Tips
 ----
 
@@ -141,10 +143,14 @@ or ::
 
   an = arange(0, 180, 10)
 
+
 Example
 -------
 
 .. plot:: ../examples/example_linbasex.py
+
+:doc:`Source code </example_linbasex>`
+
 
 Historical
 ----------
