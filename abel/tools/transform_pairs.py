@@ -18,19 +18,19 @@ import numpy as np
 ##############################################################################
 
 __doc__ = """
-Analytical function Abel transform pairs
+Analytical function Abel-transform pairs
 
 profiles 1--7, table 1 of:
-    `G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31-41 (2006)
-    <http://doi:10.1016/j.sab.2005.11.009>`_
+    `G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31–41 (2006)
+    <https://doi.org/10.1016/j.sab.2005.11.009>`_
 
 Note:
-    the transform pair functions are more conveniently accessed via
-    the class ::
+    the transform pair functions are more conveniently accessed through
+    :class:`abel.tools.analytical.TransformPair`::
 
         func = abel.tools.analytical.TransformPair(n, profile=nprofile)
 
-    which sets the radial range r and provides attributes
+    which sets the radial range `r` and provides attributes
     ``.func`` (source), ``.abel`` (projection), ``.r`` (radial range),
     ``.dr`` (step), ``.label`` (the profile name)
 
@@ -61,7 +61,7 @@ def a(n, r):
 
 def profile1(r):
     """**profile1**:
-    `Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
+    `Cremers and Birkebak App. Opt. 5, 1057–1064 (1966) Eq(13)
     <https://doi.org/10.1364/AO.5.001057>`_
 
     .. math::
@@ -80,9 +80,7 @@ def profile1(r):
         I(r) &= \\frac{32}{27}\left[a_1 - 7a_1 r + 3r^2(1+r^2)
                 \ln\\frac{1+a_1}{r}\\right]  & 0.25 \lt r \le 1
 
-    ::
-
-                       profile1
+    ..
               source                projection
         ┼+1.3                  ┼+1.3               
         │                      o   o               
@@ -97,6 +95,10 @@ def profile1(r):
         ┼+0─────────────x──┼   ┼+0─────────────o──┼
         0          r      +1   0          r      +1
 
+    .. plot::
+
+        import imp
+        imp.load_source('', 'tools/transform_pairs.py').plot(1)
     """
 
     if np.any(r <= 0) or np.any(r > 1):
@@ -140,7 +142,7 @@ def profile1(r):
 
 def profile2(r):
     """**profile2**:
-    `Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
+    `Cremers and Birkebak App. Opt. 5, 1057–1064 (1966) Eq(13)
     <https://doi.org/10.1364/AO.5.001057>`_
 
     .. math::
@@ -150,9 +152,7 @@ def profile2(r):
         I(r) &= a_1\left(1-\\frac{5}{2}r^2\\right) +
                 \\frac{3}{2}r^4\ln\\frac{1+a_1}{r} & 0 \le r \le 1
 
-    ::
-
-                       profile2
+    ..
               source                projection
         ┼+1.1                  ┼+1.1               
         x x                    o o                 
@@ -167,6 +167,10 @@ def profile2(r):
         ┼+0─────────────x──┼   ┼+0───────────o────┼
         0          r      +1   0          r      +1
 
+    .. plot::
+
+        import imp
+        imp.load_source('', 'tools/transform_pairs.py').plot(2)
     """
 
     if np.any(r < 0) or np.any(r > 1):
@@ -185,7 +189,7 @@ def profile2(r):
 
 def profile3(r):
     """**profile3**:
-    `Cremers and Birkebak App. Opt. 5, 1057-1064 (1966) Eq(13)
+    `Cremers and Birkebak App. Opt. 5, 1057–1064 (1966) Eq(13)
     <https://doi.org/10.1364/AO.5.001057>`_
 
     .. math::
@@ -200,9 +204,7 @@ def profile3(r):
         I(r) &= \\frac{4a_1}{3}(1+2r^2)-4r^2\ln\\frac{1-a_1}{r} &
                 0.5 \lt r \le 1
 
-    ::
-
-                       profile3
+    ..
               source                projection
         ┼+1.1                  ┼+1.1               
         x x x                  o o                 
@@ -217,6 +219,10 @@ def profile3(r):
         ┼+0───────────x────┼   ┼+0───────────o────┼
         0          r      +1   0          r      +1
 
+    .. plot::
+
+        import imp
+        imp.load_source('', 'tools/transform_pairs.py').plot(3)
     """
 
     if np.any(r < 0) or np.any(r > 1):
@@ -251,7 +257,7 @@ def profile3(r):
 
 def profile4(r):
     """**profile4**: `Alvarez, Rodero, Quintero Spectochim. Acta B 57,
-    1665-1680 (2002) <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
+    1665–1680 (2002) <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
 
     Note:
         Published projection has misprints
@@ -274,10 +280,7 @@ def profile4(r):
         I(r) &= -14.811667a_1 - 196.30083a_1 r^2 + r^2(155.56 + 55.5525r^2)
                 \ln\\frac{1 + a_1}{r} & 0.7 \lt r \le 1
 
-
-    ::
-
-                       profile4
+    ..
               source                projection
         ┼+2.2                  ┼+2.2       o       
         │                      │         o   o     
@@ -292,7 +295,10 @@ def profile4(r):
         ┼+0─x─────────────x┼   ┼+0────────────────┼
         0          r      +1   0          r      +1
 
+    .. plot::
 
+        import imp
+        imp.load_source('', 'tools/transform_pairs.py').plot(4)
     """
 
     def source_left(x):
@@ -354,7 +360,8 @@ def profile4(r):
 
 
 def profile5(r):
-    """**profile5**: `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_
+    """**profile5**: `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55,
+    231–243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_
 
     .. math::
 
@@ -362,9 +369,7 @@ def profile5(r):
 
         I(r) &= 2a_1 & 0 \le r \le 1
 
-    ::
-
-                       profile5
+    ..
               source                projection
         ┼+2.1                  ┼+2.1               
         │                      │     o o           
@@ -379,6 +384,10 @@ def profile5(r):
         ┼+0────────────────┼   ┼+0────────────────┼
         0          r      +1   0          r      +1
 
+    .. plot::
+
+        import imp
+        imp.load_source('', 'tools/transform_pairs.py').plot(5)
     """
 
     if np.any(r < 0) or np.any(r > 1):
@@ -394,7 +403,8 @@ def profile5(r):
 
 
 def profile6(r):
-    """**profile6**: `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_
+    """**profile6**: `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55,
+    231–243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_
 
     .. math::
 
@@ -404,9 +414,7 @@ def profile6(r):
         I(r) &= \\frac{\sqrt{\pi}}{1.1a_1} \exp\left[1.1^2\left(
                         1 - \\frac{1}{1-r^2}\\right)\\right] & 0 \le r \le 1
 
-    ::
-
-                       profile6
+    ..
               source                projection
         ┼+1.8                  ┼+1.8               
         │                      o o o               
@@ -421,6 +429,10 @@ def profile6(r):
         ┼+0────────────────┼   ┼+0────────────────┼
         0          r      +1   0          r      +1
 
+    .. plot::
+
+        import imp
+        imp.load_source('', 'tools/transform_pairs.py').plot(6)
     """
 
     if np.any(r < 0) or np.any(r > 1):
@@ -437,7 +449,7 @@ def profile6(r):
 
 def profile7(r):
     """**profile7**:
-    `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231-243 (1996)
+    `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231–243 (1996)
     <https://doi.org/10.1016/j.amc.2014.03.043>`_
 
     .. math::
@@ -446,9 +458,7 @@ def profile7(r):
 
         I(r) &= \\frac{8}{105}a_1(19 + 34r^2 - 125r^4 + 72r^6) & 0 \le r \le 1
 
-    ::
-
-                       profile7
+    ..
               source                projection
         ┼+1.7                  ┼+1.7               
         │                      o o o o o           
@@ -463,6 +473,10 @@ def profile7(r):
         ┼+0───────────────x┼   ┼+0────────────────┼
         0          r      +1   0          r      +1
 
+    .. plot::
+
+        import imp
+        imp.load_source('', 'tools/transform_pairs.py').plot(7)
     """
 
     if np.any(r < 0) or np.any(r > 1):
