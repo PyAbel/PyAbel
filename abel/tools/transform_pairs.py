@@ -97,8 +97,8 @@ def profile1(r):
 
     .. plot::
 
-        import imp
-        imp.load_source('', 'tools/transform_pairs.py').plot(1)
+        from tools.transform_pairs import plot
+        plot(1)
     """
 
     if np.any(r <= 0) or np.any(r > 1):
@@ -169,8 +169,8 @@ def profile2(r):
 
     .. plot::
 
-        import imp
-        imp.load_source('', 'tools/transform_pairs.py').plot(2)
+        from tools.transform_pairs import plot
+        plot(2)
     """
 
     if np.any(r < 0) or np.any(r > 1):
@@ -221,8 +221,8 @@ def profile3(r):
 
     .. plot::
 
-        import imp
-        imp.load_source('', 'tools/transform_pairs.py').plot(3)
+        from tools.transform_pairs import plot
+        plot(3)
     """
 
     if np.any(r < 0) or np.any(r > 1):
@@ -297,8 +297,8 @@ def profile4(r):
 
     .. plot::
 
-        import imp
-        imp.load_source('', 'tools/transform_pairs.py').plot(4)
+        from tools.transform_pairs import plot
+        plot(4)
     """
 
     def source_left(x):
@@ -386,8 +386,8 @@ def profile5(r):
 
     .. plot::
 
-        import imp
-        imp.load_source('', 'tools/transform_pairs.py').plot(5)
+        from tools.transform_pairs import plot
+        plot(5)
     """
 
     if np.any(r < 0) or np.any(r > 1):
@@ -431,8 +431,8 @@ def profile6(r):
 
     .. plot::
 
-        import imp
-        imp.load_source('', 'tools/transform_pairs.py').plot(6)
+        from tools.transform_pairs import plot
+        plot(6)
     """
 
     if np.any(r < 0) or np.any(r > 1):
@@ -475,8 +475,8 @@ def profile7(r):
 
     .. plot::
 
-        import imp
-        imp.load_source('', 'tools/transform_pairs.py').plot(7)
+        from tools.transform_pairs import plot
+        plot(7)
     """
 
     if np.any(r < 0) or np.any(r > 1):
