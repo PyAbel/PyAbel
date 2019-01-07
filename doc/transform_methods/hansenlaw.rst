@@ -1,7 +1,7 @@
 .. |nbsp| unicode:: 0xA0 
    :trim:
 
-Hansen-Law
+Hansen–Law
 ==========
 
 
@@ -125,6 +125,8 @@ Example
 -------
 
 .. plot:: ../examples/example_O2_PES_PAD.py
+
+:doc:`Source code </example_O2_PES_PAD>`
 
 
 Historical Note

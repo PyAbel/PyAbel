@@ -1,4 +1,4 @@
-Example: Basex gaussian
+Example: Basex Gaussian
 =======================
 
 

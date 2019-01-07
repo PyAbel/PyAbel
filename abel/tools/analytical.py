@@ -312,11 +312,13 @@ class GaussianAnalytical(BaseAnalytical):
 
 
 class TransformPair(BaseAnalytical):
-    """**Abel transform pair analytical functions**.
+    """**Abel-transform pair analytical functions**.
 
-    **profiles1-7**: Table 1 of
-    `Chan and Hieftje Spectrochimica Acta B 61, 31-41 (2006)
-    <http://doi:10.1016/j.sab.2005.11.009>`_
+    **profiles 1–7**: Table 1 of
+    `Chan and Hieftje Spectrochimica Acta B 61, 31–41 (2006)
+    <http://doi.org/10.1016/j.sab.2005.11.009>`_.
+
+    See :mod:`abel.tools.transform_pairs`.
 
 
     Returns

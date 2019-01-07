@@ -238,6 +238,15 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'PyAbeldoc'
 
+# Options for matplotlib.sphinxext.plot_directive.
+# use SVG by default
+plot_formats = ['svg', 'png']
+# do not add links to source automatically
+plot_html_show_source_link = False
+# do not add links to image formats
+plot_html_show_formats = False
+
+
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
