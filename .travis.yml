@@ -13,7 +13,7 @@ matrix:
 install:
   - pip install --upgrade pip setuptools wheel
   - "pip install ${DEPS}"
-  - pip install coveralls pytest pytest-cov
+  - pip install --upgrade coveralls pytest pytest-cov
   - pip install .
 script:
   - cd tmp/; pytest -v --cov=abel --pyargs abel
