@@ -121,11 +121,14 @@ def radial_integration(IM, radial_ranges=None):
         Image data
 
     radial_ranges : list of tuple ranges or int step
-        tuple integration ranges
+        tuple
+            integration ranges
             ``[(r0, r1), (r2, r3), ...]``
             evaluates the intensity vs angle
             for the radial ranges ``r0_r1``, ``r2_r3``, etc.
-        int - the whole radial range ``(0, step), (step, 2*step), ..``
+
+        int
+            the whole radial range ``(0, step), (step, 2*step), ..``
 
     Returns
     -------

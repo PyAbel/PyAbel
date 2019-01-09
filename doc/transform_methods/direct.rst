@@ -29,8 +29,3 @@ To complete the forward or inverse transform of a full image with the direct met
 
 
 If you would like to access the Direct algorithm directly (to transform a right-side half-image), you can use :func:`abel.direct.direct_transform`.
-
-
-Citation
---------
-[1] `Dribinski et al, 2002 (Rev. Sci. Instrum. 73, 2634) <http://dx.doi.org/10.1063/1.1482156>`_, (`pdf <http://www-bcf.usc.edu/~reisler/assets/pdf/67.pdf>`_)

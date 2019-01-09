@@ -284,10 +284,11 @@ def find_center_by_convolution(IM, **kwargs):
     """ Center the image by convolution of two projections along each axis.
         Code from the ``linbasex`` juptyer notebook
 
-    Parameter
-    -------
+    Parameters
+    ----------
     IM: numpy 2D array
         image data
+
     Returns
     -------
     center: tuple

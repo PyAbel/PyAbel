@@ -4,6 +4,15 @@ from __future__ import division
 import numpy as np
 from scipy.linalg import pascal, toeplitz
 
+__doc__ = """
+See :ref:`Polynomials` for details and examples.
+
+.. toctree::
+    :hidden:
+
+    tools/polynomial
+"""
+
 
 class Polynomial(object):
     """

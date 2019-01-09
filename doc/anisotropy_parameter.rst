@@ -27,7 +27,7 @@ Methods
 
    |
 
-   Method 2: using ``abel.tools.vmi.radial_integration()`` 
+   Method 2: using :func:`abel.tools.vmi.radial_integration`
 
        This method determines the anisotropy parameter from the inverse Abel transformed image, by extracting intensity vs angle for each specified radial range (tuples) and then fitting the intensity formula given above. This method is best applied to the radial ranges the correspond to strong spectral (intensity) in the image. It has the advantage of providing the least-squares fit error estimate for the parameter(s).
 
@@ -36,7 +36,7 @@ Methods
 Example of both methods
 -----------------------
 
-See ``examples/example_anisotropy_parameter.py``. In this case the anisotropy parameter is determined using each method. Note:
+See :doc:`example_anisotropy_parameter`. In this case the anisotropy parameter is determined using each method. Note:
  
    1. Method 1 the filter parameter ``threshold=0.2`` is set to a larger value so as to exclude evaluation in regions of weak intensity.
 

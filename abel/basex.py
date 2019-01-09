@@ -174,7 +174,7 @@ def basex_core_transform(rawdata, A):
     ----------
     rawdata : m × n numpy array
         right half (with the axis) of the input image.
-    Ai : n × n numpy array
+    A : n × n numpy array
         2D array given by the transform-calculation function
 
     Returns
@@ -287,7 +287,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
 
     Returns
     -------
-    Ai : n × n numpy array
+    A : n × n numpy array
         matrix of the Abel transform (forward or inverse)
     """
 

@@ -164,6 +164,8 @@ class Polynomial(BaseAnalytical):
     Define a polynomial function and calculate its analytical
     Abel transform.
 
+    (See :ref:`Polynomials` for details and examples.)
+
     Parameters
     ----------
     n : int
@@ -310,14 +312,13 @@ class GaussianAnalytical(BaseAnalytical):
 
 
 class TransformPair(BaseAnalytical):
-    """**Abel transform pair analytical functions**.
+    """**Abel-transform pair analytical functions**.
 
-    **profiles1-7**: Table 1 of
-    `Chan and Hieftje Spectrochimica Acta B 61, 31-41 (2006)
-    <http://doi:10.1016/j.sab.2005.11.009>`_
+    **profiles 1–7**: Table 1 of
+    `Chan and Hieftje Spectrochimica Acta B 61, 31–41 (2006)
+    <http://doi.org/10.1016/j.sab.2005.11.009>`_.
 
-    **profile8**: curve B `Hansen and Law J. Opt. Soc. Am. A 2, 510-520 (1985)
-    <http://doi:10.1364/JOSAA.2.000510>`_
+    See :mod:`abel.tools.transform_pairs`.
 
 
     Returns
@@ -351,7 +352,7 @@ class TransformPair(BaseAnalytical):
             number of points along the r axis
 
         profile: int
-            the profile number 1-8, see 'abel/tools/transform_pairs.py'
+            the profile number 1-7, see 'abel/tools/transform_pairs.py'
 
         """
 
@@ -364,8 +365,8 @@ class TransformPair(BaseAnalytical):
         r[0] = 1.0e-8
         r[-1] -= 1.0e-8
 
-        if profile > 8:
-            raise ValueError('Only 1-8 profiles: '
+        if profile > 7:
+            raise ValueError('Only 1-7 profiles: '
                              'see "abel/tools/transform_pairs.py"')
 
         self.label = 'profile{}'.format(profile)

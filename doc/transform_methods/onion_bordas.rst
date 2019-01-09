@@ -13,6 +13,7 @@ by Bordas ~et al.[2]
 
 See the discussion here: https://github.com/PyAbel/PyAbel/issues/56
 
+
 How it works
 ------------
 
@@ -47,6 +48,8 @@ Example
 -------
 
 .. plot:: ../examples/example_onion_bordas.py
+
+:doc:`Source code </example_onion_bordas>`
 
 
 Citation

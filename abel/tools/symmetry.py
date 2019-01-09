@@ -32,25 +32,29 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         See Note.
 
     use_quadrants : boolean tuple
-       Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
-       and final image
+        Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
+        and final image
 
     symmetrize_method: str
-       Method used for symmetrizing the image.
+        Method used for symmetrizing the image.
 
-       average: Simply average the quadrants.
-       fourier: Axial symmetry implies that the Fourier components of the 2-D
-                projection should be real. Removing the imaginary components in
-                reciprocal space leaves a symmetric projection.
-                ref: Overstreet, K., et al. "Multiple scattering and the density
-                     distribution of a Cs MOT." Optics express 13.24 (2005): 9672-9682.
-                     http://dx.doi.org/10.1364/OPEX.13.009672
+        ``average``
+            Simply average the quadrants.
+
+        ``fourier``
+            Axial symmetry implies that the Fourier components of the 2-D
+            projection should be real. Removing the imaginary components in
+            reciprocal space leaves a symmetric projection.
+
+        (ref: Overstreet, K., et al. "Multiple scattering and the density
+        distribution of a Cs MOT." Optics express 13.24 (2005): 9672-9682.
+        http://dx.doi.org/10.1364/OPEX.13.009672)
 
     Returns
     -------
     Q0, Q1, Q2, Q3 : tuple of 2D np.arrays
-      shape: (``rows//2+rows%2, cols//2+cols%2``)
-      all oriented in the same direction as Q0 if ``reorient=True``
+        shape: (``rows//2+rows%2, cols//2+cols%2``)
+        all oriented in the same direction as Q0 if ``reorient=True``
 
 
     Notes

@@ -1,4 +1,4 @@
-Example: circularize_image
+Example: Circularize image
 ==========================
 
 

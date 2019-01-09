@@ -12,6 +12,7 @@ Approach
 The algorithm is implemented in :func:`abel.tools.circularize.circularize_image`
 compares the radial positions of strong features in angular slice intensity profiles. i.e. follow the radial position of a peak as a function of angle. A linear correction is applied to the radial grid to align the peak at each angle.
 ::
+
      before     after
        ^         ^    slice0
          ^       ^    slice1

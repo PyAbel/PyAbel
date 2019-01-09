@@ -24,6 +24,7 @@ numerical effort for the interpretation of VM-images considerably. The obtained
 results produce directly the coefficients of the involved spherical functions, 
 making the reconstruction of sliced Newton spheres obsolete.*
 
+
 How it works
 ------------
 
@@ -115,10 +116,12 @@ To complete the inverse Abel transform of a full image with the
 
 Note, the parameter :attr:`transform_options=dict(return_Beta=True)`, 
 provides additional attributes, direct from the transform procedure:
- - ``.Beta[0]`` - the speed distribution
- - ``.Beta[1]`` - the anisotropy parameter vs radius
- - ``.radial`` - the radial array
- - ``.projection`` - the radial projections at angles `an`.
+
+- ``.Beta[0]`` - the speed distribution
+- ``.Beta[1]`` - the anisotropy parameter vs radius
+- ``.radial`` - the radial array
+- ``.projection`` - the radial projections at angles `an`.
+
 A more complete global call, that centers the image, ensures that the size is odd,
 and returns the attributes above, would be e.g. ::
 
@@ -127,6 +130,7 @@ and returns the attributes above, would be e.g. ::
 
 Alternatively, the linbasex algorithm :func:`abel.linbasex.linbasex_transform_full()` directly 
 transforms the full image, with the attributes returned as a tuple in this case.
+
 
 Tips
 ----
@@ -139,10 +143,14 @@ or ::
 
   an = arange(0, 180, 10)
 
+
 Example
 -------
 
 .. plot:: ../examples/example_linbasex.py
+
+:doc:`Source code </example_linbasex>`
+
 
 Historical
 ----------
