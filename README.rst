@@ -1,8 +1,8 @@
 PyAbel README
 =============
 
-.. image:: https://travis-ci.org/PyAbel/PyAbel.svg?branch=master
-    :target: https://travis-ci.org/PyAbel/PyAbel
+.. image:: https://travis-ci.com/PyAbel/PyAbel.svg?branch=master
+    :target: https://travis-ci.com/PyAbel/PyAbel
 .. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
     :target: https://ci.appveyor.com/project/PyAbel/PyAbel
 
