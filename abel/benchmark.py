@@ -14,6 +14,97 @@ from . import hansenlaw
 from . import onion_bordas
 from . import tools
 
+from timeit import default_timer as timer
+import itertools
+
+
+class Timent(object):
+    """
+    Helper class for measuring execution times.
+
+    The constructor only initializes the timing-procedure parameters.
+    Use the :py:meth:`.time` method to run it for particular functions.
+
+    Parameters
+    ----------
+    skip : int
+        number of "warm-up" iterations to perform before the measurements.
+        Can be specified as a negative number, then ``abs(skip)``
+        "warm-up" iterations are performed, but if this took more than
+        **duration** seconds, they are accounted towards the measured
+        iterations.
+    repeat : int
+        minimal number of measured iterations to perform.
+        Must be positive.
+    duration : float
+        minimal duration (in seconds) of the measurements.
+    """
+    def __init__(self, skip=0, repeat=1, duration=0.0):
+        self.skip = int(skip)
+        self.repeat = int(repeat)
+        self.duration = float(duration)
+
+    def time(self, func, *args, **kwargs):
+        """
+        Repeatedly executes a function at least **repeat** times and for at
+        least **duration** seconds (see above), then returns the average time
+        per iteration.
+        The actual number of measured iterations can be retrieved from
+        :py:attr:`Timent.count`.
+
+        Parameters
+        ----------
+        func : callable
+            function to execute
+        *args, **kwargs : any, optional
+            parameters to pass to **func**
+
+        Returns
+        -------
+        float
+            average function execution time
+
+        Notes
+        -----
+        The measurements overhead can be estimated by executing ::
+
+            Timent(...).time(lambda: None)
+
+        with a sufficiently large number of iterations (to avoid rounding
+        errors due to the finite timer precision).
+        In 2018, this overhead was on the order of 100 ns per iteration.
+        """
+        # Execute "skip" iterations unconditionally
+        t0 = timer()
+        for i in range(abs(self.skip)):
+            func(*args, **kwargs)
+        t = timer()
+        # if they took longer than "duration" and should be included
+        if self.skip < 0 and t - t0 > self.duration:
+            # account for them in the "repeat" loop
+            start = -self.skip
+            if start > self.repeat:
+                self.repeat = start
+        else:
+            # otherwise -- reset the timer and proceed normally
+            start = 0
+            t0 = timer()
+
+        # Execute "repeat" iterations (maybe accounting for the "skipped")
+        for i in range(start, self.repeat):
+            func(*args, **kwargs)
+
+        # Continue iterations until "duration" time passes
+        for i in itertools.count(self.repeat):
+            t = timer()
+            if t - t0 > self.duration:
+                self.count = i  # save the total number of measured iterations
+                break
+            func(*args, **kwargs)
+
+        # Return the average time per iteration
+        return (t - t0) / self.count
+
 
 class AbelTiming(object):
     def __init__(self, n=[301, 501], select=["all", ], n_max_bs=700,
