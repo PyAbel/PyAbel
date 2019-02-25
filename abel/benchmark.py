@@ -107,167 +107,289 @@ class Timent(object):
 
 
 class AbelTiming(object):
-    def __init__(self, n=[301, 501], select=["all", ], n_max_bs=700,
-                 n_max_slow=700, transform_repeat=1):
-        """
-        Benchmark performance of different iAbel/fAbel implementations.
+    """
+    Benchmark performance of different Abel implementations
+    (basis generation, forward and inverse transforms, as applicable).
 
-        Parameters
-        ----------
-        n: integer
-            a list of arrays sizes for the benchmark
-            (assuming 2D square arrays (n,n))
+    Parameters
+    ----------
+    n : list of int
+        array sizes for the benchmark (assuming 2D square arrays (*n*, *n*))
+    select : list of str
+        methods to benchmark. Use ``['all']`` (default) for all available or
+        choose any combination of individual methods::
 
-        select: list of str
-            list of transforms to benchmark select=['all',] (default) or 
-            choose transforms:
-            select=['basex', 'direct_Python', 'direct_C', 'hansenlaw', 
-                    'linbasex' 'onion_bordas, 'onion_peeling', 'two_point', 
+            select=['basex', 'direct_C', 'direct_Python', 'hansenlaw',
+                    'linbasex', 'onion_bordas, 'onion_peeling', 'two_point',
                     'three_point']
 
-        n_max_bs: integer
-            since the basis sets generation takes a long time,
-            do not run this benchmark for implementations that use basis sets
-            for n > n_max_bs
+    n_max_bs : int
+        since the basis-sets generation takes a long time, do not run
+        benchmarks with *n* > **n_max_bs** for implementations that use basis
+        sets
+    n_max_slow : int
+        do not run benchmarks with *n* > **n_max_slow** for "slow"
+        implementations, so far including only "direct_Python"
+    repeat : int
+        repeat each benchmark at least this number of times to get the average
+        values
+    duration : float
+        repeat each benchmark for at least this number of seconds to get the
+        average values
 
-        n_max_slow: integer
-            maximum n run for the "slow" transform methods, so far including 
-            only the "direct_python" implementation.
-        """
-        from timeit import Timer, default_timer
-        import time
+    Attributes
+    -------
+    bs, fabel, iabel : dict of list of float
+        benchmark results — dictionaries for
 
+            bs
+                basis-set generation
+            fabel
+                forward Abel transform
+            iabel
+                inverse Abel transform
+
+        with methods as keys and lists of timings in milliseconds as entries
+        (corresponding to array sizes from **n**, also available as
+        :py:attr:`AbelTiming.n`).
+
+    Notes
+    -----
+    The results can be output in a nice format by simply
+    ``print(AbelTiming(...))``.
+
+    Keep in mind that most methods have :math:`O(n^2)` memory and
+    :math:`O(n^3)` time complexity, so going from *n* = 501 to *n* = 5001
+    would require about 100 times more memory and take about 1000 times longer.
+    """
+    def __init__(self, n=[301, 501], select=['all', ], n_max_bs=700,
+                 n_max_slow=700, repeat=1, duration=0.1):
         self.n = n
+        self.n_max_bs = n_max_bs
+        self.n_max_slow = n_max_slow
+        # create the timing function
+        self._time = Timent(skip=-1, repeat=repeat, duration=duration).time
 
-        transform = {
-            'basex': basex.basex_core_transform,
-            'basex_bs': basex.get_bs_cached,
-            'direct_Python': direct.direct_transform,
-            'direct_C': direct.direct_transform,
-            'hansenlaw': hansenlaw.hansenlaw_transform,
-            'linbasex': linbasex._linbasex_transform_with_basis,
-            'linbasex_bs': linbasex._bs_linbasex,
-            'onion_bordas': onion_bordas.onion_bordas_transform,
-            'onion_peeling': dasch.dasch_transform,
-            'onion_peeling_bs': dasch._bs_onion_peeling,
-            'two_point': dasch.dasch_transform,
-            'two_point_bs': dasch._bs_two_point,
-            'three_point': dasch.dasch_transform,
-            'three_point_bs': dasch._bs_three_point,
-         }
+        # which methods need half and whole images
+        need_half = frozenset([
+            'basex',
+            'direct_C',
+            'direct_Python',
+            'hansenlaw',
+            'onion_bordas',
+            'onion_peeling',
+            'two_point',
+            'three_point',
+        ])
+        need_whole = frozenset([
+            'linbasex',
+        ])
+        # all available methods (= union of the above sets)
+        all_methods = need_half | need_whole
+        # remove direct_C, if not supported
+        if not direct.cython_ext:
+            all_methods = all_methods - frozenset(['direct_C'])
 
-        # result dicts
-        res = {}
-        res['bs'] = {'basex_bs': [], 'linbasex_bs': [], 'onion_peeling_bs': [], 
-                     'two_point_bs': [], 'three_point_bs': []}
-        res['forward'] = {'direct_Python': [], 'hansenlaw': []}
-        res['inverse'] = {'basex': [], 'direct_Python': [], 'hansenlaw': [],
-                          'linbasex': [],
-                          'onion_bordas': [], 'onion_peeling': [],
-                          'two_point': [], 'three_point': []}
-
-        if direct.cython_ext:
-            res['forward']['direct_C'] = []
-            res['inverse']['direct_C'] = []
-
-        # delete all keys not present in 'select' input parameter
-        if "all" not in select:
-            for trans in select:
-                if trans not in res['inverse'].keys():
-                    raise ValueError("'{}' is not a valid transform method".
-                                     format(trans), res['inverse'].keys())
-                     
-            for direction in ['forward', 'inverse']:
-                rm = []
-                for abel in res[direction]:
-                    if abel not in select:
-                        rm.append(abel)
-                for x in rm:
-                    del res[direction][x]
-            # repeat for 'bs' which has append '_bs'
-            rm = []
-            for abel in res['bs']:
-                if abel[:-3] not in select:
-                    rm.append(abel)
-            for x in rm:
-                del res['bs'][x] 
-
-        # ---- timing tests for various image sizes nxn
-        for ni in n:
-            ni = int(ni)
-            h, w = ni, ni//2 + 1
-            # We transform a rectangular image, since we are  making the assumption 
-            # that we are transforming just the "right side" of a square image.
-            # see: https://github.com/PyAbel/PyAbel/issues/207
-            
-            half_image  = np.random.randn(h, w)    
-            whole_image = np.random.randn(h, h)
-            # basis set evaluation --------------
-            basis = {}
-            for method in res['bs'].keys():
-                if ni <= n_max_bs:
-                
-                    if method[:-3] == 'basex':  # special case
-                        # calculate and store basex basis matrix
-                        t = default_timer()
-                        basis[method[:-3]] = transform[method](w, basis_dir=None)
-                        res['bs'][method].append((default_timer()-t)*1000)
-                    
-                    elif method[:-3] == 'linbasex':  # special case
-                        t = default_timer()
-                        basis[method[:-3]] = transform[method](ni)
-                        res['bs'][method].append((default_timer()-t)*1000)
-                    else:
-                        # calculate and store basis matrix
-                        t = default_timer()
-                        # store basis calculation. NB a tuple to accomodate basex
-                        basis[method[:-3]] = transform[method](w), 
-                        res['bs'][method].append((default_timer()-t)*1000)
-                        
+        # Select methods
+        if 'all' in select:
+            methods = all_methods
+        else:
+            methods = set()
+            for method in select:
+                if method not in all_methods:
+                    print('Warning: Unsupported method "{}" ignored!'.
+                          format(method))
                 else:
-                    basis[method[:-3]] = None,
-                    res['bs'][method].append(np.nan)
-               
+                    methods.add(method)
+        if not methods:
+            raise ValueError('At least one valid method must be specified!')
 
-            # Abel transforms ---------------
-            for cal in ["forward", "inverse"]:
-                for method in res[cal].keys(): 
-                    if method in basis.keys():
-                        if basis[method][0] is not None:
-                            # have basis calculation
-                            if method == 'linbasex':
-                                 # pass a whole image to linbasex
-                                 res[cal][method].append(Timer(
-                                    lambda: transform[method](whole_image, basis[method])).
-                                    timeit(number=transform_repeat)*1000/
-                                    transform_repeat)       
-                            else:
-                                res[cal][method].append(Timer(
-                                   lambda: transform[method](half_image, basis[method])).
-                                   timeit(number=transform_repeat)*1000/
-                                   transform_repeat)
-                        else:
-                            # no calculation available
-                            res[cal][method].append(np.nan)
-                    elif method[:6] == 'direct':  # special case 'direct'
-                        if method[7] == 'P' and (ni > n_max_slow):
-                            res[cal][method].append(np.nan)
-                        else:     
-                            res[cal][method].append(Timer(
-                               lambda: transform[method](half_image, backend=method[7:],
-                               direction=cal)).
-                               timeit(number=transform_repeat)*1000/
-                               transform_repeat)
-                    else:
-                        # full calculation for everything else
-                        res[cal][method].append(Timer(
-                           lambda: transform[method](half_image, direction=cal)).
-                           timeit(number=transform_repeat)*1000/
-                           transform_repeat)
+        # dictionary for the results
+        self.res = {'bs': {},
+                    'forward': {},
+                    'inverse': {}}
+        # same results as separate dictionaries (aliases to the above)
+        self.bs = self.res['bs']
+        self.fabel = self.res['forward']
+        self.iabel = self.res['inverse']
 
-        self.fabel = res['forward']
-        self.bs = res['bs']
-        self.iabel = res['inverse']
+        # Loop over all image sizes
+        for ni in self.n:
+            self.ni = int(ni)
+            # image height and half-width
+            self.h, self.w = self.ni, self.ni // 2 + 1
+            # We transform a rectangular image, since we are making the
+            # assumption that we are transforming just the "right side" of
+            # a square image.
+            # see: https://github.com/PyAbel/PyAbel/issues/207
+
+            # create needed images (half and/or whole)
+            if methods & need_half:
+                self.half_image = np.random.randn(self.h, self.w)
+            if methods & need_whole:
+                self.whole_image = np.random.randn(self.h, self.h)
+
+            # call benchmark (see below) for each method at this image size
+            for method in methods:
+                getattr(self, '_time_' + method)()
+
+            # discard images
+            self.half_image = None
+            self.whole_image = None
+
+    def _append(self, kind, method, result):
+        """
+        Store one result, ensuring that the results array exists.
+        """
+        if method not in self.res[kind]:
+            self.res[kind][method] = []
+        self.res[kind][method].append(result)
+
+    def _benchmark(self,
+                   kind, method,
+                   func, *args, **kwargs):
+        """
+        Run benchmark for the function with arguments and store the result.
+        """
+        self._append(kind, method,
+                     self._time(func, *args, **kwargs) * 1000)  # [s] to [ms]
+
+    # Benchmarking functions for each method.
+    # Must be named "_time_method", where "method" is as in "select".
+    # Do not take or return anything, but use instance variables:
+    # parameters:
+    #   self.ni, self.h, self.w -- image size, height, half-width,
+    #   self.n_max_bs, self.n_max_slow -- image-size limits
+    #   self.whole_image, self.half_image -- image (part) to transform
+    # results:
+    #   self.res[kind][method] = [timings] -- appended for each image size,
+    #                                         use np.nan for skipped points
+    #     kind = 'bs' (basis), 'forward', 'inverse' -- as applicable
+    #     method -- as above, but can also include variants (like in basex)
+
+    def _time_basex(self):
+        # skip if too large
+        if self.ni > self.n_max_bs:
+            self._append('bs', 'basex_bs', np.nan)
+            for direction in ['inverse', 'forward']:
+                for method in ['basex', 'basex(var)']:
+                    self._append(direction, method, np.nan)
+
+        # benchmark the basis generation (default parameters)
+        def gen_basis():
+            basex.cache_cleanup()
+            basex.get_bs_cached(self.w, basis_dir=None)
+        self._benchmark('bs', 'basex_bs',
+                        gen_basis)
+
+        # benchmark all transforms
+        for direction in ['inverse', 'forward']:  # (default first)
+            # get the transform matrix (default parameters)
+            A = basex.get_bs_cached(self.w, basis_dir=None,
+                                    direction=direction)
+            # benchmark the transform itself
+            self._benchmark(direction, 'basex',
+                            basex.basex_core_transform,
+                            self.half_image, A)
+
+            # benchmark the transform with variable regularization
+            def basex_var():
+                A = basex.get_bs_cached(self.w, reg=1.0+np.random.random(),
+                                        basis_dir=None, direction=direction)
+                basex.basex_core_transform(self.half_image, A)
+            self._benchmark(direction, 'basex(var.reg.)',
+                            basex_var)
+
+            # discard the unneeded transform matrix
+            basex.cache_cleanup(direction)
+
+        # discard all caches
+        basex.cache_cleanup()
+
+    def _time_direct_C(self):
+        for direction in ['inverse', 'forward']:
+            self._benchmark(direction, 'direct_C',
+                            direct.direct_transform,
+                            self.half_image, direction=direction, backend='C')
+
+    def _time_direct_Python(self):
+        for direction in ['inverse', 'forward']:
+            if self.ni > self.n_max_slow:  # skip if too large
+                self._append(direction, 'direct_Python', np.nan)
+            else:
+                self._benchmark(direction, 'direct_Python',
+                                direct.direct_transform,
+                                self.half_image, direction=direction,
+                                backend='python')
+
+    def _time_hansenlaw(self):
+        for direction in ['inverse', 'forward']:
+            self._benchmark(direction, 'hansenlaw',
+                            hansenlaw.hansenlaw_transform,
+                            self.half_image, direction=direction)
+
+    def _time_linbasex(self):
+        # skip if too large
+        if self.ni > self.n_max_bs:
+            self._append('bs', 'linbasex_bs', np.nan)
+            self._append('inverse', 'linbasex', np.nan)
+
+        # benchmark the basis generation (default parameters)
+        def gen_basis():
+            linbasex.cache_cleanup()
+            linbasex.get_bs_cached(self.h, basis_dir=None)
+        self._benchmark('bs', 'linbasex_bs',
+                        gen_basis)
+
+        # get the basis (is already cached)
+        basis = linbasex.get_bs_cached(self.h, basis_dir=None)
+        # benchmark the transform
+        self._benchmark('inverse', 'linbasex',
+                        linbasex._linbasex_transform_with_basis,
+                        self.whole_image, basis)
+
+        # discard all caches
+        linbasex.cache_cleanup()
+
+    def _time_onion_bordas(self):
+        self._benchmark('inverse', 'onion_bordas',
+                        onion_bordas.onion_bordas_transform,
+                        self.half_image)
+
+    # (Generic function for all Dasch methods; not called directly.)
+    def _time_dasch(self, method):
+        # skip if too large
+        if self.ni > self.n_max_bs:
+            self._append('bs', method + '_bs', np.nan)
+            self._append('inverse', method, np.nan)
+
+        # benchmark the basis generation (default parameters)
+        def gen_basis():
+            dasch.cache_cleanup()
+            dasch.get_bs_cached(method, self.w, basis_dir=None)
+        self._benchmark('bs', method + '_bs',
+                        gen_basis)
+
+        # get the transform matrix (is already cached)
+        D = dasch.get_bs_cached(method, self.w, basis_dir=None)
+        # benchmark the transform
+        self._benchmark('inverse', method,
+                        dasch.dasch_transform,
+                        self.half_image, D)
+
+        # discard all caches
+        dasch.cache_cleanup()
+
+    def _time_onion_peeling(self):
+        self._time_dasch('onion_peeling')
+
+    def _time_two_point(self):
+        self._time_dasch('two_point')
+
+    def _time_three_point(self):
+        self._time_dasch('three_point')
+
+    # (End of benchmarking functions.)
 
     def __repr__(self):
         import platform
