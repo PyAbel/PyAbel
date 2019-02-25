@@ -440,8 +440,10 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
     a binary array with the symmetry condition for the corresponding quadrants.
     The globa
 
-    Note: if both i_sym=True and i_sym=True, the input array is checked
-    for polar symmetry.
+    Notes
+    -----
+    If both **i_sym** = ``True`` and **j_sym** = ``True``, the input array is
+    checked for polar symmetry.
 
     See https://github.com/PyAbel/PyAbel/issues/34#issuecomment-160344809
     for the defintion of a center of the image.
@@ -469,7 +471,7 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
 def absolute_ratio_benchmark(analytical, recon, kind='inverse'):
     """
     Check the absolute ratio between an analytical function and the result
-    of a inv. Abel reconstruction.
+    of a inverse Abel reconstruction.
 
     Parameters
     ----------
