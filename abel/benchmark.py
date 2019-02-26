@@ -274,6 +274,7 @@ class AbelTiming(object):
             for direction in ['inverse', 'forward']:
                 for method in ['basex', 'basex(var.reg.)']:
                     self._append(direction, method, np.nan)
+            return
 
         # benchmark the basis generation (default parameters)
         def gen_basis():
@@ -333,6 +334,7 @@ class AbelTiming(object):
         if self.ni > self.n_max_bs:
             self._append('bs', 'linbasex_bs', np.nan)
             self._append('inverse', 'linbasex', np.nan)
+            return
 
         # benchmark the basis generation (default parameters)
         def gen_basis():
@@ -362,6 +364,7 @@ class AbelTiming(object):
         if self.ni > self.n_max_bs:
             self._append('bs', method + '_bs', np.nan)
             self._append('inverse', method, np.nan)
+            return
 
         # benchmark the basis generation (default parameters)
         def gen_basis():
