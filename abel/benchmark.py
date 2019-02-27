@@ -231,16 +231,34 @@ class AbelTiming(object):
             # see: https://github.com/PyAbel/PyAbel/issues/207
             self._vprint('n =', self.ni)
 
+            # The following code tries to catch the interruption signal
+            # (Ctrl+C) to abort as soon as possible but preserve the available
+            # results. Setting a negative time limit makes all remaining
+            # benchmarks to skip (calling them is still needed to fill the
+            # results with nans).
+
             # create needed images (half and/or whole)
-            if methods & need_half:
-                self.half_image = np.random.randn(self.h, self.w)
-            if methods & need_whole:
-                self.whole_image = np.random.randn(self.h, self.h)
+            if (self.t_max >= 0):  # (do not create while aborting)
+                try:
+                    if methods & need_half:
+                        self.half_image = np.random.randn(self.h, self.w)
+                    if methods & need_whole:
+                        self.whole_image = np.random.randn(self.h, self.h)
+                except KeyboardInterrupt:
+                    self.t_max = -1.0
+                    # (the images will not be used, so leaving them as is)
 
             # call benchmark (see below) for each method at this image size
             for method in methods:
                 self._vprint(' ', method)
-                getattr(self, '_time_' + method)()
+                try:
+                    getattr(self, '_time_' + method)()
+                except KeyboardInterrupt:
+                    self._vprint('\nInterrupted by the user! '
+                                 'Skipping the rest...')
+                    self.t_max = -1.0
+                    # rerun this interrupted benchmark to nan-fill its results
+                    getattr(self, '_time_' + method)()
 
             # discard images
             self.half_image = None
