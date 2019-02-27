@@ -346,7 +346,6 @@ class AbelTiming(object):
     # Do not take or return anything, but use instance variables:
     # parameters:
     #   self.ni, self.h, self.w -- image size, height, half-width,
-    #   self.n_max_bs, self.n_max_slow -- image-size limits
     #   self.whole_image, self.half_image -- image (part) to transform
     # results:
     #   self.res[kind][method] = [timings] -- appended for each image size,
