@@ -16,6 +16,7 @@ from . import tools
 
 from timeit import default_timer as timer
 import itertools
+import sys
 
 
 class Timent(object):
@@ -123,22 +124,24 @@ class AbelTiming(object):
                     'linbasex', 'onion_bordas, 'onion_peeling', 'two_point',
                     'three_point']
 
-    n_max_bs : int
-        since the basis-sets generation takes a long time, do not run
-        benchmarks with *n* > **n_max_bs** for implementations that use basis
-        sets
-    n_max_slow : int
-        do not run benchmarks with *n* > **n_max_slow** for "slow"
-        implementations, so far including only "direct_Python"
     repeat : int
         repeat each benchmark at least this number of times to get the average
         values
-    duration : float
+    t_min : float
         repeat each benchmark for at least this number of seconds to get the
         average values
+    t_max : float
+        do not benchmark methods at array sizes when this is expected to take
+        longer than this number of seconds. Notice that benchmarks for the
+        smallest size from **n** are always run and that the estimations can be
+        off by a factor of 2 or so.
+    verbose : boolean
+        determines whether benchmark progress should be reported (to stderr)
 
     Attributes
     -------
+    n : list of int
+        array sizes from the parameter **n**, sorted in ascending order
     bs, fabel, iabel : dict of list of float
         benchmark results — dictionaries for
 
@@ -149,9 +152,9 @@ class AbelTiming(object):
             iabel
                 inverse Abel transform
 
-        with methods as keys and lists of timings in milliseconds as entries
-        (corresponding to array sizes from **n**, also available as
-        :py:attr:`AbelTiming.n`).
+        with methods as keys and lists of timings in milliseconds as entries.
+        Timings correspond to array sizes in :py:attr:`AbelTiming.n`; for
+        skipped benchmarks (see **t_max**) they are ``np.nan``.
 
     Notes
     -----
@@ -162,13 +165,15 @@ class AbelTiming(object):
     :math:`O(n^3)` time complexity, so going from *n* = 501 to *n* = 5001
     would require about 100 times more memory and take about 1000 times longer.
     """
-    def __init__(self, n=[301, 501], select=['all', ], n_max_bs=700,
-                 n_max_slow=700, repeat=1, duration=0.1):
-        self.n = n
-        self.n_max_bs = n_max_bs
-        self.n_max_slow = n_max_slow
+    def __init__(self, n=[301, 501], select=['all', ],
+                 repeat=1, t_min=0.1, t_max=np.inf,
+                 verbose=True):
+        self.n = sorted(n)
+        self.repeat = repeat
+        self.t_max = t_max
+        self.verbose = verbose
         # create the timing function
-        self._time = Timent(skip=-1, repeat=repeat, duration=duration).time
+        self._time = Timent(skip=-1, repeat=repeat, duration=t_min).time
 
         # which methods need half and whole images
         need_half = frozenset([
@@ -212,6 +217,8 @@ class AbelTiming(object):
         self.bs = self.res['bs']
         self.fabel = self.res['forward']
         self.iabel = self.res['inverse']
+        # inverse speed for time estimations
+        self._pace = {}
 
         # Loop over all image sizes
         for ni in self.n:
@@ -222,6 +229,7 @@ class AbelTiming(object):
             # assumption that we are transforming just the "right side" of
             # a square image.
             # see: https://github.com/PyAbel/PyAbel/issues/207
+            self._vprint('n =', self.ni)
 
             # create needed images (half and/or whole)
             if methods & need_half:
@@ -231,11 +239,21 @@ class AbelTiming(object):
 
             # call benchmark (see below) for each method at this image size
             for method in methods:
+                self._vprint(' ', method)
                 getattr(self, '_time_' + method)()
 
             # discard images
             self.half_image = None
             self.whole_image = None
+        self._vprint('')
+
+    def _vprint(self, *args, **kwargs):
+        """
+        Print to stderr, only if verbose=True.
+        """
+        if self.verbose:
+            print(*args, file=sys.stderr, **kwargs)
+            sys.stderr.flush()  # (Python 3 buffers stderr. Why?!)
 
     def _append(self, kind, method, result):
         """
@@ -254,6 +272,57 @@ class AbelTiming(object):
         self._append(kind, method,
                      self._time(func, *args, **kwargs) * 1000)  # [s] to [ms]
 
+    def _skip(*param):
+        """
+        Decorator for benchmarking functions.
+        Adds a check whether the estimated execution time would exceed t_max.
+        If so, fills the results with np.nan, otherwise executes the
+        benchmarking code.
+
+        Parameters are tuples "(kind, method)". Either item can be a list, then
+        all combinations of kind(s) and method(s) are implied. Altogether the
+        set of these kind–method pairs must be the same as in the "normal"
+        execution results.
+        """
+        # (ensuring list type by wrapping non-list argument into a list)
+        def ensure_list(x):
+            return x if isinstance(x, list) else [x]
+        # assemble all kind–method pairs
+        res_keys = []
+        for p in param:
+            res_keys += itertools.product(*map(ensure_list, p))
+        res_keys = [(k, m + '_bs' if k == 'bs' else m) for k, m in res_keys]
+
+        def decorator(f):
+            method = f.__name__[6:]  # (remove initial "_time_")
+
+            def decorated(self):
+                # (rounding to n significant figures)
+                def roundsf(x, n):
+                    return float('{:.{p}g}'.format(x, p=n))
+                # get the estimated time (use 0 if cannot) and report it
+                t_est = self._pace.get(method, 0) * self.ni**3
+                self._vprint('    estimated ' +
+                             ('{:g} s'.format(roundsf(t_est, 2)) if t_est
+                              else '???'), end='')
+                # skip the benchmark if it would take too long
+                if t_est > self.t_max:
+                    self._vprint(' -- skipped')
+                    # fill the results with nan
+                    for k, m in res_keys:
+                        self._append(k, m, np.nan)
+                    return
+                else:  # otherwise run the benchmark
+                    f(self)
+                    # calculate the actual total time and report it
+                    t = (sum(self.res[k][m][-1] for k, m in res_keys) *
+                         self.repeat) / 1000  # [ms] -> [s]
+                    self._vprint(', actually {:.3f} s'.format(t))
+                    # save the pace for future estimations
+                    self._pace[method] = t / self.ni**3
+            return decorated
+        return decorator
+
     # Benchmarking functions for each method.
     # Must be named "_time_method", where "method" is as in "select".
     # Do not take or return anything, but use instance variables:
@@ -267,15 +336,9 @@ class AbelTiming(object):
     #     kind = 'bs' (basis), 'forward', 'inverse' -- as applicable
     #     method -- as above, but can also include variants (like in basex)
 
+    @_skip(('bs', 'basex'),
+           (['inverse', 'forward'], ['basex', 'basex(var.reg.)']))
     def _time_basex(self):
-        # skip if too large
-        if self.ni > self.n_max_bs:
-            self._append('bs', 'basex_bs', np.nan)
-            for direction in ['inverse', 'forward']:
-                for method in ['basex', 'basex(var.reg.)']:
-                    self._append(direction, method, np.nan)
-            return
-
         # benchmark the basis generation (default parameters)
         def gen_basis():
             basex.cache_cleanup()
@@ -307,35 +370,30 @@ class AbelTiming(object):
         # discard all caches
         basex.cache_cleanup()
 
+    @_skip((['inverse', 'forward'], 'direct_C'))
     def _time_direct_C(self):
         for direction in ['inverse', 'forward']:
             self._benchmark(direction, 'direct_C',
                             direct.direct_transform,
                             self.half_image, direction=direction, backend='C')
 
+    @_skip((['inverse', 'forward'], 'direct_Python'))
     def _time_direct_Python(self):
         for direction in ['inverse', 'forward']:
-            if self.ni > self.n_max_slow:  # skip if too large
-                self._append(direction, 'direct_Python', np.nan)
-            else:
-                self._benchmark(direction, 'direct_Python',
-                                direct.direct_transform,
-                                self.half_image, direction=direction,
-                                backend='python')
+            self._benchmark(direction, 'direct_Python',
+                            direct.direct_transform,
+                            self.half_image, direction=direction,
+                            backend='python')
 
+    @_skip((['inverse', 'forward'], 'hansenlaw'))
     def _time_hansenlaw(self):
         for direction in ['inverse', 'forward']:
             self._benchmark(direction, 'hansenlaw',
                             hansenlaw.hansenlaw_transform,
                             self.half_image, direction=direction)
 
+    @_skip((['bs', 'inverse'], 'linbasex'))
     def _time_linbasex(self):
-        # skip if too large
-        if self.ni > self.n_max_bs:
-            self._append('bs', 'linbasex_bs', np.nan)
-            self._append('inverse', 'linbasex', np.nan)
-            return
-
         # benchmark the basis generation (default parameters)
         def gen_basis():
             linbasex.cache_cleanup()
@@ -353,6 +411,7 @@ class AbelTiming(object):
         # discard all caches
         linbasex.cache_cleanup()
 
+    @_skip(('inverse', 'onion_bordas'))
     def _time_onion_bordas(self):
         self._benchmark('inverse', 'onion_bordas',
                         onion_bordas.onion_bordas_transform,
@@ -360,12 +419,6 @@ class AbelTiming(object):
 
     # (Generic function for all Dasch methods; not called directly.)
     def _time_dasch(self, method):
-        # skip if too large
-        if self.ni > self.n_max_bs:
-            self._append('bs', method + '_bs', np.nan)
-            self._append('inverse', method, np.nan)
-            return
-
         # benchmark the basis generation (default parameters)
         def gen_basis():
             dasch.cache_cleanup()
@@ -383,12 +436,15 @@ class AbelTiming(object):
         # discard all caches
         dasch.cache_cleanup()
 
+    @_skip((['bs', 'inverse'], 'onion_peeling'))
     def _time_onion_peeling(self):
         self._time_dasch('onion_peeling')
 
+    @_skip((['bs', 'inverse'], 'two_point'))
     def _time_two_point(self):
         self._time_dasch('two_point')
 
+    @_skip((['bs', 'inverse'], 'three_point'))
     def _time_three_point(self):
         self._time_dasch('three_point')
 
