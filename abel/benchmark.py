@@ -19,6 +19,20 @@ import itertools
 import sys
 
 
+def _ensure_list(x):
+    """
+    Wrap the argument in a list, if it is not a list already.
+    """
+    return x if isinstance(x, list) else [x]
+
+
+def _roundsf(x, n):
+    """
+    Round to n significant digits
+    """
+    return float('{:.{p}g}'.format(x, p=n))
+
+
 class Timent(object):
     """
     Helper class for measuring execution times.
@@ -114,10 +128,10 @@ class AbelTiming(object):
 
     Parameters
     ----------
-    n : list of int
-        array sizes for the benchmark (assuming 2D square arrays (*n*, *n*))
-    select : list of str
-        methods to benchmark. Use ``['all']`` (default) for all available or
+    n : int or list of int
+        array size(s) for the benchmark (assuming 2D square arrays (*n*, *n*))
+    select : str or list of str
+        methods to benchmark. Use ``'all'`` (default) for all available or
         choose any combination of individual methods::
 
             select=['basex', 'direct_C', 'direct_Python', 'hansenlaw',
@@ -165,10 +179,11 @@ class AbelTiming(object):
     :math:`O(n^3)` time complexity, so going from *n* = 501 to *n* = 5001
     would require about 100 times more memory and take about 1000 times longer.
     """
-    def __init__(self, n=[301, 501], select=['all', ],
+    def __init__(self, n=[301, 501], select='all',
                  repeat=1, t_min=0.1, t_max=np.inf,
                  verbose=True):
-        self.n = sorted(n)
+        self.n = sorted(_ensure_list(n))
+        select = _ensure_list(select)
         self.repeat = repeat
         self.t_max = t_max
         self.verbose = verbose
@@ -302,25 +317,19 @@ class AbelTiming(object):
         set of these kind–method pairs must be the same as in the "normal"
         execution results.
         """
-        # (ensuring list type by wrapping non-list argument into a list)
-        def ensure_list(x):
-            return x if isinstance(x, list) else [x]
         # assemble all kind–method pairs
         res_keys = []
         for p in param:
-            res_keys += itertools.product(*map(ensure_list, p))
+            res_keys += itertools.product(*map(_ensure_list, p))
 
         def decorator(f):
             method = f.__name__[6:]  # (remove initial "_time_")
 
             def decorated(self):
-                # (rounding to n significant figures)
-                def roundsf(x, n):
-                    return float('{:.{p}g}'.format(x, p=n))
                 # get the estimated time (use 0 if cannot) and report it
                 t_est = self._pace.get(method, 0) * self.ni**3
                 self._vprint('    estimated ' +
-                             ('{:g} s'.format(roundsf(t_est, 2)) if t_est
+                             ('{:g} s'.format(_roundsf(t_est, 2)) if t_est
                               else '???'), end='')
                 # skip the benchmark if it would take too long
                 if t_est > self.t_max:
