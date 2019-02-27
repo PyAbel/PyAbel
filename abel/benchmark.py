@@ -309,7 +309,6 @@ class AbelTiming(object):
         res_keys = []
         for p in param:
             res_keys += itertools.product(*map(ensure_list, p))
-        res_keys = [(k, m + '_bs' if k == 'bs' else m) for k, m in res_keys]
 
         def decorator(f):
             method = f.__name__[6:]  # (remove initial "_time_")
@@ -360,7 +359,7 @@ class AbelTiming(object):
         def gen_basis():
             basex.cache_cleanup()
             basex.get_bs_cached(self.w, basis_dir=None)
-        self._benchmark('bs', 'basex_bs',
+        self._benchmark('bs', 'basex',
                         gen_basis)
 
         # benchmark all transforms
@@ -415,7 +414,7 @@ class AbelTiming(object):
         def gen_basis():
             linbasex.cache_cleanup()
             linbasex.get_bs_cached(self.h, basis_dir=None)
-        self._benchmark('bs', 'linbasex_bs',
+        self._benchmark('bs', 'linbasex',
                         gen_basis)
 
         # get the basis (is already cached)
@@ -440,7 +439,7 @@ class AbelTiming(object):
         def gen_basis():
             dasch.cache_cleanup()
             dasch.get_bs_cached(method, self.w, basis_dir=None)
-        self._benchmark('bs', method + '_bs',
+        self._benchmark('bs', method,
                         gen_basis)
 
         # get the transform matrix (is already cached)
