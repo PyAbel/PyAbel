@@ -477,33 +477,41 @@ class AbelTiming(object):
 
     def __repr__(self):
         import platform
-        from itertools import chain
 
-        out = []
-        out += ['PyAbel benchmark run on {}\n'.format(platform.processor())]
-        out += ['time in milliseconds']
+        out = ['PyAbel benchmark run on {}\n'.format(platform.processor()),
+               'time in milliseconds']
 
-        LABEL_FORMAT = 'Implementation  ' +\
-                       ''.join(['    n = {:<9} '.format(ni) for ni in self.n])
-        ROW_FORMAT = '{:>16} ' + ' {:8.1f}         '*len(self.n)
-        SEP_ROW = '' + '-'*(22 + (17+1)*len(self.n))
-
-        HEADER_ROW = '\n========= {:>8} Abel implementations ==========\n'
+        # field widths are chosen to accommodate up to:
+        #   method = 15 characters
+        #   ni = 99999 (would require at least 75 GB RAM)
+        #   time = 9999999.9 ms (almost 3 hours)
+        # data columns are 9 characters wide and separated by 3 spaces
+        TITLE_FORMAT = '=== {} ==='
+        HEADER_ROW = 'Method         ' + \
+                     ''.join(['   {:>9}'.
+                              format('n = {}'.format(ni)) for ni in self.n])
+        SEP_ROW = '-' * len(HEADER_ROW)
+        ROW_FORMAT = '{:15}' + '   {:9.1f}' * len(self.n)
 
         def print_benchmark(name, res):
-            out = [HEADER_ROW.format(name)]
-            if res:
-                out += [LABEL_FORMAT]
-                out += [SEP_ROW]
-                for name, row in sorted(res.items()):
-                    out += [ROW_FORMAT.format(name, *row)]
+            title = '{:=<{w}}'.format(TITLE_FORMAT.format(name),
+                                      w=len(SEP_ROW))
+            out = ['\n' + title + '\n']
+            out += [HEADER_ROW]
+            out += [SEP_ROW]
+            for name, row in sorted(res.items()):
+                out += [ROW_FORMAT.format(name, *row)]
             return out
 
-        out += print_benchmark('Basis', self.bs)
-        out += ['']
-        out += print_benchmark('Forward', self.fabel)
-        out += ['']
-        out += print_benchmark('Inverse', self.iabel)
+        if self.bs:
+            out += print_benchmark('Basis generation', self.bs)
+            out += ['']
+        if self.fabel:
+            out += print_benchmark('Forward Abel transform', self.fabel)
+            out += ['']
+        if self.iabel:
+            out += print_benchmark('Inverse Abel transform', self.iabel)
+
         return '\n'.join(out)
 
 
