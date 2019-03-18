@@ -57,7 +57,7 @@ def _init_abel(xc, yc):
     return val1, val2
 
 
-def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
+def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
                            **kwargs):
     r"""Onion peeling (or back projection) inverse Abel transform.
 
@@ -74,7 +74,10 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
     This function operates on the "right side" of an image. i.e. it works on 
     just half of a cylindrically symmetric image.  Unlike the other transforms,
     the left edge should be the image center, not mid-first pixel. This 
-    corresponds to an even-width full image. If not, set `shift_grid=True`. 
+    corresponds to an even-width full image. 
+                           
+    However, shift_grid=True (default) provides the typical behavior,
+    where the first pixel corresponds to the center pixel of the image.
 
     To perform a onion-peeling transorm on a whole image, use ::
     
@@ -109,7 +112,7 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
     # onion-peeling uses grid rather than pixel values, 
     # odd shaped whole images require shift image (-1/2, -1/2)
     if shift_grid:
-        IM = shift(IM, -0.5)
+        IM = shift(IM, -0.5, mode='nearest')
 
     # make sure that the data is the right shape (1D must be converted to 2D):
     IM = np.atleast_2d(IM.copy())
@@ -149,13 +152,6 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
 
         abel_arr[:, col_index] = normfac * rest_col * vect.transpose()
 
-    # set missing 1st column
-    # abel_arr[:, 0] = abel_arr[:, 1]
-
-    # for some reason shift by 1 pixel aligns better? - FIX ME!
-    # Just like hansenlaw
-    abel_arr = np.c_[abel_arr[:, 1:],abel_arr[:, -1]]
-
     abel_arr = np.fliplr(abel_arr) # flip back
 
     if abel_arr.shape[0] == 1:
@@ -165,5 +161,9 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
     # shift back to pixel grid
     if shift_grid:
         abel_arr = shift(abel_arr, 0.5, mode='nearest')
+        
+        # empirically, an additional 1.5-pixel shift improves things
+        abel_arr = shift(abel_arr, 1.5, mode='nearest') 
+        
 
     return abel_arr/(2*dr)  # x1/2 for 'correct' normalization   
