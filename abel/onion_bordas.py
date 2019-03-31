@@ -152,6 +152,7 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
 
         abel_arr[:, col_index] = normfac * rest_col * vect.transpose()
 
+    abel_arr = np.c_[abel_arr[:, 1:],abel_arr[:, -1]]
     abel_arr = np.fliplr(abel_arr) # flip back
 
     if abel_arr.shape[0] == 1:
@@ -160,10 +161,10 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
 
     # shift back to pixel grid
     if shift_grid:
-        abel_arr = shift(abel_arr, 0.5, mode='nearest')
+        # abel_arr = shift(abel_arr, 0.5, mode='nearest')
         
         # empirically, an additional 1.5-pixel shift improves things
-        abel_arr = shift(abel_arr, 1.5, mode='nearest') 
+        abel_arr = shift(abel_arr, 0.5, mode='nearest') 
         
 
     return abel_arr/(2*dr)  # x1/2 for 'correct' normalization   
