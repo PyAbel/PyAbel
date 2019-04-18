@@ -109,7 +109,7 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
     # onion-peeling uses grid rather than pixel values, 
     # odd shaped whole images require shift image (-1/2, -1/2)
     if shift_grid:
-        IM = shift(IM, -1/2)
+        IM = shift(IM, (0, -1/2))
 
     # make sure that the data is the right shape (1D must be converted to 2D):
     IM = np.atleast_2d(IM.copy())
@@ -164,6 +164,6 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=False,
 
     # shift back to pixel grid
     if shift_grid:
-        abel_arr = shift(abel_arr, 1/2)
+        abel_arr = shift(abel_arr, (0, 1/2))
 
     return abel_arr/(2*dr)  # x1/2 for 'correct' normalization   

@@ -161,8 +161,13 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         drive = -2*dr*np.pi*np.copy(image)
         a = 1  # integration increases lambda + 1
     else:  # inverse Abel transform
-        drive = np.zeros_like(image)
-        drive[:, :-1] = (image[:, 1:] - image[:, :-1])/dr
+        if hold_order == 0:
+            # better suits sharp structure - see issue #249
+            drive = np.zeros_like(image)
+            drive[:, :-1] = (image[:, 1:] - image[:, :-1])/dr
+        else:
+            # hold_order=1 prefers gradient
+            drive = np.gradient(image, dr, axis=-1)
         a = 0  # due to 1/piR factor
 
     n = np.arange(cols-1, 1, -1)
