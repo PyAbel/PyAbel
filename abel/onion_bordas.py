@@ -109,13 +109,13 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
     if direction != 'inverse':
         raise ValueError('Forward "onion_bordas" transform not implemented')
 
+    # make sure that the data is the right shape (1D must be converted to 2D):
+    IM = np.atleast_2d(IM.copy())
+    
     # onion-peeling uses grid rather than pixel values, 
     # odd shaped whole images require shift image (-1/2, -1/2)
     if shift_grid:
-        IM = shift(IM, -0.5, mode='nearest')
-
-    # make sure that the data is the right shape (1D must be converted to 2D):
-    IM = np.atleast_2d(IM.copy())
+        IM = shift(IM, (0,-0.5,) mode='nearest')
 
     # we would like to work from the outside to the inside of the image, 
     # so flip the image to put the "outside" at low index values.
@@ -161,6 +161,6 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
 
     # shift back to pixel grid
     if shift_grid:
-        abel_arr = shift(abel_arr, 0.5, mode='nearest')
+        abel_arr = shift(abel_arr, (0, 0.5), mode='nearest')
         
     return abel_arr/(2*dr)  # x1/2 for 'correct' normalization   
