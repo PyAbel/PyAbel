@@ -97,7 +97,7 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
    
     shift_grid: boolean
         place width-center on grid (bottom left pixel) by shifting image 
-        center (-1/2, -1/2) pixel 
+        center (0, -1/2) pixel 
 
     Returns
     -------
@@ -114,6 +114,7 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
     
     # onion-peeling uses grid rather than pixel values, 
     # odd shaped whole images require shift image (-1/2, -1/2)
+    
     if shift_grid:
         IM = shift(IM, (0,-0.5), mode='nearest')
 
@@ -155,12 +156,12 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
     abel_arr = np.c_[abel_arr[:, 1:],abel_arr[:, -1]]
     abel_arr = np.fliplr(abel_arr) # flip back
 
-    if abel_arr.shape[0] == 1:
-        # flatten array
-        abel_arr = abel_arr[0]
-
     # shift back to pixel grid
     if shift_grid:
         abel_arr = shift(abel_arr, (0, 0.5), mode='nearest')
+    
+    if abel_arr.shape[0] == 1:
+        # flatten array
+        abel_arr = abel_arr[0]
         
     return abel_arr/(2*dr)  # x1/2 for 'correct' normalization   
