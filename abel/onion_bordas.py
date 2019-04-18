@@ -115,7 +115,7 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
     # onion-peeling uses grid rather than pixel values, 
     # odd shaped whole images require shift image (-1/2, -1/2)
     if shift_grid:
-        IM = shift(IM, (0,-0.5,) mode='nearest')
+        IM = shift(IM, (0,-0.5), mode='nearest')
 
     # we would like to work from the outside to the inside of the image, 
     # so flip the image to put the "outside" at low index values.
