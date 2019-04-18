@@ -22,6 +22,8 @@ from scipy.ndimage import interpolation
 #      J. Opt. Soc. Am A2, 510-520 (1985)
 #      doi: 10.1364/JOSAA.2.000510
 #
+# 2019-04   : replace gradient with first-order finite difference as
+#             per @MikhailRyazanov suggestion
 # 2018-04   : New code rewrite, implementing the 1st-order hold approx. of
 #             Ref. [1], with the assistance of Eric Hansen. See PR #211.
 #
@@ -53,7 +55,7 @@ from scipy.ndimage import interpolation
 
 
 def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
-                        sub_pixel_shift=-0.35, **kwargs):
+                        **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm of:
 
     `E. W. Hansen "Fast Hankel Transform" IEEE Trans. Acoust. Speech Signal
@@ -122,14 +124,6 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         yield a more accurate transform for some functions (see PR 211).
         Default: `0`.
 
-    sub_pixel_shift : float 
-        For the zero-order hold approximation `hold_order=0`, a sub-pixel
-        left-shift of the driving function (image-forward or gradient-inverse)
-        improves the transform alignment with the other PyAbel methods,
-        and Abel transform-pair functions.  See the discussion in final summary
-        of `PR #211 <https://github.com/PyAbel/PyAbel/pull/211>`_ 
-        Default: -0.35.
-
     Returns
     -------
     aim : 1D or 2D numpy array
@@ -168,7 +162,8 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         drive = -2*dr*np.pi*np.copy(image)
         a = 1  # integration increases lambda + 1
     else:  # inverse Abel transform
-        drive = np.gradient(image, dr, axis=-1)
+        drive = np.zeros_like(image)
+        drive[:, :-1] = (image[:, 1:] - image[:, :-1])/dr
         a = 0  # due to 1/piR factor
 
     n = np.arange(cols-1, 1, -1)
@@ -182,8 +177,6 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     if hold_order == 0:  # Hansen (& Law) zero-order hold approximation
         B1 = gamma0
         B0 = gamma0*0  # empty array
-        # sub-pixel left shift improves transform alignment, see PR #211
-        drive = interpolation.shift(drive, (0, sub_pixel_shift))
 
     else:  # Hansen first-order hold approximation
         gamma1 = I(n, lam, a+1)*h
