@@ -21,9 +21,9 @@ import sys
 
 def _ensure_list(x):
     """
-    Wrap the argument in a list, if it is not a list already.
+    Convert the argument to a list (a scalar becomes a single-element list).
     """
-    return x if isinstance(x, list) else [x]
+    return [x] if np.ndim(x) == 0 else list(x)
 
 
 def _roundsf(x, n):
@@ -128,9 +128,9 @@ class AbelTiming(object):
 
     Parameters
     ----------
-    n : int or list of int
+    n : int or sequence of int
         array size(s) for the benchmark (assuming 2D square arrays (*n*, *n*))
-    select : str or list of str
+    select : str or sequence of str
         methods to benchmark. Use ``'all'`` (default) for all available or
         choose any combination of individual methods::
 
