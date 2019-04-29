@@ -158,7 +158,7 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
 
     # shift back to pixel grid
     if shift_grid:
-        abel_arr = shift(abel_arr, (0, 0.5), mode='nearest')
+        abel_arr = shift(abel_arr, (0, 1.0), mode='nearest')
     
     if abel_arr.shape[0] == 1:
         # flatten array
