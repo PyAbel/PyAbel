@@ -62,8 +62,8 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
 
     dt = T[0, 1] - T[0, 0]
 
-    if Jacobian:  # x r sinθ
-        polarIM = polarIM * R * np.abs(np.sin(T))
+    if Jacobian:  # x r^2 sinθ
+        polarIM *= R**2 * np.abs(np.sin(T))
 
     speeds = np.trapz(polarIM, axis=1, dx=dt)
 
