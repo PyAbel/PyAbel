@@ -21,9 +21,9 @@ import sys
 
 def _ensure_list(x):
     """
-    Wrap the argument in a list, if it is not a list already.
+    Convert the argument to a list (a scalar becomes a single-element list).
     """
-    return x if isinstance(x, list) else [x]
+    return [x] if np.ndim(x) == 0 else list(x)
 
 
 def _roundsf(x, n):
@@ -128,9 +128,9 @@ class AbelTiming(object):
 
     Parameters
     ----------
-    n : int or list of int
+    n : int or sequence of int
         array size(s) for the benchmark (assuming 2D square arrays (*n*, *n*))
-    select : str or list of str
+    select : str or sequence of str
         methods to benchmark. Use ``'all'`` (default) for all available or
         choose any combination of individual methods::
 
@@ -259,7 +259,9 @@ class AbelTiming(object):
                         self.half_image = np.random.randn(self.h, self.w)
                     if methods & need_whole:
                         self.whole_image = np.random.randn(self.h, self.h)
-                except KeyboardInterrupt:
+                except (KeyboardInterrupt, MemoryError) as e:
+                    self._vprint(repr(e) + ' during image creation!'
+                                 ' Skipping the rest...')
                     self.t_max = -1.0
                     # (the images will not be used, so leaving them as is)
 
@@ -268,9 +270,8 @@ class AbelTiming(object):
                 self._vprint(' ', method)
                 try:
                     getattr(self, '_time_' + method)()
-                except KeyboardInterrupt:
-                    self._vprint('\nInterrupted by the user! '
-                                 'Skipping the rest...')
+                except (KeyboardInterrupt, MemoryError) as e:
+                    self._vprint('\n' + repr(e) + '! Skipping the rest...')
                     self.t_max = -1.0
                     # rerun this interrupted benchmark to nan-fill its results
                     getattr(self, '_time_' + method)()
