@@ -411,18 +411,20 @@ class SampleImage(BaseAnalytical):
         def _gauss(r, r0, sigma):
             return np.exp(-(r-r0)**2/sigma**2)
 
-        def _dribinski(r, theta, sigma):  # intensity function Eq. (16)
+        def _dribinski(r, theta, sigma):
             """
             Sample test image used in the BASEX paper
-            Rev. Sci. Instrum. 73, 2634 (2002)
-
-            9 Gaussian functions of half-width 4 pixel +
-            1 background Gaussian of width 3600
-
-            anisotropy - ß = -1  for cosθ term
-                       - ß = +2  for sinθ term
-                       - ß =  0  isotropic, no angular variation
+            Rev. Sci. Instrum. 73, 2634 (2002), intensity function Eq. (16)
             (there are some missing negative exponents in the publication)
+
+            9 Gaussian peaks with "width" = sigma (default: 2) and
+            1 background Gaussian with "width" = 60
+            ("width" is √2 std. dev. in pixels for default n = 361
+             and scales proportionally to n)
+
+            anisotropy: ß = −1  for cosθ term
+                        ß = +2  for sinθ term
+                        ß =  0  isotropic, no angular variation
             """
 
             sinetheta2 = np.sin(theta)**2
@@ -437,7 +439,7 @@ class SampleImage(BaseAnalytical):
             t6 = 2*_gauss(r, 145, sigma)*sinetheta2
             t7 = _gauss(r, 150, sigma)
             t8 = 3*_gauss(r, 155, sigma)*cosinetheta2
-            t9 = 20*_gauss(r, 45, 3600)  # background under t3 to t5
+            t9 = 20*_gauss(r, 45, 60)  # background under t3 to t5
 
             return 2000*(t0+t1+t2) + 200*(t3+t4+t5) + 50*(t6+t7+t8) + t9
 
