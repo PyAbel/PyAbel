@@ -178,6 +178,8 @@ If you find PyAbel useful in you work, it would bring us great joy if you would 
 
 .. image:: https://zenodo.org/badge/30170345.svg
    :target: https://zenodo.org/badge/latestdoi/30170345
+   
+Additionally, we have written a scientific paper comparing various Abel transform methods: `arxiv.org/abs/1902.09007 <https://arxiv.org/abs/1902.09007>`_ 
 
 
 **Have fun!**
