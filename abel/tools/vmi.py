@@ -359,3 +359,319 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     indx = eBKE.argsort()
 
     return eBKE[indx], intensity[indx]
+
+
+class Distributions(object):
+    def __init__(self, origin='cc', rmax='MIN', order=2, weight='sin',
+                 method='nearest'):
+        # remember parameters
+        self.origin = origin
+        self.rmax = rmax
+        self.order = order
+        if isinstance(weight, np.ndarray):
+            self.weight = 'array'
+            self.warray = weight
+            self.shape = weight.shape
+        else:
+            self.weight = weight
+            self.shape = None
+        self.method = method
+
+        # whether precalculations are done
+        self.ready = False
+
+        # do precalculations if image size is known (from weight array)
+        if self.weight == 'array':
+            self._precalc(self.shape)
+        # otherwise postpone them to the first image
+
+    # Note!
+    # The following code has several expressions like
+    #   A = w * A
+    # instead of
+    #   A *= w
+    # This is intentional: these A can be aliases to or views of the original
+    # image (passed by reference), and *= would modify A in place, thus
+    # corrupting the image data owned by the caller.
+
+    def _int_nearest(self, a, w=None):
+        """
+        Angular integration (radial binning) for 'nearest' method.
+        a, w : arrays or None (their product is integrated)
+        """
+        # collect the product (if needed) in array a
+        if a is None:
+            a = w
+        elif w is not None:
+            a = w * a  # (not *=)
+        # sum values from array a into bins given by array bin
+        # (numpy.bincount() is faster than scipy.ndimage.sum())
+        if a is not None:
+            a = a.reshape(-1)
+        # (if a is None, np.bincount assumes unit weights, as needed)
+        return np.bincount(self.bin.reshape(-1), a, self.rmax + 1)
+
+    def _precalc(self, shape):
+        """
+        Precalculate and cache quantities and structures that do not depend on
+        the image data.
+        shape : (rows, columns) tuple
+        """
+        if self.ready:  # already done
+            return
+
+        height, width = shape
+
+        # Determine origin [row, col].
+        if np.ndim(self.origin) == 1:  # explicit numbers
+            row, col = self.origin
+        else:  # string with codes
+            r, c = self.origin
+            # vertical
+            if   r in ('t', 'u'): row = 0
+            elif r == 'c'       : row = height // 2
+            elif r in ('b', 'l'): row = height - 1
+            else:
+                raise ValueError('Incorrect vertical position "{}"'.format(r))
+            # horizontal
+            if   c == 'l': col = 0
+            elif c == 'c': col = width // 2
+            elif c == 'r': col = width - 1
+            else:
+                raise ValueError('Incorrect horizontal position "{}"'.
+                                 format(c))
+        # from the other side
+        row_ = height - 1 - row
+        col_ = width - 1 - col
+        # min/max spans
+        hor, HOR = min(col, col_), max(col, col_)
+        ver, VER = min(row, row_), max(row, row_)
+
+        # Determine rmax.
+        rmax = self.rmax
+        if not isinstance(rmax, int):
+            if   rmax == 'hor': rmax = hor
+            elif rmax == 'ver': rmax = ver
+            elif rmax == 'HOR': rmax = HOR
+            elif rmax == 'VER': rmax = VER
+            elif rmax == 'min': rmax = min(hor, ver)
+            elif rmax == 'max': rmax = max(hor, ver)
+            elif rmax == 'MIN': rmax = min(HOR, VER)
+            elif rmax == 'MAX': rmax = max(HOR, VER)
+            elif rmax == 'all': rmax = int(np.sqrt(HOR**2 + VER**2))
+            else:
+                raise ValueError('Incorrect radial range "{}"'.format(rmax))
+        self.rmax = rmax
+
+        # Folding to one quadrant with origin at [0, 0]
+        self.Qheight = Qheight = min(VER, rmax) + 1
+        self.Qwidth = Qwidth = min(HOR, rmax) + 1
+        if row in (0, height - 1) and col in (0, width - 1):
+            # IM is already one quadrant, flip it to proper orientation.
+            if row == 0:
+                self.flip_row = slice(0, Qheight)
+            else:  # row == height - 1
+                self.flip_row = slice(-1, -1 - Qheight, -1)
+            if col == 0:
+                self.flip_col = slice(0, Qwidth)
+            else:  # col == width - 1
+                self.flip_col = slice(-1, -1 - Qwidth, -1)
+            self.fold = False
+        else:
+            # Define oriented source (IM) slices as
+            # neg,neg | neg,pos
+            # --------+--------
+            # pos,neg | pos,spo
+            # (pixel [row, col] belongs to pos,pos)
+            # and corresponding destination (Q) slices.
+            def slices(pivot, pivot_, size, positive):
+                if positive:
+                    n = min(pivot_ + 1, size)
+                    return (slice(pivot, pivot + n),
+                            slice(0, n))
+                else:  # negative
+                    n = min(pivot + 1, size)
+                    return (slice(-1 - (pivot_ + 1), -1 - (pivot_ + n), -1),
+                            slice(1, n))
+
+            def slices_row(positive):
+                return slices(row, row_, Qheight, positive)
+
+            def slices_col(positive):
+                return slices(col, col_, Qwidth, positive)
+            # 2D region pairs (source, destination) for direct indexing
+            self.regions = []
+            for r in (False, True):
+                for c in (False, True):
+                    self.regions.append(zip(slices_row(r), slices_col(c)))
+            self.fold = True
+
+        if self.order != 2:
+            raise ValueError('Only order=2 is implemented')
+
+        if self.method in ['nearest']:
+            # Quadrant coordinates.
+            # x row
+            x = np.arange(float(Qwidth))
+            # y^2 column
+            y2 = np.arange(float(Qheight))[:, None]**2
+            # array of r^2
+            r2 = x**2 + y2
+            # array of r
+            r = np.sqrt(r2)
+
+            # Radial bins.
+            if self.method == 'nearest':
+                self.bin = np.array(r.round(), dtype=int)
+            self.bin[self.bin > rmax] = 0  # r = 0 is useless anyway
+
+            # Powers of cosine.
+            r2[0, 0] = np.inf  # (avoid division by zero)
+            self.c2 = y2 / r2
+
+            # Weights.
+            if self.weight is None:
+                if self.fold:
+                    # count overlapping pixels
+                    Qw = np.zeros((Qheight, Qwidth))
+                    for src, dst in self.regions:
+                        Qw[dst] += 1
+                else:
+                    Qw = None
+            elif self.weight == 'sin':
+                # fill with sin θ = x / r
+                r[0, 0] = np.inf  # (avoid division by zero)
+                self.warray = x / r
+                r[0, 0] = 0  # (restore)
+                if self.fold:
+                    # sum all source regions into one quadrant
+                    Qw = np.zeros((Qheight, Qwidth))
+                    for src, dst in self.regions:
+                        Qw[dst] += self.warray[dst]
+                        # (warray is one quadrant, so source is also "dst")
+                else:
+                    Qw = self.warray
+            elif self.weight == 'array':
+                if self.fold:
+                    # sum all source regions into one quadrant
+                    Qw = np.zeros((Qheight, Qwidth))
+                    for src, dst in self.regions:
+                        Qw[dst] += self.warray[src]
+                else:
+                    Qw = self.warray[self.flip_row, self.flip_col]
+            else:
+                raise ValueError('Incorrect weight "{}"'.format(self.weight))
+
+            # Integrals.
+            c4 = self.c2 * self.c2
+            if self.method == 'nearest':
+                pc0 = self._int_nearest(   None, Qw)
+                pc2 = self._int_nearest(self.c2, Qw)
+                pc4 = self._int_nearest(     c4, Qw)
+
+        else:
+            raise ValueError('Incorrect method "{}"'.format(self.method))
+
+        # Conversion matrices (integrals → coofficients).
+        # determinants
+        d = pc0 * pc4 - pc2**2
+        d[0] = np.inf  # bin r = 0 contains junk (all pixels > rmax)
+        d[d == 0] = np.inf  # underdetermined bins
+        d = 1 / d
+        # inverse matrices
+        self.C = d * np.array([[ pc4, -pc2],
+                               [-pc2,  pc0]])
+        # reshape to array of matrices [C[r] for r in range(rmax + 1)]
+        self.C = np.swapaxes(self.C, 0, 2)
+
+        self.ready = True
+
+    class Results(object):
+        def __init__(self, r, cn):
+            self.r = r
+            self.cn = cn
+
+        def cos(self):
+            return self.cn
+
+        def rcos(self):
+            return np.hstack((self.r, self.cn))
+
+        def cossin(self):
+            C = np.array([[1.0, 1.0],
+                          [1.0, 0.0]])
+            cs = self.cn.dot(C)
+            return cs
+
+        def rcossin(self):
+            return np.hstack((self.r, self.cossin()))
+
+        def harmonics(self):
+            C = np.array([[1.0, 0.0],
+                          [1/3, 2/3]])
+            harm = self.cn.dot(C)
+            return harm
+
+        def rharmonics(self):
+            return np.hstack((self.r, self.harmonics()))
+
+        def Ibeta(self):
+            harm = self.harmonics()
+            P0, Pn = np.hsplit(harm, [1])
+            I = 4 * np.pi * self.r**2 * P0
+            beta = np.divide(Pn, P0, out=np.zeros_like(Pn), where=P0 != 0)
+            return np.hstack((I, beta))
+
+        def rIbeta(self):
+            return np.hstack((self.r, self.Ibeta()))
+
+    def image(self, IM):
+        # do precalculations (if needed)
+        self._precalc(IM.shape)
+
+        if self.method in ['nearest']:
+            # apply weighting and folding
+            if self.weight == 'array':
+                IM = self.warray * IM  # (not *=)
+            if self.fold:
+                Q = np.zeros((self.Qheight, self.Qwidth))
+                for src, dst in self.regions:
+                    Q[dst] += IM[src]
+            else:  # quadrant
+                Q = IM[self.flip_row, self.flip_col]
+            if self.weight == 'sin':
+                Q = self.warray * Q  # (not *=)
+
+            if self.method == 'nearest':
+                p0 = self._int_nearest(Q)
+                p2 = self._int_nearest(Q, self.c2)
+
+        p = np.vstack((p0, p2)).T
+
+        # multiply all p[i] vectors by C[i] matrices
+        # [p[i].dot(C[i]) for i in range(rmax + 1)]
+        I = np.einsum('ij,ijk->ik', p, self.C)
+
+        # radii column
+        r = np.arange(self.rmax + 1)[:, None]
+
+        return self.Results(r, I)
+
+    def __call__(self, IM):
+        return self.image(IM)
+
+
+def harmonics(IM, origin='cc', rmax='MIN', order=2, **kwargs):
+    return Distributions(origin, rmax, order, **kwargs).image(IM).harmonics()
+
+
+def rharmonics(IM, origin='cc', rmax='MIN', order=2, **kwargs):
+    return Distributions(origin, rmax, order, **kwargs).image(IM).rharmonics()
+
+
+def Ibeta(IM, origin='cc', rmax='MIN', order=2, **kwargs):
+    return Distributions(origin, rmax, order, **kwargs).image(IM).Ibeta()
+
+
+def rIbeta(IM, origin='cc', rmax='MIN', order=2, **kwargs):
+    return Distributions(origin, rmax, order, **kwargs).image(IM).rIbeta()
