@@ -100,7 +100,7 @@ def average_radial_intensity(IM, **kwargs):
 
     """
     R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
-    intensity /= 2*np.pi
+    intensity /= 2 * np.pi
     return R, intensity
 
 
@@ -185,7 +185,8 @@ def radial_integration(IM, radial_ranges=None):
 
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
     """
-    Evaluate anisotropy parameter :math:`\\beta`, for :math:`I` vs :math:`\\theta` data.
+    Evaluate anisotropy parameter :math:`\\beta`, for :math:`I` vs
+    :math:`\\theta` data.
 
     .. math::
 
@@ -206,7 +207,8 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
        Intensity variation with angle
 
     theta_ranges: list of tuples
-       Angular ranges over which to fit ``[(theta1, theta2), (theta3, theta4)]``.
+       Angular ranges over which to fit
+       ``[(theta1, theta2), (theta3, theta4)]``.
        Allows data to be excluded from fit, default include all data
 
     Returns
@@ -219,10 +221,10 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
 
     """
     def P2(x):   # 2nd order Legendre polynomial
-        return (3*x*x-1)/2
+        return (3 * x * x - 1) / 2
 
     def PAD(theta, beta, amplitude):
-        return amplitude*(1 + beta*P2(np.cos(theta)))   # Eq. (1) as above
+        return amplitude * (1 + beta * P2(np.cos(theta)))   # Eq. (1) as above
 
     # angular range of data to be included in the fit
     if theta_ranges is not None:
@@ -288,8 +290,8 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
         :math:`1.148427\\times 10^{-5}` cm\ :math:`^{-1}/`\ pixel\ :sup:`2`
         applies for "examples/data/O-ANU1024.txt" (with Vrep = -98 volts).
 
-    per_energy_scaling : bool 
-        
+    per_energy_scaling : bool
+
         sets the intensity Jacobian.
         If `True`, the returned intensities correspond to an "intensity per eV"
         or "intensity per cm\ :sup:`-1` ". If `False`, the returned intensities
@@ -307,10 +309,10 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
     Vrep : None or float
 
-        repeller voltage. Convenience parameter to allow the `energy_cal_factor`
-        to remain constant, for different VMI lens repeller voltages. Defaults
-        to `None`, in which case no extra scaling is applied.
-        e.g. `-98 volts`, for "examples/data/O-ANU1024.txt".
+        repeller voltage. Convenience parameter to allow the
+        `energy_cal_factor` to remain constant, for different VMI lens repeller
+        voltages. Defaults to `None`, in which case no extra scaling is
+        applied. e.g. `-98 volts`, for "examples/data/O-ANU1024.txt".
 
     zoom : float
 
@@ -327,15 +329,15 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
     PES : numpy 1d-array of floats
 
-        the photoelectron spectrum, scaled according to the `per_energy_scaling`
-        input parameter.
+        the photoelectron spectrum, scaled according to the
+        `per_energy_scaling` input parameter.
 
     """
 
     if Vrep is not None:
-        energy_cal_factor *= np.abs(Vrep)/zoom**2
+        energy_cal_factor *= np.abs(Vrep) / zoom**2
 
-    eKE = radial**2*energy_cal_factor
+    eKE = radial**2 * energy_cal_factor
 
     if photon_energy is not None:
         # electron binding energy
@@ -348,7 +350,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     # Jacobian, we find dE/dr = 2c2r. Since the coordinates are getting
     # stretched at high E and "squished" at low E, we know that we need to
     # divide by this factor.
-    intensity[1:] /= (2*radial[1:])  # 1: to exclude R = 0
+    intensity[1:] /= (2 * radial[1:])  # 1: to exclude R = 0
     if per_energy_scaling:
         # intensity per unit energy
         intensity /= energy_cal_factor
