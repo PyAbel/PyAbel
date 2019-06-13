@@ -13,7 +13,7 @@ from scipy.optimize import curve_fit
 
 
 def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
-    """Angular integration of the image.
+    r"""Angular integration of the image.
 
     Returns the one-dimensional intensity profile as a function of the
     radial coordinate.
@@ -31,11 +31,11 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
         defaults to ``rows//2, cols//2``.
 
     Jacobian : boolean
-        Include :math:`r\sin\\theta` in the angular sum (integration).
+        Include :math:`r\sin\theta` in the angular sum (integration).
         Also, ``Jacobian=True`` is passed to
         :func:`abel.tools.polar.reproject_image_into_polar`,
         which includes another value of ``r``, thus providing the appropriate
-        total Jacobian of :math:`r^2\sin\\theta`.
+        total Jacobian of :math:`r^2\sin\theta`.
 
     dr : float
         Radial coordinate grid spacing, in pixels (default 1). `dr=0.5` may
@@ -105,9 +105,9 @@ def average_radial_intensity(IM, **kwargs):
 
 
 def radial_integration(IM, radial_ranges=None):
-    """ Intensity variation in the angular coordinate.
+    r""" Intensity variation in the angular coordinate.
 
-    This function is the :math:`\\theta`-coordinate complement to
+    This function is the :math:`\theta`-coordinate complement to
     :func:`abel.tools.vmi.angular_integration`
 
     Evaluates intensity vs angle for defined radial ranges.
@@ -184,15 +184,15 @@ def radial_integration(IM, radial_ranges=None):
 
 
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
-    """
-    Evaluate anisotropy parameter :math:`\\beta`, for :math:`I` vs
-    :math:`\\theta` data.
+    r"""
+    Evaluate anisotropy parameter :math:`\beta`, for :math:`I` vs
+    :math:`\theta` data.
 
     .. math::
 
-        I = \\frac{\sigma_\\text{total}}{4\pi} [ 1 + \\beta P_2(\cos\\theta) ]
+        I = \frac{\sigma_\text{total}}{4\pi} [ 1 + \beta P_2(\cos\theta) ]
 
-    where :math:`P_2(x)=\\frac{3x^2-1}{2}` is a 2nd order Legendre polynomial.
+    where :math:`P_2(x)=\frac{3x^2-1}{2}` is a 2nd order Legendre polynomial.
 
     `Cooper and Zare "Angular distribution of photoelectrons"
     J Chem Phys 48, 942-943 (1968) <http://dx.doi.org/10.1063/1.1668742>`_
@@ -252,7 +252,7 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
 
 def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
           photon_energy=None, Vrep=None, zoom=1):
-    """
+    r"""
     Convert speed radial coordinate into electron kinetic or electron binding
     energy.  Return the photoelectron spectrum (PES).
 
@@ -266,9 +266,9 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     remain approximately constant.
 
     The ``energy_cal_factor`` is readily determined by comparing the
-    generated energy scale with published spectra. e.g. for O\ :sup:`-`
+    generated energy scale with published spectra. e.g. for O\ :sup:`−`
     photodetachment, the strongest fine-structure transition occurs at the
-    electron affinity :math:`EA = 11,784.676(7)` cm :math:`^{-1}`. Values for
+    electron affinity :math:`EA = 11\,784.676(7)` cm\ :math:`^{-1}`. Values for
     the ANU experiment are given below, see also
     `examples/example_hansenlaw.py`.
 
@@ -287,7 +287,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
         energy calibration factor that will convert radius squared into energy.
         The units affect the units of the output. e.g. inputs in
         eV/pixel\ :sup:`2`, will give output energy units in eV.  A value of
-        :math:`1.148427\\times 10^{-5}` cm\ :math:`^{-1}/`\ pixel\ :sup:`2`
+        :math:`1.148427\times 10^{-5}` cm\ :math:`^{-1}/`\ pixel\ :sup:`2`
         applies for "examples/data/O-ANU1024.txt" (with Vrep = -98 volts).
 
     per_energy_scaling : bool
@@ -303,7 +303,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
         measurement photon energy. The output energy scale is then set to
         electron-binding-energy in units of `energy_cal_factor`. The
-        conversion from wavelength (nm) to `photon_energy` in (cm\ :`sup:-1`\ )
+        conversion from wavelength (nm) to `photon_energy` (cm\ :sup:`−1`)
         is :math:`10^{7}/\lambda` (nm) e.g. `1.0e7/812.51` for
         "examples/data/O-ANU1024.txt".
 
@@ -362,7 +362,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
 
 class Distributions(object):
-    """
+    r"""
     Class for calculating various radial distributions.
 
     Objects of this class hold the analysis parameters and cache some
@@ -448,12 +448,14 @@ class Distributions(object):
         ``'V'``:
             touching vertically
         ``'min'``:
-            minimum of ``'h'`` and ``'v'``, the largest area with 4 full quadrants
+            minimum of ``'h'`` and ``'v'``, the largest area with 4 full
+            quadrants
         ``'max'``:
-            maximum of ``'h'`` and ``'v'``, the largest area with 2 full quadrants
+            maximum of ``'h'`` and ``'v'``, the largest area with 2 full
+            quadrants
         ``'MIN'`` (default):
-            minimum of ``'H'`` and ``'V'``, the largest area with 1 full quadrant
-            (thus the largest with the full 90° angular range)
+            minimum of ``'H'`` and ``'V'``, the largest area with 1 full
+            quadrant (thus the largest with the full 90° angular range)
         ``'MAX'``:
             maximum of ``'H'`` and  ``'V'``
         ``'all'``:
@@ -469,7 +471,7 @@ class Distributions(object):
         ``None``:
             use equal weights for all pixels
         ``'sin'`` (default):
-            use :math:`|\\sin \\theta|` weighting. This is the weight implied
+            use :math:`|\sin \theta|` weighting. This is the weight implied
             in spherical integration (for the total intensity, for example) and
             with respect to which the Legendre polynomial are orthogonal, so
             using it in the fitting procedure gives the most reasonable results
@@ -747,8 +749,8 @@ class Distributions(object):
             self.cn = cn
 
         def cos(self):
-            """
-            Radial distributions of :math:`\\cos^n \\theta` terms
+            r"""
+            Radial distributions of :math:`\cos^n \theta` terms
             (0 ≤ *n* ≤ ``order``).
 
             (You probably do not need them.)
@@ -756,7 +758,7 @@ class Distributions(object):
             Returns
             -------
             cosn : (rmax + 1) × (# terms) numpy array
-                :math:`\\cos^n \\theta` terms for each radius, ordered from the
+                :math:`\cos^n \theta` terms for each radius, ordered from the
                 lowest to the highest power
             """
             return self.cn
@@ -768,53 +770,53 @@ class Distributions(object):
             return np.hstack((self.r, self.cn))
 
         def cossin(self):
-            """
+            r"""
             Radial distributions of
-            :math:`\\cos^n \\theta \\cdot \\sin^m \\theta` terms
+            :math:`\cos^n \theta \cdot \sin^m \theta` terms
             (*n* + *m* = ``order``).
 
             For ``order`` = 0:
 
-                :math:`\\cos^0 \\theta` is the total intensity.
+                :math:`\cos^0 \theta` is the total intensity.
 
             For ``order`` = 2
 
-                :math:`\\cos^2 \\theta` corresponds to “parallel” (∥)
+                :math:`\cos^2 \theta` corresponds to “parallel” (∥)
                 transitions,
 
-                :math:`\\sin^2 \\theta` corresponds to “perpendicular” (⟂)
+                :math:`\sin^2 \theta` corresponds to “perpendicular” (⟂)
                 transitions.
 
             For ``order = 4``
 
-                :math:`\\cos^4 \\theta` corresponds to ∥,∥,
+                :math:`\cos^4 \theta` corresponds to ∥,∥,
 
-                :math:`\\cos^2 \\theta \\cdot \\sin^2 \\theta` corresponds
+                :math:`\cos^2 \theta \cdot \sin^2 \theta` corresponds
                 to ∥,⟂ and ⟂,∥.
 
-                :math:`\\sin^4 \\theta` corresponds to ⟂,⟂.
+                :math:`\sin^4 \theta` corresponds to ⟂,⟂.
 
                 And so on.
 
             Notice that higher orders can represent lower orders as well:
 
-               :math:`\\cos^2 \\theta + \\sin^2 \\theta = \\cos^0 \\theta
-               \\quad` (∥ + ⟂ = 1),
+               :math:`\cos^2 \theta + \sin^2 \theta = \cos^0 \theta
+               \quad` (∥ + ⟂ = 1),
 
-               :math:`\\cos^4 \\theta + \\cos^2 \\theta \\cdot \\sin^2 \\theta
-               = \\cos^2 \\theta \\quad` (∥,∥ + ∥,⟂ = ∥,∥ + ⟂,∥ = ∥),
+               :math:`\cos^4 \theta + \cos^2 \theta \cdot \sin^2 \theta
+               = \cos^2 \theta \quad` (∥,∥ + ∥,⟂ = ∥,∥ + ⟂,∥ = ∥),
 
-               :math:`\\cos^2 \\theta \\cdot \\sin^2 \\theta + \\sin^4
-               \\theta = \\sin^2 \\theta \\quad` (∥,⟂ + ⟂,⟂ = ⟂,∥ + ⟂,⟂ = ⟂),
+               :math:`\cos^2 \theta \cdot \sin^2 \theta + \sin^4
+               \theta = \sin^2 \theta \quad` (∥,⟂ + ⟂,⟂ = ⟂,∥ + ⟂,⟂ = ⟂),
 
                and so forth.
 
             Returns
             -------
             cosnsinm : (rmax + 1) × (# terms) numpy array
-                :math:`\\cos^n \\theta \\cdot \\sin^m \\theta` terms for each
-                radius, ordered from the highest :math:`\\cos \\theta` power to
-                the highest :math:`\\sin \\theta` power
+                :math:`\cos^n \theta \cdot \sin^m \theta` terms for each
+                radius, ordered from the highest :math:`\cos \theta` power to
+                the highest :math:`\sin \theta` power
             """
             C = np.array([[1.0, 1.0],
                           [1.0, 0.0]])
@@ -828,26 +830,26 @@ class Distributions(object):
             return np.hstack((self.r, self.cossin()))
 
         def harmonics(self):
-            """
+            r"""
             Radial distributions of spherical harmonics
-            (Legendre polynomials :math:`P_n(\\cos \\theta)`).
+            (Legendre polynomials :math:`P_n(\cos \theta)`).
 
             Spherical harmonics are orthogonal with respect to integration over
             the full sphere:
 
             .. math::
-                \\iint P_n P_m \\,d\\Omega =
-                \\int_0^{2\\pi} \\int_0^\\pi
-                    P_n(\\cos \\theta) P_m(\\cos \\theta)
-                \\,\\sin\\theta d\\theta \\,d\\varphi = 0
+                \iint P_n P_m \,d\Omega =
+                \int_0^{2\pi} \int_0^\pi
+                    P_n(\cos \theta) P_m(\cos \theta)
+                \,\sin\theta d\theta \,d\varphi = 0
 
-            for *n* ≠ *m*; and :math:`P_0(\\cos \\theta)` is the spherically
+            for *n* ≠ *m*; and :math:`P_0(\cos \theta)` is the spherically
             averaged intensity.
 
             Returns
             -------
             Pn : (rmax + 1) × (# terms) numpy array
-                :math:`P_n(\\cos \\theta)` terms for each radius
+                :math:`P_n(\cos \theta)` terms for each radius
             """
             C = np.array([[1.0, 0.0],
                           [1/3, 2/3]])
@@ -861,36 +863,36 @@ class Distributions(object):
             return np.hstack((self.r, self.harmonics()))
 
         def Ibeta(self):
-            """
+            r"""
             Radial intensity and anisotropy distributions.
 
             A cylindrically symmetric 3D intensity distribution can be expanded
             over spherical harmonics (Legendre polynomials
-            :math:`P_n(\\cos \\theta)`) as
+            :math:`P_n(\cos \theta)`) as
 
             .. math::
-                I(r, \\theta, \\varphi) =
-                \\frac{1}{4\\pi} I(r) [1 + \\beta_2(r) P_2(\\cos \\theta) +
-                                       \\beta_4(r) P_4(\\cos \\theta) +
-                                       \\dots],
+                I(r, \theta, \varphi) =
+                \frac{1}{4\pi} I(r) [1 + \beta_2(r) P_2(\cos \theta) +
+                                       \beta_4(r) P_4(\cos \theta) +
+                                       \dots],
 
             where :math:`I(r)` is the “radial intensity distribution”
             integrated over the full sphere:
 
             .. math::
-                I(r) = \\int_0^{2\\pi} \\int_0^\\pi I(r, \\theta, \\varphi)
-                       \\,r^2 \\sin\\theta d\\theta \\,d\\varphi,
+                I(r) = \int_0^{2\pi} \int_0^\pi I(r, \theta, \varphi)
+                       \,r^2 \sin\theta d\theta \,d\varphi,
 
-            and :math:`\\beta_n(r)` are the dimensionless “anisotropy
+            and :math:`\beta_n(r)` are the dimensionless “anisotropy
             parameters” describing relative contributions of each harmonic
-            order (:math:`\\beta_0(r) = 1` by definition). In particular:
+            order (:math:`\beta_0(r) = 1` by definition). In particular:
 
-                :math:`\\beta_2 = 2` for the :math:`\\cos^2 \\theta` (∥)
+                :math:`\beta_2 = 2` for the :math:`\cos^2 \theta` (∥)
                 angular distribution,
 
-                :math:`\\beta_2 = 0` for the isotropic distribution,
+                :math:`\beta_2 = 0` for the isotropic distribution,
 
-                :math:`\\beta_2 = -1` for the :math:`\\sin^2 \\theta` (⟂)
+                :math:`\beta_2 = -1` for the :math:`\sin^2 \theta` (⟂)
                 angular distribution.
 
             Returns
