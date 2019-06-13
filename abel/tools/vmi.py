@@ -362,6 +362,137 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
 
 class Distributions(object):
+    """
+    Class for calculating various radial distributions.
+
+    Objects of this class hold the analysis parameters and cache some
+    intermediate computations that do not depend on the image data. Multiple
+    images can be analyzed (using the same parameters) by feeding them to the
+    object::
+
+        distr = Distributions(parameters)
+        results1 = distr(image1)
+        results2 = distr(image2)
+
+    If analyses with different parameters are required, multiple objects can be
+    used. For example, to analyze 4 quadrants independently::
+
+        distr0 = Distributions('ll', ...)
+        distr1 = Distributions('lr', ...)
+        distr2 = Distributions('ur', ...)
+        distr3 = Distributions('rl', ...)
+
+        for image in images:
+            Q0, Q1, Q2, Q3 = ...
+            res0 = distr0(Q0)
+            res1 = distr1(Q1)
+            res2 = distr2(Q2)
+            res3 = distr3(Q3)
+
+    However, if all the quadrants have the same dimensions, it is more
+    memory-efficient to flip them all to the same orientation and use a single
+    object::
+
+        distr = Distributions('ll', ...)
+
+        for image in images:
+            Q0, Q1, Q2, Q3 = ...
+            res0 = distr(Q0)
+            res1 = distr(Q1[:, ::-1])  # or np.fliplr
+            res2 = distr(Q2[::-1, ::-1])  # or np.flip(Q2, (0, 1))
+            res3 = distr(Q3[::-1, :])  # or np.flipud
+
+    More concise function to calculate distributions for single images
+    (without caching) are also available, see :func:`harmonics`, :func:`Ibeta`
+    below.
+
+    Parameters
+    ----------
+    origin : tuple of int or str
+        origin of the radial distributions (the pole of polar coordinates)
+        within the image.
+
+        ``(int, int)``:
+            explicit row and column indices
+        ``str``:
+            2-letter code specifying the vertical and horizontal positions
+            (in this order!) by the first letter of the words in the following
+            diagram::
+
+                              left            center             right
+
+                   top/upper  [0, 0]---------[0, n//2]--------[0, n-1]
+                              |                                      |
+                              |                                      |
+                      center  [m//2, 0]    [m//2, n//2]    [m//2, n-1]
+                              |                                      |
+                              |                                      |
+                bottom/lower  [m-1, 0]------[m-1, n//2]-----[m-1, n-1]
+
+            Examples:
+
+                ``'cc'`` (default) for the full centered image
+
+                ``'cl'`` for the right half, vertically centered
+
+                ``'bl'`` or ``'ll'`` for the upper-right quadrant
+    rmax : int or str
+        ``int``:
+            explicit value
+        ``'h'``:
+            fitting inside horizontally
+        ``'v'``:
+            fitting inside vertically
+        ``'H'``:
+            touching horizontally
+        ``'V'``:
+            touching vertically
+        ``'min'``:
+            minimum of ``'h'`` and ``'v'``, the largest area with 4 full quadrants
+        ``'max'``:
+            maximum of ``'h'`` and ``'v'``, the largest area with 2 full quadrants
+        ``'MIN'`` (default):
+            minimum of ``'H'`` and ``'V'``, the largest area with 1 full quadrant
+            (thus the largest with the full 90° angular range)
+        ``'MAX'``:
+            maximum of ``'H'`` and  ``'V'``
+        ``'all'``:
+            covering all pixels (might have huge errors at large *r*, since the
+            angular dependences must be inferred from very small available
+            angular ranges)
+    order : int
+        highest order in the angular distribution. Currently only ``order=2``
+        is implemented
+    weight : None or str or m × n numpy array
+        weights used in the fitting procedure
+
+        ``None``:
+            use equal weights for all pixels
+        ``'sin'`` (default):
+            use :math:`|\\sin \\theta|` weighting. This is the weight implied
+            in spherical integration (for the total intensity, for example) and
+            with respect to which the Legendre polynomial are orthogonal, so
+            using it in the fitting procedure gives the most reasonable results
+            even if the data deviates form the assumed angular behavior. It
+            also reduces the contribution from the centerline noise.
+        ``array``:
+            use given weights for each pixel. The array shape must match the
+            image shape.
+
+            Parts of the image can be excluded from the fitting by assigning
+            zero weights to their pixels.
+
+            (Note: a reference to this array is cached instead of its copy, so
+            if you modify the array between creating the object and using it,
+            the results will be surprising. However, if needed, you can pass a
+            copy as ``weight=weight.copy()``.)
+    method : str
+        numerical integration method used in the fitting procedure
+
+        ``'nearest'``:
+            each pixel of the image is assigned to a single, nearest radial
+            bin.
+    """
     def __init__(self, origin='cc', rmax='MIN', order=2, weight='sin',
                  method='nearest'):
         # remember parameters
@@ -397,6 +528,7 @@ class Distributions(object):
     def _int_nearest(self, a, w=None):
         """
         Angular integration (radial binning) for 'nearest' method.
+
         a, w : arrays or None (their product is integrated)
         """
         # collect the product (if needed) in array a
@@ -415,6 +547,7 @@ class Distributions(object):
         """
         Precalculate and cache quantities and structures that do not depend on
         the image data.
+
         shape : (rows, columns) tuple
         """
         if self.ready:  # already done
@@ -587,35 +720,185 @@ class Distributions(object):
         self.ready = True
 
     class Results(object):
+        """
+        Class for holding the results of image analysis.
+
+        :meth:`Distributions.image` returns an object of this class, from which
+        various distributions can be retrieved using the methods described
+        below, for example::
+
+            distr = Distributions(...)
+            res = distr(IM)
+            harmonics = res.harmonics()
+
+        All distributions are returned as 2D arrays with the rows (1st index)
+        corresponding to radii and the columns (2nd index) corresponding to
+        particular terms of the expansion. The *n*-th term for all radii can be
+        extracted like ``res.harmonics[:, n]``. All terms can also be easily
+        separated like ``I, beta = res.Ibeta().T``.
+
+        Attributes
+        ----------
+        r : (rmax + 1) × 1 numpy array
+            column of the radii from 0 to ``rmax``
+        """
         def __init__(self, r, cn):
             self.r = r
             self.cn = cn
 
         def cos(self):
+            """
+            Radial distributions of :math:`\\cos^n \\theta` terms
+            (0 ≤ *n* ≤ ``order``).
+
+            (You probably do not need them.)
+
+            Returns
+            -------
+            cosn : (rmax + 1) × (# terms) numpy array
+                :math:`\\cos^n \\theta` terms for each radius, ordered from the
+                lowest to the highest power
+            """
             return self.cn
 
         def rcos(self):
+            """
+            Same as :meth:`cos`, but prepended with the radii column.
+            """
             return np.hstack((self.r, self.cn))
 
         def cossin(self):
+            """
+            Radial distributions of
+            :math:`\\cos^n \\theta \\cdot \\sin^m \\theta` terms
+            (*n* + *m* = ``order``).
+
+            For ``order`` = 0:
+
+                :math:`\\cos^0 \\theta` is the total intensity.
+
+            For ``order`` = 2
+
+                :math:`\\cos^2 \\theta` corresponds to “parallel” (∥)
+                transitions,
+
+                :math:`\\sin^2 \\theta` corresponds to “perpendicular” (⟂)
+                transitions.
+
+            For ``order = 4``
+
+                :math:`\\cos^4 \\theta` corresponds to ∥,∥,
+
+                :math:`\\cos^2 \\theta \\cdot \\sin^2 \\theta` corresponds
+                to ∥,⟂ and ⟂,∥.
+
+                :math:`\\sin^4 \\theta` corresponds to ⟂,⟂.
+
+                And so on.
+
+            Notice that higher orders can represent lower orders as well:
+
+               :math:`\\cos^2 \\theta + \\sin^2 \\theta = \\cos^0 \\theta
+               \\quad` (∥ + ⟂ = 1),
+
+               :math:`\\cos^4 \\theta + \\cos^2 \\theta \\cdot \\sin^2 \\theta
+               = \\cos^2 \\theta \\quad` (∥,∥ + ∥,⟂ = ∥,∥ + ⟂,∥ = ∥),
+
+               :math:`\\cos^2 \\theta \\cdot \\sin^2 \\theta + \\sin^4
+               \\theta = \\sin^2 \\theta \\quad` (∥,⟂ + ⟂,⟂ = ⟂,∥ + ⟂,⟂ = ⟂),
+
+               and so forth.
+
+            Returns
+            -------
+            cosnsinm : (rmax + 1) × (# terms) numpy array
+                :math:`\\cos^n \\theta \\cdot \\sin^m \\theta` terms for each
+                radius, ordered from the highest :math:`\\cos \\theta` power to
+                the highest :math:`\\sin \\theta` power
+            """
             C = np.array([[1.0, 1.0],
                           [1.0, 0.0]])
             cs = self.cn.dot(C)
             return cs
 
         def rcossin(self):
+            """
+            Same as :meth:`cossin`, but prepended with the radii column.
+            """
             return np.hstack((self.r, self.cossin()))
 
         def harmonics(self):
+            """
+            Radial distributions of spherical harmonics
+            (Legendre polynomials :math:`P_n(\\cos \\theta)`).
+
+            Spherical harmonics are orthogonal with respect to integration over
+            the full sphere:
+
+            .. math::
+                \\iint P_n P_m \\,d\\Omega =
+                \\int_0^{2\\pi} \\int_0^\\pi
+                    P_n(\\cos \\theta) P_m(\\cos \\theta)
+                \\,\\sin\\theta d\\theta \\,d\\varphi = 0
+
+            for *n* ≠ *m*; and :math:`P_0(\\cos \\theta)` is the spherically
+            averaged intensity.
+
+            Returns
+            -------
+            Pn : (rmax + 1) × (# terms) numpy array
+                :math:`P_n(\\cos \\theta)` terms for each radius
+            """
             C = np.array([[1.0, 0.0],
                           [1/3, 2/3]])
             harm = self.cn.dot(C)
             return harm
 
         def rharmonics(self):
+            """
+            Same as :meth:`harmonics`, but prepended with the radii column.
+            """
             return np.hstack((self.r, self.harmonics()))
 
         def Ibeta(self):
+            """
+            Radial intensity and anisotropy distributions.
+
+            A cylindrically symmetric 3D intensity distribution can be expanded
+            over spherical harmonics (Legendre polynomials
+            :math:`P_n(\\cos \\theta)`) as
+
+            .. math::
+                I(r, \\theta, \\varphi) =
+                \\frac{1}{4\\pi} I(r) [1 + \\beta_2(r) P_2(\\cos \\theta) +
+                                       \\beta_4(r) P_4(\\cos \\theta) +
+                                       \\dots],
+
+            where :math:`I(r)` is the “radial intensity distribution”
+            integrated over the full sphere:
+
+            .. math::
+                I(r) = \\int_0^{2\\pi} \\int_0^\\pi I(r, \\theta, \\varphi)
+                       \\,r^2 \\sin\\theta d\\theta \\,d\\varphi,
+
+            and :math:`\\beta_n(r)` are the dimensionless “anisotropy
+            parameters” describing relative contributions of each harmonic
+            order (:math:`\\beta_0(r) = 1` by definition). In particular:
+
+                :math:`\\beta_2 = 2` for the :math:`\\cos^2 \\theta` (∥)
+                angular distribution,
+
+                :math:`\\beta_2 = 0` for the isotropic distribution,
+
+                :math:`\\beta_2 = -1` for the :math:`\\sin^2 \\theta` (⟂)
+                angular distribution.
+
+            Returns
+            -------
+            Ibeta : (rmax + 1) × (# terms) numpy array
+                radial intensity (0-th term) and anisotropy parameters
+                (other terms) for each radius
+            """
             harm = self.harmonics()
             P0, Pn = np.hsplit(harm, [1])
             I = 4 * np.pi * self.r**2 * P0
@@ -623,9 +906,32 @@ class Distributions(object):
             return np.hstack((I, beta))
 
         def rIbeta(self):
+            """
+            Same as :meth:`Ibeta`, but prepended with the radii column.
+            """
             return np.hstack((self.r, self.Ibeta()))
 
     def image(self, IM):
+        """
+        Analyze an image.
+
+        This method can be also conveniently accessed by “calling” the object
+        itself::
+
+            distr = Distributions(...)
+            Ibeta = distr(IM).Ibeta()
+
+        Parameters
+        ----------
+        IM : m × n numpy array
+            the image to analyze
+
+        Returns
+        -------
+        results : Distributions.Results object
+            the object with analysis results, from which various distributions
+            can be retrieved, see :class:`Results`
+        """
         # do precalculations (if needed)
         self._precalc(IM.shape)
 
@@ -662,16 +968,39 @@ class Distributions(object):
 
 
 def harmonics(IM, origin='cc', rmax='MIN', order=2, **kwargs):
+    """
+    Convenience function to calculate harmonic distributions for a single
+    image. Equivalent to ``Distributions(...).image(IM).harmonics()``.
+
+    Notice that this function does not cache intermediate calculations, so
+    using it to process multiple images is several times slower than through a
+    :class:`Distributions` object.
+    """
     return Distributions(origin, rmax, order, **kwargs).image(IM).harmonics()
 
 
 def rharmonics(IM, origin='cc', rmax='MIN', order=2, **kwargs):
+    """
+    Same as :func:`harmonics`, but prepended with the radii column.
+    """
     return Distributions(origin, rmax, order, **kwargs).image(IM).rharmonics()
 
 
 def Ibeta(IM, origin='cc', rmax='MIN', order=2, **kwargs):
+    """
+    Convenience function to calculate radial intensity and anisotropy
+    distributions for a single image. Equivalent to
+    ``Distributions(...).image(IM).Ibeta()``.
+
+    Notice that this function does not cache intermediate calculations, so
+    using it to process multiple images is several times slower than through a
+    :class:`Distributions` object.
+    """
     return Distributions(origin, rmax, order, **kwargs).image(IM).Ibeta()
 
 
 def rIbeta(IM, origin='cc', rmax='MIN', order=2, **kwargs):
+    """
+    Same as :func:`Ibeta`, but prepended with the radii column.
+    """
     return Distributions(origin, rmax, order, **kwargs).image(IM).rIbeta()
