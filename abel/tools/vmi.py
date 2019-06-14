@@ -638,7 +638,8 @@ class Distributions(object):
             self.regions = []
             for r in (False, True):
                 for c in (False, True):
-                    self.regions.append(zip(slices_row(r), slices_col(c)))
+                    self.regions.append(list(zip(slices_row(r),
+                                                 slices_col(c))))
             self.fold = True
 
         if self.order != 2:
