@@ -437,6 +437,8 @@ class Distributions(object):
 
                 ``'bl'`` or ``'ll'`` for the upper-right quadrant
     rmax : int or str
+        largest radius to include in the distributions
+
         ``int``:
             explicit value
         ``'h'``:
@@ -499,7 +501,7 @@ class Distributions(object):
                  method='nearest'):
         # remember parameters
         self.origin = origin
-        self.rmax = rmax
+        self.rmax_in = rmax
         self.order = order
         if isinstance(weight, np.ndarray):
             self.weight = 'array'
@@ -552,10 +554,13 @@ class Distributions(object):
 
         shape : (rows, columns) tuple
         """
-        if self.ready:  # already done
+        if self.ready and shape == self.shape:  # already done
             return
+        if self.weight == 'array' and shape != self.shape:
+            raise ValueError('Image shape {} does not match weight shape {}'.
+                             format(shape, self.shape))
 
-        height, width = shape
+        height, width = self.shape = shape
 
         # Determine origin [row, col].
         if np.ndim(self.origin) == 1:  # explicit numbers
@@ -583,19 +588,20 @@ class Distributions(object):
         ver, VER = min(row, row_), max(row, row_)
 
         # Determine rmax.
-        rmax = self.rmax
-        if not isinstance(rmax, int):
-            if   rmax == 'hor': rmax = hor
-            elif rmax == 'ver': rmax = ver
-            elif rmax == 'HOR': rmax = HOR
-            elif rmax == 'VER': rmax = VER
-            elif rmax == 'min': rmax = min(hor, ver)
-            elif rmax == 'max': rmax = max(hor, ver)
-            elif rmax == 'MIN': rmax = min(HOR, VER)
-            elif rmax == 'MAX': rmax = max(HOR, VER)
-            elif rmax == 'all': rmax = int(np.sqrt(HOR**2 + VER**2))
-            else:
-                raise ValueError('Incorrect radial range "{}"'.format(rmax))
+        rmax_in = self.rmax_in
+        if isinstance(rmax_in, int):
+            rmax = rmax_in
+        elif rmax_in == 'hor': rmax = hor
+        elif rmax_in == 'ver': rmax = ver
+        elif rmax_in == 'HOR': rmax = HOR
+        elif rmax_in == 'VER': rmax = VER
+        elif rmax_in == 'min': rmax = min(hor, ver)
+        elif rmax_in == 'max': rmax = max(hor, ver)
+        elif rmax_in == 'MIN': rmax = min(HOR, VER)
+        elif rmax_in == 'MAX': rmax = max(HOR, VER)
+        elif rmax_in == 'all': rmax = int(np.sqrt(HOR**2 + VER**2))
+        else:
+            raise ValueError('Incorrect radial range "{}"'.format(rmax_in))
         self.rmax = rmax
 
         # Folding to one quadrant with origin at [0, 0]
