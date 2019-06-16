@@ -494,11 +494,13 @@ class Distributions(object):
         numerical integration method used in the fitting procedure
 
         ``'nearest'``:
-            each pixel of the image is assigned to a single, nearest radial
-            bin.
+            each pixel of the image is assigned to the nearest radial bin
+        ``'linear'`` (default):
+            each pixel of the image is linearly distributed over the two
+            adjacent radial bins
     """
     def __init__(self, origin='cc', rmax='MIN', order=2, weight='sin',
-                 method='nearest'):
+                 method='linear'):
         # remember parameters
         self.origin = origin
         self.rmax_in = rmax
@@ -546,6 +548,32 @@ class Distributions(object):
             a = a.reshape(-1)
         # (if a is None, np.bincount assumes unit weights, as needed)
         return np.bincount(self.bin.reshape(-1), a, self.rmax + 1)
+
+    def _int_linear(self, wl, wu, a=None, w=None):
+        """
+        Angular integration (radial binning) for 'linear' method.
+
+        wl, wu : lower- and upper-bin weights
+        a, w : arrays of None (their product is integrated)
+        """
+        # collect the products (if needed) in wl, wu
+        if a is None:
+            a = w
+        elif w is not None:
+            a = w * a  # (not *=)
+        if a is not None:
+            # (not *=)
+            wl = wl * a
+            wu = wu * a
+        # lower bins
+        res = np.bincount(self.bin.reshape(-1),
+                          wl.reshape(-1),
+                          self.rmax + 1)
+        # upper bins (bin 0 must be skipped because it contains junk)
+        res[2:] += np.bincount(self.bin.reshape(-1),
+                               wu.reshape(-1),
+                               self.rmax + 1)[1:-1]
+        return res
 
     def _precalc(self, shape):
         """
@@ -651,7 +679,7 @@ class Distributions(object):
         if self.order != 2:
             raise ValueError('Only order=2 is implemented')
 
-        if self.method in ['nearest']:
+        if self.method in ['nearest', 'linear']:
             # Quadrant coordinates.
             # x row
             x = np.arange(float(Qwidth))
@@ -665,6 +693,8 @@ class Distributions(object):
             # Radial bins.
             if self.method == 'nearest':
                 self.bin = np.array(r.round(), dtype=int)
+            else:  # 'linear'
+                self.bin = r.astype(int)  # round down (floor)
             self.bin[self.bin > rmax] = 0  # r = 0 is useless anyway
 
             # Powers of cosine.
@@ -704,12 +734,22 @@ class Distributions(object):
             else:
                 raise ValueError('Incorrect weight "{}"'.format(self.weight))
 
+            if self.method == 'linear':
+                # weights for upper and lower bins
+                self.wu = r - self.bin
+                self.wl = 1 - self.wu
+
             # Integrals.
             c4 = self.c2 * self.c2
             if self.method == 'nearest':
                 pc0 = self._int_nearest(   None, Qw)
                 pc2 = self._int_nearest(self.c2, Qw)
                 pc4 = self._int_nearest(     c4, Qw)
+            else:  # 'linear'
+                wu, wl = self.wu, self.wl
+                pc0 = self._int_linear(wl, wu,    None, Qw)
+                pc2 = self._int_linear(wl, wu, self.c2, Qw)
+                pc4 = self._int_linear(wl, wu,      c4, Qw)
 
         else:
             raise ValueError('Incorrect method "{}"'.format(self.method))
@@ -944,7 +984,7 @@ class Distributions(object):
         # do precalculations (if needed)
         self._precalc(IM.shape)
 
-        if self.method in ['nearest']:
+        if self.method in ['nearest', 'linear']:
             # apply weighting and folding
             if self.weight == 'array':
                 IM = self.warray * IM  # (not *=)
@@ -960,6 +1000,10 @@ class Distributions(object):
             if self.method == 'nearest':
                 p0 = self._int_nearest(Q)
                 p2 = self._int_nearest(Q, self.c2)
+            else:  # 'linear'
+                Ql, Qu = self.wl * Q, self.wu * Q
+                p0 = self._int_linear(Ql, Qu)
+                p2 = self._int_linear(Ql, Qu, self.c2)
 
         p = np.vstack((p0, p2)).T
 

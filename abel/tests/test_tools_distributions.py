@@ -148,6 +148,10 @@ def test_nearest():
     run_method('nearest')
 
 
+def test_linear():
+    run_method('linear')
+
+
 def run_random(method):
     # image size
     n = 51  # width
@@ -211,8 +215,15 @@ def test_nearest_random():
     run_random('nearest')
 
 
+def test_linear_random():
+    run_random('linear')
+
+
 if __name__ == '__main__':
     test_origin()
 
     test_nearest()
     test_nearest_random()
+
+    test_linear()
+    test_linear_random()
