@@ -26,13 +26,20 @@ def test_origin():
                          err_msg='-> origin "{}" != {}'.format(r + c, (y, x)))
 
 
-def run_method(method):
+def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
+    """
+    method = method name
+    rmax = 'MIN' or 'all'
+    tol... = (atol, rmstol) for ...
+    tolbeta = atol for beta
+    weq = compare symbolic and array weights
+    """
     # image size
-    n = 51  # width
-    m = 41  # height
+    n = 81  # width
+    m = 71  # height
     # origin coordinates
-    xc = [0, 10, n // 2, 40, n - 1]
-    yc = [0, 15, m // 2, 25, m - 1]
+    xc = [0, 20, n // 2, 60, n - 1]
+    yc = [0, 25, m // 2, 45, m - 1]
     # peak SD
     sigma = 2.0
 
@@ -56,7 +63,7 @@ def run_method(method):
         return IM, np.sqrt(s2)  # image, sin theta
 
     def ref_distr():
-        r = np.arange(rmax + 1)
+        r = np.arange(R + 1)
         P0 = 2/3 * peak(1, r) + \
                    peak(2, r) + \
              1/3 * peak(3, r)
@@ -68,12 +75,15 @@ def run_method(method):
 
     for y0 in yc:
         for x0 in xc:
-            param = ' @ y0 = {}, x0 = {}, method = {}'.format(y0, x0, method)
+            param = ' @ y0 = {}, x0 = {}, rmax = {}, method = {}'.\
+                    format(y0, x0, rmax, method)
 
-            rmin = min(max(x0, n - 1 - x0), max(y0, m - 1 - y0))
-            rmax = max([int(np.sqrt((x - x0)**2 + (y - y0)**2))
-                        for x in (0, n - 1) for y in (0, m - 1)])
-            step = (rmax - 5 * sigma) / 3
+            if rmax == 'MIN':
+                R = min(max(x0, n - 1 - x0), max(y0, m - 1 - y0))
+            elif rmax == 'all':
+                R = max([int(np.sqrt((x - x0)**2 + (y - y0)**2))
+                         for x in (0, n - 1) for y in (0, m - 1)])
+            step = (R - 5 * sigma) / 3
             refr, refP0, refP2, refI, refbeta = ref_distr()
             f = 1 / (4 * np.pi * (1 + refr**2))  # rescaling factor for I
 
@@ -92,13 +102,14 @@ def run_method(method):
             for wname, weight in weights:
                 weight_param = param + ', weight = ' + wname
 
-                distr = Distributions((y0, x0), 'all', method=method,
+                distr = Distributions((y0, x0), rmax, method=method,
                                       weight=weight)
                 res = distr(IM)
                 P0[wname], P2[wname] = res.harmonics().T
                 r[wname], I[wname], beta[wname] = res.rIbeta().T
 
-                def assert_cmp(msg, a, ref, atol, rmstol):
+                def assert_cmp(msg, a, ref, tol):
+                    atol, rmstol = tol
                     assert_allclose(a, ref, atol=atol,
                                     err_msg=msg + weight_param)
                     rms = np.sqrt(np.mean((a - ref)**2))
@@ -106,23 +117,14 @@ def run_method(method):
                            '\n' + msg + weight_param + \
                            '\nRMS error = {} > {}'.format(rms, rmstol)
 
-                assert_cmp('-> P0', P0[wname], refP0,
-                           0.038, 0.011)
-                assert_cmp('-> P2', P2[wname], refP2,
-                           0.071, 0.015)
-                assert_cmp('-> P0(min)', P0[wname][:rmin], refP0[:rmin],
-                           0.029, 0.013)
-                assert_cmp('-> P2(min)', P2[wname][:rmin], refP2[:rmin],
-                           0.036, 0.016)
+                assert_cmp('-> P0', P0[wname], refP0, tolP0)
+                assert_cmp('-> P2', P2[wname], refP2, tolP2)
 
                 assert_equal(r[wname], refr, err_msg='-> r' + weight_param)
-                assert_cmp('-> I', f * I[wname], f * refI,
-                           0.038, 0.011)
-                assert_cmp('-> I(min)', (f * I[wname])[:rmin], (f * refI)[:rmin],
-                           0.029, 0.012)
+                assert_cmp('-> I', f * I[wname], f * refI, tolI)
                 # beta values at peak centers
                 b = [round(beta[wname][int(i * step)], 5) for i in (1, 2, 3)]
-                assert_allclose(b, [-1, 0, 2], atol=0.053,
+                assert_allclose(b, [-1, 0, 2], atol=tolbeta,
                                 err_msg='-> beta' + weight_param)
 
                 assert_equal(IM, IMcopy,
@@ -132,6 +134,8 @@ def run_method(method):
                 assert_equal(ws, wscopy,
                              err_msg='-> weight corrupted' + weight_param)
 
+            if not weq:
+                continue
             for w, wa in [('None', '1'), ('sin', 's')]:
                 pair_param = param + ', weight {} != {}'.format(w, wa)
                 assert_allclose(P0[w], P0[wa],
@@ -145,14 +149,34 @@ def run_method(method):
 
 
 def test_nearest():
-    run_method('nearest')
+    run_method('nearest', 'MIN',
+               (0.030, 0.011), (0.035, 0.012), (0.030, 0.011), 0.017)
+    run_method('nearest', 'all',
+               (0.047, 0.012), (0.071, 0.017), (0.047, 0.012), 0.093)
 
 
 def test_linear():
-    run_method('linear')
+    run_method('linear', 'MIN',
+               (0.020, 0.0074), (0.016, 0.0049), (0.020, 0.0073), 0.0076)
+    run_method('linear', 'all',
+               (0.055, 0.012), (0.083, 0.017), (0.055, 0.012), 0.068)
 
 
-def run_random(method):
+def test_remap():
+    run_method('remap', 'MIN',
+               (0.0035, 0.00078), (0.0086, 0.0019), (0.0035, 0.00078), 0.0021,
+               weq=False)
+    run_method('remap', 'all',
+               (0.027, 0.0046), (0.041, 0.0071), (0.027, 0.0046), 0.073,
+               weq=False)
+    # (resampling of weight array in 'remap' makes "weq" differ)
+
+
+def run_random(method, parts=True):
+    """
+    method = method name
+    parts = test that masking by weight array equals image cropping
+    """
     # image size
     n = 51  # width
     m = 41  # height
@@ -173,6 +197,8 @@ def run_random(method):
                                          format(ydir, xdir, method))
 
     # parts
+    if not parts:
+        return
     for y0 in [15, m // 2, 25]:
         for x0 in [10, n // 2, 40]:
             param = ' @ y0 = {}, x0 = {}, method = {}'.format(y0, x0, method)
@@ -219,6 +245,11 @@ def test_linear_random():
     run_random('linear')
 
 
+def test_remap_random():
+    run_random('remap', parts=False)
+    # (interpolation and different sampling in 'remap' makes "parts" differ)
+
+
 if __name__ == '__main__':
     test_origin()
 
@@ -227,3 +258,6 @@ if __name__ == '__main__':
 
     test_linear()
     test_linear_random()
+
+    test_remap()
+    test_remap_random()

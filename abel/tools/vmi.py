@@ -498,6 +498,9 @@ class Distributions(object):
         ``'linear'`` (default):
             each pixel of the image is linearly distributed over the two
             adjacent radial bins
+        ``'remap'``:
+            the image is resampled to a uniform polar grid, then polar pixels
+            are summed over all angles for each radius
     """
     def __init__(self, origin='cc', rmax='MIN', order=2, weight='sin',
                  method='linear'):
@@ -554,7 +557,7 @@ class Distributions(object):
         Angular integration (radial binning) for 'linear' method.
 
         wl, wu : lower- and upper-bin weights
-        a, w : arrays of None (their product is integrated)
+        a, w : arrays or None (their product is integrated)
         """
         # collect the products (if needed) in wl, wu
         if a is None:
@@ -574,6 +577,22 @@ class Distributions(object):
                                wu.reshape(-1),
                                self.rmax + 1)[1:-1]
         return res
+
+    def _int_remap(self, a, w=None):
+        """
+        Angular integration (radial binning) for 'remap' method.
+
+        a, w : arrays or None (their product is integrated)
+        """
+        # collect the product (if needed) in array a
+        if a is None:
+            if w is None:
+                return [float(self.ntheta)]
+            a = w
+        elif w is not None:
+            a = w * a  # (not *=)
+        # sum all angles together
+        return a.sum(axis=0)
 
     def _precalc(self, shape):
         """
@@ -751,13 +770,68 @@ class Distributions(object):
                 pc2 = self._int_linear(wl, wu, self.c2, Qw)
                 pc4 = self._int_linear(wl, wu,      c4, Qw)
 
+        elif self.method == 'remap':
+            # Coordinates.
+            # angular step ~ 1 pixel at rmax
+            self.ntheta = int(rmax * np.pi / 2)
+            # polar coordinates
+            r = np.linspace(0, rmax, rmax + 1)
+            theta = np.linspace(0, np.pi / 2, self.ntheta,
+                                endpoint=False)[:, None]
+
+            # convert to rectangular
+            def polar2rect(r, theta):
+                return np.array([r * np.cos(theta), r * np.sin(theta)])
+            # rectangular coordinates of polar grid
+            self.grid = polar2rect(r, theta)
+
+            # Powers of cosine.
+            self.c2 = np.cos(theta)**2
+
+            # Weights.
+            if self.weight in [None, 'sin']:
+                Qw = None
+                if self.fold:
+                    # count overlapping pixels
+                    Qw = np.zeros((Qheight, Qwidth))
+                    for src, dst in self.regions:
+                        Qw[dst] += 1
+                elif rmax > min(HOR, VER):
+                    Qw = np.ones((Qheight, Qwidth))
+                if Qw is not None:
+                    Qw = map_coordinates(Qw, self.grid)
+                if self.weight == 'sin':
+                    self.warray = np.sin(theta)
+                    if Qw is None:
+                        Qw = self.warray
+                    else:
+                        Qw *= self.warray
+            elif self.weight == 'array':
+                if self.fold:
+                    # sum all source regions into one quadrant
+                    Qw = np.zeros((Qheight, Qwidth))
+                    for src, dst in self.regions:
+                        Qw[dst] += self.warray[src]
+                else:
+                    Qw = self.warray[self.flip_row, self.flip_col]
+                Qw = map_coordinates(Qw, self.grid)
+            else:
+                raise ValueError('Incorrect weight "{}"'.format(self.weight))
+
+            # Integrals.
+            c4 = self.c2 * self.c2
+            pc0 = self._int_remap(   None, Qw)
+            pc2 = self._int_remap(self.c2, Qw)
+            pc4 = self._int_remap(     c4, Qw)
+
         else:
             raise ValueError('Incorrect method "{}"'.format(self.method))
 
         # Conversion matrices (integrals → coofficients).
         # determinants
         d = pc0 * pc4 - pc2**2
-        d[0] = np.inf  # bin r = 0 contains junk (all pixels > rmax)
+        if self.method in ['nearest', 'linear']:
+            d[0] = np.inf  # bin r = 0 contains junk (all pixels > rmax)
         d[d == 0] = np.inf  # underdetermined bins
         d = 1 / d
         # inverse matrices
@@ -984,27 +1058,32 @@ class Distributions(object):
         # do precalculations (if needed)
         self._precalc(IM.shape)
 
-        if self.method in ['nearest', 'linear']:
-            # apply weighting and folding
-            if self.weight == 'array':
-                IM = self.warray * IM  # (not *=)
-            if self.fold:
-                Q = np.zeros((self.Qheight, self.Qwidth))
-                for src, dst in self.regions:
-                    Q[dst] += IM[src]
-            else:  # quadrant
-                Q = IM[self.flip_row, self.flip_col]
-            if self.weight == 'sin':
-                Q = self.warray * Q  # (not *=)
+        # apply weighting and folding
+        if self.weight == 'array':
+            IM = self.warray * IM  # (not *=)
+        if self.fold:
+            Q = np.zeros((self.Qheight, self.Qwidth))
+            for src, dst in self.regions:
+                Q[dst] += IM[src]
+        else:  # quadrant
+            Q = IM[self.flip_row, self.flip_col]
+        if self.method == 'remap':
+            # resample to polar grid
+            Q = map_coordinates(Q, self.grid)
+        if self.weight == 'sin':
+            Q = self.warray * Q  # (not *=)
 
-            if self.method == 'nearest':
-                p0 = self._int_nearest(Q)
-                p2 = self._int_nearest(Q, self.c2)
-            else:  # 'linear'
-                Ql, Qu = self.wl * Q, self.wu * Q
-                p0 = self._int_linear(Ql, Qu)
-                p2 = self._int_linear(Ql, Qu, self.c2)
-
+        # calculate integrals
+        if self.method == 'nearest':
+            p0 = self._int_nearest(Q)
+            p2 = self._int_nearest(Q, self.c2)
+        elif self.method == 'linear':  # 'linear'
+            Ql, Qu = self.wl * Q, self.wu * Q
+            p0 = self._int_linear(Ql, Qu)
+            p2 = self._int_linear(Ql, Qu, self.c2)
+        else:  # 'remap'
+            p0 = self._int_remap(Q)
+            p2 = self._int_remap(Q, self.c2)
         p = np.vstack((p0, p2)).T
 
         # multiply all p[i] vectors by C[i] matrices
