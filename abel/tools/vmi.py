@@ -380,7 +380,7 @@ class Distributions(object):
         distr0 = Distributions('ll', ...)
         distr1 = Distributions('lr', ...)
         distr2 = Distributions('ur', ...)
-        distr3 = Distributions('rl', ...)
+        distr3 = Distributions('ul', ...)
 
         for image in images:
             Q0, Q1, Q2, Q3 = ...
@@ -494,13 +494,17 @@ class Distributions(object):
         numerical integration method used in the fitting procedure
 
         ``'nearest'``:
-            each pixel of the image is assigned to the nearest radial bin
+            each pixel of the image is assigned to the nearest radial bin. The
+            fastest, but noisier.
         ``'linear'`` (default):
             each pixel of the image is linearly distributed over the two
-            adjacent radial bins
+            adjacent radial bins. About twice slower than ``'nearest'``, but
+            smoother.
         ``'remap'``:
             the image is resampled to a uniform polar grid, then polar pixels
-            are summed over all angles for each radius
+            are summed over all angles for each radius. The smoothest, but
+            significantly slower and might have problems with
+            **rmax** > ``'MIN'`` and discontinuous weights.
     """
     def __init__(self, origin='cc', rmax='MIN', order=2, weight='sin',
                  method='linear'):

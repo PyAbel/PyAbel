@@ -516,6 +516,181 @@ class AbelTiming(object):
         return '\n'.join(out)
 
 
+class DistributionsTiming(object):
+    """
+    Benchmark performance of different VMI distributions implementations.
+
+    Parameters
+    ----------
+    n : int or sequence of int
+        array size(s) for the benchmark (assuming full images to be 2D square
+        arrays (*n*, *n*))
+    shape : str
+        image shape:
+
+        ``'Q'``:
+            one quadrant ((*n* + 1)/2, (*n* + 1)/2)
+        ``'half'`` (default):
+            half image (*n*, (*n* + 1)/2), vertically centered
+        ``'full'``:
+            full image (*n*, *n*), centered
+    rmax : str or sequence of str
+        symbolic **rmax** for :class:`abel.tools.vmi.Distributions`
+    weight : str or sequence of str
+        weighting to test. Use ``'all'`` (default) for all available or
+        choose any combination of individual types::
+
+            weight=[None, 'sin', 'array']
+
+    method : str or sequence of str
+        methods to benchmark. Use ``'all'`` (default) for all available or
+        choose any combination of individual methods::
+
+            method=['nearest', 'linear', 'remap']
+
+    repeat : int
+        repeat each benchmark at least this number of times to get the average
+        values
+    t_min : float
+        repeat each benchmark for at least this number of seconds to get the
+        average values
+
+    Attributes
+    -------
+    n : list of int
+        array sizes from the parameter **n**
+    results : dict of dict of dict of list of tuple of float
+        benchmark results — multi-level dictionary, in which
+        ``results[method][rmax][weight]`` is the list of timings in
+        milliseconds corresponding to array sizes in
+        :py:attr:`DistributionsTiming.n`. Each timing is a tuple (*t*:sub:`1`,
+        *t*:sub:`∞`) with *t*:sub:`1` corresponding to single-image
+        (non-cached) performance, and *t*:sub:`∞` corresponding to batch
+        (cached) performance.
+
+    Notes
+    -----
+    The results can be output in a nice format by simply
+    ``print(DistributionsTiming(...))``.
+    """
+    def __init__(self, n=[301, 501], shape='half', rmax='MIN', weight='all',
+                 method='all', repeat=1, t_min=0.1):
+        self.n = _ensure_list(n)
+
+        if shape == 'Q':
+            origin = 'll'
+            self.shape = 'One quadrant'
+        elif shape == 'half':
+            origin = 'cl'
+            self.shape = 'Half image'
+        elif shape == 'full':
+            origin = 'cc'
+            self.shape = 'Full image'
+        else:
+            raise ValueError('Incorrect shape "{}"'.format(shape))
+
+        self.rmaxs = rmaxs = _ensure_list(rmax)
+
+        weights = _ensure_list(weight)
+        if 'all' in weights:
+            weights = [None, 'sin', 'array']
+        self.weights = weights
+
+        methods = _ensure_list(method)
+        if 'all' in methods:
+            methods = ['nearest', 'linear', 'remap']
+        self.methods = methods
+
+        # create the timing function
+        time = Timent(skip=-1, repeat=repeat, duration=t_min).time
+
+        # dictionary for the results
+        self.results = {m: {r: {w: [] for w in weights}
+                                      for r in rmaxs}
+                                      for m in methods}
+
+        from abel.tools.vmi import Ibeta, Distributions
+        # make sure that everything is loaded
+        # (otherwise the 1st timing call is very slow)
+        Ibeta(np.array([[0]]))
+
+        # Loop over all image sizes
+        for ni in self.n:
+            ni = int(ni)
+
+            # create image and weight array
+            rows = (ni + 1) // 2 if shape == 'Q' else ni
+            cols = (ni + 1) // 2 if shape in ['Q', 'half'] else ni
+            IM = np.random.randn(rows, cols)
+            warray = np.random.randn(rows, cols)
+
+            # benchmark each combination of parameters
+            for method in methods:
+                for rmax in rmaxs:
+                    for weight in weights:
+                        if weight == 'array':
+                            w = warray
+                        else:
+                            w = weight
+                        # single-image
+                        t1 = time(Ibeta,
+                                  IM, origin, rmax, weight=w, method=method)
+                        # cached
+                        distr = Distributions(origin, rmax, weight=w,
+                                              method=method)
+                        distr(IM)  # trigger precalculations
+
+                        def distrIMIbeta(IM):
+                            return distr(IM).Ibeta()
+                        tn = time(distrIMIbeta,
+                                  IM)
+                        # save results
+                        self.results[method][rmax][weight].append((t1 * 1000,
+                                                                   tn * 1000))
+
+    def __repr__(self):
+        import platform
+
+        out = ['PyAbel benchmark run on {}\n'.format(platform.processor()),
+               'time in milliseconds']
+
+        # field widths are chosen to accommodate up to:
+        #   rmax + weight = 3 leading spaces + 10 characters
+        #   ni = 99999
+        #   time = 9999999.9 ms (almost 3 hours)
+        # data columns are 9 characters wide and separated by 3 spaces
+        TITLE_FORMAT = '=== ' + self.shape + ', {} ==='
+        HEADER_ROW = 'Method       ' + \
+                     ''.join(['   {:>9}'.
+                              format('n = {}'.format(ni)) for ni in self.n])
+        SEP_ROW = '-' * len(HEADER_ROW)
+        ROW1_FORMAT = '   {}, {:5}' + '   {:9.1f}' * len(self.n)
+        ROWn_FORMAT = '             ' + '   {:9.1f}' * len(self.n)
+
+        def print_benchmark(mode):
+            title = '{:=<{w}}'.format(TITLE_FORMAT.format(mode),
+                                      w=len(SEP_ROW))
+            out = ['\n' + title + '\n']
+            out += [HEADER_ROW]
+            out += [SEP_ROW]
+            for method in self.methods:
+                out += [method]
+                resm = self.results[method]
+                for rmax in self.rmaxs:
+                    resr = resm[rmax]
+                    for weight in self.weights:
+                        res = resr[weight]
+                        t = zip(*res)[0 if mode == 'single' else 1]
+                        out += [ROW1_FORMAT.format(rmax, weight, *t)]
+            return out
+
+        out += print_benchmark('single')
+        out += ['']
+        out += print_benchmark('cached')
+
+        return '\n'.join(out)
+
+
 def is_symmetric(arr, i_sym=True, j_sym=True):
     """
     Takes in an array of shape (n, m) and check if it is symmetric
