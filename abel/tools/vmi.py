@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 from abel.tools.polar import reproject_image_into_polar
-from scipy.ndimage import map_coordinates
+from scipy.ndimage import map_coordinates, uniform_filter1d
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit
 
@@ -987,7 +987,7 @@ class Distributions(object):
             """
             return np.hstack((self.r, self.harmonics()))
 
-        def Ibeta(self):
+        def Ibeta(self, window=1):
             r"""
             Radial intensity and anisotropy distributions.
 
@@ -1020,6 +1020,17 @@ class Distributions(object):
                 :math:`\beta_2 = -1` for the :math:`\sin^2 \theta` (⟂)
                 angular distribution.
 
+            Parameters
+            ----------
+            window : int
+                window size in pixels for radial averaging of :math:`\beta`.
+                Since anisotropy parameters are non-linear, the central moving
+                average is applied to the harmonics (which are linear), and
+                then :math:`\beta` is calculated from them. In case of well
+                separated peaks, setting **window** to the peak width will
+                result in :math:`\beta` values at peak centers equal to total
+                peak anisotropies.
+
             Returns
             -------
             Ibeta : (rmax + 1) × (# terms) numpy array
@@ -1029,14 +1040,17 @@ class Distributions(object):
             harm = self.harmonics()
             P0, Pn = np.hsplit(harm, [1])
             I = 4 * np.pi * self.r**2 * P0
+            if window > 1:
+                P0 = uniform_filter1d(P0, window, axis=0, mode='nearest')
+                Pn = uniform_filter1d(Pn, window, axis=0, mode='nearest')
             beta = np.divide(Pn, P0, out=np.zeros_like(Pn), where=P0 != 0)
             return np.hstack((I, beta))
 
-        def rIbeta(self):
+        def rIbeta(self, window=1):
             """
             Same as :meth:`Ibeta`, but prepended with the radii column.
             """
-            return np.hstack((self.r, self.Ibeta()))
+            return np.hstack((self.r, self.Ibeta(window)))
 
     def image(self, IM):
         """
@@ -1122,21 +1136,21 @@ def rharmonics(IM, origin='cc', rmax='MIN', order=2, **kwargs):
     return Distributions(origin, rmax, order, **kwargs).image(IM).rharmonics()
 
 
-def Ibeta(IM, origin='cc', rmax='MIN', order=2, **kwargs):
+def Ibeta(IM, origin='cc', rmax='MIN', order=2, window=1, **kwargs):
     """
     Convenience function to calculate radial intensity and anisotropy
     distributions for a single image. Equivalent to
-    ``Distributions(...).image(IM).Ibeta()``.
+    ``Distributions(...).image(IM).Ibeta(window)``.
 
     Notice that this function does not cache intermediate calculations, so
     using it to process multiple images is several times slower than through a
     :class:`Distributions` object.
     """
-    return Distributions(origin, rmax, order, **kwargs).image(IM).Ibeta()
+    return Distributions(origin, rmax, order, **kwargs).image(IM).Ibeta(window)
 
 
-def rIbeta(IM, origin='cc', rmax='MIN', order=2, **kwargs):
+def rIbeta(IM, origin='cc', rmax='MIN', order=2, window=1, **kwargs):
     """
     Same as :func:`Ibeta`, but prepended with the radii column.
     """
-    return Distributions(origin, rmax, order, **kwargs).image(IM).rIbeta()
+    return Distributions(origin, rmax, order, **kwargs).image(IM).rIbeta(window)
