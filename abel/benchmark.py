@@ -664,8 +664,7 @@ class DistributionsTiming(object):
                      ''.join(['   {:>9}'.
                               format('n = {}'.format(ni)) for ni in self.n])
         SEP_ROW = '-' * len(HEADER_ROW)
-        ROW1_FORMAT = '   {}, {:5}' + '   {:9.1f}' * len(self.n)
-        ROWn_FORMAT = '             ' + '   {:9.1f}' * len(self.n)
+        ROW_FORMAT = '   {}, {:5}' + '   {:9.1f}' * len(self.n)
 
         def print_benchmark(mode):
             title = '{:=<{w}}'.format(TITLE_FORMAT.format(mode),
@@ -680,8 +679,8 @@ class DistributionsTiming(object):
                     resr = resm[rmax]
                     for weight in self.weights:
                         res = resr[weight]
-                        t = zip(*res)[0 if mode == 'single' else 1]
-                        out += [ROW1_FORMAT.format(rmax, weight, *t)]
+                        t = list(zip(*res))[0 if mode == 'single' else 1]
+                        out += [ROW_FORMAT.format(rmax, str(weight), *t)]
             return out
 
         out += print_benchmark('single')
