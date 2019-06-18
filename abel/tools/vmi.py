@@ -10,6 +10,8 @@ from abel.tools.polar import reproject_image_into_polar
 from scipy.ndimage import map_coordinates, uniform_filter1d
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit
+from scipy.linalg import hankel, pinv, pascal, inv
+from scipy.special import legendre
 
 
 def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
@@ -465,8 +467,7 @@ class Distributions(object):
             angular dependences must be inferred from very small available
             angular ranges)
     order : int
-        highest order in the angular distribution. Currently only ``order=2``
-        is implemented
+        highest order in the angular distributions. Even number ≥ 0.
     weight : None or str or m × n numpy array
         weights used in the fitting procedure
 
@@ -475,7 +476,7 @@ class Distributions(object):
         ``'sin'`` (default):
             use :math:`|\sin \theta|` weighting. This is the weight implied
             in spherical integration (for the total intensity, for example) and
-            with respect to which the Legendre polynomial are orthogonal, so
+            with respect to which the Legendre polynomials are orthogonal, so
             using it in the fitting procedure gives the most reasonable results
             even if the data deviates form the assumed angular behavior. It
             also reduces the contribution from the centerline noise.
@@ -699,8 +700,8 @@ class Distributions(object):
                                                  slices_col(c))))
             self.fold = True
 
-        if self.order != 2:
-            raise ValueError('Only order=2 is implemented')
+        if self.order < 0 or self.order % 2:
+            raise ValueError('Incorrect order={}'.format(self.order))
 
         if self.method in ['nearest', 'linear']:
             # Quadrant coordinates.
@@ -721,8 +722,13 @@ class Distributions(object):
             self.bin[self.bin > rmax] = 0  # r = 0 is useless anyway
 
             # Powers of cosine.
-            r2[0, 0] = np.inf  # (avoid division by zero)
-            self.c2 = y2 / r2
+            # c[n] is cos^2n, with 2n up to 2×order
+            self.c = [np.ones_like(r2)]
+            if self.order > 0:
+                r2[0, 0] = np.inf  # (avoid division by zero)
+                self.c.append(y2 / r2)  # cos^2 theta
+                for n in range(2, self.order + 1):
+                    self.c.append(self.c[1] * self.c[n - 1])
 
             # Weights.
             if self.weight is None:
@@ -763,16 +769,16 @@ class Distributions(object):
                 self.wl = 1 - self.wu
 
             # Integrals.
-            c4 = self.c2 * self.c2
             if self.method == 'nearest':
-                pc0 = self._int_nearest(   None, Qw)
-                pc2 = self._int_nearest(self.c2, Qw)
-                pc4 = self._int_nearest(     c4, Qw)
+                pc = [self._int_nearest(None, Qw)]
+                for c in self.c[1:]:
+                    pc.append(self._int_nearest(c, Qw))
             else:  # 'linear'
                 wu, wl = self.wu, self.wl
-                pc0 = self._int_linear(wl, wu,    None, Qw)
-                pc2 = self._int_linear(wl, wu, self.c2, Qw)
-                pc4 = self._int_linear(wl, wu,      c4, Qw)
+                pc = [self._int_linear(wl, wu, None, Qw)]
+                for c in self.c[1:]:
+                    pc.append(self._int_linear(wl, wu, c, Qw))
+            pc = np.array(pc).T  # [r, n]
 
         elif self.method == 'remap':
             # Coordinates.
@@ -790,7 +796,12 @@ class Distributions(object):
             self.grid = polar2rect(r, theta)
 
             # Powers of cosine.
-            self.c2 = np.cos(theta)**2
+            # c[n] is cos^2n, with 2n up to 2×order
+            self.c = [np.ones_like(theta)]
+            if self.order > 0:
+                self.c.append(np.cos(theta)**2)
+                for n in range(2, self.order + 1):
+                    self.c.append(self.c[1] * self.c[n - 1])
 
             # Weights.
             if self.weight in [None, 'sin']:
@@ -823,31 +834,28 @@ class Distributions(object):
                 raise ValueError('Incorrect weight "{}"'.format(self.weight))
 
             # Integrals.
-            c4 = self.c2 * self.c2
-            pc0 = self._int_remap(   None, Qw)
-            pc2 = self._int_remap(self.c2, Qw)
-            pc4 = self._int_remap(     c4, Qw)
+            pc = [self._int_remap(None, Qw)]
+            for c in self.c[1:]:
+                pc.append(self._int_remap(c, Qw))
+            pc = np.array(pc).T  # [r, n]
 
         else:
             raise ValueError('Incorrect method "{}"'.format(self.method))
 
         # Conversion matrices (integrals → coofficients).
-        # determinants
-        d = pc0 * pc4 - pc2**2
-        if self.method in ['nearest', 'linear']:
-            d[0] = np.inf  # bin r = 0 contains junk (all pixels > rmax)
-        d[d == 0] = np.inf  # underdetermined bins
-        d = 1 / d
-        # inverse matrices
-        self.C = d * np.array([[ pc4, -pc2],
-                               [-pc2,  pc0]])
-        # reshape to array of matrices [C[r] for r in range(rmax + 1)]
-        self.C = np.swapaxes(self.C, 0, 2)
+        # using pseudo-inverse because some r might have too few pixels
+        # and thus produce degenerate matrices
+        self.C = np.array([pinv(hankel(p[:self.order // 2 + 1],
+                                       p[self.order // 2:]))
+                           for p in pc])
+        if self.method  in ['nearest', 'linear']:
+            # bin r = 0 contains junk (all pixels > rmax), so ignore it
+            self.C[0] = 0
 
         self.ready = True
 
     class Results(object):
-        """
+        r"""
         Class for holding the results of image analysis.
 
         :meth:`Distributions.image` returns an object of this class, from which
@@ -862,7 +870,11 @@ class Distributions(object):
         corresponding to radii and the columns (2nd index) corresponding to
         particular terms of the expansion. The *n*-th term for all radii can be
         extracted like ``res.harmonics[:, n]``. All terms can also be easily
-        separated like ``I, beta = res.Ibeta().T``.
+        separated like ``I, beta2, beta4 = res.Ibeta().T``. (Python 3 users can
+        collect all :math:`\beta` parameters as ``I, *beta = res.Ibeta().T``.
+        In Python 2 this can be done like ``(I,), beta =
+        np.vsplit(res.Ibeta().T, (1,))``, but using a temporary array and
+        slicing it would be more readable.)
 
         Attributes
         ----------
@@ -943,9 +955,10 @@ class Distributions(object):
                 radius, ordered from the highest :math:`\cos \theta` power to
                 the highest :math:`\sin \theta` power
             """
-            C = np.array([[1.0, 1.0],
-                          [1.0, 0.0]])
-            cs = self.cn.dot(C)
+            # conversion matrix (cos^k → cos^n sin^m)
+            CS = pascal(self.cn.shape[1], 'lower')[::-1]
+            # apply to all radii
+            cs = self.cn.dot(CS)
             return cs
 
         def rcossin(self):
@@ -976,9 +989,14 @@ class Distributions(object):
             Pn : (rmax + 1) × (# terms) numpy array
                 :math:`P_n(\cos \theta)` terms for each radius
             """
-            C = np.array([[1.0, 0.0],
-                          [1/3, 2/3]])
-            harm = self.cn.dot(C)
+            # conversion matrix (cos^k → P_n)
+            terms = self.cn.shape[1]
+            CH = np.zeros((terms, terms))
+            for i in range(terms):
+                CH[i, :i + 1] = legendre(2 * i).c[::-2]
+            CH = inv(CH)
+            # apply to all radii
+            harm = self.cn.dot(CH)
             return harm
 
         def rharmonics(self):
@@ -996,10 +1014,10 @@ class Distributions(object):
             :math:`P_n(\cos \theta)`) as
 
             .. math::
-                I(r, \theta, \varphi) =
-                \frac{1}{4\pi} I(r) [1 + \beta_2(r) P_2(\cos \theta) +
-                                       \beta_4(r) P_4(\cos \theta) +
-                                       \dots],
+                I(r, \theta, \varphi) \, d\Omega =
+                \frac{1}{4\pi} I(r) \big[1 + \beta_2(r) P_2(\cos \theta) +
+                                         \beta_4(r) P_4(\cos \theta) +
+                                         \dots\big],
 
             where :math:`I(r)` is the “radial intensity distribution”
             integrated over the full sphere:
@@ -1020,6 +1038,10 @@ class Distributions(object):
                 :math:`\beta_2 = -1` for the :math:`\sin^2 \theta` (⟂)
                 angular distribution.
 
+            The radial intensity distribution alone for data with arbitrary
+            angular variations can be obtained by using ``weight='sin'`` and
+            ``order=0``.
+
             Parameters
             ----------
             window : int
@@ -1029,7 +1051,7 @@ class Distributions(object):
                 then :math:`\beta` is calculated from them. In case of well
                 separated peaks, setting **window** to the peak width will
                 result in :math:`\beta` values at peak centers equal to total
-                peak anisotropies.
+                peak anisotropies (beware of the background, however).
 
             Returns
             -------
@@ -1093,16 +1115,19 @@ class Distributions(object):
 
         # calculate integrals
         if self.method == 'nearest':
-            p0 = self._int_nearest(Q)
-            p2 = self._int_nearest(Q, self.c2)
+            p = [self._int_nearest(Q)]
+            for c in self.c[1:self.order // 2 + 1]:
+                p.append(self._int_nearest(Q, c))
         elif self.method == 'linear':  # 'linear'
             Ql, Qu = self.wl * Q, self.wu * Q
-            p0 = self._int_linear(Ql, Qu)
-            p2 = self._int_linear(Ql, Qu, self.c2)
+            p = [self._int_linear(Ql, Qu)]
+            for c in self.c[1:self.order // 2 + 1]:
+                p.append(self._int_linear(Ql, Qu, c))
         else:  # 'remap'
-            p0 = self._int_remap(Q)
-            p2 = self._int_remap(Q, self.c2)
-        p = np.vstack((p0, p2)).T
+            p = [self._int_remap(Q)]
+            for c in self.c[1:self.order // 2 + 1]:
+                p.append(self._int_remap(Q, c))
+        p = np.array(p).T
 
         # multiply all p[i] vectors by C[i] matrices
         # [p[i].dot(C[i]) for i in range(rmax + 1)]
