@@ -535,7 +535,10 @@ class DistributionsTiming(object):
         ``'full'``:
             full image (*n*, *n*), centered
     rmax : str or sequence of str
-        symbolic **rmax** for :class:`abel.tools.vmi.Distributions`
+        ``'MIN'`` (default) and/or ``'all'``, see **rmax** in
+        :class:`abel.tools.vmi.Distributions`
+    order : int
+        highest order in the angular distributions. Even number ≥ 0.
     weight : str or sequence of str
         weighting to test. Use ``'all'`` (default) for all available or
         choose any combination of individual types::
@@ -573,8 +576,8 @@ class DistributionsTiming(object):
     The results can be output in a nice format by simply
     ``print(DistributionsTiming(...))``.
     """
-    def __init__(self, n=[301, 501], shape='half', rmax='MIN', weight='all',
-                 method='all', repeat=1, t_min=0.1):
+    def __init__(self, n=[301, 501], shape='half', rmax='MIN', order=2,
+                 weight='all', method='all', repeat=1, t_min=0.1):
         self.n = _ensure_list(n)
 
         if shape == 'Q':
@@ -590,6 +593,8 @@ class DistributionsTiming(object):
             raise ValueError('Incorrect shape "{}"'.format(shape))
 
         self.rmaxs = rmaxs = _ensure_list(rmax)
+
+        self.order = order
 
         weights = _ensure_list(weight)
         if 'all' in weights:
@@ -634,9 +639,10 @@ class DistributionsTiming(object):
                             w = weight
                         # single-image
                         t1 = time(Ibeta,
-                                  IM, origin, rmax, weight=w, method=method)
+                                  IM, origin, rmax, order, weight=w,
+                                  method=method)
                         # cached
-                        distr = Distributions(origin, rmax, weight=w,
+                        distr = Distributions(origin, rmax, order, weight=w,
                                               method=method)
                         distr(IM)  # trigger precalculations
 
@@ -652,7 +658,7 @@ class DistributionsTiming(object):
         import platform
 
         out = ['PyAbel benchmark run on {}\n'.format(platform.processor()),
-               'time in milliseconds']
+               'order = {}, time in milliseconds'.format(self.order)]
 
         # field widths are chosen to accommodate up to:
         #   rmax + weight = 3 leading spaces + 10 characters

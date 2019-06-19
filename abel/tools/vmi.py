@@ -10,9 +10,8 @@ from abel.tools.polar import reproject_image_into_polar
 from scipy.ndimage import map_coordinates, uniform_filter1d
 from scipy.ndimage.interpolation import shift
 from scipy.optimize import curve_fit
-from scipy.linalg import hankel, pinv, pascal, inv
+from scipy.linalg import hankel, inv, pascal
 from scipy.special import legendre
-
 
 def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     r"""Angular integration of the image.
@@ -843,14 +842,72 @@ class Distributions(object):
             raise ValueError('Incorrect method "{}"'.format(self.method))
 
         # Conversion matrices (integrals → coofficients).
-        # using pseudo-inverse because some r might have too few pixels
-        # and thus produce degenerate matrices
-        self.C = np.array([pinv(hankel(p[:self.order // 2 + 1],
-                                       p[self.order // 2:]))
-                           for p in pc])
-        if self.method  in ['nearest', 'linear']:
+        # Some r might have too few pixels and thus produce lower-rank
+        # matrices. For them the highest-rank inverse is computed (including
+        # as many lower orders as possible).
+
+        # linalg.inv is very inefficient for small matrices (takes longer than
+        # everything else), so they are inverted manually.
+        # inv2 and inv3 are for 2×2 and 3×3 Hankel matrices (passed as unique
+        # components).
+        def inv2(p):
+            p0, p1, p2 = p
+            d = p0 * p2 - p1 * p1
+            if d == 0:
+                C = np.zeros((2, 2))
+                if p0 != 0:
+                    C[0, 0] = 1 / p0
+                return C
+            return 1/d * np.array([[p2, -p1],
+                                   [-p1, p0]])
+
+        def inv3(p):
+            p0, p1, p2, p3, p4 = p
+            C00 = p2 * p4 - p3 * p3
+            C01 = p2 * p3 - p1 * p4
+            C02 = p1 * p3 - p2 * p2
+            d = p0 * C00 + p1 * C01 + p2 * C02
+            if d == 0:
+                C = np.zeros((3, 3))
+                C[:2, :2] = inv2(p[:3])
+                return C
+            C11 = p0 * p4 - p2 * p2
+            C12 = p1 * p2 - p0 * p3
+            C22 = p0 * p2 - p1 * p1
+            return 1/d * np.array([[C00, C01, C02],
+                                   [C01, C11, C12],
+                                   [C02, C12, C22]])
+
+        def invn(P):
+            n = self.order // 2
+            C = np.zeros((n + 1, n + 1))
+            for m in range(n, 0, -1):
+                try:
+                    C[:m + 1, :m + 1] = inv(P[:m + 1, :m + 1])
+                    # (this is faster than np.pad)
+                    return C
+                except np.linalg.LinAlgError:
+                    pass  # try lower rank
+            # rank <= 1
+            if P[0, 0] != 0:
+                C[0, 0] = 1 / P[0, 0]
+            return C
+
+        if self.order == 0:
+            pc[pc == 0] = np.inf  # to obtain inv([[0]]) = [[0]]
+            self.C = 1 / pc[:, :, None]
+        elif self.order == 2:
+            self.C = np.array([inv2(p) for p in pc])
+        elif self.order == 4:
+            self.C = np.array([inv3(p) for p in pc])
+        else:
+            self.C = np.array([invn(hankel(p[:self.order // 2 + 1],
+                                           p[self.order // 2:]))
+                               for p in pc])
+
+        if self.method in ['nearest', 'linear']:
             # bin r = 0 contains junk (all pixels > rmax), so ignore it
-            self.C[0] = 0
+            self.C[0] = 0.0
 
         self.ready = True
 
