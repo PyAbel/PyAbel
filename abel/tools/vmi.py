@@ -13,6 +13,7 @@ from scipy.optimize import curve_fit
 from scipy.linalg import hankel, inv, pascal
 from scipy.special import legendre
 
+
 def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     r"""Angular integration of the image.
 
@@ -769,7 +770,7 @@ class Distributions(object):
 
             # Integrals.
             if self.method == 'nearest':
-                pc = [self._int_nearest(None, Qw)]
+                pc = [self._int_nearest(None, Qw).astype(float)]
                 for c in self.c[1:]:
                     pc.append(self._int_nearest(c, Qw))
             else:  # 'linear'

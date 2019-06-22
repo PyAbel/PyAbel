@@ -26,6 +26,55 @@ def test_origin():
                          err_msg='-> origin "{}" != {}'.format(r + c, (y, x)))
 
 
+def run_order(method, tol):
+    sigma = 5.0
+    step = 6 * sigma
+
+    for n in range(len(tol)):  # order = 2n
+        size = (n + 2) * step
+        # squared coordinates:
+        x2 = np.arange(float(size))**2
+        y2 = x2[:, None]
+        r2 = x2 + y2
+        # cos^2, sin^2
+        c2 = np.divide(y2, r2, out=np.zeros_like(r2), where=r2 != 0)
+        s2 = 1 - c2
+        # radius
+        r = np.sqrt(r2)
+
+        def peak(i):
+            return c2 ** (n - i) * s2 ** i * \
+                   np.exp(-(r - (i + 1) * step) ** 2 / (2 * sigma**2))
+
+        Q = peak(0)
+        for i in range(1, n + 1):
+            Q += peak(i)
+
+        for wname in [None, 'sin', 'array']:
+            weight = np.full_like(Q, 0.5) if wname == 'array' else wname
+            for rmax in ['MIN', 'all']:
+                param = '-> rmax = {}, order={}, weight = {}, method = {}'.\
+                        format(rmax, 2 * n, wname, method)
+                cossin = Distributions('ul', rmax, 2 * n, weight=weight,
+                                       method=method).image(Q).cossin()
+                cs = np.array([cossin[int((i + 1) * step)]
+                               for i in range(n + 1)])
+                assert_allclose(cs, np.identity(n + 1), atol=tol[n],
+                                err_msg=param)
+
+
+def test_order_nearest():
+    run_order('nearest', [0.0018, 0.0020, 0.0019, 0.0049, 0.014])
+
+
+def test_order_linear():
+    run_order('linear', [0.0031, 0.0033, 0.0034, 0.0052, 0.020])
+
+
+def test_order_remap():
+    run_order('remap', [5e-6, 6e-6, 7e-6, 8e-6, 5e-5])
+
+
 def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
     """
     method = method name
@@ -102,8 +151,8 @@ def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
             for wname, weight in weights:
                 weight_param = param + ', weight = ' + wname
 
-                distr = Distributions((y0, x0), rmax, method=method,
-                                      weight=weight)
+                distr = Distributions((y0, x0), rmax, weight=weight,
+                                      method=method)
                 res = distr(IM)
                 P0[wname], P2[wname] = res.harmonics().T
                 r[wname], I[wname], beta[wname] = res.rIbeta().T
@@ -253,11 +302,14 @@ def test_remap_random():
 if __name__ == '__main__':
     test_origin()
 
+    test_order_nearest()
     test_nearest()
     test_nearest_random()
 
+    test_order_linear()
     test_linear()
     test_linear_random()
 
+    test_order_remap()
     test_remap()
     test_remap_random()
