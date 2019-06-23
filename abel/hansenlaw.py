@@ -89,7 +89,8 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         full image.
 
 
-    For the full image transform, use the :class:``abel.Transform``.
+    For the full image transform, use the
+    :class:`abel.Transform<abel.transform.Transform>`.
 
     Inverse Abel transform: ::
 

@@ -80,7 +80,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PyAbel'
-copyright = '2016, PyAbel team'
+copyright = u'2016–2019, PyAbel team'
 author = 'PyAbel team'
 
 # The version info for the project you're documenting, acts as replacement for
