@@ -468,35 +468,31 @@ class Distributions(object):
             angular ranges)
     order : int
         highest order in the angular distributions. Even number ≥ 0.
-    weight : None or str or m × n numpy array
-        weights used in the fitting procedure
+    use_sin: bool
+        use :math:`|\sin \theta|` weighting. This is the weight implied in
+        spherical integration (for the total intensity, for example) and with
+        respect to which the Legendre polynomials are orthogonal, so using it
+        in the fitting procedure gives the most reasonable results even if the
+        data deviates form the assumed angular behavior. It also reduces
+        contributions from the centerline noise.
+    weights : m × n numpy array, optional
+        in addition to the optional :math:`|\sin \theta|` weighting (see
+        **use_sin** above), use given weights for each pixel. The array shape
+        must match the image shape.
 
-        ``None``:
-            use equal weights for all pixels
-        ``'sin'`` (default):
-            use :math:`|\sin \theta|` weighting. This is the weight implied
-            in spherical integration (for the total intensity, for example) and
-            with respect to which the Legendre polynomials are orthogonal, so
-            using it in the fitting procedure gives the most reasonable results
-            even if the data deviates form the assumed angular behavior. It
-            also reduces the contribution from the centerline noise.
-        ``array``:
-            use given weights for each pixel. The array shape must match the
-            image shape.
+        Parts of the image can be excluded from the fitting by assigning zero
+        weights to their pixels.
 
-            Parts of the image can be excluded from the fitting by assigning
-            zero weights to their pixels.
-
-            (Note: a reference to this array is cached instead of its copy, so
-            if you modify the array between creating the object and using it,
-            the results will be surprising. However, if needed, you can pass a
-            copy as ``weight=weight.copy()``.)
+        (Note: if ``use_sin=False``, a reference to this array is cached
+        instead of its content, so if you modify the array between creating the
+        object and using it, the results will be surprising. However, if
+        needed, you can pass a copy as ``weights=weights.copy()``.)
     method : str
         numerical integration method used in the fitting procedure
 
         ``'nearest'``:
             each pixel of the image is assigned to the nearest radial bin. The
-            fastest, but noisier.
+            fastest, but noisier (especially for high orders).
         ``'linear'`` (default):
             each pixel of the image is linearly distributed over the two
             adjacent radial bins. About twice slower than ``'nearest'``, but
@@ -507,26 +503,25 @@ class Distributions(object):
             significantly slower and might have problems with
             **rmax** > ``'MIN'`` and discontinuous weights.
     """
-    def __init__(self, origin='cc', rmax='MIN', order=2, weight='sin',
-                 method='linear'):
+    def __init__(self, origin='cc', rmax='MIN', order=2, use_sin=True,
+                 weights=None, method='linear'):
         # remember parameters
         self.origin = origin
         self.rmax_in = rmax
         self.order = order
-        if isinstance(weight, np.ndarray):
-            self.weight = 'array'
-            self.warray = weight
-            self.shape = weight.shape
-        else:
-            self.weight = weight
+        self.use_sin = use_sin
+        self.weights = weights
+        if weights is None:
             self.shape = None
+        else:
+            self.shape = weights.shape
         self.method = method
 
         # whether precalculations are done
         self.ready = False
 
-        # do precalculations if image size is known (from weight array)
-        if self.weight == 'array':
+        # do precalculations if image size is known (from weights array)
+        if self.shape is not None:
             self._precalc(self.shape)
         # otherwise postpone them to the first image
 
@@ -608,8 +603,8 @@ class Distributions(object):
         """
         if self.ready and shape == self.shape:  # already done
             return
-        if self.weight == 'array' and shape != self.shape:
-            raise ValueError('Image shape {} does not match weight shape {}'.
+        if self.weights is not None and shape != self.shape:
+            raise ValueError('Image shape {} does not match weights shape {}'.
                              format(shape, self.shape))
 
         height, width = self.shape = shape
@@ -723,7 +718,7 @@ class Distributions(object):
 
             # Powers of cosine.
             # c[n] is cos^2n, with 2n up to 2×order
-            self.c = [np.ones_like(r2)]
+            self.c = [None]  # (actually 1s, but never used)
             if self.order > 0:
                 r2[0, 0] = np.inf  # (avoid division by zero)
                 self.c.append(y2 / r2)  # cos^2 theta
@@ -731,7 +726,7 @@ class Distributions(object):
                     self.c.append(self.c[1] * self.c[n - 1])
 
             # Weights.
-            if self.weight is None:
+            if self.weights is None:
                 if self.fold:
                     # count overlapping pixels
                     Qw = np.zeros((Qheight, Qwidth))
@@ -739,29 +734,23 @@ class Distributions(object):
                         Qw[dst] += 1
                 else:
                     Qw = None
-            elif self.weight == 'sin':
-                # fill with sin θ = x / r
+            else:  # array
+                if self.fold:
+                    # sum all source regions into one quadrant
+                    Qw = np.zeros((Qheight, Qwidth))
+                    for src, dst in self.regions:
+                        Qw[dst] += self.weights[src]
+                else:
+                    Qw = self.weights[self.flip_row, self.flip_col]
+
+            if self.use_sin:
                 r[0, 0] = np.inf  # (avoid division by zero)
-                self.warray = x / r
+                self.Qsin = x / r
                 r[0, 0] = 0  # (restore)
-                if self.fold:
-                    # sum all source regions into one quadrant
-                    Qw = np.zeros((Qheight, Qwidth))
-                    for src, dst in self.regions:
-                        Qw[dst] += self.warray[dst]
-                        # (warray is one quadrant, so source is also "dst")
+                if Qw is None:
+                    Qw = self.Qsin
                 else:
-                    Qw = self.warray
-            elif self.weight == 'array':
-                if self.fold:
-                    # sum all source regions into one quadrant
-                    Qw = np.zeros((Qheight, Qwidth))
-                    for src, dst in self.regions:
-                        Qw[dst] += self.warray[src]
-                else:
-                    Qw = self.warray[self.flip_row, self.flip_col]
-            else:
-                raise ValueError('Incorrect weight "{}"'.format(self.weight))
+                    Qw = self.Qsin * Qw  # (not *=)
 
             if self.method == 'linear':
                 # weights for upper and lower bins
@@ -788,22 +777,47 @@ class Distributions(object):
             r = np.linspace(0, rmax, rmax + 1)
             theta = np.linspace(0, np.pi / 2, self.ntheta,
                                 endpoint=False)[:, None]
-
-            # convert to rectangular
-            def polar2rect(r, theta):
-                return np.array([r * np.cos(theta), r * np.sin(theta)])
             # rectangular coordinates of polar grid
-            self.grid = polar2rect(r, theta)
+            self.grid = np.array([r * np.cos(theta), r * np.sin(theta)])
 
             # Powers of cosine.
             # c[n] is cos^2n, with 2n up to 2×order
-            self.c = [np.ones_like(theta)]
+            self.c = [None]  # (actually 1s, but never used)
             if self.order > 0:
                 self.c.append(np.cos(theta)**2)
                 for n in range(2, self.order + 1):
                     self.c.append(self.c[1] * self.c[n - 1])
 
             # Weights.
+            if self.weights is None:
+                if self.fold:
+                    # count overlapping pixels
+                    Qw = np.zeros((Qheight, Qwidth))
+                    for src, dst in self.regions:
+                        Qw[dst] += 1
+                elif rmax > min(HOR, VER):
+                    Qw = np.ones((Qheight, Qwidth))
+                else:
+                    Qw = None
+            else:  # array
+                if self.fold:
+                    # sum all source regions into one quadrant
+                    Qw = np.zeros((Qheight, Qwidth))
+                    for src, dst in self.regions:
+                        Qw[dst] += self.weights[src]
+                else:
+                    Qw = self.weights[self.flip_row, self.flip_col]
+            if Qw is not None:
+                Qw = map_coordinates(Qw, self.grid)
+
+            if self.use_sin:
+                self.Qsin = np.sin(theta)
+                if Qw is None:
+                    Qw = self.Qsin
+                else:
+                    Qw *= self.Qsin  # (here Qw is not aliased)
+
+            '''
             if self.weight in [None, 'sin']:
                 Qw = None
                 if self.fold:
@@ -830,8 +844,7 @@ class Distributions(object):
                 else:
                     Qw = self.warray[self.flip_row, self.flip_col]
                 Qw = map_coordinates(Qw, self.grid)
-            else:
-                raise ValueError('Incorrect weight "{}"'.format(self.weight))
+            '''
 
             # Integrals.
             pc = [self._int_remap(None, Qw)]
@@ -850,7 +863,7 @@ class Distributions(object):
         # linalg.inv is very inefficient for small matrices (takes longer than
         # everything else), so they are inverted manually.
         # inv2 and inv3 are for 2×2 and 3×3 Hankel matrices (passed as unique
-        # components).
+        # elements).
         def inv2(p):
             p0, p1, p2 = p
             d = p0 * p2 - p1 * p1
@@ -991,7 +1004,7 @@ class Distributions(object):
 
                 :math:`\sin^4 \theta` corresponds to ⟂,⟂.
 
-                And so on.
+            And so on.
 
             Notice that higher orders can represent lower orders as well:
 
@@ -1035,9 +1048,8 @@ class Distributions(object):
 
             .. math::
                 \iint P_n P_m \,d\Omega =
-                \int_0^{2\pi} \int_0^\pi
-                    P_n(\cos \theta) P_m(\cos \theta)
-                \,\sin\theta d\theta \,d\varphi = 0
+                \int_0^{2\pi} \int_0^\pi P_n(\cos \theta) P_m(\cos \theta)
+                    \,\sin\theta d\theta \,d\varphi = 0
 
             for *n* ≠ *m*; and :math:`P_0(\cos \theta)` is the spherically
             averaged intensity.
@@ -1157,19 +1169,22 @@ class Distributions(object):
         self._precalc(IM.shape)
 
         # apply weighting and folding
-        if self.weight == 'array':
-            IM = self.warray * IM  # (not *=)
+        if self.weights is not None:
+            IM = self.weights * IM  # (not *=)
+
         if self.fold:
             Q = np.zeros((self.Qheight, self.Qwidth))
             for src, dst in self.regions:
                 Q[dst] += IM[src]
         else:  # quadrant
             Q = IM[self.flip_row, self.flip_col]
+
         if self.method == 'remap':
             # resample to polar grid
             Q = map_coordinates(Q, self.grid)
-        if self.weight == 'sin':
-            Q = self.warray * Q  # (not *=)
+
+        if self.use_sin:
+            Q = self.Qsin * Q  # (not *=)
 
         # calculate integrals
         if self.method == 'nearest':

@@ -540,10 +540,10 @@ class DistributionsTiming(object):
     order : int
         highest order in the angular distributions. Even number ≥ 0.
     weight : str or sequence of str
-        weighting to test. Use ``'all'`` (default) for all available or
-        choose any combination of individual types::
+        weighting to test. Use ``'all'`` for all available or choose any
+        combination of individual types::
 
-            weight=[None, 'sin', 'array']
+            weight=['none', 'sin', 'array', 'sin+array']
 
     method : str or sequence of str
         methods to benchmark. Use ``'all'`` (default) for all available or
@@ -577,7 +577,8 @@ class DistributionsTiming(object):
     ``print(DistributionsTiming(...))``.
     """
     def __init__(self, n=[301, 501], shape='half', rmax='MIN', order=2,
-                 weight='all', method='all', repeat=1, t_min=0.1):
+                 weight=['none', 'sin', 'sin+array'], method='all',
+                 repeat=1, t_min=0.1):
         self.n = _ensure_list(n)
 
         if shape == 'Q':
@@ -598,7 +599,7 @@ class DistributionsTiming(object):
 
         weights = _ensure_list(weight)
         if 'all' in weights:
-            weights = [None, 'sin', 'array']
+            weights = ['none', 'sin', 'array', 'sin+array']
         self.weights = weights
 
         methods = _ensure_list(method)
@@ -633,17 +634,23 @@ class DistributionsTiming(object):
             for method in methods:
                 for rmax in rmaxs:
                     for weight in weights:
-                        if weight == 'array':
-                            w = warray
+                        if weight == 'none':
+                            w = {'use_sin': False, 'weights': None}
+                        elif weight == 'sin':
+                            w = {'use_sin': True, 'weights': None}
+                        elif weight == 'array':
+                            w = {'use_sin': False, 'weights': warray}
+                        elif weight == 'sin+array':
+                            w = {'use_sin': True, 'weights': warray}
                         else:
-                            w = weight
+                            raise ValueError('Incorrect weight "{}"'.
+                                             format(weight))
                         # single-image
                         t1 = time(Ibeta,
-                                  IM, origin, rmax, order, weight=w,
-                                  method=method)
+                                  IM, origin, rmax, order, method=method, **w)
                         # cached
-                        distr = Distributions(origin, rmax, order, weight=w,
-                                              method=method)
+                        distr = Distributions(origin, rmax, order,
+                                              method=method, **w)
                         distr(IM)  # trigger precalculations
 
                         def distrIMIbeta(IM):
@@ -661,16 +668,16 @@ class DistributionsTiming(object):
                'order = {}, time in milliseconds'.format(self.order)]
 
         # field widths are chosen to accommodate up to:
-        #   rmax + weight = 3 leading spaces + 10 characters
+        #   rmax + weight = 3 leading spaces + 14 characters
         #   ni = 99999
         #   time = 9999999.9 ms (almost 3 hours)
         # data columns are 9 characters wide and separated by 3 spaces
         TITLE_FORMAT = '=== ' + self.shape + ', {} ==='
-        HEADER_ROW = 'Method       ' + \
+        HEADER_ROW = 'Method           ' + \
                      ''.join(['   {:>9}'.
                               format('n = {}'.format(ni)) for ni in self.n])
         SEP_ROW = '-' * len(HEADER_ROW)
-        ROW_FORMAT = '   {}, {:5}' + '   {:9.1f}' * len(self.n)
+        ROW_FORMAT = '   {}, {:9}' + '   {:9.1f}' * len(self.n)
 
         def print_benchmark(mode):
             title = '{:=<{w}}'.format(TITLE_FORMAT.format(mode),
