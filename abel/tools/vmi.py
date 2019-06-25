@@ -443,13 +443,13 @@ class Distributions(object):
 
         ``int``:
             explicit value
-        ``'h'``:
+        ``'hor'``:
             fitting inside horizontally
-        ``'v'``:
+        ``'ver'``:
             fitting inside vertically
-        ``'H'``:
+        ``'HOR'``:
             touching horizontally
-        ``'V'``:
+        ``'VER'``:
             touching vertically
         ``'min'``:
             minimum of ``'h'`` and ``'v'``, the largest area with 4 full
