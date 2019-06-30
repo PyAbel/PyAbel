@@ -460,16 +460,16 @@ class Distributions(object):
         ``'VER'``:
             touching vertically
         ``'min'``:
-            minimum of ``'h'`` and ``'v'``, the largest area with 4 full
+            minimum of ``'hor'`` and ``'ver'``, the largest area with 4 full
             quadrants
         ``'max'``:
-            maximum of ``'h'`` and ``'v'``, the largest area with 2 full
+            maximum of ``'hor'`` and ``'ver'``, the largest area with 2 full
             quadrants
         ``'MIN'`` (default):
-            minimum of ``'H'`` and ``'V'``, the largest area with 1 full
+            minimum of ``'HOR'`` and ``'VER'``, the largest area with 1 full
             quadrant (thus the largest with the full 90° angular range)
         ``'MAX'``:
-            maximum of ``'H'`` and  ``'V'``
+            maximum of ``'HOR'`` and  ``'VER'``
         ``'all'``:
             covering all pixels (might have huge errors at large *r*, since the
             angular dependences must be inferred from very small available
@@ -835,35 +835,6 @@ class Distributions(object):
                     Qw = self.Qsin
                 else:
                     Qw *= self.Qsin  # (here Qw is not aliased)
-
-            '''
-            if self.weight in [None, 'sin']:
-                Qw = None
-                if self.fold:
-                    # count overlapping pixels
-                    Qw = np.zeros((Qheight, Qwidth))
-                    for src, dst in self.regions:
-                        Qw[dst] += 1
-                elif rmax > min(HOR, VER):
-                    Qw = np.ones((Qheight, Qwidth))
-                if Qw is not None:
-                    Qw = map_coordinates(Qw, self.grid)
-                if self.weight == 'sin':
-                    self.warray = np.sin(theta)
-                    if Qw is None:
-                        Qw = self.warray
-                    else:
-                        Qw *= self.warray
-            elif self.weight == 'array':
-                if self.fold:
-                    # sum all source regions into one quadrant
-                    Qw = np.zeros((Qheight, Qwidth))
-                    for src, dst in self.regions:
-                        Qw[dst] += self.warray[src]
-                else:
-                    Qw = self.warray[self.flip_row, self.flip_col]
-                Qw = map_coordinates(Qw, self.grid)
-            '''
 
             # Integrals.
             pc = [self._int_remap(None, Qw)]
