@@ -417,9 +417,8 @@ class Distributions(object):
         ``(int, int)``:
             explicit row and column indices
         ``str``:
-            2-letter code specifying the vertical and horizontal positions
-            (in this order!) by the first letter of the words in the following
-            diagram::
+            location string specifying the vertical and horizontal positions
+            (in this order!) using the words from the following diagram::
 
                               left            center             right
 
@@ -431,13 +430,22 @@ class Distributions(object):
                               |                                      |
                 bottom/lower  [m-1, 0]------[m-1, n//2]-----[m-1, n-1]
 
+            The words can be abbreviated to their first letter each (such as
+            ``'top left'`` → ``'tl'``, the space is then not required).
+
+            ``'center center'``/``'cc'`` can also be shortened to
+            ``'center'``/``'c'``.
+
             Examples:
 
-                ``'cc'`` (default) for the full centered image
+                ``'center'`` or ``'cc'`` (default) for the full centered image
 
-                ``'cl'`` for the right half, vertically centered
+                ``'center left'``/``'cl'`` for the right image half, vertically
+                centered
 
-                ``'bl'`` or ``'ll'`` for the upper-right quadrant
+                ``'bottom left'``/``'bl'`` or ``'lower left'``/``'ll'`` for the
+                upper-right image quadrant
+
     rmax : int or str
         largest radius to include in the distributions
 
@@ -503,7 +511,7 @@ class Distributions(object):
             significantly slower and might have problems with
             **rmax** > ``'MIN'`` and discontinuous weights.
     """
-    def __init__(self, origin='cc', rmax='MIN', order=2, use_sin=True,
+    def __init__(self, origin='center', rmax='MIN', order=2, use_sin=True,
                  weights=None, method='linear'):
         # remember parameters
         self.origin = origin
@@ -613,20 +621,31 @@ class Distributions(object):
         if np.ndim(self.origin) == 1:  # explicit numbers
             row, col = self.origin
         else:  # string with codes
-            r, c = self.origin
+            if len(self.origin) == 2:
+                r, c = self.origin
+            elif self.origin in ['c', 'center']:
+                r, c = 'c', 'c'
+            else:
+                try:
+                    # extract first letters
+                    r, c = [word[0] for word in self.origin.split()]
+                except ValueError:
+                    raise ValueError('Incorrect origin "{}"'.
+                                     format(self.origin))
             # vertical
             if   r in ('t', 'u'): row = 0
             elif r == 'c'       : row = height // 2
             elif r in ('b', 'l'): row = height - 1
             else:
-                raise ValueError('Incorrect vertical position "{}"'.format(r))
+                raise ValueError('Incorrect vertical position in "{}"'.
+                                 format(self.origin))
             # horizontal
             if   c == 'l': col = 0
             elif c == 'c': col = width // 2
             elif c == 'r': col = width - 1
             else:
-                raise ValueError('Incorrect horizontal position "{}"'.
-                                 format(c))
+                raise ValueError('Incorrect horizontal position in "{}"'.
+                                 format(self.origin))
         # from the other side
         row_ = height - 1 - row
         col_ = width - 1 - col
