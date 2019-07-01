@@ -56,7 +56,7 @@ def run_order(method, tol):
                     format(rmax, 2 * n, method)
             res = Distributions('ul', rmax, 2 * n, method=method).image(Q)
             cossin = res.cossin()
-            cs = np.array([cossin[int((i + 1) * step)]
+            cs = np.array([cossin[:, int((i + 1) * step)]
                            for i in range(n + 1)])
             assert_allclose(cs, np.identity(n + 1), atol=tol[n],
                             err_msg=param)
@@ -157,8 +157,8 @@ def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
             distr = Distributions((y0, x0), rmax, use_sin=use_sin,
                                   weights=warray, method=method)
             res = distr(IM)
-            P0[key], P2[key] = res.harmonics().T
-            r[key], I[key], beta[key] = res.rIbeta().T
+            P0[key], P2[key] = res.harmonics()
+            r[key], I[key], beta[key] = res.rIbeta()
 
             def assert_cmp(msg, a, ref, tol):
                 atol, rmstol = tol
@@ -270,7 +270,7 @@ def run_random(method, use_sin, parts=True):
         hm = harmonics(IM, (y0, x0), 'all', use_sin=use_sin,
                        weights=wmask, method=method)
 
-        assert_allclose(ht, hm[:ht.shape[0]], err_msg='-> trim' + param)
+        assert_allclose(ht, hm[:, :ht.shape[1]], err_msg='-> trim' + param)
 
         # cut quadrants
         regions = [
@@ -290,7 +290,7 @@ def run_random(method, use_sin, parts=True):
             hm = harmonics(IM, (y0, x0), 'all', use_sin=use_sin,
                            weights=wmask, method=method)
 
-            assert_allclose(hc, hm[:hc.shape[0]],
+            assert_allclose(hc, hm[:, :hc.shape[1]],
                             err_msg='-> Q (origin = ' + origin + ')' + param)
 
 

@@ -899,7 +899,7 @@ class Distributions(object):
 
         if self.order == 0:
             pc[pc == 0] = np.inf  # to obtain inv([[0]]) = [[0]]
-            self.C = 1 / pc[:, :, None]
+            self.C = 1 / pc[:, :, None]  # (new dimension to make matrices)
         elif self.order == 2:
             self.C = np.array([inv2(p) for p in pc])
         elif self.order == 4:
@@ -928,19 +928,19 @@ class Distributions(object):
             harmonics = res.harmonics()
 
         All distributions are returned as 2D arrays with the rows (1st index)
-        corresponding to radii and the columns (2nd index) corresponding to
-        particular terms of the expansion. The *n*-th term for all radii can be
-        extracted like ``res.harmonics[:, n]``. All terms can also be easily
-        separated like ``I, beta2, beta4 = res.Ibeta().T``. (Python 3 users can
-        collect all :math:`\beta` parameters as ``I, *beta = res.Ibeta().T``.
-        In Python 2 this can be done like ``(I,), beta =
-        np.vsplit(res.Ibeta().T, (1,))``, but using a temporary array and
-        slicing it would be more readable.)
+        corresponding to particular terms of the expansion and the columns (2nd
+        index) corresponding to the radii. The terms can be easily separated
+        like ``I, beta2, beta4 = res.Ibeta()``. Python 3 users can also collect
+        all :math:`\beta` parameters as ``I, *beta = res.Ibeta()`` for any
+        **order**. Alternatively, transposing the results as ``Ibeta =
+        res.Ibeta().T`` allows accessing all terms :math:`\big(I(r),
+        \beta_2(r), \beta_4(r), \dots\big)` at particular radius *r* as
+        ``Ibeta[r]``.
 
         Attributes
         ----------
-        r : (rmax + 1) × 1 numpy array
-            column of the radii from 0 to ``rmax``
+        r : numpy array
+            radii from 0 to **rmax**
         """
         def __init__(self, r, cn):
             self.r = r
@@ -949,35 +949,35 @@ class Distributions(object):
         def cos(self):
             r"""
             Radial distributions of :math:`\cos^n \theta` terms
-            (0 ≤ *n* ≤ ``order``).
+            (0 ≤ *n* ≤ **order**).
 
             (You probably do not need them.)
 
             Returns
             -------
-            cosn : (rmax + 1) × (# terms) numpy array
-                :math:`\cos^n \theta` terms for each radius, ordered from the
-                lowest to the highest power
+            cosn : (# terms) × (rmax + 1) numpy array
+                radial dependences of the :math:`\cos^n \theta` terms, ordered
+                from the lowest to the highest power
             """
             return self.cn
 
         def rcos(self):
             """
-            Same as :meth:`cos`, but prepended with the radii column.
+            Same as :meth:`cos`, but prepended with the radii row.
             """
-            return np.hstack((self.r, self.cn))
+            return np.vstack((self.r, self.cn))
 
         def cossin(self):
             r"""
             Radial distributions of
             :math:`\cos^n \theta \cdot \sin^m \theta` terms
-            (*n* + *m* = ``order``).
+            (*n* + *m* = **order**).
 
-            For ``order`` = 0:
+            For **order** = 0:
 
                 :math:`\cos^0 \theta` is the total intensity.
 
-            For ``order`` = 2
+            For **order** = 2
 
                 :math:`\cos^2 \theta` corresponds to “parallel” (∥)
                 transitions,
@@ -985,7 +985,7 @@ class Distributions(object):
                 :math:`\sin^2 \theta` corresponds to “perpendicular” (⟂)
                 transitions.
 
-            For ``order = 4``
+            For **order** = 4
 
                 :math:`\cos^4 \theta` corresponds to ∥,∥,
 
@@ -1011,22 +1011,22 @@ class Distributions(object):
 
             Returns
             -------
-            cosnsinm : (rmax + 1) × (# terms) numpy array
-                :math:`\cos^n \theta \cdot \sin^m \theta` terms for each
-                radius, ordered from the highest :math:`\cos \theta` power to
-                the highest :math:`\sin \theta` power
+            cosnsinm : (# terms) × (rmax + 1) numpy array
+                radial dependences of the :math:`\cos^n \theta \cdot \sin^m
+                \theta` terms, ordered from the highest :math:`\cos \theta`
+                power to the highest :math:`\sin \theta` power
             """
             # conversion matrix (cos^k → cos^n sin^m)
-            CS = pascal(self.cn.shape[1], 'lower')[::-1]
+            CS = pascal(self.cn.shape[0], 'upper')[:, ::-1]
             # apply to all radii
-            cs = self.cn.dot(CS)
+            cs = CS.dot(self.cn)
             return cs
 
         def rcossin(self):
             """
-            Same as :meth:`cossin`, but prepended with the radii column.
+            Same as :meth:`cossin`, but prepended with the radii row.
             """
-            return np.hstack((self.r, self.cossin()))
+            return np.vstack((self.r, self.cossin()))
 
         def harmonics(self):
             r"""
@@ -1046,24 +1046,24 @@ class Distributions(object):
 
             Returns
             -------
-            Pn : (rmax + 1) × (# terms) numpy array
-                :math:`P_n(\cos \theta)` terms for each radius
+            Pn : (# terms) × (rmax + 1) numpy array
+                radial dependences of the :math:`P_n(\cos \theta)` terms
             """
             # conversion matrix (cos^k → P_n)
-            terms = self.cn.shape[1]
+            terms = self.cn.shape[0]
             CH = np.zeros((terms, terms))
             for i in range(terms):
-                CH[i, :i + 1] = legendre(2 * i).c[::-2]
+                CH[:i + 1, i] = legendre(2 * i).c[::-2]
             CH = inv(CH)
             # apply to all radii
-            harm = self.cn.dot(CH)
+            harm = CH.dot(self.cn)
             return harm
 
         def rharmonics(self):
             """
-            Same as :meth:`harmonics`, but prepended with the radii column.
+            Same as :meth:`harmonics`, but prepended with the radii row.
             """
-            return np.hstack((self.r, self.harmonics()))
+            return np.vstack((self.r, self.harmonics()))
 
         def Ibeta(self, window=1):
             r"""
@@ -1115,24 +1115,24 @@ class Distributions(object):
 
             Returns
             -------
-            Ibeta : (rmax + 1) × (# terms) numpy array
-                radial intensity (0-th term) and anisotropy parameters
-                (other terms) for each radius
+            Ibeta : (# terms) × (rmax + 1) numpy array
+                radial intensity distribution (0-th term) and radial
+                dependences of anisotropy parameters (other terms)
             """
             harm = self.harmonics()
-            P0, Pn = np.hsplit(harm, [1])
+            P0, Pn = np.vsplit(harm, [1])
             I = 4 * np.pi * self.r**2 * P0
             if window > 1:
-                P0 = uniform_filter1d(P0, window, axis=0, mode='nearest')
-                Pn = uniform_filter1d(Pn, window, axis=0, mode='nearest')
+                P0 = uniform_filter1d(P0, window, axis=1, mode='nearest')
+                Pn = uniform_filter1d(Pn, window, axis=1, mode='nearest')
             beta = np.divide(Pn, P0, out=np.zeros_like(Pn), where=P0 != 0)
-            return np.hstack((I, beta))
+            return np.vstack((I, beta))
 
         def rIbeta(self, window=1):
             """
-            Same as :meth:`Ibeta`, but prepended with the radii column.
+            Same as :meth:`Ibeta`, but prepended with the radii row.
             """
-            return np.hstack((self.r, self.Ibeta(window)))
+            return np.vstack((self.r, self.Ibeta(window)))
 
     def image(self, IM):
         """
@@ -1190,14 +1190,12 @@ class Distributions(object):
             p = [self._int_remap(Q)]
             for c in self.c[1:self.order // 2 + 1]:
                 p.append(self._int_remap(Q, c))
-        p = np.array(p).T
 
-        # multiply all p[i] vectors by C[i] matrices
-        # [p[i].dot(C[i]) for i in range(rmax + 1)]
-        I = np.einsum('ij,ijk->ik', p, self.C)
+        # convert integrals to coefficients (I(r) = C(r)·p(r) for each r)
+        I = np.einsum('jik,kj->ij', self.C, p)
 
-        # radii column
-        r = np.arange(self.rmax + 1)[:, None]
+        # radii
+        r = np.arange(self.rmax + 1)
 
         return self.Results(r, I)
 
@@ -1219,7 +1217,7 @@ def harmonics(IM, origin='cc', rmax='MIN', order=2, **kwargs):
 
 def rharmonics(IM, origin='cc', rmax='MIN', order=2, **kwargs):
     """
-    Same as :func:`harmonics`, but prepended with the radii column.
+    Same as :func:`harmonics`, but prepended with the radii row.
     """
     return Distributions(origin, rmax, order, **kwargs).image(IM).rharmonics()
 
@@ -1239,6 +1237,6 @@ def Ibeta(IM, origin='cc', rmax='MIN', order=2, window=1, **kwargs):
 
 def rIbeta(IM, origin='cc', rmax='MIN', order=2, window=1, **kwargs):
     """
-    Same as :func:`Ibeta`, but prepended with the radii column.
+    Same as :func:`Ibeta`, but prepended with the radii row.
     """
     return Distributions(origin, rmax, order, **kwargs).image(IM).rIbeta(window)
