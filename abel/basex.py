@@ -344,7 +344,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
                     print('Loading basis sets...')
                     # saved as a .npy file
                 try:
-                    M, Mc, M_version = np.load(full_path(best_file))
+                    M, Mc = np.load(full_path(best_file))
                     # crop if loaded larger
                     if M.shape != (n, nbf):
                         M = M[:n, :nbf]
@@ -365,7 +365,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
 
             # Try to extend the largest available
             try:
-                oldM, oldMc, M_version = np.load(full_path(largest_file))
+                oldM, oldMc = np.load(full_path(largest_file))
                 if verbose:
                     print('(extending {})'.format(largest_file))
             except:
@@ -374,8 +374,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
             M, Mc = _bs_basex(n, sigma, oldM, verbose=verbose)
 
             if basis_dir is not None:
-                np.save(full_path(basis_file),
-                        (M, Mc, np.array(__version__)))
+                np.save(full_path(basis_file), (M, Mc))
                 if verbose:
                     print('Basis set saved for later use to')
                     print('  {}'.format(basis_file))
