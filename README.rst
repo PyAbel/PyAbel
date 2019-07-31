@@ -11,7 +11,7 @@ PyAbel README
 Introduction
 ------------
 
-``PyAbel`` is a Python package that provides functions for the forward and inverse `Abel transforms <https://en.wikipedia.org/wiki/Abel_transform>`_. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
+``PyAbel`` is a Python package that provides functions for the forward and inverse `Abel transforms <https://en.wikipedia.org/wiki/Abel_transform>`_. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse Abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
 
 .. image:: https://user-images.githubusercontent.com/1107796/48970223-1b477b80-efc7-11e8-9feb-c614d6cadab6.png
    :width: 500px
@@ -27,7 +27,7 @@ PyAbel provides efficient implementations of several Abel transform algorithms, 
 Transform Methods
 -----------------
 
-The outcome of the numerical Abel Transform depends on the exact method used. So far, PyAbel includes the following `transform methods <http://pyabel.readthedocs.io/en/latest/transform_methods.html>`_:
+The outcome of the numerical Abel transform depends on the exact method used. So far, PyAbel includes the following `transform methods <http://pyabel.readthedocs.io/en/latest/transform_methods.html>`_:
 
     1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
 
@@ -49,7 +49,7 @@ The outcome of the numerical Abel Transform depends on the exact method used. So
 Installation
 ------------
 
-PyAbel requires Python 2.7 or 3.5-3.7. `Numpy <http://www.numpy.org/>`_ and `Scipy <https://www.scipy.org/>`_ are also required, and Matplotlib is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
+PyAbel requires Python 2.7 or 3.5-3.7. `NumPy <http://www.numpy.org/>`_ and `SciPy <https://www.scipy.org/>`_ are also required, and `Matplotlib <https://matplotlib.org/>`_ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
 
 With pip
 ~~~~~~~~
@@ -167,12 +167,12 @@ Either open a new `Issue <https://github.com/PyAbel/PyAbel/issues>`_ or make a `
 
 License
 -------
-PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE.txt>`_, so it can be used for pretty much whatever you want! Of course, it is provided "as is" with absolutely no warrenty.
+PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE.txt>`_, so it can be used for pretty much whatever you want! Of course, it is provided "as is" with absolutely no warranty.
 
 
 Citation
 --------
-First and foremost, please cite the paper(s) corresponding to the implementation of the Abel Transform that you use in your work. The references can be found at the links above.
+First and foremost, please cite the paper(s) corresponding to the implementation of the Abel transform that you use in your work. The references can be found at the links above.
 
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. You can find the DOI for the lastest verison `here <https://dx.doi.org/10.5281/zenodo.594858>`_
 
