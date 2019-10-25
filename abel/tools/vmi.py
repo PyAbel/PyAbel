@@ -558,7 +558,7 @@ class Distributions(object):
         if a is not None:
             a = a.reshape(-1)
         # (if a is None, np.bincount assumes unit weights, as needed)
-        return np.bincount(self.bin.reshape(-1), a, self.rmax + 1)
+        return np.bincount(self.bin.reshape(-1), a, self.rmax + 2)[:-1]
 
     def _int_linear(self, wl, wu, a=None, w=None):
         """
@@ -579,11 +579,11 @@ class Distributions(object):
         # lower bins
         res = np.bincount(self.bin.reshape(-1),
                           wl.reshape(-1),
-                          self.rmax + 1)
-        # upper bins (bin 0 must be skipped because it contains junk)
-        res[2:] += np.bincount(self.bin.reshape(-1),
+                          self.rmax + 2)[:-1]
+        # upper bins
+        res[1:] += np.bincount(self.bin.reshape(-1),
                                wu.reshape(-1),
-                               self.rmax + 1)[1:-1]
+                               self.rmax + 2)[:-2]
         return res
 
     def _int_remap(self, a, w=None):
@@ -733,7 +733,7 @@ class Distributions(object):
                 self.bin = np.array(r.round(), dtype=int)
             else:  # 'linear'
                 self.bin = r.astype(int)  # round down (floor)
-            self.bin[self.bin > rmax] = 0  # r = 0 is useless anyway
+            self.bin[self.bin > rmax] = rmax + 1  # last bin is then discarded
 
             # Powers of cosine.
             # c[n] is cos^2n, with 2n up to 2×order
@@ -765,6 +765,7 @@ class Distributions(object):
             if self.use_sin:
                 r[0, 0] = np.inf  # (avoid division by zero)
                 self.Qsin = x / r
+                self.Qsin[0, 0] = 1  # (for consistency with cos[0, 0] = 0)
                 r[0, 0] = 0  # (restore)
                 if Qw is None:
                     Qw = self.Qsin
@@ -908,10 +909,6 @@ class Distributions(object):
             self.C = np.array([invn(hankel(p[:self.order // 2 + 1],
                                            p[self.order // 2:]))
                                for p in pc])
-
-        if self.method in ['nearest', 'linear']:
-            # bin r = 0 contains junk (all pixels > rmax), so ignore it
-            self.C[0] = 0.0
 
         self.ready = True
 
