@@ -76,6 +76,58 @@ def test_order_remap():
     run_order('remap', [5e-6, 6e-6, 7e-6, 8e-6, 2e-5])
 
 
+def run_order_odd(method, tol):
+    sigma = 5.0
+    step = 6 * sigma
+
+    for n in range(0, len(tol)):  # order = n
+        size = (n + 2) * step
+        # coordinates:
+        x = np.arange(float(size))
+        y = size - np.arange(2 * float(size) + 1)[:, None]
+        # radius
+        r = np.sqrt(x**2 + y**2)
+        r[int(size), 0] = np.inf
+        c = y / r
+        s = x / r
+        r[0, 0] = 0
+
+        def peak(i):
+            m = n - i
+            k = (n - m) & ~1  # round down to even
+            return c ** m * s ** k * \
+                   np.exp(-(r - (i + 1) * step) ** 2 / (2 * sigma**2))
+
+        Q = peak(0)
+        for i in range(1, n + 1):
+            Q += peak(i)
+
+        for rmax in ['MIN', 'all']:
+            param = '-> rmax = {}, order={}, method = {}'.\
+                    format(rmax, n, method)
+            res = Distributions((int(size), 0), rmax, n, odd=True,
+                                method=method).image(Q)
+            cossin = res.cossin()
+            cs = np.array([cossin[:, int((i + 1) * step)]
+                           for i in range(n + 1)])
+            assert_allclose(cs, np.identity(n + 1), atol=tol[n],
+                            err_msg=param)
+            # test that Ibeta, and thus harmonics, work in principle
+            res.Ibeta()
+
+
+def test_order_odd_nearest():
+    run_order_odd('nearest', [0.0018, 0.0020, 0.0020, 0.0019, 0.0019])
+
+
+def test_order_odd_linear():
+    run_order_odd('linear', [0.0032, 0.0033, 0.0034, 0.0034, 0.0035])
+
+
+def test_order_odd_remap():
+    run_order_odd('remap', [5e-6, 5e-6, 6e-6, 7e-6, 7e-6])
+
+
 def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
     """
     method = method name
@@ -226,7 +278,7 @@ def test_remap():
     # (resampling of weights array in 'remap' makes "weq" differ)
 
 
-def run_random(method, use_sin, parts=True):
+def run_random(method, odd, use_sin, parts=True):
     """
     method = method name
     parts = test that masking by weights array equals image cropping
@@ -244,30 +296,41 @@ def run_random(method, use_sin, parts=True):
         ydir = -1 if y > 0 else 1
         for x in [0, n - 1]:
             xdir = -1 if x > 0 else 1
-            ho = harmonics(IM, (y, x), 'all', use_sin=use_sin,
-                           weights=weights, method=method)
-            hf = harmonics(IM[::ydir, ::xdir], (0, 0), 'all', use_sin=use_sin,
-                           weights=weights[::ydir, ::xdir], method=method)
-            assert_equal(ho, hf,
-                         err_msg='-> flip({}, {}) @ method = {}, sin = {}'.
-                                 format(ydir, xdir, method, use_sin))
+            ho = harmonics(IM, (y, x), 'all', odd=odd,
+                           use_sin=use_sin, weights=weights,
+                           method=method)
+            hf = harmonics(IM[::ydir, ::xdir], (0, 0), 'all', odd=odd,
+                           use_sin=use_sin, weights=weights[::ydir, ::xdir],
+                           method=method)
+            if odd:
+                ho = ho[:, :-3]
+                hf = hf[:, :-3]
+                if ydir == -1:
+                    hf[1] = -hf[1]
+                cmp = assert_allclose
+            else:
+                cmp = assert_equal
+            cmp(ho, hf,
+                err_msg='-> flip({}, {}) @ method = {}, odd = {}, sin = {}'.
+                        format(ydir, xdir, method, odd, use_sin))
 
     # parts
     if not parts:
         return
     for y0, x0 in itertools.product([15, m // 2, 25], [10, n // 2, 40]):
-        param = ' @ y0 = {}, x0 = {}, method = {}'.format(y0, x0, method)
+        param = ' @ y0 = {}, x0 = {}, method = {}, odd = {}, sin = {}'.\
+                format(y0, x0, method, odd, use_sin)
 
         # trim border
         trim = (slice(1, -1), slice(1, -1))
         IMtrim = IM[trim]
         wtrim = weights[trim]
-        ht = harmonics(IMtrim, (y0 - 1, x0 - 1), 'all', use_sin=use_sin,
-                       weights=wtrim, method=method)
+        ht = harmonics(IMtrim, (y0 - 1, x0 - 1), 'all', odd=odd,
+                       use_sin=use_sin, weights=wtrim, method=method)
 
         wmask = np.zeros_like(IM)
         wmask[trim] = weights[trim]
-        hm = harmonics(IM, (y0, x0), 'all', use_sin=use_sin,
+        hm = harmonics(IM, (y0, x0), 'all', odd=odd, use_sin=use_sin,
                        weights=wmask, method=method)
 
         assert_allclose(ht, hm[:, :ht.shape[1]], err_msg='-> trim' + param)
@@ -282,12 +345,12 @@ def run_random(method, use_sin, parts=True):
         for region, origin in regions:
             Q = IM[region]
             Qw = weights[region]
-            hc = harmonics(Q, origin, 'all', use_sin=use_sin,
+            hc = harmonics(Q, origin, 'all', odd=odd, use_sin=use_sin,
                            weights=Qw, method=method)
 
             wmask = np.zeros_like(IM)
             wmask[region] = weights[region]
-            hm = harmonics(IM, (y0, x0), 'all', use_sin=use_sin,
+            hm = harmonics(IM, (y0, x0), 'all', odd=odd, use_sin=use_sin,
                            weights=wmask, method=method)
 
             assert_allclose(hc, hm[:, :hc.shape[1]],
@@ -295,32 +358,38 @@ def run_random(method, use_sin, parts=True):
 
 
 def test_nearest_random():
-    run_random('nearest', False)
-    run_random('nearest', True)
+    for odd in [False, True]:
+        for use_sin in [False, True]:
+            run_random('nearest', odd, use_sin)
 
 
 def test_linear_random():
-    run_random('linear', False)
-    run_random('linear', True)
+    for odd in [False, True]:
+        for use_sin in [False, True]:
+            run_random('linear', odd, use_sin)
 
 
 def test_remap_random():
-    run_random('remap', False, parts=False)
-    run_random('remap', True, parts=False)
-    # (interpolation and different sampling in 'remap' makes "parts" differ)
+    for use_sin in [False, True]:
+        run_random('remap', False, use_sin, parts=False)
+    # (interpolation and different sampling in 'remap' make
+    #  odd vertical flip and "parts" differ)
 
 
 if __name__ == '__main__':
     test_origin()
 
     test_order_nearest()
+    test_order_odd_nearest()
     test_nearest()
     test_nearest_random()
 
     test_order_linear()
+    test_order_odd_linear()
     test_linear()
     test_linear_random()
 
     test_order_remap()
+    test_order_odd_remap()
     test_remap()
     test_remap_random()
