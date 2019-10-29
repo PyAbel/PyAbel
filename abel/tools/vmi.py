@@ -475,7 +475,11 @@ class Distributions(object):
             angular dependences must be inferred from very small available
             angular ranges)
     order : int
-        highest order in the angular distributions. Even number ≥ 0.
+        highest order in the angular distributions, ≥ 0
+    odd : bool
+        include odd angular orders (is enabled automatically if **order** is
+        odd). Notice that although odd orders can be extracted from the upper
+        or lower image part alone, analyzing the whole image is more reliable.
     use_sin: bool
         use :math:`|\sin \theta|` weighting. This is the weight implied in
         spherical integration (for the total intensity, for example) and with
@@ -511,12 +515,21 @@ class Distributions(object):
             significantly slower and might have problems with
             **rmax** > ``'MIN'`` and discontinuous weights.
     """
-    def __init__(self, origin='center', rmax='MIN', order=2, use_sin=True,
-                 weights=None, method='linear'):
+    def __init__(self, origin='center', rmax='MIN', order=2, odd=False,
+                 use_sin=True, weights=None, method='linear'):
         # remember parameters
         self.origin = origin
         self.rmax_in = rmax
+        if order < 0:
+            raise ValueError('Incorrect order={}'.format(order))
         self.order = order
+        if order == 0:
+            self.odd = False  # (to eliminate additional checks)
+        elif order % 2:
+            self.odd = True  # enable automatically for odd orders
+        else:
+            self.odd = odd
+        self.N = 1 + (order if self.odd else order // 2)  # angular terms
         self.use_sin = use_sin
         self.weights = weights
         if weights is None:
@@ -671,10 +684,20 @@ class Distributions(object):
         self.rmax = rmax
 
         # Folding to one quadrant with origin at [0, 0]
-        self.Qheight = Qheight = min(VER, rmax) + 1
+        # or to right half-plane for odd=True.
+        # (Note: images with odd orders can be analyzed more efficiently if
+        #        they have symmetric geometry and symmetric weights, but this
+        #        special case would require more coding.)
+        if self.odd:
+            self.Qheight = Qheight = min(row, rmax) + 1 + min(row_, rmax)
+            y0 = min(row, rmax)
+        else:
+            self.Qheight = Qheight = min(VER, rmax) + 1
+            y0 = 0
         self.Qwidth = Qwidth = min(HOR, rmax) + 1
-        if row in (0, height - 1) and col in (0, width - 1):
-            # IM is already one quadrant, flip it to proper orientation.
+        if not self.odd and row in (0, height - 1) and col in (0, width - 1):
+            # IM is already one quadrant, flip it to proper orientation
+            # and possibly cut to rmax.
             if row == 0:
                 self.flip_row = slice(0, Qheight)
             else:  # row == height - 1
@@ -684,11 +707,20 @@ class Distributions(object):
             else:  # col == width - 1
                 self.flip_col = slice(-1, -1 - Qwidth, -1)
             self.fold = False
+        elif self.odd and col in (0, width - 1):
+            # IM is half-plane, flip it horizontally to proper orientation
+            # and possibly cut.
+            self.flip_row = slice(row - y0, row - y0 + Qheight)  # only cut
+            if col == 0:
+                self.flip_col = slice(0, Qwidth)
+            else:  # col == width - 1
+                self.flip_col = slice(-1, -1 - Qwidth, -1)
+            self.fold = False
         else:
             # Define oriented source (IM) slices as
             # neg,neg | neg,pos
             # --------+--------
-            # pos,neg | pos,spo
+            # pos,neg | pos,pos
             # (pixel [row, col] belongs to pos,pos)
             # and corresponding destination (Q) slices.
             def slices(pivot, pivot_, size, positive):
@@ -704,25 +736,34 @@ class Distributions(object):
             def slices_row(positive):
                 return slices(row, row_, Qheight, positive)
 
+            def slices_row_odd():
+                return (slice(row - min(row, rmax),
+                              row + 1 + min(row_, rmax)),
+                        slice(0, Qheight))
+
             def slices_col(positive):
                 return slices(col, col_, Qwidth, positive)
+
             # 2D region pairs (source, destination) for direct indexing
             self.regions = []
-            for r in (False, True):
+            if self.odd:
                 for c in (False, True):
-                    self.regions.append(list(zip(slices_row(r),
+                    self.regions.append(list(zip(slices_row_odd(),
                                                  slices_col(c))))
+            else:
+                for r in (False, True):
+                    for c in (False, True):
+                        self.regions.append(list(zip(slices_row(r),
+                                                     slices_col(c))))
             self.fold = True
-
-        if self.order < 0 or self.order % 2:
-            raise ValueError('Incorrect order={}'.format(self.order))
 
         if self.method in ['nearest', 'linear']:
             # Quadrant coordinates.
             # x row
             x = np.arange(float(Qwidth))
-            # y^2 column
-            y2 = np.arange(float(Qheight))[:, None]**2
+            # y and y^2 columns
+            y = y0 - np.arange(float(Qheight))[:, None]
+            y2 = y**2
             # array of r^2
             r2 = x**2 + y2
             # array of r
@@ -736,12 +777,18 @@ class Distributions(object):
             self.bin[self.bin > rmax] = rmax + 1  # last bin is then discarded
 
             # Powers of cosine.
-            # c[n] is cos^2n, with 2n up to 2×order
-            self.c = [None]  # (actually 1s, but never used)
+            # c[n] is cos^n for odd=True, but cos^2n for odd=False
+            self.c = [None]  # (actually ones_like(r), but not used explicitly)
             if self.order > 0:
-                r2[0, 0] = np.inf  # (avoid division by zero)
-                self.c.append(y2 / r2)  # cos^2 theta
-                for n in range(2, self.order + 1):
+                if self.odd:
+                    r[y0, 0] = np.inf  # (avoid division by zero)
+                    self.c.append(y / r)  # cos theta
+                    r[y0, 0] = 0  # (restore)
+                else:
+                    r2[y0, 0] = np.inf  # (avoid division by zero)
+                    self.c.append(y2 / r2)  # cos^2 theta
+                    # (r2 is not used any more, no need to restore)
+                for n in range(2, 2 * self.N - 1):  # powers up to 2 × order
                     self.c.append(self.c[1] * self.c[n - 1])
 
             # Weights.
@@ -763,10 +810,10 @@ class Distributions(object):
                     Qw = self.weights[self.flip_row, self.flip_col]
 
             if self.use_sin:
-                r[0, 0] = np.inf  # (avoid division by zero)
+                r[y0, 0] = np.inf  # (avoid division by zero)
                 self.Qsin = x / r
-                self.Qsin[0, 0] = 1  # (for consistency with cos[0, 0] = 0)
-                r[0, 0] = 0  # (restore)
+                self.Qsin[y0, 0] = 1  # (for consistency with cos[0, 0] = 0)
+                r[y0, 0] = 0  # (restore)
                 if Qw is None:
                     Qw = self.Qsin
                 else:
@@ -779,33 +826,36 @@ class Distributions(object):
 
             # Integrals.
             if self.method == 'nearest':
-                pc = [self._int_nearest(None, Qw).astype(float)]
-                for c in self.c[1:]:
-                    pc.append(self._int_nearest(c, Qw))
+                pc = [self._int_nearest(c, Qw) for c in self.c]
             else:  # 'linear'
                 wu, wl = self.wu, self.wl
-                pc = [self._int_linear(wl, wu, None, Qw)]
-                for c in self.c[1:]:
-                    pc.append(self._int_linear(wl, wu, c, Qw))
+                pc = [self._int_linear(wl, wu, c, Qw) for c in self.c]
             pc = np.array(pc).T  # [r, n]
 
         elif self.method == 'remap':
             # Coordinates.
+            if self.odd:
+                thetamin = 0
+            else:
+                thetamin = np.pi / 2
             # angular step ~ 1 pixel at rmax
-            self.ntheta = int(rmax * np.pi / 2)
+            self.ntheta = int(rmax * (np.pi - thetamin))
             # polar coordinates
             r = np.linspace(0, rmax, rmax + 1)
-            theta = np.linspace(0, np.pi / 2, self.ntheta,
+            theta = np.linspace(np.pi, thetamin, self.ntheta,
                                 endpoint=False)[:, None]
             # rectangular coordinates of polar grid
-            self.grid = np.array([r * np.cos(theta), r * np.sin(theta)])
+            self.grid = np.array([y0 - r * np.cos(theta), r * np.sin(theta)])
 
             # Powers of cosine.
-            # c[n] is cos^2n, with 2n up to 2×order
-            self.c = [None]  # (actually 1s, but never used)
+            # c[n] is cos^n for odd=True, but cos^2n for odd=False
+            self.c = [None]  # (actually ones_like(r), but not used explicitly)
             if self.order > 0:
-                self.c.append(np.cos(theta)**2)
-                for n in range(2, self.order + 1):
+                if self.odd:
+                    self.c.append(np.cos(theta))
+                else:
+                    self.c.append(np.cos(theta)**2)
+                for n in range(2, 2 * self.N - 1):  # powers up to 2 × order
                     self.c.append(self.c[1] * self.c[n - 1])
 
             # Weights.
@@ -815,7 +865,8 @@ class Distributions(object):
                     Qw = np.zeros((Qheight, Qwidth))
                     for src, dst in self.regions:
                         Qw[dst] += 1
-                elif rmax > min(HOR, VER):
+                elif rmax > min(HOR, VER) or self.odd:
+                    # (for odd=True: fold == False means only pi/2 data)
                     Qw = np.ones((Qheight, Qwidth))
                 else:
                     Qw = None
@@ -838,13 +889,14 @@ class Distributions(object):
                     Qw *= self.Qsin  # (here Qw is not aliased)
 
             # Integrals.
-            pc = [self._int_remap(None, Qw)]
-            for c in self.c[1:]:
-                pc.append(self._int_remap(c, Qw))
+            pc = [self._int_remap(c, Qw) for c in self.c]
             pc = np.array(pc).T  # [r, n]
 
         else:
             raise ValueError('Incorrect method "{}"'.format(self.method))
+
+        # higher cos powers are not needed any more
+        self.c = self.c[:self.N]
 
         # Conversion matrices (integrals → coofficients).
         # Some r might have too few pixels and thus produce lower-rank
@@ -884,11 +936,10 @@ class Distributions(object):
                                    [C02, C12, C22]])
 
         def invn(P):
-            n = self.order // 2
-            C = np.zeros((n + 1, n + 1))
-            for m in range(n, 0, -1):
+            C = np.zeros((self.N, self.N))
+            for m in range(self.N, 0, -1):
                 try:
-                    C[:m + 1, :m + 1] = inv(P[:m + 1, :m + 1])
+                    C[:m, :m] = inv(P[:m, :m])
                     # (this is faster than np.pad)
                     return C
                 except np.linalg.LinAlgError:
@@ -898,16 +949,15 @@ class Distributions(object):
                 C[0, 0] = 1 / P[0, 0]
             return C
 
-        if self.order == 0:
+        if self.N == 1:
             pc[pc == 0] = np.inf  # to obtain inv([[0]]) = [[0]]
             self.C = 1 / pc[:, :, None]  # (new dimension to make matrices)
-        elif self.order == 2:
+        elif self.N == 2:
             self.C = np.array([inv2(p) for p in pc])
-        elif self.order == 4:
+        elif self.N == 3:
             self.C = np.array([inv3(p) for p in pc])
         else:
-            self.C = np.array([invn(hankel(p[:self.order // 2 + 1],
-                                           p[self.order // 2:]))
+            self.C = np.array([invn(hankel(p[:self.N], p[self.N - 1:]))
                                for p in pc])
 
         self.ready = True
@@ -926,7 +976,9 @@ class Distributions(object):
 
         All distributions are returned as 2D arrays with the rows (1st index)
         corresponding to particular terms of the expansion and the columns (2nd
-        index) corresponding to the radii. The terms can be easily separated
+        index) corresponding to the radii. Odd angular terms are included only
+        when they are used (**odd** = ``True`` or **order** is odd), otherwise
+        there are only 1 + **order**/2 rows. The terms can be easily separated
         like ``I, beta2, beta4 = res.Ibeta()``. Python 3 users can also collect
         all :math:`\beta` parameters as ``I, *beta = res.Ibeta()`` for any
         **order**. Alternatively, transposing the results as ``Ibeta =
@@ -939,9 +991,11 @@ class Distributions(object):
         r : numpy array
             radii from 0 to **rmax**
         """
-        def __init__(self, r, cn):
+        def __init__(self, r, cn, order, odd):
             self.r = r
             self.cn = cn
+            self.order = order
+            self.odd = odd
 
         def cos(self):
             r"""
@@ -968,11 +1022,18 @@ class Distributions(object):
             r"""
             Radial distributions of
             :math:`\cos^n \theta \cdot \sin^m \theta` terms
-            (*n* + *m* = **order**).
+            (*n* + *m* = **order**, and *n* + *m* = **order** − 1 for odd
+            orders, with *m* always even).
 
             For **order** = 0:
 
                 :math:`\cos^0 \theta` is the total intensity.
+
+            For **order** = 1:
+
+                :math:`\cos^1 \theta` is the antisymmetric component.
+
+                :math:`\cos^0 \theta` is the total intensity,
 
             For **order** = 2
 
@@ -1013,10 +1074,19 @@ class Distributions(object):
                 \theta` terms, ordered from the highest :math:`\cos \theta`
                 power to the highest :math:`\sin \theta` power
             """
-            # conversion matrix (cos^k → cos^n sin^m)
-            CS = pascal(self.cn.shape[0], 'upper')[:, ::-1]
+            # conversion matrix (cos^k → cos^n sin^m) for even k
+            CS = pascal(1 + self.order // 2, 'upper')[:, ::-1]
             # apply to all radii
-            cs = CS.dot(self.cn)
+            if self.odd:
+                cs = np.empty_like(self.cn)
+                if self.order % 2:  # odd
+                    cs[::2] = CS.dot(self.cn[1::2])  # odd powers
+                    cs[1::2] = CS.dot(self.cn[::2])  # even powers
+                else:  # even order
+                    cs[::2] = CS.dot(self.cn[::2])  # even powers
+                    cs[1::2] = CS[:-1, 1:].dot(self.cn[1::2])  # odd powers
+            else:
+                cs = CS.dot(self.cn)
             return cs
 
         def rcossin(self):
@@ -1046,11 +1116,15 @@ class Distributions(object):
             Pn : (# terms) × (rmax + 1) numpy array
                 radial dependences of the :math:`P_n(\cos \theta)` terms
             """
-            # conversion matrix (cos^k → P_n)
             terms = self.cn.shape[0]
+            # conversion matrix (cos^k → P_n)
             CH = np.zeros((terms, terms))
             for i in range(terms):
-                CH[:i + 1, i] = legendre(2 * i).c[::-2]
+                if self.odd:
+                    c = legendre(i).c[::-1]
+                else:
+                    c = legendre(2 * i).c[::-2]
+                CH[:len(c), i] = c
             CH = inv(CH)
             # apply to all radii
             harm = CH.dot(self.cn)
@@ -1068,7 +1142,15 @@ class Distributions(object):
 
             A cylindrically symmetric 3D intensity distribution can be expanded
             over spherical harmonics (Legendre polynomials
-            :math:`P_n(\cos \theta)`) as
+            :math:`P_n(\cos \theta)`) as (including even and odd terms)
+
+            .. math::
+                I(r, \theta, \varphi) \, d\Omega =
+                \frac{1}{4\pi} I(r) \big[1 + \beta_1(r) P_1(\cos \theta) +
+                                         \beta_2(r) P_2(\cos \theta) +
+                                         \dots\big],
+
+            or, for distributions with top–bottom symmetry (only even terms),
 
             .. math::
                 I(r, \theta, \varphi) \, d\Omega =
@@ -1175,18 +1257,12 @@ class Distributions(object):
 
         # calculate integrals
         if self.method == 'nearest':
-            p = [self._int_nearest(Q)]
-            for c in self.c[1:self.order // 2 + 1]:
-                p.append(self._int_nearest(Q, c))
+            p = [self._int_nearest(Q, c) for c in self.c]
         elif self.method == 'linear':  # 'linear'
             Ql, Qu = self.wl * Q, self.wu * Q
-            p = [self._int_linear(Ql, Qu)]
-            for c in self.c[1:self.order // 2 + 1]:
-                p.append(self._int_linear(Ql, Qu, c))
+            p = [self._int_linear(Ql, Qu, c) for c in self.c]
         else:  # 'remap'
-            p = [self._int_remap(Q)]
-            for c in self.c[1:self.order // 2 + 1]:
-                p.append(self._int_remap(Q, c))
+            p = [self._int_remap(Q, c) for c in self.c]
 
         # convert integrals to coefficients (I(r) = C(r)·p(r) for each r)
         I = np.einsum('jik,kj->ij', self.C, p)
@@ -1194,7 +1270,7 @@ class Distributions(object):
         # radii
         r = np.arange(self.rmax + 1)
 
-        return self.Results(r, I)
+        return self.Results(r, I, self.order, self.odd)
 
     def __call__(self, IM):
         return self.image(IM)
