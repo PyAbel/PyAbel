@@ -939,8 +939,12 @@ class Distributions(object):
             C = np.zeros((self.N, self.N))
             for m in range(self.N, 0, -1):
                 try:
-                    C[:m, :m] = inv(P[:m, :m])
-                    # (this is faster than np.pad)
+                    Pi = inv(P[:m, :m])
+                    # due to numerical errors, inv() might "succeed" even for
+                    # some degenerate matrices, so try to reject them manually
+                    if np.max(Pi) > 1e14:  # (FP precision is only ~15 digits)
+                        raise np.linalg.LinAlgError
+                    C[:m, :m] = Pi  # (this is faster than np.pad)
                     return C
                 except np.linalg.LinAlgError:
                     pass  # try lower rank
