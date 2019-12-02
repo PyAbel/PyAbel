@@ -196,8 +196,10 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
 
     where :math:`P_2(x)=\frac{3x^2-1}{2}` is a 2nd order Legendre polynomial.
 
-    `Cooper and Zare "Angular distribution of photoelectrons"
-    J Chem Phys 48, 942-943 (1968) <http://dx.doi.org/10.1063/1.1668742>`_
+    J. Cooper, R. N. Zare,
+    "Angular Distribution of Photoelectrons",
+    `J. Chem. Phys. 48, 942–943 (1968)
+    <https://dx.doi.org/10.1063/1.1668742>`_.
 
 
     Parameters

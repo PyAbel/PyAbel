@@ -28,11 +28,12 @@ def circularize_image(IM, method="lsq", center=None, radial_range=None,
     Corrects image distortion on the basis that the structure should be
     circular.
 
-    This is a simplified radial scaling version of the algorithm described in 
-    `J. R. Gascooke and S. T. Gibson and W. D. Lawrance: 'A "circularisation"
-    method to repair deformations and determine the centre of velocity map 
-    images' J. Chem. Phys. 147, 013924 (2017).
-    <https://dx.doi.org/10.1063/1.4981024>`_
+    This is a simplified radial scaling version of the algorithm described in
+    J. R. Gascooke, S. T. Gibson, W. D. Lawrance,
+    "A 'circularisation' method to repair deformations and determine the centre
+    of velocity map images",
+    `J. Chem. Phys. 147, 013924 (2017)
+    <https://dx.doi.org/10.1063/1.4981024>`_.
 
     This function is especially useful for correcting the image obtained with
     a velocity-map-imaging spectrometer, in the case where there is distortion

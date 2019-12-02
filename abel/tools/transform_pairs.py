@@ -20,9 +20,12 @@ import numpy as np
 __doc__ = """
 Analytical function Abel-transform pairs
 
-profiles 1--7, table 1 of:
-    `G. C.-Y Chan and G. M. Hieftje Spectrochimica Acta B 61, 31–41 (2006)
-    <https://doi.org/10.1016/j.sab.2005.11.009>`_
+profiles 1--7:
+    G. C.-Y. Chan, Gary M. Hieftje,
+    "Estimation of confidence intervals for radial emissivity and optimization
+    of data treatment techniques in Abel inversion",
+    `Spectrochimica Acta B 61, 31–41 (2006)
+    <https://doi.org/10.1016/j.sab.2005.11.009>`_, Table 1.
 
 Note:
     the transform pair functions are more conveniently accessed through
@@ -61,8 +64,10 @@ def a(n, r):
 
 def profile1(r):
     """**profile1**:
-    `Cremers and Birkebak App. Opt. 5, 1057–1064 (1966) Eq(13)
-    <https://doi.org/10.1364/AO.5.001057>`_
+    C. J. Cremers, R. C. Birkebak,
+    "Application of the Abel Integral Equation to Spectrographic Data",
+    `Appl. Opt. 5, 1057–1064 (1966)
+    <https://doi.org/10.1364/AO.5.001057>`_, Eq. (13).
 
     .. math::
 
@@ -142,8 +147,10 @@ def profile1(r):
 
 def profile2(r):
     """**profile2**:
-    `Cremers and Birkebak App. Opt. 5, 1057–1064 (1966) Eq(13)
-    <https://doi.org/10.1364/AO.5.001057>`_
+    C. J. Cremers, R. C. Birkebak,
+    "Application of the Abel Integral Equation to Spectrographic Data",
+    `Appl. Opt. 5, 1057–1064 (1966)
+    <https://doi.org/10.1364/AO.5.001057>`_, Eq. (11).
 
     .. math::
 
@@ -189,8 +196,10 @@ def profile2(r):
 
 def profile3(r):
     """**profile3**:
-    `Cremers and Birkebak App. Opt. 5, 1057–1064 (1966) Eq(13)
-    <https://doi.org/10.1364/AO.5.001057>`_
+    C. J. Cremers, R. C. Birkebak,
+    "Application of the Abel Integral Equation to Spectrographic Data",
+    `Appl. Opt. 5, 1057–1064 (1966)
+    <https://doi.org/10.1364/AO.5.001057>`_, Eq. (12).
 
     .. math::
 
@@ -256,8 +265,12 @@ def profile3(r):
 
 
 def profile4(r):
-    """**profile4**: `Alvarez, Rodero, Quintero Spectochim. Acta B 57,
-    1665–1680 (2002) <https://doi.org/10.1016/S0584-8547(02)00087-3>`_
+    """**profile4**:
+    R. Álvarez, A. Rodero, M. C. Quintero,
+    "An Abel inversion method for radially resolved measurements in the axial
+    injection torch",
+    `Spectochim. Acta B 57, 1665–1680 (2002)
+    <https://doi.org/10.1016/S0584-8547(02)00087-3>`_, Eq. (10).
 
     Note:
         Published projection has misprints
@@ -360,8 +373,11 @@ def profile4(r):
 
 
 def profile5(r):
-    """**profile5**: `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55,
-    231–243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_
+    """**profile5**:
+    M. J. Buie, J. T. P. Pender, J. P. Holloway, T. Vincent, P. L. G. Ventzek,
+    M. L. Brake,
+    `J. Quant. Spectrosc. Radiat. Transf. 55, 231–243 (1996)
+    <https://doi.org/10.1016/0022-4073(95)00149-2>`_, Table 1, № 1.
 
     .. math::
 
@@ -403,8 +419,11 @@ def profile5(r):
 
 
 def profile6(r):
-    """**profile6**: `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55,
-    231–243 (1996) <https://doi.org/10.1016/j.amc.2014.03.043>`_
+    """**profile6**:
+    M. J. Buie, J. T. P. Pender, J. P. Holloway, T. Vincent, P. L. G. Ventzek,
+    M. L. Brake,
+    `J. Quant. Spectrosc. Radiat. Transf. 55, 231–243 (1996)
+    <https://doi.org/10.1016/0022-4073(95)00149-2>`_, Table 1, № 7.
 
     .. math::
 
@@ -449,8 +468,11 @@ def profile6(r):
 
 def profile7(r):
     """**profile7**:
-    `Buie et al. J. Quant. Spectrosc. Radiat. Transfer 55, 231–243 (1996)
-    <https://doi.org/10.1016/j.amc.2014.03.043>`_
+    M. J. Buie, J. T. P. Pender, J. P. Holloway, T. Vincent, P. L. G. Ventzek,
+    M. L. Brake,
+    `J. Quant. Spectrosc. Radiat. Transf. 55, 231–243 (1996)
+    <https://doi.org/10.1016/0022-4073(95)00149-2>`_, Table 1, № 9 (divided by
+    2).
 
     .. math::
 

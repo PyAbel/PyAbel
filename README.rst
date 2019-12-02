@@ -6,7 +6,8 @@ PyAbel README
 .. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
     :target: https://ci.appveyor.com/project/PyAbel/PyAbel
 
-**Note:** This readme is best viewed as part of the `PyAbel Documentation <http://pyabel.readthedocs.io/en/latest/readme_link.html>`_.
+**Note:** This readme is best viewed as part of the `PyAbel Documentation <https://pyabel.readthedocs.io/en/latest/readme_link.html>`_.
+
 
 Introduction
 ------------
@@ -23,11 +24,10 @@ Inverse Abel transforms play an important role in analyzing the projections of a
 PyAbel provides efficient implementations of several Abel transform algorithms, as well as related tools for centering images, symmetrizing images, and calculating properties such as the radial intensity distribution and the anisotropy parameters.
 
 
-
 Transform Methods
 -----------------
 
-The outcome of the numerical Abel transform depends on the exact method used. So far, PyAbel includes the following `transform methods <http://pyabel.readthedocs.io/en/latest/transform_methods.html>`_:
+The outcome of the numerical Abel transform depends on the exact method used. So far, PyAbel includes the following `transform methods <https://pyabel.readthedocs.io/en/latest/transform_methods.html>`_:
 
     1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
 
@@ -49,7 +49,7 @@ The outcome of the numerical Abel transform depends on the exact method used. So
 Installation
 ------------
 
-PyAbel requires Python 2.7 or 3.5-3.7. `NumPy <http://www.numpy.org/>`_ and `SciPy <https://www.scipy.org/>`_ are also required, and `Matplotlib <https://matplotlib.org/>`_ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
+PyAbel requires Python 2.7 or 3.5-3.7. `NumPy <https://www.numpy.org/>`_ and `SciPy <https://www.scipy.org/>`_ are also required, and `Matplotlib <https://matplotlib.org/>`_ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
 
 With pip
 ~~~~~~~~
@@ -108,11 +108,12 @@ Output:
    :width: 400px
    :alt: example abel transform
 
-.. note:: Additional examples can be viewed on the `PyAbel examples <http://pyabel.readthedocs.io/en/latest/examples.html>`_ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`_ directory.
+.. note:: Additional examples can be viewed on the `PyAbel examples <https://pyabel.readthedocs.io/en/latest/examples.html>`_ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`_ directory.
 
 
 Documentation
 -------------
+
 General information about the various Abel transforms available in PyAbel is available at the links above. The complete documentation for all of the methods in PyAbel is hosted at https://pyabel.readthedocs.io.
 
 
@@ -144,7 +145,6 @@ The PyAbel code adheres to the following conventions:
 
         X = R*np.sin(THETA)
         Y = R*np.cos(THETA)
-    
 
 - 
     **Image center:** Fundamentally, the Abel and inverse-Abel transforms in PyAbel consider the center of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The center pixel is effectively "shared" between both halves of the image.) In most situations, the center is specified using the ``center`` keyword in ``abel.Transform`` (or directly using ``abel.center.center_image`` to find the true center of your image. This processing step takes care of locating the center of the image in the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image.
@@ -152,6 +152,7 @@ The PyAbel code adheres to the following conventions:
 
 Support
 -------
+
 If you have a question or suggestion about PyAbel, the best way to contact the PyAbel Developers Team is to `open a new issue <https://github.com/PyAbel/PyAbel/issues>`_.
 
 
@@ -167,11 +168,13 @@ Either open a new `Issue <https://github.com/PyAbel/PyAbel/issues>`_ or make a `
 
 License
 -------
+
 PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE.txt>`_, so it can be used for pretty much whatever you want! Of course, it is provided "as is" with absolutely no warranty.
 
 
 Citation
 --------
+
 First and foremost, please cite the paper(s) corresponding to the implementation of the Abel transform that you use in your work. The references can be found at the links above.
 
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. You can find the DOI for the lastest verison `here <https://dx.doi.org/10.5281/zenodo.594858>`_

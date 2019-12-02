@@ -134,7 +134,7 @@ If the change is significant (more than just a typo-fix), please leave a short n
 Releasing on PyPi
 -----------------
 
-PyAbel should be automatically released on PyPi (see PR `#161 <https://github.com/PyAbel/PyAbel/pull/161>`_) whenever a new release is drafted on GitHub via the "Draft New Release" button on the `Releases page <https://github.com/PyAbel/PyAbel/releases>`_. Just remember to increment the version number in abel/_version.py first.
+PyAbel should be automatically released on PyPi (see `PR #161 <https://github.com/PyAbel/PyAbel/pull/161>`_) whenever a new release is drafted on GitHub via the "Draft New Release" button on the `Releases page <https://github.com/PyAbel/PyAbel/releases>`_. Just remember to increment the version number in abel/_version.py first.
 
 
 Citations

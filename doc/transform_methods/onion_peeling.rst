@@ -6,22 +6,22 @@ Introduction
 ------------
 
 The "Dasch onion peeling" deconvolution algorithm is one of several
-described in the Dasch [1] paper. See also the ``two_point`` and 
+described in the Dasch paper [1]_. See also the ``two_point`` and
 ``three_point`` descriptions.
 
 How it works
 ------------
 
 In the onion-peeling method the projection is approximated by rings
-of constant property between 
-:math:`r_j - \Delta r/2` and :math:`r_j + \Delta r/2` for each data 
+of constant property between
+:math:`r_j - \Delta r/2` and :math:`r_j + \Delta r/2` for each data
 point :math:`r_j`.
 
 The projection data is given by :math:`P(r_i) = \Delta r \sum_{j=i}^\infty W_{ij} F(r_j)`
 
-where 
+where
 
-.. math:: W_{ij} = 0 \, \, (j < i) 
+.. math:: W_{ij} = 0 \, \, (j < i)
 
        \sqrt{(2j+1)^2 - 4i^2} \, \, (j=i)
 
@@ -55,11 +55,11 @@ Example
     :include-source:
 
 
-or more information on the PyAbel implementation of the ``onion_peeling`` algorithm, please see `Pull Request #155 <https://github.com/PyAbel/PyAbel/pull/155>`_.
+or more information on the PyAbel implementation of the ``onion_peeling`` algorithm, please see `PR #155 <https://github.com/PyAbel/PyAbel/pull/155>`_.
 
 
 
 Citation
 --------
-[1] `Dasch, Applied Optics, Vol 31, No 8, March 1992, Pg 1146-1152 <(http://dx.doi.org/10.1364/AO.31.001146>`_.
 
+.. [1] \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`_.

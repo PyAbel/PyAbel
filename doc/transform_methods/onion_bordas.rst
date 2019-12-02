@@ -8,10 +8,9 @@ Introduction
 The onion peeling method, also known as "back projection" has been 
 ported to Python from the original Matlab implementation, created by 
 Chris Rallis and Eric Wells of Augustana University, and described in 
-this paper [1]. The algorithm actually originates from this 1996 RSI paper 
-by Bordas ~et al.[2]
+[1]_. The algorithm actually originates from Bordas ~et al. [2]_.
 
-See the discussion here: https://github.com/PyAbel/PyAbel/issues/56
+See the discussion in `issue #56 <https://github.com/PyAbel/PyAbel/issues/56>`_.
 
 
 How it works
@@ -54,6 +53,7 @@ Example
 
 Citation
 --------
-[1] http://scitation.aip.org/content/aip/journal/rsi/85/11/10.1063/1.4899267
 
-[2] http://scitation.aip.org/content/aip/journal/rsi/67/6/10.1063/1.1147044
+.. [1] \ C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin, S. De, B. Bergues, B. Jochim, A. V. Voznyuk, N. Gregerson, B. Gaire, I. Znakovskaya, J. McKenna, K. D. Carnes, M. F. Kling, I. Ben-Itzhak, E. Wells, "Incorporating real time velocity map image reconstruction into closed-loop coherent control", `Rev. Sci. Instrum. 85, 113105 (2014) <https://doi.org/10.1063/1.4899267>`_.
+
+.. [2] \ C. Bordas, F. Paulig, "Photoelectron imaging spectrometry: Principle and inversion method", `Rev. Sci. Instrum. 67, 2257–2268 (1996) <https://doi.org/10.1063/1.1147044>`_.

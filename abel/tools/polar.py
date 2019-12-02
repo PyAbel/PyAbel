@@ -48,7 +48,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     Notes
     -----
     Adapted from: 
-    http://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
+    https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
     
     """
     # bottom-left coordinate system requires numpy image to be np.flipud

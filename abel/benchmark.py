@@ -725,7 +725,8 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
     If both **i_sym** = ``True`` and **j_sym** = ``True``, the input array is
     checked for polar symmetry.
 
-    See https://github.com/PyAbel/PyAbel/issues/34#issuecomment-160344809
+    See `issue #34 comment
+    <https://github.com/PyAbel/PyAbel/issues/34#issuecomment-160344809>`_
     for the defintion of a center of the image.
     """
 

@@ -15,11 +15,11 @@ from scipy.ndimage.interpolation import shift
 # implementation, created by Chris Rallis and Eric Wells of 
 # Augustana University, and described in this paper:
 #
-#  http://scitation.aip.org/content/aip/journal/rsi/85/11/10.1063/1.4899267
+#  https://scitation.aip.org/content/aip/journal/rsi/85/11/10.1063/1.4899267
 #
 # The algorithm actually originates from this 1996 RSI paper by Bordas et al:
 #
-#  http://scitation.aip.org/content/aip/journal/rsi/67/6/10.1063/1.1147044
+#  https://scitation.aip.org/content/aip/journal/rsi/67/6/10.1063/1.1147044
 #
 # 2016-03-19: Jacobian intensity correction, allow negative image values
 #             Steve Gibson and Dan Hickstein
@@ -63,13 +63,23 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
 
     This algorithm was adapted by Dan Hickstein from the original Matlab 
     implementation, created by Chris Rallis and Eric Wells of 
-    Augustana University, and described in this paper:
+    Augustana University, and described in
 
-    http://scitation.aip.org/content/aip/journal/rsi/85/11/10.1063/1.4899267
+    C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin, S. De,
+    B. Bergues, B. Jochim, A. V. Voznyuk, N. Gregerson, B. Gaire,
+    I. Znakovskaya, J. McKenna, K. D. Carnes, M. F. Kling, I. Ben-Itzhak,
+    E. Wells,
+    "Incorporating real time velocity map image reconstruction into closed-loop
+    coherent control",
+    `Rev. Sci. Instrum. 85, 113105 (2014)
+    <https://doi.org/10.1063/1.4899267>`_.
 
-    The algorithm actually originates from this 1996 RSI paper by Bordas et al:
+    The algorithm actually originates from
 
-    http://scitation.aip.org/content/aip/journal/rsi/67/6/10.1063/1.1147044
+    C. Bordas, F. Paulig,
+    "Photoelectron imaging spectrometry: Principle and inversion method",
+    `Rev. Sci. Instrum. 67, 2257–2268 (1996)
+    <https://doi.org/10.1063/1.1147044>`_.
 
     This function operates on the "right side" of an image. i.e. it works on 
     just half of a cylindrically symmetric image.  Unlike the other transforms,

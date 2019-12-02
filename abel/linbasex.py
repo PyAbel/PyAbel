@@ -33,10 +33,11 @@ from scipy import ndimage
 _linbasex_parameter_docstring = \
     r"""Inverse Abel transform using 1d projections of images.
 
-    `Gerber, Thomas, Yuzhu Liu, Gregor Knopp, Patrick Hemberger, Andras Bodi,
-    Peter Radi, and Yaroslav Sych.
-    Charged Particle Velocity Map Image Reconstruction with One-Dimensional Projections of Spherical Functions.` Review of Scientific Instruments 84, no. 3 (March 1, 2013): 033101–033101 – 10.
-    <http://dx.doi.org/10.1063/1.4793404>`_
+    Th. Gerber, Yu. Liu, G. Knopp, P. Hemberger, A. Bodi, P. Radi, Ya. Sych,
+    "Charged particle velocity map image reconstruction with one-dimensional
+    projections of spherical functions",
+    `Rev. Sci. Instrum. 84, 033101 (2013)
+    <https://doi.org/10.1063/1.4793404>`_.
 
     ``linbasex`` models the image using a sum of Legendre polynomials at each
     radial pixel, As such, it should only be applied to situations that can
@@ -136,7 +137,9 @@ def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
                        rcond=0.0005, threshold=0.2, return_Beta=False, clip=0,
                        norm_range=(0, -1), direction="inverse", verbose=False,
                        dr=None):
-    """wrapper function for linebasex to process supplied quadrant-image as a full-image.
+    """
+    Wrapper function for linbasex to process supplied quadrant-image as a
+    full-image.
 
     PyAbel transform functions operate on the right side of an image.
     Here we follow the `basex` technique of duplicating the right side to

@@ -315,8 +315,11 @@ class TransformPair(BaseAnalytical):
     """**Abel-transform pair analytical functions**.
 
     **profiles 1–7**: Table 1 of
-    `Chan and Hieftje Spectrochimica Acta B 61, 31–41 (2006)
-    <http://doi.org/10.1016/j.sab.2005.11.009>`_.
+    G. C.-Y. Chan, Gary M. Hieftje,
+    "Estimation of confidence intervals for radial emissivity and optimization
+    of data treatment techniques in Abel inversion",
+    `Spectrochimica Acta B 61, 31–41 (2006)
+    <https://doi.org/10.1016/j.sab.2005.11.009>`_.
 
     See :mod:`abel.tools.transform_pairs`.
 

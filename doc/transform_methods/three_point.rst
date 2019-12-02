@@ -5,7 +5,7 @@ Three Point
 Introduction
 ------------
 
-The "Three Point" Abel transform method exploits the observation that the value of the Abel inverted data at any radial position ``r`` is primarily determined from changes in the projection data in the neighborhood of ``r``. This technique was developed by Dasch [1].
+The "Three Point" Abel transform method exploits the observation that the value of the Abel inverted data at any radial position ``r`` is primarily determined from changes in the projection data in the neighborhood of ``r``. This technique was developed by Dasch [1]_.
 
 How it works
 ------------
@@ -46,15 +46,14 @@ Example
 Notes
 -----
 
-The algorithm contained two typos in Eq (7) in the original citation [1]. A corrected form of these equations is presented in Karl Martin's 2002 PhD thesis [2]. PyAbel uses the corrected version of the algorithm.
+The algorithm contained two typos in Eq. (7) in the original citation [1]_. A corrected form of these equations is presented in Karl Martin's 2002 PhD thesis [2]_. PyAbel uses the corrected version of the algorithm.
 
-For more information on the PyAbel implementation of the three-point algorithm, please see `Issue #61 <https://github.com/PyAbel/PyAbel/issues/61>`_ and `Pull Request #64 <https://github.com/PyAbel/PyAbel/pull/64>`_.
-
+For more information on the PyAbel implementation of the three-point algorithm, please see `issue #61 <https://github.com/PyAbel/PyAbel/issues/61>`_ and `Pull Request #64 <https://github.com/PyAbel/PyAbel/pull/64>`_.
 
 
 Citation
 --------
-[1] `Dasch, Applied Optics, Vol 31, No 8, March 1992, Pg 1146-1152 <(http://dx.doi.org/10.1364/AO.31.001146>`_.
 
-[2] Martin, Karl. PhD Thesis, University of Texas at Austin. Acoustic Modification of Sooting Combustion. 2002: https://www.lib.utexas.edu/etd/d/2002/martinkm07836/martinkm07836.pdf
+.. [1] \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`_.
 
+.. [2] \ K. Martin, PhD Thesis: "Acoustic Modification of Sooting Combustion", University of Texas at Austin (2002) (`record <http://hdl.handle.net/2152/1654>`_, `PDF <https://repositories.lib.utexas.edu/bitstream/handle/2152/1654/martinkm07836.pdf>`_).
