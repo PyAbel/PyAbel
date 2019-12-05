@@ -86,7 +86,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         .         |     *        | *      |
         .         +--------      +--------+
 
-        In accordance with all PyAbel methods the image center ``o`` is
+        In accordance with all PyAbel methods the image origin ``o`` is
         defined to be mid-pixel i.e. an odd number of columns, for the
         full image.
 

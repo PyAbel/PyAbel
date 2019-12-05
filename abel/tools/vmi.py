@@ -26,38 +26,38 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     Parameters
     ----------
     IM : 2D numpy.array
-        The data image.
+        the image data
 
     origin : tuple
-        Image center coordinate relative to *bottom-left* corner
-        defaults to ``rows//2, cols//2``.
+        image origin coordinates relative to *bottom-left* corner
+        defaults to ``rows // 2, cols // 2``.
 
-    Jacobian : boolean
+    Jacobian : bool
         Include :math:`r\sin\theta` in the angular sum (integration).
         Also, ``Jacobian=True`` is passed to
         :func:`abel.tools.polar.reproject_image_into_polar`,
-        which includes another value of ``r``, thus providing the appropriate
+        which includes another value of `r`, thus providing the appropriate
         total Jacobian of :math:`r^2\sin\theta`.
 
     dr : float
-        Radial coordinate grid spacing, in pixels (default 1). `dr=0.5` may
+        radial grid spacing, in pixels (default 1). `dr=0.5` may
         reduce pixel granularity of the speed profile.
 
     dt : float
-        Theta coordinate grid spacing in radians.
-        if ``dt=None``, dt will be set such that the number of theta values
+        angular grid spacing in radians.
+        If ``dt=None``, **dt** will be set such that the number of theta values
         is equal to the height of the image (which should typically ensure
         good sampling.)
 
     Returns
     ------
     r : 1D numpy.array
-         radial coordinates
+        radial coordinates
 
     speeds : 1D numpy.array
-         Integrated intensity array (vs radius).
+        integrated intensity array (vs radius).
 
-     """
+    """
 
     polarIM, R, T = reproject_image_into_polar(
         IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)
@@ -80,25 +80,25 @@ def average_radial_intensity(IM, **kwargs):
     in that it returns the average intensity, and not the integrated intensity
     of a 3D image. It is equivalent to calling
     :func:`abel.tools.vmi.angular_integration` with
-    `Jacobian=True` and then dividing the result by 2*pi.
+    `Jacobian=True` and then dividing the result by 2π.
 
 
     Parameters
     ----------
     IM : 2D numpy.array
-     The data image.
+        the image data
 
     kwargs :
-      additional keyword arguments to be passed to
-      :func:`abel.tools.vmi.angular_integration`
+        additional keyword arguments to be passed to
+        :func:`abel.tools.vmi.angular_integration`
 
     Returns
     -------
     r : 1D numpy.array
-      radial coordinates
+        radial coordinates
 
     intensity : 1D numpy.array
-      one-dimensional intensity profile as a function of the radial coordinate.
+        intensity profile as a function of the radial coordinate.
 
     """
     R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
@@ -115,12 +115,12 @@ def radial_integration(IM, radial_ranges=None):
     Evaluates intensity vs angle for defined radial ranges.
     Determines the anisotropy parameter for each radial range.
 
-    See :doc:`examples/example_PAD.py <examples>`
+    See :doc:`examples/example_PAD.py <examples>`.
 
     Parameters
     ----------
     IM : 2D numpy.array
-        Image data
+        the image data
 
     radial_ranges : list of tuple ranges or int step
         tuple
@@ -142,16 +142,14 @@ def radial_integration(IM, radial_ranges=None):
         (amp0, error_amp_fit0), (amp1, error_amp_fit1), ...
         corresponding to the radial ranges
 
-    Rmidpt : numpy float 1d array
+    Rmidpt : numpy float 1D array
         radial-mid point of each radial range
 
     Intensity_vs_theta: 2D numpy.array
-       Intensity vs angle distribution for each selected radial range.
+        intensity vs angle distribution for each selected radial range.
 
     theta: 1D numpy.array
-       Angle coordinates, referenced to vertical direction.
-
-
+        angle coordinates, referenced to vertical direction.
     """
 
     polarIM, r_grid, theta_grid = reproject_image_into_polar(IM)
@@ -204,16 +202,16 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
 
     Parameters
     ----------
-    theta: 1D numpy array
-       Angle coordinates, referenced to the vertical direction.
+    theta : 1D numpy array
+        angle coordinates, referenced to the vertical direction.
 
-    intensity: 1D numpy array
-       Intensity variation with angle
+    intensity : 1D numpy array
+        intensity variation with angle
 
     theta_ranges: list of tuples
-       Angular ranges over which to fit
-       ``[(theta1, theta2), (theta3, theta4)]``.
-       Allows data to be excluded from fit, default include all data
+        angular ranges over which to fit
+        ``[(theta1, theta2), (theta3, theta4)]``.
+        Allows data to be excluded from fit, default include all data.
 
     Returns
     -------
@@ -224,11 +222,11 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         (amplitude of signal, fit error)
 
     """
-    def P2(x):   # 2nd order Legendre polynomial
+    def P2(x):  # 2nd-order Legendre polynomial
         return (3 * x * x - 1) / 2
 
     def PAD(theta, beta, amplitude):
-        return amplitude * (1 + beta * P2(np.cos(theta)))   # Eq. (1) as above
+        return amplitude * (1 + beta * P2(np.cos(theta)))  # Eq. (1) as above
 
     # angular range of data to be included in the fit
     if theta_ranges is not None:
@@ -260,16 +258,16 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     Convert speed radial coordinate into electron kinetic or electron binding
     energy.  Return the photoelectron spectrum (PES).
 
-    This calculation uses a single scaling factor ``energy_cal_factor``
+    This calculation uses a single scaling factor **energy_cal_factor**
     to convert the radial pixel coordinate into electron kinetic energy.
 
-    Additional experimental parameters: ``photon_energy`` will give the
+    Additional experimental parameters: **photon_energy** will give the
     energy scale as electron binding energy, in the same energy units,
-    while ``Vrep``, the VMI lens repeller voltage (volts), provides for a
-    voltage independent scaling factor. i.e. ``energy_cal_factor`` should
+    while **Vrep**, the VMI lens repeller voltage (volts), provides for a
+    voltage-independent scaling factor. i.e. **energy_cal_factor** should
     remain approximately constant.
 
-    The ``energy_cal_factor`` is readily determined by comparing the
+    The **energy_cal_factor** is readily determined by comparing the
     generated energy scale with published spectra. e.g. for O\ :sup:`−`
     photodetachment, the strongest fine-structure transition occurs at the
     electron affinity :math:`EA = 11\,784.676(7)` cm\ :math:`^{-1}`. Values for
@@ -297,26 +295,24 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     per_energy_scaling : bool
 
         sets the intensity Jacobian.
-        If `True`, the returned intensities correspond to an "intensity per eV"
-        or "intensity per cm\ :sup:`-1` ". If `False`, the returned intensities
-        correspond to an "intensity per pixel".
-
-     Optional:
+        If ``True``, the returned intensities correspond to an "intensity per
+        eV" or "intensity per cm\ :sup:`-1` ". If ``False``, the returned
+        intensities correspond to an "intensity per pixel".
 
     photon_energy : None or float
 
         measurement photon energy. The output energy scale is then set to
-        electron-binding-energy in units of `energy_cal_factor`. The
-        conversion from wavelength (nm) to `photon_energy` (cm\ :sup:`−1`)
-        is :math:`10^{7}/\lambda` (nm) e.g. `1.0e7/812.51` for
+        electron-binding-energy in units of **energy_cal_factor**. The
+        conversion from wavelength (nm) to **photon_energy** (cm\ :sup:`−1`)
+        is :math:`10^{7}/\lambda` (nm) e.g. ``1.0e7/812.51`` for
         "examples/data/O-ANU1024.txt".
 
     Vrep : None or float
 
         repeller voltage. Convenience parameter to allow the
-        `energy_cal_factor` to remain constant, for different VMI lens repeller
-        voltages. Defaults to `None`, in which case no extra scaling is
-        applied. e.g. `-98 volts`, for "examples/data/O-ANU1024.txt".
+        **energy_cal_factor** to remain constant, for different VMI lens
+        repeller voltages. Defaults to `None`, in which case no extra scaling
+        is applied. e.g. ``-98`` (volts), for "examples/data/O-ANU1024.txt".
 
     zoom : float
 
@@ -325,16 +321,16 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
     Returns
     -------
-    eKBE : numpy 1d-array of floats
+    eKBE : numpy 1D array of floats
 
         energy scale for the photoelectron spectrum in units of
-        `energy_cal_factor`.  Note that the data is no-longer on
+        **energy_cal_factor**.  Note that the data is no longer on
         a uniform grid.
 
-    PES : numpy 1d-array of floats
+    PES : numpy 1D array of floats
 
         the photoelectron spectrum, scaled according to the
-        `per_energy_scaling` input parameter.
+        **per_energy_scaling** input parameter.
 
     """
 

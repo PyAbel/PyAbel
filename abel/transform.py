@@ -22,28 +22,26 @@ class Transform(object):
     """
     Abel transform image class.
 
-    This class provides whole image forward and inverse Abel
-    transformations, together with preprocessing (centering, symmetrizing)
-    and post processing (integration) functions.
+    This class provides whole-image forward and inverse Abel
+    transforms, together with preprocessing (centering, symmetrizing)
+    and postprocessing (integration) functions.
 
     Parameters
     ----------
 
-    IM : a NxM numpy array
+    IM : a N×M numpy array
         This is the image to be transformed
 
     direction : str
         The type of Abel transform to be performed.
 
         ``forward``
-            A 'forward' Abel transform takes a (2D) slice of a 3D image and
+            A forward Abel transform takes a (2D) slice of a 3D image and
             returns the 2D projection.
 
-        ``inverse``
-            An 'inverse' Abel transform takes a 2D projection and reconstructs
+        ``inverse`` (default)
+            An inverse Abel transform takes a 2D projection and reconstructs
             a 2D slice of the 3D image.
-
-        The default is ``inverse``.
 
     method : str
         specifies which numerical approximation to the Abel transform should be
@@ -65,39 +63,42 @@ class Transform(object):
         ``onion_peeling``
             the onion peeling deconvolution as described by Dasch (1992).
         ``linbasex``
-            the 1d-projections of VM-images in terms of 1d spherical functions
-            by Gerber et al. (2013).
+            the 1D projections of velocity-mapping images in terms of 1D
+            spherical functions by Gerber et al. (2013).
 
-    center : tuple or str
-        If a tuple (float, float) is provided, this specifies the image center
-        in (y,x) (row, column) format. A value `None` can be supplied if no
-        centering is desired in one dimension, for example 'center=(None,
-        250)'. If a string is provided, an automatic centering algorithm is
-        used
+    origin : tuple or str
+        Before applying Abel transform, the image is centered around this
+        point.
+
+        If a tuple (float, float) is provided, this specifies the image origin
+        in the (row, column) format. A value ``None`` can be supplied if no
+        centering is desired in one dimension, for example, ``origin=(None,
+        250)``. If a string is provided, an automatic centering algorithm is
+        used:
 
         ``image_center``
-            center is assumed to be the center of the image.
+            The origin is assumed to be the center of the image.
         ``convolution``
-            center the image by convolution of two projections along each axis.
+            The origin is found from autoconvolution of image projections
+            along each axis.
         ``slice``
-            the center is found my comparing slices in the horizontal and
-            vertical directions
+            The origin is found by comparing slices in the horizontal and
+            vertical directions.
         ``com``
-            the center is calculated as the center of mass
+            The origin is calculated as the center of mass.
         ``gaussian``
-            the center is found using a fit to a Gaussian function. This only
+            The origin is found using a fit to a Gaussian function. This only
             makes sense if your data looks like a Gaussian.
-        ``none``
-            (default)
+        ``none`` (default)
             No centering is performed. An image with an odd number of columns
             must be provided.
 
     symmetry_axis : None, int or tuple
         Symmetrize the image about the numpy axis
-        0 (vertical), 1 (horizontal), (0,1) (both axes)
+        0 (vertical), 1 (horizontal), (0, 1) (both axes)
 
     use_quadrants : tuple of 4 booleans
-        select quadrants to be used in the analysis: (Q0,Q1,Q2,Q3).
+        select quadrants to be used in the analysis: (Q0, Q1, Q2, Q3).
         Quadrants are numbered counter-clockwide from upper right.
         See note below for description of quadrants.
         Default is ``(True, True, True, True)``, which uses all quadrants.
@@ -106,9 +107,9 @@ class Transform(object):
         Method used for symmetrizing the image.
 
         ``average``
-            average the quadrants, in accordance with the `symmetry_axis`
+            Average the quadrants, in accordance with the **symmetry_axis**.
         ``fourier``
-            axial symmetry implies that the Fourier components of the 2-D
+            Axial symmetry implies that the Fourier components of the 2D
             projection should be real. Removing the imaginary components in
             reciprocal space leaves a symmetric projection.
 
@@ -119,32 +120,34 @@ class Transform(object):
             <https://dx.doi.org/10.1364/OPEX.13.009672>`_.
 
     angular_integration : bool
-        integrate the image over angle to give the radial (speed) intensity
-        distribution
+        Integrate the image over angle to give the radial (speed) intensity
+        distribution.
 
     transform_options : tuple
         Additional arguments passed to the individual transform functions.
         See the documentation for the individual transform method for options.
 
     center_options : tuple
-        Additional arguments to be passed to the centering function.
+        Additional arguments to be passed to the centering function,
+        see :func:`abel.tools.center.center_image()`.
 
     angular_integration_options : tuple (or dict)
-        Additional arguments passed to the angular_integration transform
-        functions.  See the documentation for angular_integration for options.
+        Additional arguments passed to the angular integration functions,
+        see :func:`abel.tools.vmi.angular_integration()`.
 
     recast_as_float64 : bool
-        True/False that determines if the input image should be recast to
+        determines whether the input image should be recast to
         ``float64``. Many images are imported in other formats (such as
-        ``uint8`` or ``uint16``) and this does not always play well with the
-        transorm algorithms. This should probably always be set to True.
-        (Default is True.)
+        ``uint8`` or ``uint16``), and this does not always play well with the
+        transorm algorithms. This should probably always be set to ``True``
+        (default).
 
     verbose : bool
-        True/False to determine if non-critical output should be printed.
+        determines whether non-critical output should be printed.
 
 
-    .. note:: Quadrant combining
+    .. note::
+        Quadrant combining:
         The quadrants can be combined (averaged) using the ``use_quadrants``
         keyword in order to provide better data quality.
 
@@ -154,11 +157,11 @@ class Transform(object):
             +--------+--------+
             | Q1   * | *   Q0 |
             |   *    |    *   |
-            |  *     |     *  |                               AQ1 | AQ0
-            +--------o--------+ --(inverse Abel transform)--> ----o----
-            |  *     |     *  |                               AQ2 | AQ3
+            |  *     |     *  |                                 AQ1 | AQ0
+            +--------o--------+ --([inverse] Abel transform)--> ----o----
+            |  *     |     *  |                                 AQ2 | AQ3
             |   *    |    *   |
-            | Q2  *  | *   Q3 |          AQi == inverse Abel transform
+            | Q2  *  | *   Q3 |          AQi == [inverse] Abel transform
             +--------+--------+                 of quadrant Qi
 
         Three cases are possible:
@@ -189,7 +192,7 @@ class Transform(object):
     Notes
     -----
     As mentioned above, PyAbel offers several different approximations to the
-    the exact Abel transform. All the the methods should produce similar
+    the exact Abel transform. All the methods should produce similar
     results, but depending on the level and type of noise found in the image,
     certain methods may perform better than others. Please see the
     :ref:`TransformMethods` section of the documentation for complete
@@ -197,13 +200,13 @@ class Transform(object):
 
     The methods marked with a * indicate methods that generate basis sets. The
     first time they are run for a new image size, it takes seconds to minutes
-    to generate the basis set. However, this basis set is saved to disk can can
+    to generate the basis set. However, this basis set is saved to disk can
     be reloaded, meaning that future transforms are performed much more
     quickly.
 
     ``hansenlaw``
         This "recursive algorithm" produces reliable results and is quite fast
-        (~0.1 s for a 1001×1001 image). It makes no assumptions about the data
+        (~0.1 s for a 1001×1001 image). It makes no assumptions about the data
         (apart from cylindrical symmetry). It tends to require that the data is
         finely sampled for good convergence.
 
@@ -214,9 +217,9 @@ class Transform(object):
 
     ``basex`` *
         The "basis set exapansion" algorithm describes the data in terms of
-        gaussian functions, which themselves can be abel transformed
-        analytically. Because the gaussian functions are approximately the size
-        of each pixel, this method also does not make any assumption about the
+        gaussian-like functions, which themselves can be Abel-transformed
+        analytically. With the default functions, centered at each pixel,
+        this method also does not make any assumption about the
         shape of the data. This method is one of the de-facto standards in
         photoelectron/photoion imaging.
 
@@ -227,20 +230,20 @@ class Transform(object):
         <https://dx.doi.org/10.1063/1.1482156>`_.
 
     ``direct``
-        This method attempts a direct integration of the Abel transform
+        This method attempts a direct integration of the Abel-transform
         integral. It makes no assumptions about the data (apart from
         cylindrical symmetry), but it typically requires fine sampling to
         converge. Such methods are typically inefficient, but thanks to this
-        Cython implementation (by Roman Yurchuk), this 'direct' method is
+        Cython implementation (by Roman Yurchuk), this "direct" method is
         competitive with the other methods.
 
     ``linbasex`` *
-        VM-images are composed of projected Newton spheres with a common
-        centre. The 2D images are usually evaluated by a decomposition into
-        base vectors each representing the 2D projection of a set of particles
-        starting from a centre with a specific velocity distribution.
-        `linbasex` evaluate 1D projections of VM-images in terms of 1D
-        projections of spherical functions, instead.
+        Velocity-mapping images are composed of projected Newton spheres with
+        a common centre. The 2D images are usually evaluated by a
+        decomposition into base vectors, each representing the 2D projection
+        of a set of particles starting from a centre with a specific velocity
+        distribution. Lin-BASEX evaluates 1D projections of VM images in terms
+        of 1D projections of spherical functions, instead.
 
         Th. Gerber, Yu. Liu, G. Knopp, P. Hemberger, A. Bodi, P. Radi,
         Ya. Sych,
@@ -298,11 +301,11 @@ class Transform(object):
     Returns
     -------
     transform : numpy 2D array
-        the 2D forward/reverse Abel transform.
+        the 2D forward/inverse Abel-transformed image.
 
     angular_integration : tuple
         (radial-grid, radial-intensity)
-        radial coordinates, and the radial intensity (speed) distribution,
+        radial coordinates and the radial intensity (speed) distribution,
         evaluated using :func:`abel.tools.vmi.angular_integration()`.
 
     residual : numpy 2D array
@@ -318,40 +321,40 @@ class Transform(object):
         transform direction, as specified by the input option.
 
     Beta : numpy 2D array
-        with ``linbasex`` :func:`transform_options=dict(return_Beta=True)`
-        Beta array coefficients of Newton sphere spherical harmonics
+        with ``method=linbasex, transform_options=dict(return_Beta=True)``:
+        Beta array coefficients of Newton-sphere spherical harmonics
 
             Beta[0] - the radial intensity variation
 
             Beta[1] - the anisotropy parameter variation
 
-            ...Beta[n] - higher order terms up to `legedre_orders = [0, ..., n]`
+            ...Beta[n] - higher-order terms up to ``legedre_orders=[0, ..., n]``
 
     radial : numpy 1D array
-        with ``linbasex`` :func:`transform_options=dict(return_Beta=True)`
-        radial-grid for Beta array
+        with ``method=linbasex, transform_options=dict(return_Beta=True)``:
+        radial grid for Beta array
 
     projection : numpy 2D array
-        with ``linbasex`` :func:`transform_options=dict(return_Beta=True)`
-        radial projection profiles at angles `proj_angles`
+        with ``method=linbasex, transform_options=dict(return_Beta=True)``:
+        radial projection profiles at angles **proj_angles**
 
     """
 
     _verbose = False
 
     def __init__(self, IM,
-              direction='inverse', method='three_point', center='none',
+              direction='inverse', method='three_point', origin='none',
               symmetry_axis=None, use_quadrants=(True, True, True, True),
               symmetrize_method='average', angular_integration=False,
               transform_options=dict(), center_options=dict(),
               angular_integration_options=dict(),
               recast_as_float64=True, verbose=False):
         """
-        The one stop transform function.
+        The one-stop transform function.
         """
 
         # public class variables
-        self.IM = IM   # (optionally) centered, odd-width image
+        self.IM = IM  # (optionally) centered, odd-width image
         self.method = method
         self.direction = direction
 
@@ -365,7 +368,7 @@ class Transform(object):
         # image processing
         self._verify_some_inputs()
 
-        self._center_image(center, **center_options)
+        self._center_image(origin, **center_options)
 
         self._abel_transform_image(**transform_options)
 
@@ -392,10 +395,10 @@ class Transform(object):
         if self._recast_as_float64:
             self.IM = self.IM.astype('float64')
 
-    def _center_image(self, center, **center_options):
-        if center != "none":
-            self.IM = tools.center.center_image(self.IM, center,
-                                                 **center_options)
+    def _center_image(self, method, **center_options):
+        if method != "none":
+            self.IM = tools.center.center_image(self.IM, method,
+                                                **center_options)
 
     def _abel_transform_image(self, **transform_options):
         if self.method == "linbasex" and self._symmetry_axis is not None:

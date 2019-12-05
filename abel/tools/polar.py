@@ -22,18 +22,18 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     ----------
     data : 2D np.array
     origin : tuple
-        The coordinate of the image center, relative to bottom-left
+        The coordinate of the image origin, relative to bottom-left
     Jacobian : boolean
-        Include ``r`` intensity scaling in the coordinate transform. 
-        This should be included to account for the changing pixel size that 
+        Include `r` intensity scaling in the coordinate transform.
+        This should be included to account for the changing pixel size that
         occurs during the transform.
     dr : float
         Radial coordinate spacing for the grid interpolation
         tests show that there is not much point in going below 0.5
     dt : float
         Angular coordinate spacing (in radians)
-        if ``dt=None``, dt will be set such that the number of theta values
-        is equal to the maximum value between the height or the width of 
+        if ``dt=None``, **dt** will be set such that the number of theta values
+        is equal to the maximum value between the height or the width of
         the image.
 
     Returns
@@ -44,31 +44,31 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
         meshgrid of radial coordinates
     theta_grid : 2D np.array
         meshgrid of theta coordinates
-        
+
     Notes
     -----
-    Adapted from: 
+    Adapted from:
     https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
-    
+
     """
     # bottom-left coordinate system requires numpy image to be np.flipud
     data = np.flipud(data)
 
     ny, nx = data.shape[:2]
     if origin is None:
-        origin = (nx//2, ny//2) 
+        origin = (nx // 2, ny // 2)
 
     # Determine that the min and max r and theta coords will be...
     x, y = index_coords(data, origin=origin)  # (x,y) coordinates of each pixel
     r, theta = cart2polar(x, y)  # convert (x,y) -> (r,θ), note θ=0 is vertical
 
-    nr = np.int(np.ceil((r.max()-r.min())/dr))
+    nr = np.int(np.ceil((r.max() - r.min()) / dr))
 
     if dt is None:
         nt = max(nx, ny)
     else:
         # dt in radians
-        nt = np.int(np.ceil((theta.max()-theta.min())/dt))
+        nt = np.int(np.ceil((theta.max() - theta.min()) / dt))
 
     # Make a regular (in polar space) grid based on the min and max r & theta
     r_i = np.linspace(r.min(), r.max(), nr, endpoint=False)
@@ -87,30 +87,30 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     output = zi.reshape((nr, nt))
 
     if Jacobian:
-        output = output*r_i[:, np.newaxis]
+        output = output * r_i[:, np.newaxis]
 
     return output, r_grid, theta_grid
 
 
 def index_coords(data, origin=None):
     """
-    Creates x & y coords for the indicies in a numpy array
-    
+    Creates `x` and `y` coordinates for the indices in a numpy array.
+
     Parameters
     ----------
     data : numpy array
         2D data
-    origin : (x,y) tuple
-        defaults to the center of the image. Specify origin=(0,0)
+    origin : tuple
+        (x, y). Defaults to the center of the image. Specify ``origin=(0,0)``
         to set the origin to the *bottom-left* corner of the image.
-    
+
     Returns
     -------
         x, y : arrays
     """
     ny, nx = data.shape[:2]
     if origin is None:
-        origin_x, origin_y = nx//2, ny//2
+        origin_x, origin_y = nx // 2, ny // 2
     else:
         origin_x, origin_y = origin
 
@@ -123,18 +123,18 @@ def index_coords(data, origin=None):
 
 def cart2polar(x, y):
     """
-    Transform Cartesian coordinates to polar
-    
+    Transform Cartesian coordinates to polar.
+
     Parameters
     ----------
     x, y : floats or arrays
         Cartesian coordinates
-    
+
     Returns
     -------
     r, theta : floats or arrays
         Polar coordinates
-        
+
     """
     r = np.sqrt(x**2 + y**2)
     theta = np.arctan2(x, y)  # θ referenced to vertical
@@ -143,13 +143,13 @@ def cart2polar(x, y):
 
 def polar2cart(r, theta):
     """
-    Transform polar coordinates to Cartesian
-    
+    Transform polar coordinates to Cartesian.
+
     Parameters
     -------
     r, theta : floats or arrays
         Polar coordinates
-        
+
     Returns
     ----------
     x, y : floats or arrays

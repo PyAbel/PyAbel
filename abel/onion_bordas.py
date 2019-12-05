@@ -81,13 +81,13 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
     `Rev. Sci. Instrum. 67, 2257–2268 (1996)
     <https://doi.org/10.1063/1.1147044>`_.
 
-    This function operates on the "right side" of an image. i.e. it works on 
-    just half of a cylindrically symmetric image.  Unlike the other transforms,
-    the left edge should be the image center, not mid-first pixel. This 
-    corresponds to an even-width full image. 
+    This function operates on the "right side" of an image. i.e. it works on
+    just half of a cylindrically symmetric image. Unlike the other transforms,
+    the image origin should be at the left edge, not mid-pixel. This
+    corresponds to an even-width full image.
                            
-    However, shift_grid=True (default) provides the typical behavior,
-    where the first pixel corresponds to the center pixel of the image.
+    However, ``shift_grid=True`` (default) provides the typical behavior,
+    where the image origin corresponds to the pixel center in the 0th column.
 
     To perform a onion-peeling transorm on a whole image, use ::
     
@@ -100,14 +100,14 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
 
     dr : float
         sampling size (=1 for pixel images), used for Jacobian scaling.
-        The resulting inverse transform is simply scaled by 1/dr.
+        The resulting inverse transform is simply scaled by 1/`dr`.
 
-    direction: str
-        only the `direction="inverse"` transform is currently implemented
+    direction : str
+        only the inverse transform is currently implemented.
    
-    shift_grid: boolean
-        place width-center on grid (bottom left pixel) by shifting image 
-        center (0, -1/2) pixel 
+    shift_grid : bool
+        place the image origin on the grid (left edge) by shifting the image
+        1/2 pixel to the left.
 
     Returns
     -------

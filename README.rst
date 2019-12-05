@@ -93,8 +93,10 @@ The results can then be plotted using Matplotlib:
 
     fig, axs = plt.subplots(1, 2, figsize=(6, 4))
 
-    axs[0].imshow(forward_abel, clim=(0, np.max(forward_abel)*0.6), origin='lower', extent=(-1,1,-1,1))
-    axs[1].imshow(inverse_abel, clim=(0, np.max(inverse_abel)*0.4), origin='lower', extent=(-1,1,-1,1))
+    axs[0].imshow(forward_abel, clim=(0, np.max(forward_abel) * 0.6),
+                  origin='lower', extent=(-1, 1, -1, 1))
+    axs[1].imshow(inverse_abel, clim=(0, np.max(inverse_abel) * 0.4),
+                  origin='lower', extent=(-1, 1, -1, 1))
 
     axs[0].set_title('Forward Abel Transform')
     axs[1].set_title('Inverse Abel Transform')
@@ -127,8 +129,8 @@ The PyAbel code adheres to the following conventions:
 
     .. code-block:: python
 
-        x = np.linspace(-2,2,5)
-        X,Y = np.meshgrid(x, -x) # notice the minus sign in front of the y-coordinate
+        x = np.linspace(-2, 2, 5)
+        X, Y = np.meshgrid(x, -x) # notice the minus sign in front of the y-coordinate
     
 - 
     **Angle:** All angles in PyAbel are measured in radians. When an absolute angle is defined, zero-angle corresponds to the upwards, vertical direction. Positive values are on the right side, and negative values on the left side. The range of angles is from -Pi to +Pi. The polar grid for a 5x5 image can be generated (following the code above) using:
@@ -138,16 +140,15 @@ The PyAbel code adheres to the following conventions:
         R = np.sqrt(X**2 + Y**2)
         THETA = np.arctan2(X, Y)
 
-
     where the usual ``(Y, X)`` convention of ``arctan2`` has been reversed in order to place zero-angle in the vertical direction. Consequently, to convert the angular grid back to the Cartesian grid, we use:
   
     .. code-block:: python
 
-        X = R*np.sin(THETA)
-        Y = R*np.cos(THETA)
+        X = R * np.sin(THETA)
+        Y = R * np.cos(THETA)
 
 - 
-    **Image center:** Fundamentally, the Abel and inverse-Abel transforms in PyAbel consider the center of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The center pixel is effectively "shared" between both halves of the image.) In most situations, the center is specified using the ``center`` keyword in ``abel.Transform`` (or directly using ``abel.center.center_image`` to find the true center of your image. This processing step takes care of locating the center of the image in the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image.
+    **Image origin:** Fundamentally, the forward and inverse Abel transforms in PyAbel consider the origin of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The central pixel is effectively "shared" between both halves of the image.) In most situations, the image origin is specified using the ``origin`` keyword in ``abel.Transform`` (or directly using ``abel.center.center_image`` to find the origin (the center of symmetry) of your image. This processing step takes care of shifting the origin of the image to the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image. Some methods also provide low-level functions for transforming only the right half of the image (with the origin located in the middle of a 0th-column pixel).
 
 
 Support

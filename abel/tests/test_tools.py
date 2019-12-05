@@ -41,12 +41,11 @@ def test_centering_function_shape():
 
 
 def test_centering_function():
-    # ni -> original shape of the data is (ni, ni)
-    # n_c  -> the image center is (n_c, n_c)
+    # ni  -> original shape of the data is (ni, ni)
+    # n_c -> the image origin is (n_c, n_c)
 
     for (ni, n_c) in [(10, 5),
-                         (10,  5),
-                         ]:
+                      (10, 5)]:
         arr = np.zeros((ni, ni))
 
         # arr[n_c-1:n_c+2,n_c-1:n_c+2] = 1
@@ -64,8 +63,8 @@ def test_centering_function():
             'Validating the centering function for ni={}, n_c={}'.format(ni, n_c))
 
 
-def test_speeds_non_integer_center():  
-    # ensures that the rest speeds function can work with a non-integer center
+def test_speeds_non_integer_origin():
+    # ensures that the rest speeds function can work with a non-integer origin
     n  = 101
     IM = np.random.randn(n, n)
     abel.tools.vmi.angular_integration(IM, origin=(50.5, 50.5))
