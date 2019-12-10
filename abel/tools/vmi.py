@@ -115,7 +115,7 @@ def radial_integration(IM, radial_ranges=None):
     Evaluates intensity vs angle for defined radial ranges.
     Determines the anisotropy parameter for each radial range.
 
-    See :doc:`examples/example_PAD.py <examples>`.
+    See :doc:`examples/example_O2_PES_PAD.py <example_O2_PES_PAD>`.
 
     Parameters
     ----------
@@ -272,7 +272,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     photodetachment, the strongest fine-structure transition occurs at the
     electron affinity :math:`EA = 11\,784.676(7)` cm\ :math:`^{-1}`. Values for
     the ANU experiment are given below, see also
-    `examples/example_hansenlaw.py`.
+    :doc:`examples/example_hansenlaw.py <example_hansenlaw>`.
 
     Parameters
     ----------

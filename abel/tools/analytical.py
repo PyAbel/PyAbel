@@ -56,7 +56,8 @@ class BaseAnalytical(object):
 class StepAnalytical(BaseAnalytical):
     """
     Define a symmetric step function and calculate its analytical
-    Abel transform. See examples/example_step.py
+    Abel transform. See :doc:`examples/example_basex_step.py
+    <example_basex_step>`.
 
     Parameters
     ----------
@@ -271,7 +272,8 @@ class PiecewisePolynomial(BaseAnalytical):
 class GaussianAnalytical(BaseAnalytical):
     """
     Define a gaussian function and calculate its analytical
-    Abel transform. See examples/example_gaussian.py
+    Abel transform. See :doc:`examples/example_basex_gaussian.py
+    <example_basex_gaussian>`.
 
     Parameters
     ----------
