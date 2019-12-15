@@ -17,6 +17,8 @@ from . import linbasex
 from . import onion_bordas
 from . import tools
 
+from abel import _deprecated, _deprecate
+
 
 class Transform(object):
     """
@@ -343,15 +345,19 @@ class Transform(object):
     _verbose = False
 
     def __init__(self, IM,
-              direction='inverse', method='three_point', origin='none',
-              symmetry_axis=None, use_quadrants=(True, True, True, True),
-              symmetrize_method='average', angular_integration=False,
-              transform_options=dict(), center_options=dict(),
-              angular_integration_options=dict(),
-              recast_as_float64=True, verbose=False):
+                 direction='inverse', method='three_point', origin='none',
+                 symmetry_axis=None, use_quadrants=(True, True, True, True),
+                 symmetrize_method='average', angular_integration=False,
+                 transform_options=dict(), center_options=dict(),
+                 angular_integration_options=dict(),
+                 recast_as_float64=True, verbose=False, center=_deprecated):
         """
         The one-stop transform function.
         """
+        if center is not _deprecated:
+            _deprecate('abel.transform.Transform() '
+                       'argument "center" is deprecated, use "origin" instead.')
+            origin = center
 
         # public class variables
         self.IM = IM  # (optionally) centered, odd-width image
@@ -406,7 +412,6 @@ class Transform(object):
         else:
             self._abel_transform_image_by_quadrant(**transform_options)
 
-
     def _abel_transform_image_full(self, **transform_options):
 
         abel_transform = {
@@ -427,7 +432,6 @@ class Transform(object):
         self.Beta = Beta
         self.projection = QLz
         self.radial = radial
-
 
     def _abel_transform_image_by_quadrant(self, **transform_options):
 

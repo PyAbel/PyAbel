@@ -7,6 +7,8 @@ from scipy.optimize import leastsq
 
 import abel
 
+from abel import _deprecated, _deprecate
+
 #########################################################################
 # circularize.py
 #
@@ -23,7 +25,8 @@ import abel
 
 def circularize_image(IM, method="lsq", origin=None, radial_range=None,
                       dr=0.5, dt=0.5, smooth=0, ref_angle=None,
-                      inverse=False, return_correction=False):
+                      inverse=False, return_correction=False,
+                      center=_deprecated):
     r"""
     Corrects image distortion on the basis that the structure should be
     circular.
@@ -157,6 +160,10 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
         angle.
 
     """
+    if center is not _deprecated:
+        _deprecate('abel.tools.circularize.circularize_image() '
+                   'argument "center" is deprecated, use "origin" instead.')
+        origin = center
 
     if origin is not None:
         # convenience function for the case image is not centered
