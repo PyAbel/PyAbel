@@ -125,22 +125,22 @@ Conventions
 The PyAbel code adheres to the following conventions:
 
 - 
-    **Image orientation:** PyAbel adopts the "television" convention, where ``IM[0,0]`` refers to the **upper** left corner of the image. (This means that ``plt.imshow(IM)`` should display the image in the proper orientation, without the need to use the ``origin='lower'`` keyword.) As an example, the x,y-grid for a 5x5 image can be generated using:
+    **Image orientation:** PyAbel adopts the "television" convention, where ``IM[0,0]`` refers to the **upper** left corner of the image. (This means that ``plt.imshow(IM)`` should display the image in the proper orientation, without the need to use the ``origin='lower'`` keyword.) As an example, the x,y grid for a centered 5×5 image can be generated using
 
     .. code-block:: python
 
         x = np.linspace(-2, 2, 5)
-        X, Y = np.meshgrid(x, -x) # notice the minus sign in front of the y-coordinate
+        X, Y = np.meshgrid(x, -x)  # notice the minus sign in front of the y coordinate
     
 - 
-    **Angle:** All angles in PyAbel are measured in radians. When an absolute angle is defined, zero-angle corresponds to the upwards, vertical direction. Positive values are on the right side, and negative values on the left side. The range of angles is from -Pi to +Pi. The polar grid for a 5x5 image can be generated (following the code above) using:
+    **Angle:** All angles in PyAbel are measured in radians. When an absolute angle is defined, zero angle corresponds to the upwards vertical direction. Positive values are on the right side, and negative values on the left side. The range of angles is from −π to +π. The polar grid for a centered 5×5 image can be generated (following the code above) using
 
     .. code-block:: python
 
         R = np.sqrt(X**2 + Y**2)
         THETA = np.arctan2(X, Y)
 
-    where the usual ``(Y, X)`` convention of ``arctan2`` has been reversed in order to place zero-angle in the vertical direction. Consequently, to convert the angular grid back to the Cartesian grid, we use:
+    where the usual ``(Y, X)`` convention of ``arctan2`` has been reversed in order to place zero angle in the vertical direction. Consequently, to convert the angular grid back to the Cartesian grid, we use
   
     .. code-block:: python
 

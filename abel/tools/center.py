@@ -48,7 +48,7 @@ def find_origin(IM, method='image_center', square=False, verbose=False,
     Returns
     -------
     out : (float, float)
-        coordinate of the origin of the image in the (row, column) format
+        coordinates of the origin of the image in the (row, column) format
 
     """
     return func_method[method](IM, verbose=verbose, **kwargs)
@@ -71,7 +71,7 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
         centering method:
 
         ``image_center``
-            the origin of the image is used as the center. The trivial result.
+            the center of the image is used as the origin. The trivial result.
         ``com``
             the origin is found as the center of mass.
         ``convolution``

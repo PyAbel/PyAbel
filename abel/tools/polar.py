@@ -14,36 +14,38 @@ from scipy.optimize import curve_fit, minimize
 def reproject_image_into_polar(data, origin=None, Jacobian=False,
                                dr=1, dt=None):
     """
-    Reprojects a 2D numpy array (``data``) into a polar coordinate system.
-    "origin" is a tuple of (x0, y0) relative to the bottom-left image corner,
-    and defaults to the center of the image.
+    Reprojects a 2D numpy array (**data**) into a polar coordinate system,
+    with the pole placed at **origin** and the angle measured clockwise from
+    the upward direction. The resulting array has rows corresponding to the
+    radial grid, and columns corresponding to the angular grid.
 
     Parameters
     ----------
     data : 2D np.array
-    origin : tuple
-        The coordinate of the image origin, relative to bottom-left
-    Jacobian : boolean
+        the image array
+    origin : tuple or None
+        (row, column) coordinates of the image origin. If ``None``, the
+        geometric center of the image is used.
+    Jacobian : bool
         Include `r` intensity scaling in the coordinate transform.
         This should be included to account for the changing pixel size that
         occurs during the transform.
     dr : float
-        Radial coordinate spacing for the grid interpolation
-        tests show that there is not much point in going below 0.5
-    dt : float
-        Angular coordinate spacing (in radians)
-        if ``dt=None``, **dt** will be set such that the number of theta values
-        is equal to the maximum value between the height or the width of
-        the image.
+        radial coordinate spacing for the grid interpolation.
+        Tests show that there is not much point in going below 0.5.
+    dt : float or None
+        angular coordinate spacing (in radians).
+        If ``None``, the number of angular grid points will be set to the
+        largest dimension (the height or the width) of the image.
 
     Returns
     -------
     output : 2D np.array
-        The polar image (r, theta)
+        the polar image (r, theta)
     r_grid : 2D np.array
         meshgrid of radial coordinates
     theta_grid : 2D np.array
-        meshgrid of theta coordinates
+        meshgrid of angular coordinates
 
     Notes
     -----
@@ -51,12 +53,9 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
 
     """
-    # bottom-left coordinate system requires numpy image to be np.flipud
-    data = np.flipud(data)
-
     ny, nx = data.shape[:2]
     if origin is None:
-        origin = (nx // 2, ny // 2)
+        origin = (ny // 2, nx // 2)
 
     # Determine that the min and max r and theta coords will be...
     x, y = index_coords(data, origin=origin)  # (x,y) coordinates of each pixel
@@ -75,49 +74,47 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     theta_i = np.linspace(theta.min(), theta.max(), nt, endpoint=False)
     theta_grid, r_grid = np.meshgrid(theta_i, r_i)
 
-    # Project the r and theta grid back into pixel coordinates
+    # Convert the r and theta grids to Cartesian coordinates
     X, Y = polar2cart(r_grid, theta_grid)
-
-    X += origin[0]  # We need to shift the origin
-    Y += origin[1]  # back to the bottom-left corner...
-    xi, yi = X.flatten(), Y.flatten()
-    coords = np.vstack((yi, xi))  # (map_coordinates requires a 2xn array)
+    # then to a 2×n array of row and column indices for np.map_coordinates()
+    rowi = (origin[0] - Y).flatten()
+    coli = (X + origin[1]).flatten()
+    coords = np.vstack((rowi, coli))
 
     zi = map_coordinates(data, coords)
     output = zi.reshape((nr, nt))
 
     if Jacobian:
-        output = output * r_i[:, np.newaxis]
+        output *= r_i[:, np.newaxis]
 
     return output, r_grid, theta_grid
 
 
 def index_coords(data, origin=None):
     """
-    Creates `x` and `y` coordinates for the indices in a numpy array.
+    Creates `x` and `y` coordinates for the indices in a numpy array, relative
+    to the **origin**, with the `x` axis going to the right, and the `y` axis
+    going `up`.
 
     Parameters
     ----------
     data : numpy array
-        2D data
-    origin : tuple
-        (x, y). Defaults to the center of the image. Specify ``origin=(0,0)``
-        to set the origin to the *bottom-left* corner of the image.
+        2D data. Only the array shape is used.
+    origin : tuple or None
+        (row, column). Defaults to the geometric center of the image.
 
     Returns
     -------
-        x, y : arrays
+        x, y : 2D numpy arrays
     """
     ny, nx = data.shape[:2]
     if origin is None:
         origin_x, origin_y = nx // 2, ny // 2
     else:
-        origin_x, origin_y = origin
+        origin_y, origin_x = origin
 
-    x, y = np.meshgrid(np.arange(float(nx)), np.arange(float(ny)))
-
-    x -= origin_x
-    y -= origin_y
+    x, y = np.meshgrid(np.arange(float(nx)) - origin_x,
+                       origin_y - np.arange(float(ny)))
     return x, y
 
 

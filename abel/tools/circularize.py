@@ -37,12 +37,12 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
 
     This function is especially useful for correcting the image obtained with
     a velocity-map-imaging spectrometer, in the case where there is distortion
-    of the Newton Sphere (ring) structure due to an imperfect electrostatic
+    of the Newton sphere (ring) structure due to an imperfect electrostatic
     lens or stray electromagnetic fields. The correction allows the
     highest-resolution 1D photoelectron distribution to be extracted.
 
     The algorithm splits the image into "slices" at many different angles
-    (set by `dt`) and compares the radial intensity profile of adjacent slices.
+    (set by **dt**) and compares the radial intensity profile of adjacent slices.
     A scaling factor is found which aligns each slice profile with the previous
     slice. The image is then corrected using a spline function that smoothly
     connects the discrete scaling factors as a continuous function of angle.
@@ -62,22 +62,23 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
         profiles:
 
         ``argmax``
-                compare intensity-profile.argmax() of each radial slice.
-                This method is quick and reliable, but it assumes that
-                the radial intensity profile has an obvious maximum.
-                The positioning is limited to the nearest pixel.
+            compare intensity-profile.argmax() of each radial slice.
+            This method is quick and reliable, but it assumes that
+            the radial intensity profile has an obvious maximum.
+            The positioning is limited to the nearest pixel.
 
         ``lsq``
-                minimize the difference between a slice intensity-profile
-                with its adjacent slice.
-                This method is slower and may fail to converge, but it
-                may be applied to images with any (circular) structure.
-                It aligns the slices with sub-pixel precision.
+            minimize the difference between a slice intensity-profile
+            with its adjacent slice.
+            This method is slower and may fail to converge, but it
+            may be applied to images with any (circular) structure.
+            It aligns the slices with sub-pixel precision.
 
-    origin : str, float tuple, or None
+    origin : float tuple, str or None
         Pre-center image using :func:`abel.tools.center.center_image`.
-        May be: ``'com'``, ``'convolution'``, ``'gaussian;``,
-        ``'image_center'``, ``'slice'``, or a float tuple (row, column).
+        May be an explicit (row, column) tuple or a method name: ``'com'``,
+        ``'convolution'``, ``'gaussian;``, ``'image_center'``, ``'slice'``.
+        ``None`` (default) assumes that the image is already centered.
 
     radial_range : tuple or None
         Limit slice comparison to the radial range tuple (rmin, rmax), in

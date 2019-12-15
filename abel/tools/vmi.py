@@ -20,7 +20,7 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     Returns the one-dimensional intensity profile as a function of the
     radial coordinate.
 
-    Note: the use of Jacobian=True applies the correct Jacobian for the
+    Note: the use of ``Jacobian=True`` applies the correct Jacobian for the
     integration of a 3D object in spherical coordinates.
 
     Parameters
@@ -28,9 +28,9 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     IM : 2D numpy.array
         the image data
 
-    origin : tuple
-        image origin coordinates relative to *bottom-left* corner
-        defaults to ``rows // 2, cols // 2``.
+    origin : tuple or None
+        image origin in the (row, column) format. If ``None``, the geometric
+        center of the image (``rows // 2, cols // 2``) is used.
 
     Jacobian : bool
         Include :math:`r\sin\theta` in the angular sum (integration).
@@ -40,14 +40,14 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
         total Jacobian of :math:`r^2\sin\theta`.
 
     dr : float
-        radial grid spacing, in pixels (default 1). `dr=0.5` may
+        radial grid spacing in pixels (default 1). ``dr=0.5`` may
         reduce pixel granularity of the speed profile.
 
-    dt : float
+    dt : float or None
         angular grid spacing in radians.
-        If ``dt=None``, **dt** will be set such that the number of theta values
-        is equal to the height of the image (which should typically ensure
-        good sampling.)
+        If ``None``, the number of theta values will be set to largest
+        dimension (the height or the width) of the image, which should
+        typically ensure good sampling.
 
     Returns
     ------
@@ -64,14 +64,14 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
 
     dt = T[0, 1] - T[0, 0]
 
-    if Jacobian:  # x r sinθ
-        polarIM = polarIM * R * np.abs(np.sin(T))
+    if Jacobian:  # × r sinθ
+        polarIM *= R * np.abs(np.sin(T))
 
     speeds = np.trapz(polarIM, axis=1, dx=dt)
 
     n = speeds.shape[0]
 
-    return R[:n, 0], speeds   # limit radial coordinates range to match speed
+    return R[:n, 0], speeds  # limit radial coordinates range to match speed
 
 
 def average_radial_intensity(IM, **kwargs):
@@ -80,8 +80,7 @@ def average_radial_intensity(IM, **kwargs):
     in that it returns the average intensity, and not the integrated intensity
     of a 3D image. It is equivalent to calling
     :func:`abel.tools.vmi.angular_integration` with
-    `Jacobian=True` and then dividing the result by 2π.
-
+    ``Jacobian=True`` and then dividing the result by 2π.
 
     Parameters
     ----------
@@ -98,7 +97,7 @@ def average_radial_intensity(IM, **kwargs):
         radial coordinates
 
     intensity : 1D numpy.array
-        intensity profile as a function of the radial coordinate.
+        intensity profile as a function of the radial coordinate
 
     """
     R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
@@ -110,7 +109,7 @@ def radial_integration(IM, radial_ranges=None):
     r""" Intensity variation in the angular coordinate.
 
     This function is the :math:`\theta`-coordinate complement to
-    :func:`abel.tools.vmi.angular_integration`
+    :func:`abel.tools.vmi.angular_integration`.
 
     Evaluates intensity vs angle for defined radial ranges.
     Determines the anisotropy parameter for each radial range.
@@ -143,13 +142,13 @@ def radial_integration(IM, radial_ranges=None):
         corresponding to the radial ranges
 
     Rmidpt : numpy float 1D array
-        radial-mid point of each radial range
+        radial mid-point of each radial range
 
     Intensity_vs_theta: 2D numpy.array
-        intensity vs angle distribution for each selected radial range.
+        intensity vs angle distribution for each selected radial range
 
     theta: 1D numpy.array
-        angle coordinates, referenced to vertical direction.
+        angle coordinates, referenced to vertical direction
     """
 
     polarIM, r_grid, theta_grid = reproject_image_into_polar(IM)
@@ -186,19 +185,18 @@ def radial_integration(IM, radial_ranges=None):
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
     r"""
     Evaluate anisotropy parameter :math:`\beta`, for :math:`I` vs
-    :math:`\theta` data.
+    :math:`\theta` data:
 
     .. math::
 
-        I = \frac{\sigma_\text{total}}{4\pi} [ 1 + \beta P_2(\cos\theta) ]
+        I = \frac{\sigma_\text{total}}{4\pi} [ 1 + \beta P_2(\cos\theta) ],
 
-    where :math:`P_2(x)=\frac{3x^2-1}{2}` is a 2nd order Legendre polynomial.
+    where :math:`P_2(x)=\frac{3x^2-1}{2}` is a 2nd-order Legendre polynomial.
 
     J. Cooper, R. N. Zare,
     "Angular Distribution of Photoelectrons",
     `J. Chem. Phys. 48, 942–943 (1968)
     <https://dx.doi.org/10.1063/1.1668742>`_.
-
 
     Parameters
     ----------
