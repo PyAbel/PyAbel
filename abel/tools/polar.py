@@ -56,6 +56,13 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     ny, nx = data.shape[:2]
     if origin is None:
         origin = (ny // 2, nx // 2)
+    else:
+        origin = list(origin)
+        # wrap negative coordinates
+        if origin[0] < 0:
+            origin[0] += ny
+        if origin[1] < 0:
+            origin[1] += nx
 
     # Determine that the min and max r and theta coords will be...
     x, y = index_coords(data, origin=origin)  # (x,y) coordinates of each pixel
@@ -112,6 +119,11 @@ def index_coords(data, origin=None):
         origin_x, origin_y = nx // 2, ny // 2
     else:
         origin_y, origin_x = origin
+        # wrap negative coordinates
+        if origin_y < 0:
+            origin_y += ny
+        if origin_x < 0:
+            origin_x += nx
 
     x, y = np.meshgrid(np.arange(float(nx)) - origin_x,
                        origin_y - np.arange(float(ny)))

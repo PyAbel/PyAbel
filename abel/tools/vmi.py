@@ -630,6 +630,11 @@ class Distributions(object):
         # Determine origin [row, col].
         if np.ndim(self.origin) == 1:  # explicit numbers
             row, col = self.origin
+            # wrap negative coordinates
+            if row < 0:
+                row += height
+            if col < 0:
+                col += width
         else:  # string with codes
             if len(self.origin) == 2:
                 r, c = self.origin

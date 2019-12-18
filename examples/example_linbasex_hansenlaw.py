@@ -14,15 +14,15 @@ clip=0  # clip first vectors (smallest Newton spheres) to avoid singularities
 
 # linbasex method - center ensures image has odd square shape
 #                 - speed and anisotropy parameters evaluated by method
-LIM = abel.Transform(IM, method='linbasex', center='convolution',
+LIM = abel.Transform(IM, method='linbasex', origin='convolution',
                      center_options=dict(square=True),
                      transform_options=dict(basis_dir=None,
                      proj_angles=proj_angles, radial_step=radial_step,
-                     smoothing=smoothing, threshold=threshold, clip=clip, 
+                     smoothing=smoothing, threshold=threshold, clip=clip,
                      return_Beta=True, verbose=True))
 
 # hansenlaw method - speed and anisotropy parameters evaluated by integration
-HIM = abel.Transform(IM, method="hansenlaw", center='convolution', 
+HIM = abel.Transform(IM, method="hansenlaw", origin='convolution',
                      center_options=dict(square=True),
                      angular_integration=True)
 

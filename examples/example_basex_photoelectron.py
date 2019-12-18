@@ -35,17 +35,17 @@ output_plot  = filename[:-4] + '_comparison.pdf'
 print('Loading ' + filename)
 raw_data = plt.imread(filename).astype('float64')
 
-# Step 2: Specify the center in y,x (vert,horiz) format
-center = (245,340)
+# Step 2: Specify the origin in (row, col) format
+origin = (245, 340)
 # or, use automatic centering
-# center = 'com'
-# center = 'gaussian'
+# origin = 'com'
+# origin = 'gaussian'
 
 # Step 3: perform the BASEX transform!
 print('Performing the inverse Abel transform:')
 
 recon = abel.Transform(raw_data, direction='inverse', method='basex',
-                       center=center, transform_options=dict(basis_dir='bases'),
+                       origin=origin, transform_options=dict(basis_dir='bases'),
                        verbose=True).transform
                       
 speeds = abel.tools.vmi.angular_integration(recon)

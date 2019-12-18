@@ -37,7 +37,7 @@ radial_step = 1
 clip = 0
 
 # linbasex inverse Abel transform
-LIM = abel.Transform(IM, method="linbasex", center="convolution",
+LIM = abel.Transform(IM, method="linbasex", origin="convolution",
                      center_options=dict(square=True),
                      transform_options=dict(basis_dir=None, return_Beta=True,
                                             legendre_orders=un,

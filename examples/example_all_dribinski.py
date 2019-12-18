@@ -63,12 +63,12 @@ for q, method in enumerate(transforms.keys()):
     # inverse Abel transform using 'method'
     IAQ0 = transforms[method](Q0, direction="inverse", basis_dir='bases')
 
-    print ("                    {:.4f} sec".format(time()-t0))
+    print ("                    {:.4f} s".format(time()-t0))
 
     iabelQ.append(IAQ0)  # store for plot
 
     # polar projection and speed profile
-    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(0, 0), Jacobian=False)
+    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(-1, 0), Jacobian=False)
 
     # normalize image intensity and speed distribution
     IAQ0 /= IAQ0.max()  

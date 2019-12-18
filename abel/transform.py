@@ -73,10 +73,8 @@ class Transform(object):
         point.
 
         If a tuple (float, float) is provided, this specifies the image origin
-        in the (row, column) format. A value ``None`` can be supplied if no
-        centering is desired in one dimension, for example, ``origin=(None,
-        250)``. If a string is provided, an automatic centering algorithm is
-        used:
+        in the (row, column) format. If a string is provided, an automatic
+        centering algorithm is used:
 
         ``image_center``
             The origin is assumed to be the center of the image.

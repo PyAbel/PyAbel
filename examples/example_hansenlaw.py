@@ -22,7 +22,7 @@ IM = np.loadtxt(imagefile)
 rows, cols = IM.shape    # image size
 
 # center image returning odd size
-IMc = abel.tools.center.center_image(IM, center='com')
+IMc = abel.tools.center.center_image(IM, method='com')
 
 # dr=0.5 may help reduce pixel grid coarseness
 # NB remember to also pass as an option to angular_integration

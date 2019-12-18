@@ -27,7 +27,7 @@ threshold = 0.2  # threshold for normalization of higher order Newton spheres
 clip = 0  # clip first vectors (smallest Newton spheres) to avoid singularities
 
 # linbasex method - center and center_options ensure image has odd square shape
-LIM = abel.Transform(IM, method='linbasex', center='slice',
+LIM = abel.Transform(IM, method='linbasex', origin='slice',
                      center_options=dict(square=True),
                      transform_options=dict(basis_dir=None,
                      proj_angles=proj_angles, radial_step=radial_step,
@@ -36,7 +36,7 @@ LIM = abel.Transform(IM, method='linbasex', center='slice',
 
 
 # === Hansen & Law inverse Abel transform ==================
-HIM = abel.Transform(IM, center="slice", method="hansenlaw",
+HIM = abel.Transform(IM, origin="slice", method="hansenlaw",
                      symmetry_axis=None, angular_integration=True)
 
 # speed distribution

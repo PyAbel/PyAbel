@@ -26,7 +26,7 @@ rows, cols = IM.shape    # image size
 # Image center should be mid-pixel, i.e. odd number of colums
 if cols % 2 != 1: 
     print ("even pixel width image, make it odd and re-adjust image center")
-    IM = abel.tools.center.center_image(IM, center="slice")
+    IM = abel.tools.center.center_image(IM, method="slice")
     rows, cols = IM.shape   # new image size
 
 r2 = rows//2   # half-height image size

@@ -208,6 +208,12 @@ def set_center(data, origin, crop='maintain_size', axes=(0, 1), verbose=False,
     old_shape = data.shape
     old_center = data.shape[0] // 2, data.shape[1] // 2
 
+    origin = list(origin)
+    if origin[0] < 0:
+        origin[0] += data.shape[0]
+    if origin[1] < 0:
+        origin[1] += data.shape[1]
+
     delta0 = old_center[0] - origin[0]
     delta1 = old_center[1] - origin[1]
 
@@ -290,8 +296,7 @@ def find_origin_by_center_of_mass(IM, verbose=False, round_output=False,
     origin : tuple
         (row, column)
     """
-    com = center_of_mass(IM)
-    origin = com[0], com[1]
+    origin = center_of_mass(IM)
 
     if verbose:
         to_print = "Center of mass at ({0}, {1})".format(origin[0], origin[1])
