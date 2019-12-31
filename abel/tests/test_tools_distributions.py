@@ -8,6 +8,9 @@ from abel.tools.vmi import Distributions, harmonics
 
 
 def test_origin():
+    """
+    Test symbolic origin wrt corresponding numeric form.
+    """
     # image size
     n = 11  # width
     m = 20  # height
@@ -28,8 +31,13 @@ def test_origin():
 
 
 def run_order(method, tol):
-    sigma = 5.0
-    step = 6 * sigma
+    """
+    Test cossin distributions for even orders using Gaussian peaks.
+
+    tol = list of tolerances for order=0, order=2, order=4, ...
+    """
+    sigma = 5.0  # peak SD
+    step = 6 * sigma  # distance between peak centers
 
     for n in range(len(tol)):  # order = 2n
         size = int((n + 2) * step)
@@ -43,10 +51,12 @@ def run_order(method, tol):
         # radius
         r = np.sqrt(r2)
 
+        # Gaussian peak with one cossin angular term.
         def peak(i):
             return c2 ** (n - i) * s2 ** i * \
                    np.exp(-(r - (i + 1) * step) ** 2 / (2 * sigma**2))
 
+        # quadrant with all peaks
         Q = peak(0)
         for i in range(1, n + 1):
             Q += peak(i)
@@ -56,6 +66,7 @@ def run_order(method, tol):
                     format(rmax, 2 * n, method)
             res = Distributions('ul', rmax, 2 * n, method=method).image(Q)
             cossin = res.cossin()
+            # extract values at peak centers
             cs = np.array([cossin[:, int((i + 1) * step)]
                            for i in range(n + 1)])
             assert_allclose(cs, np.identity(n + 1), atol=tol[n],
@@ -77,8 +88,13 @@ def test_order_remap():
 
 
 def run_order_odd(method, tol):
-    sigma = 5.0
-    step = 6 * sigma
+    """
+    Test cossin distributions including odd orders using Gaussian peaks.
+
+    tol = list of tolerances for order=0, order=1, order=2, ...
+    """
+    sigma = 5.0  # peak SD
+    step = 6 * sigma  # distance between peak centers
 
     for n in range(0, len(tol)):  # order = n
         size = int((n + 2) * step)
@@ -93,12 +109,14 @@ def run_order_odd(method, tol):
         s = x / r
         r[size, 0] = 0
 
+        # Gaussian peak with one cossin angular term
         def peak(i):
-            m = n - i
-            k = (n - m) & ~1  # round down to even
+            m = n - i  # cos power
+            k = (n - m) & ~1  # sin power (round down to even)
             return c ** m * s ** k * \
                    np.exp(-(r - (i + 1) * step) ** 2 / (2 * sigma**2))
 
+        # quadrant with all peaks
         Q = peak(0)
         for i in range(1, n + 1):
             Q += peak(i)
@@ -109,6 +127,7 @@ def run_order_odd(method, tol):
             res = Distributions((int(size), 0), rmax, n, odd=True,
                                 method=method).image(Q)
             cossin = res.cossin()
+            # extract values at peak centers
             cs = np.array([cossin[:, int((i + 1) * step)]
                            for i in range(n + 1)])
             assert_allclose(cs, np.identity(n + 1), atol=tol[n],
@@ -131,6 +150,9 @@ def test_order_odd_remap():
 
 def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
     """
+    Test harmonics and Ibeta for various combinations of origins and weights
+    for default order=2, odd=False.
+
     method = method name
     rmax = 'MIN' or 'all'
     tol... = (atol, rmstol) for ...
@@ -146,9 +168,11 @@ def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
     # peak SD
     sigma = 2.0
 
+    # Gaussian peak.
     def peak(i, r):
         return np.exp(-(r - i * step)**2 / (2 * sigma**2))
 
+    # Test image.
     def image():
         # squared coordinates:
         x2 = (np.arange(float(n)) - x0)**2
@@ -165,6 +189,7 @@ def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
              c2 * peak(3, r)
         return IM, np.sqrt(s2)  # image, sin theta
 
+    # Reference distribution for test image.
     def ref_distr():
         r = np.arange(R + 1)
         P0 = 2/3 * peak(1, r) + \
@@ -180,12 +205,13 @@ def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
         param = ' @ y0 = {}, x0 = {}, rmax = {}, method = {}'.\
                 format(y0, x0, rmax, method)
 
+        # determine largest radius extracted from image
         if rmax == 'MIN':
             R = min(max(x0, n - 1 - x0), max(y0, m - 1 - y0))
         elif rmax == 'all':
             R = max([int(np.sqrt((x - x0)**2 + (y - y0)**2))
                      for x in (0, n - 1) for y in (0, m - 1)])
-        step = (R - 5 * sigma) / 3
+        step = (R - 5 * sigma) / 3  # distance between peak centers
         refr, refP0, refP2, refI, refbeta = ref_distr()
         f = 1 / (4 * np.pi * (1 + refr**2))  # rescaling factor for I
 
@@ -241,6 +267,7 @@ def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
 
         if not weq:
             continue
+        # check that results for symbolic and explicit weights match
         for key1, key2 in [((False, '1'), (False, None)),
                            ((False, 'sin'), (True, None)),
                            ((True, '1'), (False, 'sin'))]:
@@ -282,6 +309,9 @@ def test_remap():
 def run_method_odd(method, rmax, tolP0, tolP1, tolP2,
                    tolI, tolbeta1, tolbeta2, weq=True):
     """
+    Test harmonics and Ibeta for various combinations of origins and weights
+    for default order=2, but with odd=True.
+
     method = method name
     rmax = 'MIN' or 'all'
     tol... = (atol, rmstol) for ...
@@ -297,9 +327,11 @@ def run_method_odd(method, rmax, tolP0, tolP1, tolP2,
     # peak SD
     sigma = 2.0
 
+    # Gaussian peak.
     def peak(i, r):
         return np.exp(-(r - i * step)**2 / (2 * sigma**2))
 
+    # Test image.
     def image():
         # coordinates:
         x = np.arange(float(n)) - x0
@@ -312,13 +344,14 @@ def run_method_odd(method, rmax, tolP0, tolP1, tolP2,
         s = np.abs(x) / r
         s[y0, x0] = 1
         r[y0, x0] = 0
-        # image: 3 peaks with different anisotropies
+        # image: 4 peaks with different anisotropies
         IM = s**2      * peak(1, r) + \
              c**2      * peak(2, r) + \
              (1/2 + c) * peak(3, r) + \
                          peak(4, r)
         return IM, s  # image, sin theta
 
+    # Reference distribution for test image.
     def ref_distr():
         r = np.arange(R + 1)
         P0 = 2/3 * peak(1, r) + \
@@ -337,6 +370,7 @@ def run_method_odd(method, rmax, tolP0, tolP1, tolP2,
         param = ' @ y0 = {}, x0 = {}, rmax = {}, method = {}'.\
                 format(y0, x0, rmax, method)
 
+        # determine largest radius extracted from image
         if rmax == 'MIN':
             R = min(max(x0, n - 1 - x0), max(y0, m - 1 - y0))
         elif rmax == 'MAX':
@@ -346,7 +380,7 @@ def run_method_odd(method, rmax, tolP0, tolP1, tolP2,
                x0 == n // 2 and abs(y0 - m // 2) not in [0, m // 2]:
                 continue
             R = max(max(x0, n - 1 - x0), max(y0, m - 1 - y0))
-        step = (R - 5 * sigma) / 4
+        step = (R - 5 * sigma) / 4  # distance between peak centers
         refr, refP0, refP1, refP2, refI, refbeta1, refbeta2 = ref_distr()
         f = 1 / (4 * np.pi * (1 + refr**2))  # rescaling factor for I
 
@@ -406,6 +440,7 @@ def run_method_odd(method, rmax, tolP0, tolP1, tolP2,
 
         if not weq:
             continue
+        # check that results for symbolic and explicit weights match
         for key1, key2 in [((False, '1'), (False, None)),
                            ((False, 'sin'), (True, None)),
                            ((True, '1'), (False, 'sin'))]:
@@ -454,6 +489,8 @@ def test_remap_odd():
 
 def run_random(method, odd, use_sin, parts=True):
     """
+    Test quadrant flipping and image folding using random image data.
+
     method = method name
     parts = test that masking by weights array equals image cropping
     """

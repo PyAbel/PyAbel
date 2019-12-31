@@ -475,18 +475,19 @@ class Distributions(object):
             angular dependences must be inferred from very small available
             angular ranges)
     order : int
-        highest order in the angular distributions, ≥ 0
+        highest order in the angular distributions, ≥ 0 (by default, 2)
     odd : bool
-        include odd angular orders (is enabled automatically if **order** is
-        odd). Notice that although odd orders can be extracted from the upper
-        or lower image part alone, analyzing the whole image is more reliable.
+        include odd angular orders. By default is ``False``, but is enabled
+        automatically if **order** is odd. Notice that although odd orders can
+        be extracted from the upper or lower image part alone, analyzing the
+        whole image is more reliable.
     use_sin: bool
-        use :math:`|\sin \theta|` weighting. This is the weight implied in
-        spherical integration (for the total intensity, for example) and with
-        respect to which the Legendre polynomials are orthogonal, so using it
-        in the fitting procedure gives the most reasonable results even if the
-        data deviates form the assumed angular behavior. It also reduces
-        contributions from the centerline noise.
+        use :math:`|\sin \theta|` weighting (enabled by default). This is the
+        weight implied in spherical integration (for the total intensity, for
+        example) and with respect to which the Legendre polynomials are
+        orthogonal, so using it in the fitting procedure gives the most
+        reasonable results even if the data deviates form the assumed angular
+        behavior. It also reduces contributions from the centerline noise.
     weights : m × n numpy array, optional
         in addition to the optional :math:`|\sin \theta|` weighting (see
         **use_sin** above), use given weights for each pixel. The array shape
