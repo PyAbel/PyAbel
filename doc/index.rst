@@ -20,7 +20,7 @@ Contents:
    circularize_image
    examples
    contributing_link
-   
+   changelog_link
 
 
 Indices and tables
