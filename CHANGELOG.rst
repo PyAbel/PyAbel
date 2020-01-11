@@ -4,6 +4,11 @@ Changelog
 Unreleased
 ----------
 * Added odd angular orders to tools.vmi.Distributions (PR #266).
+* Important! Some "center" functions/parameters are renamed to "origin" or
+  "method"; using old names still works but will print deprecation warnings,
+  please update your code accordingly. Image origin is now always in the
+  (row, column) format for consistency within PyAbel and with NumPy/SciPy; this
+  can break some code, so please check carefully and update it if necessary.
 
 v0.8.3 (2019-08-16)
 -------------------
