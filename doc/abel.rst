@@ -26,6 +26,14 @@ abel.linbasex module
     :undoc-members:
     :show-inheritance:
 
+abel.rbasex module
+------------------
+
+.. automodule:: abel.rbasex
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 abel.hansenlaw module
 ---------------------
 
