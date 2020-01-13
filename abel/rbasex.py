@@ -220,7 +220,7 @@ def get_bs_cached(Rmax, direction='inverse'):
         return _tri
 
 
-def cache_cleanup():
+def cache_cleanup(select='all'):
     """
     Utility function.
 
@@ -230,7 +230,15 @@ def cache_cleanup():
 
     Parameters
     ----------
-    None
+    select : str
+        selects which caches to clean:
+
+        ``all`` (default)
+            everything, including basis;
+        ``forward``
+            forward transform;
+        ``inverse``
+            inverse transform.
 
     Returns
     -------
@@ -238,9 +246,12 @@ def cache_cleanup():
     """
     global _prm, _dst, _bs_prm, _bs, _trf, _tri
 
-    _prm = None
-    _dst = None
-    _bs_prm = None
-    _bs = None
-    _trf = None
-    _tri = None
+    if select == 'all':
+        _prm = None
+        _dst = None
+        _bs_prm = None
+        _bs = None
+    if select in ('all', 'forward'):
+        _trf = None
+    if select in ('all', 'inverse'):
+        _tri = None

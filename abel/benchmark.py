@@ -9,9 +9,10 @@ import abel
 from . import basex
 from . import dasch
 from . import direct
-from . import linbasex
 from . import hansenlaw
+from . import linbasex
 from . import onion_bordas
+from . import rbasex
 from . import tools
 
 from timeit import default_timer as timer
@@ -203,6 +204,7 @@ class AbelTiming(object):
         ])
         need_whole = frozenset([
             'linbasex',
+            'rbasex',
         ])
         # all available methods (= union of the above sets)
         all_methods = need_half | need_whole
@@ -466,13 +468,37 @@ class AbelTiming(object):
     def _time_onion_peeling(self):
         self._time_dasch('onion_peeling')
 
-    @_skip((['bs', 'inverse'], 'two_point'))
-    def _time_two_point(self):
-        self._time_dasch('two_point')
+    @_skip((['bs', 'inverse', 'forward'], 'rbasex'))
+    def _time_rbasex(self):
+        # benchmark the basis generation (default parameters)
+        def gen_basis():
+            rbasex.cache_cleanup()
+            rbasex.get_bs_cached(self.w)
+        self._benchmark('bs', 'rbasex',
+                        gen_basis)
+
+        # benchmark all transforms
+        for direction in ['inverse', 'forward']:  # (default first)
+            # warm-up run to cache "distributions" (basis is already cached)
+            rbasex.rbasex_transform(self.whole_image)
+            # benchmark the transform
+            self._benchmark(direction, 'rbasex',
+                            rbasex.rbasex_transform,
+                            self.whole_image)
+
+            # discard the unneeded transform matrix
+            basex.cache_cleanup(direction)
+
+        # discard all caches
+        rbasex.cache_cleanup()
 
     @_skip((['bs', 'inverse'], 'three_point'))
     def _time_three_point(self):
         self._time_dasch('three_point')
+
+    @_skip((['bs', 'inverse'], 'two_point'))
+    def _time_two_point(self):
+        self._time_dasch('two_point')
 
     # (End of benchmarking functions.)
 
