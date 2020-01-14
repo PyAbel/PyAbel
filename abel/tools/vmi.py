@@ -1007,12 +1007,23 @@ class Distributions(object):
         ----------
         r : numpy array
             radii from 0 to **rmax**
+        order : int
+            highest order in the angular distributions
+        odd : bool
+            whether odd angular orders are present
+        orders : list of int
+            orders for all angular terms:
+
+                [0, 2, ..., **order**] for **odd** = ``False``,
+
+                [0, 1, 2, ..., **order**] for **odd** = ``True``
         """
         def __init__(self, r, cn, order, odd):
             self.r = r
             self.cn = cn
             self.order = order
             self.odd = odd
+            self.orders = list(range(0, order + 1, 1 if odd else 2))
 
         def cos(self):
             r"""
