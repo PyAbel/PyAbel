@@ -16,8 +16,7 @@ from six import string_types
 from abel import _deprecated, _deprecate
 
 
-def find_origin(IM, method='image_center', square=False, verbose=False,
-                **kwargs):
+def find_origin(IM, method='image_center', verbose=False, **kwargs):
     """
     Find the coordinates of image origin, using the specified method.
 
@@ -43,9 +42,6 @@ def find_origin(IM, method='image_center', square=False, verbose=False,
         ``slice``
             the image is broken into slices, and these slices compared
             for symmetry.
-
-    square : bool
-        if ``True``, returned image will have a square shape
 
     Returns
     -------
@@ -546,7 +542,9 @@ def find_center(IM, center='image_center', square=False, verbose=False,
     """Deprecated function. Use :func:`find_origin` instead."""
     _deprecate('abel.tools.center.find_center() '
                'is deprecated, use abel.tools.center.find_origin() instead.')
-    return find_origin(IM, center, square, verbose, **kwargs)
+    if square:
+        _deprecate('Argument "square" has no effect and is deprecated.')
+    return find_origin(IM, center, verbose, **kwargs)
 
 
 def find_center_by_center_of_mass(IM, verbose=False, round_output=False,

@@ -9,6 +9,7 @@ Unreleased
   please update your code accordingly. Image origin is now always in the
   (row, column) format for consistency within PyAbel and with NumPy/SciPy; this
   can break some code, so please check carefully and update it if necessary.
+  See PR #267.
 
 v0.8.3 (2019-08-16)
 -------------------
