@@ -676,8 +676,11 @@ class Distributions(object):
         row_ = height - 1 - row
         col_ = width - 1 - col
         # min/max spans
-        hor, HOR = min(col, col_), max(col, col_)
         ver, VER = min(row, row_), max(row, row_)
+        hor, HOR = min(col, col_), max(col, col_)
+
+        # save these values for rbasex
+        self.row, self.col, self.VER, self.HOR = row, col, VER, HOR
 
         # Determine rmax.
         rmax_in = self.rmax_in

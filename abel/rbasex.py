@@ -37,15 +37,16 @@ from abel.tools.symmetry import put_image_quadrants
 
 # Caches and their parameters
 _prm = None  # [shape, origin, rmax, order, odd, weights]
-_dst = None  # Distribution object
+_dst = None  # Distributions object
 _bs_prm = None  # [Rmax, order, odd]
 _bs = None  # [P[n]] — projected functions
+_ibs = None  # [rbin, wl, wu, cos^n] — arrays for image construction
 _trf = None  # [Af[n]] — forward transform matrices
 _tri = None  # [Ai[n]] — inverse transform matrices
 
 
 def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
-                     weights=None, direction='inverse'):
+                     weights=None, direction='inverse', out='same'):
     """
     This function takes the input image and outputs its forward or inverse Abel
     transform as an image and its radial distributions.
@@ -73,10 +74,30 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         zero weights to their pixels.
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
+    out : str or None
+        shape of the output image:
+
+        ``'same'`` (default):
+            same shape and origin as the input
+        ``'fold'`` (fastest):
+            Q0 quadrant (for ``odd=False``) or right half (for ``odd=True``) up
+            to **rmax**, but limited to the largest input-image quadrant (or
+            half)
+        ``'unfold'``:
+            like ``'fold'``, but symmetrically “unfolded”
+        ``'full'``:
+            all pixels with radii up to **rmax**
+        ``'full-unique'``:
+            the unique part of ``'full'``: Q0 quadrant for ``odd=False``, right
+            half for ``odd=True``
+        ``None``:
+            no image (**recon** will be ``None``). Can be useful to avoid
+            unnecessary calculations if only the transformed radial
+            distributions (**distr**) are needed.
 
     Returns
     -------
-    recon : 2D numpy array
+    recon : 2D numpy array or None
         the transformed image. Is centered and might have different dimensions
         than the input image.
     distr : Distributions.Results object
@@ -90,6 +111,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
 
     # extract radial profiles from input image
     p = _profiles(IM, origin, rmax, order, odd, weights)
+    # (caches Distributions as _dst)
 
     Rmax = _dst.rmax
 
@@ -102,17 +124,39 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
     # construct output (transformed) distributions
     distr = Distributions.Results(np.arange(Rmax + 1), np.array(c), order, odd)
 
-    # construct output (transformed) image from transformed radial profiles
-    if odd:
-        Q = _image(c)  # actually right half
-        # combine with left half (mirrored without central column)
-        recon = np.hstack((Q[:, :0:-1], Q))
+    if out is None:
+        return None, distr
+
+    # output size
+    if out == 'same':
+        height = _dst.Qheight if odd else _dst.VER + 1
+        width = _dst.HOR + 1
+    elif out in ['fold', 'unfold']:
+        height = _dst.Qheight
+        width = _dst.Qwidth
+    elif out in ['full', 'full-unique']:
+        height = 2 * Rmax + 1 if odd else Rmax + 1
+        width = Rmax + 1
     else:
-        Q = _image(c)[::-1]  # flip to upper right (Q0)
-        # assemble full image
-        height, width = _dst.Qheight, _dst.Qwidth
-        recon = put_image_quadrants((Q, Q, Q, Q),
-                                    (2 * height - 1, 2 * width - 1))
+        raise ValueError('Wrong output shape "{}"'.format(out))
+    # construct output image from transformed radial profiles
+    recon = _image(height, width, c)  # bottom right quadrant or right half
+    if odd:
+        if out not in ['fold', 'full-unique']:
+            # combine with left half (mirrored without central column)
+            recon = np.hstack((recon[:, :0:-1], recon))
+    else:  # even only
+        recon = recon[::-1]  # flip to Q0
+        if out not in ['fold', 'full-unique']:
+            # assemble full image
+            recon = put_image_quadrants((recon, recon, recon, recon),
+                                        (2 * height - 1, 2 * width - 1))
+    if out == 'same':
+        # crop as needed
+        row = 0 if odd else _dst.VER - _dst.row
+        col = _dst.HOR - _dst.col
+        H, W = IM.shape
+        recon = recon[row:row + H, col:col + W]
 
     return recon, distr
 
@@ -124,23 +168,69 @@ def _profiles(IM, origin, rmax, order, odd, weights):
     # the Distributions object is cached to speed up further calculations,
     # plus its cos^n theta matrices are used later to construct the transformed
     # image
-    global _prm, _dst
+    global _prm, _dst, _ibs
 
     prm = [IM.shape, origin, rmax, order, odd, weights]
     if _prm != prm:
         _prm = prm
         _dst = Distributions(origin=origin, rmax=rmax, order=order, odd=odd,
                              weights=weights, use_sin=False, method='linear')
+        _ibs = None
 
     return _dst(IM).cos()
 
 
-def _image(c):
+def _get_image_bs(height, width):
+    global _ibs
+
+    if _ibs is not None:
+        return _ibs
+
+    # _dst quadrant has the minimal size, so height and width either equal its
+    # dimensions, or at least one of them is larger
+    if height == _dst.Qheight and width == _dst.Qwidth:
+        # use arrays already computed in _dst
+        _ibs = [_dst.bin, _dst.wl, _dst.wu, _dst.c]
+    else:  # height > _dst.Qheight or width > _dst.Qwidth
+        # compute arrays of requested size
+        rmax = _dst.rmax
+        # x row
+        x = np.arange(float(width))
+        # y and y^2 columns
+        y0 = rmax if _dst.odd else 0
+        y = y0 - np.arange(float(height))[:, None]
+        y2 = y**2
+        # arrays of r^2 and r
+        r2 = x**2 + y2
+        r = np.sqrt(r2)
+        # radial bins
+        rbin = r.astype(int)  # round down (floor)
+        rbin[rbin > rmax] = rmax + 1  # last bin is then discarded
+        # weights for upper and lower bins
+        wu = r - rbin
+        wl = 1 - wu
+        # cos^n theta
+        cos = [None]  # (cos^0 theta is not used)
+        if _dst.odd:
+            r[y0, 0] = np.inf  # (avoid division by zero)
+            cos.append(y / r)  # cos^1 theta
+        else:
+            r2[0, 0] = np.inf  # (avoid division by zero)
+            cos.append(y2 / r2)  # cos^2 theta
+        for n in range(2, len(_dst.c)):  # remaining powers
+            cos.append(cos[1] * cos[n - 1])
+
+        _ibs = [rbin, wl, wu, cos]
+
+    return _ibs
+
+
+def _image(height, width, c):
     """
     Create transformed image (lower right quadrant for even-only,
     right half for odd) from its cos^n theta radial profiles.
     """
-    rbin, wl, wu, cos = _dst.bin, _dst.wl, _dst.wu, _dst.c
+    rbin, wl, wu, cos = _get_image_bs(height, width)
 
     # 0th order (isotropic)
     IM = (wl * np.append(c[0], [0])[rbin] +  # lower bins
@@ -284,13 +374,14 @@ def cache_cleanup(select='all'):
     -------
     None
     """
-    global _prm, _dst, _bs_prm, _bs, _trf, _tri
+    global _prm, _dst, _bs_prm, _bs, _ibs, _trf, _tri
 
     if select == 'all':
         _prm = None
         _dst = None
         _bs_prm = None
         _bs = None
+        _ibs = None
     if select in ('all', 'forward'):
         _trf = None
     if select in ('all', 'inverse'):
