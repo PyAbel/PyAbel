@@ -365,7 +365,7 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
 
     if direction == 'forward':
         if _trf is None:
-            _trf = _bs
+            _trf = [Pn.T for Pn in _bs]
         return _trf
     else:  # 'inverse'
         if _tri_prm != [reg]:
