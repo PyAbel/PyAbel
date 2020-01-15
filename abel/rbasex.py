@@ -4,7 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from scipy.linalg import solve_triangular
+from scipy.linalg import inv, solve_triangular
 
 from abel.tools.vmi import Distributions
 from abel.tools.symmetry import put_image_quadrants
@@ -42,11 +42,12 @@ _bs_prm = None  # [Rmax, order, odd]
 _bs = None  # [P[n]] — projected functions
 _ibs = None  # [rbin, wl, wu, cos^n] — arrays for image construction
 _trf = None  # [Af[n]] — forward transform matrices
+_tri_prm = None  # [reg] — regularization parameters
 _tri = None  # [Ai[n]] — inverse transform matrices
 
 
 def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
-                     weights=None, direction='inverse', out='same'):
+                     weights=None, direction='inverse', reg=None, out='same'):
     """
     This function takes the input image and outputs its forward or inverse Abel
     transform as an image and its radial distributions.
@@ -74,6 +75,23 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         zero weights to their pixels.
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
+    reg : None or tuple (str, float), optional
+        regularization parameters for inverse Abel transform. ``None`` means no
+        regularization, otherwise use a tuple (type, strength). Available types
+        are:
+
+        ``'L2'``:
+            Tikhonov :math:`L_2` regularization. This is the same as “Tikhonov
+            regularization” used in BASEX, with almost identical effects on the
+            radial distributions.
+        ``'diff'``:
+            Tikhonov regularization with the difference operator (approximation
+            of the derivative) as the Tikhonov matrix. This tends to produce
+            less blurring, but more negative overshoots than ``'L2'``.
+
+        strength is the square of the Tikhonov factor. 0 gives no
+        regularization, 100 is a reasonable value for megapixel images.
+
     out : str or None
         shape of the output image:
 
@@ -116,7 +134,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
     Rmax = _dst.rmax
 
     # get appropriate transform matrices
-    A = get_bs_cached(Rmax, order, odd, direction)
+    A = get_bs_cached(Rmax, order, odd, direction, reg)
 
     # transform radial profiles
     c = [An.dot(pn) for An, pn in zip(A, p)]
@@ -301,7 +319,7 @@ def _bs_rbasex(Rmax, order, odd):
     return P
 
 
-def get_bs_cached(Rmax, order=2, odd=False, direction='inverse'):
+def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
     """
     Internal function.
 
@@ -319,20 +337,22 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse'):
         include odd angular orders
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
-
+    reg : None or tuple (str, float)
+        regularization type and strength for inverse transform
     Returns
     -------
     A : list of 2D numpy arrays
         (**Rmax** + 1) × (**Rmax** + 1) matrices of the Abel transform (forward
         or inverse) for each angular order
     """
-    global _bs_prm, _bs, _trf, _tri
+    global _bs_prm, _bs, _trf, _tri_prm, _tri
 
     prm = [Rmax, order, odd]
     if _bs is None or _bs_prm != prm:
         _bs_prm = prm
         _bs = _bs_rbasex(Rmax, order, odd)
         _trf = None
+        _tri_prm = None
         _tri = None
 
     if direction == 'forward':
@@ -340,13 +360,35 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse'):
             _trf = _bs
         return _trf
     else:  # 'inverse'
-        if _tri is None:
-            # P[n] are triangular, thus can be inverted faster than general
-            # matrices, however, NumPy/SciPy do not have such functions;
-            # nevertheless, solve_triangular() is ~twice faster than inv()
-            # (and ...(Pn, I, lower=True).T is faster than ...(Pn.T, I))
-            I = np.eye(Rmax + 1)
-            _tri = [solve_triangular(Pn, I, lower=True).T for Pn in _bs]
+        if _tri_prm != [reg]:
+            _tri_prm = [reg]
+            if reg is None:
+                _tri_prm = [None]
+                # P[n] are triangular, thus can be inverted faster than general
+                # matrices, however, NumPy/SciPy do not have such functions;
+                # nevertheless, solve_triangular() is ~twice faster than inv()
+                # (and ...(Pn, I, lower=True).T is faster than ...(Pn.T, I))
+                I = np.eye(Rmax + 1)
+                _tri = [solve_triangular(Pn, I, lower=True).T for Pn in _bs]
+            elif np.ndim(reg) == 0:  # not sequence type
+                raise ValueError('Wrong regularization format "{}"'.
+                                 format(reg))
+            elif reg[0] == 'L2':  # Tikhonov L2 norm
+                E = np.diag([reg[1]] * (Rmax + 1))
+                _tri = [Pn.dot(inv((Pn.T).dot(Pn) + E)) for Pn in _bs]
+            elif reg[0] == 'diff':  # Tikhonov derivative
+                # GTG = reg D^T D, where D is 1st-order difference operator
+                GTG = 2 * np.eye(Rmax + 1) - \
+                          np.eye(Rmax + 1, k=-1) - \
+                          np.eye(Rmax + 1, k=1)
+                GTG[0, 0] = 1
+                GTG[-1, -1] = 1
+                GTG *= reg[1]
+                _tri = [Pn.dot(inv((Pn.T).dot(Pn) + GTG)) for Pn in _bs]
+            else:
+                raise ValueError('Wrong regularization type "{}"'.
+                                 format(reg[0]))
+
         return _tri
 
 
@@ -374,7 +416,7 @@ def cache_cleanup(select='all'):
     -------
     None
     """
-    global _prm, _dst, _bs_prm, _bs, _ibs, _trf, _tri
+    global _prm, _dst, _bs_prm, _bs, _ibs, _trf, _tri_prm, _tri
 
     if select == 'all':
         _prm = None
@@ -385,4 +427,5 @@ def cache_cleanup(select='all'):
     if select in ('all', 'forward'):
         _trf = None
     if select in ('all', 'inverse'):
+        _tri_prm = None
         _tri = None
