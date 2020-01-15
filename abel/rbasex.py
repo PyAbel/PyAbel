@@ -4,7 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from scipy.linalg import inv, solve_triangular
+from scipy.linalg import inv, solve_triangular, svd
 
 from abel.tools.vmi import Distributions
 from abel.tools.symmetry import put_image_quadrants
@@ -48,7 +48,7 @@ _tri = None  # [Ai[n]] — inverse transform matrices
 
 def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
                      weights=None, direction='inverse', reg=None, out='same'):
-    """
+    r"""
     This function takes the input image and outputs its forward or inverse Abel
     transform as an image and its radial distributions.
 
@@ -77,20 +77,28 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         type of Abel transform to be performed
     reg : None or tuple (str, float), optional
         regularization parameters for inverse Abel transform. ``None`` means no
-        regularization, otherwise use a tuple (type, strength). Available types
-        are:
+        regularization, otherwise use a tuple (`type`, `strength`). Available
+        `type`\ s are:
 
         ``'L2'``:
-            Tikhonov :math:`L_2` regularization. This is the same as “Tikhonov
+            Tikhonov :math:`L_2` regularization with `strength` as the square
+            of the Tikhonov factor. This is the same as “Tikhonov
             regularization” used in BASEX, with almost identical effects on the
             radial distributions.
         ``'diff'``:
             Tikhonov regularization with the difference operator (approximation
-            of the derivative) as the Tikhonov matrix. This tends to produce
-            less blurring, but more negative overshoots than ``'L2'``.
+            of the derivative) multiplied by the square root of `strength` as
+            the Tikhonov matrix. This tends to produce less blurring, but more
+            negative overshoots than ``'L2'``.
+        ``'SVD'``:
+            truncated SVD (singular value decomposition) with
+            N = `strength` × **rmax** largest singular values removed for each
+            angular order. This mimics the approach used in pBasex.
 
-        strength is the square of the Tikhonov factor. 0 gives no
-        regularization, 100 is a reasonable value for megapixel images.
+        In all cases, `strength` = 0 provides no regularization. For the
+        Tikhonov methods, `strength` ~ 100 is a reasonable value for megapixel
+        images. For truncated SVD, `strength` must be < 1; 0.1 is a reasonable
+        value; `strength` ~ 0.5 can produce noticeable ringing artifacts.
 
     out : str or None
         shape of the output image:
@@ -375,6 +383,7 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
                                  format(reg))
             elif reg[0] == 'L2':  # Tikhonov L2 norm
                 E = np.diag([reg[1]] * (Rmax + 1))
+                # regularized inverse for each angular order
                 _tri = [Pn.dot(inv((Pn.T).dot(Pn) + E)) for Pn in _bs]
             elif reg[0] == 'diff':  # Tikhonov derivative
                 # GTG = reg D^T D, where D is 1st-order difference operator
@@ -384,7 +393,24 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
                 GTG[0, 0] = 1
                 GTG[-1, -1] = 1
                 GTG *= reg[1]
+                # regularized inverse for each angular order
                 _tri = [Pn.dot(inv((Pn.T).dot(Pn) + GTG)) for Pn in _bs]
+            elif reg[0] == 'SVD':
+                if reg[1] > 1:
+                    raise ValueError('Wrong SVD truncation factor {} > 1'.
+                                     format(reg[1]))
+                # truncation index (smallest SV of P -> largest SV of inverse)
+                rmax = int((1 - reg[1]) * Rmax) + 1
+                _tri = []
+                # loop over angular orders
+                for Pn in _bs:
+                    U, s, Vh = svd(Pn)
+                    # truncate matrices
+                    U = U[:, :rmax]
+                    s = 1 / s[:rmax]  # inverse
+                    Vh = Vh[:rmax]
+                    # regularized inverse for this angular order
+                    _tri.append((U * s).dot(Vh))
             else:
                 raise ValueError('Wrong regularization type "{}"'.
                                  format(reg[0]))
