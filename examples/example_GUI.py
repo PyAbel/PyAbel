@@ -9,10 +9,13 @@ import sys
 if sys.version_info[0] < 3:
     import Tkinter as tk
     from tkFileDialog import askopenfilename
+    import ttk
+    
 else:
     import tkinter as tk
     from tkinter.filedialog import askopenfilename
-import tkinter.ttk as ttk
+    import tkinter.ttk as ttk
+    
 import tkinter.font as tkFont
 from tkinter.scrolledtext import *
 #from ScrolledText import *
@@ -20,7 +23,7 @@ from tkinter.scrolledtext import *
 import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
-                                              NavigationToolbar2TkAgg
+                                              NavigationToolbar2Tk
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread, colorbar
@@ -60,7 +63,7 @@ class PyAbel:  #(tk.Tk):
                         sharey=self.plt[0]))
         self.plt.append(self.f.add_subplot(self.gs[3]))
         for i in [0, 2]:
-            self.plt[i].set_adjustable('box-forced')
+            self.plt[i].set_adjustable('box')
 
         # hide until have data
         for i in range(4):
@@ -276,7 +279,7 @@ class PyAbel:  #(tk.Tk):
 
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.parent)
+        self.toolbar = NavigationToolbar2Tk(self.canvas, self.parent)
         self.toolbar.update()
         self.canvas._tkcanvas.pack(anchor=tk.W, side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -300,7 +303,7 @@ class PyAbel:  #(tk.Tk):
         #self.a.plot((0, rows), (c2, c2),'r--', lw=0.1)
         #self.f.colorbar(self.a.get_children()[2], ax=self.f.gca())
         self.plt[0].set_title("raw image", fontsize=10)
-        self.canvas.show()
+        self.canvas.draw()
 
 
     def _loadimage(self):
