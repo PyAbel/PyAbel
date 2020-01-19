@@ -4,7 +4,8 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from scipy.linalg import inv, solve_triangular, svd
+from scipy.linalg import inv, solve_triangular, svd, pascal, invpascal
+from scipy.optimize import nnls
 
 from abel.tools.vmi import Distributions
 from abel.tools.symmetry import put_image_quadrants
@@ -43,7 +44,7 @@ _bs = None  # [P[n]] — projected functions
 _ibs = None  # [rbin, wl, wu, cos^n] — arrays for image construction
 _trf = None  # [Af[n]] — forward transform matrices
 _tri_prm = None  # [reg] — regularization parameters
-_tri = None  # [Ai[n]] — inverse transform matrices
+_tri = None  # [Ai[n]] — inverse transform matrices (or Af for reg='pos')
 
 
 def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
@@ -66,7 +67,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
     rmax : int or string
         largest radius to include in the transform
     order : int
-        highest order in the angular distributions, ≥ 0
+        highest angular order present in the data, ≥ 0
     odd : bool
         include odd angular orders (enabled automatically if **order** is odd)
     weights : m × n numpy array, optional
@@ -75,10 +76,11 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         zero weights to their pixels.
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
-    reg : None or tuple (str, float), optional
-        regularization parameters for inverse Abel transform. ``None`` means no
-        regularization, otherwise use a tuple (`type`, `strength`). Available
-        `type`\ s are:
+    reg : None or str or tuple (str, float), optional
+        regularization to use for inverse Abel transform. ``None`` means no
+        regularization, a string selects a non-parameterized regularization
+        method, and parameterized methods are selected by a tuple (`method`,
+        `strength`). Available methods are:
 
         ``'L2'``:
             Tikhonov :math:`L_2` regularization with `strength` as the square
@@ -94,11 +96,25 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
             truncated SVD (singular value decomposition) with
             N = `strength` × **rmax** largest singular values removed for each
             angular order. This mimics the approach used in pBasex.
+        ``'pos'``:
+            non-parameterized method, finds the best (in the least-squares
+            sense) solution with non-negative :math:`\cos^n\theta \sin^m\theta`
+            terms (see :meth:`~abel.tools.vmi.Distributions.Results.cossin`).
+            For **order** = 0, 1, and 2 (with **odd** = `False`) this is
+            equivalent to :math:`I(r, \theta) \geqslant 0`; for higher orders
+            this assumption is stronger than :math:`I \geqslant 0` and
+            corresponds to no interference between different multiphoton
+            channels. Not implemented for odd orders > 1.
+
+            Notice that this method is nonlinear, which also means that it is
+            considerably slower than the linear methods and might produce
+            slightly biased results.
 
         In all cases, `strength` = 0 provides no regularization. For the
         Tikhonov methods, `strength` ~ 100 is a reasonable value for megapixel
-        images. For truncated SVD, `strength` must be < 1; 0.1 is a reasonable
-        value; `strength` ~ 0.5 can produce noticeable ringing artifacts.
+        images. For truncated SVD, `strength` must be < 1; `strength` ~ 0.1 is
+        a reasonable value; `strength` ~ 0.5 can produce noticeable ringing
+        artifacts.
 
     out : str or None
         shape of the output image:
@@ -145,7 +161,20 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
     A = get_bs_cached(Rmax, order, odd, direction, reg)
 
     # transform radial profiles
-    c = [An.dot(pn) for An, pn in zip(A, p)]
+    if reg == 'pos':
+        N = len(p)
+        p = np.hstack(p)
+        cs = nnls(A, p)[0]
+        cs = np.split(cs, N)
+        if odd:
+            # (1 ± cos) / 2 → cos^0, cos^1
+            c = [cs[0] + cs[1], cs[0] - cs[1]]
+        else:
+            # cossin → cos transform
+            C = np.flip(invpascal(N, 'upper'))
+            c = C.dot(cs)
+    else:
+        c = [An.dot(pn) for An, pn in zip(A, p)]
 
     # construct output (transformed) distributions
     distr = Distributions.Results(np.arange(Rmax + 1), np.array(c), order, odd)
@@ -371,13 +400,35 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
         if _tri_prm != [reg]:
             _tri_prm = [reg]
             if reg is None:
-                _tri_prm = [None]
                 # P[n] are triangular, thus can be inverted faster than general
                 # matrices, however, NumPy/SciPy do not have such functions;
                 # nevertheless, solve_triangular() is ~twice faster than inv()
                 # (and ...(Pn, I, lower=True).T is faster than ...(Pn.T, I))
                 I = np.eye(Rmax + 1)
                 _tri = [solve_triangular(Pn, I, lower=True).T for Pn in _bs]
+            elif reg == 'pos':  # non-negative cos sin
+                # Construct forward transform matrix cossin → cos projections.
+                # Notes:
+                # 1. By reversing orders, it also could be made triangular for
+                #    more effective inversion, but nnls() does not care.
+                # 2. This code is not optimized, but its execution time is
+                #    still negligible compared to nnls().
+                if odd:
+                    if order > 1:
+                        raise ValueError('reg="pos" is not implemented for '
+                                         'odd orders > 1')
+                    # use (1 ± cos) / 2
+                    P0, P1 = _bs
+                    A = [[P0.T, P0.T], [P1.T, -P1.T]]
+                else:  # even only
+                    N = 1 + order // 2
+                    # cossin → cos transform
+                    C = np.flip(invpascal(N, 'upper'))
+                    # blocks for each order combination
+                    A = [[C[n, m] * Pn.T for m in range(N)]
+                         for n, Pn in enumerate(_bs)]
+                # make single matrix from blocks
+                _tri = np.block(A)
             elif np.ndim(reg) == 0:  # not sequence type
                 raise ValueError('Wrong regularization format "{}"'.
                                  format(reg))
