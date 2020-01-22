@@ -468,7 +468,8 @@ class AbelTiming(object):
     def _time_onion_peeling(self):
         self._time_dasch('onion_peeling')
 
-    @_skip((['bs', 'inverse', 'forward'], 'rbasex'))
+    @_skip(('bs', 'rbasex'),
+           (['inverse', 'forward'], ['rbasex', 'rbasex(None)']))
     def _time_rbasex(self):
         # benchmark the basis generation (default parameters)
         def gen_basis():
@@ -485,6 +486,10 @@ class AbelTiming(object):
             self._benchmark(direction, 'rbasex',
                             rbasex.rbasex_transform,
                             self.whole_image)
+            # same without output image
+            self._benchmark(direction, 'rbasex(None)',
+                            rbasex.rbasex_transform,
+                            self.whole_image, out=None)
 
             # discard the unneeded transform matrix
             basex.cache_cleanup(direction)
