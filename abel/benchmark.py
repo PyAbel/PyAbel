@@ -474,7 +474,7 @@ class AbelTiming(object):
         # benchmark the basis generation (default parameters)
         def gen_basis():
             rbasex.cache_cleanup()
-            rbasex.get_bs_cached(self.w)
+            rbasex.get_bs_cached(self.w - 1)  # Rmax = half-width - 1
         self._benchmark('bs', 'rbasex',
                         gen_basis)
 
