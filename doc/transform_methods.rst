@@ -23,9 +23,11 @@ The numerical Abel transform is computationally intensive, and a basic numerical
 
     8. ``*`` The :doc:`linbasex <transform_methods/linbasex>` 1D-spherical basis method of Gerber et al. evaluates 1D projections of velocity-map images in terms of 1D projections of spherical functions. The results produce directly the coefficients of the involved spherical functions, making the reconstruction of sliced Newton spheres obsolete.
 
-    9. (Planned implementation) The :doc:`Fourier–Hankel <transform_methods/fh>` method, which is computationally efficient, but contains significant centerline noise and is known to introduce artifacts. 
+    9. ``*`` The :doc:`rbasex <transform_methods/rbasex>` method is based on the pBasex method of Garcia et al. and basis functions developed by Ryazanov. Evaluates radial distributions of velocity-map images and transforms them to radial distributions of the reconstructed 3D distributions.
 
-    10. (Planned implementation) The :doc:`POP <transform_methods/pop>` (polar onion peeling) method. POP projects the image onto a basis set of Legendre polynomial-based functions, which can greatly reduce the noise in the reconstruction. However, this method only applies to images that contain features at constant radii. I.e., it works for the spherical shells seen in photoelectron/ion spectra, but not for flames.
+    10. (Planned implementation) The :doc:`Fourier–Hankel <transform_methods/fh>` method, which is computationally efficient, but contains significant centerline noise and is known to introduce artifacts.
+
+    11. (Planned implementation) The :doc:`POP <transform_methods/pop>` (polar onion peeling) method. POP projects the image onto a basis set of Legendre polynomial-based functions, which can greatly reduce the noise in the reconstruction. However, this method only applies to images that contain features at constant radii. I.e., it works for the spherical shells seen in photoelectron/ion spectra, but not for flames.
 
     ``*`` Methods marked with an asterisk require the generation of basis sets. The first time each method is run for a specific image size, a basis set must be generated, which can take several seconds or minutes. However, this basis set is saved to disk (generally to the current directory) and can be reused, making subsequent transforms very efficient. Users who are transforming numerous images using these methods will want to keep this in mind and specify the directory containing the basis sets.
 
@@ -36,13 +38,16 @@ Contents:
    :maxdepth: 2
    
    transform_methods/comparison
+
    transform_methods/basex
    transform_methods/direct
    transform_methods/hansenlaw
    transform_methods/linbasex
-   transform_methods/two_point
-   transform_methods/three_point
-   transform_methods/onion_peeling
    transform_methods/onion_bordas
+   transform_methods/onion_peeling
+   transform_methods/rbasex
+   transform_methods/three_point
+   transform_methods/two_point
+
    transform_methods/pop
    transform_methods/fh

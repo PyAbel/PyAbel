@@ -107,8 +107,8 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
             channels. Not implemented for odd orders > 1.
 
             Notice that this method is nonlinear, which also means that it is
-            considerably slower than the linear methods and might produce
-            slightly biased results.
+            considerably slower than the linear methods and the transform
+            operator cannot be cached.
 
         In all cases, `strength` = 0 provides no regularization. For the
         Tikhonov methods, `strength` ~ 100 is a reasonable value for megapixel
@@ -134,7 +134,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
             half for ``odd=True``
         ``None``:
             no image (**recon** will be ``None``). Can be useful to avoid
-            unnecessary calculations if only the transformed radial
+            unnecessary calculations when only the transformed radial
             distributions (**distr**) are needed.
 
     Returns
@@ -374,7 +374,7 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
         include odd angular orders
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
-    reg : None or tuple (str, float)
+    reg : None or str or tuple (str, float)
         regularization type and strength for inverse transform
     Returns
     -------
