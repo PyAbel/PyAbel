@@ -980,6 +980,9 @@ class Distributions(object):
             self.C = np.array([invn(hankel(p[:self.N], p[self.N - 1:]))
                                for p in pc])
 
+        # valid radii
+        self.valid = (self.C[:, 0, 0] != 0)
+
         self.ready = True
 
     class Results(object):
@@ -1025,14 +1028,21 @@ class Distributions(object):
             sine powers :math:`m` in the :math:`\cos^n\theta \cdot
             \sin^m\theta` terms from :meth:`cossin`; cosine powers :math:`n`
             are given by :attr:`orders` (see above)
+        valid : bool array
+            flags for each radius indicating whether it has valid data (radii
+            that have zero weights for all pixels will have no valid data)
         """
-        def __init__(self, r, cn, order, odd):
+        def __init__(self, r, cn, order, odd, valid=None):
             self.r = r
             self.cn = cn
             self.order = order
             self.odd = odd
             self.orders = list(range(0, order + 1, 1 if odd else 2))
             self.sinpowers = [(order - n) & ~1 for n in self.orders]
+            if valid is None:
+                self.valid = np.full_like(r, True)
+            else:
+                self.valid = valid
 
         def cos(self):
             r"""
@@ -1307,7 +1317,7 @@ class Distributions(object):
         # radii
         r = np.arange(self.rmax + 1)
 
-        return self.Results(r, I, self.order, self.odd)
+        return self.Results(r, I, self.order, self.odd, self.valid)
 
     def __call__(self, IM):
         return self.image(IM)
