@@ -37,7 +37,8 @@ from abel.tools.symmetry import put_image_quadrants
 
 
 # Caches and their parameters
-_prm = None  # [shape, origin, rmax, order, odd, weights]
+_prm = None  # [shape, origin, rmax, order, odd]
+_weights = None  # weights — pixel weights
 _dst = None  # Distributions object
 _bs_prm = None  # [Rmax, order, odd]
 _bs = None  # [P[n]] — projected functions
@@ -158,7 +159,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
     Rmax = _dst.rmax
 
     # get appropriate transform matrices
-    A = get_bs_cached(Rmax, order, odd, direction, reg)
+    A = get_bs_cached(Rmax, order, odd, direction, reg, _dst.valid)
 
     # transform radial profiles
     if reg == 'pos':
@@ -177,7 +178,9 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         c = [An.dot(pn) for An, pn in zip(A, p)]
 
     # construct output (transformed) distributions
-    distr = Distributions.Results(np.arange(Rmax + 1), np.array(c), order, odd)
+    distr = Distributions.Results(np.arange(Rmax + 1), np.array(c),
+                                  order, odd,
+                                  _dst.valid)
 
     if out is None:
         return None, distr
@@ -223,16 +226,28 @@ def _profiles(IM, origin, rmax, order, odd, weights):
     # the Distributions object is cached to speed up further calculations,
     # plus its cos^n theta matrices are used later to construct the transformed
     # image
-    global _prm, _dst, _ibs
+    global _prm, _weights, _dst, _ibs, _trf, _tri_prm, _tri
 
-    prm = [IM.shape, origin, rmax, order, odd, weights]
-    if _prm != prm:
+    old_valid = None if _dst is None else _dst.valid
+
+    prm = [IM.shape, origin, rmax, order, odd]
+    if _prm != prm or _weights is not weights:
         _prm = prm
+        _weights = weights
         _dst = Distributions(origin=origin, rmax=rmax, order=order, odd=odd,
                              weights=weights, use_sin=False, method='linear')
+        # reset image basis
         _ibs = None
 
-    return _dst(IM).cos()
+    c = _dst(IM).cos()
+
+    if not np.array_equal(_dst.valid, old_valid):
+        # reset transforms
+        _trf = None
+        _tri_prm = None
+        _tri = None
+
+    return c
 
 
 def _get_image_bs(height, width):
@@ -356,7 +371,8 @@ def _bs_rbasex(Rmax, order, odd):
     return P
 
 
-def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
+def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
+                  valid=None):
     """
     Internal function.
 
@@ -376,6 +392,9 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
         type of Abel transform to be performed
     reg : None or str or tuple (str, float)
         regularization type and strength for inverse transform
+    valid : None or bool array
+        flags to exclude invalid radii from transform
+
     Returns
     -------
     A : list of 2D numpy arrays
@@ -392,9 +411,29 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
         _tri_prm = None
         _tri = None
 
+    if valid is None or valid.all():
+        invalid = None
+    else:
+        invalid = np.logical_not(valid)
+
+    def mask(A):
+        # Zero rows for output radii without data (columns do not need to be
+        # zeroed, since input profiles already have zeros there).
+        # Array is modified; to preserve the original — pass a copy.
+        if invalid is not None:
+            A[invalid] = 0
+        return A
+
+    def Af():
+        # Make optionally masked forward-transform matrices.
+        if invalid is None:
+            return [Pn.T for Pn in _bs]
+        else:
+            return [mask(Pn.T.copy()) for Pn in _bs]
+
     if direction == 'forward':
         if _trf is None:
-            _trf = [Pn.T for Pn in _bs]
+            _trf = Af()
         return _trf
     else:  # 'inverse'
         if _tri_prm != [reg]:
@@ -405,7 +444,8 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
                 # nevertheless, solve_triangular() is ~twice faster than inv()
                 # (and ...(Pn, I, lower=True).T is faster than ...(Pn.T, I))
                 I = np.eye(Rmax + 1)
-                _tri = [solve_triangular(Pn, I, lower=True).T for Pn in _bs]
+                _tri = [mask(solve_triangular(Pn, I, lower=True).T)
+                        for Pn in _bs]
             elif reg == 'pos':  # non-negative cos sin
                 # Construct forward transform matrix cossin → cos projections.
                 # Notes:
@@ -418,15 +458,15 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
                         raise ValueError('reg="pos" is not implemented for '
                                          'odd orders > 1')
                     # use (1 ± cos) / 2
-                    P0, P1 = _bs
-                    A = [[P0.T, P0.T], [P1.T, -P1.T]]
+                    A0, A1 = Af()
+                    A = [[A0, A0], [A1, -A1]]
                 else:  # even only
                     N = 1 + order // 2
                     # cossin → cos transform
                     C = np.flip(invpascal(N, 'upper'))
                     # blocks for each order combination
-                    A = [[C[n, m] * Pn.T for m in range(N)]
-                         for n, Pn in enumerate(_bs)]
+                    A = [[C[n, m] * An for m in range(N)]
+                         for n, An in enumerate(Af())]
                 # make single matrix from blocks
                 _tri = np.block(A)
             elif np.ndim(reg) == 0:  # not sequence type
@@ -435,7 +475,7 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
             elif reg[0] == 'L2':  # Tikhonov L2 norm
                 E = np.diag([reg[1]] * (Rmax + 1))
                 # regularized inverse for each angular order
-                _tri = [Pn.dot(inv((Pn.T).dot(Pn) + E)) for Pn in _bs]
+                _tri = [An.T.dot(inv((An).dot(An.T) + E)) for An in Af()]
             elif reg[0] == 'diff':  # Tikhonov derivative
                 # GTG = reg D^T D, where D is 1st-order difference operator
                 GTG = 2 * np.eye(Rmax + 1) - \
@@ -445,7 +485,7 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
                 GTG[-1, -1] = 1
                 GTG *= reg[1]
                 # regularized inverse for each angular order
-                _tri = [Pn.dot(inv((Pn.T).dot(Pn) + GTG)) for Pn in _bs]
+                _tri = [An.T.dot(inv((An).dot(An.T) + GTG)) for An in Af()]
             elif reg[0] == 'SVD':
                 if reg[1] > 1:
                     raise ValueError('Wrong SVD truncation factor {} > 1'.
@@ -454,8 +494,8 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None):
                 rmax = int((1 - reg[1]) * Rmax) + 1
                 _tri = []
                 # loop over angular orders
-                for Pn in _bs:
-                    U, s, Vh = svd(Pn)
+                for An in Af():
+                    U, s, Vh = svd(An.T)
                     # truncate matrices
                     U = U[:, :rmax]
                     s = 1 / s[:rmax]  # inverse
