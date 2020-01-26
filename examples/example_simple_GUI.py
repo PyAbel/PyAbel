@@ -9,22 +9,16 @@ import abel
 
 from scipy.ndimage.interpolation import shift
 
-import sys
-import tkinter.ttk as ttk
+import matplotlib; matplotlib.use('TkAgg')  # avoids crash on OSX
 
-import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
                                               NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread
-if sys.version_info[0] < 3:
-    import Tkinter as tk
-    from tkFileDialog import askopenfilename
-else:
-    import tkinter as tk
-    from tkinter.filedialog import askopenfilename
 
-matplotlib.use('TkAgg')
+from six.moves import tkinter as tk
+from six.moves import tkinter_ttk as ttk
+from six.moves import tkinter_tkfiledialog as filedialog
 
 
 Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_peeling',
@@ -59,7 +53,7 @@ def _display():
 
 def _getfilename():
     global IM, text
-    fn = askopenfilename()
+    fn = filedialog.askopenfilename()
 
     # update what is occurring text box
     text.delete(1.0, tk.END)
@@ -108,9 +102,9 @@ def _transform():
     text.delete(1.0, tk.END)
     text.insert(tk.END, "inverse Abel transform: {:s}\n".format(method))
     if "basex" in method:
-        text.insert(tk.END,"  first time calculation of the basis functions may take a while ...\n")
+        text.insert(tk.END, "  first time calculation of the basis functions may take a while ...\n")
     if "direct" in method:
-       text.insert(tk.END,"   calculation is slowed if Cython unavailable ...\n")
+       text.insert(tk.END, "   calculation is slowed if Cython unavailable ...\n")
     canvas.draw()
 
     # inverse Abel transform of whole image
@@ -191,7 +185,7 @@ def _anisotropy():
 
         a.plot(theta, intensity[0], 'r-')
         a.plot(theta, PAD(theta, beta[0], amp[0]), 'b-', lw=2)
-        a.annotate("$\\beta({:d},{:d})={:.2g}\pm{:.2g}$"
+        a.annotate(r"$\\beta({:d},{:d})={:.2g}\pm{:.2g}$"
                    .format(rmx[0], rmx[1], beta[0], beta[1]), (-np.pi/2, -2))
     else:
         beta = AIM.Beta[1]
@@ -204,8 +198,9 @@ def _anisotropy():
 
 def _quit():
     root.quit()     # stops mainloop
-    root.destroy()  # this is necessary on Windows to prevent
-                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+    root.destroy()
+    # this is necessary on Windows to prevent
+    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
 
 # buttons with callbacks ----------------

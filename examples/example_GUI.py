@@ -3,12 +3,11 @@
 # Illustrative GUI driving a small subset of PyAbel methods
 
 import numpy as np
+import matplotlib; matplotlib.use('TkAgg')  # avoids crash on OSX
 import matplotlib.pyplot as plt
 import abel
-import tkinter.font as tkFont
-import tkinter.scrolledtext
 
-import matplotlib
+
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
                                               NavigationToolbar2Tk
 from matplotlib.figure import Figure
@@ -16,18 +15,12 @@ from matplotlib import gridspec
 
 from scipy.ndimage.interpolation import shift
 
-import sys
-if sys.version_info[0] < 3:
-    import Tkinter as tk
-    from tkFileDialog import askopenfilename
-    import ttk
+from six.moves import tkinter as tk
+from six.moves import tkinter_ttk as ttk
+from six.moves import tkinter_font as tkFont
+from six.moves import tkinter_scrolledtext as scrolledtext
+from six.moves import tkinter_tkfiledialog as filedialog
 
-else:
-    import tkinter as tk
-    from tkinter.filedialog import askopenfilename
-    import tkinter.ttk as ttk
-
-matplotlib.use('TkAgg')
 
 Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_peeling',
                 'onion_bordas', 'two_point', 'three_point']
@@ -250,7 +243,7 @@ class PyAbel:  # (tk.Tk):
 
     def _text_info_box(self):
         # text info box ---------------------
-        self.text = tkinter.scrolledtext.ScrolledText(
+        self.text = scrolledtext.ScrolledText(
             master=self.button_frame, height=6,
             fg="mediumblue", bd=1, relief=tk.SUNKEN)
         self.text.insert(tk.END, "Work in progress, some features may"
@@ -312,7 +305,7 @@ class PyAbel:  # (tk.Tk):
         self.canvas.draw()
 
         if self.fn == "from file":
-            self.fn = askopenfilename()
+            self.fn = filedialog.askopenfilename()
             # read image file
             if ".txt" in self.fn:
                 self.IM = np.loadtxt(self.fn)
@@ -520,7 +513,7 @@ class PyAbel:  # (tk.Tk):
                                 self.amp[0][0]), 'b-', lw=2)
             # I don't see the following annotation anywhere - DH 2020-01-16:
             self.plt[3].annotate(
-                "$\\beta({:d},{:d})={:.2g}\pm{:.2g}$"
+                r"$\\beta({:d},{:d})={:.2g}\pm{:.2g}$"
                 .format(*self.rmx+self.beta[0]),
                 (-3, self.intensity[0].min()/0.8))
             self.plt[3].set_title("anisotropy", fontsize=12)
