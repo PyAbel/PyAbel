@@ -7,6 +7,8 @@ Unreleased
 
 v0.8.3 (2019-08-16)
 -------------------
+* Fixed the GUI examples (example_GUI.py and example_simple_GUI.py)
+  so that they work with the lastest versions of tk (#269).
 * New tools.vmi.Distributions class for extracting radial intensity and
   anisotropy distributions (PR #257).
 * Dropped PyAbel version from basex cache files (PR #260).
