@@ -308,7 +308,7 @@ def find_origin_by_center_of_mass(IM, verbose=False, round_output=False,
     return origin
 
 
-def find_origin_by_convolution(IM, **kwargs):
+def find_origin_by_convolution(IM, projections=False, **kwargs):
     """
     Find the image origin as the maximum of autoconvolution of its projections
     along each axis.
@@ -320,8 +320,8 @@ def find_origin_by_convolution(IM, **kwargs):
     IM : numpy 2D array
         image data
 
-    projections : any
-        if this parameter is present, the autoconvoluted projections along
+    projections : bool
+        if this parameter is ``True``, the autoconvoluted projections along
         both axes will be returned after the origin.
 
     Returns
@@ -341,10 +341,9 @@ def find_origin_by_convolution(IM, **kwargs):
     conv_1 = np.convolve(QL_raw1, QL_raw1, mode='full')
 
     # Take the first max, should there be several equal maxima.
-    # 10May16 - axes swapped - check this
     origin = (np.argmax(conv_0) / 2, np.argmax(conv_1) / 2)
 
-    if "projections" in kwargs.keys():
+    if projections:
         return origin, conv_0, conv_1
     else:
         return origin
@@ -481,7 +480,11 @@ def find_origin_by_slice(IM, slice_width=10, radial_range=(0, -1),
     def _align(offset, sliceA, sliceB):
         """intensity difference between an axial slice and its shifted opposite.
         """
-        diff = shift(sliceA, offset) - sliceB
+        # always shift to the left (towards center)
+        if offset < 0:
+            diff = shift(sliceA, offset) - sliceB
+        else:
+            diff = sliceA - shift(sliceB, -offset)
         fvec = (diff**2).sum()
         return fvec
 
@@ -507,9 +510,7 @@ def find_origin_by_slice(IM, slice_width=10, radial_range=(0, -1),
         if fit["success"]:
             xyoffset[0] = -float(fit['x']) / 2  # x1/2 for image shift
         else:
-            if verbose:
-                print("fit failure: axis = 0, zero shift set")
-                print(fit)
+            raise RuntimeError("fit failure: axis = 0, zero shift set", fit)
 
     # horizontal axis
     if 1 in axis:

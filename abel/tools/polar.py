@@ -64,7 +64,7 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
         if origin[1] < 0:
             origin[1] += nx
 
-    # Determine that the min and max r and theta coords will be...
+    # Determine what the min and max r and theta coords will be...
     x, y = index_coords(data, origin=origin)  # (x,y) coordinates of each pixel
     r, theta = cart2polar(x, y)  # convert (x,y) -> (r,θ), note θ=0 is vertical
 
