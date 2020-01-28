@@ -13,6 +13,8 @@ from scipy.optimize import curve_fit
 from scipy.linalg import hankel, inv, pascal
 from scipy.special import legendre
 
+from abel import _deprecate
+
 
 def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     r"""Angular integration of the image.
@@ -105,7 +107,7 @@ def average_radial_intensity(IM, **kwargs):
     return R, intensity
 
 
-def radial_integration(IM, radial_ranges=None):
+def radial_integration(IM, origin=None, radial_ranges=None):
     r""" Intensity variation in the angular coordinate.
 
     This function is the :math:`\theta`-coordinate complement to
@@ -120,6 +122,10 @@ def radial_integration(IM, radial_ranges=None):
     ----------
     IM : 2D numpy.array
         the image data
+
+    origin : tuple or None
+        image origin in the (row, column) format. If ``None``, the geometric
+        center of the image (``rows // 2, cols // 2``) is used.
 
     radial_ranges : list of tuple ranges or int step
         tuple
@@ -150,8 +156,13 @@ def radial_integration(IM, radial_ranges=None):
     theta: 1D numpy.array
         angle coordinates, referenced to vertical direction
     """
+    if origin is not None and not isinstance(origin, tuple):
+        _deprecate('radial_integration() has 2nd argument "origin", '
+                   'use keyword argument "radial_ranges" or insert "None".')
+        radial_ranges = origin
+        origin = None
 
-    polarIM, r_grid, theta_grid = reproject_image_into_polar(IM)
+    polarIM, r_grid, theta_grid = reproject_image_into_polar(IM, origin)
 
     theta = theta_grid[0, :]  # theta coordinates
     r = r_grid[:, 0]          # radial coordinates

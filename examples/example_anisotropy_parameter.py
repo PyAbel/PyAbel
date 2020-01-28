@@ -58,7 +58,7 @@ r_range = [(145, 162), (200, 218), (230, 250), (255, 280), (280, 310),
 
 # anisotropy parameter from image for each tuple r_range
 Beta, Amp, Rmid, Ivstheta, theta =\
-              abel.tools.vmi.radial_integration(HIM.transform, r_range)
+    abel.tools.vmi.radial_integration(HIM.transform, radial_ranges=r_range)
 
 # OR  anisotropy parameter for ranges (0, 20), (20, 40) ...
 # Beta_whole_grid, Amp_whole_grid, Radial_midpoints =\
