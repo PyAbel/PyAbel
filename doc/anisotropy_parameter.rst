@@ -7,7 +7,7 @@ For linearly polarized light the angular distribution of photodetached electrons
 
   I(\epsilon, \theta) = \frac{\sigma_\text{total}(\epsilon)}{4\pi} [ 1 + \beta(\epsilon) P_2(\cos\theta)],
 
-where :math:`\beta(\epsilon)` is the electron kinetic energy (:math:`\epsilon`) dependent anisotropy parameter, which varies between −1 and +2, and :math:`P_2(\cos\theta)` is the 2nd-order Legendre polynomial in :math:`\cos\theta`. :math:`\sigma_\text{total}` is the total photodetachment cross section. The anisotropy parameter provides phase information about the dynamics of the photon process [1].
+where :math:`\beta(\epsilon)` is the electron kinetic energy (:math:`\epsilon`) dependent anisotropy parameter, which varies between −1 and +2, and :math:`P_2(\cos\theta)` is the 2nd-order Legendre polynomial in :math:`\cos\theta`. :math:`\sigma_\text{total}` is the total photodetachment cross section. The anisotropy parameter provides phase information about the dynamics of the photon process [1]_.
 
 
 Methods
@@ -51,4 +51,4 @@ See :doc:`example_anisotropy_parameter`. In this case the anisotropy parameter i
 Reference
 ---------
 
-[1] `J. Cooper and R. N. Zare, "Angular distribution of photoelectrons", J. Chem. Phys. 48, 942 (1968) <http://scitation.aip.org/content/aip/journal/jcp/48/2/10.1063/1.1668742>`_
+.. [1] \ J. Cooper, R. N. Zare, "Angular Distribution of Photoelectrons", `J. Chem. Phys. 48, 942–943 (1968) <https://dx.doi.org/10.1063/1.1668742>`_.

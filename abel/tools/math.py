@@ -62,11 +62,9 @@ def gradient(f, x=None, dx=1, axis=-1):
 
 def gaussian(x, a, mu, sigma, c):
     """
-    Gaussian function
+    `Gaussian function <https://en.wikipedia.org/wiki/Gaussian_function>`_
 
     :math:`f(x)=a e^{-(x - \mu)^2 / (2 \\sigma^2)} + c`
-
-    ref: https://en.wikipedia.org/wiki/Gaussian_function
 
     Parameters
     ----------

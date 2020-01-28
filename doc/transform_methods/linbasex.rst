@@ -9,7 +9,7 @@ Introduction
 ------------
 
 Inversion procedure based on 1-dimensional projections of VM-images as 
-described in Gerber et al. [1]. 
+described in Gerber et al. [1]_.
 
 [ *from the abstract* ]
 
@@ -160,5 +160,5 @@ PyAbel python code was extracted from this `jupyter notebook <https://www.psi.ch
 
 Citation
 --------
-[1] `Gerber, Thomas, Yuzhu Liu, Gregor Knopp, Patrick Hemberger, Andras Bodi, Peter Radi, and Yaroslav Sych, "Charged Particle Velocity Map Image Reconstruction with One-Dimensional Projections of Spherical Functions.” Rev. Sci. Instrum. 84, no. 3, 033101 (2013) <http://dx.doi.org/10.1063/1.4793404>`_
 
+.. [1] \ Th. Gerber, Yu. Liu, G. Knopp, P. Hemberger, A. Bodi, P. Radi, Ya. Sych, "Charged particle velocity map image reconstruction with one-dimensional projections of spherical functions", `Rev. Sci. Instrum. 84, 033101 (2013) <https://doi.org/10.1063/1.4793404>`_.

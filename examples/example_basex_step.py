@@ -10,8 +10,8 @@ plt.title('Abel tranforms of a step function')
 n = 301
 r_max = 50
 A0 = 10.0
-r1 = 6.0
-r2 = 14.0
+r1 = 6.5
+r2 = 14.5
 
 # define a symmetric step function and calculate its analytical Abel transform
 st = StepAnalytical(n, r_max, r1, r2, A0)

@@ -25,7 +25,7 @@ from six.moves import tkinter_tkfiledialog as filedialog
 Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_peeling',
                 'onion_bordas', 'two_point', 'three_point']
 
-center_methods = ['center-of-mass', 'convolution', 'gaussian', 'slice']
+center_methods = ['com', 'convolution', 'gaussian', 'slice']
 
 
 class PyAbel:  # (tk.Tk):
@@ -354,7 +354,7 @@ class PyAbel:  # (tk.Tk):
         self.canvas.draw()
 
         # center image via chosen method
-        self.IM = abel.tools.center.center_image(self.IM, center=center_method,
+        self.IM = abel.tools.center.center_image(self.IM, method=center_method,
                                                  odd_size=True)
         # self.text.insert(tk.END, "\ncenter offset = {:}".format(self.offset))
         self.text.see(tk.END)

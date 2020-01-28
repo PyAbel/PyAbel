@@ -34,7 +34,7 @@ def save16bitPNG(filename, data):
     It's not easy to save 16-bit images in Python.
     Here is a way to save a 16-bit PNG
     Again, this is thanks to stackoverflow:
-    http://stackoverflow.com/questions/25696615/\
+    https://stackoverflow.com/questions/25696615/\
     can-i-save-a-numpy-array-as-a-16-bit-image-using-normal-enthought-python
     This requires pyPNG
     """

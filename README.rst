@@ -6,7 +6,8 @@ PyAbel README
 .. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
     :target: https://ci.appveyor.com/project/PyAbel/PyAbel
 
-**Note:** This readme is best viewed as part of the `PyAbel Documentation <http://pyabel.readthedocs.io/en/latest/readme_link.html>`_.
+**Note:** This readme is best viewed as part of the `PyAbel Documentation <https://pyabel.readthedocs.io/en/latest/readme_link.html>`_.
+
 
 Introduction
 ------------
@@ -23,11 +24,10 @@ Inverse Abel transforms play an important role in analyzing the projections of a
 PyAbel provides efficient implementations of several Abel transform algorithms, as well as related tools for centering images, symmetrizing images, and calculating properties such as the radial intensity distribution and the anisotropy parameters.
 
 
-
 Transform Methods
 -----------------
 
-The outcome of the numerical Abel transform depends on the exact method used. So far, PyAbel includes the following `transform methods <http://pyabel.readthedocs.io/en/latest/transform_methods.html>`_:
+The outcome of the numerical Abel transform depends on the exact method used. So far, PyAbel includes the following `transform methods <https://pyabel.readthedocs.io/en/latest/transform_methods.html>`_:
 
     1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
 
@@ -49,7 +49,7 @@ The outcome of the numerical Abel transform depends on the exact method used. So
 Installation
 ------------
 
-PyAbel requires Python 2.7 or 3.5-3.7. `NumPy <http://www.numpy.org/>`_ and `SciPy <https://www.scipy.org/>`_ are also required, and `Matplotlib <https://matplotlib.org/>`_ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
+PyAbel requires Python 2.7 or 3.5-3.7. `NumPy <https://www.numpy.org/>`_ and `SciPy <https://www.scipy.org/>`_ are also required, and `Matplotlib <https://matplotlib.org/>`_ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
 
 With pip
 ~~~~~~~~
@@ -93,8 +93,10 @@ The results can then be plotted using Matplotlib:
 
     fig, axs = plt.subplots(1, 2, figsize=(6, 4))
 
-    axs[0].imshow(forward_abel, clim=(0, np.max(forward_abel)*0.6), origin='lower', extent=(-1,1,-1,1))
-    axs[1].imshow(inverse_abel, clim=(0, np.max(inverse_abel)*0.4), origin='lower', extent=(-1,1,-1,1))
+    axs[0].imshow(forward_abel, clim=(0, np.max(forward_abel) * 0.6),
+                  origin='lower', extent=(-1, 1, -1, 1))
+    axs[1].imshow(inverse_abel, clim=(0, np.max(inverse_abel) * 0.4),
+                  origin='lower', extent=(-1, 1, -1, 1))
 
     axs[0].set_title('Forward Abel Transform')
     axs[1].set_title('Inverse Abel Transform')
@@ -108,11 +110,12 @@ Output:
    :width: 400px
    :alt: example abel transform
 
-.. note:: Additional examples can be viewed on the `PyAbel examples <http://pyabel.readthedocs.io/en/latest/examples.html>`_ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`_ directory.
+.. note:: Additional examples can be viewed on the `PyAbel examples <https://pyabel.readthedocs.io/en/latest/examples.html>`_ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`_ directory.
 
 
 Documentation
 -------------
+
 General information about the various Abel transforms available in PyAbel is available at the links above. The complete documentation for all of the methods in PyAbel is hosted at https://pyabel.readthedocs.io.
 
 
@@ -122,36 +125,39 @@ Conventions
 The PyAbel code adheres to the following conventions:
 
 - 
-    **Image orientation:** PyAbel adopts the "television" convention, where ``IM[0,0]`` refers to the **upper** left corner of the image. (This means that ``plt.imshow(IM)`` should display the image in the proper orientation, without the need to use the ``origin='lower'`` keyword.) As an example, the x,y-grid for a 5x5 image can be generated using:
+    **Image orientation:** PyAbel adopts the "television" convention, where ``IM[0, 0]`` refers to the **upper** left corner of the image. (This means that ``plt.imshow(IM)`` should display the image in the proper orientation, without the need to use the ``origin='lower'`` keyword.) Image coordinates are in the (row, column) format, consistent with NumPy array indexing, and negative values are interpreted as relative to the end of the corresponding axis. For example, ``(-1, 0)`` refers to the lower left corner (last row, 0th column). Cartesian coordinates can also be generated if needed. For example, the x, y grid for a centered 5×5 image:
 
     .. code-block:: python
 
-        x = np.linspace(-2,2,5)
-        X,Y = np.meshgrid(x, -x) # notice the minus sign in front of the y-coordinate
-    
+        x = np.linspace(-2, 2, 5)
+        X, Y = np.meshgrid(x, -x)  # notice the minus sign in front of the y coordinate
+
+    The ``abel.tools.polar.index_coords`` function does this for images of any shape with any origin.
+
 - 
-    **Angle:** All angles in PyAbel are measured in radians. When an absolute angle is defined, zero-angle corresponds to the upwards, vertical direction. Positive values are on the right side, and negative values on the left side. The range of angles is from -Pi to +Pi. The polar grid for a 5x5 image can be generated (following the code above) using:
+    **Angle:** All angles in PyAbel are measured in radians. When an absolute angle is defined, zero angle corresponds to the upwards vertical direction. Positive values are on the right side, and negative values on the left side. The range of angles is from −π to +π. The polar grid for a centered 5×5 image can be generated (following the code above) using
 
     .. code-block:: python
 
         R = np.sqrt(X**2 + Y**2)
         THETA = np.arctan2(X, Y)
 
-
-    where the usual ``(Y, X)`` convention of ``arctan2`` has been reversed in order to place zero-angle in the vertical direction. Consequently, to convert the angular grid back to the Cartesian grid, we use:
+    where the usual ``(Y, X)`` convention of ``arctan2`` has been reversed in order to place zero angle in the vertical direction. Consequently, to convert the angular grid back to the Cartesian grid, we use
   
     .. code-block:: python
 
-        X = R*np.sin(THETA)
-        Y = R*np.cos(THETA)
-    
+        X = R * np.sin(THETA)
+        Y = R * np.cos(THETA)
+
+    The ``abel.tools.polar.cart2polar`` and ``abel.tools.polar.polar2cart`` functions are available for conversion between these Cartesian and polar grids.
 
 - 
-    **Image center:** Fundamentally, the Abel and inverse-Abel transforms in PyAbel consider the center of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The center pixel is effectively "shared" between both halves of the image.) In most situations, the center is specified using the ``center`` keyword in ``abel.Transform`` (or directly using ``abel.center.center_image`` to find the true center of your image. This processing step takes care of locating the center of the image in the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image.
+    **Image origin:** Fundamentally, the forward and inverse Abel transforms in PyAbel consider the origin of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The central pixel is effectively "shared" between both halves of the image.) In most situations, the image origin is specified using the ``origin`` keyword in ``abel.Transform`` (or directly using ``abel.center.center_image`` to find the origin (the center of symmetry) of your image). This processing step takes care of shifting the origin of the image to the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image. Some methods also provide low-level functions for transforming only the right half of the image (with the origin located in the middle of a 0th-column pixel).
 
 
 Support
 -------
+
 If you have a question or suggestion about PyAbel, the best way to contact the PyAbel Developers Team is to `open a new issue <https://github.com/PyAbel/PyAbel/issues>`_.
 
 
@@ -167,11 +173,13 @@ Either open a new `Issue <https://github.com/PyAbel/PyAbel/issues>`_ or make a `
 
 License
 -------
+
 PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE.txt>`_, so it can be used for pretty much whatever you want! Of course, it is provided "as is" with absolutely no warranty.
 
 
 Citation
 --------
+
 First and foremost, please cite the paper(s) corresponding to the implementation of the Abel transform that you use in your work. The references can be found at the links above.
 
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. You can find the DOI for the lastest verison `here <https://dx.doi.org/10.5281/zenodo.594858>`_

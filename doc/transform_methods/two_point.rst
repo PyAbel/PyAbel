@@ -6,15 +6,15 @@ Introduction
 ------------
 
 The "Dasch two-point" deconvolution algorithm is one of several
-described in the Dasch [1] paper. See also the ``three_point`` and 
+described in the Dasch paper [1]_. See also the ``three_point`` and
 ``onion_peeling`` descriptions.
 
 How it works
 ------------
 
-The Abel integral is broken into intervals between the :math:`r_j` 
+The Abel integral is broken into intervals between the :math:`r_j`
 points, and :math:`P^\prime(r)` is assumed constant between :math:`r_j` and
-:math:`r_{j+1}`. 
+:math:`r_{j+1}`.
 
 When to use it
 --------------
@@ -40,11 +40,10 @@ Example
     :include-source:
 
 
-or more information on the PyAbel implementation of the ``two_point`` algorithm, please see `Pull Request #155 <https://github.com/PyAbel/PyAbel/pull/155#issuecomment-200630188>`_.
-
+For more information on the PyAbel implementation of the ``two_point`` algorithm, please see `PR #155 <https://github.com/PyAbel/PyAbel/pull/155#issuecomment-200630188>`_.
 
 
 Citation
 --------
-[1] `Dasch, Applied Optics, Vol 31, No 8, March 1992, Pg 1146-1152 <(http://dx.doi.org/10.1364/AO.31.001146>`_.
 
+.. [1] \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`_.

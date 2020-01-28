@@ -26,9 +26,14 @@ from scipy.linalg import inv
 ###############################################################################
 
 _dasch_parameter_docstring = \
-    """dasch_method deconvolution
-        C. J. Dasch Applied Optics 31, 1146 (1992).
-        http://dx.doi.org/10.1364/AO.31.001146
+    """
+    The dasch_method deconvolution method.
+
+    C. J. Dasch,
+    "One-dimensional tomography: a comparison of Abel, onion-peeling, and
+    filtered backprojection methods",
+    `Appl. Opt. 31, 1146–1152 (1992)
+    <https://doi.org/10.1364/AO.31.001146>`_.
 
     Parameters
     ----------
@@ -278,7 +283,7 @@ def _bs_onion_peeling(cols):
 
 
 def get_bs_cached(method, cols, basis_dir='.', verbose=False):
-    """load Dasch method deconvolution operator array from cache, or disk.
+    """Load Dasch method deconvolution operator array from cache, or disk.
     Generate and store if not available.
 
     Checks whether ``method`` deconvolution array has been previously

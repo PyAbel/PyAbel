@@ -4,11 +4,17 @@ Changelog
 Unreleased
 ----------
 * Added odd angular orders to tools.vmi.Distributions (PR #266).
+* Important! Some "center" functions/parameters are renamed to "origin" or
+  "method"; using old names still works but will print deprecation warnings,
+  please update your code accordingly. Image origin is now always in the
+  (row, column) format for consistency within PyAbel and with NumPy/SciPy; this
+  can break some code, so please check carefully and update it if necessary.
+  See PR #267.
+* Fixed the GUI examples (example_GUI.py and example_simple_GUI.py)
+  so that they work with the lastest versions of tk (PR #269).
 
 v0.8.3 (2019-08-16)
 -------------------
-* Fixed the GUI examples (example_GUI.py and example_simple_GUI.py)
-  so that they work with the lastest versions of tk (#269).
 * New tools.vmi.Distributions class for extracting radial intensity and
   anisotropy distributions (PR #257).
 * Dropped PyAbel version from basex cache files (PR #260).

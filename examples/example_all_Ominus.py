@@ -50,6 +50,10 @@ print ("quadrant shape {}".format(Q0.shape))
 
 iabelQ = []  # keep inverse Abel transformed image
 
+# subplots: 121 — whole image, 122 — speed distributions
+ax_im = plt.subplot(121)
+ax_sp = plt.subplot(122)
+
 for q, method in enumerate(transforms.keys()):
 
     Q0 = Q0fresh.copy()   # top-right quadrant of O2- image
@@ -60,19 +64,16 @@ for q, method in enumerate(transforms.keys()):
     # inverse Abel transform using 'method'
     IAQ0 = transforms[method](Q0, direction="inverse", basis_dir='bases')
 
-    print ("                    {:.1f} sec".format(time()-t0))
+    print ("                    {:.1f} s".format(time()-t0))
 
     iabelQ.append(IAQ0)  # store for plot
 
     # polar projection and speed profile
-    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(0, 0))
+    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(-1, 0))
 
     # normalize image intensity and speed distribution
     IAQ0 /= IAQ0.max()  
     speed /= speed.max()
-
-    # plots    #121 whole image,   #122 speed distributions
-    plt.subplot(121) 
 
     # method label for each quadrant
     annot_angle = -(45+q*90)*np.pi/180  # -ve because numpy coords from top
@@ -80,11 +81,10 @@ for q, method in enumerate(transforms.keys()):
         annot_angle += 50*np.pi/180    # shared quadrant - move the label  
     annot_coord = (h/2+(h*0.9)*np.cos(annot_angle)/2, 
                    w/2+(w*0.9)*np.sin(annot_angle)/2)
-    plt.annotate(method, annot_coord, color="yellow")
+    ax_im.annotate(method, annot_coord, color="yellow")
 
     # plot speed distribution
-    plt.subplot(122) 
-    plt.plot(radial, speed, label=method)
+    ax_sp.plot(radial, speed, label=method)
 
 # reassemble image, each quadrant a different method
 
@@ -106,13 +106,11 @@ im = abel.tools.symmetry.put_image_quadrants((iabelQ[0], iabelQ[1],
                                               iabelQ[2], iabelQ[3]), 
                                               original_image_shape=IM.shape)
 
-plt.subplot(121)
-plt.imshow(im, vmin=0, vmax=0.8)
+ax_im.imshow(im, vmin=0, vmax=0.8)
 
-plt.subplot(122)
 plt.title("Ominus sample image")
-plt.axis(ymin=-0.05, ymax=1.1)
-plt.legend(loc=0, labelspacing=0.1)
+ax_sp.axis(ymin=-0.05, ymax=1.1)
+ax_sp.legend(loc=0, labelspacing=0.1)
 plt.tight_layout()
 plt.savefig('plot_example_all_Ominus.png', dpi=100)
 plt.show()

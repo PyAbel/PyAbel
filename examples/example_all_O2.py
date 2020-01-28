@@ -43,7 +43,7 @@ imagefile = bz2.BZ2File('data/O2-ANU1024.txt.bz2')
 IM = np.loadtxt(imagefile)
 
 # recenter the image to mid-pixel (odd image width)
-IModd = abel.tools.center.center_image(IM, center="slice", odd_size=True)
+IModd = abel.tools.center.center_image(IM, method="slice", odd_size=True)
 
 h, w = IModd.shape
 print("centered image 'data/O2-ANU2048.txt' shape = {:d}x{:d}".format(h, w))
@@ -76,10 +76,10 @@ for q, method in enumerate(transforms.keys()):
     # inverse Abel transform using 'method'
     IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
                               basis_dir='bases')
-    print ("                    {:.1f} sec".format(time()-t0))
+    print ("                    {:.1f} s".format(time()-t0))
 
     # polar projection and speed profile
-    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(0, 0),
+    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(-1, 0),
                                                        dr=0.1)
 
     # normalize image intensity and speed distribution

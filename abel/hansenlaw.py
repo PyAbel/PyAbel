@@ -55,24 +55,26 @@ import numpy as np
 
 def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
                         **kwargs):
-    r"""Forward/Inverse Abel transformation using the algorithm of:
+    r"""Forward/Inverse Abel transformation using the algorithm from
 
-    `E. W. Hansen "Fast Hankel Transform" IEEE Trans. Acoust. Speech Signal
-    Proc. 33, 666 (1985) <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
+    E. W. Hansen,
+    "Fast Hankel transform algorithm",
+    `IEEE Trans. Acoust. Speech Signal Proc. 33, 666–671 (1985)
+    <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
 
     and
 
-    `E. W. Hansen and P.-L. Law
-    "Recursive methods for computing the Abel transform and its inverse"
-    J. Opt. Soc. Am. A 2, 510-520 (1985)
-    <https://dx.doi.org/10.1364/JOSAA.2.000510>`_
+    E. W. Hansen, P.-L. Law,
+    "Recursive methods for computing the Abel transform and its inverse",
+    `J. Opt. Soc. Am. A 2, 510–520 (1985)
+    <https://dx.doi.org/10.1364/JOSAA.2.000510>`_.
 
-    This function performs the Hansen-Law transform on only one "right-side"
-    image: ::
+    This function performs the Hansen–Law transform on only one "right-side"
+    image::
 
         Abeltrans = abel.hansenlaw.hansenlaw_transform(image, direction='inverse')
 
-    .. note::  Image should be a right-side image, like this: ::
+    .. note::  Image should be a right-side image, like this::
 
         .         +--------      +--------+
         .         |      *       | *      |
@@ -84,7 +86,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         .         |     *        | *      |
         .         +--------      +--------+
 
-        In accordance with all PyAbel methods the image center ``o`` is
+        In accordance with all PyAbel methods the image origin ``o`` is
         defined to be mid-pixel i.e. an odd number of columns, for the
         full image.
 
@@ -92,11 +94,11 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     For the full image transform, use the
     :class:`abel.Transform<abel.transform.Transform>`.
 
-    Inverse Abel transform: ::
+    Inverse Abel transform::
 
       iAbel = abel.Transform(image, method='hansenlaw').transform
 
-    Forward Abel transform: ::
+    Forward Abel transform::
 
       fAbel = abel.Transform(image, direction='forward', method='hansenlaw').transform
 

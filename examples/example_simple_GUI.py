@@ -24,7 +24,7 @@ from six.moves import tkinter_tkfiledialog as filedialog
 Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_peeling',
                 'onion_bordas', 'two_point', 'three_point']
 
-center_methods = ['center-of-mass', 'convolution', 'gaussian', 'slice']
+center_methods = ['com', 'convolution', 'gaussian', 'slice']
 
 # GUI window -------------------
 
@@ -77,19 +77,19 @@ def _getfilename():
 def _center():
     global cent, IM, text
 
-    center = cent.get()
+    method = cent.get()
 
     # update information text box
     text.delete(1.0, tk.END)
     text.insert(
         tk.END,
-        "centering image using abel.tools.center_image(center={})\n"
-        .format(center))
+        "centering image using abel.tools.center_image(method={})\n"
+        .format(method))
     canvas.draw()
 
     # center image via horizontal (left, right), and vertical (top, bottom)
     # intensity slices
-    IM = abel.tools.center.center_image(IM, center=center, odd_size=True)
+    IM = abel.tools.center.center_image(IM, method=method, odd_size=True)
 
     _display()
 

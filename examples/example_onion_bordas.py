@@ -14,7 +14,7 @@ IM = abel.tools.analytical.SampleImage(n=501).image
 origQ = abel.tools.symmetry.get_image_quadrants(IM)
 
 # speed distribution
-orig_speed = abel.tools.vmi.angular_integration(origQ[0], origin=(0,0))
+orig_speed = abel.tools.vmi.angular_integration(origQ[0], origin=(-1, 0))
 
 # forward Abel projection
 fIM = abel.Transform(IM, direction="forward", method="hansenlaw").transform
@@ -26,7 +26,7 @@ Q0 = Q[0].copy()
 # onion_bordas inverse Abel transform
 borQ0 = abel.onion_bordas.onion_bordas_transform(Q0)
 # speed distribution
-bor_speed = abel.tools.vmi.angular_integration(borQ0, origin=(0,0))
+bor_speed = abel.tools.vmi.angular_integration(borQ0, origin=(-1, 0))
 
 plt.plot(*orig_speed, linestyle='dashed', label="Dribinski sample")
 plt.plot(bor_speed[0], bor_speed[1], label="onion_bordas")

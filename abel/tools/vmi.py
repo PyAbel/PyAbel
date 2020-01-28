@@ -13,6 +13,8 @@ from scipy.optimize import curve_fit
 from scipy.linalg import hankel, inv, pascal
 from scipy.special import legendre
 
+from abel import _deprecate
+
 
 def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     r"""Angular integration of the image.
@@ -20,58 +22,58 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     Returns the one-dimensional intensity profile as a function of the
     radial coordinate.
 
-    Note: the use of Jacobian=True applies the correct Jacobian for the
+    Note: the use of ``Jacobian=True`` applies the correct Jacobian for the
     integration of a 3D object in spherical coordinates.
 
     Parameters
     ----------
     IM : 2D numpy.array
-        The data image.
+        the image data
 
-    origin : tuple
-        Image center coordinate relative to *bottom-left* corner
-        defaults to ``rows//2, cols//2``.
+    origin : tuple or None
+        image origin in the (row, column) format. If ``None``, the geometric
+        center of the image (``rows // 2, cols // 2``) is used.
 
-    Jacobian : boolean
+    Jacobian : bool
         Include :math:`r\sin\theta` in the angular sum (integration).
         Also, ``Jacobian=True`` is passed to
         :func:`abel.tools.polar.reproject_image_into_polar`,
-        which includes another value of ``r``, thus providing the appropriate
+        which includes another value of `r`, thus providing the appropriate
         total Jacobian of :math:`r^2\sin\theta`.
 
     dr : float
-        Radial coordinate grid spacing, in pixels (default 1). `dr=0.5` may
+        radial grid spacing in pixels (default 1). ``dr=0.5`` may
         reduce pixel granularity of the speed profile.
 
-    dt : float
-        Theta coordinate grid spacing in radians.
-        if ``dt=None``, dt will be set such that the number of theta values
-        is equal to the height of the image (which should typically ensure
-        good sampling.)
+    dt : float or None
+        angular grid spacing in radians.
+        If ``None``, the number of theta values will be set to largest
+        dimension (the height or the width) of the image, which should
+        typically ensure good sampling.
 
     Returns
     ------
     r : 1D numpy.array
-         radial coordinates
+        radial coordinates
 
     speeds : 1D numpy.array
-         Integrated intensity array (vs radius).
+        integrated intensity array (vs radius).
 
-     """
+    """
 
     polarIM, R, T = reproject_image_into_polar(
         IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)
 
     dt = T[0, 1] - T[0, 0]
 
-    if Jacobian:  # x r sinθ
-        polarIM = polarIM * R * np.abs(np.sin(T))
+    if Jacobian:  # × r sinθ
+        polarIM *= R * np.abs(np.sin(T))
 
     speeds = np.trapz(polarIM, axis=1, dx=dt)
 
     n = speeds.shape[0]
 
-    return R[:n, 0], speeds   # limit radial coordinates range to match speed
+    return R[:n, 0], speeds  # limit radial coordinates range to match speed
 
 
 def average_radial_intensity(IM, **kwargs):
@@ -80,25 +82,24 @@ def average_radial_intensity(IM, **kwargs):
     in that it returns the average intensity, and not the integrated intensity
     of a 3D image. It is equivalent to calling
     :func:`abel.tools.vmi.angular_integration` with
-    `Jacobian=True` and then dividing the result by 2*pi.
-
+    ``Jacobian=True`` and then dividing the result by 2π.
 
     Parameters
     ----------
     IM : 2D numpy.array
-     The data image.
+        the image data
 
     kwargs :
-      additional keyword arguments to be passed to
-      :func:`abel.tools.vmi.angular_integration`
+        additional keyword arguments to be passed to
+        :func:`abel.tools.vmi.angular_integration`
 
     Returns
     -------
     r : 1D numpy.array
-      radial coordinates
+        radial coordinates
 
     intensity : 1D numpy.array
-      one-dimensional intensity profile as a function of the radial coordinate.
+        intensity profile as a function of the radial coordinate
 
     """
     R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
@@ -106,21 +107,25 @@ def average_radial_intensity(IM, **kwargs):
     return R, intensity
 
 
-def radial_integration(IM, radial_ranges=None):
+def radial_integration(IM, origin=None, radial_ranges=None):
     r""" Intensity variation in the angular coordinate.
 
     This function is the :math:`\theta`-coordinate complement to
-    :func:`abel.tools.vmi.angular_integration`
+    :func:`abel.tools.vmi.angular_integration`.
 
     Evaluates intensity vs angle for defined radial ranges.
     Determines the anisotropy parameter for each radial range.
 
-    See :doc:`examples/example_PAD.py <examples>`
+    See :doc:`examples/example_O2_PES_PAD.py <example_O2_PES_PAD>`.
 
     Parameters
     ----------
     IM : 2D numpy.array
-        Image data
+        the image data
+
+    origin : tuple or None
+        image origin in the (row, column) format. If ``None``, the geometric
+        center of the image (``rows // 2, cols // 2``) is used.
 
     radial_ranges : list of tuple ranges or int step
         tuple
@@ -142,19 +147,22 @@ def radial_integration(IM, radial_ranges=None):
         (amp0, error_amp_fit0), (amp1, error_amp_fit1), ...
         corresponding to the radial ranges
 
-    Rmidpt : numpy float 1d array
-        radial-mid point of each radial range
+    Rmidpt : numpy float 1D array
+        radial mid-point of each radial range
 
     Intensity_vs_theta: 2D numpy.array
-       Intensity vs angle distribution for each selected radial range.
+        intensity vs angle distribution for each selected radial range
 
     theta: 1D numpy.array
-       Angle coordinates, referenced to vertical direction.
-
-
+        angle coordinates, referenced to vertical direction
     """
+    if origin is not None and not isinstance(origin, tuple):
+        _deprecate('radial_integration() has 2nd argument "origin", '
+                   'use keyword argument "radial_ranges" or insert "None".')
+        radial_ranges = origin
+        origin = None
 
-    polarIM, r_grid, theta_grid = reproject_image_into_polar(IM)
+    polarIM, r_grid, theta_grid = reproject_image_into_polar(IM, origin)
 
     theta = theta_grid[0, :]  # theta coordinates
     r = r_grid[:, 0]          # radial coordinates
@@ -188,30 +196,31 @@ def radial_integration(IM, radial_ranges=None):
 def anisotropy_parameter(theta, intensity, theta_ranges=None):
     r"""
     Evaluate anisotropy parameter :math:`\beta`, for :math:`I` vs
-    :math:`\theta` data.
+    :math:`\theta` data:
 
     .. math::
 
-        I = \frac{\sigma_\text{total}}{4\pi} [ 1 + \beta P_2(\cos\theta) ]
+        I = \frac{\sigma_\text{total}}{4\pi} [ 1 + \beta P_2(\cos\theta) ],
 
-    where :math:`P_2(x)=\frac{3x^2-1}{2}` is a 2nd order Legendre polynomial.
+    where :math:`P_2(x)=\frac{3x^2-1}{2}` is a 2nd-order Legendre polynomial.
 
-    `Cooper and Zare "Angular distribution of photoelectrons"
-    J Chem Phys 48, 942-943 (1968) <http://dx.doi.org/10.1063/1.1668742>`_
-
+    J. Cooper, R. N. Zare,
+    "Angular Distribution of Photoelectrons",
+    `J. Chem. Phys. 48, 942–943 (1968)
+    <https://dx.doi.org/10.1063/1.1668742>`_.
 
     Parameters
     ----------
-    theta: 1D numpy array
-       Angle coordinates, referenced to the vertical direction.
+    theta : 1D numpy array
+        angle coordinates, referenced to the vertical direction.
 
-    intensity: 1D numpy array
-       Intensity variation with angle
+    intensity : 1D numpy array
+        intensity variation with angle
 
     theta_ranges: list of tuples
-       Angular ranges over which to fit
-       ``[(theta1, theta2), (theta3, theta4)]``.
-       Allows data to be excluded from fit, default include all data
+        angular ranges over which to fit
+        ``[(theta1, theta2), (theta3, theta4)]``.
+        Allows data to be excluded from fit, default include all data.
 
     Returns
     -------
@@ -222,11 +231,11 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         (amplitude of signal, fit error)
 
     """
-    def P2(x):   # 2nd order Legendre polynomial
+    def P2(x):  # 2nd-order Legendre polynomial
         return (3 * x * x - 1) / 2
 
     def PAD(theta, beta, amplitude):
-        return amplitude * (1 + beta * P2(np.cos(theta)))   # Eq. (1) as above
+        return amplitude * (1 + beta * P2(np.cos(theta)))  # Eq. (1) as above
 
     # angular range of data to be included in the fit
     if theta_ranges is not None:
@@ -258,21 +267,21 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     Convert speed radial coordinate into electron kinetic or electron binding
     energy.  Return the photoelectron spectrum (PES).
 
-    This calculation uses a single scaling factor ``energy_cal_factor``
+    This calculation uses a single scaling factor **energy_cal_factor**
     to convert the radial pixel coordinate into electron kinetic energy.
 
-    Additional experimental parameters: ``photon_energy`` will give the
+    Additional experimental parameters: **photon_energy** will give the
     energy scale as electron binding energy, in the same energy units,
-    while ``Vrep``, the VMI lens repeller voltage (volts), provides for a
-    voltage independent scaling factor. i.e. ``energy_cal_factor`` should
+    while **Vrep**, the VMI lens repeller voltage (volts), provides for a
+    voltage-independent scaling factor. i.e. **energy_cal_factor** should
     remain approximately constant.
 
-    The ``energy_cal_factor`` is readily determined by comparing the
+    The **energy_cal_factor** is readily determined by comparing the
     generated energy scale with published spectra. e.g. for O\ :sup:`−`
     photodetachment, the strongest fine-structure transition occurs at the
     electron affinity :math:`EA = 11\,784.676(7)` cm\ :math:`^{-1}`. Values for
     the ANU experiment are given below, see also
-    `examples/example_hansenlaw.py`.
+    :doc:`examples/example_hansenlaw.py <example_hansenlaw>`.
 
     Parameters
     ----------
@@ -295,26 +304,24 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     per_energy_scaling : bool
 
         sets the intensity Jacobian.
-        If `True`, the returned intensities correspond to an "intensity per eV"
-        or "intensity per cm\ :sup:`-1` ". If `False`, the returned intensities
-        correspond to an "intensity per pixel".
-
-     Optional:
+        If ``True``, the returned intensities correspond to an "intensity per
+        eV" or "intensity per cm\ :sup:`-1` ". If ``False``, the returned
+        intensities correspond to an "intensity per pixel".
 
     photon_energy : None or float
 
         measurement photon energy. The output energy scale is then set to
-        electron-binding-energy in units of `energy_cal_factor`. The
-        conversion from wavelength (nm) to `photon_energy` (cm\ :sup:`−1`)
-        is :math:`10^{7}/\lambda` (nm) e.g. `1.0e7/812.51` for
+        electron-binding-energy in units of **energy_cal_factor**. The
+        conversion from wavelength (nm) to **photon_energy** (cm\ :sup:`−1`)
+        is :math:`10^{7}/\lambda` (nm) e.g. ``1.0e7/812.51`` for
         "examples/data/O-ANU1024.txt".
 
     Vrep : None or float
 
         repeller voltage. Convenience parameter to allow the
-        `energy_cal_factor` to remain constant, for different VMI lens repeller
-        voltages. Defaults to `None`, in which case no extra scaling is
-        applied. e.g. `-98 volts`, for "examples/data/O-ANU1024.txt".
+        **energy_cal_factor** to remain constant, for different VMI lens
+        repeller voltages. Defaults to `None`, in which case no extra scaling
+        is applied. e.g. ``-98`` (volts), for "examples/data/O-ANU1024.txt".
 
     zoom : float
 
@@ -323,16 +330,16 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
     Returns
     -------
-    eKBE : numpy 1d-array of floats
+    eKBE : numpy 1D array of floats
 
         energy scale for the photoelectron spectrum in units of
-        `energy_cal_factor`.  Note that the data is no-longer on
+        **energy_cal_factor**.  Note that the data is no longer on
         a uniform grid.
 
-    PES : numpy 1d-array of floats
+    PES : numpy 1D array of floats
 
         the photoelectron spectrum, scaled according to the
-        `per_energy_scaling` input parameter.
+        **per_energy_scaling** input parameter.
 
     """
 
@@ -634,6 +641,11 @@ class Distributions(object):
         # Determine origin [row, col].
         if np.ndim(self.origin) == 1:  # explicit numbers
             row, col = self.origin
+            # wrap negative coordinates
+            if row < 0:
+                row += height
+            if col < 0:
+                col += width
         else:  # string with codes
             if len(self.origin) == 2:
                 r, c = self.origin

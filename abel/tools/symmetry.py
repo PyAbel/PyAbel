@@ -35,7 +35,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         Include quadrant (Q0, Q1, Q2, Q3) in the symmetry combination(s)
         and final image
 
-    symmetrize_method: str
+    symmetrize_method : str
         Method used for symmetrizing the image.
 
         ``average``
@@ -46,9 +46,11 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
             projection should be real. Removing the imaginary components in
             reciprocal space leaves a symmetric projection.
 
-        (ref: Overstreet, K., et al. "Multiple scattering and the density
-        distribution of a Cs MOT." Optics express 13.24 (2005): 9672-9682.
-        http://dx.doi.org/10.1364/OPEX.13.009672)
+            K. R. Overstreet, P. Zabawa, J. Tallant, A. Schwettmann,
+            J. P. Shaffer,
+            "Multiple scattering and the density distribution of a Cs MOT",
+            `Optics Express 13, 9672–9682 (2005)
+            <https://dx.doi.org/10.1364/OPEX.13.009672>`_.
 
     Returns
     -------
@@ -60,17 +62,17 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     Notes
     -----
 
-    The symmetry_axis keyword averages quadrants like this: ::
+    The symmetry_axis keyword averages quadrants like this::
 
-         +--------+--------+
-         | Q1   * | *   Q0 |
-         |   *    |    *   |
-         |  *     |     *  |               cQ1 | cQ0
-         +--------o--------+ --(output) -> ----o----
-         |  *     |     *  |               cQ2 | cQ3
-         |   *    |    *   |
-         | Q2  *  | *   Q3 |          cQi == combined quadrants
-         +--------+--------+
+        +--------+--------+
+        | Q1   * | *   Q0 |
+        |   *    |    *   |
+        |  *     |     *  |               cQ1 | cQ0
+        +--------o--------+ --(output) -> ----o----
+        |  *     |     *  |               cQ2 | cQ3
+        |   *    |    *   |
+        | Q2  *  | *   Q3 |          cQi == combined quadrants
+        +--------+--------+
 
         symmetry_axis = None - individual quadrants
         symmetry_axis = 0 (vertical) - average Q0+Q1, and Q2+Q3
@@ -78,7 +80,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         symmetry_axis = (0, 1) (both) - combine and average all 4 quadrants
 
 
-    The end results look like this: ::
+    The end results look like this::
 
         (0) symmetry_axis = None
 
@@ -89,9 +91,9 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         (1) symmetry_axis = 0
 
             Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
-            returned image    Q01 | Q01
-                             -----o-----
-                              Q23 | Q23
+            returned image   Q01 | Q01
+                            -----o-----
+                             Q23 | Q23
 
         (2) symmetry_axis = 1
 
@@ -198,9 +200,9 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
 
     Parameters
     ----------
-    Q: tuple of np.array  (Q0, Q1, Q2, Q3)
-       Image quadrants all oriented as Q0
-       shape (``rows//2+rows%2, cols//2+cols%2``) ::
+    Q : tuple of np.array (Q0, Q1, Q2, Q3)
+        Image quadrants all oriented as Q0
+        shape (``rows//2+rows%2, cols//2+cols%2``) ::
 
             +--------+--------+
             | Q1   * | *   Q0 |
@@ -212,20 +214,20 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
             | Q2  *  | *   Q3 |
             +--------+--------+
 
-    original_image_shape: tuple
-       (rows, cols)
+    original_image_shape : tuple
+        (rows, cols)
 
-       reverses the padding added by `get_image_quadrants()` for odd-axis sizes
+        reverses the padding added by `get_image_quadrants()` for odd-axis sizes
 
-       odd row trims 1 row from Q1, Q0
+        odd row trims 1 row from Q1, Q0
 
-       odd column trims 1 column from Q1, Q2
+        odd column trims 1 column from Q1, Q2
 
     symmetry_axis : int or tuple
-       impose image symmetry
+        impose image symmetry
 
-           ``symmetry_axis = 0 (vertical)   - Q0 == Q1 and Q3 == Q2``
-           ``symmetry_axis = 1 (horizontal) - Q2 == Q1 and Q3 == Q0``
+            ``symmetry_axis = 0 (vertical)   - Q0 == Q1 and Q3 == Q2``
+            ``symmetry_axis = 1 (horizontal) - Q2 == Q1 and Q3 == Q0``
 
 
     Returns
@@ -235,11 +237,11 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
 
             symmetry_axis =
 
-             None             0              1           (0,1)
+            None             0              1           (0,1)
 
-            Q1 | Q0        Q1 | Q1        Q1 | Q0       Q1 | Q1
-           ----o----  or  ----o----  or  ----o----  or ----o----
-            Q2 | Q3        Q2 | Q2        Q1 | Q0       Q1 | Q1
+             Q1 | Q0        Q1 | Q1        Q1 | Q0       Q1 | Q1
+            ----o----  or  ----o----  or  ----o----  or ----o----
+             Q2 | Q3        Q2 | Q2        Q1 | Q0       Q1 | Q1
 
     """
 
