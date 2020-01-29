@@ -10,6 +10,7 @@ from scipy.optimize import nnls
 from abel.tools.vmi import Distributions
 from abel.tools.symmetry import put_image_quadrants
 
+
 ###############################################################################
 #
 # rBasex — Abel transform for velocity-map images (~spherical harmonics),
@@ -49,7 +50,8 @@ _tri = None  # [Ai[n]] — inverse transform matrices (or Af for reg='pos')
 
 
 def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
-                     weights=None, direction='inverse', reg=None, out='same'):
+                     weights=None, direction='inverse', reg=None, out='same',
+                     verbose=False):
     r"""
     This function takes the input image and outputs its forward or inverse Abel
     transform as an image and its radial distributions.
@@ -137,6 +139,8 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
             no image (**recon** will be ``None``). Can be useful to avoid
             unnecessary calculations when only the transformed radial
             distributions (**distr**) are needed.
+    verbose : bool
+        print information about processing (for debugging)
 
     Returns
     -------
@@ -153,16 +157,18 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         odd = True  # enable automatically for odd orders
 
     # extract radial profiles from input image
-    p = _profiles(IM, origin, rmax, order, odd, weights)
+    p = _profiles(IM, origin, rmax, order, odd, weights, verbose)
     # (caches Distributions as _dst)
 
     Rmax = _dst.rmax
 
     # get appropriate transform matrices
-    A = get_bs_cached(Rmax, order, odd, direction, reg, _dst.valid)
+    A = get_bs_cached(Rmax, order, odd, direction, reg, _dst.valid, verbose)
 
     # transform radial profiles
     if reg == 'pos':
+        if verbose:
+            print('Solving NNLS equations...')
         N = len(p)
         p = np.hstack(p)
         cs = nnls(A, p)[0]
@@ -175,6 +181,8 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
             C = np.flip(invpascal(N, 'upper'))
             c = C.dot(cs)
     else:
+        if verbose:
+            print('Applying radial transforms...')
         c = [An.dot(pn) for An, pn in zip(A, p)]
 
     # construct output (transformed) distributions
@@ -198,7 +206,10 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
     else:
         raise ValueError('Wrong output shape "{}"'.format(out))
     # construct output image from transformed radial profiles
-    recon = _image(height, width, c)  # bottom right quadrant or right half
+    if verbose:
+        print('Constructing output image...')
+    # bottom right quadrant or right half
+    recon = _image(height, width, c, verbose)
     if odd:
         if out not in ['fold', 'full-unique']:
             # combine with left half (mirrored without central column)
@@ -219,7 +230,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
     return recon, distr
 
 
-def _profiles(IM, origin, rmax, order, odd, weights):
+def _profiles(IM, origin, rmax, order, odd, weights, verbose):
     """
     Get radial profiles of cos^n theta terms from the input image.
     """
@@ -230,14 +241,21 @@ def _profiles(IM, origin, rmax, order, odd, weights):
 
     old_valid = None if _dst is None else _dst.valid
 
+    if verbose:
+        print('Extracting radial profiles...')
     prm = [IM.shape, origin, rmax, order, odd]
     if _prm != prm or _weights is not weights:
         _prm = prm
         _weights = weights
         _dst = Distributions(origin=origin, rmax=rmax, order=order, odd=odd,
                              weights=weights, use_sin=False, method='linear')
+        if verbose:
+            print('(new Distributions object created)')
         # reset image basis
         _ibs = None
+    else:
+        if verbose:
+            print('(reusing cached Distributions object)')
 
     c = _dst(IM).cos()
 
@@ -250,15 +268,19 @@ def _profiles(IM, origin, rmax, order, odd, weights):
     return c
 
 
-def _get_image_bs(height, width):
+def _get_image_bs(height, width, verbose):
     global _ibs
 
     if _ibs is not None:
+        if verbose:
+            print('(using cached image basis)')
         return _ibs
 
     # _dst quadrant has the minimal size, so height and width either equal its
     # dimensions, or at least one of them is larger
     if height == _dst.Qheight and width == _dst.Qwidth:
+        if verbose:
+            print('(using image basis from Distributions object)')
         # use arrays already computed in _dst
         _ibs = [_dst.bin, _dst.wl, _dst.wu, _dst.c]
     else:  # height > _dst.Qheight or width > _dst.Qwidth
@@ -289,18 +311,20 @@ def _get_image_bs(height, width):
             cos.append(y2 / r2)  # cos^2 theta
         for n in range(2, len(_dst.c)):  # remaining powers
             cos.append(cos[1] * cos[n - 1])
+        if verbose:
+            print('(image basis constructed)')
 
         _ibs = [rbin, wl, wu, cos]
 
     return _ibs
 
 
-def _image(height, width, c):
+def _image(height, width, c, verbose):
     """
     Create transformed image (lower right quadrant for even-only,
     right half for odd) from its cos^n theta radial profiles.
     """
-    rbin, wl, wu, cos = _get_image_bs(height, width)
+    rbin, wl, wu, cos = _get_image_bs(height, width, verbose)
 
     # 0th order (isotropic)
     IM = (wl * np.append(c[0], [0])[rbin] +  # lower bins
@@ -372,7 +396,7 @@ def _bs_rbasex(Rmax, order, odd):
 
 
 def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
-                  valid=None):
+                  valid=None, verbose=False):
     """
     Internal function.
 
@@ -394,6 +418,8 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
         regularization type and strength for inverse transform
     valid : None or bool array
         flags to exclude invalid radii from transform
+    verbose : bool
+        print some debug information
 
     Returns
     -------
@@ -406,10 +432,15 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
     prm = [Rmax, order, odd]
     if _bs is None or _bs_prm != prm:
         _bs_prm = prm
+        if verbose:
+            print('Computing basis set...')
         _bs = _bs_rbasex(Rmax, order, odd)
         _trf = None
         _tri_prm = None
         _tri = None
+    else:
+        if verbose:
+            print('Using cached basis set')
 
     if valid is None or valid.all():
         invalid = None
@@ -433,12 +464,16 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
 
     if direction == 'forward':
         if _trf is None:
+            if verbose:
+                print('Creating forward-transform matrices...')
             _trf = Af()
         return _trf
     else:  # 'inverse'
         if _tri_prm != [reg]:
             _tri_prm = [reg]
             if reg is None:
+                if verbose:
+                    print('Calculating inverse-transform matrices...')
                 # P[n] are triangular, thus can be inverted faster than general
                 # matrices, however, NumPy/SciPy do not have such functions;
                 # nevertheless, solve_triangular() is ~twice faster than inv()
@@ -447,6 +482,8 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
                 _tri = [mask(solve_triangular(Pn, I, lower=True).T)
                         for Pn in _bs]
             elif reg == 'pos':  # non-negative cos sin
+                if verbose:
+                    print('Preparing matrices for NNLS equations...')
                 # Construct forward transform matrix cossin → cos projections.
                 # Notes:
                 # 1. By reversing orders, it also could be made triangular for
@@ -473,10 +510,14 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
                 raise ValueError('Wrong regularization format "{}"'.
                                  format(reg))
             elif reg[0] == 'L2':  # Tikhonov L2 norm
+                if verbose:
+                    print('Calculating L2-regularized transform matrices...')
                 E = np.diag([reg[1]] * (Rmax + 1))
                 # regularized inverse for each angular order
                 _tri = [An.T.dot(inv((An).dot(An.T) + E)) for An in Af()]
             elif reg[0] == 'diff':  # Tikhonov derivative
+                if verbose:
+                    print('Calculating diff-regularized transform matrices...')
                 # GTG = reg D^T D, where D is 1st-order difference operator
                 GTG = 2 * np.eye(Rmax + 1) - \
                           np.eye(Rmax + 1, k=-1) - \
@@ -487,6 +528,8 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
                 # regularized inverse for each angular order
                 _tri = [An.T.dot(inv((An).dot(An.T) + GTG)) for An in Af()]
             elif reg[0] == 'SVD':
+                if verbose:
+                    print('Calculating SVD-regularized transform matrices...')
                 if reg[1] > 1:
                     raise ValueError('Wrong SVD truncation factor {} > 1'.
                                      format(reg[1]))
