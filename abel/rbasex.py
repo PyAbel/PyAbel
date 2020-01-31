@@ -3,13 +3,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os.path
+from os import listdir
+import re
+
 import numpy as np
 from scipy.linalg import inv, solve_triangular, svd, pascal, invpascal
 from scipy.optimize import nnls
 
 from abel.tools.vmi import Distributions
 from abel.tools.symmetry import put_image_quadrants
-
 
 ###############################################################################
 #
@@ -45,13 +48,14 @@ _bs_prm = None  # [Rmax, order, odd]
 _bs = None  # [P[n]] — projected functions
 _ibs = None  # [rbin, wl, wu, cos^n] — arrays for image construction
 _trf = None  # [Af[n]] — forward transform matrices
+_tri_full = None  # [Ai[n]] — inverse-transform matrices without mask and reg
 _tri_prm = None  # [reg] — regularization parameters
-_tri = None  # [Ai[n]] — inverse transform matrices (or Af for reg='pos')
+_tri = None  # [Ai[n]] — inverse-transform matrices (or Af for reg='pos')
 
 
 def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
                      weights=None, direction='inverse', reg=None, out='same',
-                     verbose=False):
+                     basis_dir=None, verbose=False):
     r"""
     This function takes the input image and outputs its forward or inverse Abel
     transform as an image and its radial distributions.
@@ -118,7 +122,6 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         images. For truncated SVD, `strength` must be < 1; `strength` ~ 0.1 is
         a reasonable value; `strength` ~ 0.5 can produce noticeable ringing
         artifacts.
-
     out : str or None
         shape of the output image:
 
@@ -139,6 +142,11 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
             no image (**recon** will be ``None``). Can be useful to avoid
             unnecessary calculations when only the transformed radial
             distributions (**distr**) are needed.
+    basis_dir : str, optional
+        path to the directory for saving / loading the basis set (useful only
+        for the inverse transform without regularization; time savings in other
+        cases are small and might be negated by the disk-access overhead).
+        If ``None``, the basis set will not be loaded from or saved to disk.
     verbose : bool
         print information about processing (for debugging)
 
@@ -163,7 +171,8 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
     Rmax = _dst.rmax
 
     # get appropriate transform matrices
-    A = get_bs_cached(Rmax, order, odd, direction, reg, _dst.valid, verbose)
+    A = get_bs_cached(Rmax, order, odd, direction, reg, _dst.valid,
+                      basis_dir, verbose)
 
     # transform radial profiles
     if reg == 'pos':
@@ -395,12 +404,133 @@ def _bs_rbasex(Rmax, order, odd):
     return P
 
 
+def _load_bs(basis_dir, Rmax, order, odd, inv=False, verbose=False):
+    """
+    Try to load the basis set and inverse transform matrices from the best
+    suitable file.
+    Returns (bs, tri), where tri might be None, or (None, None) on failure.
+    """
+    if basis_dir is None:
+        return None, None
+
+    def full_path(file_name):
+        return os.path.join(basis_dir, file_name)
+
+    # exact file name
+    basis_file = 'rbasex_basis_{}_{}{}{}.npy'.\
+                 format(Rmax, order, 'o' if odd else '', 'i' if inv else '')
+    if os.path.exists(full_path(basis_file)):
+        # have exactly needed
+        best_file = basis_file
+        best_prm = {'Rmax': Rmax, 'order': order, 'odd': odd, 'inv': inv}
+    else:
+        # Find the best (smallest among sufficient)
+        best_file = None
+        best_size = np.inf
+        mask = re.compile(r'rbasex_basis_(\d+)_(\d+)(o{})(i?)\.npy'.
+                          format('' if odd else '?'))
+        for f in listdir(basis_dir):
+            # filter rBasex files
+            match = mask.match(f)
+            if not match:
+                continue
+            # extract file parameters
+            f_Rmax, f_order = map(int, match.groups()[:2])
+            f_odd, f_inv = map(bool, match.groups()[2:])
+            # skip insufficient files
+            if f_Rmax < Rmax or f_order < order:
+                continue
+            # estimate total size (elements)
+            size = f_Rmax**2 * f_order // (1 if f_odd else 2)
+            # empirical penalty for no inverse when it is needed
+            if inv and not f_inv:
+                size *= Rmax
+            # skip files larger than sufficient
+            if size > best_size:
+                continue
+            # remember the best so far
+            best_file = f
+            best_size = size
+            best_prm = {'Rmax': f_Rmax, 'order': f_order,
+                        'odd': f_odd, 'inv': f_inv}
+
+    if best_file is None:
+        return None, None
+
+    if verbose:
+        print('Loading basis set from', best_file)
+    try:
+        bs = np.load(full_path(best_file))
+    except ValueError:
+        print('Cached basis file incompatible!')
+        return None, None
+
+    # pick orders
+    if best_prm['odd'] > odd:  # odd present but not needed
+        bs = bs[::2]  # take only even
+        if verbose:
+            print('(odd orders skipped)')
+    # crop to Rmax
+    if best_prm['Rmax'] > Rmax:
+        bs = [M[:Rmax + 1, :Rmax + 1] for M in bs]
+        if verbose:
+            print('(cropped to {})'.format(Rmax))
+    # separate into P and Ai
+    if best_prm['inv']:
+        if inv:
+            tri = []
+            for n in range(len(bs)):
+                # extract upper triangular part
+                M = np.triu(bs[n])
+                # invert diagonal (it corresponds to P[n])
+                M[np.diag_indices_from(M)] = 1 / np.diag(M)
+                # store Ai[n] = inv(P[n].T)
+                tri.append(M)
+                # leave only lower triangular part for P[n]
+                bs[n] = np.tril(bs[n])
+        else:  # inverse not needed
+            for n in range(len(bs)):
+                bs[n] = np.tril(bs[n])  # keep only lower triangular part Pn
+            tri = None
+    else:
+        tri = None
+
+    return bs, tri
+
+
+def _save_bs(basis_dir, Rmax, order, odd, bs, tri=False, verbose=False):
+    """
+    Try to save the basis set and, if needed, the inverse transform matrix.
+    """
+    if basis_dir is None:
+        return
+
+    has_odd = 'o' if odd else ''
+    if tri is not None:
+        has_inv = 'i'
+        out = []
+        for P, Ai in zip(bs, tri):
+            # combine lower triangular P with upper triangular Ai without main
+            # diagonal (restored on load as diag(Ai) = 1 / diag(P))
+            M = np.triu(Ai, 1)
+            M += P
+            out.append(M)
+    else:
+        has_inv = ''
+        out = bs
+    file_name = 'rbasex_basis_{}_{}{}{}.npy'.format(Rmax, order,
+                                                    has_odd, has_inv)
+    if verbose:
+        print('Saving basis set to disk as', file_name)
+    np.save(os.path.join(basis_dir, file_name), out)
+
+
 def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
-                  valid=None, verbose=False):
+                  valid=None, basis_dir=None, verbose=False):
     """
     Internal function.
 
-    Gets the basis set (from cache or runs computations)
+    Gets the basis set (from cache or runs computations and caches them)
     and calculates the transform matrix.
     Loaded/calculated matrices are also cached in memory.
 
@@ -418,6 +548,9 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
         regularization type and strength for inverse transform
     valid : None or bool array
         flags to exclude invalid radii from transform
+    basis_dir : str, optional
+        path to the directory for saving / loading the basis set.
+        If ``None``, the basis set will not be saved to disk.
     verbose : bool
         print some debug information
 
@@ -427,14 +560,23 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
         (**Rmax** + 1) × (**Rmax** + 1) matrices of the Abel transform (forward
         or inverse) for each angular order
     """
-    global _bs_prm, _bs, _trf, _tri_prm, _tri
+    global _bs_prm, _bs, _trf, _tri_full, _tri_prm, _tri
+
+    new_bs = False  # new basis set computed (for saving to disk)
 
     prm = [Rmax, order, odd]
     if _bs is None or _bs_prm != prm:
         _bs_prm = prm
-        if verbose:
-            print('Computing basis set...')
-        _bs = _bs_rbasex(Rmax, order, odd)
+        # try to load basis set and maybe inverse-transform matrices
+        _bs, _tri_full = _load_bs(basis_dir, Rmax, order, odd,
+                                  direction == 'inverse' and reg is None,
+                                  verbose)
+        if _bs is None:
+            if verbose:
+                print('Computing basis set...')
+            _bs = _bs_rbasex(Rmax, order, odd)
+            new_bs = True
+        # reset transforms
         _trf = None
         _tri_prm = None
         _tri = None
@@ -464,6 +606,8 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
 
     if direction == 'forward':
         if _trf is None:
+            if new_bs:
+                _save_bs(basis_dir, Rmax, order, odd, _bs, None, verbose)
             if verbose:
                 print('Creating forward-transform matrices...')
             _trf = Af()
@@ -472,15 +616,21 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
         if _tri_prm != [reg]:
             _tri_prm = [reg]
             if reg is None:
-                if verbose:
-                    print('Calculating inverse-transform matrices...')
-                # P[n] are triangular, thus can be inverted faster than general
-                # matrices, however, NumPy/SciPy do not have such functions;
-                # nevertheless, solve_triangular() is ~twice faster than inv()
-                # (and ...(Pn, I, lower=True).T is faster than ...(Pn.T, I))
-                I = np.eye(Rmax + 1)
-                _tri = [mask(solve_triangular(Pn, I, lower=True).T)
-                        for Pn in _bs]
+                # calculate full inverse matrices, if not yet
+                if _tri_full is None:
+                    if verbose:
+                        print('Calculating inverse-transform matrices...')
+                    # P[n] are triangular, thus can be inverted faster than
+                    # general matrices, however, NumPy/SciPy do not have such
+                    # functions; nevertheless, solve_triangular() is ~twice
+                    # faster than inv() (and ...(Pn, I, lower=True).T is faster
+                    # than ...(Pn.T, I))
+                    I = np.eye(Rmax + 1)
+                    _tri_full = [solve_triangular(Pn, I, lower=True).T
+                                 for Pn in _bs]
+                    new_bs = True
+                # mask invalid radii
+                _tri = [mask(An.copy()) for An in _tri_full]
             elif reg == 'pos':  # non-negative cos sin
                 if verbose:
                     print('Preparing matrices for NNLS equations...')
@@ -548,7 +698,8 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
             else:
                 raise ValueError('Wrong regularization type "{}"'.
                                  format(reg[0]))
-
+        if new_bs:
+            _save_bs(basis_dir, Rmax, order, odd, _bs, _tri_full, verbose)
         return _tri
 
 
@@ -576,7 +727,7 @@ def cache_cleanup(select='all'):
     -------
     None
     """
-    global _prm, _dst, _bs_prm, _bs, _ibs, _trf, _tri_prm, _tri
+    global _prm, _dst, _bs_prm, _bs, _ibs, _trf, _tri_full, _tri_prm, _tri
 
     if select == 'all':
         _prm = None
@@ -587,5 +738,6 @@ def cache_cleanup(select='all'):
     if select in ('all', 'forward'):
         _trf = None
     if select in ('all', 'inverse'):
+        _tri_full = None
         _tri_prm = None
         _tri = None
