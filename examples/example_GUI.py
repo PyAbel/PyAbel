@@ -22,8 +22,8 @@ from six.moves import tkinter_scrolledtext as scrolledtext
 from six.moves import tkinter_tkfiledialog as filedialog
 
 
-Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_peeling',
-                'onion_bordas', 'two_point', 'three_point']
+Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_bordas',
+                'onion_peeling', 'rbasex', 'three_point', 'two_point']
 
 center_methods = ['com', 'convolution', 'gaussian', 'slice']
 
@@ -423,6 +423,8 @@ class PyAbel:  # (tk.Tk):
         if self.method == 'linbasex':
             self.speed_dist = self.AIM.Beta[0]
             self.radial = self.AIM.radial
+        elif self.method == 'rbasex':
+            self.radial, self.speed_dist, _ = self.AIM.distr.rIbeta()
         else:
             # speed distribution
             self.radial, self.speed_dist = abel.tools.vmi.angular_integration(
@@ -432,11 +434,12 @@ class PyAbel:  # (tk.Tk):
         self.plt[1].plot(
             self.radial, self.speed_dist/self.speed_dist[10:].max(),
             label=self.method)
+        self.plt[1].autoscale(axis='x', tight=True)
         # make O2- look nice
         if self.fn.find('O2-ANU1024') > -1:
-            self.plt[1].axis(xmax=500, ymin=-0.05)
+            self.plt[1].axis(ymin=-0.05)
         elif self.fn.find('VMI_art1') > -1:
-            self.plt[1].axis(xmax=260, ymin=-0.05)
+            self.plt[1].axis(ymin=-0.05)
 
         self.plt[1].set_xlabel("radius (pixels)", fontsize=9)
         self.plt[1].set_ylabel("normalized intensity")
@@ -465,7 +468,7 @@ class PyAbel:  # (tk.Tk):
         self.action = "anisotropy"
         self._transform()
 
-        if self.method == 'linbasex':
+        if self.method in ['linbasex', 'rbasex']:
             self.text.insert(tk.END,
                              "\nanisotropy parameter pixel range 0 to {}: "
                              .format(self.rmx[1]))
@@ -492,9 +495,18 @@ class PyAbel:  # (tk.Tk):
             self.plt[3].set_ylabel("anisotropy parameter")
             # make O2- look nice
             if self.fn.find('O2-ANU1024') > -1:
-                self.plt[3].axis(xmax=500, ymin=-1.1, ymax=0.1)
+                self.plt[3].axis(ymin=-1.1, ymax=0.1)
             elif self.fn.find('VMI_art1') > -1:
-                self.plt[3].axis(xmax=260, ymin=-1.1, ymax=2)
+                self.plt[3].axis(ymin=-1.1, ymax=2)
+        elif self.method == 'rbasex':
+            self.radial, _, self.beta = self.AIM.distr.rIbeta(window=3)
+            self._clr_plt(3)
+            self.plt[3].axis("on")
+            self.plt[3].plot(self.radial, self.beta, 'r-')
+            self.plt[3].set_title("anisotropy", fontsize=12)
+            self.plt[3].set_xlabel("radius", fontsize=9)
+            self.plt[3].set_ylabel("anisotropy parameter")
+            self.plt[3].axis(ymin=-1.1, ymax=2.2)
         else:
             # intensity vs angle
             self.beta, self.amp, self.rad, self.intensity, self.theta =\
@@ -513,12 +525,13 @@ class PyAbel:  # (tk.Tk):
                                 self.amp[0][0]), 'b-', lw=2)
             # I don't see the following annotation anywhere - DH 2020-01-16:
             self.plt[3].annotate(
-                r"$\\beta({:d},{:d})={:.2g}\pm{:.2g}$"
+                r"$\beta({:d},{:d})={:.2g}\pm{:.2g}$"
                 .format(*self.rmx+self.beta[0]),
                 (-3, self.intensity[0].min()/0.8))
             self.plt[3].set_title("anisotropy", fontsize=12)
             self.plt[3].set_xlabel("angle", fontsize=9)
             self.plt[3].set_ylabel("intensity")
+        self.plt[3].autoscale(axis='x', tight=True)
 
         self.action = None
         self.canvas.draw()
