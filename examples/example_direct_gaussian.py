@@ -13,7 +13,6 @@ from abel.direct import direct_transform
 from abel.tools.analytical import GaussianAnalytical
 
 here is some code to break this example
-and more code to force a re-build
 
 n = 101
 r_max = 30
