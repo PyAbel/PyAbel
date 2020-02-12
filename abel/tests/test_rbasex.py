@@ -6,10 +6,10 @@ from __future__ import print_function
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_less
 
-import abel
 from abel.rbasex import rbasex_transform, cache_cleanup
 from abel.tools.analytical import GaussianAnalytical
 from abel.hansenlaw import hansenlaw_transform
+from abel import Transform
 
 
 def test_rbasex_shape():
@@ -211,6 +211,98 @@ def test_rbasex_pos():
             assert_array_less(zero, recon)
 
 
+def run_out(odd=False):
+    """
+    Test some output shapes.
+    """
+    sigma = 5.0  # Gaussian sigma
+    step = int(6 * sigma)  # distance between peak centers
+
+    rmax = (2 + 2) * step
+    size = 2 * rmax + 1
+    # coordinates (full image):
+    x = np.arange(float(size)) - rmax
+    y = rmax - np.arange(float(size))[:, None]
+    # radius
+    r = np.sqrt(x**2 + y**2)
+    # cos
+    r[rmax, rmax] = np.inf
+    c = y / r
+    r[rmax, rmax] = 0
+
+    # Gaussian peak with one cos^n angular term
+    def peak(i):
+        n = i if odd else 2 * i
+        return c ** n * \
+               np.exp(-(r - (i + 1) * step) ** 2 / (2 * sigma**2))
+
+    # create source distribution
+    src = peak(0) + peak(1)
+
+    # reference forward transform
+    abel = Transform(src, direction='forward', method='hansenlaw',
+                     transform_options={'hold_order': 1}).transform
+
+    param = '-> odd = {}, '.format(odd)
+
+    # Test forward transform:
+
+    # rmax < MIN => larger 'same'
+    proj, _ = rbasex_transform(src, rmax=rmax - step, odd=odd,
+                               direction='forward', out='same')
+    assert_allclose(proj, abel, rtol=0.005, atol=0.2,
+                    err_msg=param + 'rmax < MIN, out = same')
+
+    # cropped, rmax = HOR < VER -> same
+    crop = (slice(3 * step, -step // 2),
+            slice(3 * step, -step))
+    proj, _ = rbasex_transform(src[crop], origin=(step, step),
+                               odd=odd, direction='forward', out='same')
+    assert_allclose(proj, abel[crop], rtol=0.005, atol=0.2,
+                    err_msg=param + 'rmax = HOR < VER, out = same')
+
+    # cropped, rmax = VER < HOR -> same
+    crop = (slice(step, -3 * step),
+            slice(3 * step, -step // 2))
+    proj, _ = rbasex_transform(src[crop], origin=(3 * step, step),
+                               odd=odd, direction='forward', out='same')
+    assert_allclose(proj, abel[crop], rtol=0.0003, atol=0.3,
+                    err_msg=param + 'rmax = VER < HOR, out = same')
+
+    # cropped, rmax = VER > HOR -> same
+    crop = (slice(3 * step, -step // 2),
+            slice(3 * step, -step))
+    proj, _ = rbasex_transform(src[crop], origin=(step, step), rmax='MAX',
+                               odd=odd, direction='forward', out='same')
+    assert_allclose(proj, abel[crop], rtol=0.005, atol=0.2,
+                    err_msg=param + 'rmax = VER > HOR, out = same')
+
+    # cropped, rmax = HOR > VER -> same
+    crop = (slice(step, -3 * step),
+            slice(3 * step, -step // 2))
+    proj, _ = rbasex_transform(src[crop], origin=(3 * step, step), rmax='MAX',
+                               odd=odd, direction='forward', out='same')
+    assert_allclose(proj, abel[crop], rtol=0.0003, atol=0.3,
+                    err_msg=param + 'rmax = HOR > VER, out = same')
+
+    # cropped, rmax = rmax -> full
+    crop = (slice(3 * step, -step),
+            slice(3 * step, -step))
+    # (in multiples of step: VER^2 + HOR^2 = 2 * 3^2 > rmax^2 = 4^2)
+    proj, _ = rbasex_transform(src[crop], origin=(step, step), rmax=rmax,
+                               odd=odd, direction='forward', out='full')
+    assert_allclose(proj, abel, rtol=0.002, atol=0.3,
+                    err_msg=param + 'rmax = rmax, out = full')
+
+
+def test_rbasex_out():
+    run_out()
+
+
+def test_rbasex_out_odd():
+    run_out(odd=True)
+
+
 if __name__ == '__main__':
     test_rbasex_shape()
     test_rbasex_zeros()
@@ -218,3 +310,5 @@ if __name__ == '__main__':
     test_rbasex_orders()
     test_rbasex_orders_odd()
     test_rbasex_pos()
+    test_rbasex_out()
+    test_rbasex_out_odd()

@@ -204,21 +204,24 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
 
     # output size
     if out == 'same':
-        height = _dst.Qheight if odd else _dst.VER + 1
+        height = _dst.shape[0] if odd else _dst.VER + 1
         width = _dst.HOR + 1
+        row = _dst.row if odd else 0
     elif out in ['fold', 'unfold']:
         height = _dst.Qheight
         width = _dst.Qwidth
+        row = _dst.row if odd else 0
     elif out in ['full', 'full-unique']:
         height = 2 * Rmax + 1 if odd else Rmax + 1
         width = Rmax + 1
+        row = Rmax if odd else 0
     else:
         raise ValueError('Wrong output shape "{}"'.format(out))
     # construct output image from transformed radial profiles
     if verbose:
         print('Constructing output image...')
     # bottom right quadrant or right half
-    recon = _image(height, width, c, verbose)
+    recon = _image(height, width, row, c, verbose)
     if odd:
         if out not in ['fold', 'full-unique']:
             # combine with left half (mirrored without central column)
@@ -277,7 +280,7 @@ def _profiles(IM, origin, rmax, order, odd, weights, verbose):
     return c
 
 
-def _get_image_bs(height, width, verbose):
+def _get_image_bs(height, width, row, verbose):
     global _ibs
 
     if _ibs is not None:
@@ -298,8 +301,7 @@ def _get_image_bs(height, width, verbose):
         # x row
         x = np.arange(float(width))
         # y and y^2 columns
-        y0 = rmax if _dst.odd else 0
-        y = y0 - np.arange(float(height))[:, None]
+        y = row - np.arange(float(height))[:, None]
         y2 = y**2
         # arrays of r^2 and r
         r2 = x**2 + y2
@@ -313,10 +315,10 @@ def _get_image_bs(height, width, verbose):
         # cos^n theta
         cos = [None]  # (cos^0 theta is not used)
         if _dst.odd:
-            r[y0, 0] = np.inf  # (avoid division by zero)
+            r[row, 0] = np.inf  # (avoid division by zero)
             cos.append(y / r)  # cos^1 theta
         else:
-            r2[0, 0] = np.inf  # (avoid division by zero)
+            r2[0, 0] = np.inf  # (avoid division by zero; row = 0)
             cos.append(y2 / r2)  # cos^2 theta
         for n in range(2, len(_dst.c)):  # remaining powers
             cos.append(cos[1] * cos[n - 1])
@@ -328,12 +330,12 @@ def _get_image_bs(height, width, verbose):
     return _ibs
 
 
-def _image(height, width, c, verbose):
+def _image(height, width, row, c, verbose):
     """
     Create transformed image (lower right quadrant for even-only,
     right half for odd) from its cos^n theta radial profiles.
     """
-    rbin, wl, wu, cos = _get_image_bs(height, width, verbose)
+    rbin, wl, wu, cos = _get_image_bs(height, width, row, verbose)
 
     # 0th order (isotropic)
     IM = (wl * np.append(c[0], [0])[rbin] +  # lower bins
