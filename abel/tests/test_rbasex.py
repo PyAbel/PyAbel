@@ -1,15 +1,20 @@
-#!/usr/bin/python3
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
+import os.path
 
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_less
 
 from abel.rbasex import rbasex_transform, cache_cleanup
+from abel.rbasex import get_bs_cached, cache_cleanup
 from abel.tools.analytical import GaussianAnalytical
 from abel.hansenlaw import hansenlaw_transform
 from abel import Transform
+
+
+DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
 
 def test_rbasex_shape():
@@ -303,6 +308,104 @@ def test_rbasex_out_odd():
     run_out(odd=True)
 
 
+def get_basis_file_name(rmax, order, odd, inv):
+    return os.path.join(DATA_DIR,
+                        'rbasex_basis_{}_{}{}{}.npy'.format(rmax, order,
+                                                            'o' if odd else '',
+                                                            'i' if inv else ''))
+
+
+def test_rbasex_bs_cache():
+    rmax, order, odd, inv = 50, 2, False, True
+    file_name = get_basis_file_name(rmax, order, odd, inv)
+    if os.path.exists(file_name):
+        os.remove(file_name)
+    # 1st call generate and save
+    bs1 = get_bs_cached(rmax, order, odd, basis_dir=DATA_DIR, verbose=True)
+    assert os.path.exists(file_name), 'Basis set was not saved!'
+    # 2nd call load from file
+    bs2 = get_bs_cached(rmax, order, odd, basis_dir=DATA_DIR, verbose=True)
+    assert_allclose(bs1, bs2, err_msg='Loaded basis set differs from saved!')
+    if os.path.exists(file_name):
+        os.remove(file_name)
+
+
+def rbasex_bs_resize(old, new, new_saved=False):
+    """
+    Compare basis set loaded and modified to cleanly computed.
+    old, new: basis parameters (rmax, order, odd, inv)
+    new_saved: check that new basis is (True) or is not (False) saved
+    """
+    file_name_old = get_basis_file_name(*old)
+    file_name_new = get_basis_file_name(*new)
+
+    # (remove both basis files)
+    def remove_files():
+        if os.path.exists(file_name_old):
+            os.remove(file_name_old)
+        if os.path.exists(file_name_new):
+            os.remove(file_name_new)
+
+    # (convert basis-set parameters to get_bs_cached() arguments)
+    def arg(prm):
+        return prm[:-1] + ('inverse' if prm[3] else 'forward',)
+
+    # make sure that basis files do not exist and are not cached
+    remove_files()
+    cache_cleanup()
+    # generate "old" basis and save
+    get_bs_cached(*arg(old), basis_dir=DATA_DIR, verbose=False)
+    cache_cleanup()
+    # generate "new" basis without saving
+    bs_new = get_bs_cached(*arg(new), basis_dir=None, verbose=False)
+    cache_cleanup()
+
+    # load "new" basis from "old" file, cropped
+    bs = get_bs_cached(*arg(new), basis_dir=DATA_DIR, verbose=True)
+    # check that "new" file is (not) be saved
+    if new_saved:
+        assert os.path.exists(file_name_new), "New basis set was not saved!"
+    else:
+        assert not os.path.exists(file_name_new), "New basis set was saved!"
+    # clean-up all caches
+    cache_cleanup()
+    remove_files()
+
+    # compare cropped to clean
+    assert_allclose(bs, bs_new)
+
+
+def test_rbasex_bs_crop_rmax():
+    rbasex_bs_resize((60, 2, False, True),
+                     (50, 2, False, True))
+
+
+def test_rbasex_bs_crop_order():
+    rbasex_bs_resize((50, 2, False, True),
+                     (50, 0, False, True))
+
+
+def test_rbasex_bs_crop_odd():
+    rbasex_bs_resize((50, 2, True, True),
+                     (50, 2, False, True))
+
+
+def test_rbasex_bs_crop_order_odd():
+    rbasex_bs_resize((50, 3, True, True),
+                     (50, 2, False, True))
+
+
+def test_rbasex_bs_crop_inv():
+    rbasex_bs_resize((50, 2, False, True),
+                     (50, 2, False, False))
+
+
+def test_rbasex_bs_add_inv():
+    rbasex_bs_resize((50, 2, False, False),
+                     (50, 2, False, True),
+                     new_saved=True)
+
+
 if __name__ == '__main__':
     test_rbasex_shape()
     test_rbasex_zeros()
@@ -312,3 +415,10 @@ if __name__ == '__main__':
     test_rbasex_pos()
     test_rbasex_out()
     test_rbasex_out_odd()
+    test_rbasex_bs_cache()
+    test_rbasex_bs_crop_rmax()
+    test_rbasex_bs_crop_order()
+    test_rbasex_bs_crop_odd()
+    test_rbasex_bs_crop_order_odd()
+    test_rbasex_bs_crop_inv()
+    test_rbasex_bs_add_inv()

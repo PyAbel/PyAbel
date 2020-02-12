@@ -467,11 +467,17 @@ def _load_bs(basis_dir, Rmax, order, odd, inv=False, verbose=False):
         print('Cached basis file incompatible!')
         return None, None
 
-    # pick orders
+    # pick orders parity
     if best_prm['odd'] > odd:  # odd present but not needed
         bs = bs[::2]  # take only even
         if verbose:
             print('(odd orders skipped)')
+    # crop orders
+    if best_prm['order'] > order:
+        n = 1 + (order if odd else order // 2)
+        bs = bs[:n]
+        if verbose:
+            print('(higher orders skipped)')
     # crop to Rmax
     if best_prm['Rmax'] > Rmax:
         bs = [M[:Rmax + 1, :Rmax + 1] for M in bs]
