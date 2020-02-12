@@ -306,8 +306,8 @@ def _get_image_bs(height, width, row, verbose):
         # arrays of r^2 and r
         r2 = x**2 + y2
         r = np.sqrt(r2)
-        # radial bins
-        rbin = r.astype(int)  # round down (floor)
+        # radial bins (as "indexing integers")
+        rbin = r.astype(np.intp)  # round down (floor)
         rbin[rbin > rmax] = rmax + 1  # last bin is then discarded
         # weights for upper and lower bins
         wu = r - rbin
@@ -692,15 +692,15 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
                     raise ValueError('Wrong SVD truncation factor {} > 1'.
                                      format(reg[1]))
                 # truncation index (smallest SV of P -> largest SV of inverse)
-                rmax = int((1 - reg[1]) * Rmax) + 1
+                smax = int((1 - reg[1]) * Rmax) + 1
                 _tri = []
                 # loop over angular orders
                 for An in Af():
                     U, s, Vh = svd(An.T)
                     # truncate matrices
-                    U = U[:, :rmax]
-                    s = 1 / s[:rmax]  # inverse
-                    Vh = Vh[:rmax]
+                    U = U[:, :smax]
+                    s = 1 / s[:smax]  # inverse
+                    Vh = Vh[:smax]
                     # regularized inverse for this angular order
                     _tri.append((U * s).dot(Vh))
             else:

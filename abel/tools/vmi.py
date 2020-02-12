@@ -785,11 +785,11 @@ class Distributions(object):
             # array of r
             r = np.sqrt(r2)
 
-            # Radial bins.
+            # Radial bins (as "indexing integers").
             if self.method == 'nearest':
-                self.bin = np.array(r.round(), dtype=int)
+                self.bin = r.round().astype(np.intp)
             else:  # 'linear'
-                self.bin = r.astype(int)  # round down (floor)
+                self.bin = r.astype(np.intp)  # round down (floor)
             self.bin[self.bin > rmax] = rmax + 1  # last bin is then discarded
 
             # Powers of cosine.
