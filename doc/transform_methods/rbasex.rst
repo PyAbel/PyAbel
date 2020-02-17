@@ -122,43 +122,69 @@ How to use it
 
 The method can be used by directly calling its transform function::
 
-   recon, distr = abel.rbasex.rbasex_transform(image)
-   r, I, beta = distr.rIbeta()
+    recon, distr = abel.rbasex.rbasex_transform(image)
+    r, I, beta = distr.rIbeta()
 
-It returns the transformed image ``recon`` and a :class:`Distributions.Results`
-object ``distr``, from which various radial distributions can be retrieved,
-such as the intensity and anisotropy-parameter distributions in this example.
+It returns the transformed image ``recon`` and a :class:`Distributions.Results
+<abel.tools.vmi.Distributions.Results>` object ``distr``, from which various
+radial distributions can be retrieved, such as the intensity and
+anisotropy-parameter distributions in this example.
 
 If only the distributions are needed, but not the transformed image itself, the
 calculations can be accelerated by disabling the creation of the output image::
 
-   _, distr = abel.rbasex.rbasex_transform(image, out=None)
-   r, I, beta = distr.rIbeta()
+    _, distr = abel.rbasex.rbasex_transform(image, out=None)
+    r, I, beta = distr.rIbeta()
 
 Note that this method does not require the input image to be centered. Thus
-instead of centering it with :func:`center_image`, which will crop some data or
-fill it with zeros, it is better to pass the image origin directly to the
-transform function, determining it automatically, if needed::
+instead of centering it with :func:`~abel.tools.center.center_image`, which
+will crop some data or fill it with zeros, it is better to pass the image
+origin directly to the transform function, determining it automatically, if
+needed::
 
-   origin = abel.tools.center.find_origin(image, method='convolution')
-   recon, distr = abel.rbasex.rbasex_transform(image, origin=origin)
+    origin = abel.tools.center.find_origin(image, method='convolution')
+    recon, distr = abel.rbasex.rbasex_transform(image, origin=origin)
 
 See :func:`abel.rbasex.rbasex_transform` documentation for the full description
 of all available transform parameters.
 
 Alternatively, the method can be accessed through the universal
-:class:`abel.Transform` class::
+:class:`Transform <abel.transform.Transform>` class::
 
-   res = abel.Transform(image, method='rbasex')
-   recon = res.transform
-   distr = res.distr
+    res = abel.Transform(image, method='rbasex')
+    recon = res.transform
+    distr = res.distr
 
 passing additional rBasex parameters through the ``transform_options``
 argument. However, keep in mind that if you want to use all the data from an
-off-center image, do not use the ``origin`` argument of :class:`Transform`, but
-pass it inside ``transform_options``. This also *must* be done in optional
-pixel weighting is used, since otherwise :class:`Transform` will shift the
-image, but not the weights array.
+off-center image, do not use the ``origin`` argument of :class:`Transform
+<abel.transform.Transform>`, but pass it inside ``transform_options``. This
+also *must* be done if optional pixel weighting is used, since otherwise
+:class:`Transform <abel.transform.Transform>` will shift the image, but not the
+weights array.
+
+The weights array can be used as a mask, using zero weights to exclude unwanted
+pixels, as demonstrated in :doc:`../example_rbasex_block`. In practice, instead
+of defining the mask geometry in the code, it might be more convenient to save
+the analyzed data as an image file::
+
+    # save as an RGB image using a chosen colormap
+    plt.imsave('imagemask.png', image, cmap='hot')
+
+then open it in any raster graphics editor, paint the areas to be excluded with
+some distinct color (for example, blue in case of ``cmap='hot'``) and save it.
+This painted image then can be loaded in the program, and the mask is easily
+extracted from it::
+
+    # read as an array with R, G, B (or R, G, B, A) components
+    mask = plt.imread('imagemask.png')
+    # set zero weights for pixels with blue channel (2) > red channel (0)
+    # and unit weights for other pixels
+    weights = 1.0 - (mask[..., 2] > mask[..., 0])
+
+(for other image colormaps and mask colors, adapt the comparison logic
+accordingly). These weights then can be used in the transform of the original
+data, as well as any other data having the same mask geometry.
 
 
 Citation

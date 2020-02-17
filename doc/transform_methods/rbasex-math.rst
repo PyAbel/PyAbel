@@ -515,9 +515,10 @@ distribution. However, it tends to preserve the overall intensity.
 Truncated SVD
 ^^^^^^^^^^^^^
 
-This is the method used in pBasex. The idea is that since the `condition number
-<https://en.wikipedia.org/wiki/Condition_number>`_ of a matrix equals the ratio
-of its maximal and minimal `singular values
+This is the method mentioned in the pBasex article (but not actually used in
+the original pBasex implementation). The idea is that since the `condition
+number <https://en.wikipedia.org/wiki/Condition_number>`_ of a matrix equals
+the ratio of its maximal and minimal `singular values
 <https://en.wikipedia.org/wiki/Singular_value>`_, performing the singular value
 decomposition (SVD),
 
@@ -593,8 +594,8 @@ Unfortunately, applying non-negativity constraint to trigonometric polynomials,
 .. math::
     I(\theta) = \sum a_n \cos^n \theta \geqslant 0\ \text{for all}\ \theta,
 
-generally leads to a system of nonlinear equations on their coefficients, which
-cannot be solved efficiently.
+generally leads to a system of nonlinear inequalities for their coefficients,
+which cannot be solved efficiently.
 
 However, if the polynomial has no more that two terms, that is its order is 0,
 1, or 2 with even powers only, the constraints are linear and can be linearly

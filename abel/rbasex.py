@@ -102,7 +102,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         ``'SVD'``:
             truncated SVD (singular value decomposition) with
             N = `strength` × **rmax** largest singular values removed for each
-            angular order. This mimics the approach used in pBasex.
+            angular order. This mimics the approach proposed in pBasex.
         ``'pos'``:
             non-parameterized method, finds the best (in the least-squares
             sense) solution with non-negative :math:`\cos^n\theta \sin^m\theta`
