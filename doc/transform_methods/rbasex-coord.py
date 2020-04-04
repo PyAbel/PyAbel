@@ -13,7 +13,7 @@ lo = 0.5  # label offset
 an = 11  # angle arc segments
 anc = an // 2  # index of central point
 
-fig = plt.figure(figsize=(3, 3)) #??, frameon=False
+fig = plt.figure(figsize=(3, 3), frameon=False)
 ax = fig.gca(projection='3d')
 ax.set_proj_type('ortho')
 ax.view_init(elev=30, azim=45)

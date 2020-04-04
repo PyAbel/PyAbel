@@ -41,7 +41,7 @@ as shown by the dashed line:
 .. plot:: transform_methods/rbasex-coord.py
     :align: center
 
-This figure also illustrated important relations between the 3D and 2D radii:
+This figure also illustrates important relations between the 3D and 2D radii:
 
 .. math::
     \rho = \sqrt{r^2 + z^2}.
@@ -276,7 +276,7 @@ This was not a problem for the reconstruction method developed in [1]_, since
 it samples these functions at each pixel, with their :math:`r = \sqrt{x^2 +
 y^2}` values not limited to integers. But expanding piecewise linear radial
 distributions over the basis of these curved :math:`p_{R;n}` might be
-problematic. However, as the green curves illustrate, even for a peak with just
+problematic. However, as the cyan curves illustrate, even for a peak with just
 3 nonzero points, its projection is represented by linear segments
 significantly better. Therefore, for real experimental data with adequate
 sampling (peak widths > 2 pixels), the piecewise linear approximation should
@@ -374,6 +374,8 @@ transform, its results can be cached. Thus processing a sequence of images
 takes time linearly proportional to the total number of processed pixels. In
 other words, the throughput is independent on the image size.
 
+
+.. _rBasexmathreg:
 
 Regularizations
 ---------------
@@ -515,8 +517,8 @@ distribution. However, it tends to preserve the overall intensity.
 Truncated SVD
 ^^^^^^^^^^^^^
 
-This is the method mentioned in the pBasex article (but not actually used in
-the original pBasex implementation). The idea is that since the `condition
+This is the method mentioned in the pBasex article [2]_ (but not actually used
+in the original pBasex implementation). The idea is that since the `condition
 number <https://en.wikipedia.org/wiki/Condition_number>`_ of a matrix equals
 the ratio of its maximal and minimal `singular values
 <https://en.wikipedia.org/wiki/Singular_value>`_, performing the singular value
@@ -806,3 +808,9 @@ References
        (`ProQuest <https://search.proquest.com/docview/1289069738>`_,
        `USC <http://digitallibrary.usc.edu/cdm/ref/collection/p15799coll3/id/
        112619>`_).
+
+.. [2] \ G. A. Garcia, L. Nahon, I. Powis,
+       “Two-dimensional charged particle image inversion using a polar basis
+       function expansion”,
+       `Rev. Sci. Instrum. 75, 4989–4996 (2004)
+       <https://doi.org/10.1063/1.1807578>`_.

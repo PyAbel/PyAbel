@@ -56,6 +56,7 @@ plt.plot(np.sqrt(diff_str), diff_err, label='diff')
 plt.plot([0, np.sqrt(1000)], [pos_err, pos_err], '--', label='pos')
 
 plt.ylim(bottom=0)
+plt.ylabel('relative RMS error')
 
 plt.xlim((0, np.sqrt(1000)))
 ticks = [0, 30, 100, 300, 1000]
@@ -70,6 +71,7 @@ plt.subplot(122)
 plt.step(SVD_str, SVD_err, where='mid', c='C3', label='SVD')
 
 plt.yticks([0.079, 0.080])
+plt.ylabel('relative RMS error')
 
 plt.xlim((0, 0.055))
 plt.xlabel('strength')

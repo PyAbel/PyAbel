@@ -16,6 +16,7 @@ ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
 
 plt.xlim((0, rmax))
+plt.xlabel('radius')
 
 r = np.linspace(0, rmax, rmax * samp + 1)
 r[0] = np.finfo(float).eps  # (to avoid division by 0)
@@ -52,17 +53,17 @@ def p(R, n):
 
 plt.plot([-1, R - 1, R, R + 1, rmax + 1],
          [ 0,     0, 1,     0,        0],
-         'ro--', label='1 px')
+         'ro--', label='1 px peak')
 P = p(R, n)
-plt.plot(r, P, 'r')
+plt.plot(r, P, 'r', label='its projection')
 plt.plot(r[::samp], P[::samp], 'ro:')
 
 plt.plot([-1, R - 2, R - 1,   R, R + 1, R + 2, rmax + 1],
          [ 0,     0,   0.4, 0.6,   0.4,     0,        0],
-         'go--', label='3 px')
+         'co--', label='3 px peak')
 P = 0.4 * p(R - 1, n) + 0.6 * p(R, n) + 0.4 * p(R + 1, n)
-plt.plot(r, P, 'g')
-plt.plot(r[::samp], P[::samp], 'go:')
+plt.plot(r, P, 'c', label='its projection')
+plt.plot(r[::samp], P[::samp], 'co:')
 
 plt.ylim(bottom=0)
 

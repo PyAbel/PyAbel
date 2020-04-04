@@ -70,36 +70,39 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         the image to be transformed
     origin : tuple of int or str
         image origin, explicit in the (row, column) format, or as a location
-        string
+        string (by default, the image center)
     rmax : int or string
-        largest radius to include in the transform
+        largest radius to include in the transform (by default, the largest
+        radius with at least one full quadrant of data)
     order : int
-        highest angular order present in the data, ≥ 0
+        highest angular order present in the data, ≥ 0 (by default, 2)
     odd : bool
-        include odd angular orders (enabled automatically if **order** is odd)
+        include odd angular orders (by default is `False`, but is enabled
+        automatically if **order** is odd)
     weights : m × n numpy array, optional
         weighting factors for each pixel. The array shape must match the image
         shape. Parts of the image can be excluded from analysis by assigning
-        zero weights to their pixels.
+        zero weights to their pixels. By default is `None`, which applies equal
+        weight to all pixels.
     direction : str: ``'forward'`` or ``'inverse'``
-        type of Abel transform to be performed
+        type of Abel transform to be performed (by default, inverse)
     reg : None or str or tuple (str, float), optional
-        regularization to use for inverse Abel transform. ``None`` means no
-        regularization, a string selects a non-parameterized regularization
-        method, and parameterized methods are selected by a tuple (`method`,
-        `strength`). Available methods are:
+        regularization to use for inverse Abel transform. ``None`` (default)
+        means no regularization, a string selects a non-parameterized
+        regularization method, and parameterized methods are selected by a
+        tuple (`method`, `strength`). Available methods are:
 
-        ``'L2'``:
+        ``('L2', strength)``:
             Tikhonov :math:`L_2` regularization with `strength` as the square
             of the Tikhonov factor. This is the same as “Tikhonov
             regularization” used in BASEX, with almost identical effects on the
             radial distributions.
-        ``'diff'``:
+        ``('diff', strength)``:
             Tikhonov regularization with the difference operator (approximation
             of the derivative) multiplied by the square root of `strength` as
             the Tikhonov matrix. This tends to produce less blurring, but more
             negative overshoots than ``'L2'``.
-        ``'SVD'``:
+        ``('SVD', strength)``:
             truncated SVD (singular value decomposition) with
             N = `strength` × **rmax** largest singular values removed for each
             angular order. This mimics the approach proposed in pBasex.
@@ -121,23 +124,24 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         Tikhonov methods, `strength` ~ 100 is a reasonable value for megapixel
         images. For truncated SVD, `strength` must be < 1; `strength` ~ 0.1 is
         a reasonable value; `strength` ~ 0.5 can produce noticeable ringing
-        artifacts.
+        artifacts. See the :ref:`full description <rBasexmathreg>` and examples
+        there.
     out : str or None
         shape of the output image:
 
         ``'same'`` (default):
             same shape and origin as the input
         ``'fold'`` (fastest):
-            Q0 quadrant (for ``odd=False``) or right half (for ``odd=True``) up
-            to **rmax**, but limited to the largest input-image quadrant (or
-            half)
+            Q0 (upper right) quadrant (for ``odd=False``) or right half (for
+            ``odd=True``) up to **rmax**, but limited to the largest
+            input-image quadrant (or half)
         ``'unfold'``:
-            like ``'fold'``, but symmetrically “unfolded”
+            like ``'fold'``, but symmetrically “unfolded” to all 4 quadrants
         ``'full'``:
             all pixels with radii up to **rmax**
         ``'full-unique'``:
-            the unique part of ``'full'``: Q0 quadrant for ``odd=False``, right
-            half for ``odd=True``
+            the unique part of ``'full'``: Q0 (upper right) quadrant for
+            ``odd=False``, right half for ``odd=True``
         ``None``:
             no image (**recon** will be ``None``). Can be useful to avoid
             unnecessary calculations when only the transformed radial
@@ -146,9 +150,10 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         path to the directory for saving / loading the basis set (useful only
         for the inverse transform without regularization; time savings in other
         cases are small and might be negated by the disk-access overhead).
-        If ``None``, the basis set will not be loaded from or saved to disk.
+        If ``None`` (default), the basis set will not be loaded from or saved
+        to disk.
     verbose : bool
-        print information about processing (for debugging)
+        print information about processing (for debugging), disabled by default
 
     Returns
     -------

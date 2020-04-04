@@ -14,6 +14,7 @@ ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
 
 plt.xlim((0, rmax))
+plt.xlabel('radius')
 
 r = np.linspace(0, rmax, rmax * 20 + 1)
 r[0] = np.finfo(float).eps  # (to avoid division by 0)

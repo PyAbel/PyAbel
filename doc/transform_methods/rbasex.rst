@@ -9,7 +9,7 @@ Introduction
 
 This method resembles the pBasex [1]_ approach of expanding a velocity-map
 image over a 2D basis set in polar coordinates, but uses more convenient basis
-functions with analytical Abel transforms, developed by M. Ryazanov in [2]_.
+functions with analytical Abel transforms, developed by M. Ryazanov [2]_.
 
 
 How it works
