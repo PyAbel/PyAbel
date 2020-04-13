@@ -44,7 +44,7 @@ as shown by the dashed line:
 This figure also illustrates important relations between the 3D and 2D radii:
 
 .. math::
-    \rho = \sqrt{r^2 + z^2}.
+    \rho = \sqrt{r^2 + z^2}
 
 and polar angles:
 
@@ -75,8 +75,10 @@ integer radii (whole pixels), spanning ±1 pixel:
     \end{cases}
 
 (and :math:`b_0(\rho)` does not have the inner part, :math:`R - 1 < \rho < R`,
-since :math:`\rho \geqslant 0`). These functions actually form a basis of the
-piecewise linear approximation with nodes at each pixel.
+since :math:`\rho \geqslant 0`). These functions form a basis of continuous
+piecewise linear approximations with nodes at each pixel. In other words,
+linear combinations of these functions represent any radial distribution as
+pixel values connected by straight lines.
 
 The angular basis functions are just integer powers of :math:`\cos\theta'` from
 0 up to the highest order expected in the distribution. Hence the overall 3D
@@ -342,9 +344,10 @@ for each angular order separately. Since all projected basis functions satisfy
 :math:`\mathbf P_n^{\rm T}` are upper triangular, and their inversions
 :math:`\big(\mathbf P_n^{\rm T}\big)^{-1}` are also upper triangular for all
 :math:`n`, which additionally facilitates the computations. (This triangularity
-makes the inverse Abel transform similar to the “onion peeling” procedure
-written in a matrix form, but based on linear interpolation instead of midpoint
-rectangular approximation.)
+makes the inverse Abel transform similar to the :doc:`“onion peeling”
+<onion_peeling>` procedure written in a matrix form, but based on linear
+interpolation for spherical shells instead of midpoint rectangular
+approximation for cylindrical rings.)
 
 Overall, the transforms proceed as follows:
 
@@ -372,7 +375,7 @@ size, and all other steps have quadratic complexity. However, for the forward
 Abel transform, step 3 is not needed at all, and for the inverse Abel
 transform, its results can be cached. Thus processing a sequence of images
 takes time linearly proportional to the total number of processed pixels. In
-other words, the throughput is independent on the image size.
+other words, the pixel throughput is independent of the image size.
 
 
 .. _rBasexmathreg:
@@ -414,8 +417,8 @@ Instead of inverting :math:`\mathbf A` explicitly, the solution of
 
 from a quadratic minimization (“least-squares”) problem, which is equivalent to
 the original problem, but makes evident that for ill-conditioned problems the
-minimum is very “flat”, and many different :math:`\mathbf x` can be accepted as
-a solution.
+minimum is very “flat”, and many different vectors :math:`\mathbf x` can be
+accepted as a solution.
 
 The idea of `Tikhonov regularization
 <https://en.wikipedia.org/wiki/Tikhonov_regularization>`_ is to add some small
@@ -670,6 +673,8 @@ relevant model is available, it is better to fit it directly to non-regularized
 results, thus avoiding additional assumptions and biases introduced by
 regularizations.
 
+
+.. _rBasexmathregex:
 
 Examples
 ^^^^^^^^

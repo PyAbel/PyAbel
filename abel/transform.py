@@ -397,9 +397,11 @@ class Transform(object):
         self.direction = direction
 
         # private internal variables
+        self._origin = origin
         self._symmetry_axis = symmetry_axis
         self._symmetrize_method = symmetrize_method
         self._use_quadrants = use_quadrants
+        self._transform_options = transform_options
         self._recast_as_float64 = recast_as_float64
         _verbose = verbose
 
@@ -419,9 +421,9 @@ class Transform(object):
 
     def _verify_some_inputs(self):
         if self.IM.ndim == 1 or np.shape(self.IM)[0] <= 2:
-            raise ValueError('Data must be 2-dimensional. \
-                              To transform a single row, \
-                              use the individual transform function.')
+            raise ValueError('Data must be 2-dimensional. '
+                             'To transform a single row, '
+                             'use the individual transform function.')
 
         if not np.any(self._use_quadrants):
             raise ValueError('No image quadrants selected to use')
@@ -429,6 +431,19 @@ class Transform(object):
         if not isinstance(self._symmetry_axis, (list, tuple)):
             # if the user supplies an int, make it into a 1-element list:
             self._symmetry_axis = [self._symmetry_axis]
+
+        if self.method == 'rbasex' and self._origin != 'none':
+            if self._transform_options.get('origin') is not None:
+                raise ValueError('Either use the "origin" argument to center '
+                                 'the image, or pass "origin" to rbasex in '
+                                 '"transform_options" to use the image as '
+                                 'is, but don\'t do both.')
+            if self._transform_options.get('weights') is not None:
+                raise ValueError('Using the "origin" argument will center '
+                                 'the image but not the "weights" array '
+                                 'passed to rbasex. If you want to specify '
+                                 'the image origin, pass it in '
+                                 '"transform_options".')
 
         if self._recast_as_float64:
             self.IM = self.IM.astype('float64')

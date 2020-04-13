@@ -15,16 +15,17 @@ functions with analytical Abel transforms, developed by M. Ryazanov [2]_.
 How it works
 ------------
 
-In velocity-map imaging with cylindrically symmetric photodissociation (in a
-broad sense, including photoionization and photodetachment) the 3D velocity
-distribution at each speed (3D radius) consists of a finite number of spherical
-harmonics :math:`Y_{nm}(\theta, \varphi)` with :math:`m = 0`, which are also
-representable as Legendre polynomials :math:`P_n(\cos\theta)`. This means that
-an :math:`N \times N` image has only :math:`N_r \times N_a` degrees of freedom,
-where :math:`N_r` is the number of radial samples, usually :math:`N / 2`, and
-:math:`N_a` is the number of angular terms, a small number depending on the
-number of photons. These are the “radial distribution” extracted from the
-transformed image in other, general Abel-inversion methods.
+In velocity-map imaging (VMI) with cylindrically symmetric photodissociation
+(in a broad sense, including photoionization and photodetachment) the 3D
+velocity distribution at each speed (3D radius) consists of a finite number of
+spherical harmonics :math:`Y_{nm}(\theta, \varphi)` with :math:`m = 0`, which
+are also representable as Legendre polynomials :math:`P_n(\cos\theta)`. This
+means that an :math:`N \times N` image has only :math:`N_r \times N_a` degrees
+of freedom, where :math:`N_r` is the number of radial samples, usually :math:`N
+/ 2`, and :math:`N_a` is the number of angular terms, a small number depending
+on the studied process. These degrees of freedom correspond to the “radial
+distribution” extracted from the transformed image in other, general
+Abel-inversion methods.
 
 However, if these radial distributions are considered as a basis, the 3D
 distribution can be represented as a linear combination of these basis
@@ -32,9 +33,9 @@ functions with some coefficients. And the corresponding image, being the
 forward Abel transform of the 3D distribution, will be represented as a linear
 combination of basis-function projections, that is, their forward Abel
 transforms, with the same coefficients. The reverse is also true: finding the
-expansion coefficients of an experimental VM image over the projected basis
-directly gives the expansion coefficients of the initial 3D velocity direction
-and thus the sought radial distributions.
+expansion coefficients of an experimental velocity-map image over the projected
+basis directly gives the expansion coefficients of the initial 3D velocity
+direction and thus the sought radial distributions.
 
 Finding the expansion coefficients is a simple linear problem, and the forward
 Abel transforms of the basis functions can be calculated easily if the basis is
@@ -51,6 +52,9 @@ See :ref:`rBasexmath` for the complete description.
 Differences from pBasex
 ^^^^^^^^^^^^^^^^^^^^^^^
 
+While rBasex is similar to pBasex in the idea of using VMI-oriented 3D basis
+functions, it has several key differences:
+
 1. Triangular radial basis functions are used instead of Gaussians. They are
    more compact/orthogonal (only the adjacent functions overlap) and have
    analytical Abel transforms.
@@ -61,7 +65,7 @@ Differences from pBasex
 
 3. The basis separability allows decomposition of the problem in two steps:
    first, radial distributions are extracted from the image (without
-   intermediate rebinning to polar grid, what is faster and avoids accumulation
+   intermediate rebinning to polar grid, thus faster and avoiding accumulation
    of resampling errors); second, these radial distributions are expanded over
    radial bases for each angular order. This eliminates the necessity to work
    with large matrices.
@@ -80,6 +84,10 @@ Differences from pBasex
 Differences from the reconstruction method described in [2]_
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Many ideas used in rBasex, including the analytically transformable basis
+functions, are taken from the previous work [2]_, but with some omissions,
+additions and modifications.
+
 1. Instead of working with individual pixels and weighting them according to
    Poisson statistics, the binned radial distributions (not weighted by
    default) are transformed. This is less accurate, but much faster, especially
@@ -96,23 +104,30 @@ Differences from the reconstruction method described in [2]_
 When to use it
 --------------
 
-Although this method can be applied only to velocity-map images, and not just
-cylindrically symmetric images, it has several benefits in this special case.
+This method makes additional assumptions (beyond cylindrical symmetry) about
+the data, so it can be applied only to velocity-map images or in other similar
+situations involving a finite number of spherical harmonics. However, in this
+special case, it offers several benefits:
 
-1. The reconstructed radial distributions, which are of the primary interest in
-   VMI studies, are obtained directly.
+1. The reconstructed radial distributions, which are often the primary interest
+   in VMI studies, are obtained directly.
 
 2. Limitations on the angular behavior of the distribution also put strong
    constraints on the reconstruction noise, making the reconstructed images
    much cleaner.
 
-3. Unlike general Abel transform methods, which have time complexity with
+3. Several optional :ref:`regularization <rBasexmathregex>` methods help to
+   further reduce noise in reconstructed images, especially near the center.
+   Regularization strengths can be adjusted to produce a desirable balance
+   between noise reduction and blurring of sharp features.
+
+4. Unlike general Abel-transform methods, which have time complexity with
    *cubic* dependence on the image size, this method is only *quadratic*, once
    the transform matrix is computed. Computing the transform matrix is still
    cubic, but after it is done, transforming a series of images is faster,
    especially for large images.
 
-4. The optional non-negativity constraints implemented in this method allow
+5. The optional non-negativity constraints implemented in this method allow
    obtaining physically meaningful intensity and anisotropy distributions. They
    can also help in denoising experimental images with very low event counts.
 
@@ -120,7 +135,18 @@ cylindrically symmetric images, it has several benefits in this special case.
 How to use it
 -------------
 
-The method can be used by directly calling its transform function::
+The method can be accessed through the universal :class:`Transform
+<abel.transform.Transform>` class::
+
+    res = abel.Transform(image, method='rbasex')
+    recon = res.transform
+    distr = res.distr
+
+optionally using other :class:`Transform <abel.transform.Transform>` arguments
+and passing additional rBasex parameters (see
+:func:`abel.rbasex.rbasex_transform` documentation for their full description)
+through the ``transform_options`` argument. Alternatively, it might be more
+convenient to use the method by calling its transform function directly::
 
     recon, distr = abel.rbasex.rbasex_transform(image)
     r, I, beta = distr.rIbeta()
@@ -136,8 +162,9 @@ calculations can be accelerated by disabling the creation of the output image::
     _, distr = abel.rbasex.rbasex_transform(image, out=None)
     r, I, beta = distr.rIbeta()
 
-Note that this method does not require the input image to be centered. Thus
-instead of centering it with :func:`~abel.tools.center.center_image`, which
+Note that rBasex does not require the input image to be centered. Thus instead
+of centering it with :func:`~abel.tools.center.center_image` (or using the
+``origin`` argument of :class:`Transform <abel.transform.Transform>`), which
 will crop some data or fill it with zeros, it is better to pass the image
 origin directly to the transform function, determining it automatically, if
 needed::
@@ -145,28 +172,18 @@ needed::
     origin = abel.tools.center.find_origin(image, method='convolution')
     recon, distr = abel.rbasex.rbasex_transform(image, origin=origin)
 
-See :func:`abel.rbasex.rbasex_transform` documentation for the full description
-of all available transform parameters.
+This also *must* be done if optional pixel weighting is used, since otherwise
+the centered image would become inconsistent with the weights array. For
+example, when using the :class:`Transform <abel.transform.Transform>` class,
+pass the origin as follows::
 
-Alternatively, the method can be accessed through the universal
-:class:`Transform <abel.transform.Transform>` class::
+    res = abel.Transform(image, method='rbasex',
+                         transform_options=dict(origin=..., weights=...))
 
-    res = abel.Transform(image, method='rbasex')
-    recon = res.transform
-    distr = res.distr
-
-passing additional rBasex parameters through the ``transform_options``
-argument. However, keep in mind that if you want to use all the data from an
-off-center image, do not use the ``origin`` argument of :class:`Transform
-<abel.transform.Transform>`, but pass it inside ``transform_options``. This
-also *must* be done if optional pixel weighting is used, since otherwise
-:class:`Transform <abel.transform.Transform>` will shift the image, but not the
-weights array.
-
-The weights array can be used as a mask, using zero weights to exclude unwanted
-pixels, as demonstrated in :doc:`../example_rbasex_block`. In practice, instead
-of defining the mask geometry in the code, it might be more convenient to save
-the analyzed data as an image file::
+The weights array can also be used as a mask, using zero weights to exclude
+unwanted pixels, as demonstrated in :doc:`../example_rbasex_block`. In
+practice, instead of defining the mask geometry in the code, it might be more
+convenient to save the analyzed data as an image file::
 
     # save as an RGB image using a chosen colormap
     plt.imsave('imagemask.png', image, cmap='hot')

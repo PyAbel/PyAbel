@@ -21,10 +21,12 @@ source = SampleImage(n=2 * rmax - 1).image / scale
 Isrc, _ = Ibeta(source)
 Inorm = (Isrc**2).sum()
 
-# simulated projection fith Poissonian noise
+# simulated projection with Poissonian noise
 proj, _ = rbasex_transform(source, direction='forward')
 proj[proj < 0] = 0
-proj = np.random.RandomState(0).poisson(proj)  # (reproducible, see NEP 19)
+# (reproducible random noise,
+#  see NEP 19: https://numpy.org/neps/nep-0019-rng-policy.html)
+proj = np.random.RandomState(0).poisson(proj)
 
 # plot...
 fig = plt.figure(figsize=(7, 3.5), frameon=False)
