@@ -15,6 +15,8 @@ from matplotlib import gridspec
 
 from scipy.ndimage.interpolation import shift
 
+import os.path
+
 from six.moves import tkinter as tk
 from six.moves import tkinter_ttk as ttk
 from six.moves import tkinter_font as tkFont
@@ -388,9 +390,18 @@ class PyAbel:  # (tk.Tk):
                         self.IM, method=self.method, direction=self.fi,
                         transform_options=dict(return_Beta=True))
                 else:
+                    basis_dir = 'bases'
+                    if not os.path.isdir(basis_dir):
+                        self.text.insert(tk.END,
+                            "\n(No '" + basis_dir + "' directory;"
+                            " bases sets will not be loaded/saved.)")
+                        self.text.see(tk.END)
+                        self.canvas.draw()
+                        basis_dir = None
+
                     self.AIM = abel.Transform(
                         self.IM, method=self.method, direction=self.fi,
-                        transform_options=dict(basis_dir='bases'),
+                        transform_options=dict(basis_dir=basis_dir),
                         symmetry_axis=None)
             except Exception as e:
                 self.text.insert(tk.END, "\nAn error occured:\n")
