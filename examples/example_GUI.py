@@ -323,9 +323,9 @@ class PyAbel:  # (tk.Tk):
             self.IM = abel.tools.analytical.SampleImage(n=1001,
                                                         name=self.fn).image
             self.direction.current(1)  # raw images require 'forward' transform
-            self.text.insert(tk.END, "\nsample image: (1) Abel transform 'forward', ")
-            self.text.insert(tk.END, "              (2) load 'from transform', ")
-            self.text.insert(tk.END, "              (3) Abel transform 'inverse', ")
+            self.text.insert(tk.END, "\nsample image: (1) Abel transform 'forward',\n")
+            self.text.insert(tk.END, "              (2) load 'from transform',\n")
+            self.text.insert(tk.END, "              (3) Abel transform 'inverse',\n")
             self.text.insert(tk.END, "              (4) Speed")
             self.text.see(tk.END)
 
@@ -379,17 +379,25 @@ class PyAbel:  # (tk.Tk):
                 self.text.insert(
                    tk.END,
                    "\ndirect: calculation is slowed if Cython unavailable ...")
+            self.text.see(tk.END)
             self.canvas.draw()
 
-            if self.method == 'linbasex':
-                self.AIM = abel.Transform(
-                    self.IM, method=self.method, direction=self.fi,
-                    transform_options=dict(return_Beta=True))
-            else:
-                self.AIM = abel.Transform(
-                    self.IM, method=self.method, direction=self.fi,
-                    transform_options=dict(basis_dir='bases'),
-                    symmetry_axis=None)
+            try:
+                if self.method == 'linbasex':
+                    self.AIM = abel.Transform(
+                        self.IM, method=self.method, direction=self.fi,
+                        transform_options=dict(return_Beta=True))
+                else:
+                    self.AIM = abel.Transform(
+                        self.IM, method=self.method, direction=self.fi,
+                        transform_options=dict(basis_dir='bases'),
+                        symmetry_axis=None)
+            except Exception as e:
+                self.text.insert(tk.END, "\nAn error occured:\n")
+                self.text.insert(tk.END, e)
+                self.text.see(tk.END)
+                self.canvas.draw()
+
             self.rmin.delete(0, tk.END)
             self.rmin.insert(0, self.rmx[0])
             self.rmax.delete(0, tk.END)
