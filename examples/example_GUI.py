@@ -302,7 +302,7 @@ class PyAbel:  # (tk.Tk):
 
         self.fn = self.sample_image.get()
         # update what is occurring text box
-        self.text.insert(tk.END, "\nloading image file {:s}".format(self.fn))
+        self.text.insert(tk.END, "\nloading image {:s}".format(self.fn))
         self.text.see(tk.END)
         self.canvas.draw()
 
@@ -314,7 +314,7 @@ class PyAbel:  # (tk.Tk):
             else:
                 self.IM = plt.imread(self.fn)
         elif self.fn == "from transform":
-            self.IM = self.AIM
+            self.IM = self.AIM.transform
             self.AIM = None
             for i in range(1, 4):
                 self._clr_plt(i)
