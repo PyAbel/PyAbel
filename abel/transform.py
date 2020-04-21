@@ -15,13 +15,14 @@ from . import direct
 from . import hansenlaw
 from . import linbasex
 from . import onion_bordas
+from . import rbasex
 from . import tools
 
 from abel import _deprecated, _deprecate
 
 
 class Transform(object):
-    """
+    r"""
     Abel transform image class.
 
     This class provides whole-image forward and inverse Abel
@@ -49,24 +50,29 @@ class Transform(object):
         specifies which numerical approximation to the Abel transform should be
         employed (see below). The options are
 
-        ``hansenlaw``
-            the recursive algorithm described by Hansen and Law.
         ``basex``
             the Gaussian "basis set expansion" method of Dribinski et al.
+            (2002).
         ``direct``
             a naive implementation of the analytical formula by Roman Yurchuk.
-        ``two_point``
-            the two-point transform of Dasch (1992).
-        ``three_point``
-            the three-point transform of Dasch (1992).
+        ``hansenlaw``
+            the recursive algorithm described by Hansen and Law (1985).
+        ``linbasex``
+            the 1D projections of velocity-mapping images in terms of 1D
+            spherical functions by Gerber et al. (2013).
         ``onion_bordas``
             the algorithm of Bordas and co-workers (1996),
             re-implemented by Rallis, Wells and co-workers (2014).
         ``onion_peeling``
             the onion peeling deconvolution as described by Dasch (1992).
-        ``linbasex``
-            the 1D projections of velocity-mapping images in terms of 1D
-            spherical functions by Gerber et al. (2013).
+        ``rbasex``
+            a method similar to pBasex by Garcia et al. (2004) for
+            velocity-mapping images, but with analytical basis functions
+            developed by Ryazanov (2012).
+        ``three_point``
+            the three-point transform of Dasch (1992).
+        ``two_point``
+            the two-point transform of Dasch (1992).
 
     origin : tuple or str
         Before applying Abel transform, the image is centered around this
@@ -204,17 +210,6 @@ class Transform(object):
     be reloaded, meaning that future transforms are performed much more
     quickly.
 
-    ``hansenlaw``
-        This "recursive algorithm" produces reliable results and is quite fast
-        (~0.1 s for a 1001×1001 image). It makes no assumptions about the data
-        (apart from cylindrical symmetry). It tends to require that the data is
-        finely sampled for good convergence.
-
-        E. W. Hansen, P.-L. Law,
-        "Recursive methods for computing the Abel transform and its inverse",
-        `J. Opt. Soc. Am. A 2, 510–520 (1985)
-        <https://dx.doi.org/10.1364/JOSAA.2.000510>`_.
-
     ``basex`` *
         The "basis set exapansion" algorithm describes the data in terms of
         gaussian-like functions, which themselves can be Abel-transformed
@@ -236,6 +231,17 @@ class Transform(object):
         converge. Such methods are typically inefficient, but thanks to this
         Cython implementation (by Roman Yurchuk), this "direct" method is
         competitive with the other methods.
+
+    ``hansenlaw``
+        This "recursive algorithm" produces reliable results and is quite fast
+        (~0.1 s for a 1001×1001 image). It makes no assumptions about the data
+        (apart from cylindrical symmetry). It tends to require that the data is
+        finely sampled for good convergence.
+
+        E. W. Hansen, P.-L. Law,
+        "Recursive methods for computing the Abel transform and its inverse",
+        `J. Opt. Soc. Am. A 2, 510–520 (1985)
+        <https://dx.doi.org/10.1364/JOSAA.2.000510>`_.
 
     ``linbasex`` *
         Velocity-mapping images are composed of projected Newton spheres with
@@ -279,9 +285,30 @@ class Transform(object):
         is the onion peeling algorithm as described by Dasch (1992), reference
         below.
 
-    ``two_point`` *
-        Another Dasch method. Simple, and fast, but not as accurate as the
-        other methods.
+    ``rbasex`` *
+        The pBasex method by
+        G. A. Garcia, L. Nahon, I. Powis,
+        “Two-dimensional charged particle image inversion using a polar basis
+        function expansion”,
+        `Rev. Sci. Instrum. 75, 4989–2996 (2004)
+        <http://dx.doi.org/10.1063/1.1807578>`_
+        adapts the BASEX ("basis set expansion") method to the specific case of
+        velocity-mapping images by using a basis of 2D functions in polar
+        coordinates, such that the reconstructed radial distributions are
+        obtained directly from the expansion coefficients.
+
+        This method employs the same approach, but uses more convenient basis
+        functions, which have analytical Abel transforms separable into radial
+        and angular parts, developed in
+        M. Ryazanov,
+        “Development and implementation of methods for sliced velocity map
+        imaging. Studies of overtone-induced dissociation and isomerization
+        dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and
+        CD\ :sub:`2`\ OH)”,
+        Ph.D. dissertation, University of Southern California, 2012
+        (`ProQuest <https://search.proquest.com/docview/1289069738>`_,
+        `USC <http://digitallibrary.usc.edu/cdm/ref/collection/p15799coll3/id/
+        112619>`_).
 
     ``three_point`` *
         The "Three Point" Abel transform method exploits the observation that
@@ -295,6 +322,10 @@ class Transform(object):
         filtered backprojection methods",
         `Appl. Opt. 31, 1146–1152 (1992)
         <https://doi.org/10.1364/AO.31.001146>`_.
+
+    ``two_point`` *
+        Another Dasch method. Simple, and fast, but not as accurate as the
+        other methods.
 
     The following class attributes are available, depending on the calculation.
 
@@ -338,6 +369,9 @@ class Transform(object):
         with ``method=linbasex, transform_options=dict(return_Beta=True)``:
         radial projection profiles at angles **proj_angles**
 
+    distr : Distributions.Results object
+        with ``method=rbasex``: the object from which various radial
+        distributions can be retrieved
     """
 
     _verbose = False
@@ -363,9 +397,11 @@ class Transform(object):
         self.direction = direction
 
         # private internal variables
+        self._origin = origin
         self._symmetry_axis = symmetry_axis
         self._symmetrize_method = symmetrize_method
         self._use_quadrants = use_quadrants
+        self._transform_options = transform_options
         self._recast_as_float64 = recast_as_float64
         _verbose = verbose
 
@@ -385,9 +421,9 @@ class Transform(object):
 
     def _verify_some_inputs(self):
         if self.IM.ndim == 1 or np.shape(self.IM)[0] <= 2:
-            raise ValueError('Data must be 2-dimensional. \
-                              To transform a single row \
-                              use the individual transform function.')
+            raise ValueError('Data must be 2-dimensional. '
+                             'To transform a single row, '
+                             'use the individual transform function.')
 
         if not np.any(self._use_quadrants):
             raise ValueError('No image quadrants selected to use')
@@ -395,6 +431,19 @@ class Transform(object):
         if not isinstance(self._symmetry_axis, (list, tuple)):
             # if the user supplies an int, make it into a 1-element list:
             self._symmetry_axis = [self._symmetry_axis]
+
+        if self.method == 'rbasex' and self._origin != 'none':
+            if self._transform_options.get('origin') is not None:
+                raise ValueError('Either use the "origin" argument to center '
+                                 'the image, or pass "origin" to rbasex in '
+                                 '"transform_options" to use the image as '
+                                 'is, but don\'t do both.')
+            if self._transform_options.get('weights') is not None:
+                raise ValueError('Using the "origin" argument will center '
+                                 'the image but not the "weights" array '
+                                 'passed to rbasex. If you want to specify '
+                                 'the image origin, pass it in '
+                                 '"transform_options".')
 
         if self._recast_as_float64:
             self.IM = self.IM.astype('float64')
@@ -405,31 +454,28 @@ class Transform(object):
                                                 **center_options)
 
     def _abel_transform_image(self, **transform_options):
-        if self.method == "linbasex" and self._symmetry_axis is not None:
-            self._abel_transform_image_full(**transform_options)
-        else:
-            self._abel_transform_image_by_quadrant(**transform_options)
-
-    def _abel_transform_image_full(self, **transform_options):
-
-        abel_transform = {
-            # "basex": basex.basex_transform,
-            "linbasex": linbasex.linbasex_transform_full
-        }
-        t0 = time.time()
-
         self._verboseprint('Calculating {0} Abel transform using {1} method -'
                           .format(self.direction, self.method),
                           '\n    image size: {:d}x{:d}'.format(*self.IM.shape))
+        t0 = time.time()
 
-        self.transform, radial, Beta, QLz = abel_transform[self.method](self.IM,
-                                                   **transform_options)
+        if self.method == "linbasex" and self._symmetry_axis is not None:
+            self._abel_transform_image_full_linbasex(**transform_options)
+        elif self.method == "rbasex":
+            self._abel_transform_image_full_rbasex(**transform_options)
+        else:
+            self._abel_transform_image_by_quadrant(**transform_options)
 
-        self._verboseprint("{:.2f} seconds".format(time.time()-t0))
+        self._verboseprint("{:.2f} seconds".format(time.time() - t0))
 
-        self.Beta = Beta
-        self.projection = QLz
-        self.radial = radial
+    def _abel_transform_image_full_linbasex(self, **transform_options):
+        self.transform, self.radial, self.Beta, self.projection = \
+            linbasex.linbasex_transform_full(self.IM, **transform_options)
+
+    def _abel_transform_image_full_rbasex(self, **transform_options):
+        self.transform, self.distr = \
+            rbasex.rbasex_transform(self.IM, direction=self.direction,
+                                    **transform_options)
 
     def _abel_transform_image_by_quadrant(self, **transform_options):
 

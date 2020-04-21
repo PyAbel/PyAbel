@@ -12,6 +12,11 @@ Unreleased
   See PR #267.
 * Fixed the GUI examples (example_GUI.py and example_simple_GUI.py)
   so that they work with the lastest versions of tk (PR #269).
+* New method rBasex for velocity-map images, based on pBasex and the work of
+  Mikhail Ryazanov (PR #270).
+* Added "orders", "sinpowers" and "valid" to tools.vmi.Distributions results,
+  reordered cossin() powers for consistency (PR #270).
+* Improved tools.vmi.Distributions performance on Windows (PR #270).
 
 v0.8.3 (2019-08-16)
 -------------------

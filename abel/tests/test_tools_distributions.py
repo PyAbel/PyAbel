@@ -53,7 +53,7 @@ def run_order(method, tol):
 
         # Gaussian peak with one cossin angular term.
         def peak(i):
-            return c2 ** (n - i) * s2 ** i * \
+            return c2 ** i * s2 ** (n - i) * \
                    np.exp(-(r - (i + 1) * step) ** 2 / (2 * sigma**2))
 
         # quadrant with all peaks
@@ -76,15 +76,15 @@ def run_order(method, tol):
 
 
 def test_order_nearest():
-    run_order('nearest', [0.0018, 0.0020, 0.0019, 0.0022, 0.0055])
+    run_order('nearest', [0.0018, 0.0018, 0.0022, 0.0062, 0.020])
 
 
 def test_order_linear():
-    run_order('linear', [0.0031, 0.0033, 0.0034, 0.0034, 0.011])
+    run_order('linear', [0.0031, 0.0034, 0.0034, 0.0067, 0.029])
 
 
 def test_order_remap():
-    run_order('remap', [5e-6, 6e-6, 7e-6, 8e-6, 2e-5])
+    run_order('remap', [5e-6, 6e-6, 6e-6, 2e-5, 7e-5])
 
 
 def run_order_odd(method, tol):
@@ -111,7 +111,7 @@ def run_order_odd(method, tol):
 
         # Gaussian peak with one cossin angular term
         def peak(i):
-            m = n - i  # cos power
+            m = i  # cos power
             k = (n - m) & ~1  # sin power (round down to even)
             return c ** m * s ** k * \
                    np.exp(-(r - (i + 1) * step) ** 2 / (2 * sigma**2))
@@ -137,15 +137,15 @@ def run_order_odd(method, tol):
 
 
 def test_order_odd_nearest():
-    run_order_odd('nearest', [0.0018, 0.0020, 0.0020, 0.0019, 0.0019])
+    run_order_odd('nearest', [0.0018, 0.0018, 0.0018, 0.0018, 0.0020])
 
 
 def test_order_odd_linear():
-    run_order_odd('linear', [0.0032, 0.0033, 0.0034, 0.0034, 0.0035])
+    run_order_odd('linear', [0.0032, 0.0034, 0.0034, 0.0034, 0.0035])
 
 
 def test_order_odd_remap():
-    run_order_odd('remap', [5e-6, 5e-6, 6e-6, 7e-6, 7e-6])
+    run_order_odd('remap', [5e-6, 5e-6, 6e-6, 6e-6, 6e-6])
 
 
 def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):

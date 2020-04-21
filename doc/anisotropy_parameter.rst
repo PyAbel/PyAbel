@@ -17,7 +17,7 @@ Methods
 
    Method 1: :doc:`linbasex <transform_methods/linbasex>` evaluates :math:`\beta` directly, available as the class attribute `Beta[1]`.
 
-       This method fits spherical harmonic functions to the velocity-map image to directly determine the anisotropy parameter as a function of the radial coordinate. This parameter has greater uncertainty in radial regions of low intensity, and so it is commonly plotted as the product :math:`I \times \beta`.  See ``examples/example_linbasex.py``.
+       This method fits spherical harmonic functions to the velocity-map image to directly determine the anisotropy parameter as a function of the radial coordinate. This parameter has greater uncertainty in radial regions of low intensity, and so it is commonly plotted as the product :math:`I \times \beta`.  See :doc:`example_linbasex`.
 
    .. image:: https://cloud.githubusercontent.com/assets/10932229/17164544/94adacdc-540c-11e6-955a-c5c9092943cc.png
       :width: 600px
@@ -46,6 +46,8 @@ See :doc:`example_anisotropy_parameter`. In this case the anisotropy parameter i
    * In method 3, the anisotropy parameter is calculated with 9-pixel radial averaging and plotted only in the regions with > 1 % of the maximal intensity.
 
 .. plot:: ../examples/example_anisotropy_parameter.py 
+
+A demonstration of using :class:`~abel.tools.vmi.Distributions` for incomplete images is also included in :doc:`example_rbasex_block`.
 
 
 Reference

@@ -676,8 +676,11 @@ class Distributions(object):
         row_ = height - 1 - row
         col_ = width - 1 - col
         # min/max spans
-        hor, HOR = min(col, col_), max(col, col_)
         ver, VER = min(row, row_), max(row, row_)
+        hor, HOR = min(col, col_), max(col, col_)
+
+        # save these values for rbasex
+        self.row, self.col, self.VER, self.HOR = row, col, VER, HOR
 
         # Determine rmax.
         rmax_in = self.rmax_in
@@ -782,11 +785,11 @@ class Distributions(object):
             # array of r
             r = np.sqrt(r2)
 
-            # Radial bins.
+            # Radial bins (as "indexing integers").
             if self.method == 'nearest':
-                self.bin = np.array(r.round(), dtype=int)
+                self.bin = r.round().astype(np.intp)
             else:  # 'linear'
-                self.bin = r.astype(int)  # round down (floor)
+                self.bin = r.astype(np.intp)  # round down (floor)
             self.bin[self.bin > rmax] = rmax + 1  # last bin is then discarded
 
             # Powers of cosine.
@@ -977,6 +980,9 @@ class Distributions(object):
             self.C = np.array([invn(hankel(p[:self.N], p[self.N - 1:]))
                                for p in pc])
 
+        # valid radii
+        self.valid = (self.C[:, 0, 0] != 0)
+
         self.ready = True
 
     class Results(object):
@@ -1007,12 +1013,36 @@ class Distributions(object):
         ----------
         r : numpy array
             radii from 0 to **rmax**
+        order : int
+            highest order in the angular distributions
+        odd : bool
+            whether odd angular orders are present
+        orders : list of int
+            orders for all angular terms:
+
+                [0, 2, ..., **order**] for **odd** = ``False``,
+
+                [0, 1, 2, ..., **order**] for **odd** = ``True``
+
+        sinpowers : list of int
+            sine powers :math:`m` in the :math:`\cos^n\theta \cdot
+            \sin^m\theta` terms from :meth:`cossin`; cosine powers :math:`n`
+            are given by :attr:`orders` (see above)
+        valid : bool array
+            flags for each radius indicating whether it has valid data (radii
+            that have zero weights for all pixels will have no valid data)
         """
-        def __init__(self, r, cn, order, odd):
+        def __init__(self, r, cn, order, odd, valid=None):
             self.r = r
             self.cn = cn
             self.order = order
             self.odd = odd
+            self.orders = list(range(0, order + 1, 1 if odd else 2))
+            self.sinpowers = [(order - n) & ~1 for n in self.orders]
+            if valid is None:
+                self.valid = np.full_like(r, True)
+            else:
+                self.valid = valid
 
         def cos(self):
             r"""
@@ -1048,39 +1078,39 @@ class Distributions(object):
 
             For **order** = 1:
 
-                :math:`\cos^1 \theta` is the antisymmetric component.
-
                 :math:`\cos^0 \theta` is the total intensity,
+
+                :math:`\cos^1 \theta` is the antisymmetric component.
 
             For **order** = 2
 
-                :math:`\cos^2 \theta` corresponds to “parallel” (∥)
+                :math:`\sin^2 \theta` corresponds to “perpendicular” (⟂)
                 transitions,
 
-                :math:`\sin^2 \theta` corresponds to “perpendicular” (⟂)
+                :math:`\cos^2 \theta` corresponds to “parallel” (∥)
                 transitions.
 
             For **order** = 4
 
-                :math:`\cos^4 \theta` corresponds to ∥,∥,
+                :math:`\sin^4 \theta` corresponds to ⟂,⟂,
 
                 :math:`\cos^2 \theta \cdot \sin^2 \theta` corresponds
-                to ∥,⟂ and ⟂,∥.
+                to ∥,⟂ and ⟂,∥,
 
-                :math:`\sin^4 \theta` corresponds to ⟂,⟂.
+                :math:`\cos^4 \theta` corresponds to ∥,∥.
 
             And so on.
 
             Notice that higher orders can represent lower orders as well:
 
-               :math:`\cos^2 \theta + \sin^2 \theta = \cos^0 \theta
-               \quad` (∥ + ⟂ = 1),
+               :math:`\sin^2 \theta + \cos^2 \theta= \cos^0 \theta
+               \quad` (⟂ + ∥ = 1),
 
-               :math:`\cos^4 \theta + \cos^2 \theta \cdot \sin^2 \theta
-               = \cos^2 \theta \quad` (∥,∥ + ∥,⟂ = ∥,∥ + ⟂,∥ = ∥),
+               :math:`\sin^4 \theta + \cos^2 \theta \cdot \sin^2 \theta
+               = \sin^2 \theta \quad` (⟂,⟂ + ∥,⟂ = ⟂,⟂ + ⟂,∥ = ⟂),
 
-               :math:`\cos^2 \theta \cdot \sin^2 \theta + \sin^4
-               \theta = \sin^2 \theta \quad` (∥,⟂ + ⟂,⟂ = ⟂,∥ + ⟂,⟂ = ⟂),
+               :math:`\cos^2 \theta \cdot \sin^2 \theta + \cos^4 \theta
+               = \cos^2 \theta \quad` (∥,⟂ + ∥,∥ =  ⟂,∥ + ∥,∥ = ∥),
 
                and so forth.
 
@@ -1088,20 +1118,20 @@ class Distributions(object):
             -------
             cosnsinm : (# terms) × (rmax + 1) numpy array
                 radial dependences of the :math:`\cos^n \theta \cdot \sin^m
-                \theta` terms, ordered from the highest :math:`\cos \theta`
-                power to the highest :math:`\sin \theta` power
+                \theta` terms, ordered from lower to higher :math:`\cos \theta`
+                powers
             """
             # conversion matrix (cos^k → cos^n sin^m) for even k
-            CS = pascal(1 + self.order // 2, 'upper')[:, ::-1]
+            CS = np.flip(pascal(1 + self.order // 2, 'upper'))
             # apply to all radii
             if self.odd:
                 cs = np.empty_like(self.cn)
-                if self.order % 2:  # odd
-                    cs[::2] = CS.dot(self.cn[1::2])  # odd powers
-                    cs[1::2] = CS.dot(self.cn[::2])  # even powers
-                else:  # even order
-                    cs[::2] = CS.dot(self.cn[::2])  # even powers
-                    cs[1::2] = CS[:-1, 1:].dot(self.cn[1::2])  # odd powers
+                # even powers
+                cs[::2] = CS.dot(self.cn[::2])
+                # odd powers
+                if self.order % 2 == 0:  # even orders have
+                    CS = CS[1:, 1:]  # one less odd term
+                cs[1::2] = CS.dot(self.cn[1::2])
             else:
                 cs = CS.dot(self.cn)
             return cs
@@ -1287,7 +1317,7 @@ class Distributions(object):
         # radii
         r = np.arange(self.rmax + 1)
 
-        return self.Results(r, I, self.order, self.odd)
+        return self.Results(r, I, self.order, self.odd, self.valid)
 
     def __call__(self, IM):
         return self.image(IM)

@@ -21,8 +21,8 @@ from six.moves import tkinter_ttk as ttk
 from six.moves import tkinter_tkfiledialog as filedialog
 
 
-Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_peeling',
-                'onion_bordas', 'two_point', 'three_point']
+Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_bordas',
+                'onion_peeling', 'rbasex', 'three_point', 'two_point']
 
 center_methods = ['com', 'convolution', 'gaussian', 'slice']
 
@@ -104,7 +104,7 @@ def _transform():
     if "basex" in method:
         text.insert(tk.END, "  first time calculation of the basis functions may take a while ...\n")
     if "direct" in method:
-       text.insert(tk.END, "   calculation is slowed if Cython unavailable ...\n")
+        text.insert(tk.END, "   calculation is slowed if Cython unavailable ...\n")
     canvas.draw()
 
     # inverse Abel transform of whole image
@@ -134,10 +134,12 @@ def _speed():
     canvas.draw()
 
     # speed distribution
-    if transform.get() not in ['linbasex']:
-        radial, speed = abel.tools.vmi.angular_integration(AIM.transform)
-    else:
+    if transform.get() == 'linbasex':
         radial, speed = AIM.radial, AIM.Beta[0]
+    elif transform.get() == 'rbasex':
+        radial, speed, _ = AIM.distr.rIbeta()
+    else:
+        radial, speed = abel.tools.vmi.angular_integration(AIM.transform)
 
     f.clf()
     a = f.add_subplot(111)
@@ -159,12 +161,13 @@ def _anisotropy():
     _transform()
 
     method = transform.get()
-    if method != 'linbasex':
+    if method == 'linbasex':
+        rmx = (0, AIM.radial[-1])
+    elif method == 'rbasex':
+        rmx = (0, AIM.distr.r[-1])
+    else:
         # radial range over which to follow the intensity variation with angle
         rmx = (int(rmin.get()), int(rmax.get()))
-
-    else:
-        rmx = (0, AIM.radial[-1])
 
     text.delete(1.0, tk.END)
     text.insert(tk.END,
@@ -173,7 +176,17 @@ def _anisotropy():
 
     f.clf()
     a = f.add_subplot(111)
-    if method not in ['linbasex']:
+    if method == 'linbasex':
+        beta = AIM.Beta[1]
+        radial = AIM.radial
+        a.plot(radial, beta)
+        a.annotate("anisotropy parameter vs radial coordinate", (0, 2))
+    elif method == 'rbasex':
+        radial, _, beta = AIM.distr.rIbeta(3)
+        a.plot(radial, beta)
+        a.annotate("anisotropy parameter vs radial coordinate", (0, 2))
+        a.set_ylim((-1.5, 2.5))
+    else:
         # intensity vs angle
         beta, amp, rad, intensity, theta =\
             abel.tools.vmi.radial_integration(AIM.transform,
@@ -185,13 +198,8 @@ def _anisotropy():
 
         a.plot(theta, intensity[0], 'r-')
         a.plot(theta, PAD(theta, beta[0], amp[0]), 'b-', lw=2)
-        a.annotate(r"$\\beta({:d},{:d})={:.2g}\pm{:.2g}$"
+        a.annotate(r"$\beta({:d},{:d})={:.2g}\pm{:.2g}$"
                    .format(rmx[0], rmx[1], beta[0], beta[1]), (-np.pi/2, -2))
-    else:
-        beta = AIM.Beta[1]
-        radial = AIM.radial
-        a.plot(radial, beta)
-        a.annotate("anisotropy parameter vs radial coordinate", (-np.pi/2, 2))
 
     canvas.draw()
 
@@ -206,7 +214,7 @@ def _quit():
 # buttons with callbacks ----------------
 # file input
 tk.Button(master=root, text='Load image file', command=_getfilename)\
-   .pack(anchor=tk.W)
+    .pack(anchor=tk.W)
 
 # image centering
 tk.Button(master=root, text='center image', command=_center).pack(anchor=tk.N)
@@ -222,7 +230,7 @@ tk.Button(master=root, text='raw image', command=_display).pack(anchor=tk.W,
 
 # Abel transform
 tk.Button(master=root, text='inverse Abel transform', command=_transform)\
-   .pack(anchor=tk.N)
+    .pack(anchor=tk.N)
 
 transform = ttk.Combobox(master=root, values=Abel_methods, state="readonly",
                          width=10, height=len(Abel_methods))
@@ -231,11 +239,11 @@ transform.place(anchor=tk.W, relx=0.67, rely=0.11)
 
 # speed
 tk.Button(master=root, text='speed distribution', command=_speed)\
-   .pack(anchor=tk.N)
+    .pack(anchor=tk.N)
 
 # anisotropy
 tk.Button(master=root, text='anisotropy parameter', command=_anisotropy)\
-   .pack(anchor=tk.N)
+    .pack(anchor=tk.N)
 rmin = tk.Entry(master=root, text='rmin')
 rmin.place(anchor=tk.W, relx=0.66, rely=0.16, width=40)
 rmin.insert(0, 368)

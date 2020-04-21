@@ -45,6 +45,8 @@ The outcome of the numerical Abel transform depends on the exact method used. So
 
     8. ``linbasex`` - the 1D-spherical basis set expansion of Gerber *et al.*
 
+    9. ``rbasex`` - a pBasex-like method formulated in terms of radial distributions.
+
 
 Installation
 ------------
@@ -176,6 +178,8 @@ License
 
 PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE.txt>`_, so it can be used for pretty much whatever you want! Of course, it is provided "as is" with absolutely no warranty.
 
+
+.. _READMEcitation:
 
 Citation
 --------
