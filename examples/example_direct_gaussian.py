@@ -12,8 +12,6 @@ import sys
 from abel.direct import direct_transform
 from abel.tools.analytical import GaussianAnalytical
 
-here is some code to break this example
-
 n = 101
 r_max = 30
 sigma = 10
