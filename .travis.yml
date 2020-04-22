@@ -2,12 +2,14 @@ language: python
 sudo: false
 matrix:
   include:
-  - python: '3.7'
+  - python: '3.8'
     env: DEPS="numpy scipy cython"
     sudo: true
     dist: xenial
-  - python: '3.6'
+  - python: '3.8'
     env: DEPS="numpy scipy cython"
+    sudo: true
+    dist: xenial
   - python: '2.7'
     env: DEPS="numpy scipy cython"
 install:
