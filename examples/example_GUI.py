@@ -165,7 +165,7 @@ class PyAbel:  # (tk.Tk):
             master=self.button_frame, font=self.font,
             values=["from file", "from transform",
                     "sample dribinski", "sample Ominus"],
-            width=14, height=4)
+            state="readonly", width=14, height=4)
         self.sample_image.current(0)
         self.sample_image.grid(row=1, column=0, padx=(5, 10))
 
@@ -184,7 +184,7 @@ class PyAbel:  # (tk.Tk):
         self.center.grid(row=0, column=1, padx=(0, 20), pady=(5, 0))
         self.center_method = ttk.Combobox(
             master=self.button_frame, font=self.font, values=center_methods,
-            width=11, height=4)
+            state="readonly", width=11, height=4)
         self.center_method.current(1)
         self.center_method.grid(row=1, column=1, padx=(0, 20))
 
@@ -197,14 +197,15 @@ class PyAbel:  # (tk.Tk):
         self.recond.grid(row=0, column=2, padx=(0, 10), pady=(5, 0))
 
         self.transform = ttk.Combobox(
-            master=self.button_frame, values=Abel_methods, font=self.font,
-            width=10, height=len(Abel_methods))
+            master=self.button_frame, font=self.font, values=Abel_methods,
+            state="readonly", width=10, height=len(Abel_methods))
         self.transform.current(2)  # hansenlaw
         self.transform.grid(row=1, column=2, padx=(0, 20))
 
         self.direction = ttk.Combobox(
-            master=self.button_frame, values=["inverse", "forward"],
-            font=self.font, width=8, height=2)
+            master=self.button_frame, font=self.font,
+            values=["inverse", "forward"],
+            state="readonly", width=8, height=2)
         self.direction.current(0)
         self.direction.grid(row=2, column=2, padx=(0, 20))
 
