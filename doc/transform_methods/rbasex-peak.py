@@ -18,7 +18,7 @@ ax.spines['right'].set_visible(False)
 plt.xlim((0, rmax))
 plt.xlabel('radius')
 
-r = np.linspace(0, rmax, rmax * samp + 1)
+r = np.linspace(0, rmax, int(rmax * samp + 1))
 r[0] = np.finfo(float).eps  # (to avoid division by 0)
 
 def sqrtp(x):
