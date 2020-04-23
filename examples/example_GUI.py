@@ -15,6 +15,8 @@ from matplotlib import gridspec
 
 from scipy.ndimage.interpolation import shift
 
+import os.path
+
 from six.moves import tkinter as tk
 from six.moves import tkinter_ttk as ttk
 from six.moves import tkinter_font as tkFont
@@ -24,6 +26,11 @@ from six.moves import tkinter_tkfiledialog as filedialog
 
 Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_bordas',
                 'onion_peeling', 'rbasex', 'three_point', 'two_point']
+
+Abel_methods_forward = ['basex', 'direct', 'hansenlaw', 'rbasex']
+
+Abel_methods_basis = ['basex', 'onion_peeling', 'three_point', 'two_point']
+                     # 'linbasex' and 'rbasex' can use disk cache but do not
 
 center_methods = ['com', 'convolution', 'gaussian', 'slice']
 
@@ -158,7 +165,7 @@ class PyAbel:  # (tk.Tk):
             master=self.button_frame, font=self.font,
             values=["from file", "from transform",
                     "sample dribinski", "sample Ominus"],
-            width=14, height=4)
+            state="readonly", width=14, height=4)
         self.sample_image.current(0)
         self.sample_image.grid(row=1, column=0, padx=(5, 10))
 
@@ -177,7 +184,7 @@ class PyAbel:  # (tk.Tk):
         self.center.grid(row=0, column=1, padx=(0, 20), pady=(5, 0))
         self.center_method = ttk.Combobox(
             master=self.button_frame, font=self.font, values=center_methods,
-            width=11, height=4)
+            state="readonly", width=11, height=4)
         self.center_method.current(1)
         self.center_method.grid(row=1, column=1, padx=(0, 20))
 
@@ -190,16 +197,25 @@ class PyAbel:  # (tk.Tk):
         self.recond.grid(row=0, column=2, padx=(0, 10), pady=(5, 0))
 
         self.transform = ttk.Combobox(
-            master=self.button_frame, values=Abel_methods, font=self.font,
-            width=10, height=len(Abel_methods))
-        self.transform.current(2)
+            master=self.button_frame, font=self.font, values=Abel_methods,
+            state="readonly", width=10, height=len(Abel_methods))
+        self.transform.current(2)  # hansenlaw
         self.transform.grid(row=1, column=2, padx=(0, 20))
 
         self.direction = ttk.Combobox(
-            master=self.button_frame, values=["inverse", "forward"],
-            font=self.font, width=8, height=2)
+            master=self.button_frame, font=self.font,
+            values=["inverse", "forward"],
+            state="readonly", width=8, height=2)
         self.direction.current(0)
         self.direction.grid(row=2, column=2, padx=(0, 20))
+
+        def _update_direction(eventObject):
+            if self.transform.get() in Abel_methods_forward:
+                self.direction["values"] = ["inverse", "forward"]
+            else:
+                self.direction["values"] = ["inverse"]
+                self.direction.current(0)
+        self.transform.bind("<<ComboboxSelected>>", _update_direction)
 
         # column 3 -----------
         # speed button
@@ -300,7 +316,7 @@ class PyAbel:  # (tk.Tk):
 
         self.fn = self.sample_image.get()
         # update what is occurring text box
-        self.text.insert(tk.END, "\nloading image file {:s}".format(self.fn))
+        self.text.insert(tk.END, "\nloading image {:s}".format(self.fn))
         self.text.see(tk.END)
         self.canvas.draw()
 
@@ -312,7 +328,7 @@ class PyAbel:  # (tk.Tk):
             else:
                 self.IM = plt.imread(self.fn)
         elif self.fn == "from transform":
-            self.IM = self.AIM
+            self.IM = self.AIM.transform
             self.AIM = None
             for i in range(1, 4):
                 self._clr_plt(i)
@@ -322,10 +338,11 @@ class PyAbel:  # (tk.Tk):
             self.fn = self.fn.split(' ')[-1]
             self.IM = abel.tools.analytical.SampleImage(n=1001,
                                                         name=self.fn).image
-            self.direction.current(1)  # raw images require 'forward' transform
-            self.text.insert(tk.END, "\nsample image: (1) Abel transform 'forward', ")
-            self.text.insert(tk.END, "              (2) load 'from transform', ")
-            self.text.insert(tk.END, "              (3) Abel transform 'inverse', ")
+            if len(self.direction["values"]) > 1:
+                self.direction.current(1)  # raw images require 'forward' transform
+            self.text.insert(tk.END, "\nsample image: (1) Abel transform 'forward',\n")
+            self.text.insert(tk.END, "              (2) load 'from transform',\n")
+            self.text.insert(tk.END, "              (3) Abel transform 'inverse',\n")
             self.text.insert(tk.END, "              (4) Speed")
             self.text.see(tk.END)
 
@@ -379,17 +396,37 @@ class PyAbel:  # (tk.Tk):
                 self.text.insert(
                    tk.END,
                    "\ndirect: calculation is slowed if Cython unavailable ...")
+            self.text.see(tk.END)
             self.canvas.draw()
 
-            if self.method == 'linbasex':
-                self.AIM = abel.Transform(
-                    self.IM, method=self.method, direction=self.fi,
-                    transform_options=dict(return_Beta=True))
-            else:
-                self.AIM = abel.Transform(
-                    self.IM, method=self.method, direction=self.fi,
-                    transform_options=dict(basis_dir='bases'),
-                    symmetry_axis=None)
+            try:
+                if self.method == 'linbasex':
+                    self.AIM = abel.Transform(
+                        self.IM, method=self.method, direction=self.fi,
+                        transform_options=dict(return_Beta=True))
+                else:
+                    if self.method in Abel_methods_basis:
+                        basis_dir = 'bases'
+                        if not os.path.isdir(basis_dir):
+                            self.text.insert(tk.END,
+                                "\n(No '" + basis_dir + "' directory;"
+                                " bases sets will not be loaded/saved.)")
+                            self.text.see(tk.END)
+                            self.canvas.draw()
+                            basis_dir = None
+                    else:
+                        basis_dir = None
+
+                    self.AIM = abel.Transform(
+                        self.IM, method=self.method, direction=self.fi,
+                        transform_options=dict(basis_dir=basis_dir),
+                        symmetry_axis=None)
+            except Exception as e:
+                self.text.insert(tk.END, "\nAn error occurred:\n")
+                self.text.insert(tk.END, e)
+                self.text.see(tk.END)
+                self.canvas.draw()
+
             self.rmin.delete(0, tk.END)
             self.rmin.insert(0, self.rmx[0])
             self.rmax.delete(0, tk.END)

@@ -17,6 +17,8 @@ Unreleased
 * Added "orders", "sinpowers" and "valid" to tools.vmi.Distributions results,
   reordered cossin() powers for consistency (PR #270).
 * Improved tools.vmi.Distributions performance on Windows (PR #270).
+* More corrections to the GUI example: working without the "bases" directory,
+  loading "from transform", interface enhancements (PR #277).
 
 v0.8.3 (2019-08-16)
 -------------------
