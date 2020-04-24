@@ -58,6 +58,14 @@ which should launch a browser window displaying the docs. When you save a change
 Alternatively, `restview <https://pypi.python.org/pypi/restview>`_ is a nice way to preview the ``.rst`` files.
 
 
+Code Style
+----------
+
+We hope that the PyAbel code will be understandable, hackable, and maintainable for many years to come. So, please use good coding style, include plenty of comments, use docstrings for functions, and pick informative variable names.
+
+PyAbel attempts to follow `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_ style whenever possible, since the PEP8 recommendations typically produces code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`_, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all Pull Requests using `pep8speaks <https://pep8speaks.com/>`_. However, `producing readable code <https://www.python.org/dev/peps/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`_ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines."
+
+
 Before merging
 --------------
 
