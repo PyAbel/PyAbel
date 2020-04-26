@@ -499,6 +499,7 @@ class Transform(object):
         # split image into quadrants
         Q0, Q1, Q2, Q3 = tools.symmetry.get_image_quadrants(
                          self.IM, reorient=True,
+                         use_quadrants=self._use_quadrants,
                          symmetry_axis=self._symmetry_axis,
                          symmetrize_method=self._symmetrize_method)
 
