@@ -16,6 +16,8 @@ endif
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+LIVEHTMLOPTS    = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) .
+
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
@@ -52,7 +54,7 @@ clean:
 	rm -rf $(BUILDDIR)/*
 
 livehtml:
-	sphinx-autobuild -b html -z ../ --open-browser $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	sphinx-autobuild -b html -z ../ --open-browser $(LIVEHTMLOPTS) $(BUILDDIR)/html
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
