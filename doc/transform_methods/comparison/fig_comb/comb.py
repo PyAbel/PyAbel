@@ -28,14 +28,14 @@ np.random.seed(4)
 func = comb.abel + np.random.random(comb.abel.size)*1.2
 
 transforms = [
-  ("basex"         ,  abel.basex.basex_transform              , '#880000'),
-  ("basex (reg=10)", abel.basex.basex_transform               , '#880000'),
-  ("direct"        ,  abel.direct.direct_transform            , '#EE0000'),
-  ("hansenlaw"     ,  abel.hansenlaw.hansenlaw_transform      , '#CCAA00'),
-  ("onion_bordas"  ,  abel.onion_bordas.onion_bordas_transform, '#00AA00'),
-  ("onion_peeling" ,  abel.dasch.onion_peeling_transform      , '#00CCFF'),
-  ("three_point"   ,  abel.dasch.three_point_transform        , '#0000FF'),
-  ("two_point"     ,  abel.dasch.two_point_transform          , '#CC00FF'),
+  ("basex",          abel.basex.basex_transform,               '#880000'),
+  ("basex (reg=10)", abel.basex.basex_transform,               '#880000'),
+  ("direct",         abel.direct.direct_transform,             '#EE0000'),
+  ("hansenlaw",      abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
+  ("onion_bordas",   abel.onion_bordas.onion_bordas_transform, '#00AA00'),
+  ("onion_peeling",  abel.dasch.onion_peeling_transform,       '#00CCFF'),
+  ("three_point",    abel.dasch.three_point_transform,         '#0000FF'),
+  ("two_point",      abel.dasch.two_point_transform,           '#CC00FF'),
 ]
 
 ntrans = len(transforms)  # number of transforms
@@ -48,8 +48,10 @@ def mysum(x,  dx=1, axis=1):
     # return np.trapz(x)
     return np.sum(x)
 
-for num, (ax, (label, transFunc, color)) in enumerate(zip(axs.ravel(), transforms)):
-    print(label) 
+
+for num, (ax, (label, transFunc, color)) in enumerate(zip(axs.ravel(),
+                                                          transforms)):
+    print(label)
     if 'reg' in label:
         targs = dict(reg=10)
     else:
