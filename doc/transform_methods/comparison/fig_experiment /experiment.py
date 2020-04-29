@@ -15,7 +15,6 @@ transforms = [
   ("rbasex",        abel.rbasex.rbasex_transform,             '#00AA00'),
 ]
 
-
 ntrans = len(transforms)  # number of transforms
 
 infile = bz2.BZ2File('../../../../examples/data/O2-ANU1024.txt.bz2')
