@@ -50,7 +50,7 @@ for meth, color, pargs in transforms:
         continue
     n = times[0]
     t = times[2] * 1e-3  # in ms
-    plt.plot(n, t, 'o-', label=meth, ms=5, color=color)	
+    plt.plot(n, t, 'o-', label=meth, ms=5, color=color)
 
 plt.legend()
 
