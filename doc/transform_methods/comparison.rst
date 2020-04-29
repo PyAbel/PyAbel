@@ -235,12 +235,12 @@ The :class:`abel.benchmark.AbelTiming` class provides the ability to benchmark t
     The performance can also be viewed in terms of pixels-per-second rate. Here, it is clear that some methods provide sufficient throughput to transform images at rates far exceeding high-definition video.
 
 
-.. plot:: transform_methods/comparison/fig_benchmarks/basis_time.py
+.. plot:: transform_methods/comparison/fig_benchmarks/btime.py
     :nofigs:
 
 
-.. _fig_basis_time:
-.. figure:: comparison/fig_benchmarks/basis_time.svg
+.. _fig_btimes:
+.. figure:: comparison/fig_benchmarks/btime.svg
     :width: 500px
     :figclass: align-center
 
@@ -248,7 +248,7 @@ The :class:`abel.benchmark.AbelTiming` class provides the ability to benchmark t
 
 
 
-The ``basex``, ``two_point``, ``three_point``, and ``onion_peeling`` methods run much faster if appropriately sized basis sets have been pre-calculated. For the ``basex`` method, the time for this pre-calculation is orders of magnitude longer than the transform time (:numref:`fig_basis_time`). For the Dasch methods (``three_point``, ``onion_peeling``, and ``two_point``), the pre-calculation is significantly longer than the transform time for image sizes smaller than 2000 pixels. For larger image sizes, the pre-calculation of the basis sets approaches the same speed as the transform itself. In particular, for the ``two_point`` method, the pre-calculation of the basis sets actually becomes faster than the image transform for *n* greater than about 4000. For the ``linbasex`` method, the pre-calculation of the basis sets is consistently faster than the transform itself, suggesting that the pre-calculation of basis sets isn't necessary for this method.
+The ``basex``, ``two_point``, ``three_point``, and ``onion_peeling`` methods run much faster if appropriately sized basis sets have been pre-calculated. For the ``basex`` method, the time for this pre-calculation is orders of magnitude longer than the transform time (:numref:`fig_btime`). For the Dasch methods (``three_point``, ``onion_peeling``, and ``two_point``), the pre-calculation is significantly longer than the transform time for image sizes smaller than 2000 pixels. For larger image sizes, the pre-calculation of the basis sets approaches the same speed as the transform itself. In particular, for the ``two_point`` method, the pre-calculation of the basis sets actually becomes faster than the image transform for *n* greater than about 4000. For the ``linbasex`` method, the pre-calculation of the basis sets is consistently faster than the transform itself, suggesting that the pre-calculation of basis sets isn't necessary for this method.
 
 
 Conclusion
