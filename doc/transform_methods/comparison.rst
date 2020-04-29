@@ -239,7 +239,7 @@ The :class:`abel.benchmark.AbelTiming` class provides the ability to benchmark t
     :nofigs:
 
 
-.. _fig_btimes:
+.. _fig_btime:
 .. figure:: comparison/fig_benchmarks/btime.svg
     :width: 500px
     :figclass: align-center
