@@ -9,7 +9,7 @@ transforms = [
   ("hansenlaw",     abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
   ("onion_bordas",  abel.onion_bordas.onion_bordas_transform, '#00AA00'),
   ("onion_peeling", abel.dasch.onion_peeling_transform,       '#00CCFF'),
-  ("three_point",   abel.dasch.three_point_transformm,        '#0000FF'),
+  ("three_point",   abel.dasch.three_point_transform,        '#0000FF'),
   ("two_point",     abel.dasch.two_point_transform,           '#CC00FF'),
   ("linbasex",      abel.linbasex.linbasex_transform,         '#a0a0a0'),
   ("rbasex",        abel.rbasex.rbasex_transform,             '#00AA00'),
