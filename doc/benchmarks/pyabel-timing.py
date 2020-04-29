@@ -65,9 +65,9 @@ def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
         header += 'basis(ms)'
     if method[-5:] == 'basex':  # special case
         if method[0] == 'b':
-            varnone = 'var' 
+            varnone = 'var'
             varlab = 'var.reg.'
-        else: 
+        else:
             varnone = 'None'
             varlab = '(None)'
         methodvar = f'{method:s}({varnone:s})'
@@ -99,7 +99,7 @@ def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
             if method[-5:] == 'basex':  # special case
                 if method[0] == 'b':
                     varlab = method+'(var.reg.)'
-                else: 
+                else:
                     varlab = method+'(None)'
                 t_var = f'{res.iabel[varlab][i]:20.5f}'
                 print(t_var, end='')
@@ -133,8 +133,8 @@ except ModuleNotFoundError:
 
 system = get_system()
 benchmark_dir = 'benchmarks_' + system
-print(f'PyAbel method timings in the directory:\n\n'
-       '    {benchmark_dir}/method.dat\n')
+print('PyAbel method timings in the directory:\n\n'
+      f'    {benchmark_dir}/method.dat\n')
 
 append = True
 try:
