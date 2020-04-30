@@ -9,7 +9,7 @@ transforms = [
   ("hansenlaw",     abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
   ("onion_bordas",  abel.onion_bordas.onion_bordas_transform, '#00AA00'),
   ("onion_peeling", abel.dasch.onion_peeling_transform,       '#00CCFF'),
-  ("three_point",   abel.dasch.three_point_transform,        '#0000FF'),
+  ("three_point",   abel.dasch.three_point_transform,         '#0000FF'),
   ("two_point",     abel.dasch.two_point_transform,           '#CC00FF'),
   ("linbasex",      abel.linbasex.linbasex_transform,         '#a0a0a0'),
   ("rbasex",        abel.rbasex.rbasex_transform,             '#00AA00'),
@@ -28,11 +28,12 @@ Q0 = Q[1]
 
 h, w = np.shape(IM)
 
-fig, axs = plt.subplots(3, 4, figsize=(8, 6), sharex=True, sharey=True)
+fig, axs = plt.subplots(2, 5, figsize=(9, 3.5), sharex=True, sharey=True)
 fig1, axs1 = plt.subplots(3, 1, figsize=(3.37, 5))
 
-for num, (ax, (label, transFunc, color)) in enumerate(zip(axs.ravel(),
-                                                          transforms)):
+for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
+                                                          transforms,
+                                                          'abcdefghijk')):
     print(label)
 
     if label == 'linbasex':
@@ -61,7 +62,8 @@ for num, (ax, (label, transFunc, color)) in enumerate(zip(axs.ravel(),
     im = ax.imshow(trans[::-1], cmap='gist_heat_r', origin='lower',
                    aspect='auto', vmin=0, vmax=5)
 
-    ax.set_title(label, fontsize=10, x=0.96, y=0.90, ha='right', va='top',
+    ax.set_title(letter + ') ' + label, fontsize=10, 
+                 x=0.05, y=0.93, ha='left', va='top',
                  weight='bold', color='k')
 
     pargs = dict(lw=0.75, color=color, zorder=-num)
@@ -71,8 +73,8 @@ for num, (ax, (label, transFunc, color)) in enumerate(zip(axs.ravel(),
     axs1[2].plot(r, inten,              **pargs)
 
 
-axc = fig.add_axes([0.12, 0.92, 0.85, 0.02])
-cbar = plt.colorbar(im, orientation="horizontal", cax=axc, label='Intensity')
+axc = fig.add_axes([0.940, 0.12, 0.01, 0.86])
+cbar = plt.colorbar(im, orientation="vertical", cax=axc, label='Intensity')
 cbar.ax.xaxis.set_ticks_position('top')
 cbar.ax.xaxis.set_label_position('top')
 
@@ -93,11 +95,11 @@ for ax in axs.ravel():
                        rotation='vertical', verticalalignment='center')
     ax.set_yticks(minor, minor=True)
 
-fig.subplots_adjust(left=0.13, bottom=0.06, right=0.99, top=0.91, wspace=0.08,
+fig.subplots_adjust(left=0.05, bottom=0.12, right=0.93, top=0.98, wspace=0.08,
                     hspace=0.08)
 
-axs[-1, 0].set_xlabel('$r$ (pixels)')
-axs[-1, 1].set_xlabel('$r$ (pixels)')
+for ax in axs[-1]:
+    ax.set_xlabel('$r$ (pixels)')
 
 for ax in axs[:, 0]:
     ax.set_ylabel('$z$ (pixels)')
@@ -127,9 +129,9 @@ def place_letter(letter, ax, color='k', offset=(0, 0)):
                 color=color, ha='left', va='top', weight='bold')
 
 
-for ax, letter in zip(axs.ravel(), 'abcdefgh'):
-    place_letter(letter+')', ax)
-
+# for ax, letter in zip(axs.ravel(), 'abcdefgh'):
+#     place_letter(letter+')', ax)
+#
 for ax, letter in zip(axs1.ravel(), 'abcdefgh'):
     place_letter(letter+')', ax, color='k')
 
@@ -138,4 +140,4 @@ axs1[-1].set_xlabel('$r$ (pixels)')
 
 fig.savefig('experiment.svg', dpi=300)
 fig1.savefig('integration.svg', dpi=300)
-# plt.show()
+plt.show()
