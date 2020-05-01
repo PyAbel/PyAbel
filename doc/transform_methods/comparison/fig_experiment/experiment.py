@@ -45,11 +45,11 @@ for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
         targs = dict(reg=200)
 
     if label == 'rbasex':
-        trans = transFunc(IModd, direction="inverse", order=2)[0]
-        trans = abel.tools.symmetry.get_image_quadrants(trans,
-                                                        reorient=True)[1]
+        trans = transFunc(Q0, direction="inverse", origin='ll')[0]
+
     else:
         trans = transFunc(Q0, direction="inverse", **targs)
+        
     if label == 'linbasex':  # bugfix smoothing=0 transform offset by 1 pixel
         trans[:, 1:] = trans[:, :-1]
 
