@@ -42,7 +42,7 @@ if case == 'circ':
     proj = 2*np.sqrt(1-r**2)
     dr = r[1] - r[0]
 
-fig, axs = plt.subplots(ntrans, 1, figsize=(3.37, 7), sharex=True, sharey=True)
+fig, axs = plt.subplots(ntrans, 1, figsize=(5, 9), sharex=True, sharey=True)
 
 for row, (label, transFunc) in enumerate(transforms):
     axs[row].plot(r, func, label='Analytical' if row == 0 else None, lw=1)
@@ -60,32 +60,27 @@ for row, (label, transFunc) in enumerate(transforms):
 
     axs[row].axhline(0, color='k', alpha=0.3, lw=1)
 
-    axs[row].legend(loc='upper right', frameon=False, fontsize=8)
+    axs[row].legend(loc='upper right', frameon=False)
 
     axs[row].grid(ls='solid', alpha=0.05, color='k')
 
-    for label in axs[row].get_yticklabels():
-        label.set_fontsize(7)
 
-
-axs[-1].set_xlabel("$r$ (pixel)")
-axs[3].set_ylabel('z')
+axs[-1].set_xlabel("$r$ (pixels)")
+axs[3].set_ylabel('$z$')
 
 for ax, letter in zip(axs, 'abcdefghi'):
     ax.grid(ls='solid', alpha=0.05, color='k')
-    # ax.xaxis.set_tick_params(direction='in')
-    # ax.yaxis.set_tick_params(direction='in')
     if case == 'gaussian':
-        ax.set_ylim(-0.3, 1.2)
+        ax.set_ylim(-0.25, 1.25)
         ax.set_xlim(0, n*0.74)
     else:
         ax.set_xlim(0, 1)
 
-    ax.annotate(letter + ')', xy=(0.02, 0.9), xytext=(0, 0),
+    ax.annotate(letter + ')', xy=(0.02, 0.88), xytext=(0, 0),
                 textcoords='offset points', xycoords='axes fraction',
-                fontsize=7)
+                weight='bold')
 
 
-fig.subplots_adjust(left=0.08, bottom=0.07, right=0.98, top=0.99, hspace=0.1)
-fig.savefig('gaussian.svg', dpi=300)
+fig.tight_layout(pad=0)
+fig.savefig('gaussian.svg')
 # plt.show()

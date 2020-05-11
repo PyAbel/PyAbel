@@ -44,12 +44,18 @@ plt.xlim(5, 1e5)
 
 plt.ylabel('Throughput (pixels per second)')
 plt.yscale('log')
-plt.ylim(2e3, 2e9)
+plt.ylim(4e3, 2e9)
 
 plt.grid(which='both', color='#EEEEEE')
 plt.grid(which='minor', linewidth=0.5)
 
 plt.legend(ncol=3)
+
+# HD video: 1 Mp * 30 Hz
+x = 1000
+y = 30 * x**2
+plt.plot(x, y, '+k')
+plt.text(x, y, ' HD video', va='top')
 
 plt.tight_layout(pad=0.1)
 

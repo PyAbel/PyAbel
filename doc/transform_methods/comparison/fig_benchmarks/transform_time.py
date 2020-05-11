@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import LogLocator
 
 directory = 'benchmarks_i7-9700_Linux_5.4.0-26-generic'
 
@@ -27,7 +28,9 @@ plt.xlim(5, 1e5)
 
 plt.ylabel('Transform time (seconds)')
 plt.yscale('log')
-plt.ylim(1e-6, 9.9e3)  # "9.9" to enable minor tics
+plt.ylim(1e-6, 1e4)
+plt.gca().yaxis.set_major_locator(LogLocator(base=10.0, numticks=12))
+
 
 plt.grid(which='both', color='#EEEEEE')
 plt.grid(which='minor', linewidth=0.5)
@@ -35,7 +38,7 @@ plt.grid(which='minor', linewidth=0.5)
 plt.tight_layout(pad=0.1)
 
 # cubic guiding line
-n, t = np.array([1e2, 1e5]), 1e-12
+n, t = np.array([2e2, 2e5]), 1e-12 / 8
 plt.plot(n, t * n**3, color='#AAAAAA', ls=':')
 # its annotation (must be done after all layout for correct rotation)
 p = plt.gca().transData.transform(np.array([n, t * n**3]).T)

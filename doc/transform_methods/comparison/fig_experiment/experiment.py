@@ -11,11 +11,9 @@ transforms = [
   ("onion_peeling", abel.dasch.onion_peeling_transform,       '#00CCFF'),
   ("three_point",   abel.dasch.three_point_transform,         '#0000FF'),
   ("two_point",     abel.dasch.two_point_transform,           '#CC00FF'),
-  ("linbasex",      abel.linbasex.linbasex_transform,         '#a0a0a0'),
-  ("rbasex",        abel.rbasex.rbasex_transform,             '#00AA00'),
+  ("linbasex",      abel.linbasex.linbasex_transform,         '#AAAAAA'),
+  ("rbasex",        abel.rbasex.rbasex_transform,             '#AACC00'),
 ]
-
-ntrans = len(transforms)  # number of transforms
 
 infile = bz2.BZ2File('../../../../examples/data/O2-ANU1024.txt.bz2')
 IM = np.loadtxt(infile)
@@ -28,12 +26,12 @@ Q0 = Q[1]
 
 h, w = np.shape(IM)
 
-fig, axs = plt.subplots(2, 5, figsize=(9, 3.5), sharex=True, sharey=True)
-fig1, axs1 = plt.subplots(3, 1, figsize=(3.37, 5))
+fig, axs = plt.subplots(3, 3, figsize=(7, 6.5), sharex=True, sharey=True)
+fig1, axs1 = plt.subplots(3, 1, figsize=(6, 7))
 
 for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
-                                                          transforms,
-                                                          'abcdefghijk')):
+                                                              transforms,
+                                                              'abcdefghij')):
     print(label)
 
     if label == 'linbasex':
@@ -60,26 +58,23 @@ for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
     inten /= 1e6
 
     im = ax.imshow(trans[::-1], cmap='gist_heat_r', origin='lower',
-                   aspect='auto', vmin=0, vmax=5)
+                   aspect='equal', vmin=0, vmax=5)
 
-    ax.set_title(letter + ') ' + label, fontsize=10, 
+    ax.set_title(letter + ') ' + label,
                  x=0.05, y=0.93, ha='left', va='top',
                  weight='bold', color='k')
 
-    pargs = dict(lw=0.75, color=color, zorder=-num)
+    pargs = dict(lw=1, color=color, zorder=-num)
 
     axs1[0].plot(r, inten,              **pargs)
     axs1[1].plot(r, inten, label=label, **pargs)
     axs1[2].plot(r, inten,              **pargs)
 
 
-axc = fig.add_axes([0.940, 0.12, 0.01, 0.86])
+axc = fig.add_axes([0.93, 0.06, 0.01, 0.93])
 cbar = plt.colorbar(im, orientation="vertical", cax=axc, label='Intensity')
 cbar.ax.xaxis.set_ticks_position('top')
 cbar.ax.xaxis.set_label_position('top')
-
-for label in cbar.ax.xaxis.get_ticklabels():
-    label.set_fontsize(6)
 
 
 for ax in axs.ravel():
@@ -95,8 +90,8 @@ for ax in axs.ravel():
                        rotation='vertical', verticalalignment='center')
     ax.set_yticks(minor, minor=True)
 
-fig.subplots_adjust(left=0.05, bottom=0.12, right=0.93, top=0.98, wspace=0.08,
-                    hspace=0.08)
+fig.subplots_adjust(left=0.05, bottom=0.06, right=0.92, top=0.99,
+                    wspace=0.04, hspace=0.04)
 
 for ax in axs[-1]:
     ax.set_xlabel('$r$ (pixels)')
@@ -106,9 +101,6 @@ for ax in axs[:, 0]:
 
 
 for ax in axs1:
-    for label in ax.get_xticklabels() + ax.get_yticklabels():
-        label.set_fontsize(8)
-
     ax.grid(color='k', alpha=0.1)
 
 axs1[0].set_xlim(0, 512)
@@ -116,7 +108,6 @@ axs1[0].set_xticks(np.arange(0, 514, 20), minor=True)
 
 axs1[1].set_xlim(355, 385)
 axs1[1].set_xticks(np.arange(355, 385), minor=True)
-axs1[1].legend(fontsize=6)
 
 axs1[2].set_xlim(80, 160)
 axs1[2].set_xticks(np.arange(80, 160, 10), minor=True)
@@ -129,15 +120,13 @@ def place_letter(letter, ax, color='k', offset=(0, 0)):
                 color=color, ha='left', va='top', weight='bold')
 
 
-# for ax, letter in zip(axs.ravel(), 'abcdefgh'):
-#     place_letter(letter+')', ax)
-#
-for ax, letter in zip(axs1.ravel(), 'abcdefgh'):
+for ax, letter in zip(axs1.ravel(), 'abc'):
     place_letter(letter+')', ax, color='k')
 
-fig1.subplots_adjust(left=0.13, bottom=0.09, right=0.96, top=0.98, hspace=0.19)
 axs1[-1].set_xlabel('$r$ (pixels)')
+fig1.tight_layout()
+axs1[1].legend(fontsize=8)
 
-fig.savefig('experiment.svg', dpi=300)
-fig1.savefig('integration.svg', dpi=300)
-plt.show()
+fig.savefig('experiment.svg')
+fig1.savefig('integration.svg')
+# plt.show()

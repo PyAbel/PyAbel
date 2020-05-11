@@ -40,7 +40,7 @@ transforms = [
 
 ntrans = len(transforms)  # number of transforms
 
-fig, axs = plt.subplots(ntrans, 1, figsize=(3.37, 7.3),
+fig, axs = plt.subplots(ntrans, 1, figsize=(5, 9),
                         sharex=True, sharey=True)
 
 
@@ -70,20 +70,19 @@ def place_letter(letter, ax, color='k', offset=(0, 0)):
 
 
 for ax, letter in zip(axs.ravel(), 'abcdefgh'):
-    ax.legend(fontsize=8, loc='upper right', frameon=False, borderaxespad=0)
+    ax.legend(loc='upper right', frameon=False, borderaxespad=0)
     ax.set_xlim(0, 60)
     ax.set_ylim(-0.2, 1.3)
     ax.set_yticks([0, 0.5, 1])
-    for label in ax.get_xticklabels() + ax.get_yticklabels():
-        label.set_fontsize(8)
 
     ax.grid(alpha=0.2)
 
     place_letter(letter+')', ax)
 
-axs[-1].set_xlabel('$r$ (pixel)')
+axs[-1].set_xlabel('$r$ (pixels)')
+axs[3].set_ylabel('$z$')
 
 
 fig.tight_layout(pad=0)
-plt.savefig('comb.svg', dpi=300)
+plt.savefig('comb.svg')
 # plt.show()

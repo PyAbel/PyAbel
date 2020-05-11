@@ -121,6 +121,8 @@ Documentation
 General information about the various Abel transforms available in PyAbel is available at the links above. The complete documentation for all of the methods in PyAbel is hosted at https://pyabel.readthedocs.io.
 
 
+.. _READMEconventions:
+
 Conventions
 -----------
 
