@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LogLocator
 
-directory = 'benchmarks_i7-9700_Linux_5.4.0-26-generic'
+directory = 'i7-9700_Linux'
 
 transforms = [
     ("basex",         '#880000', {}),
