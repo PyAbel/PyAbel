@@ -204,7 +204,7 @@ The :class:`abel.benchmark.AbelTiming` class provides the ability to benchmark t
 
     comparison/fig_benchmarks/benchmarks
 
-A comparison of the time required to complete an inverse Abel transform versus the width of a square image is presented in :numref:`fig_transform_time`. All method are benchmarked using their default parameters, with the following exceptions:
+A comparison of the time required to complete an inverse Abel transform versus the width of a square image is presented in :numref:`fig_transform_time`. All methods are benchmarked using their default parameters, with the following exceptions:
 
 * **basex(var)** means “variable regularization”, that is changing the regularization parameter for each transformed image.
 * **direct_C** and **direct_Python** correspond to the “direct” method using its C (Cython) and Python backends respectively.
@@ -276,56 +276,56 @@ Methods recommended for educational purposes only (these methods are generally s
 References
 ----------
 
-.. [bordas1996] \ C. Bordas, F. Paulig, H. Helm, and D. L. Huestis. Photoelectron imaging spectrometry: Principle and inversion method. Rev. Sci. Instrum., **67**, 2257, 1996. DOI:`10.1063/1.1147044 <https://doi.org/10.1063/1.1147044>`_
+.. [bordas1996] \ C. Bordas, F. Paulig, H. Helm, and D. L. Huestis. Photoelectron imaging spectrometry: Principle and inversion method. Rev. Sci. Instrum., **67**, 2257, 1996. DOI: `10.1063/1.1147044 <https://doi.org/10.1063/1.1147044>`_.
 
 .. [chandler1987] David W. Chandler and Paul L. Houston. Two-dimensional imaging of state-selected photodissociation products detected by multiphoton ionization. J. Chem. Phys., **87**, 1445, 1987. DOI: `10.1063/1.453276 <https://doi.org/10.1063/1.453276>`_.
 
-.. [cignoli2001] Francesco Cignoli, Silvana De Iuliis, Vittorio Manta, and Giorgio Zizak. Two-dimensional two-wavelength emission technique for soot diagnostics. Appl. Opt., **40**,5370, 2001. DOI: `10.1364/AO.40.005370 <http://doi.org/10.1364/AO.40.005370>`_.
+.. [cignoli2001] Francesco Cignoli, Silvana De Iuliis, Vittorio Manta, and Giorgio Zizak. Two-dimensional two-wavelength emission technique for soot diagnostics. Appl. Opt., **40**, 5370, 2001. DOI: `10.1364/AO.40.005370 <http://doi.org/10.1364/AO.40.005370>`_.
 
-.. [coppersmith1990] Don Coppersmith and Shmuel Winograd. Matrix multiplication via arithmetic progressions. J. Symb. Comput., **9**,251, 1990. DOI: `10.1016/S0747-7171(08)80013-2 <https://doi.org/10.1016/S0747-7171(08)80013-2>`_.
+.. [coppersmith1990] Don Coppersmith and Shmuel Winograd. Matrix multiplication via arithmetic progressions. J. Symb. Comput., **9**, 251, 1990. DOI: `10.1016/S0747-7171(08)80013-2 <https://doi.org/10.1016/S0747-7171(08)80013-2>`_.
 
-.. [dasch1992] Cameron J. Dasch. One-dimensional tomography: a comparison of abel, onion-peeling, and filtered backprojection methods. Appl. Opt., **31**:1146, 1992. DOI:`10.1364/AO.31.001146 <https://doi.org/10.1364/AO.31.001146>`_.
+.. [dasch1992] Cameron J. Dasch. One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods. Appl. Opt., **31**, 1146, 1992. DOI: `10.1364/AO.31.001146 <https://doi.org/10.1364/AO.31.001146>`_.
 
-.. [demicheli2017] Enrico De Micheli. A fast algorithm for the inversion of abel’s transform. Appl. Math. Comput., **301**, 12, 2017. DOI: `10.1016/j.amc.2016.12.009 <https://doi.org/10.1016/j.amc.2016.12.009>`_.
+.. [demicheli2017] Enrico De Micheli. A fast algorithm for the inversion of Abel’s transform. Appl. Math. Comput., **301**, 12, 2017. DOI: `10.1016/j.amc.2016.12.009 <https://doi.org/10.1016/j.amc.2016.12.009>`_.
 
-.. [dick2014] Bernhard Dick. Inverting ion images without abel inversion: maximum entropy reconstruction of velocity maps. Phys. Chem. Chem. Phys., **16**, 570, 2014. DOI:`10.1039/C3CP53673D <http://doi.org/10.1039/C3CP53673D>`_.
+.. [dick2014] Bernhard Dick. Inverting ion images without Abel inversion: maximum entropy reconstruction of velocity maps. Phys. Chem. Chem. Phys., **16**, 570, 2014. DOI: `10.1039/C3CP53673D <http://doi.org/10.1039/C3CP53673D>`_.
 
-.. [deiluliis1998] \ S. De Iuliis, M. Barbini, S. Benecchi, F. Cignoli, and G. Zizak. Determination of the soot volume fraction in an ethylene diffusion flame by multiwavelength analysis of soot radiation. Combust. Flame, **115**, 253, 1998. DOI: `10.1016/S0010-2180(97)00357-X <https://doi.org/10.1016/S0010-2180(97)00357-X.>`_
+.. [deiluliis1998] \ S. De Iuliis, M. Barbini, S. Benecchi, F. Cignoli, and G. Zizak. Determination of the soot volume fraction in an ethylene diffusion flame by multiwavelength analysis of soot radiation. Combust. Flame, **115**, 253, 1998. DOI: `10.1016/S0010-2180(97)00357-X <https://doi.org/10.1016/S0010-2180(97)00357-X>`_.
 
-.. [dribinski2002] Vladimir Dribinski, Alexei Os- sadtchi, Vladimir A. Mandelshtam, and Hanna Reisler. Reconstruction of abel-transformable images: The gaussian basis-set expansion abel transform method. Rev. Sci. Instrum., *73*, 2634, 2002. DOI:`10.1063/1.1482156 <https://doi.org/10.1063/1.1482156>`_.
+.. [dribinski2002] Vladimir Dribinski, Alexei Ossadtchi, Vladimir A. Mandelshtam, and Hanna Reisler. Reconstruction of Abel-transformable images: The Gaussian basis-set expansion Abel transform method. Rev. Sci. Instrum., *73*, 2634, 2002. DOI: `10.1063/1.1482156 <https://doi.org/10.1063/1.1482156>`_.
 
 .. [das2017] Dhrubajyoti D. Das, William J. Cannella, Charles S. McEnally, Charles J. Mueller, and Lisa D. Pfefferle. Two-dimensional soot volume fraction measurements in flames doped with large hydrocarbons. Proc. Combust. Inst., **36**, 871, 2017. DOI: `10.1016/j.proci.2016.06.047 <https://doi.org/10.1016/j.proci.2016.06.047>`_.
 
-.. [garcia2004] Gustavo A. Garcia, Laurent Nahon, and Ivan Powis. Two- dimensional charged particle image inversion using a polar basis function expansion. Rev. Sci. Instrum., **75**, 4989, 2004. DOI:`10.1063/1.1807578 <https://doi.org/10.1063/1.1807578>`_.
+.. [garcia2004] Gustavo A. Garcia, Laurent Nahon, and Ivan Powis. Two-dimensional charged particle image inversion using a polar basis function expansion. Rev. Sci. Instrum., **75**, 4989, 2004. DOI: `10.1063/1.1807578 <https://doi.org/10.1063/1.1807578>`_.
 
 .. [gascooke2000] Jason R. Gascooke. Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation. PhD thesis, Flinders University, SA 5001, Australia, 2000. Available at `github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`_.
 
 .. [gascooke2017] Jason R. Gascooke, Stephen T. Gibson, and Warren D. Lawrance. A “circularisation” method to repair deformations and determine the centre of velocity map images. J. Chem. Phys., **147**, 013924, 2017. DOI: `10.1063/1.4981024 <http://doi.org10.1063/1.4981024>`_.
 
-.. [gerber2013] Thomas Gerber, Yuzhu Liu, Gregor Knopp, Patrick Hemberger, Andras Bodi, Peter Radi, and Yaroslav Sych. Charged particle velocity map image reconstruction with one-dimensional projections of spherical functions. Rev. Sci. Instrum., **84**, 033101, 2013. DOI:`10.1063/1.4793404 <https://doi.org/10.1063/1.4793404>`_.
+.. [gerber2013] Thomas Gerber, Yuzhu Liu, Gregor Knopp, Patrick Hemberger, Andras Bodi, Peter Radi, and Yaroslav Sych. Charged particle velocity map image reconstruction with one-dimensional projections of spherical functions. Rev. Sci. Instrum., **84**, 033101, 2013. DOI: `10.1063/1.4793404 <https://doi.org/10.1063/1.4793404>`_.
 
-.. [gladstone2016] Par G. Randall Gladstone, S. Alan Stern, Kimberly Ennico, Catherine B. Olkin, Harold A. Weaver, Leslie A. Young, Michael E. Summers, Darrell F. Strobel, David P. Hinson, Joshua A. Kammer, Alex H. Parker, Andrew J. Steffl, Ivan R. Linscott, Joel Wm. Parker, Andrew F. Cheng, David C. Slater, Maarten H. Versteeg, Thomas K. Greathouse, Kurt D. Retherford, Henry Throop, Nathaniel J. Cunningham, William W. Woods, Kelsi N. Singer, Constantine C. C. Tsang, Eric Schindhelm, Carey M. Lisse, Michael L. Wong, Yuk L. Yung, Xun Zhu, Werner Curdt, Panayotis Lavvas, Eliot F. Young, G. Leonard Tyler, and The New Horizons Science Team. The atmosphere of pluto as observed by new horizons. Science, **351**, 6279, 2016. DOI: `10.1126/science.aad8866 <https://doi.org/10.1126/science.aad8866>`_.
+.. [gladstone2016] Par G. Randall Gladstone, S. Alan Stern, Kimberly Ennico, Catherine B. Olkin, Harold A. Weaver, Leslie A. Young, Michael E. Summers, Darrell F. Strobel, David P. Hinson, Joshua A. Kammer, Alex H. Parker, Andrew J. Steffl, Ivan R. Linscott, Joel Wm. Parker, Andrew F. Cheng, David C. Slater, Maarten H. Versteeg, Thomas K. Greathouse, Kurt D. Retherford, Henry Throop, Nathaniel J. Cunningham, William W. Woods, Kelsi N. Singer, Constantine C. C. Tsang, Eric Schindhelm, Carey M. Lisse, Michael L. Wong, Yuk L. Yung, Xun Zhu, Werner Curdt, Panayotis Lavvas, Eliot F. Young, G. Leonard Tyler, and The New Horizons Science Team. The atmosphere of Pluto as observed by New Horizons. Science, **351**, 6279, 2016. DOI: `10.1126/science.aad8866 <https://doi.org/10.1126/science.aad8866>`_.
 
 .. [glasser1978] \ J. Glasser, J. Chapelle, and J. C. Boettner. Abel inversion applied to plasma spectroscopy: a new interactive method. Appl. Opt., **17**, 3750, 1978. DOI: `10.1364/AO.17.003750 <https://doi.org/10.1364/AO.17.003750>`_.
 
-.. [hansen1985] Eric W. Hansen and Phaih-Lan Law. Recursive methods for computing the abel transform and its inverse. J. Opt. Soc. Am. A, **2**, 510, Apr 1985. DOI:`10.1364/JOSAA.2.000510 <https://doi.org/10.1364/JOSAA.2.000510>`_.
+.. [hansen1985] Eric W. Hansen and Phaih-Lan Law. Recursive methods for computing the abel transform and its inverse. J. Opt. Soc. Am. A, **2**, 510, Apr 1985. DOI: `10.1364/JOSAA.2.000510 <https://doi.org/10.1364/JOSAA.2.000510>`_.
 
-.. [hansen1985b] \ E. Hansen. Fast hankel transform algorithm. IEEE Trans. Acoust., **33**, 666–671, 1985. DOI:`10.1109/tassp.1985.1164579 <https://doi.org/10.1109/tassp.1985.1164579>`_.
+.. [hansen1985b] \ E. Hansen. Fast hankel transform algorithm. IEEE Trans. Acoust., **33**, 666–671, 1985. DOI: `10.1109/tassp.1985.1164579 <https://doi.org/10.1109/tassp.1985.1164579>`_.
 
-.. [harrison2018] \ G. R. Harrison, J. C. Vaughan, B. Hidle, and G. M. Laurent. DAVIS: a direct algorithm for velocity-map imaging system. J of Chem. Phys., **148**, 194101, 2018. DOI:`10.1063/1.5025057 <https://doi.org/10.1063/1.5025057>`_.
+.. [harrison2018] \ G. R. Harrison, J. C. Vaughan, B. Hidle, and G. M. Laurent. DAVIS: a direct algorithm for velocity-map imaging system. J of Chem. Phys., **148**, 194101, 2018. DOI: `10.1063/1.5025057 <https://doi.org/10.1063/1.5025057>`_.
 
-.. [hickstein2019] Daniel D. Hickstein, Stephen T. Gibson, Roman Yurchak, Dhrubajyoti D. Das, Mikhail Ryazanov. A direct comparison of high-speed methods for the numerical Abel transform. Rev. Sci. Instrum., **90**, 065115, 2019. DOI:`10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`_.
+.. [hickstein2019] Daniel D. Hickstein, Stephen T. Gibson, Roman Yurchak, Dhrubajyoti D. Das, Mikhail Ryazanov. A direct comparison of high-speed methods for the numerical Abel transform. Rev. Sci. Instrum., **90**, 065115, 2019. DOI: `10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`_.
 
-.. [lumpe2007] \ J. D. Lumpe, L. E. Floyd, L. C. Herring, S. T. Gibson, and B. R. Lewis. Measurements of thermospheric molecular oxygen from the solar ultraviolet spectral irradiance monitor. J. Geophys. Res. Atmos., **112**, D16308, 2007. DOI: `10.1029/2006JD008076. <http://doi.org/10.1029/2006JD008076.>`_
+.. [lumpe2007] \ J. D. Lumpe, L. E. Floyd, L. C. Herring, S. T. Gibson, and B. R. Lewis. Measurements of thermospheric molecular oxygen from the solar ultraviolet spectral irradiance monitor. J. Geophys. Res. Atmos., **112**, D16308, 2007. DOI: `10.1029/2006JD008076 <http://doi.org/10.1029/2006JD008076>`_.
 
-.. [rallis2014] \ C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin, S. De, B. Bergues, Bethany Jochim,A. V. Voznyuk, Neal Gregerson, B. Gaire, I. Znakovskaya, J. McKenna, K. D. Carnes, M. F. Kling,I. Ben-Itzhak, and E. Wells. Incorporating real time velocity map image reconstruction into closed-loop coherent control. Rev. Sci. Instrum., **85**, 113105, 2014. DOI: `10.1063/1.4899267 <https://doi.org/10.1063/1.4899267>`_.
+.. [rallis2014] \ C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin, S. De, B. Bergues, Bethany Jochim,A. V. Voznyuk, Neal Gregerson, B. Gaire, I. Znakovskaya, J. McKenna, K. D. Carnes, M. F. Kling, I. Ben-Itzhak, and E. Wells. Incorporating real time velocity map image reconstruction into closed-loop coherent control. Rev. Sci. Instrum., **85**, 113105, 2014. DOI: `10.1063/1.4899267 <https://doi.org/10.1063/1.4899267>`_.
 
-.. [ryazanov2012] Mikhail Ryazanov. Development and implementation of methods for sliced velocity map imaging. Studies of overtone-induced dissociation and isomerization dynamics of hydroxymethyl radical (CH2OH and CD2OH). PhD thesis, University of Southern California, 2012. `search.proquest.com/docview/1289069738 <https://search.proquest.com/docview/1289069738>`_
+.. [ryazanov2012] Mikhail Ryazanov. Development and implementation of methods for sliced velocity map imaging. Studies of overtone-induced dissociation and isomerization dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and CD\ :sub:`2`\ OH). PhD thesis, University of Southern California, 2012. `search.proquest.com/docview/1289069738 <https://search.proquest.com/docview/1289069738>`_
 
-.. [snelling1999] David R. Snelling, Kevin A. Thomson, Gregory J. Smallwood, and O ̈mer L. Gu ̈lder. Two-dimensional imaging of soot volume fraction in laminar diffusion flames. Appl. Opt., **38**, 2478, 1999. DOI: `10.1364/AO.38.002478 <https://doi.org/10.1364/AO.38.002478>`_.
+.. [snelling1999] David R. Snelling, Kevin A. Thomson, Gregory J. Smallwood, and Ömer L. Gülder. Two-dimensional imaging of soot volume fraction in laminar diffusion flames. Appl. Opt., **38**, 2478, 1999. DOI: `10.1364/AO.38.002478 <https://doi.org/10.1364/AO.38.002478>`_.
 
 .. [vanduzor2010] Matthew Van Duzor, Foster Mbaiwa, Jie Wei, Tulsi Singh, Richard Mabbs, Andrei Sanov, Steven J. Cavanagh, Stephen T. Gibson, Brenton R. Lewis, and Jason R. Gascooke. Vibronic coupling in the superoxide anion: The vibrational dependence of the photoelectron angular distribution. J. Chem. Phys., **133**, 174311, 2010. DOI: `10.1063/1.3493349 <https://doi.org/10.1063/1.3493349>`_.
 
-.. [whitaker2003] \ B. J. Whitaker. Imaging in Molecular Dynamics: Technology and Ap- plications. Cambridge University Press, 2003. ISBN 9781139437905. `books.google.com/books?id=m8AYdeM3aRYC <https://books.google.com/books?id=m8AYdeM3aRYC>`_.
+.. [whitaker2003] \ B. J. Whitaker. Imaging in Molecular Dynamics: Technology and Applications. Cambridge University Press, 2003. ISBN 9781139437905. `books.google.com/books?id=m8AYdeM3aRYC <https://books.google.com/books?id=m8AYdeM3aRYC>`_.
 
-.. [yurchak2015] Roman Yurchak. Experimental and numerical study of accretion-ejection mecha- nisms in laboratory astrophysics. Thesis, Ecole Polytechnique (EDX), 2015. `tel.archives-ouvertes.fr/tel-01338614 <https://tel.archives-ouvertes.fr/tel-01338614>`_.
+.. [yurchak2015] Roman Yurchak. Experimental and numerical study of accretion-ejection mechanisms in laboratory astrophysics. Thesis, Ecole Polytechnique (EDX), 2015. `tel.archives-ouvertes.fr/tel-01338614 <https://tel.archives-ouvertes.fr/tel-01338614>`_.
