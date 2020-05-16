@@ -31,7 +31,6 @@ def plot(directory, xlim, ylim, linex):
     plt.ylim(ylim)
     plt.gca().yaxis.set_major_locator(LogLocator(base=10.0, numticks=12))
 
-
     plt.grid(which='both', color='#EEEEEE')
     plt.grid(which='minor', linewidth=0.5)
 

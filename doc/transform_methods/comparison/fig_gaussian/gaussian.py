@@ -50,7 +50,7 @@ for row, (label, transFunc) in enumerate(transforms):
     inverse = transFunc(np.copy(proj), dr=dr, direction='inverse')
 
     rms = np.mean((inverse - func)**2)**0.5
-    boldlabel = '$\\bf ' + label.replace('_', '\_') + '$'
+    boldlabel = '$\\bf ' + label.replace('_', '\\_') + '$'
     axs[row].plot(r, inverse, 'o', ms=1.5,
                   label=boldlabel + ', RMSE=%.2f%%' % (rms*100))
 

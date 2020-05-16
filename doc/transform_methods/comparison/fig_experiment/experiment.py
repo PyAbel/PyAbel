@@ -47,7 +47,7 @@ for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
 
     else:
         trans = transFunc(Q0, direction="inverse", **targs)
-        
+
     if label == 'linbasex':  # bugfix smoothing=0 transform offset by 1 pixel
         trans[:, 1:] = trans[:, :-1]
 
