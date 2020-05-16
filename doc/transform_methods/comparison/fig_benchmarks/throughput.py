@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-directory = 'i7-9700_Linux'
+directory = 'benchmarks_i7-9700_Linux_5.4.0-26-generic'
 
 transforms = [
   ("basex",         '#880000', {}),
@@ -19,45 +19,56 @@ transforms = [
   ("rbasex(None)",  '#AACC00', {'mfc': 'w'}),
 ]
 
-plt.figure(figsize=(6, 6), frameon=False)
 
-# all timings
-for meth, color, pargs in transforms:
-    pargs.update(color=color)
-    if meth == 'two_point':
-        ms = 3
-    elif meth == 'three_point':
-        ms = 5
-    elif meth == 'onion_peeling':
-        ms = 7
-    else:
-        ms = 5
+def plot(directory, xlim, ylim, va):
+    plt.figure(figsize=(6, 6), frameon=False)
 
-    times = np.loadtxt(directory + '/' + meth + '.dat', unpack=True)
-    n = times[0]
-    t = times[1] * 1e-3  # in ms
-    plt.plot(n, n**2 / t, 'o-', label=meth, ms=ms, **pargs)
+    # all timings
+    for meth, color, pargs in transforms:
+        pargs.update(color=color)
+        if meth == 'two_point':
+            ms = 3
+        elif meth == 'three_point':
+            ms = 5
+        elif meth == 'onion_peeling':
+            ms = 7
+        else:
+            ms = 5
 
-plt.xlabel('Image size ($n$, pixels)')
-plt.xscale('log')
-plt.xlim(5, 1e5)
+        try:
+            times = np.loadtxt(directory + '/' + meth + '.dat', unpack=True)
+        except OSError:
+            continue
+        n = times[0]
+        t = times[1] * 1e-3  # in ms
+        plt.plot(n, n**2 / t, 'o-', label=meth, ms=ms, **pargs)
 
-plt.ylabel('Throughput (pixels per second)')
-plt.yscale('log')
-plt.ylim(4e3, 2e9)
+    plt.xlabel('Image size ($n$, pixels)')
+    plt.xscale('log')
+    plt.xlim(xlim)
 
-plt.grid(which='both', color='#EEEEEE')
-plt.grid(which='minor', linewidth=0.5)
+    plt.ylabel('Throughput (pixels per second)')
+    plt.yscale('log')
+    plt.ylim(ylim)
 
-plt.legend(ncol=3)
+    plt.grid(which='both', color='#EEEEEE')
+    plt.grid(which='minor', linewidth=0.5)
 
-# HD video: 1 Mp * 30 Hz
-x = 1000
-y = 30 * x**2
-plt.plot(x, y, '+k')
-plt.text(x, y, ' HD video', va='top')
+    # HD video: 1 Mp * 30 Hz
+    x = 1000
+    y = 30 * x**2
+    plt.plot(x, y, '+k')
+    plt.annotate('HD video', (x, y), ha='center', va=va,
+                 xytext=(0, -4 if va == 'top' else 2),
+                 textcoords='offset points')
 
-plt.tight_layout(pad=0.1)
+    plt.legend(ncol=3)
 
-plt.savefig('throughput.svg')
-# plt.show()
+    plt.tight_layout(pad=0.1)
+
+    plt.show()
+
+
+if __name__ == "__main__":
+    plot('i7-9700_Linux', xlim=(5, 1e5), ylim=(4e3, 2e9), va='top')
+    plt.savefig('throughput.svg')

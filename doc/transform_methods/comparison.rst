@@ -197,7 +197,12 @@ Another important issue for modern Intel CPUs is that they suffer a performance 
 Speed benchmarks
 """"""""""""""""
 
-The :class:`abel.benchmark.AbelTiming` class provides the ability to benchmark the speeds of the Abel transform algorithms. Here we show these benchmarks completed using a personal computer equipped with a 3.0 GHz Intel i7-9700 processor and 32 GB RAM running GNU/Linux.
+The :class:`abel.benchmark.AbelTiming` class provides the ability to benchmark the speeds of the Abel transform algorithms. Here we show these benchmarks completed using a personal computer equipped with a 3.0 GHz Intel i7-9700 processor and 32 GB RAM running GNU/Linux (see also :doc:`comparison/fig_benchmarks/benchmarks` for some other systems).
+
+.. toctree::
+    :hidden:
+
+    comparison/fig_benchmarks/benchmarks
 
 A comparison of the time required to complete an inverse Abel transform versus the width of a square image is presented in :numref:`fig_transform_time`. All method are benchmarked using their default parameters, with the following exceptions:
 
