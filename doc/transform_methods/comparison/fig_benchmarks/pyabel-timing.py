@@ -4,13 +4,6 @@ import abel
 import os
 import sys
 import platform
-import cpuinfo
-
-
-def get_system():
-    cpu = cpuinfo.get_cpu_info().get('brand').split()[2]
-    plat = platform.system() + '_' + platform.release()
-    return cpu + '_' + plat
 
 
 def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
@@ -63,8 +56,8 @@ def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
     header = f'# {method:15s} {"iabel(ms)":20s}'
     if has_basis:
         header += 'basis(ms)'
-    if method[-5:] == 'basex':  # special case
-        if method[0] == 'b':
+    if method in ['basex', 'rbasex']:  # special cases
+        if method == 'basex':
             varnone = 'var'
             varlab = 'var.reg.'
         else:
@@ -96,8 +89,8 @@ def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
             print(t_iabel, end='')
             fp.write(t_iabel)
 
-            if method[-5:] == 'basex':  # special case
-                if method[0] == 'b':
+            if method in ['basex', 'rbasex']:  # special cases
+                if method == 'basex':
                     varlab = method+'(var.reg.)'
                 else:
                     varlab = method+'(None)'
@@ -113,7 +106,7 @@ def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
             print(t_bs)
             fp.write(t_bs+'\n')
 
-    if method[-5:] == 'basex':
+    if method in ['basex', 'rbasex']:
         fpvar.close()
 
     # spacing between methods
@@ -131,8 +124,7 @@ try:
 except ModuleNotFoundError:
     print('\nWarning! No daz module. Intel CPUs can show poor performance.\n')
 
-system = get_system()
-benchmark_dir = 'benchmarks_' + system
+benchmark_dir = 'working'
 print('PyAbel method timings in the directory:\n\n'
       f'    {benchmark_dir}/method.dat\n')
 

@@ -14,3 +14,4 @@ examples/*.dat
 dist/
 build/
 doc/_build/
+doc/transform_methods/comparison/fig_benchmarks/working
