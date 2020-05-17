@@ -21,15 +21,15 @@ Intel i7-9700 (Linux)
     `Intel Core i7-9700 <https://ark.intel.com/content/www/us/en/ark/products/191792/intel-core-i7-9700-processor-12m-cache-up-to-4-70-ghz.html>`_ (8 cores, 8 threads; 3.0 GHz base, 4.7 GHz max)
 
 :RAM:
-    32 GB DDR?-????
+    32 GB DDR4-2666
 
 :OS:
-    ??? Linux
+    `Ubuntu 20.04 LTS <https://releases.ubuntu.com/20.04/>`_
 
 :Libraries:
-    * NumPy ???
-    * SciPy ???
-    * MKL ???
+    * NumPy 1.18.1
+    * SciPy 1.4.1
+    * MKL 2020
     * `daz <https://github.com/chainer/daz>`_
 
 
@@ -64,15 +64,15 @@ Intel i7-6700 (Linux)
     `Intel Core i7-6700 <https://ark.intel.com/content/www/us/en/ark/products/88196/intel-core-i7-6700-processor-8m-cache-up-to-4-00-ghz.html>`_ (4 cores, 8 threads; 3.4 GHz base, 4.0 GHz max)
 
 :RAM:
-    32 GB DDR?-????
+    32 GB DDR4-2133
 
 :OS:
-    ??? Linux
+    `Ubuntu 19.10 <https://releases.ubuntu.com/19.10/>`_
 
 :Libraries:
-    * NumPy ???
-    * SciPy ???
-    * MKL ???
+    * NumPy 1.18.1
+    * SciPy 1.4.1
+    * MKL 2019 Update 5
     * `daz <https://github.com/chainer/daz>`_
 
 
@@ -125,21 +125,21 @@ Results
     :align: center
 
     from transform_time import plot
-    plot('Ryzen3-2200G_Linux', xlim=(5, 1e5), ylim=(9e-7, 3e4), linex=7e1)
+    plot('Ryzen3-2200G_Linux', xlim=(5, 1e5), ylim=(9e-7, 2e4), linex=7e1)
 
 
 .. plot::
     :align: center
 
     from throughput import plot
-    plot('Ryzen3-2200G_Linux', xlim=(5, 1e5), ylim=(1e3, 6e8), va='top')
+    plot('Ryzen3-2200G_Linux', xlim=(5, 1e5), ylim=(3e3, 6e8), va='top')
 
 
 .. plot::
     :align: center
 
     from basis_time import plot
-    plot('Ryzen3-2200G_Linux', xlim=(5, 1e5), ylim=(6e-5, 4e3), linex=1e2)
+    plot('Ryzen3-2200G_Linux', xlim=(5, 1e5), ylim=(6e-5, 5e3), linex=1e2)
 
 
 AMD Ryzen 3 2200G (Windows)
@@ -191,15 +191,15 @@ Raspberry Pi 4B (Linux)
     `Broadcom BCM2711 <https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711/README.md>`_ (4 cores; 1.5 GHz)
 
 :RAM:
-    ?? GB LPDDR4-3200
+    4 GB LPDDR4-3200
 
 :OS:
-    ??? Linux
+    `Raspbian GNU/Linux 10 <https://www.raspberrypi.org/downloads/raspbian/>`_
 
 :Libraries:
-    * NumPy ???
-    * SciPy ???
-    * ???
+    * NumPy 1.16.2
+    * SciPy 1.1.0
+    * Reference BLAS 3.8.0
 
 
 Results
