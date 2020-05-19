@@ -21,6 +21,9 @@ Unreleased
   loading "from transform", interface enhancements (PR #277).
 * Improved documentation (PR #283, PR #288).
 * Correctly use quadrants in abel.Transform (PR #287).
+* Circularization now uses periodic splines (to avoid discontinuity), with
+  smoothing determined by the RMS tolerance instead of the nonintuitive
+  "smooth" parameter (PR #293).
 
 v0.8.3 (2019-08-16)
 -------------------
