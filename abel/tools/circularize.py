@@ -2,7 +2,7 @@
 from __future__ import division
 import numpy as np
 from scipy import ndimage
-from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import UnivariateSpline, splrep, splev
 from scipy.optimize import leastsq
 
 import abel
@@ -208,9 +208,12 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
     else:
         smooth = len(angles) * tol**2
 
-    # spline radial correction vs angle
-    radial_correction_function = UnivariateSpline(angles, radcorr, s=smooth,
-                                                  ext=3)
+    # periodic spline radial correction vs angle
+    spl = splrep(np.append(angles, angles[0] + 2 * np.pi),
+                 np.append(radcorr, radcorr[0]), s=smooth, per=True)
+
+    def radial_correction_function(angle):
+        return splev(angle, spl)
 
     # apply the correction
     IMcirc = circularize(IM, radial_correction_function, ref_angle=ref_angle)
