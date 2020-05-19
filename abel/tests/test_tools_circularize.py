@@ -21,7 +21,7 @@ def test_circularize_image():
 
     IMcirc, angle, scalefactor, spline =\
         abel.tools.circularize.circularize_image(IMdist,
-                   method='lsq', dr=0.5, dt=0.1, smooth=0,
+                   method='lsq', dr=0.5, dt=0.1, tol=0,
                    ref_angle=0, return_correction=True)
 
     r, c = IMcirc.shape

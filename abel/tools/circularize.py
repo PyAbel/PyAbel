@@ -24,8 +24,8 @@ from abel import _deprecated, _deprecate
 
 
 def circularize_image(IM, method="lsq", origin=None, radial_range=None,
-                      dr=0.5, dt=0.5, smooth=0, ref_angle=None,
-                      inverse=False, return_correction=False,
+                      dr=0.5, dt=0.5, smooth=_deprecated, ref_angle=None,
+                      inverse=False, return_correction=False, tol=0,
                       center=_deprecated):
     r"""
     Corrects image distortion on the basis that the structure should be
@@ -109,25 +109,19 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
         Also passed to :func:`abel.tools.polar.reproject_image_into_polar`.
 
     smooth : float
-        This value is passed to the :func:`scipy.interpolate.UnivariateSpline`
-        function and controls how smooth the spline interpolation is. A value
-        of zero corresponds to a spline that runs through all of the points,
-        and higher values correspond to a smoother spline function.
-
-        It is important to examine the relative peak position (scaling factor)
-        data and how well it is represented by the spline function. Use the
-        option ``return_correction=True`` to examine this data. Typically,
-        **smooth** may remain zero, noisy data may require some smoothing.
+        Deprecated, use **tol** instead. The relationship is
+        **smooth** = `N`\ :sub:`angles` × **tol**\ :sup:`2`,
+        where `N`\ :sub:`angles` is the number of slices (see **dt**).
 
     ref_angle : None or float
         Reference angle for which radial coordinate is unchanged.
         Angle varies between :math:`-\pi` and :math:`\pi`, with zero angle
         vertical.
 
-        ``None`` uses :func:`numpy.mean(radial scale factors)`, which attempts
-        to maintain the same average radial scaling. This approximation is
-        likely valid, unless you know for certain that a specific angle of
-        your image corresponds to an undistorted image.
+        ``None`` uses :func:`numpy.mean` of the radial correction function,
+        which attempts to maintain the same average radial scaling. This
+        approximation is likely valid, unless you know for certain that a
+        specific angle of your image corresponds to an undistorted image.
 
     inverse : bool
         Apply an inverse Abel transform to the `polar`-coordinate image, to
@@ -141,6 +135,21 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
 
     return_correction : bool
         Additional outputs, as describe below.
+
+    tol : float
+        Root-mean-square (RMS) fitting tolerance for the spline function. At
+        the default zero value, the spline interpolates between the discrete
+        scaling factors. At larger values, a smoother spline is found such that
+        its RMS deviation from the discrete scaling factors does not exceed
+        this number. For example, ``tol=0.01`` means 1% RMS tolerance for the
+        radial scaling correction. At very large tolerances, the spline
+        degenerates to a constant, the average of the discrete scaling factors.
+
+        Typically, **tol** may remain zero (use interpolation), but noisy data
+        may require some smoothing, since the found discrete scaling factors
+        can have noticeable errors. To examine the relative scaling factors and
+        how well they are represented by the spline function, use the option
+        ``return_correction=True``.
 
     Returns
     -------
@@ -192,6 +201,12 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
 
     # evaluate radial correction factor that aligns each angular slice
     radcorr = correction(polarIM.T, angles, radial, method=method)
+
+    if smooth is not _deprecated:
+        _deprecate('abel.tools.circularize.circularize_image() '
+                   'argument "smooth" is deprecated, use "tol" instead.')
+    else:
+        smooth = len(angles) * tol**2
 
     # spline radial correction vs angle
     radial_correction_function = UnivariateSpline(angles, radcorr, s=smooth,

@@ -30,7 +30,7 @@ IMdist = abel.tools.circularize.circularize(IMf,
 
 # circularize ------------
 IMcirc, sla, sc, scspl = abel.tools.circularize.circularize_image(IMdist,
-               method='lsq', dr=0.5, dt=0.1, smooth=0, return_correction=True)
+               method='lsq', dr=0.5, dt=0.1, tol=0, return_correction=True)
 
 # inverse Abel transform for distored and circularized images ---------
 AIMdist = abel.Transform(IMdist, method="three_point",
