@@ -335,6 +335,7 @@ required_symlinks = [
 
 autodoc_member_order = 'bysource'
 
+numfig = True
 
 # supress the "nonlocal image URI found" warnings
 import sphinx.environment
