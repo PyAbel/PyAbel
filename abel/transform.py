@@ -102,7 +102,7 @@ class Transform(object):
     symmetry_axis : None, int or tuple
         Symmetrize the image about the numpy axis
         0 (vertical), 1 (horizontal), (0, 1) (both axes). Note that the
-        abel transform is always performed around the vertical axis.
+        Abel transform is always performed around the vertical axis.
         This parameter only affects how the image is modified before
         (and after) applying the Abel transform. For more information,
         see the "Quadrant combining" note below.
