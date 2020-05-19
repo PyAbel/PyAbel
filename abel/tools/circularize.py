@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 import numpy as np
-from scipy import ndimage
+from scipy.ndimage.interpolation import map_coordinates
 from scipy.interpolate import UnivariateSpline, splrep, splev
 from scipy.optimize import leastsq
 
@@ -261,8 +261,7 @@ def circularize(IM, radial_correction_function, ref_angle=None):
 
     # @DanHickstein magic
     # https://github.com/PyAbel/PyAbel/issues/186#issuecomment-275471271
-    IMcirc = ndimage.interpolation.map_coordinates(IM,
-                     (origin[1] - Yactual, Xactual + origin[0]))
+    IMcirc = map_coordinates(IM, (origin[1] - Yactual, Xactual + origin[0]))
 
     return IMcirc
 
