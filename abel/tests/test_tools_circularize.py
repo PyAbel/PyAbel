@@ -6,6 +6,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 
 import abel
+from abel.tools.circularize import circularize, circularize_image
 
 
 def test_circularize_image():
@@ -14,19 +15,18 @@ def test_circularize_image():
 
     # flower image distortion
     def flower_scaling(theta, freq=2, amp=0.1):
-        return 1 + amp*np.sin(freq*theta)**4
+        return 1 + amp * np.sin(freq * theta)**4
 
-    IMdist = abel.tools.circularize.circularize(IM,
-                                    radial_correction_function=flower_scaling)
+    IMdist = circularize(IM, radial_correction_function=flower_scaling)
 
-    IMcirc, angle, scalefactor, spline =\
-        abel.tools.circularize.circularize_image(IMdist,
-                   method='lsq', dr=0.5, dt=0.1, smooth=0,
-                   ref_angle=0, return_correction=True)
+    IMcirc, angle, scalefactor, spline = \
+        circularize_image(IMdist,
+                          method='lsq', dr=0.5, dt=0.1, tol=0,
+                          ref_angle=0, return_correction=True)
 
     r, c = IMcirc.shape
 
-    diff = (IMcirc - IM).sum(axis=1).sum(axis=0)
+    diff = (IMcirc - IM).sum()
 
     assert_allclose(diff, -307.603, atol=0.05)
 

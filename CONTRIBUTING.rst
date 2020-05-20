@@ -2,7 +2,7 @@ Contributing to PyAbel
 ======================
 
 
-PyAbel is an open source project and we welcome improvements! Please let us know about any issues with the software, even if's just a typo. The easiest way to get started is to open a `new issue <https://github.com/PyAbel/PyAbel/issues>`_.
+PyAbel is an open-source project, and we welcome improvements! Please let us know about any issues with the software, even if's just a typo. The easiest way to get started is to open a `new issue <https://github.com/PyAbel/PyAbel/issues>`_.
 
 If you would like to make a Pull Request, the following information may be useful.
 
@@ -14,7 +14,7 @@ Before submitting at Pull Request, be sure to run the unit tests. The test suite
     
     pytest
     
-For more detailed information, the following can be used:  ::
+For more detailed information, the following can be used::
 
     pytest abel/  -v  --cov=abel
 
@@ -26,16 +26,16 @@ Note that this requires that you have `pytest <https://docs.pytest.org/en/latest
 Documentation
 -------------
 
-PyAbel uses Sphinx and `Napoleon <http://sphinxcontrib-napoleon.readthedocs.io/en/latest/index.html>`_ to process Numpy style docstrings, and is synchronized to `pyabel.readthedocs.io <http://pyabel.readthedocs.io>`_. To build the documentation locally, you will need `Sphinx <http://www.sphinx-doc.org/>`_, the `recommonmark <https://github.com/rtfd/recommonmark>`_ package, and the `sphinx_rtd_theme <https://github.com/snide/sphinx_rtd_theme/>`_. You can install all this this using ::
+PyAbel uses Sphinx and `Napoleon <http://sphinxcontrib-napoleon.readthedocs.io/en/latest/index.html>`_ to process Numpy-style docstrings and is synchronized to `pyabel.readthedocs.io <http://pyabel.readthedocs.io>`_. To build the documentation locally, you will need `Sphinx <http://www.sphinx-doc.org/>`_, the `recommonmark <https://github.com/rtfd/recommonmark>`_ package, and the `sphinx_rtd_theme <https://github.com/snide/sphinx_rtd_theme/>`_. You can install them using ::
 
     pip install sphinx
     pip install recommonmark
     pip install sphinx_rtd_theme
 
-Once you have that installed, then you can build the documentation using ::
+Once you have these packages installed, you can build the documentation using ::
 
     cd PyAbel/doc/
-     make html
+    make html
 
 Then you can open ``doc/_build/hmtl/index.html`` to look at the documentation. Sometimes you need to use ::
 
@@ -63,13 +63,13 @@ Code Style
 
 We hope that the PyAbel code will be understandable, hackable, and maintainable for many years to come. So, please use good coding style, include plenty of comments, use docstrings for functions, and pick informative variable names.
 
-PyAbel attempts to follow `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_ style whenever possible, since the PEP8 recommendations typically produces code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`_, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all Pull Requests using `pep8speaks <https://pep8speaks.com/>`_. However, `producing readable code <https://www.python.org/dev/peps/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`_ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines."
+PyAbel attempts to follow `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_ style whenever possible, since the PEP8 recommendations typically produces code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`_, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all Pull Requests using `pep8speaks <https://pep8speaks.com/>`_. However, `producing readable code <https://www.python.org/dev/peps/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`_ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines.
 
 
 Before merging
 --------------
 
-If possible, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository>`_ ::
+If possible, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository>`_::
 
     # Add the remote, call it "upstream" (only the fist time)
     git remote add upstream https://github.com/PyAbel/PyAbel.git
@@ -102,29 +102,35 @@ Adding a new forward or inverse Abel implementation
 
 We are always looking for new implementation of forward or inverse Abel transform, therefore if you have an implementation that you would want to contribute to PyAbel, don't hesitate to do so.
 
-In order to allow a consistent user experience between different implementations, and insure an overall code quality, please consider the following points in your pull request.
+In order to allow a consistent user experience between different implementations and insure an overall code quality, please consider the following points in your pull request.
 
 
 Naming conventions
 ~~~~~~~~~~~~~~~~~~
 
-The implementation named `<implementation>`, located under `abel/<implementation>.py` should use the following naming system for top-level functions,
+The implementation named ``<implementation>``, located under ``abel/<implementation>.py``, should use the following naming system for top-level functions:
 
- -  ``<implemenation>_transform`` :  core transform (when defined)
- -  ``_bs_<implementation>`` :  function that generates  the basis sets (if necessary)
+- ``<implemenation>_transform`` :  core transform (when defined)
+- ``_bs_<implementation>`` :  function that generates  the basis sets (if necessary)
 
 
 Unit tests
 ~~~~~~~~~~
-To detect issues early, the submitted implementation should have the following properties and pass the corresponding unit tests,
+To detect issues early, the submitted implementation should have the following properties and pass the corresponding unit tests:
 
 1. The reconstruction has the same shape as the original image. Currently all transform methods operate with odd-width images and should raise an exception if provided with an even-width image.
 
-2. Given an array of 0 elements, the reconstruction should also be a 0 array.
+2. Given an array with all 0 elements, the reconstruction should also be a 0 array.
 
-3. The implementation should be able to calculated the inverse (or forward) transform of a Gaussian function defined by a standard deviation ``sigma``, with better than a ``10 %`` relative error with respect to the analytical solution for ``0 > r > 2*sigma``.
+3. The implementation should be able to calculated the inverse (or forward) transform of a Gaussian function defined by a standard deviation ``sigma``, with better than a 10 % relative error with respect to the analytical solution for ``0 < r < 2*sigma``.
 
-Unit tests for a given implementation are located under ``abel/tests/test_<implemenation>.py``, which should contain at least the following 3 functions ``test_<implementation>_shape``, ``test_<implementation>_zeros``, ``test_<implementation>_gaussian``. See ``abel/tests/test_basex.py`` for a concrete example.
+Unit tests for a given implementation are located under ``abel/tests/test_<implemenation>.py``, which should contain at least the following 3 functions:
+
+- ``test_<implementation>_shape``
+- ``test_<implementation>_zeros``
+- ``test_<implementation>_gaussian``
+
+See ``abel/tests/test_basex.py`` for a concrete example.
 
 
 Dependencies

@@ -57,7 +57,7 @@ Other parameters may help better define the radial correction function.
 Warning
 -------
 Ensure the returned radial_correction vs angle data is a well behaved function. 
-See the example, below, bottom left figure. If necessary limit the ``radial_range=(Rmin, Rmax)``, or change the value of the spline smoothing parameter.
+See the example, below, bottom left figure. If necessary limit the ``radial_range=(Rmin, Rmax)``, or change the value of the spline smoothing parameter ``tol``.
 
 Example
 -------
