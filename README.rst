@@ -29,23 +29,23 @@ Transform Methods
 
 The outcome of the numerical Abel transform depends on the exact method used. So far, PyAbel includes the following `transform methods <https://pyabel.readthedocs.io/en/latest/transform_methods.html>`_:
 
-    1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
+1. ``basex`` - Gaussian basis set expansion of Dribinski and co-workers.
 
-    2. ``hansenlaw`` - recursive method of Hansen and Law.
+2. ``hansenlaw`` - recursive method of Hansen and Law.
 
-    3. ``direct`` - numerical integration of the analytical Abel transform equations.
+3. ``direct`` - numerical integration of the analytical Abel transform equations.
 
-    4. ``two_point`` - the "two point" method of Dasch and co-workers.
+4. ``two_point`` - the "two point" method of Dasch and co-workers.
 
-    5. ``three_point`` - the "three point" method of Dasch and co-workers.
+5. ``three_point`` - the "three point" method of Dasch and co-workers.
 
-    6. ``onion_peeling`` - the "onion peeling" deconvolution method of Dasch and co-workers.
+6. ``onion_peeling`` - the "onion peeling" deconvolution method of Dasch and co-workers.
 
-    7. ``onion_bordas`` - "onion peeling" or "back projection" method of Bordas *et al.* based on the MatLab code by Rallis and Wells *et al.*
+7. ``onion_bordas`` - "onion peeling" or "back projection" method of Bordas *et al.* based on the MatLab code by Rallis and Wells *et al.*
 
-    8. ``linbasex`` - the 1D-spherical basis set expansion of Gerber *et al.*
+8. ``linbasex`` - the 1D-spherical basis set expansion of Gerber *et al.*
 
-    9. ``rbasex`` - a pBasex-like method formulated in terms of radial distributions.
+9. ``rbasex`` - a pBasex-like method formulated in terms of radial distributions.
 
 
 Installation
