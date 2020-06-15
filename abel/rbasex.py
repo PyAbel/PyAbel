@@ -75,7 +75,9 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         largest radius to include in the transform (by default, the largest
         radius with at least one full quadrant of data)
     order : int
-        highest angular order present in the data, ≥ 0 (by default, 2)
+        highest angular order present in the data, ≥ 0 (by default, 2). Working
+        with very high orders (≳ 15) can result in excessive noise, especially
+        at small radii and for narrow peaks.
     odd : bool
         include odd angular orders (by default is `False`, but is enabled
         automatically if **order** is odd)

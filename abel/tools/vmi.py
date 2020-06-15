@@ -482,7 +482,9 @@ class Distributions(object):
             angular dependences must be inferred from very small available
             angular ranges)
     order : int
-        highest order in the angular distributions, ≥ 0 (by default, 2)
+        highest order in the angular distributions, ≥ 0 (by default, 2).
+        Requesting very high orders (≳ 15) can result in excessive noise,
+        especially at small radii and for narrow peaks.
     odd : bool
         include odd angular orders. By default is ``False``, but is enabled
         automatically if **order** is odd. Notice that although odd orders can
