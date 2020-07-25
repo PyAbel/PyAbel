@@ -264,11 +264,21 @@ def set_center(data, origin, crop='maintain_size', axes=(0, 1), verbose=False,
     elif crop == 'valid_region':
         # crop to region containing data
         shift0, shift1 = (None, None)
-        if delta0 != 0:
-            shift0 = 1 + int(np.abs(delta0))
-        if delta1 != 0:
-            shift1 = 1 + int(np.abs(delta1))
-        return centered_data[shift0:-shift0, shift1:-shift1]
+        if isinstance(axes, int):
+            if axes == 0 and delta0 != 0:
+                shift0 = 1 + int(np.abs(delta0))
+                return centered_data[shift0:-shift0, :]
+            elif axes == 1 and delta1 != 0:
+                shift1 = 1 + int(np.abs(delta1))
+                return centered_data[:, shift1:-shift1]
+            else:
+                raise ValueError("axes value not 0, or 1")
+        else:
+            if delta0 != 0:
+                shift0 = 1 + int(np.abs(delta0))
+            if delta1 != 0:
+                shift1 = 1 + int(np.abs(delta1))
+            return centered_data[shift0:-shift0, shift1:-shift1]
     else:
         raise ValueError("Invalid crop method!!")
 
