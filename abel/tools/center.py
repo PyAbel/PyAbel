@@ -163,10 +163,7 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
 def set_center(data, origin, crop='maintain_size', axes=(0, 1), order=3,
                verbose=False, center=_deprecated):
     """
-    Move image origin to mid-point of image.
-    (For even-sized images, the mid-point is rounded "down", to the closest
-    smaller index, so removing the last row/column will produce a centered
-    odd-sized image.)
+    Move image origin to mid-point of image (``rows // 2, cols // 2``).
 
     Parameters
     ----------
@@ -213,7 +210,7 @@ def set_center(data, origin, crop='maintain_size', axes=(0, 1), order=3,
 
     def center_of(a):
         """ Indices of array center """
-        return (np.array(a.shape) - 1) // 2
+        return np.array(a.shape) // 2
 
     shape = data.shape
     if verbose:

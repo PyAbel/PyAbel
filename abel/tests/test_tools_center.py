@@ -22,10 +22,10 @@ def test_set_center_int():
     size = [4, 5]
     # input size, crop, origin -> output elements
     param = {4: {'maintain_size': [[None, '1234'],
-                                   [0,    '0123'],
-                                   [1,    '1234'],
-                                   [2,    '2340'],
-                                   [3,    '3400']],
+                                   [0,    '0012'],
+                                   [1,    '0123'],
+                                   [2,    '1234'],
+                                   [3,    '2340']],
                  'valid_region':  [[None, '1234'],
                                    [0,    '1'],
                                    [1,    '123'],
@@ -94,19 +94,19 @@ def test_set_center_float():
     param = {10: [(None, {'maintain_size': [10, (0, 10)],
                           'valid_region':  [10, (0, 10)],
                           'maintain_data': [10, (0, 10)]}),
-                  (2.5,  {'maintain_size': [10, (1, 10)],
+                  (2.5,  {'maintain_size': [10, (2, 10)],
                           'valid_region':  [5,  (0,  5)],
                           'maintain_data': [15, (4, 15)]}),
-                  (3.5,  {'maintain_size': [10, (0, 10)],
+                  (3.5,  {'maintain_size': [10, (1, 10)],
                           'valid_region':  [7,  (0,  7)],
                           'maintain_data': [13, (2, 13)]}),
                   (4.5,  {'maintain_size': [10, (0, 10)],
                           'valid_region':  [9,  (0,  9)],
                           'maintain_data': [11, (0, 11)]}),
-                  (5.5,  {'maintain_size': [10, (0,  9)],
+                  (5.5,  {'maintain_size': [10, (0, 10)],
                           'valid_region':  [7,  (0,  7)],
                           'maintain_data': [13, (0, 11)]}),
-                  (6.5,  {'maintain_size': [10, (0,  8)],
+                  (6.5,  {'maintain_size': [10, (0,  9)],
                           'valid_region':  [5,  (0,  5)],
                           'maintain_data': [15, (0, 11)]})],
              11: [(None, {'maintain_size': [11, (0, 11)],
@@ -143,8 +143,8 @@ def test_set_center_float():
                     refcols, crange = cparam[crop]
                     refshape = (refrows, refcols)
                     refrange = (slice(*rrange), slice(*crange))
-                    reforigin = ((refrows - 1) // 2 if row else default,
-                                 (refcols - 1) // 2 if col else default)
+                    reforigin = (refrows // 2 if row else default,
+                                 refcols // 2 if col else default)
                     msg = '-> {} x {}, origin = {}, crop = {}: '.\
                           format(rows, cols, (row, col), crop)
                     # shape
@@ -173,7 +173,7 @@ def test_set_center_axes():
     """
     for N in [4, 5]:
         data = np.arange(N**2).reshape((N, N))
-        c = (N - 1) // 2
+        c = N // 2
         msg = '-> N = {}, '.format(N)
         assert_equal(set_center(data, (None, None)),
                      data,
