@@ -160,23 +160,27 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
     return centered_data
 
 
-def set_center(data, origin, crop='maintain_size', axes=(0, 1), verbose=False,
-               center=_deprecated):
+def set_center(data, origin, crop='maintain_size', axes=(0, 1), order=3,
+               verbose=False, center=_deprecated):
     """
     Move image origin to mid-point of image.
+    (For even-sized images, the mid-point is rounded "down", to the closest
+    smaller index, so removing the last row/column will produce a centered
+    odd-sized image.)
 
     Parameters
     ----------
     data : 2D np.array
         the image data
 
-    origin : tuple
-        (row, column) coordinates of the image origin
+    origin : tuple of float
+        (row, column) coordinates of the image origin.
+        Coordinates set to ``None`` are ignored.
 
     crop : str
         determines how the image should be cropped. The options are:
 
-        ``maintain_size``
+        ``maintain_size`` (default)
             return image of the same size. Some regions of the original image
             may be lost and some regions may be filled with zeros.
         ``valid_region``
@@ -193,84 +197,135 @@ def set_center(data, origin, crop='maintain_size', axes=(0, 1), verbose=False,
         center image with respect to axis ``0`` (vertical), ``1`` (horizontal),
         or both axes ``(0, 1)`` (default).
 
+    order : int
+        interpolation order (0–5, default is 3) for centering with fractional
+        **origin**. Lower orders work faster; **order** = 0 (also implied for
+        integer **origin**) means a whole-pixel shift without interpolation and
+        is much faster.
+
     verbose : bool
-        ``True``: print diagnostics
+        print some information for debugging
     """
     if center is not _deprecated:
         _deprecate('abel.tools.center.set_center() '
                    'argument "center" is deprecated, use "origin" instead.')
         origin = center
 
-    old_shape = data.shape
-    old_center = data.shape[0] // 2, data.shape[1] // 2
+    def center_of(a):
+        """ Indices of array center """
+        return (np.array(a.shape) - 1) // 2
 
-    origin = list(origin)
-    if origin[0] < 0:
-        origin[0] += data.shape[0]
-    if origin[1] < 0:
-        origin[1] += data.shape[1]
-
-    delta0 = old_center[0] - origin[0]
-    delta1 = old_center[1] - origin[1]
-
-    if crop == 'maintain_data':
-        # pad the image so that the origin can be moved without losing any of
-        # the original data
-
-        # we need to pad the image with zeros before using the shift() function
-        shift0, shift1 = (None, None)
-        if delta0 != 0:
-            shift0 = 1 + int(np.abs(delta0))
-        if delta1 != 0:
-            shift1 = 1 + int(np.abs(delta1))
-
-        container = np.zeros((data.shape[0] + shift0, data.shape[1] + shift1),
-                             dtype=data.dtype)
-
-        area = container[:, :]
-        if shift0:
-            if delta0 > 0:
-                area = area[:-shift0, :]
-            else:
-                area = area[shift0:, :]
-        if shift1:
-            if delta1 > 0:
-                area = area[:, :-shift1]
-            else:
-                area = area[:, shift1:]
-        area[:, :] = data[:, :]
-        data = container
-        delta0 += np.sign(delta0) * shift0 / 2.0
-        delta1 += np.sign(delta1) * shift1 / 2.0
+    shape = data.shape
     if verbose:
-        print("delta = ({0}, {1})".format(delta0, delta1))
+        print('Original shape', shape, 'and origin', tuple(origin))
+    center = center_of(data)
 
+    # remove axes with "None" coordinates, preprocess origin
     if isinstance(axes, int):
-        if axes == 0:
-            centered_data = shift(data, (delta0, 0))
-        elif axes == 1:
-            centered_data = shift(data, (0, delta1))
+        axes = [axes]
+    axes = set(axes)
+    origin = np.array(origin, dtype=object)  # (for None, int or float)
+    subpixel = np.zeros(2)
+    origin_ = [None, None]
+    for a in [0, 1]:
+        if origin[a] is None:
+            axes.discard(a)
         else:
-            raise ValueError("axes value not 0, or 1")
-    else:
-        centered_data = shift(data, (delta0, delta1))
+            # to absolute coordinates
+            if origin[a] < 0:
+                origin[a] += shape[a]
+            if order:
+                # split integer and fractional parts
+                i = int(origin[a])
+                origin[a], subpixel[a] = i, origin[a] - i
+            else:
+                # round to whole pixels
+                origin[a] = int(round(origin[a]))
+            # complement (from the other edge)
+            origin_[a] = shape[a] - 1 - origin[a]
+    # don't interpolate for whole-pixels shifts
+    if np.all(subpixel == 0):
+        order = 0
+    if verbose:
+        print('Centering axes', tuple(axes), 'using order', order)
 
-    if crop == 'maintain_data':
-        # pad the image so that the origin can be moved
-        # without losing any of the original data
-        return centered_data
-    elif crop == 'maintain_size':
-        return centered_data
-    elif crop == 'valid_region':
-        # crop to region containing data
-        shift0, shift1 = (None, None)
-        if delta0 != 0:
-            shift0 = 1 + int(np.abs(delta0))
-        if delta1 != 0:
-            shift1 = 1 + int(np.abs(delta1))
-        return centered_data[shift0:-shift0, shift1:-shift1]
+    # Note: current scipy.ndimage.shift() implementation erases fractional edge
+    # pixels, so we wrap it with padding and cropping. Once this behavior is
+    # corrected, our code can be cleaned up.
+
+    if crop == 'maintain_size':
+        delta = [0, 0]
+        if order:  # fractional shift
+            for a in axes:
+                if origin[a] is not None:
+                    delta[a] = center[a] - (origin[a] + subpixel[a])
+            out = shift(np.pad(data, 1, 'constant'),
+                        delta, order=order)[1:-1, 1:-1]  # (see note above)
+        else:  # whole-pixel shift
+            src = [slice(None), slice(None)]  # for the source region
+            dst = [slice(None), slice(None)]  # for the destination region
+            for a in axes:
+                delta[a] = center[a] - origin[a]
+                # gaps for positive and negative shifts wrt edges
+                dpos = max(0, delta[a])
+                dneg = max(0, -delta[a])
+                # corresponding regions
+                src[a] = slice(dneg, shape[a] - dpos)
+                dst[a] = slice(dpos, shape[a] - dneg)
+            out = np.zeros_like(data)
+            out[tuple(dst)] = data[tuple(src)]
+        if verbose:
+            print('Shifted by', tuple(delta))
+            print('Output shape', out.shape,
+                  'centered at', tuple(center_of(out)))
+        return out
+    # for other crop options, first do subpixel shift
+    # size will change to add/remove the shifted fractional pixel parts
+    if order:
+        if verbose:
+            print('Subpixel shift by', tuple(-subpixel))
+        # (see the note above about padding on both sides and cropping)
+        data = shift(np.pad(data, 1, 'constant'),
+                     -subpixel, order=order)[:-1, :-1]
+        # shift origin or cut unused pixels
+        cut = [slice(None), slice(None)]
+        for a in [0, 1]:
+            if subpixel[a]:
+                if crop == 'valid_region':
+                    cut[a] = slice(1, -1)  # cut both fractional ends
+                    origin_[a] -= 1
+                else:
+                    origin[a] += 1
+                # (shape is not used below, thus not updated here)
+            else:
+                cut[a] = slice(1, None)  # cut empty (not shifted) pixel
+        data = data[tuple(cut)]
+    if crop == 'valid_region':
+        src = [slice(None), slice(None)]
+        for a in axes:
+            # distance to the closest edge
+            d = min(origin[a], origin_[a])
+            # crop symmetrically around the origin
+            src[a] = slice(origin[a] - d, origin[a] + d + 1)
+        out = data[tuple(src)].copy()  # (independent data, as in other cases)
+        if verbose:
+            print('Output cropped to', out.shape,
+                  'centered at', tuple(center_of(out)))
+        return out
+    elif crop == 'maintain_data':
+        pad = [(0, 0), (0, 0)]
+        for a in axes:
+            # distance to the farthest edge
+            d = max(origin[a], origin_[a])
+            # pad to symmetrize around the origin
+            pad[a] = (d - origin[a], d - origin_[a])
+        out = np.pad(data, pad, 'constant')
+        if verbose:
+            print('Output padded to', out.shape,
+                  'centered at', tuple(center_of(out)))
+        return out
     else:
-        raise ValueError("Invalid crop method!!")
+        raise ValueError('Invalid crop option "{}".'.format(crop))
 
 
 def find_origin_by_center_of_mass(IM, verbose=False, round_output=False,
