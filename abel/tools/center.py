@@ -52,8 +52,8 @@ def find_origin(IM, method='image_center', verbose=False, **kwargs):
 
 
 def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
-                 crop='maintain_size', verbose=False, center=_deprecated,
-                 **kwargs):
+                 crop='maintain_size', order=3, verbose=False,
+                 center=_deprecated, **kwargs):
     """
     Center image with the custom value or by several methods provided in
     :func:`find_origin()` function.
@@ -113,6 +113,9 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
         center image with respect to axis ``0`` (vertical), ``1`` (horizontal),
         or both axes ``(0, 1)`` (default).
 
+    order : int
+        interpolation order, see :func:`set_center` for details.
+
     Returns
     -------
     out : 2D np.array
@@ -157,7 +160,7 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
         origin = method
 
     centered_data = set_center(IM, origin=origin, crop=crop, axes=axes,
-                               verbose=verbose)
+                               order=order, verbose=verbose)
     return centered_data
 
 
