@@ -532,19 +532,19 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
     """
     rows, cols = IM.shape   # image size
 
-    r2 = rows // 2 + rows % 2
-    c2 = cols // 2 + cols % 2
-    sw2 = slice_width // 2
+    r2 = rows // 2
+    c2 = cols // 2
+    sw2 = min(slice_width // 2, r2, c2)
 
     rmin, rmax = radial_range
 
     # vertical slice
-    top = IM[:r2, c2-sw2:c2+sw2].sum(axis=1)
-    bottom = IM[r2 - rows % 2:, c2-sw2:c2+sw2].sum(axis=1)
+    top = IM[:r2, c2-sw2:c2+sw2+1].sum(axis=1)
+    bottom = IM[r2 + rows % 2:, c2-sw2:c2+sw2+1].sum(axis=1)
 
     # horizontal slice
-    left = IM[r2-sw2:r2+sw2, :c2].sum(axis=0)
-    right = IM[r2-sw2:r2+sw2, c2 - cols % 2:].sum(axis=0)
+    left = IM[r2-sw2:r2+sw2+1, :c2].sum(axis=0)
+    right = IM[r2-sw2:r2+sw2+1, c2 + cols % 2:].sum(axis=0)
 
     return (top[::-1][rmin:rmax], bottom[rmin:rmax],
             left[::-1][rmin:rmax], right[rmin:rmax])
@@ -599,8 +599,8 @@ def find_origin_by_slice(IM, axes=(0, 1), slice_width=10, radial_range=(0, -1),
 
     rows, cols = IM.shape
 
-    r2 = rows // 2
-    c2 = cols // 2
+    r2 = (rows - 1) / 2
+    c2 = (cols - 1) / 2
     top, bottom, left, right = axis_slices(IM, radial_range, slice_width)
 
     xyoffset = [0.0, 0.0]

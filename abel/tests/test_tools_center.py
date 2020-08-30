@@ -32,10 +32,7 @@ def test_find_origin():
                 origin = find_origin(data, method, axes)
                 ref = (row if 0 in axes else rows // 2,
                        col if 1 in axes else cols // 2)
-                tol = 0.1  # 'convolution' rounds to 0.5
-                # 'slice' has ~0.5 px offset for even sizes
-                if method == 'slice' and not (rows % 2 and cols % 2):
-                    tol = 0.6
+                tol = 0.2  # 'convolution' rounds to 0.5 pixels
                 assert_allclose(origin, ref, atol=tol, verbose=False,
                                 err_msg='-> {} x {}, method = {}, axes = {}: '
                                         'origin = {} not equal {}'.
