@@ -7,8 +7,7 @@ from __future__ import unicode_literals
 import numpy as np
 from .math import fit_gaussian
 import warnings
-from scipy.ndimage import center_of_mass
-from scipy.ndimage.interpolation import shift
+from scipy.ndimage import center_of_mass, shift
 from scipy.optimize import minimize
 # testing strings with Python 2 and 3 compatibility
 from six import string_types
@@ -108,6 +107,8 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
             the image will be padded with zeros such that none of the original
             image will be cropped.
 
+        See :func:`set_center` for examples.
+
     axes : int or tuple
         center image with respect to axis ``0`` (vertical), ``1`` (horizontal),
         or both axes ``(0, 1)`` (default).
@@ -190,6 +191,10 @@ def set_center(data, origin, crop='maintain_size', axes=(0, 1), order=3,
             the image will be padded with zeros such that none of the original
             image will be cropped.
 
+        Examples:
+
+        .. plot:: tools/crop_options.py
+
     axes : int or tuple
         center image with respect to axis ``0`` (vertical), ``1`` (horizontal),
         or both axes ``(0, 1)`` (default).
@@ -202,6 +207,11 @@ def set_center(data, origin, crop='maintain_size', axes=(0, 1), order=3,
 
     verbose : bool
         print some information for debugging
+
+    Returns
+    -------
+    out : 2D np.array
+        centered image
     """
     if center is not _deprecated:
         _deprecate('abel.tools.center.set_center() '
@@ -530,7 +540,8 @@ def find_origin_by_slice(IM, slice_width=10, radial_range=(0, -1),
     """
 
     def _align(offset, sliceA, sliceB):
-        """intensity difference between an axial slice and its shifted opposite.
+        """
+        Intensity difference between an axial slice and its shifted opposite.
         """
         # always shift to the left (towards center)
         if offset < 0:
