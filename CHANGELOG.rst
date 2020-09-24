@@ -24,6 +24,7 @@ Unreleased
 * Circularization now uses periodic splines (to avoid discontinuity), with
   smoothing determined by the RMS tolerance instead of the nonintuitive
   "smooth" parameter (PR #293).
+* Corrected and improved tools.center (PR #302).
 
 v0.8.3 (2019-08-16)
 -------------------

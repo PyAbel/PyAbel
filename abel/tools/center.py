@@ -7,8 +7,7 @@ from __future__ import unicode_literals
 import numpy as np
 from .math import fit_gaussian
 import warnings
-from scipy.ndimage import center_of_mass
-from scipy.ndimage.interpolation import shift
+from scipy.ndimage import center_of_mass, shift
 from scipy.optimize import minimize
 # testing strings with Python 2 and 3 compatibility
 from six import string_types
@@ -16,7 +15,8 @@ from six import string_types
 from abel import _deprecated, _deprecate
 
 
-def find_origin(IM, method='image_center', verbose=False, **kwargs):
+def find_origin(IM, method='image_center', axes=(0, 1), verbose=False,
+                **kwargs):
     """
     Find the coordinates of image origin, using the specified method.
 
@@ -43,18 +43,23 @@ def find_origin(IM, method='image_center', verbose=False, **kwargs):
             the image is broken into slices, and these slices compared
             for symmetry.
 
+    axes : int or tuple of int
+        find origin coordinates: ``0`` (vertical), or ``1`` (horizontal), or
+        ``(0, 1)`` (both vertical and horizontal).
+
     Returns
     -------
     out : (float, float)
-        coordinates of the origin of the image in the (row, column) format
+        coordinates of the origin of the image in the (row, column) format.
+        For coordinates not in **axes**, the center of the image is returned.
 
     """
-    return func_method[method](IM, verbose=verbose, **kwargs)
+    return func_method[method](IM, axes, verbose=verbose, **kwargs)
 
 
 def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
-                 crop='maintain_size', verbose=False, center=_deprecated,
-                 **kwargs):
+                 crop='maintain_size', order=3, verbose=False,
+                 center=_deprecated, **kwargs):
     """
     Center image with the custom value or by several methods provided in
     :func:`find_origin()` function.
@@ -64,7 +69,7 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
     IM : 2D np.array
         The image data.
 
-    method : tuple or str
+    method : str or tuple of float
         either a tuple (float, float), the coordinate of the origin of the
         image in the (row, column) format, or a string to specify an automatic
         centering method:
@@ -108,9 +113,16 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
             the image will be padded with zeros such that none of the original
             image will be cropped.
 
-    axes : int or tuple
+        See :func:`set_center` for examples.
+
+    axes : int or tuple of int
         center image with respect to axis ``0`` (vertical), ``1`` (horizontal),
-        or both axes ``(0, 1)`` (default).
+        or both axes ``(0, 1)`` (default). When specifying an explicit origin
+        in **method**, unused coordinates can also be passed as ``None``, for
+        example, ``method=(row, None)`` or ``method=(None, col)``.
+
+    order : int
+        interpolation order, see :func:`set_center` for details.
 
     Returns
     -------
@@ -133,7 +145,7 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
         # make rows == cols, but maintain approx. center
         if rows > cols:
             diff = rows - cols
-            trim = diff//2
+            trim = diff // 2
             if trim > 0:
                 IM = IM[trim: -trim]  # remove even number of rows off each end
             if diff % 2:
@@ -144,39 +156,41 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
             if odd_size and rows % 2 == 0:
                 IM = IM[:-1, :]
                 rows -= 1
-            xs = (cols - rows)//2
+            xs = (cols - rows) // 2
             IM = IM[:, xs:-xs]
 
         rows, cols = IM.shape
 
     # origin is in (row, column) format!
     if isinstance(method, string_types):
-        origin = find_origin(IM, method=method, verbose=verbose, **kwargs)
+        origin = find_origin(IM, method=method, axes=axes, verbose=verbose,
+                             **kwargs)
     else:
         origin = method
 
     centered_data = set_center(IM, origin=origin, crop=crop, axes=axes,
-                               verbose=verbose)
+                               order=order, verbose=verbose)
     return centered_data
 
 
-def set_center(data, origin, crop='maintain_size', axes=(0, 1), verbose=False,
-               center=_deprecated):
+def set_center(data, origin, crop='maintain_size', axes=(0, 1), order=3,
+               verbose=False, center=_deprecated):
     """
-    Move image origin to mid-point of image.
+    Move image origin to mid-point of image (``rows // 2, cols // 2``).
 
     Parameters
     ----------
     data : 2D np.array
         the image data
 
-    origin : tuple
-        (row, column) coordinates of the image origin
+    origin : tuple of float
+        (row, column) coordinates of the image origin.
+        Coordinates set to ``None`` are ignored.
 
     crop : str
         determines how the image should be cropped. The options are:
 
-        ``maintain_size``
+        ``maintain_size`` (default)
             return image of the same size. Some regions of the original image
             may be lost and some regions may be filled with zeros.
         ``valid_region``
@@ -189,92 +203,152 @@ def set_center(data, origin, crop='maintain_size', axes=(0, 1), verbose=False,
             the image will be padded with zeros such that none of the original
             image will be cropped.
 
-    axes : int or tuple
+        Examples:
+
+        .. plot:: tools/crop_options.py
+
+    axes : int or tuple of int
         center image with respect to axis ``0`` (vertical), ``1`` (horizontal),
         or both axes ``(0, 1)`` (default).
 
+    order : int
+        interpolation order (0–5, default is 3) for centering with fractional
+        **origin**. Lower orders work faster; **order** = 0 (also implied for
+        integer **origin**) means a whole-pixel shift without interpolation and
+        is much faster.
+
     verbose : bool
-        ``True``: print diagnostics
+        print some information for debugging
+
+    Returns
+    -------
+    out : 2D np.array
+        centered image
     """
     if center is not _deprecated:
         _deprecate('abel.tools.center.set_center() '
                    'argument "center" is deprecated, use "origin" instead.')
         origin = center
 
-    old_shape = data.shape
-    old_center = data.shape[0] // 2, data.shape[1] // 2
+    def center_of(a):
+        """ Indices of array center """
+        return np.array(a.shape) // 2
 
-    origin = list(origin)
-    if origin[0] < 0:
-        origin[0] += data.shape[0]
-    if origin[1] < 0:
-        origin[1] += data.shape[1]
-
-    delta0 = old_center[0] - origin[0]
-    delta1 = old_center[1] - origin[1]
-
-    if crop == 'maintain_data':
-        # pad the image so that the origin can be moved without losing any of
-        # the original data
-
-        # we need to pad the image with zeros before using the shift() function
-        shift0, shift1 = (None, None)
-        if delta0 != 0:
-            shift0 = 1 + int(np.abs(delta0))
-        if delta1 != 0:
-            shift1 = 1 + int(np.abs(delta1))
-
-        container = np.zeros((data.shape[0] + shift0, data.shape[1] + shift1),
-                             dtype=data.dtype)
-
-        area = container[:, :]
-        if shift0:
-            if delta0 > 0:
-                area = area[:-shift0, :]
-            else:
-                area = area[shift0:, :]
-        if shift1:
-            if delta1 > 0:
-                area = area[:, :-shift1]
-            else:
-                area = area[:, shift1:]
-        area[:, :] = data[:, :]
-        data = container
-        delta0 += np.sign(delta0) * shift0 / 2.0
-        delta1 += np.sign(delta1) * shift1 / 2.0
+    shape = data.shape
     if verbose:
-        print("delta = ({0}, {1})".format(delta0, delta1))
+        print('Original shape', shape, 'and origin', tuple(origin))
+    center = center_of(data)
 
+    # remove axes with "None" coordinates, preprocess origin
     if isinstance(axes, int):
-        if axes == 0:
-            centered_data = shift(data, (delta0, 0))
-        elif axes == 1:
-            centered_data = shift(data, (0, delta1))
+        axes = [axes]
+    axes = set(axes)
+    origin = np.array(origin, dtype=object)  # (for None, int or float)
+    subpixel = np.zeros(2)
+    origin_ = [None, None]
+    for a in [0, 1]:
+        if origin[a] is None:
+            axes.discard(a)
         else:
-            raise ValueError("axes value not 0, or 1")
+            # to absolute coordinates
+            if origin[a] < 0:
+                origin[a] += shape[a]
+            if order:
+                # split integer and fractional parts
+                i = int(origin[a])
+                origin[a], subpixel[a] = i, origin[a] - i
+            else:
+                # round to whole pixels
+                origin[a] = int(round(origin[a]))
+            # complement (from the other edge)
+            origin_[a] = shape[a] - 1 - origin[a]
+    # don't interpolate for whole-pixels shifts
+    if np.all(subpixel == 0):
+        order = 0
+    if verbose:
+        print('Centering axes', tuple(axes), 'using order', order)
+
+    # Note: current scipy.ndimage.shift() implementation erases fractional edge
+    # pixels, so we wrap it with padding and cropping. Once this behavior is
+    # corrected, our code can be cleaned up.
+
+    if crop == 'maintain_size':
+        delta = [0, 0]
+        if order:  # fractional shift
+            for a in axes:
+                if origin[a] is not None:
+                    delta[a] = center[a] - (origin[a] + subpixel[a])
+            out = shift(np.pad(data, 1, 'constant'),
+                        delta, order=order)[1:-1, 1:-1]  # (see note above)
+        else:  # whole-pixel shift
+            src = [slice(None), slice(None)]  # for the source region
+            dst = [slice(None), slice(None)]  # for the destination region
+            for a in axes:
+                delta[a] = center[a] - origin[a]
+                # gaps for positive and negative shifts wrt edges
+                dpos = max(0, delta[a])
+                dneg = max(0, -delta[a])
+                # corresponding regions
+                src[a] = slice(dneg, shape[a] - dpos)
+                dst[a] = slice(dpos, shape[a] - dneg)
+            out = np.zeros_like(data)
+            out[tuple(dst)] = data[tuple(src)]
+        if verbose:
+            print('Shifted by', tuple(delta))
+            print('Output shape', out.shape,
+                  'centered at', tuple(center_of(out)))
+        return out
+    # for other crop options, first do subpixel shift
+    # size will change to add/remove the shifted fractional pixel parts
+    if order:
+        if verbose:
+            print('Subpixel shift by', tuple(-subpixel))
+        # (see the note above about padding on both sides and cropping)
+        data = shift(np.pad(data, 1, 'constant'),
+                     -subpixel, order=order)[:-1, :-1]
+        # shift origin or cut unused pixels
+        cut = [slice(None), slice(None)]
+        for a in [0, 1]:
+            if subpixel[a]:
+                if crop == 'valid_region':
+                    cut[a] = slice(1, -1)  # cut both fractional ends
+                    origin_[a] -= 1
+                else:
+                    origin[a] += 1
+                # (shape is not used below, thus not updated here)
+            else:
+                cut[a] = slice(1, None)  # cut empty (not shifted) pixel
+        data = data[tuple(cut)]
+    if crop == 'valid_region':
+        src = [slice(None), slice(None)]
+        for a in axes:
+            # distance to the closest edge
+            d = min(origin[a], origin_[a])
+            # crop symmetrically around the origin
+            src[a] = slice(origin[a] - d, origin[a] + d + 1)
+        out = data[tuple(src)].copy()  # (independent data, as in other cases)
+        if verbose:
+            print('Output cropped to', out.shape,
+                  'centered at', tuple(center_of(out)))
+        return out
+    elif crop == 'maintain_data':
+        pad = [(0, 0), (0, 0)]
+        for a in axes:
+            # distance to the farthest edge
+            d = max(origin[a], origin_[a])
+            # pad to symmetrize around the origin
+            pad[a] = (d - origin[a], d - origin_[a])
+        out = np.pad(data, pad, 'constant')
+        if verbose:
+            print('Output padded to', out.shape,
+                  'centered at', tuple(center_of(out)))
+        return out
     else:
-        centered_data = shift(data, (delta0, delta1))
-
-    if crop == 'maintain_data':
-        # pad the image so that the origin can be moved
-        # without losing any of the original data
-        return centered_data
-    elif crop == 'maintain_size':
-        return centered_data
-    elif crop == 'valid_region':
-        # crop to region containing data
-        shift0, shift1 = (None, None)
-        if delta0 != 0:
-            shift0 = 1 + int(np.abs(delta0))
-        if delta1 != 0:
-            shift1 = 1 + int(np.abs(delta1))
-        return centered_data[shift0:-shift0, shift1:-shift1]
-    else:
-        raise ValueError("Invalid crop method!!")
+        raise ValueError('Invalid crop option "{}".'.format(crop))
 
 
-def find_origin_by_center_of_mass(IM, verbose=False, round_output=False,
-                                  **kwargs):
+def find_origin_by_center_of_mass(IM, axes=(0, 1), verbose=False,
+                                  round_output=False, **kwargs):
     """
     Find image origin by calculating its center of mass.
 
@@ -287,20 +361,31 @@ def find_origin_by_center_of_mass(IM, verbose=False, round_output=False,
         if ``True``, the coordinates are rounded to integers;
         otherwise they are floats.
 
+    axes : int or tuple
+        find origin coordinates: ``0`` (vertical), or ``1`` (horizontal), or
+        ``(0, 1)`` (both vertical and horizontal).
+
     Returns
     -------
-    origin : tuple
+    origin : (float, float)
         (row, column)
     """
-    origin = center_of_mass(IM)
+    origin = list(center_of_mass(IM))
+
+    # reset unneeded coordinates
+    if isinstance(axes, int):
+        axes = [axes]
+    for a in set([0, 1]) - set(axes):
+        origin[a] = IM.shape[a] // 2
+    origin = tuple(origin)
 
     if verbose:
-        to_print = "Center of mass at ({0}, {1})".format(origin[0], origin[1])
+        to_print = "Center of mass at {}".format(origin)
 
     if round_output:
         origin = (round(origin[0]), round(origin[1]))
         if verbose:
-            to_print += " ... round to ({0}, {1})".format(origin[0], origin[1])
+            to_print += " ... round to {}".format(origin)
 
     if verbose:
         print(to_print)
@@ -308,7 +393,7 @@ def find_origin_by_center_of_mass(IM, verbose=False, round_output=False,
     return origin
 
 
-def find_origin_by_convolution(IM, projections=False, **kwargs):
+def find_origin_by_convolution(IM, axes=(0, 1), projections=False, **kwargs):
     """
     Find the image origin as the maximum of autoconvolution of its projections
     along each axis.
@@ -324,32 +409,38 @@ def find_origin_by_convolution(IM, projections=False, **kwargs):
         if this parameter is ``True``, the autoconvoluted projections along
         both axes will be returned after the origin.
 
+    axes : int or tuple
+        find origin coordinates: ``0`` (vertical), or ``1`` (horizontal), or
+        ``(0, 1)`` (both vertical and horizontal).
+
     Returns
     -------
-    origin : tuple
+    origin : (float, float)
         (row, column)
 
         `or` (row, column), conv_0, conv_1
     """
-    # projection along axis=0 of image (rows)
-    QL_raw0 = IM.sum(axis=1)
-    # projection along axis=1 of image (cols)
-    QL_raw1 = IM.sum(axis=0)
+    if isinstance(axes, int):
+        axes = [axes]
 
-    # autoconvolute projections
-    conv_0 = np.convolve(QL_raw0, QL_raw0, mode='full')
-    conv_1 = np.convolve(QL_raw1, QL_raw1, mode='full')
-
-    # Take the first max, should there be several equal maxima.
-    origin = (np.argmax(conv_0) / 2, np.argmax(conv_1) / 2)
+    conv = [None, None]
+    origin = [IM.shape[0] // 2, IM.shape[1] // 2]
+    for a in axes:
+        # projection along the other axis
+        proj = IM.sum(axis=1 - a)
+        # autoconvolute projections
+        conv[a] = np.convolve(proj, proj, mode='full')
+        # take the first max, should there be several equal maxima
+        origin[a] = np.argmax(conv[a]) / 2
+    origin = tuple(origin)
 
     if projections:
-        return origin, conv_0, conv_1
+        return origin, conv[0], conv[1]
     else:
         return origin
 
 
-def find_origin_by_center_of_image(data, verbose=False, **kwargs):
+def find_origin_by_center_of_image(data, axes=(0, 1), verbose=False, **kwargs):
     """
     Find image origin simply as its center, from its dimensions.
 
@@ -358,17 +449,20 @@ def find_origin_by_center_of_image(data, verbose=False, **kwargs):
     IM : numpy 2D array
         image data
 
+    axes : int or tuple
+        has no effect
+
     Returns
     -------
-    origin : tuple
+    origin : (int, int)
         (row, column)
 
     """
     return (data.shape[0] // 2, data.shape[1] // 2)
 
 
-def find_origin_by_gaussian_fit(IM, verbose=False, round_output=False,
-                                **kwargs):
+def find_origin_by_gaussian_fit(IM, axes=(0, 1), verbose=False,
+                                round_output=False, **kwargs):
     """
     Find image origin by fitting the summation along rows and columns of the
     data to two 1D Gaussian functions.
@@ -378,28 +472,37 @@ def find_origin_by_gaussian_fit(IM, verbose=False, round_output=False,
     IM : numpy 2D array
         image data
 
+    axes : int or tuple
+        find origin coordinates: ``0`` (vertical), or ``1`` (horizontal), or
+        ``(0, 1)`` (both vertical and horizontal).
+
     round_output : bool
         if ``True``, the coordinates are rounded to integers;
         otherwise they are floats.
 
     Returns
     -------
-    origin : tuple
+    origin : (float, float)
         (row, column)
     """
-    x = np.sum(IM, axis=0)
-    y = np.sum(IM, axis=1)
-    xc = fit_gaussian(x)[1]
-    yc = fit_gaussian(y)[1]
-    origin = (yc, xc)
+    if isinstance(axes, int):
+        axes = [axes]
+
+    origin = [IM.shape[0] // 2, IM.shape[1] // 2]
+    for a in axes:
+        # sum along the other axis
+        proj = np.sum(IM, axis=1 - a)
+        # find gaussian center
+        origin[a] = fit_gaussian(proj)[1]
+    origin = tuple(origin)
 
     if verbose:
-        to_print = "Gaussian origin at ({0}, {1})".format(origin[0], origin[1])
+        to_print = "Gaussian origin at {}".format(origin)
 
     if round_output:
         origin = (round(origin[0]), round(origin[1]))
         if verbose:
-            to_print += " ... round to ({0}, {1})".format(origin[0], origin[1])
+            to_print += " ... round to {}".format(origin)
 
     if verbose:
         print(to_print)
@@ -429,30 +532,28 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
     """
     rows, cols = IM.shape   # image size
 
-    r2 = rows // 2 + rows % 2
-    c2 = cols // 2 + cols % 2
-    sw2 = slice_width // 2
+    r2 = rows // 2
+    c2 = cols // 2
+    sw2 = min(slice_width // 2, r2, c2)
 
     rmin, rmax = radial_range
 
     # vertical slice
-    top = IM[:r2, c2-sw2:c2+sw2].sum(axis=1)
-    bottom = IM[r2 - rows % 2:, c2-sw2:c2+sw2].sum(axis=1)
+    top = IM[:r2, c2-sw2:c2+sw2+1].sum(axis=1)
+    bottom = IM[r2 + rows % 2:, c2-sw2:c2+sw2+1].sum(axis=1)
 
     # horizontal slice
-    left = IM[r2-sw2:r2+sw2, :c2].sum(axis=0)
-    right = IM[r2-sw2:r2+sw2, c2 - cols % 2:].sum(axis=0)
+    left = IM[r2-sw2:r2+sw2+1, :c2].sum(axis=0)
+    right = IM[r2-sw2:r2+sw2+1, c2 + cols % 2:].sum(axis=0)
 
     return (top[::-1][rmin:rmax], bottom[rmin:rmax],
             left[::-1][rmin:rmax], right[rmin:rmax])
 
 
-def find_origin_by_slice(IM, slice_width=10, radial_range=(0, -1),
-                         axis=(0, 1), **kwargs):
+def find_origin_by_slice(IM, axes=(0, 1), slice_width=10, radial_range=(0, -1),
+                         axis=_deprecated, **kwargs):
     """
-    Find the image origin by comparing opposite sides: vertical (``axis=0``)
-    and/or horizontal slice (``axis=1``) profiles. To find both coordinates,
-    use ``axis=(0, 1)``.
+    Find the image origin by comparing opposite sides.
 
     Parameters
     ----------
@@ -466,19 +567,24 @@ def find_origin_by_slice(IM, slice_width=10, radial_range=(0, -1),
         (rmin, rmax): radial range ``[rmin:rmax]`` for slice profile
         comparison.
 
-    axis : int or tuple
-        Find origin coordinates: ``axis=0`` (vertical), or ``axis=1``
-        (horizontal), or ``axis=(0, 1)`` (both vertical and horizontal).
+    axes : int or tuple
+        find origin coordinates: ``0`` (vertical), or ``1`` (horizontal), or
+        ``(0, 1)`` (both vertical and horizontal).
 
     Returns
     -------
-    origin : tuple
+    origin : (float, float)
         (row, column)
 
     """
+    if axis is not _deprecated:
+        _deprecate('abel.tools.center.find_origin_by_slice() '
+                   'argument "axis" is deprecated, use "axes" instead.')
+        axes = axis
 
     def _align(offset, sliceA, sliceB):
-        """intensity difference between an axial slice and its shifted opposite.
+        """
+        Intensity difference between an axial slice and its shifted opposite.
         """
         # always shift to the left (towards center)
         if offset < 0:
@@ -488,14 +594,13 @@ def find_origin_by_slice(IM, slice_width=10, radial_range=(0, -1),
         fvec = (diff**2).sum()
         return fvec
 
-    if not isinstance(axis, (list, tuple)):
-        # if the user supplies an int, make it into a 1-element list:
-        axis = [axis]
+    if isinstance(axes, int):
+        axes = [axes]
 
     rows, cols = IM.shape
 
-    r2 = rows // 2
-    c2 = cols // 2
+    r2 = (rows - 1) / 2
+    c2 = (cols - 1) / 2
     top, bottom, left, right = axis_slices(IM, radial_range, slice_width)
 
     xyoffset = [0.0, 0.0]
@@ -504,26 +609,24 @@ def find_origin_by_slice(IM, slice_width=10, radial_range=(0, -1),
     initial_shift = [0.1, ]
 
     # vertical axis
-    if 0 in axis:
+    if 0 in axes:
         fit = minimize(_align, initial_shift, args=(top, bottom),
                        bounds=((-50, 50), ), tol=0.1)
         if fit["success"]:
             xyoffset[0] = -float(fit['x']) / 2  # x1/2 for image shift
         else:
-            raise RuntimeError("fit failure: axis = 0, zero shift set", fit)
+            raise RuntimeError("fit failure: axis 0, zero shift set", fit)
 
     # horizontal axis
-    if 1 in axis:
+    if 1 in axes:
         fit = minimize(_align, initial_shift, args=(left, right),
                        bounds=((-50, 50), ), tol=0.1)
         if fit["success"]:
             xyoffset[1] = -float(fit['x']) / 2  # x1/2 for image shift
         else:
-            raise RuntimeError("fit failure: axis = 1, zero shift set", fit)
+            raise RuntimeError("fit failure: axis 1, zero shift set", fit)
 
     # this is the (row, col) shift to align the slice profiles
-    xyoffset = tuple(xyoffset)
-
     return r2 - xyoffset[0], c2 - xyoffset[1]
 
 
