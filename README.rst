@@ -128,7 +128,7 @@ Conventions
 
 The PyAbel code adheres to the following conventions:
 
-- 
+-
     **Image orientation:** PyAbel adopts the "television" convention, where ``IM[0, 0]`` refers to the **upper** left corner of the image. (This means that ``plt.imshow(IM)`` should display the image in the proper orientation, without the need to use the ``origin='lower'`` keyword.) Image coordinates are in the (row, column) format, consistent with NumPy array indexing, and negative values are interpreted as relative to the end of the corresponding axis. For example, ``(-1, 0)`` refers to the lower left corner (last row, 0th column). Cartesian coordinates can also be generated if needed. For example, the x, y grid for a centered 5×5 image:
 
     .. code-block:: python
@@ -138,7 +138,7 @@ The PyAbel code adheres to the following conventions:
 
     The ``abel.tools.polar.index_coords`` function does this for images of any shape with any origin.
 
-- 
+-
     **Angle:** All angles in PyAbel are measured in radians. When an absolute angle is defined, zero angle corresponds to the upwards vertical direction. Positive values are on the right side, and negative values on the left side. The range of angles is from −π to +π. The polar grid for a centered 5×5 image can be generated (following the code above) using
 
     .. code-block:: python
@@ -147,7 +147,7 @@ The PyAbel code adheres to the following conventions:
         THETA = np.arctan2(X, Y)
 
     where the usual ``(Y, X)`` convention of ``arctan2`` has been reversed in order to place zero angle in the vertical direction. Consequently, to convert the angular grid back to the Cartesian grid, we use
-  
+
     .. code-block:: python
 
         X = R * np.sin(THETA)
@@ -155,8 +155,11 @@ The PyAbel code adheres to the following conventions:
 
     The ``abel.tools.polar.cart2polar`` and ``abel.tools.polar.polar2cart`` functions are available for conversion between these Cartesian and polar grids.
 
-- 
+-
     **Image origin:** Fundamentally, the forward and inverse Abel transforms in PyAbel consider the origin of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The central pixel is effectively "shared" between both halves of the image.) In most situations, the image origin is specified using the ``origin`` keyword in ``abel.Transform`` (or directly using ``abel.center.center_image`` to find the origin (the center of symmetry) of your image). This processing step takes care of shifting the origin of the image to the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image. Some methods also provide low-level functions for transforming only the right half of the image (with the origin located in the middle of a 0th-column pixel).
+
+-
+    **Intensity:** The pixel intensities can have any value (within the floating-point range). However, the intensity scale must be linear. Keep in mind that cameras and common image formats often use `gamma correction <https://en.wikipedia.org/wiki/Gamma_correction>`_ and thus provide data with nonlinear intensity encoding. Thus, if possible, it is recommended to disable the gamma correction on cameras used to record images that will be inverse Abel-transformed. If this is not possible, then it is necessary to apply the appropriate intensity transformations before the analysis. Most PyAbel methods also assume intensities to be floating-point numbers, and when applied to integer types, can return inappropriately rounded results. The ``abel.Transform`` class recasts the input image to ``float64`` by default, but if you wish to call the transform methods directly or use other tools, you might need to perform the conversion yourself (as ``IM.astype(float)``, for example).
 
 
 Support
@@ -192,7 +195,7 @@ If you find PyAbel useful in you work, it would bring us great joy if you would 
 
 .. image:: https://zenodo.org/badge/30170345.svg
    :target: https://zenodo.org/badge/latestdoi/30170345
-   
+
 Additionally, we have written a scientific paper comparing various Abel transform methods. You can find the manuscript at the Review of Scientific Instruments (DOI: `doi.org/10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`_) or on arxiv (`arxiv.org/abs/1902.09007 <https://arxiv.org/abs/1902.09007>`_).
 
 
