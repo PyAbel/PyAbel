@@ -9,13 +9,13 @@ from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatfo
 # https://read-the-docs.readthedocs.io/en/latest/faq.html#how-do-i-change-behavior-for-read-the-docs
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if not on_rtd:
-    import numpy as np
     install_requires=[
           "numpy >= 1.6",
           "setuptools >= 16.0",
           "scipy >= 0.14",
           "six >= 1.10.0"
           ]
+    import numpy as np
 else:
     np = None
     install_requires=[]
