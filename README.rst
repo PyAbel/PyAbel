@@ -51,7 +51,7 @@ The outcome of the numerical Abel transform depends on the exact method used. So
 Installation
 ------------
 
-PyAbel requires Python 2.7 or 3.5-3.7. `NumPy <https://www.numpy.org/>`_ and `SciPy <https://www.scipy.org/>`_ are also required, and `Matplotlib <https://matplotlib.org/>`_ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
+PyAbel requires Python 3.5-3.9. (Note: PyAbel is also currently tested to work with Python 2.7, but Python 2 support will be removed soon.) `NumPy <https://www.numpy.org/>`_ and `SciPy <https://www.scipy.org/>`_ are also required, and `Matplotlib <https://matplotlib.org/>`_ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.continuum.io/downloads>`_, which is available for free.
 
 With pip
 ~~~~~~~~

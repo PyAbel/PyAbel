@@ -2,10 +2,10 @@ language: python
 sudo: false
 matrix:
   include:
-  - python: '3.8'
+  - python: '3.9'
     env: DEPS="numpy scipy cython"
     sudo: true
-    dist: xenial
+    dist: focal
   - python: '3.8'
     env: DEPS="numpy scipy cython"
     sudo: true
