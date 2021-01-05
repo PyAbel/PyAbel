@@ -25,6 +25,7 @@ Unreleased
   smoothing determined by the RMS tolerance instead of the nonintuitive
   "smooth" parameter (PR #293).
 * Corrected and improved tools.center (PR #302).
+* Moved numpy import to try block in setup.py. This allows pip to install PyAbel in situations where numpy is not already installed. (PR #310)
 
 v0.8.3 (2019-08-16)
 -------------------
