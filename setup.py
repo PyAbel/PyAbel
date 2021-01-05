@@ -5,42 +5,40 @@ import os.path
 from setuptools import setup, find_packages, Extension
 from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
 
-# change behaviour of the setup.py on readthedocs.io
+# change behaviour of the setup.py on readthedocs.org
 # https://read-the-docs.readthedocs.io/en/latest/faq.html#how-do-i-change-behavior-for-read-the-docs
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if not on_rtd:
-    import numpy as np
-    install_requires=[
+
+if on_rtd:  # if we're building on readthedocs.org:
+    np = None
+    install_requires = []
+
+else:
+    install_requires = [
           "numpy >= 1.6",
           "setuptools >= 16.0",
           "scipy >= 0.14",
-          "six >= 1.10.0"
-          ]
-else:
-    np = None
-    install_requires=[]
+          "six >= 1.10.0"]
 
-
-
-try:
+try:  # try to import numpy and Cython to build Cython extensions
+    import numpy as np
     from Cython.Distutils import build_ext
     import Cython.Compiler.Options
     Cython.Compiler.Options.annotate = False
     _cython_installed = True
+
 except ImportError:
     _cython_installed = False
-    build_ext = object # just avoid a syntax error in TryBuildExt, this is not used anyway
+    build_ext = object  # just avoid a syntax error in TryBuildExt, this is not used anyway
     print('='*80)
     print('Warning: Cython extensions will not be built as Cython is not installed!\n'\
           '         This means that the abel.direct C implementation will not be available.')
     print('='*80)
 
 
-
-
-# a define the version sting inside the package
+# a define the version string inside the package
 # see https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-VERSIONFILE="abel/_version.py"
+VERSIONFILE = "abel/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()
 VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
 mo = re.search(VSRE, verstrline, re.M)
@@ -79,8 +77,8 @@ class TryBuildExt(build_ext):
             if os.environ.get('CI'):
                 # running on Travis CI or Appveyor CI
                 if sys.platform == 'win32' and sys.version_info < (3, 0):
-                    pass # Cython extensions are not built on Appveyor (Win) for PY2.7
-                         # see PR #185
+                    pass  # Cython extensions are not built on Appveyor (Win) for PY2.7
+                          # see PR #185
                 else:
                     raise
             else:
@@ -98,14 +96,14 @@ ext_modules=[
 
 if _cython_installed and not on_rtd:
     setup_args = {'cmdclass': {'build_ext': TryBuildExt},
-                  'include_dirs': [ np.get_include() ],
+                  'include_dirs': [ np.get_include()],
                   'ext_modules': ext_modules}
 else:
     setup_args = {}
 
 with open('README.rst') as file:
     long_description = file.read()
-    
+
 setup(name='PyAbel',
       version=version,
       description='A Python package for forward and inverse Abel transforms',
@@ -114,14 +112,14 @@ setup(name='PyAbel',
       license='MIT',
       packages=find_packages(),
       install_requires=install_requires,
-      package_data={'abel': ['tests/data/*' ]},
+      package_data={'abel': ['tests/data/*']},
       long_description=long_description,
       classifiers=[
       # How mature is this project? Common values are
       #   3 - Alpha
       #   4 - Beta
       #   5 - Production/Stable
-      'Development Status :: 3 - Alpha',
+      'Development Status :: 4 - Beta',
 
       # Indicate who your project is intended for
       'Intended Audience :: Science/Research',
