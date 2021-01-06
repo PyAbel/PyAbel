@@ -9,16 +9,22 @@ from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatfo
 # https://read-the-docs.readthedocs.io/en/latest/faq.html#how-do-i-change-behavior-for-read-the-docs
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-if on_rtd:  # if we're building on readthedocs.org:
-    np = None
-    install_requires = []
+# if on_rtd:  # if we're building on readthedocs.org:
+#     np = None
+#     install_requires = []
+#
+# else:
+#     install_requires = [
+#           "numpy >= 1.6",
+#           "setuptools >= 16.0",
+#           "scipy >= 0.14",
+#           "six >= 1.10.0"]
 
-else:
-    install_requires = [
-          "numpy >= 1.6",
-          "setuptools >= 16.0",
-          "scipy >= 0.14",
-          "six >= 1.10.0"]
+install_requires = [
+      "numpy >= 1.6",
+      "setuptools >= 16.0",
+      "scipy >= 0.14",
+      "six >= 1.10.0"]
 
 try:  # try to import numpy and Cython to build Cython extensions
     import numpy as np
