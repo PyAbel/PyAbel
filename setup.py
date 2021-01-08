@@ -1,6 +1,6 @@
+import os
 import sys
 import re
-import os
 import os.path
 from setuptools import setup, find_packages, Extension
 from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
@@ -33,72 +33,73 @@ else:
           "scipy >= 0.14",
           "six >= 1.10.0"]
 
-    try:  # try to import numpy and Cython to build Cython extensions
-        import numpy as np
-        from Cython.Distutils import build_ext
-        import Cython.Compiler.Options
-        Cython.Compiler.Options.annotate = False
-        _cython_installed = True
+try:  # try to import numpy and Cython to build Cython extensions
+    import numpy as np
+    from Cython.Distutils import build_ext
+    import Cython.Compiler.Options
+    Cython.Compiler.Options.annotate = False
+    _cython_installed = True
+
+
+except ImportError:
+    _cython_installed = False
+    build_ext = object  # just avoid a syntax error in TryBuildExt, this is not used anyway
+    setup_args = {}
+    print('='*80)
+    print('Warning: Cython extensions will not be built as Cython is not installed!\n'\
+          '         This means that the abel.direct C implementation will not be available.')
+    print('='*80)
+
+
+if _cython_installed: # if Cython is installed, we will try to build direct-C
     
-        if sys.platform != 'win32':
-            compile_args = dict( extra_compile_args=['-O2', '-march=native'],
-                                     extra_link_args=['-O2', '-march=native'])
-            libraries = ["m"]
-        else:
-            compile_args = dict( extra_compile_args=[])
-            libraries = []
+    if sys.platform != 'win32':
+        compile_args = dict( extra_compile_args=['-O2', '-march=native'],
+                                 extra_link_args=['-O2', '-march=native'])
+        libraries = ["m"]
+    else:
+        compile_args = dict( extra_compile_args=[])
+        libraries = []
 
-        # Optional compilation of Cython modules adapted from
-        # https://github.com/bsmurphy/PyKrige which was itself adapted from a StackOverflow post
+    # Optional compilation of Cython modules adapted from
+    # https://github.com/bsmurphy/PyKrige which was itself adapted from a StackOverflow post
+    
+    ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError)
 
-
-        ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError)
-
-        class TryBuildExt(build_ext):
-            def build_extensions(self):
-                try:
-                    build_ext.build_extensions(self)
-                except ext_errors:
-                    print("**************************************************")
-                    print("WARNING: Cython extensions failed to build (used in abel.direct).\n"
-                          "Typical reasons for this problem are:\n"
-                          "  - a C compiler is not installed or not found\n"
-                          "  - issues using mingw compiler on Windows 64bit (experimental support for now)\n"
-                          "This only means that the abel.direct C implementation will not be available.\n")
-                    print("**************************************************")
-                    if os.environ.get('CI'):
-                        # running on Travis CI or Appveyor CI
-                        if sys.platform == 'win32' and sys.version_info < (3, 0):
-                            pass  # Cython extensions are not built on Appveyor (Win) for PY2.7
-                                  # see PR #185
-                        else:
-                            raise
+    class TryBuildExt(build_ext):
+        def build_extensions(self):
+            try:
+                build_ext.build_extensions(self)
+            except ext_errors:
+                print("**************************************************")
+                print("WARNING: Cython extensions failed to build (used in abel.direct).\n"
+                      "Typical reasons for this problem are:\n"
+                      "  - a C compiler is not installed or not found\n"
+                      "  - issues using mingw compiler on Windows 64bit (experimental support for now)\n"
+                      "This only means that the abel.direct C implementation will not be available.\n")
+                print("**************************************************")
+                if os.environ.get('CI'):
+                    # running on Travis CI or Appveyor CI
+                    if sys.platform == 'win32' and sys.version_info < (3, 0):
+                        pass  # Cython extensions are not built on Appveyor (Win) for PY2.7
+                              # see PR #185
                     else:
-                        # regular install, Cython extensions won't be compiled
-                        pass
-                except:
-                    raise
+                        raise
+                else:
+                    # regular install, Cython extensions won't be compiled
+                    pass
+            except:
+                raise
 
-        ext_modules=[
-            Extension("abel.lib.direct",
-                     [os.path.join("abel","lib","direct.pyx")],
-                     libraries=libraries,
-                     **compile_args),
-            ]
+    ext_modules=[
+        Extension("abel.lib.direct",
+                 [os.path.join("abel","lib","direct.pyx")],
+                 libraries=libraries,
+                 **compile_args)]
 
-    
-        setup_args = {'cmdclass': {'build_ext': TryBuildExt},
-                      'include_dirs': [ np.get_include()],
-                      'ext_modules': ext_modules}        
-
-    except ImportError:
-        _cython_installed = False
-        build_ext = object  # just avoid a syntax error in TryBuildExt, this is not used anyway
-        setup_args = {}
-        print('='*80)
-        print('Warning: Cython extensions will not be built as Cython is not installed!\n'\
-              '         This means that the abel.direct C implementation will not be available.')
-        print('='*80)
+    setup_args = {'cmdclass': {'build_ext': TryBuildExt},
+                  'include_dirs': [ np.get_include()],
+                  'ext_modules': ext_modules}        
 
 
 with open('README.rst') as file:
