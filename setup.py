@@ -5,8 +5,7 @@ import os.path
 from setuptools import setup, find_packages, Extension
 from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
 
-# a define the version string inside the package
-# see 
+# a define the version string inside the package, see:
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 VERSIONFILE = "abel/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()
@@ -19,7 +18,7 @@ else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
 # try to import numpy and Cython to build Cython extensions:
-try:  
+try:
     import numpy as np
     from Cython.Distutils import build_ext
     import Cython.Compiler.Options
@@ -28,7 +27,7 @@ try:
 
 except ImportError:
     _cython_installed = False
-    build_ext = object  # just avoid a syntax error in TryBuildExt, this is not used anyway
+    build_ext = object  # avoid a syntax error in TryBuildExt
     setup_args = {}
     print('='*80)
     print('Warning: Cython extensions will not be built as Cython is not installed!\n'\
@@ -36,23 +35,27 @@ except ImportError:
     print('='*80)
 
 
-if _cython_installed: # if Cython is installed, we will try to build direct-C
-    
+if _cython_installed:  # if Cython is installed, we will try to build direct-C
+
     if sys.platform != 'win32':
-        compile_args = dict( extra_compile_args=['-O2', '-march=native'],
-                                 extra_link_args=['-O2', '-march=native'])
+        compile_args = dict(extra_compile_args=['-O2', '-march=native'],
+                            extra_link_args=['-O2', '-march=native'])
         libraries = ["m"]
     else:
-        compile_args = dict( extra_compile_args=[])
+        compile_args = dict(extra_compile_args=[])
         libraries = []
 
     # Optional compilation of Cython modules adapted from
-    # https://github.com/bsmurphy/PyKrige which was itself adapted from a StackOverflow post
-    
+    # https://github.com/bsmurphy/PyKrige which was itself
+    # adapted from a StackOverflow post
+
     ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError)
 
     class TryBuildExt(build_ext):
+        """Class to  build the direct-C extensions."""
+
         def build_extensions(self):
+            """Try to build the direct-C extension."""
             try:
                 build_ext.build_extensions(self)
             except ext_errors:
@@ -66,8 +69,9 @@ if _cython_installed: # if Cython is installed, we will try to build direct-C
                 if os.environ.get('CI'):
                     # running on Travis CI or Appveyor CI
                     if sys.platform == 'win32' and sys.version_info < (3, 0):
-                        pass  # Cython extensions are not built on Appveyor (Win) for PY2.7
-                              # see PR #185
+                        # Cython extensions are not built on Appveyor (Win)
+                        # for PY2.7. See PR #185
+                        pass
                     else:
                         raise
                 else:
@@ -76,15 +80,15 @@ if _cython_installed: # if Cython is installed, we will try to build direct-C
             except:
                 raise
 
-    ext_modules=[
+    ext_modules = [
         Extension("abel.lib.direct",
-                 [os.path.join("abel","lib","direct.pyx")],
-                 libraries=libraries,
-                 **compile_args)]
+                  [os.path.join("abel", "lib", "direct.pyx")],
+                  libraries=libraries,
+                  **compile_args)]
 
     setup_args = {'cmdclass': {'build_ext': TryBuildExt},
-                  'include_dirs': [ np.get_include()],
-                  'ext_modules': ext_modules}        
+                  'include_dirs': [np.get_include()],
+                  'ext_modules': ext_modules}
 
 
 with open('README.rst') as file:
@@ -97,37 +101,37 @@ setup(name='PyAbel',
       url='https://github.com/PyAbel/PyAbel',
       license='MIT',
       packages=find_packages(),
-      install_requires=[ "numpy >= 1.6",
-                         "setuptools >= 16.0",
-                         "scipy >= 0.14",
-                         "six >= 1.10.0"],
+      install_requires=["numpy >= 1.6",
+                        "setuptools >= 16.0",
+                        "scipy >= 0.14",
+                        "six >= 1.10.0"],
       package_data={'abel': ['tests/data/*']},
       long_description=long_description,
       classifiers=[
-      # How mature is this project? Common values are
-      #   3 - Alpha
-      #   4 - Beta
-      #   5 - Production/Stable
-      'Development Status :: 4 - Beta',
+          # How mature is this project? Common values are
+          #  3 - Alpha
+          #  4 - Beta
+          #  5 - Production/Stable
+          'Development Status :: 4 - Beta',
 
-      # Indicate who your project is intended for
-      'Intended Audience :: Science/Research',
-      'Intended Audience :: Developers',
-      'Topic :: Scientific/Engineering :: Mathematics',
-      'Topic :: Scientific/Engineering :: Physics',
-      'Topic :: Scientific/Engineering :: Medical Science Apps.',
-      'Topic :: Software Development :: Libraries :: Python Modules',
+          # Indicate who your project is intended for
+          'Intended Audience :: Science/Research',
+          'Intended Audience :: Developers',
+          'Topic :: Scientific/Engineering :: Mathematics',
+          'Topic :: Scientific/Engineering :: Physics',
+          'Topic :: Scientific/Engineering :: Medical Science Apps.',
+          'Topic :: Software Development :: Libraries :: Python Modules',
 
-      # Pick your license as you wish (should match "license" above)
-      'License :: OSI Approved :: MIT License',
+          # Pick your license as you wish (should match "license" above)
+          'License :: OSI Approved :: MIT License',
 
-      # Specify the Python versions you support here. In particular, ensure
-      # that you indicate whether you support Python 2, Python 3 or both.
-      'Programming Language :: Python :: 2',
-      'Programming Language :: Python :: 2.7',
-      'Programming Language :: Python :: 3',
-      'Programming Language :: Python :: 3.6',
-      'Programming Language :: Python :: 3.7',
-      ],
+          # Specify the Python versions you support here. In particular, ensure
+          # that you indicate whether you support Python 2, Python 3 or both.
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
+          ],
       **setup_args
-     )
+      )
