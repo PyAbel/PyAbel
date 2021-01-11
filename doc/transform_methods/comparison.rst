@@ -67,7 +67,7 @@ Below is a list that describes the basic approach and characteristics of all the
 
 - ``onion_bordas`` -- The onion-peeling method of Bordas et al. [bordas1996]_ is a Python adaptation of the MATLAB implementation of Rallis et al. [rallis2014]_. While it is conceptually similar to the ``onion_peeling`` method, the numerical implementation is significantly different. This method is reasonably slow, and is therefore not recommended for general use. See :doc:`onion_bordas` and :meth:`abel.onion_bordas.onion_bordas_transform`
 
-- ``rbasex`` (S) --  the rBasex method is based on the pBasex method of Garcia et al. [garcia2004]_, using basis functions developed by Ryazanov [ryazanov2012]_. This method evaluates radial distributions of velocity-map images and transforms them to radial distributions of the reconstructed 3D distributions. Similar to ``linbasex``, the ``rbasex`` method makes additional assumptions about the symmetry of the data is not applicable to all situations. See :doc:`rbasex` and :meth:`abel.rbasex.rbasex_transform`.
+- ``rbasex`` (F, S) --  the rBasex method is based on the pBasex method of Garcia et al. [garcia2004]_, using basis functions developed by Ryazanov [ryazanov2012]_. This method evaluates radial distributions of velocity-map images and transforms them to radial distributions of the reconstructed 3D distributions. Similar to ``linbasex``, the ``rbasex`` method makes additional assumptions about the symmetry of the data is not applicable to all situations. See :doc:`rbasex` and :meth:`abel.rbasex.rbasex_transform`.
 
 
 Implementation
