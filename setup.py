@@ -5,7 +5,6 @@ import os.path
 from setuptools import setup, find_packages, Extension
 from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
 
-
 # a define the version string inside the package
 # see 
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
@@ -13,33 +12,19 @@ VERSIONFILE = "abel/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()
 VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
 mo = re.search(VSRE, verstrline, re.M)
+
 if mo:
     version = mo.group(1)
 else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
-    
-# change behaviour of the setup.py on readthedocs.org
-# https://read-the-docs.readthedocs.io/en/latest/faq.html#how-do-i-change-behavior-for-read-the-docs
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-if on_rtd:
-    np = None
-    install_requires = []
-
-else:
-    install_requires = [
-          "numpy >= 1.6",
-          "setuptools >= 16.0",
-          "scipy >= 0.14",
-          "six >= 1.10.0"]
-
-try:  # try to import numpy and Cython to build Cython extensions
+# try to import numpy and Cython to build Cython extensions:
+try:  
     import numpy as np
     from Cython.Distutils import build_ext
     import Cython.Compiler.Options
     Cython.Compiler.Options.annotate = False
     _cython_installed = True
-
 
 except ImportError:
     _cython_installed = False
@@ -112,7 +97,10 @@ setup(name='PyAbel',
       url='https://github.com/PyAbel/PyAbel',
       license='MIT',
       packages=find_packages(),
-      install_requires=install_requires,
+      install_requires=[ "numpy >= 1.6",
+                         "setuptools >= 16.0",
+                         "scipy >= 0.14",
+                         "six >= 1.10.0"],
       package_data={'abel': ['tests/data/*']},
       long_description=long_description,
       classifiers=[
