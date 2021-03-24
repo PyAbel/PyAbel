@@ -43,6 +43,8 @@ While the transform equations can be evaluated analytically for some mathematica
 
 Various algorithms have been developed to address these issues. PyAbel incorporates numerous algorithms for the inverse Abel transform, and some of these algorithms also support the forward Abel transform. The following comparisons focus on the results of the inverse Abel transform, because it is the inverse Abel transform that is used most frequently to interpret experimental data.
 
+Note that the forward and inverse Abel transforms are defined on the whole space, with infinite integration limits, but in reality, experimental data are limited to finite ranges of :math:`r` or :math:`y`. Thus the intensity distributions :math:`f` and :math:`F` must be zero outside these ranges, otherwise the transforms cannot be performed correctly. In other words, only localized objects can be transformed, and the object must be contained entirely within the image frame. If the image has any background, it must be subtracted before applying the transform, such that the image intensity goes to zero near the edge (however, the :doc:`direct` and :doc:`hansenlaw` methods effectively disregard a constant background).
+
 
 List of Abel-Transform Methods in PyAbel
 ----------------------------------------
@@ -65,7 +67,7 @@ Below is a list that describes the basic approach and characteristics of all the
 
 - ``onion_bordas`` -- The onion-peeling method of Bordas et al. [bordas1996]_ is a Python adaptation of the MATLAB implementation of Rallis et al. [rallis2014]_. While it is conceptually similar to the ``onion_peeling`` method, the numerical implementation is significantly different. This method is reasonably slow, and is therefore not recommended for general use. See :doc:`onion_bordas` and :meth:`abel.onion_bordas.onion_bordas_transform`
 
-- ``rbasex`` (S) --  the rBasex method is based on the pBasex method of Garcia et al. [garcia2004]_, using basis functions developed by Ryazanov [ryazanov2012]_. This method evaluates radial distributions of velocity-map images and transforms them to radial distributions of the reconstructed 3D distributions. Similar to ``linbasex``, the ``rbasex`` method makes additional assumptions about the symmetry of the data is not applicable to all situations. See :doc:`rbasex` and :meth:`abel.rbasex.rbasex_transform`.
+- ``rbasex`` (F, S) --  the rBasex method is based on the pBasex method of Garcia et al. [garcia2004]_, using basis functions developed by Ryazanov [ryazanov2012]_. This method evaluates radial distributions of velocity-map images and transforms them to radial distributions of the reconstructed 3D distributions. Similar to ``linbasex``, the ``rbasex`` method makes additional assumptions about the symmetry of the data is not applicable to all situations. See :doc:`rbasex` and :meth:`abel.rbasex.rbasex_transform`.
 
 
 Implementation
