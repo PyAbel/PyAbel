@@ -64,9 +64,10 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
     that the function is linear across this pixel. With correction=True, the
     Direct method produces reasonable results.
 
-    The Direct method is implemented in both Python and, if Cython is available
-    during PyAbel's installation, a compiled C version, which is much faster.
-    The implementation can be selected using the backend argument.
+    The Direct method is implemented in both Python and a compiled C version
+    using Cython, which is much faster. The implementation can be selected using
+    the backend argument. If the C-backend is not available, you must re-install
+    PyAbel with Numpy, Cython, and a C-compiler already installed.
 
     By default, integration at all other pixels is performed using the
     Trapezoidal rule.
