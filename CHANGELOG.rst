@@ -3,6 +3,10 @@ Changelog
 
 Unreleased
 ----------
+
+
+v0.8.4 (2020-04-07)
+-------------------
 * Added odd angular orders to tools.vmi.Distributions (PR #266).
 * Important! Some "center" functions/parameters are renamed to "origin" or
   "method"; using old names still works but will print deprecation warnings,
@@ -25,7 +29,8 @@ Unreleased
   smoothing determined by the RMS tolerance instead of the nonintuitive
   "smooth" parameter (PR #293).
 * Corrected and improved tools.center (PR #302).
-* Moved numpy import to try block in setup.py. This allows pip to install PyAbel in situations where numpy is not already installed. (PR #310)
+* Moved numpy import to try block in setup.py. This allows pip to install PyAbel
+  in situations where numpy is not already installed. (PR #310)
 
 v0.8.3 (2019-08-16)
 -------------------
