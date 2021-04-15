@@ -7,6 +7,12 @@ PyAbel is an open-source project, and we welcome improvements! Please let us kno
 If you would like to make a Pull Request, the following information may be useful.
 
 
+Change Log
+----------
+
+If the change is significant (more than just a typo-fix), please leave a short note about the change in `CHANGELOG.rst <https://github.com/PyAbel/PyAbel/blob/master/CHANGELOG.rst>`_
+
+
 Unit tests
 ----------
 
@@ -102,7 +108,7 @@ Adding a new forward or inverse Abel implementation
 
 We are always looking for new implementation of forward or inverse Abel transform, therefore if you have an implementation that you would want to contribute to PyAbel, don't hesitate to do so.
 
-In order to allow a consistent user experience between different implementations and insure an overall code quality, please consider the following points in your pull request.
+In order to allow a consistent user experience between different implementations and ensure an overall code quality, please consider the following points in your pull request.
 
 
 Naming conventions
@@ -139,16 +145,14 @@ Dependencies
 The current list of dependencies can be found in `setup.py <https://github.com/PyAbel/PyAbel/blob/master/setup.py>`_. Please refrain from adding new dependencies, unless it cannot be avoided.
 
 
-Change Log
-----------
-
-If the change is significant (more than just a typo-fix), please leave a short note about the change in `CHANGELOG.rst <https://github.com/PyAbel/PyAbel/blob/master/CHANGELOG.rst>`_
-
 
 Releasing on PyPi
 -----------------
 
-PyAbel should be automatically released on PyPi (see `PR #161 <https://github.com/PyAbel/PyAbel/pull/161>`_) whenever a new release is drafted on GitHub via the "Draft New Release" button on the `Releases page <https://github.com/PyAbel/PyAbel/releases>`_. Just remember to increment the version number in abel/_version.py first.
+PyAbel should be automatically released on PyPi (see `PR #161 <https://github.com/PyAbel/PyAbel/pull/161>`_) whenever a new release is drafted on GitHub via the "Draft New Release" button on the `Releases page <https://github.com/PyAbel/PyAbel/releases>`_. But first, make a Pull Request that does the following:
+
+- Increment the version number in abel/_version.py.
+- Modify CHANGELOG.rst to include the new changes in the new version.
 
 
 Citations
