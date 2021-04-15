@@ -108,7 +108,7 @@ Adding a new forward or inverse Abel implementation
 
 We are always looking for new implementation of forward or inverse Abel transform, therefore if you have an implementation that you would want to contribute to PyAbel, don't hesitate to do so.
 
-In order to allow a consistent user experience between different implementations and insure an overall code quality, please consider the following points in your pull request.
+In order to allow a consistent user experience between different implementations and ensure an overall code quality, please consider the following points in your pull request.
 
 
 Naming conventions
