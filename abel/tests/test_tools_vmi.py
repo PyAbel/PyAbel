@@ -4,6 +4,9 @@ from __future__ import division
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
+# to suppress deprecation warnings
+from warnings import catch_warnings, simplefilter
+
 from abel.tools.analytical import SampleImage
 import abel.tools.vmi as vmi
 
@@ -96,7 +99,9 @@ def test_angular_integration():
     n, ones, cos2, sin2 = make_images(R)
 
     def check(name, ref, rtol, IM, **kwargs):
-        r, speeds = vmi.angular_integration(IM, **kwargs)
+        with catch_warnings():
+            simplefilter('ignore', category=DeprecationWarning)
+            r, speeds = vmi.angular_integration(IM, **kwargs)
         # (ignoring pixels at r = 0 and 1, which can be poor)
         assert_allclose(speeds[2:R], ref(r[2:R]), rtol=rtol,
                         err_msg='-> {}, {}'.format(name, kwargs))
@@ -130,7 +135,9 @@ def test_average_radial_intensity():
     n, ones, cos2, sin2 = make_images(R)
 
     def check(name, ref, atol, IM, **kwargs):
-        r, intensity = vmi.average_radial_intensity(IM, **kwargs)
+        with catch_warnings():
+            simplefilter('ignore', category=DeprecationWarning)
+            r, intensity = vmi.average_radial_intensity(IM, **kwargs)
         assert_allclose(intensity[2:R], ref, atol=atol,
                         err_msg='-> {}, {}'.format(name, kwargs))
 
@@ -187,7 +194,10 @@ def test_toPES():
     # test image (not projected)
     IM = SampleImage(name='Ominus').image
 
-    eBE, PES = vmi.toPES(*vmi.angular_integration(IM),
+    with catch_warnings():
+        simplefilter('ignore', category=DeprecationWarning)
+        r, speeds = vmi.angular_integration(IM)
+    eBE, PES = vmi.toPES(r, speeds,
                          energy_cal_factor=1.2e-5,
                          photon_energy=1.0e7/808.6, Vrep=-100,
                          zoom=IM.shape[-1]/2048)

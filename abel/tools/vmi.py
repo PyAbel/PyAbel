@@ -140,6 +140,16 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     Note: the use of ``Jacobian=True`` applies the correct Jacobian for the
     integration of a 3D object in spherical coordinates.
 
+    .. warning::
+        This function behaves incorrectly: misses a factor of π for 3D
+        integration, with ``Jacobian=True``, and for ``Jacobian=False`` returns
+        the *average* (over polar angles) multiplied by 2π instead of
+        integrating. It is currently deprecated and is provided only for
+        backward compatibility, but will be removed in the future.
+
+        Please use :func:`radial_intensity`, :func:`angular_integration_2D` or
+        :func:`angular_integration_3D`.
+
     Parameters
     ----------
     IM : 2D numpy.array
@@ -175,6 +185,8 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
         integrated intensity array (vs radius).
 
     """
+    _deprecate('angular_integration() is deprecated, '
+               'please see the documentation for appropriate alternatives.')
 
     polarIM, R, T = reproject_image_into_polar(
         IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)
@@ -199,6 +211,14 @@ def average_radial_intensity(IM, **kwargs):
     :func:`abel.tools.vmi.angular_integration` with
     ``Jacobian=True`` and then dividing the result by 2π.
 
+    .. warning::
+        This function is currently deprecated and is provided only for backward
+        compatibility, but will be removed in the future.
+
+        Please use :func:`radial_intensity`,
+        :func:`average_radial_intensity_2D` or
+        :func:`average_radial_intensity_3D`.
+
     Parameters
     ----------
     IM : 2D numpy.array
@@ -215,8 +235,10 @@ def average_radial_intensity(IM, **kwargs):
 
     intensity : 1D numpy.array
         intensity profile as a function of the radial coordinate
-
     """
+    _deprecate('average_radial_intensity() is deprecated, '
+               'please see the documentation for appropriate alternatives.')
+
     R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
     intensity /= 2 * np.pi
     return R, intensity
