@@ -5,8 +5,7 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
 from abel.tools.analytical import SampleImage
-from abel.tools.vmi import angular_integration, average_radial_intensity,\
-                           radial_integration, anisotropy_parameter, toPES
+import abel.tools.vmi as vmi
 
 # The Distributions class and related functions are tested separately in
 # test_tools_distributions.py
@@ -30,6 +29,64 @@ def make_images(R):
     return n, ones, cos2, sin2
 
 
+def test_radial_intensity():
+    """
+    Basic tests of radial-intensity calculations.
+    """
+    func = {
+        'int2D': vmi.angular_integration_2D,
+        'int3D': vmi.angular_integration_3D,
+        'avg2D': vmi.average_radial_intensity_2D,
+        'avg3D': vmi.average_radial_intensity_3D
+    }
+
+    R = 50  # image radius
+    n, ones, cos2, sin2 = make_images(R)
+
+    def check(name, ref, rtol, kind, IM, **kwargs):
+        r, intensity = vmi.radial_intensity(kind, IM, **kwargs)
+        r_, intensity_ = func[kind](IM, **kwargs)
+        assert_equal([r_, intensity_], [r, intensity],
+                     err_msg='{}(...) != radial_intensity({}, ...)'.
+                             format(func[kind], kind))
+        # (ignoring pixels at r = 0 and 1, which can be poor)
+        assert_allclose(intensity[2:R], ref(r[2:R]), rtol=rtol,
+                        err_msg='-> {}, {}, {}'.format(kind, name, kwargs))
+
+    def int2D(r):
+        return 2 * np.pi * r
+
+    check('ones', int2D, 0.01, 'int2D', ones)
+    check('ones', int2D, 0.01, 'int2D', ones, dr=0.5)
+    check('ones', int2D, 0.01, 'int2D', ones, dt=0.01)
+    check('cos2', int2D, 0.01, 'int2D', cos2 * 2)
+    check('sin2', int2D, 0.001, 'int2D', sin2 * 2)
+
+    def int3D(r):
+        return 4 * np.pi * r**2
+
+    check('ones', int3D, 1e-7, 'int3D', ones)
+    check('ones', int3D, 1e-7, 'int3D', ones, dr=0.5)
+    check('ones', int3D, 1e-4, 'int3D', ones, dt=0.01)
+    check('cos2', int3D, 0.01, 'int3D', cos2 * 3)
+    check('sin2', int3D, 0.01, 'int3D', sin2 * 3/2)
+
+    def avg(r):
+        return np.ones_like(r)
+
+    check('ones', avg, 0.01, 'avg2D', ones)
+    check('ones', avg, 0.01, 'avg2D', ones, dr=0.5)
+    check('ones', avg, 0.01, 'avg2D', ones, dt=0.01)
+    check('cos2', avg, 0.01, 'avg2D', cos2 * 2)
+    check('sin2', avg, 0.001, 'avg2D', sin2 * 2)
+
+    check('ones', avg, 1e-7, 'avg3D', ones)
+    check('ones', avg, 1e-7, 'avg3D', ones, dr=0.5)
+    check('ones', avg, 1e-4, 'avg3D', ones, dt=0.01)
+    check('cos2', avg, 0.01, 'avg3D', cos2 * 3)
+    check('sin2', avg, 0.01, 'avg3D', sin2 * 3/2)
+
+
 def test_angular_integration():
     """
     Basic tests of angular integration
@@ -39,7 +96,7 @@ def test_angular_integration():
     n, ones, cos2, sin2 = make_images(R)
 
     def check(name, ref, rtol, IM, **kwargs):
-        r, speeds = angular_integration(IM, **kwargs)
+        r, speeds = vmi.angular_integration(IM, **kwargs)
         # (ignoring pixels at r = 0 and 1, which can be poor)
         assert_allclose(speeds[2:R], ref(r[2:R]), rtol=rtol,
                         err_msg='-> {}, {}'.format(name, kwargs))
@@ -73,7 +130,7 @@ def test_average_radial_intensity():
     n, ones, cos2, sin2 = make_images(R)
 
     def check(name, ref, atol, IM, **kwargs):
-        r, intensity = average_radial_intensity(IM, **kwargs)
+        r, intensity = vmi.average_radial_intensity(IM, **kwargs)
         assert_allclose(intensity[2:R], ref, atol=atol,
                         err_msg='-> {}, {}'.format(name, kwargs))
 
@@ -96,7 +153,7 @@ def test_anisotropy_parameter():
     sin2 = np.sin(theta)**2
 
     def check(name, ref, theta, intensity):
-        beta, amplitude = anisotropy_parameter(theta, intensity)
+        beta, amplitude = vmi.anisotropy_parameter(theta, intensity)
         assert_allclose((beta[0], amplitude[0]), ref, atol=1e-8,
                         err_msg='-> ' + name)
 
@@ -114,7 +171,7 @@ def test_radial_integration():
     IM = SampleImage(name='dribinski').image
 
     Beta, Amplitude, Rmidpt, _, _ = \
-        radial_integration(IM, radial_ranges=([(65, 75), (80, 90), (95, 105)]))
+        vmi.radial_integration(IM, radial_ranges=([(65, 75), (80, 90), (95, 105)]))
 
     assert_equal(Rmidpt, [70, 85, 100], err_msg='Rmidpt')
     assert_allclose([b[0] for b in Beta], [0, 1.58, -0.85], atol=0.01,
@@ -130,10 +187,10 @@ def test_toPES():
     # test image (not projected)
     IM = SampleImage(name='Ominus').image
 
-    eBE, PES = toPES(*angular_integration(IM),
-                     energy_cal_factor=1.2e-5,
-                     photon_energy=1.0e7/808.6, Vrep=-100,
-                     zoom=IM.shape[-1]/2048)
+    eBE, PES = vmi.toPES(*vmi.angular_integration(IM),
+                         energy_cal_factor=1.2e-5,
+                         photon_energy=1.0e7/808.6, Vrep=-100,
+                         zoom=IM.shape[-1]/2048)
 
     assert_allclose(eBE[PES.argmax()], 11780, rtol=0.001,
                     err_msg='-> eBE @ max PES')
@@ -142,6 +199,7 @@ def test_toPES():
 
 
 if __name__ == "__main__":
+    test_radial_intensity()
     test_angular_integration()
     test_average_radial_intensity()
     test_anisotropy_parameter()
