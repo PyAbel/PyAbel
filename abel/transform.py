@@ -133,6 +133,9 @@ class Transform(object):
         Integrate the image over angle to give the radial (speed) intensity
         distribution.
 
+        *Note: in PyAbel ≤0.8.4 the intensity distribution was off by a factor
+        of π, please keep this in mind when comparing absolute intensities.*
+
     transform_options : tuple
         Additional arguments passed to the individual transform functions.
         See the documentation for the individual transform method for options.
