@@ -51,9 +51,9 @@ for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
     if label == 'linbasex':  # bugfix smoothing=0 transform offset by 1 pixel
         trans[:, 1:] = trans[:, :-1]
 
-    r, inten = abel.tools.vmi.angular_integration(trans[::-1],
-                                                  origin=(0, 0),
-                                                  dr=0.1)
+    r, inten = abel.tools.vmi.angular_integration_3D(trans[::-1],
+                                                     origin=(0, 0),
+                                                     dr=0.1)
 
     inten /= 1e6
 
@@ -111,7 +111,7 @@ axs1[1].set_xticks(np.arange(355, 385), minor=True)
 
 axs1[2].set_xlim(80, 160)
 axs1[2].set_xticks(np.arange(80, 160, 10), minor=True)
-axs1[2].set_ylim(-0.004, 0.02)
+axs1[2].set_ylim(-0.01, 0.065)
 
 
 def place_letter(letter, ax, color='k', offset=(0, 0)):

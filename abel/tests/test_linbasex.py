@@ -39,7 +39,7 @@ def test_linbasex_forward_dribinski_image():
                                             return_Beta=True))
 
     # speed distribution
-    orig_radial, orig_speed = abel.tools.vmi.angular_integration(IM)
+    orig_radial, orig_speed = abel.tools.vmi.angular_integration_3D(IM)
 
 
     radial = ifIM.radial

@@ -143,7 +143,7 @@ class Transform(object):
 
     angular_integration_options : tuple (or dict)
         Additional arguments passed to the angular integration functions,
-        see :func:`abel.tools.vmi.angular_integration()`.
+        see :func:`abel.tools.vmi.angular_integration_3D()`.
 
     recast_as_float64 : bool
         determines whether the input image should be recast to
@@ -341,7 +341,7 @@ class Transform(object):
     angular_integration : tuple
         (radial-grid, radial-intensity)
         radial coordinates and the radial intensity (speed) distribution,
-        evaluated using :func:`abel.tools.vmi.angular_integration()`.
+        evaluated using :func:`abel.tools.vmi.angular_integration_3D()`.
 
     residual : numpy 2D array
         residual image (not currently implemented).
@@ -563,6 +563,6 @@ class Transform(object):
                 # assume user forgot to pass grid size
                 angular_integration_options['dr'] = transform_options['dr']
 
-            self.angular_integration = tools.vmi.angular_integration(
+            self.angular_integration = tools.vmi.angular_integration_3D(
                                              self.transform,
                                              **angular_integration_options)

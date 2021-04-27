@@ -139,7 +139,7 @@ def _speed():
     elif transform.get() == 'rbasex':
         radial, speed, _ = AIM.distr.rIbeta()
     else:
-        radial, speed = abel.tools.vmi.angular_integration(AIM.transform)
+        radial, speed = abel.tools.vmi.angular_integration_3D(AIM.transform)
 
     f.clf()
     a = f.add_subplot(111)

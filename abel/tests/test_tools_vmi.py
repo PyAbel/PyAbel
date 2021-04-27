@@ -194,17 +194,14 @@ def test_toPES():
     # test image (not projected)
     IM = SampleImage(name='Ominus').image
 
-    with catch_warnings():
-        simplefilter('ignore', category=DeprecationWarning)
-        r, speeds = vmi.angular_integration(IM)
-    eBE, PES = vmi.toPES(r, speeds,
+    eBE, PES = vmi.toPES(*vmi.angular_integration_3D(IM),
                          energy_cal_factor=1.2e-5,
                          photon_energy=1.0e7/808.6, Vrep=-100,
                          zoom=IM.shape[-1]/2048)
 
     assert_allclose(eBE[PES.argmax()], 11780, rtol=0.001,
                     err_msg='-> eBE @ max PES')
-    assert_allclose(PES.max(), 5270, rtol=0.001,
+    assert_allclose(PES.max(), 16570, rtol=0.001,
                     err_msg='-> max PES')
 
 
