@@ -125,17 +125,20 @@ def test_radial_integration():
 
 def test_toPES():
     """
-    Check that toPES at least does not crash.
-    TODO: do some meaningful tests.
+    Basic test of toPES conversion.
     """
     # test image (not projected)
-    IM = SampleImage(name='dribinski').image
+    IM = SampleImage(name='Ominus').image
 
-    # (parameters from example_hansenlaw.py, although for a different image)
     eBE, PES = toPES(*angular_integration(IM),
-                     energy_cal_factor=1.204e-5,
-                     photon_energy=1.0e7/454.5, Vrep=-2200,
+                     energy_cal_factor=1.2e-5,
+                     photon_energy=1.0e7/808.6, Vrep=-100,
                      zoom=IM.shape[-1]/2048)
+
+    assert_allclose(eBE[PES.argmax()], 11780, rtol=0.001,
+                    err_msg='-> eBE @ max PES')
+    assert_allclose(PES.max(), 5270, rtol=0.001,
+                    err_msg='-> max PES')
 
 
 if __name__ == "__main__":
