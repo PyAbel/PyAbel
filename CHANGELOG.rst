@@ -4,6 +4,9 @@ Changelog
 Unreleased
 ----------
 
+* New functions in tools.vmi for angular integration and averaging, replacing
+  angular_integration() and average_radial_intensity(), which had incorrect or
+  nonintuitive behavior (PR #318, PR #319).
 
 v0.8.4 (2020-04-15)
 -------------------
@@ -29,8 +32,8 @@ v0.8.4 (2020-04-15)
   smoothing determined by the RMS tolerance instead of the nonintuitive
   "smooth" parameter (PR #293).
 * Corrected and improved tools.center (PR #302).
-* Moved numpy import to try block in setup.py. This allows pip to install PyAbel
-  in situations where numpy is not already installed. (PR #310)
+* Moved numpy import to try block in setup.py. This allows pip to install
+  PyAbel in situations where numpy is not already installed (PR #310).
 
 v0.8.3 (2019-08-16)
 -------------------
