@@ -2,6 +2,7 @@ from __future__ import division, print_function
 
 import numpy as np
 import matplotlib.pyplot as plt
+from copy import copy
 
 import abel
 from abel.tools.analytical import SampleImage
@@ -69,8 +70,10 @@ r_rbasex, P0_rbasex, P2_rbasex = distr_rbasex.rharmonics()
 # plotting...
 plt.figure(figsize=(7, 7))
 
-plt.cm.hot.set_bad('lightgray', 1.0)
-plt.cm.seismic.set_bad('lightgray', 1.0)
+cmap_hot = copy(plt.cm.hot)
+cmap_hot.set_bad('lightgray')
+cmap_seismic = copy(plt.cm.seismic)
+cmap_seismic.set_bad('lightgray')
 
 def plots(row,
           im_title, im, im_mask,
@@ -81,14 +84,14 @@ def plots(row,
         plt.subplot(3, 4, 4 * row + 1)
         plt.title(im_title)
         im_masked = np.ma.masked_where(im_mask == 0, im)
-        plt.imshow(im_masked, cmap='hot')
+        plt.imshow(im_masked, cmap=cmap_hot)
         plt.axis('off')
 
     # transformed image
     plt.subplot(3, 4, 4 * row + 2)
     plt.title(tr_title)
     tr_masked = np.ma.masked_where(tr_mask == 0, tr)
-    plt.imshow(tr_masked, vmin=-vlim, vmax=vlim, cmap='seismic')
+    plt.imshow(tr_masked, vmin=-vlim, vmax=vlim, cmap=cmap_seismic)
     plt.axis('off')
 
     # profiles
