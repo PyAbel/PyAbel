@@ -29,7 +29,7 @@ for k, c in enumerate(colors):
 plt.plot(x, sum([rho(x, k) for k in range(n)]),
          color='black', label=r'$\sum\rho_k$')
 
-plt.xlabel('$u = r/\sigma$')
+plt.xlabel(r'$u = r/\sigma$')
 plt.xlim((0, n - 1))
 plt.grid(axis='x')
 

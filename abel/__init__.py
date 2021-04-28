@@ -20,7 +20,7 @@ def _deprecate(msg):
     # level 0   level 1         level 2      level 3
     # warn() <- _deprecate() <- abel...() <- user code
 # enable deprecation warnings (ignored by default since Python 2.7) for abel
-filterwarnings('default', '^abel\.', category=DeprecationWarning)
+filterwarnings('default', r'^abel\.', category=DeprecationWarning)
 
 from . import basex
 from . import benchmark

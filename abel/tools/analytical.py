@@ -161,7 +161,7 @@ class StepAnalytical(BaseAnalytical):
 
 
 class Polynomial(BaseAnalytical):
-    """
+    r"""
     Define a polynomial function and calculate its analytical
     Abel transform.
 
@@ -219,7 +219,7 @@ class Polynomial(BaseAnalytical):
 
 
 class PiecewisePolynomial(BaseAnalytical):
-    """
+    r"""
     Define a piecewise polynomial function (sum of ``Polynomial``\ s)
     and calculate its analytical Abel transform.
 

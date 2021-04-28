@@ -15,7 +15,7 @@ See :ref:`Polynomials` for details and examples.
 
 
 class Polynomial(object):
-    """
+    r"""
     Polynomial function and its Abel transform.
 
     Supports multiplication and division by numbers.
@@ -190,7 +190,7 @@ class Polynomial(object):
 
 
 class PiecewisePolynomial(Polynomial):
-    """
+    r"""
     Piecewise polynomial function (sum of ``Polynomial``\ s)
     and its Abel transform.
 

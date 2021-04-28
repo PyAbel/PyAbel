@@ -37,7 +37,7 @@ def gradient(f, x=None, dx=1, axis=-1):
     To-Do: implement smooth noise-robust differentiators for use on experimental data.
     http://www.holoborodko.com/pavel/numerical-methods/numerical-derivative/smooth-low-noise-differentiators/
     """
-    
+
     if x is None:
         x = np.arange(f.shape[axis]) * dx
     else:
@@ -61,10 +61,10 @@ def gradient(f, x=None, dx=1, axis=-1):
 
 
 def gaussian(x, a, mu, sigma, c):
-    """
+    r"""
     `Gaussian function <https://en.wikipedia.org/wiki/Gaussian_function>`_
 
-    :math:`f(x)=a e^{-(x - \mu)^2 / (2 \\sigma^2)} + c`
+    :math:`f(x)=a e^{-(x - \mu)^2 / (2 \sigma^2)} + c`
 
     Parameters
     ----------

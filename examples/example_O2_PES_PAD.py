@@ -39,7 +39,7 @@ AIM = abel.Transform(IM, method="hansenlaw", direction="inverse",
 # PES - photoelectron speed distribution  -------------
 print('Calculating speed distribution:')
 
-r, speed  = abel.tools.vmi.angular_integration_3D(AIM)
+r, speed = abel.tools.vmi.angular_integration_3D(AIM)
 
 # normalize to max intensity peak
 speed /= speed[200:].max()  # exclude transform noise near centerline of image
