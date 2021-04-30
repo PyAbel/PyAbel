@@ -99,7 +99,7 @@ def angular_integration_3D(IM, origin=None, dr=1, dt=None):
     """
     Angular integration of the three-dimensional cylindrically symmetric object
     represented by the image as its central slice. When applied to the inverse
-    Abel transform of a velocity-mapping image, this yield the speed
+    Abel transform of a velocity-mapping image, this yields the speed
     distribution.
 
     Equivalent to :func:`radial_intensity('int3D', IM, origin, dr, dt)
@@ -185,8 +185,10 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
         integrated intensity array (vs radius).
 
     """
-    _deprecate('angular_integration() is deprecated, '
-               'please see the documentation for appropriate alternatives.')
+    _deprecate('angular_integration() is deprecated, please see the '
+               'documentation for details. '
+               'Use radial_intensity(), angular_integration_2D() or '
+               'angular_integration_3D() instead.')
 
     polarIM, R, T = reproject_image_into_polar(
         IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)
@@ -237,7 +239,8 @@ def average_radial_intensity(IM, **kwargs):
         intensity profile as a function of the radial coordinate
     """
     _deprecate('average_radial_intensity() is deprecated, '
-               'please see the documentation for appropriate alternatives.')
+               'use average_radial_intensity_2D(), '
+               'average_radial_intensity_3D() or radial_intensity() instead.')
 
     R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
     intensity /= 2 * np.pi
@@ -442,7 +445,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
         sets the intensity Jacobian.
         If ``True``, the returned intensities correspond to an "intensity per
-        eV" or "intensity per cm\ :sup:`-1` ". If ``False``, the returned
+        eV" or "intensity per cm\ :sup:`−1`". If ``False``, the returned
         intensities correspond to an "intensity per pixel".
 
     photon_energy : None or float
