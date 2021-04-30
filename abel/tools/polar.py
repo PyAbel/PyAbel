@@ -88,7 +88,9 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     coli = (X + origin[1]).flatten()
     coords = np.vstack((rowi, coli))
 
-    zi = map_coordinates(data, coords)
+    # Remap with interpolation
+    # (making an array of floats even if the data has an integer type)
+    zi = map_coordinates(data, coords, output=float)
     output = zi.reshape((nr, nt))
 
     if Jacobian:
