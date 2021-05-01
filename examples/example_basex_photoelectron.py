@@ -48,7 +48,7 @@ recon = abel.Transform(raw_data, direction='inverse', method='basex',
                        origin=origin, transform_options=dict(basis_dir='bases'),
                        verbose=True).transform
                       
-speeds = abel.tools.vmi.angular_integration(recon)
+speeds = abel.tools.vmi.angular_integration_3D(recon)
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))

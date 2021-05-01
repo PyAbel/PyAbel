@@ -86,13 +86,14 @@ plt.title('Partially overlapping images\n'
 plt.imshow(im, cmap='hot')
 # overlay with the boundaries of each mask (only for demonstration)
 from scipy.ndimage import binary_erosion
-dmask = 1 * (mask1 - binary_erosion(mask1, iterations=3)) + \
-        2 * (mask2 - binary_erosion(mask2, iterations=3)) + \
-        3 * (mask3 - binary_erosion(mask3, iterations=3))
+brush = np.ones((11, 11))
+dmask = 1 * (mask1 - binary_erosion(mask1, structure=brush)) + \
+        2 * (mask2 - binary_erosion(mask2, structure=brush)) + \
+        3 * (mask3 - binary_erosion(mask3, structure=brush))
 dmask[dmask == 0] = np.nan
 from matplotlib.colors import ListedColormap
 rgb = ListedColormap(['#CC0000', '#00AA00', '#0055FF'])
-plt.imshow(dmask, extent=(0, w, 0, h), cmap=rgb)
+plt.imshow(dmask, extent=(0, w, 0, h), cmap=rgb, interpolation='nearest')
 
 # Analyze the left part and plot results
 plt.subplot(222)

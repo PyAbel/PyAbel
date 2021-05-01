@@ -41,8 +41,8 @@ AIMcirc = abel.Transform(IMcirc, method="three_point",
                          transform_options=dict(basis_dir='bases')).transform
 
 # respective speed distributions
-rdist, speeddist = abel.tools.vmi.angular_integration(AIMdist, dr=0.5)
-rcirc, speedcirc = abel.tools.vmi.angular_integration(AIMcirc, dr=0.5)
+rdist, speeddist = abel.tools.vmi.angular_integration_3D(AIMdist, dr=0.5)
+rcirc, speedcirc = abel.tools.vmi.angular_integration_3D(AIMcirc, dr=0.5)
 
 # note the small image size is responsible for the slight over correction
 # of the background near peaks

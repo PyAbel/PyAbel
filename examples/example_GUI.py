@@ -464,8 +464,8 @@ class PyAbel:  # (tk.Tk):
             self.radial, self.speed_dist, _ = self.AIM.distr.rIbeta()
         else:
             # speed distribution
-            self.radial, self.speed_dist = abel.tools.vmi.angular_integration(
-                                           self.AIM.transform)
+            self.radial, self.speed_dist = \
+                abel.tools.vmi.angular_integration_3D(self.AIM.transform)
 
         self.plt[1].axis("on")
         self.plt[1].plot(

@@ -100,7 +100,7 @@ def test_dasch_cyl_gaussian(n=101):
     IM = gauss(X, 0, sigma)  # cylindrical Gaussian located at pixel R=0
     Q0 = IM[:r2, c2:]  # quadrant, top-right
     Q0_copy = Q0.copy()
-    ospeed = abel.tools.vmi.angular_integration(Q0_copy, origin=(0, 0))
+    ospeed = abel.tools.vmi.angular_integration_3D(Q0_copy, origin=(0, 0))
 
     # dasch method inverse Abel transform
     for method in dasch_transforms.keys():

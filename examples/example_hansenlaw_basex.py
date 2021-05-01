@@ -64,14 +64,14 @@ print('Performing Hansen and Law inverse Abel transform:')
 # quad = (True ... => combine the 4 quadrants into one
 reconH = abel.Transform(im, method="hansenlaw", direction="inverse",
                         verbose=True, symmetry_axis=None).transform
-rH, speedsH = abel.tools.vmi.angular_integration(reconH)
+rH, speedsH = abel.tools.vmi.angular_integration_3D(reconH)
 
 # Basex inverse Abel transform
 print('Performing basex inverse Abel transform:')
 reconB = abel.Transform(im, method="basex", direction="inverse",
                         verbose=True, symmetry_axis=None,
                         transform_options=dict(basis_dir='bases')).transform
-rB, speedsB = abel.tools.vmi.angular_integration(reconB)
+rB, speedsB = abel.tools.vmi.angular_integration_3D(reconB)
 
 # plot the results - VMI, inverse Abel transformed image, speed profiles
 # Set up some axes

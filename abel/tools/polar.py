@@ -68,13 +68,13 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     x, y = index_coords(data, origin=origin)  # (x,y) coordinates of each pixel
     r, theta = cart2polar(x, y)  # convert (x,y) -> (r,θ), note θ=0 is vertical
 
-    nr = np.int(np.ceil((r.max() - r.min()) / dr))
+    nr = int(np.ceil((r.max() - r.min()) / dr))
 
     if dt is None:
         nt = max(nx, ny)
     else:
         # dt in radians
-        nt = np.int(np.ceil((theta.max() - theta.min()) / dt))
+        nt = int(np.ceil((theta.max() - theta.min()) / dt))
 
     # Make a regular (in polar space) grid based on the min and max r & theta
     r_i = np.linspace(r.min(), r.max(), nr, endpoint=False)
@@ -88,7 +88,9 @@ def reproject_image_into_polar(data, origin=None, Jacobian=False,
     coli = (X + origin[1]).flatten()
     coords = np.vstack((rowi, coli))
 
-    zi = map_coordinates(data, coords)
+    # Remap with interpolation
+    # (making an array of floats even if the data has an integer type)
+    zi = map_coordinates(data, coords, output=float)
     output = zi.reshape((nr, nt))
 
     if Jacobian:

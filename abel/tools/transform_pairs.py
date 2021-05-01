@@ -53,7 +53,7 @@ source, projection : tuple of 1D numpy arrays of shape `r`
 
 
 def a(n, r):
-    """ coefficient
+    r""" coefficient
 
         .. math:: a_n = \sqrt{n^2 - r^2}
 
@@ -63,7 +63,7 @@ def a(n, r):
 
 
 def profile1(r):
-    """**profile1**:
+    r"""**profile1**:
     C. J. Cremers, R. C. Birkebak,
     "Application of the Abel Integral Equation to Spectrographic Data",
     `Appl. Opt. 5, 1057–1064 (1966)
@@ -73,17 +73,17 @@ def profile1(r):
 
         \epsilon(r) &= 0.75 + 12r^2 - 32r^3  & 0 \le r \le 0.25
 
-        \epsilon(r) &= \\frac{16}{27}(1 + 6r - 15r^2 + 8r^3)
+        \epsilon(r) &= \frac{16}{27}(1 + 6r - 15r^2 + 8r^3)
                     & 0.25 \lt r \le 1
 
-        I(r) &= \\frac{1}{108}(128a_1 +a_{0.25}) + \\frac{2}{27}r^2
-                  (283a_{0.25} - 112a_1) +
+        I(r) &= \frac{1}{108}(128a_1 + a_{0.25}) + \frac{2}{27}r^2
+                  (283a_{0.25} - 112a_1) + {}
 
-        & \,\,\,\, \\frac{8}{9}r^2\left[4(1+r^2)\ln\\frac{1+a_1}{r} -
-          (4+31r^2)\ln\\frac{0.25+a_{0.25}}{r}\\right] &  0 \le r \le 0.25
+        & \quad \frac{8}{9}r^2\left[4(1 + r^2)\ln\frac{1 + a_1}{r} -
+          (4 + 31r^2)\ln\frac{0.25 + a_{0.25}}{r}\right] &  0 \le r \le 0.25
 
-        I(r) &= \\frac{32}{27}\left[a_1 - 7a_1 r + 3r^2(1+r^2)
-                \ln\\frac{1+a_1}{r}\\right]  & 0.25 \lt r \le 1
+        I(r) &= \frac{32}{27}\left[a_1 - 7a_1 r + 3r^2(1 + r^2)
+                \ln\frac{1 + a_1}{r}\right]  & 0.25 \lt r \le 1
 
     ..
               source                projection
@@ -146,7 +146,7 @@ def profile1(r):
 
 
 def profile2(r):
-    """**profile2**:
+    r"""**profile2**:
     C. J. Cremers, R. C. Birkebak,
     "Application of the Abel Integral Equation to Spectrographic Data",
     `Appl. Opt. 5, 1057–1064 (1966)
@@ -156,8 +156,8 @@ def profile2(r):
 
         \epsilon(r) &= 1 - 3r^2 + 2r^3 & 0 \le r \le 1
 
-        I(r) &= a_1\left(1-\\frac{5}{2}r^2\\right) +
-                \\frac{3}{2}r^4\ln\\frac{1+a_1}{r} & 0 \le r \le 1
+        I(r) &= a_1\left(1 - \frac{5}{2}r^2\right) +
+                \frac{3}{2}r^4\ln\frac{1 + a_1}{r} & 0 \le r \le 1
 
     ..
               source                projection
@@ -195,7 +195,7 @@ def profile2(r):
 
 
 def profile3(r):
-    """**profile3**:
+    r"""**profile3**:
     C. J. Cremers, R. C. Birkebak,
     "Application of the Abel Integral Equation to Spectrographic Data",
     `Appl. Opt. 5, 1057–1064 (1966)
@@ -203,14 +203,14 @@ def profile3(r):
 
     .. math::
 
-        \epsilon(r) &= 1-2r^2  & 0 \le r \le 0.5
+        \epsilon(r) &= 1 - 2r^2  & 0 \le r \le 0.5
 
-        \epsilon(r) &= 2(1-r^2)^2 & 0.5 \lt r \le 1
+        \epsilon(r) &= 2(1 - r^2)^2 & 0.5 \lt r \le 1
 
-        I(r) &= \\frac{4a_1}{3}(1+2r^2)-\\frac{2 a_{0.5}}{3}(1+8r^2) -
-                4r^2\ln\\frac{1-a_1}{0.5+a_{0.5}} & 0 \le r \le 0.5
+        I(r) &= \frac{4a_1}{3}(1 + 2r^2) - \frac{2 a_{0.5}}{3}(1 + 8r^2) -
+                4r^2\ln\frac{1 - a_1}{0.5 + a_{0.5}} & 0 \le r \le 0.5
 
-        I(r) &= \\frac{4a_1}{3}(1+2r^2)-4r^2\ln\\frac{1-a_1}{r} &
+        I(r) &= \frac{4a_1}{3}(1 + 2r^2) - 4r^2\ln\frac{1 - a_1}{r} &
                 0.5 \lt r \le 1
 
     ..
@@ -265,7 +265,7 @@ def profile3(r):
 
 
 def profile4(r):
-    """**profile4**:
+    r"""**profile4**:
     R. Álvarez, A. Rodero, M. C. Quintero,
     "An Abel inversion method for radially resolved measurements in the axial
     injection torch",
@@ -283,15 +283,18 @@ def profile4(r):
         \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3
                     & 0.7 \lt r \le1
 
-        I(r) &= 22.68862a_{0.7} - 14.811667a_1 + (217.557a_{0.7} -
-        196.30083a_1)r^2 +
+        I(r) &= 22.68862a_{0.7} - 14.811667a_1 + {}
 
-          & \,\,\, 155.56r^2\ln\\frac{1 + a_1}{0.7 + a_{0.7}} +
-            r^4\left(55.5525\ln\\frac{1 + a_1}{r} - 59.49\ln\\frac{0.7 +
-            a_{0.7}}{r}\\right)  & 0 \le r \le 0.7
+             &\quad (217.557a_{0.7} - 196.30083a_1)r^2 +
+             155.56r^2\ln\frac{1 + a_1}{0.7 + a_{0.7}} + {}
 
-        I(r) &= -14.811667a_1 - 196.30083a_1 r^2 + r^2(155.56 + 55.5525r^2)
-                \ln\\frac{1 + a_1}{r} & 0.7 \lt r \le 1
+             &\quad r^4\left(55.5525\ln\frac{1 + a_1}{r} - 59.49\ln\frac{0.7 +
+             a_{0.7}}{r}\right) & 0 \le r \le 0.7
+
+        I(r) &= -14.811667a_1 - 196.30083a_1 r^2 + {}
+
+             &\quad r^2(155.56 + 55.5525r^2) \ln\frac{1 + a_1}{r}
+             & 0.7 \lt r \le 1
 
     ..
               source                projection
@@ -373,7 +376,7 @@ def profile4(r):
 
 
 def profile5(r):
-    """**profile5**:
+    r"""**profile5**:
     M. J. Buie, J. T. P. Pender, J. P. Holloway, T. Vincent, P. L. G. Ventzek,
     M. L. Brake,
     `J. Quant. Spectrosc. Radiat. Transf. 55, 231–243 (1996)
@@ -419,7 +422,7 @@ def profile5(r):
 
 
 def profile6(r):
-    """**profile6**:
+    r"""**profile6**:
     M. J. Buie, J. T. P. Pender, J. P. Holloway, T. Vincent, P. L. G. Ventzek,
     M. L. Brake,
     `J. Quant. Spectrosc. Radiat. Transf. 55, 231–243 (1996)
@@ -427,11 +430,11 @@ def profile6(r):
 
     .. math::
 
-        \epsilon(r) &= (1-r^2)^{-\\frac{3}{2}} \exp\left[1.1^2\left(
-                        1 - \\frac{1}{1-r^2}\\right)\\right] & 0 \le r \le 1
+        \epsilon(r) &= (1 - r^2)^{-\frac{3}{2}} \exp\left[1.1^2\left(
+                        1 - \frac{1}{1 - r^2}\right)\right] & 0 \le r \le 1
 
-        I(r) &= \\frac{\sqrt{\pi}}{1.1a_1} \exp\left[1.1^2\left(
-                        1 - \\frac{1}{1-r^2}\\right)\\right] & 0 \le r \le 1
+        I(r) &= \frac{\sqrt{\pi}}{1.1a_1} \exp\left[1.1^2\left(
+                        1 - \frac{1}{1 - r^2}\right)\right] & 0 \le r \le 1
 
     ..
               source                projection
@@ -467,7 +470,7 @@ def profile6(r):
 
 
 def profile7(r):
-    """**profile7**:
+    r"""**profile7**:
     M. J. Buie, J. T. P. Pender, J. P. Holloway, T. Vincent, P. L. G. Ventzek,
     M. L. Brake,
     `J. Quant. Spectrosc. Radiat. Transf. 55, 231–243 (1996)
@@ -476,9 +479,9 @@ def profile7(r):
 
     .. math::
 
-        \epsilon(r) &= \\frac{1}{2}(1+10r^2-23r^4+12r^6) & 0 \le r \le 1
+        \epsilon(r) &= \frac{1}{2}(1 + 10r^2 - 23r^4 + 12r^6) & 0 \le r \le 1
 
-        I(r) &= \\frac{8}{105}a_1(19 + 34r^2 - 125r^4 + 72r^6) & 0 \le r \le 1
+        I(r) &= \frac{8}{105}a_1(19 + 34r^2 - 125r^4 + 72r^6) & 0 \le r \le 1
 
     ..
               source                projection

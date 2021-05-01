@@ -41,7 +41,7 @@ recon = abel.Transform(im, method="hansenlaw", direction="inverse",
                        symmetry_axis=None, verbose=True, 
                        origin=(240,340)).transform
                        
-r, speeds = abel.tools.vmi.angular_integration(recon)
+r, speeds = abel.tools.vmi.angular_integration_3D(recon)
 
 # Set up some axes
 fig = plt.figure(figsize=(15,4))

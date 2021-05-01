@@ -18,7 +18,7 @@ IM = abel.tools.analytical.SampleImage(n).image
 origQ = abel.tools.symmetry.get_image_quadrants(IM)
 
 # speed distribution of original image
-orig_speed = abel.tools.vmi.angular_integration(origQ[0], origin=(-1, 0))
+orig_speed = abel.tools.vmi.angular_integration_3D(origQ[0], origin=(-1, 0))
 scale_factor = orig_speed[1].max()
 
 plt.plot(orig_speed[0], orig_speed[1]/scale_factor, linestyle='dashed', 
@@ -41,7 +41,7 @@ for method in dasch_transform.keys():
 # method inverse Abel transform
     AQ0 = dasch_transform[method](Q0, basis_dir='bases')
 # speed distribution
-    speed = abel.tools.vmi.angular_integration(AQ0, origin=(-1, 0))
+    speed = abel.tools.vmi.angular_integration_3D(AQ0, origin=(-1, 0))
 
     plt.plot(speed[0], speed[1]*orig_speed[1][14]/speed[1][14]/scale_factor, 
              label=method)

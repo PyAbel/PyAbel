@@ -16,6 +16,121 @@ from scipy.special import legendre
 from abel import _deprecate
 
 
+def radial_intensity(kind, IM, origin=None, dr=1, dt=None):
+    """
+    Calculate the one-dimensional radial intensity profile by angular
+    integration or averaging of the image, treated either as a two-dimensional
+    distribution or as a central slice of a cylindrically symmetric
+    three-dimensional distribution.
+
+    Parameters
+    ----------
+    kind : str
+        operation to perform:
+
+        ``'int2D'``:
+            integration in 2D over polar angles
+        ``'int3D'``:
+            integration in 3D over solid angles
+        ``'avg2D'``:
+            averaging in 2D over polar angles
+        ``'avg3D'``:
+            averaging in 3D over solid angles
+
+    IM : 2D numpy.array
+        the image data
+
+    origin : tuple of float or None
+        image origin in the (row, column) format. If ``None``, the geometric
+        center of the image (``rows // 2, cols // 2``) is used.
+
+    dr : float
+        radial grid spacing in pixels (default 1). ``dr=0.5`` may reduce pixel
+        granularity of the radial profile.
+
+    dt : float or None
+        angular grid spacing in radians.
+        If ``None``, the number of theta values will be set to largest
+        dimension (the height or the width) of the image, which should
+        typically ensure good sampling.
+
+    Returns
+    -------
+    r : 1D numpy.array
+        radial coordinates
+
+    intensity : 1D numpy.array
+        intensity profile as a function of the radial coordinate
+    """
+    polarIM, R, T = reproject_image_into_polar(IM, origin, dr=dr, dt=dt)
+
+    # apply necessary Jacobian/normalization
+    if kind == 'int2D':
+        polarIM *= R
+    elif kind == 'int3D':
+        polarIM *= np.pi * R**2 * np.abs(np.sin(T))
+    elif kind == 'avg2D':
+        polarIM /= 2 * np.pi
+    elif kind == 'avg3D':
+        polarIM *= np.abs(np.sin(T)) / 4
+    else:
+        raise ValueError('Incorrect kind={}'.format(kind))
+
+    # integrate over theta
+    dt = T[0, 1] - T[0, 0]  # get the actual number, if dt=None was passed
+    intensity = polarIM.sum(axis=1) * dt
+    # (np.trapz() doesn't know about periodic functions and thus underuses
+    # boundary points; direct Riemann sum is more accurate here)
+
+    return R[:, 0], intensity
+
+
+def angular_integration_2D(IM, origin=None, dr=1, dt=None):
+    """
+    Angular integration of the image as a two-dimensional object.
+
+    Equivalent to :func:`radial_intensity('int2D', IM, origin, dr, dt)
+    <radial_intensity>`.
+    """
+    return radial_intensity('int2D', IM, origin=origin, dr=dr, dt=dt)
+
+
+def angular_integration_3D(IM, origin=None, dr=1, dt=None):
+    """
+    Angular integration of the three-dimensional cylindrically symmetric object
+    represented by the image as its central slice. When applied to the inverse
+    Abel transform of a velocity-mapping image, this yields the speed
+    distribution.
+
+    Equivalent to :func:`radial_intensity('int3D', IM, origin, dr, dt)
+    <radial_intensity>`.
+    """
+    return radial_intensity('int3D', IM, origin=origin, dr=dr, dt=dt)
+
+
+def average_radial_intensity_2D(IM, origin=None, dr=1, dt=None):
+    """
+    Calculate the average radial intensity of the image as a two-dimensional
+    object.
+
+    Equivalent to :func:`radial_intensity('avg2D', IM, origin, dr, dt)
+    <radial_intensity>`.
+    """
+    return radial_intensity('avg2D', IM, origin=origin, dr=dr, dt=dt)
+
+
+def average_radial_intensity_3D(IM, origin=None, dr=1, dt=None):
+    """
+    Calculate the average radial intensity of the three-dimensional
+    cylindrically symmetric object represented by the image as its central
+    slice.
+
+    Equivalent to :func:`radial_intensity('avg3D', IM, origin, dr, dt)
+    <radial_intensity>`.
+    """
+    return radial_intensity('avg3D', IM, origin=origin, dr=dr, dt=dt)
+
+
 def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     r"""Angular integration of the image.
 
@@ -24,6 +139,16 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
 
     Note: the use of ``Jacobian=True`` applies the correct Jacobian for the
     integration of a 3D object in spherical coordinates.
+
+    .. warning::
+        This function behaves incorrectly: misses a factor of π for 3D
+        integration, with ``Jacobian=True``, and for ``Jacobian=False`` returns
+        the *average* (over polar angles) multiplied by 2π instead of
+        integrating. It is currently deprecated and is provided only for
+        backward compatibility, but will be removed in the future.
+
+        Please use :func:`radial_intensity`, :func:`angular_integration_2D` or
+        :func:`angular_integration_3D`.
 
     Parameters
     ----------
@@ -60,6 +185,10 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
         integrated intensity array (vs radius).
 
     """
+    _deprecate('angular_integration() is deprecated, please see the '
+               'documentation for details. '
+               'Use radial_intensity(), angular_integration_2D() or '
+               'angular_integration_3D() instead.')
 
     polarIM, R, T = reproject_image_into_polar(
         IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)
@@ -84,6 +213,14 @@ def average_radial_intensity(IM, **kwargs):
     :func:`abel.tools.vmi.angular_integration` with
     ``Jacobian=True`` and then dividing the result by 2π.
 
+    .. warning::
+        This function is currently deprecated and is provided only for backward
+        compatibility, but will be removed in the future.
+
+        Please use :func:`radial_intensity`,
+        :func:`average_radial_intensity_2D` or
+        :func:`average_radial_intensity_3D`.
+
     Parameters
     ----------
     IM : 2D numpy.array
@@ -100,8 +237,11 @@ def average_radial_intensity(IM, **kwargs):
 
     intensity : 1D numpy.array
         intensity profile as a function of the radial coordinate
-
     """
+    _deprecate('average_radial_intensity() is deprecated, '
+               'use average_radial_intensity_2D(), '
+               'average_radial_intensity_3D() or radial_intensity() instead.')
+
     R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
     intensity /= 2 * np.pi
     return R, intensity
@@ -305,7 +445,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
 
         sets the intensity Jacobian.
         If ``True``, the returned intensities correspond to an "intensity per
-        eV" or "intensity per cm\ :sup:`-1` ". If ``False``, the returned
+        eV" or "intensity per cm\ :sup:`−1`". If ``False``, the returned
         intensities correspond to an "intensity per pixel".
 
     photon_energy : None or float

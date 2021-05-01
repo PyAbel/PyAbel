@@ -79,8 +79,8 @@ for q, method in enumerate(transforms.keys()):
     print ("                    {:.1f} s".format(time()-t0))
 
     # polar projection and speed profile
-    radial, speed = abel.tools.vmi.angular_integration(IAQ0, origin=(-1, 0),
-                                                       dr=0.1)
+    radial, speed = abel.tools.vmi.angular_integration_3D(IAQ0, origin=(-1, 0),
+                                                          dr=0.1)
 
     # normalize image intensity and speed distribution
     IAQ0 /= IAQ0[mask].max()
