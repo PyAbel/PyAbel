@@ -8,7 +8,7 @@ Unreleased
   angular_integration() and average_radial_intensity(), which had incorrect or
   nonintuitive behavior (PR #318, PR #319).
 
-v0.8.4 (2020-04-15)
+v0.8.4 (2021-04-15)
 -------------------
 * Added odd angular orders to tools.vmi.Distributions (PR #266).
 * Important! Some "center" functions/parameters are renamed to "origin" or
