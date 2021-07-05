@@ -18,18 +18,26 @@ abel.basex module
     :undoc-members:
     :show-inheritance:
 
-abel.linbasex module
---------------------
+abel.dasch module
+-----------------
 
-.. automodule:: abel.linbasex
+.. automodule:: abel.dasch
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.rbasex module
+abel.daun module
+----------------
+
+.. automodule:: abel.daun
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+abel.direct module
 ------------------
 
-.. automodule:: abel.rbasex
+.. automodule:: abel.direct
     :members:
     :undoc-members:
     :show-inheritance:
@@ -42,10 +50,10 @@ abel.hansenlaw module
     :undoc-members:
     :show-inheritance:
 
-abel.dasch module
------------------
+abel.linbasex module
+--------------------
 
-.. automodule:: abel.dasch
+.. automodule:: abel.linbasex
     :members:
     :undoc-members:
     :show-inheritance:
@@ -58,10 +66,10 @@ abel.onion_bordas module
     :undoc-members:
     :show-inheritance:
 
-abel.direct module
+abel.rbasex module
 ------------------
 
-.. automodule:: abel.direct
+.. automodule:: abel.rbasex
     :members:
     :undoc-members:
     :show-inheritance:
