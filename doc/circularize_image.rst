@@ -29,7 +29,7 @@ J. R. Gascooke, S. T. Gibson, W. D. Lawrance,
 "A 'circularisation' method to repair deformations and determine the centre of
 velocity map images",
 `J. Chem. Phys. 147, 013924 (2017)
-<https://dx.doi.org/10.1063/1.4981024>`_.
+<https://dx.doi.org/10.1063/1.4981024>`__.
 
 
 Implementation

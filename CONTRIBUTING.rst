@@ -2,7 +2,7 @@ Contributing to PyAbel
 ======================
 
 
-PyAbel is an open-source project, and we welcome improvements! Please let us know about any issues with the software, even if's just a typo. The easiest way to get started is to open a `new issue <https://github.com/PyAbel/PyAbel/issues>`_.
+PyAbel is an open-source project, and we welcome improvements! Please let us know about any issues with the software, even if's just a typo. The easiest way to get started is to open a `new issue <https://github.com/PyAbel/PyAbel/issues>`__.
 
 If you would like to make a Pull Request, the following information may be useful.
 
@@ -10,7 +10,7 @@ If you would like to make a Pull Request, the following information may be usefu
 Change Log
 ----------
 
-If the change is significant (more than just a typo-fix), please leave a short note about the change in `CHANGELOG.rst <https://github.com/PyAbel/PyAbel/blob/master/CHANGELOG.rst>`_
+If the change is significant (more than just a typo-fix), please leave a short note about the change in `CHANGELOG.rst <https://github.com/PyAbel/PyAbel/blob/master/CHANGELOG.rst>`__
 
 
 Unit tests
@@ -24,7 +24,7 @@ For more detailed information, the following can be used::
 
     pytest abel/  -v  --cov=abel
 
-Note that this requires that you have `pytest <https://docs.pytest.org/en/latest/>`_ and (optionally) `pytest-cov <https://pytest-cov.readthedocs.io/en/latest/>`_ installed. You can install these with ::
+Note that this requires that you have `pytest <https://docs.pytest.org/en/latest/>`__ and (optionally) `pytest-cov <https://pytest-cov.readthedocs.io/en/latest/>`__ installed. You can install these with ::
 
     pip install pytest pytest-cov
 
@@ -32,7 +32,7 @@ Note that this requires that you have `pytest <https://docs.pytest.org/en/latest
 Documentation
 -------------
 
-PyAbel uses Sphinx and `Napoleon <http://sphinxcontrib-napoleon.readthedocs.io/en/latest/index.html>`_ to process Numpy-style docstrings and is synchronized to `pyabel.readthedocs.io <http://pyabel.readthedocs.io>`_. To build the documentation locally, you will need `Sphinx <http://www.sphinx-doc.org/>`_, the `recommonmark <https://github.com/rtfd/recommonmark>`_ package, and the `sphinx_rtd_theme <https://github.com/snide/sphinx_rtd_theme/>`_. You can install them using ::
+PyAbel uses Sphinx and `Napoleon <http://sphinxcontrib-napoleon.readthedocs.io/en/latest/index.html>`__ to process Numpy-style docstrings and is synchronized to `pyabel.readthedocs.io <http://pyabel.readthedocs.io>`__. To build the documentation locally, you will need `Sphinx <http://www.sphinx-doc.org/>`__, the `recommonmark <https://github.com/rtfd/recommonmark>`__ package, and the `sphinx_rtd_theme <https://github.com/snide/sphinx_rtd_theme/>`__. You can install them using ::
 
     pip install sphinx
     pip install recommonmark
@@ -50,7 +50,7 @@ Then you can open ``doc/_build/hmtl/index.html`` to look at the documentation. S
 
 to clear out the old documentation and get things to re-build properly.
 
-When you get tired of typing ``make html`` every time you make a change to the documentation, it's nice to use use `sphix-autobuild <https://pypi.python.org/pypi/sphinx-autobuild>`_ to automatically update the documentation in your browser for you. So, install sphinx-autobuild using ::
+When you get tired of typing ``make html`` every time you make a change to the documentation, it's nice to use use `sphix-autobuild <https://pypi.python.org/pypi/sphinx-autobuild>`__ to automatically update the documentation in your browser for you. So, install sphinx-autobuild using ::
 
     pip install sphinx-autobuild
 
@@ -61,7 +61,7 @@ Now you should be able to ::
 
 which should launch a browser window displaying the docs. When you save a change to any of the docs, the re-build should happen automatically and the docs should update in a matter of a few seconds.
 
-Alternatively, `restview <https://pypi.python.org/pypi/restview>`_ is a nice way to preview the ``.rst`` files.
+Alternatively, `restview <https://pypi.python.org/pypi/restview>`__ is a nice way to preview the ``.rst`` files.
 
 
 Code Style
@@ -69,13 +69,13 @@ Code Style
 
 We hope that the PyAbel code will be understandable, hackable, and maintainable for many years to come. So, please use good coding style, include plenty of comments, use docstrings for functions, and pick informative variable names.
 
-PyAbel attempts to follow `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_ style whenever possible, since the PEP8 recommendations typically produces code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`_, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all Pull Requests using `pep8speaks <https://pep8speaks.com/>`_. However, `producing readable code <https://www.python.org/dev/peps/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`_ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines.
+PyAbel attempts to follow `PEP8 <https://www.python.org/dev/peps/pep-0008/>`__ style whenever possible, since the PEP8 recommendations typically produces code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`__, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all Pull Requests using `pep8speaks <https://pep8speaks.com/>`__. However, `producing readable code <https://www.python.org/dev/peps/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`__ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines.
 
 
 Before merging
 --------------
 
-If possible, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository>`_::
+If possible, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository>`__::
 
     # Add the remote, call it "upstream" (only the fist time)
     git remote add upstream https://github.com/PyAbel/PyAbel.git
@@ -100,7 +100,7 @@ If possible, before merging your pull request please rebase your fork on the las
 
     git push -f
 
-See `this wiki <https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request>`_ for more information.
+See `this wiki <https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request>`__ for more information.
 
 
 Adding a new forward or inverse Abel implementation
@@ -142,14 +142,14 @@ See ``abel/tests/test_basex.py`` for a concrete example.
 Dependencies
 ------------
 
-The current list of dependencies can be found in `setup.py <https://github.com/PyAbel/PyAbel/blob/master/setup.py>`_. Please refrain from adding new dependencies, unless it cannot be avoided.
+The current list of dependencies can be found in `setup.py <https://github.com/PyAbel/PyAbel/blob/master/setup.py>`__. Please refrain from adding new dependencies, unless it cannot be avoided.
 
 
 
 Releasing on PyPi
 -----------------
 
-PyAbel should be automatically released on PyPi (see `PR #161 <https://github.com/PyAbel/PyAbel/pull/161>`_) whenever a new release is drafted on GitHub via the "Draft New Release" button on the `Releases page <https://github.com/PyAbel/PyAbel/releases>`_. But first, make a Pull Request that does the following:
+PyAbel should be automatically released on PyPi (see `PR #161 <https://github.com/PyAbel/PyAbel/pull/161>`__) whenever a new release is drafted on GitHub via the "Draft New Release" button on the `Releases page <https://github.com/PyAbel/PyAbel/releases>`__. But first, make a Pull Request that does the following:
 
 - Increment the version number in abel/_version.py.
 - Modify CHANGELOG.rst to include the new changes in the new version.

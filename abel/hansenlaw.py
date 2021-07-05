@@ -60,14 +60,14 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     E. W. Hansen,
     "Fast Hankel transform algorithm",
     `IEEE Trans. Acoust. Speech Signal Proc. 33, 666–671 (1985)
-    <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
+    <https://dx.doi.org/10.1109/TASSP.1985.1164579>`__
 
     and
 
     E. W. Hansen, P.-L. Law,
     "Recursive methods for computing the Abel transform and its inverse",
     `J. Opt. Soc. Am. A 2, 510–520 (1985)
-    <https://dx.doi.org/10.1364/JOSAA.2.000510>`_.
+    <https://dx.doi.org/10.1364/JOSAA.2.000510>`__.
 
     This function performs the Hansen–Law transform on only one "right-side"
     image::

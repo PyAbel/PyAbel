@@ -37,7 +37,7 @@ _linbasex_parameter_docstring = \
     "Charged particle velocity map image reconstruction with one-dimensional
     projections of spherical functions",
     `Rev. Sci. Instrum. 84, 033101 (2013)
-    <https://doi.org/10.1063/1.4793404>`_.
+    <https://doi.org/10.1063/1.4793404>`__.
 
     ``linbasex`` models the image using a sum of Legendre polynomials at each
     radial pixel, As such, it should only be applied to situations that can

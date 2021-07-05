@@ -72,14 +72,14 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
     "Incorporating real time velocity map image reconstruction into closed-loop
     coherent control",
     `Rev. Sci. Instrum. 85, 113105 (2014)
-    <https://doi.org/10.1063/1.4899267>`_.
+    <https://doi.org/10.1063/1.4899267>`__.
 
     The algorithm actually originates from
 
     C. Bordas, F. Paulig,
     "Photoelectron imaging spectrometry: Principle and inversion method",
     `Rev. Sci. Instrum. 67, 2257–2268 (1996)
-    <https://doi.org/10.1063/1.1147044>`_.
+    <https://doi.org/10.1063/1.1147044>`__.
 
     This function operates on the "right side" of an image. i.e. it works on
     just half of a cylindrically symmetric image. Unlike the other transforms,

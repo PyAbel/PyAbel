@@ -127,7 +127,7 @@ class Transform(object):
             J. P. Shaffer,
             "Multiple scattering and the density distribution of a Cs MOT",
             `Optics Express 13, 9672–9682 (2005)
-            <https://dx.doi.org/10.1364/OPEX.13.009672>`_.
+            <https://doi.org/10.1364/OPEX.13.009672>`__.
 
     angular_integration : bool
         Integrate the image over angle to give the radial (speed) intensity
@@ -229,7 +229,7 @@ class Transform(object):
         "Reconstruction of Abel-transformable images: The Gaussian basis-set
         expansion Abel transform method",
         `Rev. Sci. Instrum. 73, 2634–2642 (2002)
-        <https://dx.doi.org/10.1063/1.1482156>`_.
+        <https://doi.org/10.1063/1.1482156>`__.
 
     ``direct``
         This method attempts a direct integration of the Abel-transform
@@ -248,7 +248,7 @@ class Transform(object):
         E. W. Hansen, P.-L. Law,
         "Recursive methods for computing the Abel transform and its inverse",
         `J. Opt. Soc. Am. A 2, 510–520 (1985)
-        <https://dx.doi.org/10.1364/JOSAA.2.000510>`_.
+        <https://doi.org/10.1364/JOSAA.2.000510>`__.
 
     ``linbasex`` *
         Velocity-mapping images are composed of projected Newton spheres with
@@ -263,7 +263,7 @@ class Transform(object):
         "Charged particle velocity map image reconstruction with
         one-dimensional projections of spherical functions",
         `Rev. Sci. Instrum. 84, 033101 (2013)
-        <https://doi.org/10.1063/1.4793404>`_.
+        <https://doi.org/10.1063/1.4793404>`__.
 
     ``onion_bordas``
         The onion peeling method, also known as "back projection", originates
@@ -271,7 +271,7 @@ class Transform(object):
         C. Bordas, F. Paulig,
         "Photoelectron imaging spectrometry: Principle and inversion method",
         `Rev. Sci. Instrum. 67, 2257–2268 (1996)
-        <https://doi.org/10.1063/1.1147044>`_.
+        <https://doi.org/10.1063/1.1147044>`__.
 
         The algorithm was subsequently coded in MatLab by
         C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin,
@@ -281,16 +281,16 @@ class Transform(object):
         "Incorporating real time velocity map image reconstruction into
         closed-loop coherent control",
         `Rev. Sci. Instrum. 85, 113105 (2014)
-        <https://doi.org/10.1063/1.4899267>`_,
+        <https://doi.org/10.1063/1.4899267>`__,
         which was used as the basis of this Python port. See `issue #56
-        <https://github.com/PyAbel/PyAbel/issues/56>`_.
+        <https://github.com/PyAbel/PyAbel/issues/56>`__.
 
     ``onion_peeling`` *
         This is one of the most compact and fast algorithms, with the inverse
         Abel transform achieved in one Python code-line, `PR #155
-        <https://github.com/PyAbel/PyAbel/pull/155>`_. See also ``three_point``
-        is the onion peeling algorithm as described by Dasch (1992), reference
-        below.
+        <https://github.com/PyAbel/PyAbel/pull/155>`__. See also
+        ``three_point`` is the onion peeling algorithm as described by Dasch
+        (1992), reference below.
 
     ``rbasex`` *
         The pBasex method by
@@ -298,7 +298,7 @@ class Transform(object):
         “Two-dimensional charged particle image inversion using a polar basis
         function expansion”,
         `Rev. Sci. Instrum. 75, 4989–2996 (2004)
-        <http://dx.doi.org/10.1063/1.1807578>`_
+        <http://doi.org/10.1063/1.1807578>`__
         adapts the BASEX ("basis set expansion") method to the specific case of
         velocity-mapping images by using a basis of 2D functions in polar
         coordinates, such that the reconstructed radial distributions are
@@ -313,9 +313,9 @@ class Transform(object):
         dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and
         CD\ :sub:`2`\ OH)”,
         Ph.D. dissertation, University of Southern California, 2012
-        (`ProQuest <https://search.proquest.com/docview/1289069738>`_,
+        (`ProQuest <https://search.proquest.com/docview/1289069738>`__,
         `USC <http://digitallibrary.usc.edu/cdm/ref/collection/p15799coll3/id/
-        112619>`_).
+        112619>`__).
 
     ``three_point`` *
         The "Three Point" Abel transform method exploits the observation that
@@ -328,7 +328,7 @@ class Transform(object):
         "One-dimensional tomography: a comparison of Abel, onion-peeling, and
         filtered backprojection methods",
         `Appl. Opt. 31, 1146–1152 (1992)
-        <https://doi.org/10.1364/AO.31.001146>`_.
+        <https://doi.org/10.1364/AO.31.001146>`__.
 
     ``two_point`` *
         Another Dasch method. Simple, and fast, but not as accurate as the
