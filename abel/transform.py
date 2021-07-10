@@ -136,15 +136,15 @@ class Transform(object):
         *Note: in PyAbel ≤0.8.4 the intensity distribution was off by a factor
         of π, please keep this in mind when comparing absolute intensities.*
 
-    transform_options : tuple
+    transform_options : dict
         Additional arguments passed to the individual transform functions.
         See the documentation for the individual transform method for options.
 
-    center_options : tuple
+    center_options : dict
         Additional arguments to be passed to the centering function,
         see :func:`abel.tools.center.center_image()`.
 
-    angular_integration_options : tuple (or dict)
+    angular_integration_options : dict
         Additional arguments passed to the angular integration functions,
         see :func:`abel.tools.vmi.angular_integration_3D()`.
 
