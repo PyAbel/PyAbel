@@ -18,5 +18,7 @@ Contents:
    example_linbasex
    example_rbasex_block
    example_rbasex_multimass
+   example_daun_reg
+   example_daun_order
    example_anisotropy_parameter
    example_circularize_image
