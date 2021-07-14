@@ -63,6 +63,8 @@ def daun_transform(data, reg=0.0, order=0, verbose=True, direction='inverse'):
             triangular functions (piecewise linear approximation)
         2:
             piecewise quadratic functions (smooth approximation)
+        3:
+            piecewise cubic functions (cubic-spline approximation)
     verbose : bool
         determines whether progress report should be printed
     direction : str: ``'forward'`` or ``'inverse'``
@@ -73,9 +75,10 @@ def daun_transform(data, reg=0.0, order=0, verbose=True, direction='inverse'):
     recon : m × n numpy array
         the transformed (half) image
     """
-    # make sure that the data has the right shape (1D must be converted to 2D):
+    # make sure that the data has the right shape (1D must be converted to 2D)
+    # and type:
     dim = len(data.shape)
-    data = np.atleast_2d(data)
+    data = np.atleast_2d(data).astype(float)
     h, w = data.shape
 
     if reg in [None, 0]:
@@ -128,7 +131,7 @@ def get_bs_cached(n, order=0, reg_type='diff', strength=0, verbose=False,
     n : int
         half-width of the image in pixels, must include the axial pixel
     order : int
-        polynomial order for basis functions (0–2)
+        polynomial order for basis functions (0–3)
     reg_type: None or str
         regularization type (``None``, ``'diff'``, ``'L2'``, ``'nonneg'``)
     strength : float
@@ -178,7 +181,7 @@ def _bs_daun(n, order=0, verbose=False):
     n : int
         half-width of the image in pixels, must include the axial pixel
     order : int
-        polynomial order for basis functions (0–2)
+        polynomial order for basis functions (0–3)
 
     Returns
     -------
@@ -201,8 +204,18 @@ def _bs_daun(n, order=0, verbose=False):
             return PP(r, [(j - 1,   j - 1/2, [0, 0,  2], j - 1),
                           (j - 1/2, j + 1/2, [1, 0, -2], j),
                           (j + 1/2, j + 1,   [0, 0,  2], j + 1)])
+    elif order == 3:
+        def p(j):
+            return PP(r, [(j - 1, j, [1, 0, -3, -2], j),
+                          (j, j + 1, [1, 0, -3,  2], j)])
+
+        # derivative basis functions
+        def q(j):
+            return PP(r, [(j - 1, j, [0, 1,  2, 1], j),
+                          (j, j + 1, [0, 1, -2, 1], j)])
     else:
-        raise ValueError('Wrong order={} (must be 0, 1 or 2).'.format(order))
+        raise ValueError('Wrong order={} (must be 0, 1, 2 or 3).'.
+                         format(repr(order)))
 
     if verbose:
         print('Generating basis projections for '
@@ -213,5 +226,17 @@ def _bs_daun(n, order=0, verbose=False):
     A = np.empty((n, n))
     for j in range(n):
         A[j] = p(j).abel
+
+    if order == 3:
+        # coefficient matrix for derivative functions
+        B = np.empty((n, n))
+        for j in range(n):
+            B[j] = q(j).abel
+        # solve for smooth derivative and modify A accordingly
+        C = toeplitz([4, 1] + [0] * (n - 2))
+        C[1, 0] = C[-2, -1] = 0
+        D = toeplitz([0, 3] + [0] * (n - 2), [0, -3] + [0] * (n - 2))
+        D[1, 0] = D[-2, -1] = 0
+        A += D.dot(inv(C)).dot(B)
 
     return A
