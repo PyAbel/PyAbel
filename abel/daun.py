@@ -8,10 +8,8 @@ from __future__ import unicode_literals
 import sys
 
 import numpy as np
-from scipy.linalg import inv, toeplitz
+from scipy.linalg import inv, toeplitz, solve_banded
 from scipy.optimize import nnls
-
-from abel.tools.polynomial import PiecewisePolynomial as PP
 
 
 def daun_transform(data, reg=0.0, order=0, verbose=True, direction='inverse'):
@@ -188,31 +186,90 @@ def _bs_daun(n, order=0, verbose=False):
     A : n × n numpy array
         coefficient matrix (transposed projected basis set)
     """
-    # pixel radii
-    r = np.arange(float(n))
+    # pixel coordinates
+    x = np.arange(float(n))
+    # (and common subexpressions for projections)
+    x2 = x**2
+    if order > 0:
+        x2logx = x2 * np.log(x, np.zeros_like(x), where=x > 0)
 
     # projections (Abel transforms) of given-order basis functions
     if order == 0:
         def p(j):
-            return PP(r, [(j - 1/2, j + 1/2, [1], j)])
+            o = np.zeros(n)
+            o[:j + 1] += np.sqrt((j + 1/2)**2 - x2[:j + 1])
+            if j > 0:
+                o[:j] -= np.sqrt((j - 1/2)**2 - x2[:j])
+            return 2 * o
     elif order == 1:
         def p(j):
-            return PP(r, [(j - 1, j, [1,  1], j),
-                          (j, j + 1, [1, -1], j)])
+            def P(R):
+                y = np.sqrt(R**2 - x2[:R])
+                return y * R - x2[:R] * np.log(y + R)
+            o = np.zeros(n)
+            o[:j + 1] += P(j + 1)
+            o[:j] -= 2 * P(j)
+            o[j] += x2logx[j]
+            if j > 0:
+                o[:j - 1] += P(j - 1)
+                o[j - 1] -= x2logx[j - 1]
+            return o
     elif order == 2:
         def p(j):
-            return PP(r, [(j - 1,   j - 1/2, [0, 0,  2], j - 1),
-                          (j - 1/2, j + 1/2, [1, 0, -2], j),
-                          (j + 1/2, j + 1,   [0, 0,  2], j + 1)])
+            def P(R, a, b, c):
+                x2_R = x2[:int(R + 1/2)]
+                y = np.sqrt(R**2 - x2_R)
+                return y * (a * 2 + b * R + c * 4/3 * (R**2 / 2 + x2_R)) + \
+                       b * x2_R * np.log(y + R)
+            o = np.zeros(n)
+            o[:j + 1] += P(j + 1, 2 * (j + 1)**2, -4 * (j + 1), 2) - \
+                         P(j + 1/2, (2 * j + 1)**2, -4 * (2 * j + 1), 4)
+            if j > 0:
+                o[:j] += P(j - 1/2, (2 * j - 1)**2, -4 * (2 * j - 1), 4)
+                o[j] -= 4 * j * x2logx[j]
+                o[:j - 1] -= P(j - 1, 2 * (j - 1)**2, -4 * (j - 1), 2)
+                o[j - 1] += 4 * (j - 1) * x2logx[j - 1]
+            return o
     elif order == 3:
         def p(j):
-            return PP(r, [(j - 1, j, [1, 0, -3, -2], j),
-                          (j, j + 1, [1, 0, -3,  2], j)])
+            def P(R, a, b, c, d):
+                y = np.sqrt(R**2 - x2[:R])
+                return y * (a * 2 + (b + (c * 2/3 + d * R / 2) * R) * R +
+                            (d * 3/4 * R + c * 4/3) * x2[:R]) + \
+                       (b + d * 3/4 * x2[:R]) * x2[:R] * np.log(y + R)
+            o = np.zeros(n)
+            o[:j + 1] += P(j + 1,
+                           -j**2 * (2 * j + 3) + 1, 6 * j * (j + 1),
+                           -3 * (2 * j + 1),  2)
+            o[:j] += P(j, 4 * j**3, -12 * j**2, 12 * j, -4)
+            o[j] -= (6 * j * (j + 1) + 3/2 * x2[j]) * x2logx[j]
+            if j > 0:
+                o[:j - 1] -= P(j - 1,
+                               j**2 * (2 * j - 3) + 1, -6 * j * (j - 1),
+                               3 * (2 * j - 1), -2)
+                o[j - 1] += 6 * (j * (j - 1) + x2[j - 1] / 4) * x2logx[j - 1]
+            return o
 
         # derivative basis functions
         def q(j):
-            return PP(r, [(j - 1, j, [0, 1,  2, 1], j),
-                          (j, j + 1, [0, 1, -2, 1], j)])
+            def P(R, a, b, c, d):
+                y = np.sqrt(R**2 - x2[:R])
+                return y * (a * 2 + (b + (c * 2/3 + d * R / 2) * R) * R +
+                            (d * 3/4 * R + c * 4/3) * x2[:R]) + \
+                       (b + d * 3/4 * x2[:R]) * x2[:R] * np.log(y + R)
+            o = np.zeros(n)
+            o[:j + 1] += P(j + 1,
+                           -j * (j * (j + 2) + 1), j * (3 * j + 4) + 1,
+                           -3 * j - 2, 1)
+            o[:j] += P(j, 4 * j**2, -8 * j, 4, 0)
+            o[j] -= (j * (3 * j + 4) + 1 + 3/4 * x2[j]) * x2logx[j]
+            if j > 0:
+                o[:j - 1] -= P(j - 1,
+                               -j * (j * (j - 2) + 1), j * (3 * j - 4) + 1,
+                               -3 * j + 2, 1)
+                o[j - 1] -= (j * (3 * j - 4) + 1 + 3/4 * x2[j - 1]) * \
+                            x2logx[j - 1]
+            return o
     else:
         raise ValueError('Wrong order={} (must be 0, 1, 2 or 3).'.
                          format(repr(order)))
@@ -225,18 +282,19 @@ def _bs_daun(n, order=0, verbose=False):
     # (transposed compared to the Daun article, since our data are in rows)
     A = np.empty((n, n))
     for j in range(n):
-        A[j] = p(j).abel
+        A[j] = p(j)
 
     if order == 3:
         # coefficient matrix for derivative functions
         B = np.empty((n, n))
         for j in range(n):
-            B[j] = q(j).abel
+            B[j] = q(j)
         # solve for smooth derivative and modify A accordingly
-        C = toeplitz([4, 1] + [0] * (n - 2))
-        C[1, 0] = C[-2, -1] = 0
-        D = toeplitz([0, 3] + [0] * (n - 2), [0, -3] + [0] * (n - 2))
-        D[1, 0] = D[-2, -1] = 0
-        A += D.dot(inv(C)).dot(B)
+        C = solve_banded((1, 1), ([0] + [1] * (n - 2) + [0],
+                                  [4] * n,
+                                  [0] + [1] * (n - 2) + [0]),
+                         3 * B)[1:-1, 1:-1]
+        A[2:,  1:-1] += C
+        A[:-2, 1:-1] -= C
 
     return A
