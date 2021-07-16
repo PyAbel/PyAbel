@@ -46,6 +46,9 @@ def daun_transform(data, reg=0.0, order=0, direction='inverse', verbose=True):
         ``('L2', strength)``:
             Tikhonov regularization using the :math:`L_2` norm, like in
             :ref:`BASEX`
+        ``('L2c', strength)``:
+            same as ``('L2', strength)``, but with an intensity correction
+            applied to compensate the drop near the symmetry axis
         ``'nonneg'``:
             non-negative least-squares solution.
 
@@ -145,10 +148,11 @@ def get_bs_cached(n, order=0, reg_type='diff', strength=0, direction='inverse',
     order : int
         polynomial order for basis functions (0–3)
     reg_type: None or str
-        regularization type (``None``, ``'diff'``, ``'L2'``, ``'nonneg'``)
+        regularization type (``None``, ``'diff'``, ``'L2'``, ``'L2c'``,
+        ``'nonneg'``)
     strength : float
         Tikhonov regularization parameter (for **reg_type** = ``'diff'`` and
-        ``'L2'``, ignored otherwise)
+        ``'L2'``/``'L2c'``, ignored otherwise)
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
     verbose : bool
@@ -205,6 +209,10 @@ def get_bs_cached(n, order=0, reg_type='diff', strength=0, direction='inverse',
         # (transposed compared to the Daun article, since our data are in rows)
         A = _bs[:n, :n]
         _tr = A.T.dot(inv(A.dot(A.T) + strength * LTL))
+        if reg_type == 'L2c':
+            # apply correction: divide by regularized inverse of
+            # forward-transformed uniform distribution
+            _tr /= A.sum(axis=0).dot(_tr)
         _tr_prm = [n, reg_type, strength]
     return _tr
 

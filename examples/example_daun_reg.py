@@ -23,7 +23,7 @@ Q = np.random.RandomState(0).poisson(Q)
 # regularization parameters
 regs = [None,
         ('diff', 100),  # RMS optimal is ~50
-        ('L2', 50),     # RMS optimal is ~25
+        ('L2c', 50),    # RMS optimal is ~25
         'nonneg']
 
 # array for corresponding intensity distributions

@@ -147,7 +147,8 @@ def test_daun_gaussian():
     for reg, tol in ([None, 2e-3],
                      [1, 1e-3],
                      [('diff', 1), 1e-3],
-                     [('L2', 1), 6e-4],
+                     [('L2', 1), 6e-4],  # for r > 0
+                     [('L2c', 1), 6e-4],
                      ['nonneg', 2e-3]):
         recon = daun_transform(tr, reg=reg, verbose=False)
         recon = recon[n // 2 + n % 2]
