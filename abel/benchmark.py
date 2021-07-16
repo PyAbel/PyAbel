@@ -8,6 +8,7 @@ import numpy as np
 import abel
 from . import basex
 from . import dasch
+from . import daun
 from . import direct
 from . import hansenlaw
 from . import linbasex
@@ -194,6 +195,7 @@ class AbelTiming(object):
         # which methods need half and whole images
         need_half = frozenset([
             'basex',
+            'daun',
             'direct_C',
             'direct_Python',
             'hansenlaw',
@@ -397,6 +399,40 @@ class AbelTiming(object):
 
         # discard all caches
         basex.cache_cleanup()
+
+    @_skip(('bs', 'daun'),
+           (['inverse', 'forward'], 'daun'),
+           ('inverse', 'daun(var.reg.)'))
+    def _time_daun(self):
+        # benchmark the basis generation (default parameters)
+        def gen_basis():
+            daun.cache_cleanup()
+            daun.get_bs_cached(self.w)
+        self._benchmark('bs', 'daun',
+                        gen_basis)
+
+        # benchmark all transforms
+        for direction in ['inverse', 'forward']:  # (default first)
+            # cache the transform matrix
+            daun.get_bs_cached(self.w, direction=direction)
+            # benchmark the transform itself
+            self._benchmark(direction, 'daun',
+                            daun.daun_transform,
+                            self.half_image, direction=direction,
+                            verbose=False)
+            if direction == 'inverse':
+                # benchmark the transform with variable regularization
+                def daun_var():
+                    daun.daun_transform(self.half_image,
+                                        reg=1.0 + np.random.random(),
+                                        verbose=False)
+                self._benchmark('inverse', 'daun(var.reg.)',
+                                daun_var)
+            # discard the unneeded transform matrix
+            daun.cache_cleanup(direction)
+
+        # discard all caches
+        daun.cache_cleanup()
 
     @_skip((['inverse', 'forward'], 'direct_C'))
     def _time_direct_C(self):
