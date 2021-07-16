@@ -8,11 +8,11 @@ from __future__ import unicode_literals
 import sys
 
 import numpy as np
-from scipy.linalg import inv, toeplitz, solve_banded
+from scipy.linalg import inv, toeplitz, solve_banded, solve_triangular
 from scipy.optimize import nnls
 
 
-def daun_transform(data, reg=0.0, order=0, verbose=True, direction='inverse'):
+def daun_transform(data, reg=0.0, order=0, direction='inverse', verbose=True):
     """
     Forward and inverse Abel transforms based on onion-peeling deconvolution
     using Tikhonov regularization described in
@@ -63,10 +63,10 @@ def daun_transform(data, reg=0.0, order=0, verbose=True, direction='inverse'):
             piecewise quadratic functions (smooth approximation)
         3:
             piecewise cubic functions (cubic-spline approximation)
-    verbose : bool
-        determines whether progress report should be printed
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
+    verbose : bool
+        determines whether progress report should be printed
 
     Returns
     -------
@@ -80,7 +80,7 @@ def daun_transform(data, reg=0.0, order=0, verbose=True, direction='inverse'):
     h, w = data.shape
 
     if reg in [None, 0]:
-        reg_type, strength = None, None
+        reg_type, strength = None, 0
     elif reg == 'nonneg':
         reg_type, strength = reg, None
     elif isinstance(reg, (float, int)):
@@ -109,7 +109,11 @@ def daun_transform(data, reg=0.0, order=0, verbose=True, direction='inverse'):
             print('\nDone!')
     else:
         # do the linear transform
-        recon = data.dot(M)
+        if direction == 'inverse' and strength == 0 and order != 3:
+            # (this is faster than general-purpose multiplication by inverse)
+            recon = solve_triangular(M.T, data.T).T  # (here M is forward)
+        else:
+            recon = data.dot(M)
 
     if dim == 1:
         return recon[0]
@@ -124,14 +128,15 @@ _tr = None  # inverse-transform matrix
 _tr_prm = None  # [size, type, strength]
 
 
-def get_bs_cached(n, order=0, reg_type='diff', strength=0, verbose=False,
-                  direction='inverse'):
+def get_bs_cached(n, order=0, reg_type='diff', strength=0, direction='inverse',
+                  verbose=False):
     """
     Internal function.
 
-    Gets the basis set and calculates the necessary transform matrix
-    (notice that :attr:`direction='inverse'` with :attr:`reg_type='nonneg'`
-    gives the forward matrix).
+    Gets the basis set and calculates the necessary transform matrix (notice
+    that inverse direction with ``'nonneg'`` regularization, as well as with
+    **strength** = 0 for **order** ≠ 3, gives the forward (triangular) matrix,
+    to be used in solvers).
 
     Parameters
     ----------
@@ -144,10 +149,10 @@ def get_bs_cached(n, order=0, reg_type='diff', strength=0, verbose=False,
     strength : float
         Tikhonov regularization parameter (for **reg_type** = ``'diff'`` and
         ``'L2'``, ignored otherwise)
-    verbose : bool
-        print some debug information
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
+    verbose : bool
+        print some debug information
 
     Returns
     -------
@@ -175,8 +180,14 @@ def get_bs_cached(n, order=0, reg_type='diff', strength=0, verbose=False,
 
     if strength == 0:
         if _tr is None or _tr_prm[2] != 0:  # not cached or for strength != 0
-            # compute inverse-transform matrix by simple inverse
-            _tr = inv(_bs)  # (full-sized, just in case)
+            # compute transform matrix (full-sized, just in case)
+            if order == 3:
+                # general-purpose inverse of non-triangular
+                _tr = inv(_bs)
+            else:
+                # triangular matrix as is — will be used in solve_triangular,
+                # which is even faster than multiplication by cached inverse
+                _tr = _bs
             _tr_prm = [_bs_prm[0], reg_type, strength]
         return _tr[:n, :n]  # (cropping if too large — safe for triangular)
 
@@ -202,7 +213,7 @@ def cache_cleanup(select='all'):
     """
     Utility function.
 
-    Frees the memory caches created by ``get_bs_cached()``.
+    Frees the memory caches created by :func:`get_bs_cached`.
     This is usually pointless, but might be required after working
     with very large images, if more RAM is needed for further tasks.
 
