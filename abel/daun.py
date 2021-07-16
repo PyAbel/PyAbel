@@ -117,12 +117,21 @@ def daun_transform(data, reg=0.0, order=0, verbose=True, direction='inverse'):
         return recon
 
 
+# Caches and their parameters
+_bs = None  # basis set
+_bs_prm = None  # [size, order]
+_tr = None  # inverse-transform matrix
+_tr_prm = None  # [size, type, strength]
+
+
 def get_bs_cached(n, order=0, reg_type='diff', strength=0, verbose=False,
                   direction='inverse'):
     """
     Internal function.
 
-    Gets the basis set and calculates the necessary transform matrix.
+    Gets the basis set and calculates the necessary transform matrix
+    (notice that :attr:`direction='inverse'` with :attr:`reg_type='nonneg'`
+    gives the forward matrix).
 
     Parameters
     ----------
@@ -145,27 +154,79 @@ def get_bs_cached(n, order=0, reg_type='diff', strength=0, verbose=False,
     M : n × n numpy array
         matrix of the Abel transform (forward or inverse)
     """
-    A = _bs_daun(n, order, verbose)
+    global _bs, _bs_prm, _tr, _tr_prm
+
+    bs_OK = (_bs is not None and  # cached
+             _bs_prm[1] == order and  # correct order
+             (_bs_prm[0] == n if order == 3 else _bs_prm[0] >= n))  # good size
+    if not bs_OK:
+        # generate and cache
+        _bs = _bs_daun(n, order, verbose)
+        _bs_prm = [n, order]
+        # reset cached inverse-transform matrix
+        _tr = None
+        _tr_prm = None
 
     if direction == 'forward' or reg_type == 'nonneg':
-        return A
+        return _bs[:n, :n]  # (cropping if too large)
 
-    if reg_type is None or strength == 0:
-        # simple inverse
-        return inv(A)
+    if reg_type is None:
+        strength = 0
 
-    # square of Tikhonov matrix
-    if reg_type == 'diff':
-        # of difference operator (approx. derivative operator)
-        LTL = toeplitz([2, -1] + [0] * (n - 2))
-        LTL[0, 0] = LTL[-1, -1] = 1
-    else:
-        # for L2 norm
-        LTL = np.eye(n)
+    if strength == 0:
+        if _tr is None or _tr_prm[2] != 0:  # not cached or for strength != 0
+            # compute inverse-transform matrix by simple inverse
+            _tr = inv(_bs)  # (full-sized, just in case)
+            _tr_prm = [_bs_prm[0], reg_type, strength]
+        return _tr[:n, :n]  # (cropping if too large — safe for triangular)
 
-    # regularized inverse
-    # (transposed compared to the Daun article, since our data are in rows)
-    return A.T.dot(inv(A.dot(A.T) + strength * LTL))
+    if _tr_prm != [n, reg_type, strength]:
+        # square of Tikhonov matrix
+        if reg_type == 'diff':
+            # of difference operator (approx. derivative operator)
+            LTL = toeplitz([2, -1] + [0] * (n - 2))
+            LTL[0, 0] = LTL[-1, -1] = 1
+        else:
+            # for L2 norm
+            LTL = np.eye(n)
+
+        # regularized inverse
+        # (transposed compared to the Daun article, since our data are in rows)
+        A = _bs[:n, :n]
+        _tr = A.T.dot(inv(A.dot(A.T) + strength * LTL))
+        _tr_prm = [n, reg_type, strength]
+    return _tr
+
+
+def cache_cleanup(select='all'):
+    """
+    Utility function.
+
+    Frees the memory caches created by ``get_bs_cached()``.
+    This is usually pointless, but might be required after working
+    with very large images, if more RAM is needed for further tasks.
+
+    Parameters
+    ----------
+    select : str
+        selects which caches to clean:
+
+        ``'all'`` (default)
+            everything, including basis set
+        ``'inverse'``
+            only inverse transform
+
+    Returns
+    -------
+    None
+    """
+    global _bs, _bs_prm, _tr, _tr_prm
+
+    if select == 'all':
+        _bs = None
+        _bs_prm = None
+    _tr = None
+    _tr_prm = None
 
 
 def _bs_daun(n, order=0, verbose=False):

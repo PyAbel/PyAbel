@@ -7,7 +7,7 @@ from numpy.testing import assert_allclose
 from scipy.linalg import inv, toeplitz
 
 import abel
-from abel.daun import _bs_daun, daun_transform
+from abel.daun import _bs_daun, get_bs_cached, cache_cleanup, daun_transform
 from abel.tools.polynomial import PiecewisePolynomial as PP
 from abel.tools.analytical import GaussianAnalytical
 
@@ -53,6 +53,67 @@ def test_daun_basis_sets():
         A = _bs_daun(n, order)
         Aref = daun_basis_set(n, order)
         assert_allclose(A, Aref, err_msg='-> order = ' + str(order))
+
+
+def test_daun_basis_sets_cache():
+    """Check basis-set cache handling"""
+
+    # changing size
+    n1, n2 = 20, 30
+    for order in range(4):
+        # forward
+        cache_cleanup()
+        bs2_ref = get_bs_cached(n2, order, direction='forward')
+        cache_cleanup()
+        bs1_ref = get_bs_cached(n1, order, direction='forward')
+        bs2 = get_bs_cached(n2, order, direction='forward')
+        bs1 = get_bs_cached(n1, order, direction='forward')
+        assert_allclose(bs1, bs1_ref, atol=1e-15,
+                        err_msg='-> forward: n<, order = {}'.format(order))
+        assert_allclose(bs2, bs2_ref, atol=1e-15,
+                        err_msg='-> forward: n>, order = {}'.format(order))
+
+        # inverse
+        for reg_type in [None, 'diff', 'L2', 'nonneg']:
+            cache_cleanup()
+            bs2_ref = get_bs_cached(n2, order, reg_type, 1)
+            cache_cleanup()
+            bs1_ref = get_bs_cached(n1, order, reg_type, 1)
+            bs2 = get_bs_cached(n2, order, reg_type, 1)
+            bs1 = get_bs_cached(n1, order, reg_type, 1)
+            assert_allclose(bs1, bs1_ref, atol=1e-15,
+                            err_msg='-> inverse: n<, order = {}, reg_type = {}'.
+                                    format(order, reg_type))
+            assert_allclose(bs2, bs2_ref, atol=1e-15,
+                            err_msg='-> inverse: n>, order = {}, reg_type = {}'.
+                                    format(order, reg_type))
+
+    # changing order
+    for direction in ['forward', 'inverse']:
+        cache_cleanup()
+        bs0_ref = get_bs_cached(n1, 0)
+        cache_cleanup()
+        bs1_ref = get_bs_cached(n1, 1)
+        bs0 = get_bs_cached(n1, 0)
+        bs1 = get_bs_cached(n1, 1)
+        assert_allclose(bs0, bs0_ref, atol=1e-15,
+                        err_msg='-> {}: order>'.
+                                format(direction, order, reg_type))
+        assert_allclose(bs1, bs1_ref, atol=1e-15,
+                        err_msg='-> {}: order<'.
+                                format(direction, order, reg_type))
+
+    # changing regularization strength
+    bs_ref = []
+    for reg in [0, 1, 2]:
+        cache_cleanup()
+        bs_ref.append(get_bs_cached(n1, strength=reg))
+    bs = []
+    for reg in [0, 1, 2]:
+        bs.append(get_bs_cached(n1, strength=reg))
+    assert_allclose(bs[0], bs_ref[0], atol=1e-15, err_msg='-> reg = 0 after 2')
+    assert_allclose(bs[1], bs_ref[1], atol=1e-15, err_msg='-> reg = 1 after 0')
+    assert_allclose(bs[2], bs_ref[2], atol=1e-15, err_msg='-> reg = 2 after 1')
 
 
 def test_daun_shape():
@@ -113,6 +174,7 @@ def test_daun_forward_gaussian():
 
 if __name__ == '__main__':
     test_daun_basis_sets()
+    test_daun_basis_sets_cache()
     test_daun_shape()
     test_daun_zeros()
     test_daun_gaussian()
