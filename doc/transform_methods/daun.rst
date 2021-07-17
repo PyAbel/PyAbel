@@ -169,7 +169,8 @@ order = 3:
 
 In practice, however, the choice of the basis set has negligible effect on the
 transform results, as can be seen from an example :ref:`below
-<example_orders>`.
+<example_orders>`. Nevertheless, cubic splines might be useful for transforming
+smooth functions, in which case they yield very accurate results.
 
 
 Regularization methods

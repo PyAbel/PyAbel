@@ -4,15 +4,17 @@ import abel
 import bz2
 
 transforms = [
-  ("basex",         abel.basex.basex_transform,               '#880000'),
-  ("direct",        abel.direct.direct_transform,             '#EE0000'),
-  ("hansenlaw",     abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
-  ("onion_bordas",  abel.onion_bordas.onion_bordas_transform, '#00AA00'),
-  ("onion_peeling", abel.dasch.onion_peeling_transform,       '#00CCFF'),
-  ("three_point",   abel.dasch.three_point_transform,         '#0000FF'),
-  ("two_point",     abel.dasch.two_point_transform,           '#CC00FF'),
-  ("linbasex",      abel.linbasex.linbasex_transform,         '#AAAAAA'),
-  ("rbasex",        abel.rbasex.rbasex_transform,             '#AACC00'),
+  ("basex (reg=200)", abel.basex.basex_transform,               '#006600'),
+  ("daun (reg=100)",  abel.daun.daun_transform,                 '#880000'),
+  ("daun (nonneg)",   abel.daun.daun_transform,                 '#880000'),
+  ("direct",          abel.direct.direct_transform,             '#EE0000'),
+  ("hansenlaw",       abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
+  ("onion_bordas",    abel.onion_bordas.onion_bordas_transform, '#00AA00'),
+  ("onion_peeling",   abel.dasch.onion_peeling_transform,       '#00CCFF'),
+  ("three_point",     abel.dasch.three_point_transform,         '#0000FF'),
+  ("two_point",       abel.dasch.two_point_transform,           '#CC00FF'),
+  ("linbasex",        abel.linbasex.linbasex_transform,         '#AAAAAA'),
+  ("rbasex",          abel.rbasex.rbasex_transform,             '#AACC00'),
 ]
 
 infile = bz2.BZ2File('../../../../examples/data/O2-ANU1024.txt.bz2')
@@ -26,25 +28,29 @@ Q0 = Q[1]
 
 h, w = np.shape(IM)
 
-fig, axs = plt.subplots(3, 3, figsize=(7, 6.5), sharex=True, sharey=True)
-fig1, axs1 = plt.subplots(3, 1, figsize=(6, 7))
+fig, axs = plt.subplots(4, 3, figsize=(7, 8.6), sharex=True, sharey=True)
+fig1, axs1 = plt.subplots(3, 1, figsize=(7, 8))
 
 for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
                                                               transforms,
-                                                              'abcdefghij')):
+                                                              'abcdefghijk')):
     print(label)
 
-    if label == 'linbasex':
-        targs = dict(proj_angles=np.arange(0, np.pi, np.pi/10))
-    else:
-        targs = dict()
+    targs = dict()
+    pargs = dict(lw=1, color=color, zorder=-num)
 
-    if label == 'basex':
+    if label == 'basex (reg=200)':
         targs = dict(reg=200)
+    elif label == 'daun (reg=100)':
+        targs = dict(reg=100)
+    elif label == 'daun (nonneg)':
+        targs = dict(reg='nonneg')
+        pargs['ls'] = '--'
+    elif label == 'linbasex':
+        targs = dict(proj_angles=np.arange(0, np.pi, np.pi/10))
 
     if label == 'rbasex':
         trans = transFunc(Q0, direction="inverse", origin='ll')[0]
-
     else:
         trans = transFunc(Q0, direction="inverse", **targs)
 
@@ -64,14 +70,12 @@ for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
                  x=0.05, y=0.93, ha='left', va='top',
                  weight='bold', color='k')
 
-    pargs = dict(lw=1, color=color, zorder=-num)
-
     axs1[0].plot(r, inten,              **pargs)
     axs1[1].plot(r, inten, label=label, **pargs)
     axs1[2].plot(r, inten,              **pargs)
 
 
-axc = fig.add_axes([0.93, 0.06, 0.01, 0.93])
+axc = fig.add_axes([0.93, 0.05, 0.01, 0.94])
 cbar = plt.colorbar(im, orientation="vertical", cax=axc, label='Intensity')
 cbar.ax.xaxis.set_ticks_position('top')
 cbar.ax.xaxis.set_label_position('top')
@@ -90,7 +94,7 @@ for ax in axs.ravel():
                        rotation='vertical', verticalalignment='center')
     ax.set_yticks(minor, minor=True)
 
-fig.subplots_adjust(left=0.05, bottom=0.06, right=0.92, top=0.99,
+fig.subplots_adjust(left=0.06, bottom=0.05, right=0.92, top=0.99,
                     wspace=0.04, hspace=0.04)
 
 for ax in axs[-1]:

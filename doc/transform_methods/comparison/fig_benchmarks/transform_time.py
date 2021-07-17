@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import LogLocator
 
 transforms = [
-  ("basex",         '#880000', {}),
-  ("basex(var)",    '#880000', {'mfc': 'w'}),
+  ("basex",         '#006600', {}),
+  ("basex(var)",    '#006600', {'mfc': 'w'}),
+  ("daun",          '#880000', {}),
+  ("daun(var)",     '#880000', {'mfc': 'w'}),
   ("direct_C",      '#EE0000', {}),
   ("direct_Python", '#EE0000', {'mfc': 'w'}),
   ("hansenlaw",     '#CCAA00', {}),
@@ -64,6 +66,13 @@ def plot(directory, xlim, ylim, linex):
         n = times[0]
         t = times[1] * 1e-3  # in ms
         plt.plot(n, t, 'o-', label=meth, ms=ms, **pargs)
+
+    # Daun with reg='nonneg' for the O2-ANU1024 example
+    x = 1023
+    y = 46  # done on i5-4278U, please replace!
+    plt.plot(x, y, 's', c='#880000', mfc='w')
+    plt.annotate('daun(nonneg)\n\n', (x, y), ha='right', va='center',
+                 xytext=(5, 0), textcoords='offset points')  # 5 = fontsize / 2
 
     plt.legend()
 

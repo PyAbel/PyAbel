@@ -4,6 +4,10 @@ import abel
 
 transforms = [
   ("basex",         abel.basex.basex_transform),
+  (r"daun\ (order=1)", lambda *args, **kwargs:
+                    abel.daun.daun_transform(*args, order=1, **kwargs)),
+  (r"daun\ (order=3)", lambda *args, **kwargs:
+                    abel.daun.daun_transform(*args, order=3, **kwargs)),
   ("direct",        abel.direct.direct_transform),
   ("hansenlaw",     abel.hansenlaw.hansenlaw_transform),
   ("onion_bordas",  abel.onion_bordas.onion_bordas_transform),
@@ -42,7 +46,7 @@ if case == 'circ':
     proj = 2*np.sqrt(1-r**2)
     dr = r[1] - r[0]
 
-fig, axs = plt.subplots(ntrans, 1, figsize=(5, 9), sharex=True, sharey=True)
+fig, axs = plt.subplots(ntrans, 1, figsize=(5, 10), sharex=True, sharey=True)
 
 for row, (label, transFunc) in enumerate(transforms):
     axs[row].plot(r, func, label='Analytical' if row == 0 else None, lw=1)
@@ -60,23 +64,25 @@ for row, (label, transFunc) in enumerate(transforms):
 
     axs[row].axhline(0, color='k', alpha=0.3, lw=1)
 
-    axs[row].legend(loc='upper right', frameon=False)
+    axs[row].legend(loc='upper right', frameon=False,
+                    handletextpad=0 if row > 0 else None)
 
     axs[row].grid(ls='solid', alpha=0.05, color='k')
 
 
 axs[-1].set_xlabel("$r$ (pixels)")
-axs[3].set_ylabel('$z$')
+axs[4].set_ylabel('$z$')
 
 for ax, letter in zip(axs, 'abcdefghi'):
     ax.grid(ls='solid', alpha=0.05, color='k')
     if case == 'gaussian':
-        ax.set_ylim(-0.25, 1.25)
+        ax.set_ylim(-0.2, 1.3)
+        ax.set_yticks([0, 0.5, 1])
         ax.set_xlim(0, n*0.74)
     else:
         ax.set_xlim(0, 1)
 
-    ax.annotate(letter + ')', xy=(0.02, 0.88), xytext=(0, 0),
+    ax.annotate(letter + ')', xy=(0.02, 0.86), xytext=(0, 0),
                 textcoords='offset points', xycoords='axes fraction',
                 weight='bold')
 
