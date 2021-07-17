@@ -156,6 +156,10 @@ def test_daun_gaussian():
         assert_allclose(recon[skip:], ref.func[skip:], atol=tol,
                         err_msg='-> reg = ' + repr(reg))
 
+    # test dr
+    recon = daun_transform(tr, dr=0.5, verbose=False)[0]
+    assert_allclose(recon, 2 * ref.func, atol=3e-3, err_msg='-> dr = 0.5')
+
 
 def test_daun_forward_gaussian():
     """Check forward Daun transform of a gaussian"""
@@ -171,6 +175,10 @@ def test_daun_forward_gaussian():
         proj = proj[n // 2 + n % 2]
         assert_allclose(proj, ref.abel, atol=tol,
                         err_msg='-> order = ' + str(order))
+
+    # test dr
+    proj = daun_transform(tr, dr=0.5, direction='forward', verbose=False)[0]
+    assert_allclose(proj, ref.abel / 2, atol=2e-2, err_msg='-> dr = 0.5')
 
 
 if __name__ == '__main__':

@@ -12,7 +12,8 @@ from scipy.linalg import inv, toeplitz, solve_banded, solve_triangular
 from scipy.optimize import nnls
 
 
-def daun_transform(data, reg=0.0, order=0, direction='inverse', verbose=True):
+def daun_transform(data, reg=0.0, order=0, dr=1.0, direction='inverse',
+                   verbose=True):
     """
     Forward and inverse Abel transforms based on onion-peeling deconvolution
     using Tikhonov regularization described in
@@ -66,6 +67,9 @@ def daun_transform(data, reg=0.0, order=0, direction='inverse', verbose=True):
             piecewise quadratic functions (smooth approximation)
         3:
             piecewise cubic functions (cubic-spline approximation)
+    dr : float
+        pixel size in the radial direction. This only affects the absolute
+        scaling of the transformed image.
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
     verbose : bool
@@ -117,6 +121,13 @@ def daun_transform(data, reg=0.0, order=0, direction='inverse', verbose=True):
             recon = solve_triangular(M.T, data.T).T  # (here M is forward)
         else:
             recon = data.dot(M)
+
+    # apply pixel scaling
+    if dr != 1.0:
+        if direction == 'forward':
+            recon *= dr
+        else:  # 'inverse'
+            recon /= dr
 
     if dim == 1:
         return recon[0]
