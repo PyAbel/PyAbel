@@ -61,11 +61,28 @@ so
     \int r^k \,dy = y \sum_{m=1}^k C_m r^m x^{k-m} + C_1 x^{k+1} \ln (y + r),
     \qquad (\text{summing over odd}\ m)
 
-with the same expressions for :math:`C_m`.
+with the same expressions for :math:`C_m`. For example, here are explicit
+formulas for several low degrees:
 
-These sums are computed using Horner's method in :math:`x`, which requires only
-:math:`x^2`, :math:`y` (see above), :math:`\ln (y + r)` (for polynomials with
-odd degrees), and powers of :math:`r` up to :math:`K`.
+    ========= =====================
+    :math:`k` :math:`\int r^k \,dy`
+    ========= =====================
+    0         :math:`y`
+    1         :math:`\frac12 r y + \frac12 x^2 \ln(y + r)`
+    2         :math:`\left(\frac13 r^2 + \frac23 x^2\right) y`
+    3         :math:`\left(\frac14 r^3 + \frac38 r x^2\right) y +
+              \frac38 x^4 \ln(y + r)`
+    4         :math:`\left(\frac15 r^4 + \frac4{15} r^2 x^2 +
+              \frac8{15} x^4\right) y`
+    5         :math:`\left(\frac16 r^5 + \frac5{24} r^3 x^2 +
+              \frac5{16} r x^4\right) y + \frac5{16} x^6 \ln(y + r)`
+    ...       :math:`\dots`
+    ========= =====================
+
+The sums over :math:`m` are computed using `Horner's method
+<https://en.wikipedia.org/wiki/Horner's_method>`__ in :math:`x`, which requires
+only :math:`x^2`, :math:`y` (see above), :math:`\ln (y + r)` (for polynomials
+with odd degrees), and powers of :math:`r` up to :math:`K`.
 
 The sum of the integrals, however, is computed by direct addition. In
 particular, this means that an attempt to use this method for high-degree
