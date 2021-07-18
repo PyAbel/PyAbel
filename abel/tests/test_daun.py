@@ -12,27 +12,27 @@ from abel.tools.polynomial import PiecewisePolynomial as PP
 from abel.tools.analytical import GaussianAnalytical
 
 
-def daun_basis_set(n, order):
+def daun_basis_set(n, degree):
     """Reference implementation of basis-set generation"""
     r = np.arange(float(n))
 
     A = np.empty((n, n))
     for j in range(n):
-        if order == 0:
+        if degree == 0:
             p = PP(r, [(j - 1/2, j + 1/2, [1], j)])
-        elif order == 1:
+        elif degree == 1:
             p = PP(r, [(j - 1, j, [1,  1], j),
                        (j, j + 1, [1, -1], j)])
-        elif order == 2:
+        elif degree == 2:
             p = PP(r, [(j - 1,   j - 1/2, [0, 0,  2], j - 1),
                        (j - 1/2, j + 1/2, [1, 0, -2], j),
                        (j + 1/2, j + 1,   [0, 0,  2], j + 1)])
-        else:  # order == 3:
+        else:  # degree == 3:
             p = PP(r, [(j - 1, j, [1, 0, -3, -2], j),
                        (j, j + 1, [1, 0, -3,  2], j)])
         A[j] = p.abel
 
-    if order == 3:
+    if degree == 3:
         B = np.empty((n, n))
         for j in range(n):
             B[j] = PP(r, [(j - 1, j, [0, 1,  2, 1], j),
@@ -47,12 +47,12 @@ def daun_basis_set(n, order):
 
 
 def test_daun_basis_sets():
-    """Check basis-set generation for all orders"""
+    """Check basis-set generation for all degrees"""
     n = 10
-    for order in range(4):
-        A = _bs_daun(n, order)
-        Aref = daun_basis_set(n, order)
-        assert_allclose(A, Aref, err_msg='-> order = ' + str(order))
+    for degree in range(4):
+        A = _bs_daun(n, degree)
+        Aref = daun_basis_set(n, degree)
+        assert_allclose(A, Aref, err_msg='-> degree = ' + str(degree))
 
 
 def test_daun_basis_sets_cache():
@@ -60,35 +60,35 @@ def test_daun_basis_sets_cache():
 
     # changing size
     n1, n2 = 20, 30
-    for order in range(4):
+    for degree in range(4):
         # forward
         cache_cleanup()
-        bs2_ref = get_bs_cached(n2, order, direction='forward')
+        bs2_ref = get_bs_cached(n2, degree, direction='forward')
         cache_cleanup()
-        bs1_ref = get_bs_cached(n1, order, direction='forward')
-        bs2 = get_bs_cached(n2, order, direction='forward')
-        bs1 = get_bs_cached(n1, order, direction='forward')
+        bs1_ref = get_bs_cached(n1, degree, direction='forward')
+        bs2 = get_bs_cached(n2, degree, direction='forward')
+        bs1 = get_bs_cached(n1, degree, direction='forward')
         assert_allclose(bs1, bs1_ref, atol=1e-15,
-                        err_msg='-> forward: n<, order = {}'.format(order))
+                        err_msg='-> forward: n<, degree = {}'.format(degree))
         assert_allclose(bs2, bs2_ref, atol=1e-15,
-                        err_msg='-> forward: n>, order = {}'.format(order))
+                        err_msg='-> forward: n>, degree = {}'.format(degree))
 
         # inverse
         for reg_type in [None, 'diff', 'L2', 'nonneg']:
             cache_cleanup()
-            bs2_ref = get_bs_cached(n2, order, reg_type, 1)
+            bs2_ref = get_bs_cached(n2, degree, reg_type, 1)
             cache_cleanup()
-            bs1_ref = get_bs_cached(n1, order, reg_type, 1)
-            bs2 = get_bs_cached(n2, order, reg_type, 1)
-            bs1 = get_bs_cached(n1, order, reg_type, 1)
+            bs1_ref = get_bs_cached(n1, degree, reg_type, 1)
+            bs2 = get_bs_cached(n2, degree, reg_type, 1)
+            bs1 = get_bs_cached(n1, degree, reg_type, 1)
             assert_allclose(bs1, bs1_ref, atol=1e-15,
-                            err_msg='-> inverse: n<, order = {}, reg_type = {}'.
-                                    format(order, reg_type))
+                            err_msg='-> inverse: n<, degree = {}, reg_type = {}'.
+                                    format(degree, reg_type))
             assert_allclose(bs2, bs2_ref, atol=1e-15,
-                            err_msg='-> inverse: n>, order = {}, reg_type = {}'.
-                                    format(order, reg_type))
+                            err_msg='-> inverse: n>, degree = {}, reg_type = {}'.
+                                    format(degree, reg_type))
 
-    # changing order
+    # changing degree
     for direction in ['forward', 'inverse']:
         cache_cleanup()
         bs0_ref = get_bs_cached(n1, 0)
@@ -97,11 +97,11 @@ def test_daun_basis_sets_cache():
         bs0 = get_bs_cached(n1, 0)
         bs1 = get_bs_cached(n1, 1)
         assert_allclose(bs0, bs0_ref, atol=1e-15,
-                        err_msg='-> {}: order>'.
-                                format(direction, order, reg_type))
+                        err_msg='-> {}: degree>'.
+                                format(direction, degree, reg_type))
         assert_allclose(bs1, bs1_ref, atol=1e-15,
-                        err_msg='-> {}: order<'.
-                                format(direction, order, reg_type))
+                        err_msg='-> {}: degree<'.
+                                format(direction, degree, reg_type))
 
     # changing regularization strength
     bs_ref = []
@@ -138,11 +138,11 @@ def test_daun_gaussian():
     ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=30)
     tr = np.tile(ref.abel[None, :], (n, 1))  # make a 2D array from 1D
 
-    for order, tol in [(0, 2e-3), (1, 3e-4), (2, 9e-4), (3, 4e-5)]:
-        recon = daun_transform(tr, order=order, verbose=False)
+    for degree, tol in [(0, 2e-3), (1, 3e-4), (2, 9e-4), (3, 4e-5)]:
+        recon = daun_transform(tr, degree=degree, verbose=False)
         recon = recon[n // 2 + n % 2]
         assert_allclose(recon, ref.func, atol=tol,
-                        err_msg='-> order = ' + str(order))
+                        err_msg='-> degree = ' + str(degree))
 
     for reg, tol in ([None, 2e-3],
                      [1, 1e-3],
@@ -169,12 +169,12 @@ def test_daun_forward_gaussian():
     ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=30)
     tr = np.tile(ref.func[None, :], (n, 1))  # make a 2D array from 1D
 
-    for order, tol in [(0, 3e-2), (1, 7e-3), (2, 2e-2), (3, 7e-4)]:
-        proj = daun_transform(tr, order=order, direction='forward',
+    for degree, tol in [(0, 3e-2), (1, 7e-3), (2, 2e-2), (3, 7e-4)]:
+        proj = daun_transform(tr, degree=degree, direction='forward',
                               verbose=False)
         proj = proj[n // 2 + n % 2]
         assert_allclose(proj, ref.abel, atol=tol,
-                        err_msg='-> order = ' + str(order))
+                        err_msg='-> degree = ' + str(degree))
 
     # test dr
     proj = daun_transform(tr, dr=0.5, direction='forward', verbose=False)[0]

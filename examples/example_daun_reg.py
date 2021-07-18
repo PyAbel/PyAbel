@@ -36,7 +36,7 @@ for i, reg in enumerate(regs):
     plt.subplot(3, 4, 1 + i)
     plt.axis('off')
 
-    q = abel.daun.daun_transform(Q, order=1, reg=reg)
+    q = abel.daun.daun_transform(Q, degree=1, reg=reg)
     plt.imshow(q, clim=(-3, 3), cmap='seismic')
     plt.text(n / 2, 0, 'reg=' + repr(reg), ha='center', va='top')
 

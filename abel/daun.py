@@ -12,7 +12,7 @@ from scipy.linalg import inv, toeplitz, solve_banded, solve_triangular
 from scipy.optimize import nnls
 
 
-def daun_transform(data, reg=0.0, order=0, dr=1.0, direction='inverse',
+def daun_transform(data, reg=0.0, degree=0, dr=1.0, direction='inverse',
                    verbose=True):
     """
     Forward and inverse Abel transforms based on onion-peeling deconvolution
@@ -55,8 +55,8 @@ def daun_transform(data, reg=0.0, order=0, dr=1.0, direction='inverse',
 
             `Warning: this regularization method is very slow, typically taking
             up to a minute for a megapixel image.`
-    order : int
-        order of basis-function polynomials:
+    degree : int
+        degree of basis-function polynomials:
 
         0:
             rectangular functions (step-function approximation), corresponding
@@ -98,7 +98,7 @@ def daun_transform(data, reg=0.0, order=0, dr=1.0, direction='inverse',
         reg_type, strength = reg
 
     # load the basis sets and compute the transform matrix
-    M = get_bs_cached(w, order=order, reg_type=reg_type, strength=strength,
+    M = get_bs_cached(w, degree=degree, reg_type=reg_type, strength=strength,
                       verbose=verbose, direction=direction)
 
     if reg == 'nonneg':
@@ -116,7 +116,7 @@ def daun_transform(data, reg=0.0, order=0, dr=1.0, direction='inverse',
             print('\nDone!')
     else:
         # do the linear transform
-        if direction == 'inverse' and strength == 0 and order != 3:
+        if direction == 'inverse' and strength == 0 and degree != 3:
             # (this is faster than general-purpose multiplication by inverse)
             recon = solve_triangular(M.T, data.T).T  # (here M is forward)
         else:
@@ -137,27 +137,27 @@ def daun_transform(data, reg=0.0, order=0, dr=1.0, direction='inverse',
 
 # Caches and their parameters
 _bs = None  # basis set
-_bs_prm = None  # [size, order]
+_bs_prm = None  # [size, degree]
 _tr = None  # inverse-transform matrix
 _tr_prm = None  # [size, type, strength]
 
 
-def get_bs_cached(n, order=0, reg_type='diff', strength=0, direction='inverse',
-                  verbose=False):
+def get_bs_cached(n, degree=0, reg_type='diff', strength=0,
+                  direction='inverse', verbose=False):
     """
     Internal function.
 
     Gets the basis set and calculates the necessary transform matrix (notice
     that inverse direction with ``'nonneg'`` regularization, as well as with
-    **strength** = 0 for **order** ≠ 3, gives the forward (triangular) matrix,
-    to be used in solvers).
+    **strength** = 0 for **degree** ≠ 3, gives the forward (triangular)
+    matrix, to be used in solvers).
 
     Parameters
     ----------
     n : int
         half-width of the image in pixels, must include the axial pixel
-    order : int
-        polynomial order for basis functions (0–3)
+    degree : int
+        polynomial degree for basis functions (0–3)
     reg_type: None or str
         regularization type (``None``, ``'diff'``, ``'L2'``, ``'L2c'``,
         ``'nonneg'``)
@@ -177,12 +177,12 @@ def get_bs_cached(n, order=0, reg_type='diff', strength=0, direction='inverse',
     global _bs, _bs_prm, _tr, _tr_prm
 
     bs_OK = (_bs is not None and  # cached
-             _bs_prm[1] == order and  # correct order
-             (_bs_prm[0] == n if order == 3 else _bs_prm[0] >= n))  # good size
+             _bs_prm[1] == degree and  # correct degree
+             (_bs_prm[0] == n if degree == 3 else _bs_prm[0] >= n))  # good size
     if not bs_OK:
         # generate and cache
-        _bs = _bs_daun(n, order, verbose)
-        _bs_prm = [n, order]
+        _bs = _bs_daun(n, degree, verbose)
+        _bs_prm = [n, degree]
         # reset cached inverse-transform matrix
         _tr = None
         _tr_prm = None
@@ -196,7 +196,7 @@ def get_bs_cached(n, order=0, reg_type='diff', strength=0, direction='inverse',
     if strength == 0:
         if _tr is None or _tr_prm[2] != 0:  # not cached or for strength != 0
             # compute transform matrix (full-sized, just in case)
-            if order == 3:
+            if degree == 3:
                 # general-purpose inverse of non-triangular
                 _tr = inv(_bs)
             else:
@@ -259,7 +259,7 @@ def cache_cleanup(select='all'):
     _tr_prm = None
 
 
-def _bs_daun(n, order=0, verbose=False):
+def _bs_daun(n, degree=0, verbose=False):
     """
     Internal function.
 
@@ -269,8 +269,8 @@ def _bs_daun(n, order=0, verbose=False):
     ----------
     n : int
         half-width of the image in pixels, must include the axial pixel
-    order : int
-        polynomial order for basis functions (0–3)
+    degree : int
+        polynomial degree for basis functions (0–3)
 
     Returns
     -------
@@ -281,18 +281,18 @@ def _bs_daun(n, order=0, verbose=False):
     x = np.arange(float(n))
     # (and common subexpressions for projections)
     x2 = x**2
-    if order > 0:
+    if degree > 0:
         x2logx = x2 * np.log(x, np.zeros_like(x), where=x > 0)
 
-    # projections (Abel transforms) of given-order basis functions
-    if order == 0:
+    # projections (Abel transforms) of given-degree basis functions
+    if degree == 0:
         def p(j):
             o = np.zeros(n)
             o[:j + 1] += np.sqrt((j + 1/2)**2 - x2[:j + 1])
             if j > 0:
                 o[:j] -= np.sqrt((j - 1/2)**2 - x2[:j])
             return 2 * o
-    elif order == 1:
+    elif degree == 1:
         def p(j):
             def P(R):
                 y = np.sqrt(R**2 - x2[:R])
@@ -305,7 +305,7 @@ def _bs_daun(n, order=0, verbose=False):
                 o[:j - 1] += P(j - 1)
                 o[j - 1] -= x2logx[j - 1]
             return o
-    elif order == 2:
+    elif degree == 2:
         def p(j):
             def P(R, a, b, c):
                 x2_R = x2[:int(R + 1/2)]
@@ -321,7 +321,7 @@ def _bs_daun(n, order=0, verbose=False):
                 o[:j - 1] -= P(j - 1, 2 * (j - 1)**2, -4 * (j - 1), 2)
                 o[j - 1] += 4 * (j - 1) * x2logx[j - 1]
             return o
-    elif order == 3:
+    elif degree == 3:
         def p(j):
             def P(R, a, b, c, d):
                 y = np.sqrt(R**2 - x2[:R])
@@ -362,12 +362,12 @@ def _bs_daun(n, order=0, verbose=False):
                             x2logx[j - 1]
             return o
     else:
-        raise ValueError('Wrong order={} (must be 0, 1, 2 or 3).'.
-                         format(repr(order)))
+        raise ValueError('Wrong degree={} (must be 0, 1, 2 or 3).'.
+                         format(repr(degree)))
 
     if verbose:
         print('Generating basis projections for '
-              'n = {}, order = {}...'.format(n, order))
+              'n = {}, degree = {}...'.format(n, degree))
 
     # fill the coefficient matrix
     # (transposed compared to the Daun article, since our data are in rows)
@@ -375,7 +375,7 @@ def _bs_daun(n, order=0, verbose=False):
     for j in range(n):
         A[j] = p(j)
 
-    if order == 3:
+    if degree == 3:
         # coefficient matrix for derivative functions
         B = np.empty((n, n))
         for j in range(n):

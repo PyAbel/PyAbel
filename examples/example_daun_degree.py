@@ -27,13 +27,13 @@ Is = []
 plt.figure(figsize=(7, 5))
 
 # transformed images
-for order in range(4):
-    plt.subplot(3, 4, 1 + order)
+for degree in range(4):
+    plt.subplot(3, 4, 1 + degree)
     plt.axis('off')
 
-    q = abel.daun.daun_transform(Q, order=order)
+    q = abel.daun.daun_transform(Q, degree=degree)
     plt.imshow(q, clim=(-3, 3), cmap='seismic')
-    plt.text(n / 2, 0, 'order=' + str(order), ha='center', va='top')
+    plt.text(n / 2, 0, 'degree=' + str(degree), ha='center', va='top')
 
     I, _ = abel.tools.vmi.Ibeta(q, origin='ll')
     Is.append(I)
@@ -48,11 +48,11 @@ for plot in [2, 3]:
     plt.axhline(0, c='k', ls=':', lw=1)
     plt.plot(I0, '--k', lw=1)
 
-    # order = 0: plot with steps
+    # degree = 0: plot with steps
     plt.step(np.arange(n), Is[0], lw=1, label='0', where='mid')
-    # order = 1: plot with lines
+    # degree = 1: plot with lines
     plt.plot(Is[1], lw=1, label='1')
-    # order = 2: plot using parabolic segments
+    # degree = 2: plot using parabolic segments
     r1, r2 = np.arange(sub // 2) / sub, np.arange(sub // 2, 0, -1) / sub
     b = np.concatenate((2 * r1**2, 1 - 2 * r2**2, 1 - 2 * r1**2, 2 * r2**2))
     I = np.zeros_like(rsub)
@@ -60,7 +60,7 @@ for plot in [2, 3]:
         i0 = sub * m
         I[i0 - sub: i0 + sub] += Is[2][m] * b
     plt.plot(rsub, I, lw=1, label='2')
-    # order = 3: plot with cubic splines
+    # degree = 3: plot with cubic splines
     spl = make_interp_spline(np.arange(n), Is[3], bc_type='clamped')
     plt.plot(rsub, splev(rsub, spl), lw=1, label='3')
 

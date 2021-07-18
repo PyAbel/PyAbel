@@ -13,7 +13,7 @@ n = 10
 r0 = 2.3
 
 # radial array with 20 point per pixel and half-integer point split into
-# ±ε pairs for sharp transitions for order = 0
+# ±ε pairs for sharp transitions for degree = 0
 r = np.linspace(0, n - 1, (n - 1) * 20 + 1) + 1e-5
 r = np.sort(np.concatenate((r, 0.5 + np.arange(0, n - 1) - 1e-5)))
 
@@ -23,17 +23,17 @@ def f(x):
            np.exp(-(x - 7)**2 * 3)
 
 
-def p(order, j):
-    if order == 0:
+def p(degree, j):
+    if degree == 0:
         return PP(r, [(j - 1/2, j + 1/2, [1], j)])
-    elif order == 1:
+    elif degree == 1:
         return PP(r, [(j - 1, j, [1,  1], j),
                       (j, j + 1, [1, -1], j)])
-    elif order == 2:
+    elif degree == 2:
         return PP(r, [(j - 1,   j - 1/2, [0, 0,  2], j - 1),
                       (j - 1/2, j + 1/2, [1, 0, -2], j),
                       (j + 1/2, j + 1,   [0, 0,  2], j + 1)])
-    else:  # order == 3
+    else:  # degree == 3
         return PP(r, [(j - 1, j, [1, 0, -3, -2], j),
                       (j, j + 1, [1, 0, -3,  2], j)])
 
@@ -47,15 +47,15 @@ plt.figure(figsize=(5, 7))
 
 colors = cm.rainbow(np.linspace(1, 0, n - 1))
 
-for order in range(4):
-    plt.subplot(4, 1, 1 + order)
-    plt.title('order = ' + str(order),
+for degree in range(4):
+    plt.subplot(4, 1, 1 + degree)
+    plt.title('degree = ' + str(degree),
               fontdict={'fontsize': plt.rcParams['axes.labelsize'],
                         'fontweight': 'bold'},
               loc='left')
 
     F = f(np.arange(n))
-    if order == 3:
+    if degree == 3:
         D = np.concatenate(([0], 3 * (F[2:] - F[:-2]), [0]))
         G = solve_banded((1, 1), ([0, 0] + [1] * (n - 2),
                                   [4] * n,
@@ -63,10 +63,10 @@ for order in range(4):
 
     total = np.zeros_like(r)
     for j, c in enumerate(colors):
-        p_j = F[j] * p(order, j).func
+        p_j = F[j] * p(degree, j).func
         plt.fill_between(r, 0, p_j, color=c, alpha=0.5)
         total += p_j
-        if order == 3:
+        if degree == 3:
             q_j = G[j] * q(j).func
             plt.plot(r, q_j, c=c)
             total += q_j
@@ -75,13 +75,13 @@ for order in range(4):
     plt.plot(r, total, '--', c='k', lw=2, label='approx.')
 
     plt.xlim((0, n - 1))
-    if order == 3:
+    if degree == 3:
         plt.xlabel('radius')
 
     plt.ylim((-0.15, 1.05))
     plt.ylabel('value')
 
-    if order == 0:
+    if degree == 0:
         plt.legend(loc='upper center', bbox_to_anchor=(0.55, 1))
 
 plt.tight_layout()

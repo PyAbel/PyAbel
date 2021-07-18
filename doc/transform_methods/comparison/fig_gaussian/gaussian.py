@@ -4,10 +4,10 @@ import abel
 
 transforms = [
   ("basex",         abel.basex.basex_transform),
-  (r"daun\ (order=1)", lambda *args, **kwargs:
-                    abel.daun.daun_transform(*args, order=1, **kwargs)),
-  (r"daun\ (order=3)", lambda *args, **kwargs:
-                    abel.daun.daun_transform(*args, order=3, **kwargs)),
+  (r"daun\ (degree=1)", lambda *args, **kwargs:
+                    abel.daun.daun_transform(*args, degree=1, **kwargs)),
+  (r"daun\ (degree=3)", lambda *args, **kwargs:
+                    abel.daun.daun_transform(*args, degree=3, **kwargs)),
   ("direct",        abel.direct.direct_transform),
   ("hansenlaw",     abel.hansenlaw.hansenlaw_transform),
   ("onion_bordas",  abel.onion_bordas.onion_bordas_transform),

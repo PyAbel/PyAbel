@@ -117,30 +117,30 @@ consisting of rectangular functions
     \end{cases}
 
 This approximation can be considered rather coarse, so in addition to these
-zero-order piecewise polynomials we also implement basis sets consisting of
-piecewise polynomials up to 3rd order. An example of a test function composed
-of broad and narrow Gaussian peaks and its approximations of various orders is
+zero-degree piecewise polynomials we also implement basis sets consisting of
+piecewise polynomials up to 3rd degree. An example of a test function composed
+of broad and narrow Gaussian peaks and its approximations of various degrees is
 shown below:
 
 .. plot:: transform_methods/daun-basis.py
     :align: center
 
 Here the solid black line is the test function, and the dashed black line is
-its approximation of order :math:`n`, equal to the sum of the colored basis
+its approximation of degree :math:`n`, equal to the sum of the colored basis
 functions.
 
-order = 0:
+degree = 0:
     Rectangular functions produce a stepwise approximation. This is the only
     approach mentioned in the original article and corresponds to the usual
     “onion peeling” transform.
-order = 1:
+degree = 1:
     `Triangular functions
     <https://en.wikipedia.org/wiki/Triangular_function>`__ produce a continuous
     piecewise linear approximation. Besides being continuous (although not
     smooth), this also corresponds to how numerical data is usually plotted
     (with points connected by straight lines), so such plots would faithfully
     convey the underlying method assumptions.
-order = 2:
+degree = 2:
     Piecewise quadratic functions
 
     .. math::
@@ -155,7 +155,7 @@ order = 2:
     :ref:`BASEX basis functions <BASEXcomp>` in shape, these are localized
     within ±1 pixel, sum to unity (although produce oscillations on slopes),
     and their projections are much faster to compute.
-order = 3:
+degree = 3:
     Combinations of `cubic Hermite basis functions
     <https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Interpolation_on_a_single_interval>`__
     produce a cubic-spline approximation (with endpoint derivatives clamped to
@@ -169,8 +169,8 @@ order = 3:
 
 In practice, however, the choice of the basis set has negligible effect on the
 transform results, as can be seen from an example :ref:`below
-<example_orders>`. Nevertheless, cubic splines might be useful for transforming
-smooth functions, in which case they yield very accurate results.
+<example_degrees>`. Nevertheless, cubic splines might be useful for
+transforming smooth functions, in which case they yield very accurate results.
 
 
 Regularization methods
@@ -183,7 +183,7 @@ In addition to the original derivative (difference) Tikhonov regularization,
 PyAbel also implements the usual :math:`L_2` regularization, as in
 :ref:`BASEX`, with the identity matrix :math:`\mathbf I` used instead of
 :math:`\mathbf L` in :eq:`tikhonov`. The results are practically identical to
-the BASEX method, especially with **order** = 2, except that the basis set is
+the BASEX method, especially with **degree** = 2, except that the basis set is
 computed much faster.
 
 Non-negativity
@@ -229,7 +229,7 @@ quadrant, which is 4 times faster that transforming the whole image.
 When to use it
 --------------
 
-This method with default parameters (0th order, 0 regularization parameter) is
+This method with default parameters (0th degree, 0 regularization parameter) is
 identical to the :doc:`“onion peeling” <onion_peeling>` method, but can also be
 used for the forward transform.
 
@@ -292,8 +292,8 @@ half-image or properly oriented quadrants) through the
 :func:`abel.daun.daun_transform()` function.
 
 .. note::
-    If you use any non-default options (order, regularization), please cite not
-    only the article by Daun et al. and the PyAbel article, but also *this
+    If you use any non-default options (degree, regularization), please cite
+    not only the article by Daun et al. and the PyAbel article, but also *this
     PyAbel release* |zenodo|, because these capabilities are not present in the
     original work by Daun et al. and were added to PyAbel after the RSI
     publication.
@@ -312,14 +312,14 @@ with added Poissonian noise:
 
 :doc:`(source code) </example_daun_reg>`
 
-.. _example_orders:
+.. _example_degrees:
 
-The order of basis-set polynomials has almost no effect on the results (shown
+The degree of basis-set polynomials has almost no effect on the results (shown
 here for :attr:`reg=0`):
 
-.. plot:: ../examples/example_daun_order.py
+.. plot:: ../examples/example_daun_degree.py
 
-:doc:`(source code) </example_daun_order>`
+:doc:`(source code) </example_daun_degree>`
 
 
 Citation
