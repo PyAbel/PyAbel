@@ -757,7 +757,7 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
     checked for polar symmetry.
 
     See `issue #34 comment
-    <https://github.com/PyAbel/PyAbel/issues/34#issuecomment-160344809>`_
+    <https://github.com/PyAbel/PyAbel/issues/34#issuecomment-160344809>`__
     for the defintion of a center of the image.
     """
 

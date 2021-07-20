@@ -33,7 +33,7 @@ _dasch_parameter_docstring = \
     "One-dimensional tomography: a comparison of Abel, onion-peeling, and
     filtered backprojection methods",
     `Appl. Opt. 31, 1146–1152 (1992)
-    <https://doi.org/10.1364/AO.31.001146>`_.
+    <https://doi.org/10.1364/AO.31.001146>`__.
 
     Parameters
     ----------

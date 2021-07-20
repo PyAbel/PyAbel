@@ -86,7 +86,7 @@ ax.plot(z_, x_, y_, **sa)
 ax.text(0, x_[anc] + lo / 3, y_[anc] + lo, '$\\theta$', **sl)
 
 
-plt.tight_layout(pad=0, rect=(-0.1, -0.2, 1.1, 1))
+plt.tight_layout(pad=0, rect=(-0.06, -0.1, 1.04, 1))
 
 #plt.savefig('rbasex-coord.svg')
 #plt.show()
