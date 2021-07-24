@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os.path
+
 import numpy as np
 from numpy.testing import assert_allclose
 from scipy.linalg import inv, toeplitz
@@ -12,7 +14,10 @@ from abel.tools.polynomial import PiecewisePolynomial as PP
 from abel.tools.analytical import GaussianAnalytical
 
 
-def daun_basis_set(n, degree):
+DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
+
+
+def daun_bs(n, degree):
     """Reference implementation of basis-set generation"""
     r = np.arange(float(n))
 
@@ -46,16 +51,16 @@ def daun_basis_set(n, degree):
     return A
 
 
-def test_daun_basis_sets():
+def test_daun_bs():
     """Check basis-set generation for all degrees"""
     n = 10
     for degree in range(4):
         A = _bs_daun(n, degree)
-        Aref = daun_basis_set(n, degree)
+        Aref = daun_bs(n, degree)
         assert_allclose(A, Aref, err_msg='-> degree = ' + str(degree))
 
 
-def test_daun_basis_sets_cache():
+def test_daun_bs_cache():
     """Check basis-set cache handling"""
 
     # changing size
@@ -114,6 +119,63 @@ def test_daun_basis_sets_cache():
     assert_allclose(bs[0], bs_ref[0], atol=1e-15, err_msg='-> reg = 0 after 2')
     assert_allclose(bs[1], bs_ref[1], atol=1e-15, err_msg='-> reg = 1 after 0')
     assert_allclose(bs[2], bs_ref[2], atol=1e-15, err_msg='-> reg = 2 after 1')
+
+
+def get_basis_file_name(n, degree):
+    return os.path.join(DATA_DIR, 'daun_basis_{}_{}.npy'.format(n, degree))
+
+
+def test_daun_bs_disk_cache():
+    """Check basis-set disk caching"""
+    n1, n2 = 10, 20
+
+    f_n1_0 = get_basis_file_name(n1, 0)
+    f_n2_0 = get_basis_file_name(n2, 0)
+    f_n1_1 = get_basis_file_name(n1, 1)
+
+    for fname in [f_n1_0, f_n2_0, f_n1_1]:
+        if os.path.exists(fname):
+            os.remove(fname)
+
+    # saving
+    cache_cleanup()
+    bs_n1_0 = get_bs_cached(n1, 0, basis_dir=DATA_DIR)
+    assert os.path.exists(f_n1_0), \
+           'Basis set n = {}, degree = {} was not saved!'.format(n1, 0)
+
+    bs_n2_0 = get_bs_cached(n2, 0, basis_dir=DATA_DIR)
+    assert os.path.exists(f_n2_0), \
+           'Basis set n = {}, degree = {} was not saved!'.format(n2, 0)
+
+    bs_n1_1 = get_bs_cached(n1, 1, basis_dir=DATA_DIR)
+    assert os.path.exists(f_n1_1), \
+           'Basis set n = {}, degree = {} was not saved!'.format(n1, 1)
+
+    # loading
+    cache_cleanup()
+    bs = get_bs_cached(n1, 0, basis_dir=DATA_DIR)
+    assert_allclose(bs_n1_0, bs, err_msg='Loaded basis set ' +
+                    'n = {}, degree = {} differs from saved!'.format(n1, 0))
+
+    cache_cleanup()
+    bs = get_bs_cached(n2, 0, basis_dir=DATA_DIR)
+    assert_allclose(bs_n2_0, bs, err_msg='Loaded basis set ' +
+                    'n = {}, degree = {} differs from saved!'.format(n2, 0))
+
+    cache_cleanup()
+    bs = get_bs_cached(n1, 1, basis_dir=DATA_DIR)
+    assert_allclose(bs_n1_1, bs, err_msg='Loaded basis set ' +
+                    'n = {}, degree = {} differs from saved!'.format(n1, 1))
+
+    # crop-loading
+    os.remove(f_n1_0)
+    cache_cleanup()
+    bs = get_bs_cached(n1, 0, basis_dir=DATA_DIR)
+    assert_allclose(bs_n1_0, bs, err_msg='Loaded cropped basis set differs')
+
+    # clean-up
+    os.remove(f_n2_0)
+    os.remove(f_n1_1)
 
 
 def test_daun_shape():
@@ -182,8 +244,9 @@ def test_daun_forward_gaussian():
 
 
 if __name__ == '__main__':
-    test_daun_basis_sets()
-    test_daun_basis_sets_cache()
+    test_daun_bs()
+    test_daun_bs_cache()
+    test_daun_bs_disk_cache()
     test_daun_shape()
     test_daun_zeros()
     test_daun_gaussian()

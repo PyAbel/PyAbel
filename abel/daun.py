@@ -6,6 +6,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import sys
+import os
+import glob
 
 import numpy as np
 from scipy.linalg import inv, toeplitz, solve_banded, solve_triangular
@@ -13,7 +15,7 @@ from scipy.optimize import nnls
 
 
 def daun_transform(data, reg=0.0, degree=0, dr=1.0, direction='inverse',
-                   verbose=True):
+                   basis_dir=None, verbose=True):
     """
     Forward and inverse Abel transforms based on onion-peeling deconvolution
     using Tikhonov regularization described in
@@ -72,6 +74,12 @@ def daun_transform(data, reg=0.0, degree=0, dr=1.0, direction='inverse',
         scaling of the transformed image.
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
+    basis_dir : str, optional
+        path to the directory for saving / loading the basis set (potentially
+        useful only for **degree** = 3 and transform without regularization;
+        time savings in other cases are small and might be negated by the
+        disk-access overhead). If ``None`` (default), the basis set will not be
+        loaded from or saved to disk.
     verbose : bool
         determines whether progress report should be printed
 
@@ -98,8 +106,8 @@ def daun_transform(data, reg=0.0, degree=0, dr=1.0, direction='inverse',
         reg_type, strength = reg
 
     # load the basis sets and compute the transform matrix
-    M = get_bs_cached(w, degree=degree, reg_type=reg_type, strength=strength,
-                      verbose=verbose, direction=direction)
+    M = get_bs_cached(w, degree, reg_type, strength, direction, basis_dir,
+                      verbose)
 
     if reg == 'nonneg':
         if verbose:
@@ -143,7 +151,7 @@ _tr_prm = None  # [size, type, strength]
 
 
 def get_bs_cached(n, degree=0, reg_type='diff', strength=0,
-                  direction='inverse', verbose=False):
+                  direction='inverse', basis_dir=None, verbose=False):
     """
     Internal function.
 
@@ -166,6 +174,9 @@ def get_bs_cached(n, degree=0, reg_type='diff', strength=0,
         ``'L2'``/``'L2c'``, ignored otherwise)
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
+    basis_dir : str
+        path to the directory for saving / loading the basis set.
+        If ``None``, the basis sets will not be saved to disk.
     verbose : bool
         print some debug information
 
@@ -180,8 +191,13 @@ def get_bs_cached(n, degree=0, reg_type='diff', strength=0,
              _bs_prm[1] == degree and  # correct degree
              (_bs_prm[0] == n if degree == 3 else _bs_prm[0] >= n))  # good size
     if not bs_OK:
-        # generate and cache
-        _bs = _bs_daun(n, degree, verbose)
+        # try to load
+        _bs = _load_bs(basis_dir, n, degree, verbose)
+        if _bs is None:
+            # generate and cache
+            _bs = _bs_daun(n, degree, verbose)
+            _save_bs(basis_dir, n, degree, _bs, verbose)
+            # (does nothing for basis_dir == None)
         _bs_prm = [n, degree]
         # reset cached inverse-transform matrix
         _tr = None
@@ -228,35 +244,58 @@ def get_bs_cached(n, degree=0, reg_type='diff', strength=0,
     return _tr
 
 
-def cache_cleanup(select='all'):
+def _load_bs(basis_dir, n, degree, verbose=False):
     """
-    Utility function.
+    Internal function.
 
-    Frees the memory caches created by :func:`get_bs_cached`.
-    This is usually pointless, but might be required after working
-    with very large images, if more RAM is needed for further tasks.
+    Try to load the basis set from the best suitable file.
 
-    Parameters
-    ----------
-    select : str
-        selects which caches to clean:
-
-        ``'all'`` (default)
-            everything, including basis set
-        ``'inverse'``
-            only inverse transform
-
-    Returns
-    -------
-    None
+    Returns None on failure.
     """
-    global _bs, _bs_prm, _tr, _tr_prm
+    if basis_dir is None:
+        return None
 
-    if select == 'all':
-        _bs = None
-        _bs_prm = None
-    _tr = None
-    _tr_prm = None
+    file_mask = 'daun_basis_*_{}.npy'.format(degree)
+    best_file = None
+    best_size = np.inf
+    for f in glob.glob(os.path.join(basis_dir, file_mask)):
+        size = int(f.split('_')[-2])  # (from '...basis_<size>_<degree>.npy')
+        if n <= size < best_size:
+            best_size = size
+            best_file = f
+
+    if best_file is None:
+        return None
+
+    if verbose:
+        print('Loading basis set from', best_file)
+    try:
+        bs = np.load(best_file)
+    except ValueError:
+        print('Incompatible cached basis-set file!')
+        return None
+
+    if size > n:
+        bs = bs[:n, :n]
+        if verbose:
+            print('(cropped to {})'.format(n))
+
+    return bs
+
+
+def _save_bs(basis_dir, n, degree, bs, verbose=False):
+    """
+    Internal function.
+
+    Try to save the basis set.
+    """
+    if basis_dir is None:
+        return
+
+    file_name = 'daun_basis_{}_{}.npy'.format(n, degree)
+    if verbose:
+        print('Saving basis set to disk as', file_name)
+    np.save(os.path.join(basis_dir, file_name), bs)
 
 
 def _bs_daun(n, degree=0, verbose=False):
@@ -389,3 +428,34 @@ def _bs_daun(n, degree=0, verbose=False):
         A[:-2, 1:-1] -= C
 
     return A
+
+
+def cache_cleanup(select='all'):
+    """
+    Utility function.
+
+    Frees the memory caches created by :func:`get_bs_cached`.
+    This is usually pointless, but might be required after working
+    with very large images, if more RAM is needed for further tasks.
+
+    Parameters
+    ----------
+    select : str
+        selects which caches to clean:
+
+        ``'all'`` (default)
+            everything, including basis set
+        ``'inverse'``
+            only inverse transform
+
+    Returns
+    -------
+    None
+    """
+    global _bs, _bs_prm, _tr, _tr_prm
+
+    if select == 'all':
+        _bs = None
+        _bs_prm = None
+    _tr = None
+    _tr_prm = None
