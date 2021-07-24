@@ -136,15 +136,15 @@ class Transform(object):
         *Note: in PyAbel ≤0.8.4 the intensity distribution was off by a factor
         of π, please keep this in mind when comparing absolute intensities.*
 
-    transform_options : tuple
+    transform_options : dict
         Additional arguments passed to the individual transform functions.
         See the documentation for the individual transform method for options.
 
-    center_options : tuple
+    center_options : dict
         Additional arguments to be passed to the centering function,
         see :func:`abel.tools.center.center_image()`.
 
-    angular_integration_options : tuple (or dict)
+    angular_integration_options : dict
         Additional arguments passed to the angular integration functions,
         see :func:`abel.tools.vmi.angular_integration_3D()`.
 
@@ -438,6 +438,9 @@ class Transform(object):
         if not isinstance(self._symmetry_axis, (list, tuple)):
             # if the user supplies an int, make it into a 1-element list:
             self._symmetry_axis = [self._symmetry_axis]
+        elif len(self._symmetry_axis) == 0:
+            # treat symmetry_axis=[] as symmetry_axis=None
+            self._symmetry_axis = [None]
 
         if self.method == 'rbasex' and self._origin != 'none':
             if self._transform_options.get('origin') is not None:
@@ -519,15 +522,13 @@ class Transform(object):
         # Inverse Abel transform for quadrant 1 (all include Q1)
         AQ1 = selected_transform(Q1)
 
-        if 0 in self._symmetry_axis:
+        if 1 not in self._symmetry_axis:
             AQ2 = selected_transform(Q2)
 
-        if 1 in self._symmetry_axis:
+        if 0 not in self._symmetry_axis:
             AQ0 = selected_transform(Q0)
 
         if None in self._symmetry_axis:
-            AQ0 = selected_transform(Q0)
-            AQ2 = selected_transform(Q2)
             AQ3 = selected_transform(Q3)
 
         if self.method == "linbasex" and\

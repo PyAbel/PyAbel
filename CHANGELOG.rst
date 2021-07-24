@@ -7,6 +7,8 @@ Unreleased
 * New functions in tools.vmi for angular integration and averaging, replacing
   angular_integration() and average_radial_intensity(), which had incorrect or
   nonintuitive behavior (PR #318, PR #319).
+* Avoid unnecessary calculations in transform.Transform() for the
+  symmetry_axis=(0, 1) case (PR #324).
 
 v0.8.4 (2021-04-15)
 -------------------
