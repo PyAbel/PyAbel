@@ -449,6 +449,33 @@ def cache_cleanup(select='all'):
         _tri = None
 
 
+def basis_dir_cleanup(basis_dir=''):
+    """
+    Utility function.
+
+    Deletes basis sets saved on disk.
+
+    Parameters
+    ----------
+    basis_dir : str or None
+        absolute or relative path to the directory with saved basis sets. Use
+        ``''`` for the default directory. ``None`` does nothing.
+
+    Returns
+    -------
+    None
+    """
+    if basis_dir == '':
+        basis_dir = abel.transform.get_basis_dir(make=False)
+
+    if basis_dir is None:
+        return
+
+    files = glob(os.path.join(basis_dir, 'basex_basis_*.npy'))
+    for fname in files:
+        os.remove(fname)
+
+
 def get_basex_correction(A, sigma, direction):
     """
     Internal function.

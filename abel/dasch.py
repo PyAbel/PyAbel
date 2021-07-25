@@ -401,3 +401,37 @@ def cache_cleanup():
     _D = None
     _method = None
     _source = None
+
+
+def basis_dir_cleanup(method, basis_dir=''):
+    """
+    Utility function.
+
+    Deletes deconvolution operator arrays saved on disk.
+
+    Parameters
+    ----------
+    method : str
+        Abel transform method ``'onion_peeling'``, ``'three_point'``, or
+        ``'two_point'``
+    basis_dir : str or None
+        absolute or relative path to the directory with saved deconvolution
+        operator arrays. Use ``''`` for the default directory. ``None`` does
+        nothing.
+
+    Returns
+    -------
+    None
+    """
+    if basis_dir == '':
+        basis_dir = abel.transform.get_basis_dir(make=False)
+
+    if basis_dir is None:
+        return
+
+    if method not in ['onion_peeling', 'three_point', 'two_point']:
+        raise ValueError('Incorrect method "{}"!'.format(method))
+
+    files = glob(os.path.join(basis_dir, method + '_basis_*.npy'))
+    for fname in files:
+        os.remove(fname)

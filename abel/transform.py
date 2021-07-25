@@ -7,9 +7,10 @@ from __future__ import unicode_literals
 
 import numpy as np
 import time
-import warnings
+from warnings import warn
 import platform
 import os
+import sys
 
 from . import basex
 from . import dasch
@@ -735,3 +736,52 @@ def default_basis_dir():
                         'PyAbel')
 
     # system == 'Java' is ignored as useless -- Jython does not support NumPy
+
+
+def basis_dir_cleanup(basis_dir='', method=None):
+    """
+    Deletes saved basis sets.
+    
+    Parameters
+    ----------
+    basis_dir : str or None
+        path to the directory with saved basis sets. Use ``''`` for the default
+        directory, see :func:`get_basis_dir`. (For convenience, ``None`` can be
+        passed to do nothing.)
+    method : str or list of str or None
+        transform methods for which basis sets should be deleted. Can be a
+        single string (see the :attr:`method` parameter in :class:`Transform`)
+        or a list of strings. Use ``'all'`` to delete basis sets for all
+        methods. ``None`` does nothing.
+
+    Returns
+    -------
+    None
+    """
+    if basis_dir is None or method is None:
+        return
+
+    # make the list of methods
+    if method == 'all':
+        methods = ['basex', 'daun', 'linbasex', 'onion_peeling', 'rbasex',
+                   'three_point', 'two_point']
+    elif np.ndim(method) == 0:  # single string
+        methods = [method]
+    else:  # already a list
+        methods = method
+
+    for method in methods:
+        if method in ['onion_peeling', 'three_point', 'two_point']:
+            dasch.basis_dir_cleanup(method, basis_dir)
+        else:
+            module = sys.modules.get('abel.' + method)
+            if not module:
+                warn('Unknown method "{}"!'.format(method),
+                     SyntaxWarning, stacklevel=2)
+                continue
+            func = getattr(module, 'basis_dir_cleanup', None)
+            if func:
+                func(basis_dir)
+            else:
+                warn('Method "{}" does not save basis sets.'.format(method),
+                     SyntaxWarning, stacklevel=2)
