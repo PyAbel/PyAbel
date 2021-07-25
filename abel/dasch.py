@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 import os.path
 import numpy as np
-import glob
+from glob import glob
 import abel
 from scipy.linalg import inv
 
@@ -40,11 +40,12 @@ _dasch_parameter_docstring = \
     IM : 1D or 2D numpy array
         right-side half-image (or quadrant)
 
-    basis_dir: str
-        path to the directory for saving / loading
-        the "dasch_method" deconvolution operator array. Here, called
-        `basis_dir` for consistency with the other true basis methods.
-        If `None`, the operator array will not be saved to disk.
+    basis_dir: str or None
+        path to the directory for saving / loading the "dasch_method"
+        deconvolution operator array. Here, called ``basis_dir`` for
+        consistency with the other true basis methods. Use ``''`` for the
+        default directory. If ``None``, the operator array will not be loaded
+        from or saved to disk.
 
     dr : float
         sampling size (=1 for pixel images), used for Jacobian scaling.
@@ -70,21 +71,21 @@ _method = None
 _source = None   # 'cache', 'generated', or 'file', for unit testing
 
 
-def two_point_transform(IM, basis_dir='.', dr=1, direction="inverse",
+def two_point_transform(IM, basis_dir='', dr=1, direction="inverse",
                         verbose=False):
     return _dasch_transform(IM, basis_dir=basis_dir, dr=dr,
                             direction=direction, method="two_point",
                             verbose=verbose)
 
 
-def three_point_transform(IM, basis_dir='.', dr=1, direction="inverse",
+def three_point_transform(IM, basis_dir='', dr=1, direction="inverse",
                           verbose=False):
     return _dasch_transform(IM, basis_dir=basis_dir, dr=dr,
                             direction=direction, method="three_point",
                             verbose=verbose)
 
 
-def onion_peeling_transform(IM, basis_dir='.', dr=1, direction="inverse",
+def onion_peeling_transform(IM, basis_dir='', dr=1, direction="inverse",
                             verbose=False):
     return _dasch_transform(IM, basis_dir=basis_dir, dr=dr,
                             direction=direction, method="onion_peeling",
@@ -99,7 +100,7 @@ onion_peeling_transform.__doc__ =\
             _dasch_parameter_docstring.replace("dasch_method", "onion-peeling")
 
 
-def _dasch_transform(IM, basis_dir='.', dr=1, direction="inverse",
+def _dasch_transform(IM, basis_dir='', dr=1, direction="inverse",
                      method="three_point", verbose=False):
     global _D, _method
 
@@ -282,7 +283,7 @@ def _bs_onion_peeling(cols):
     return D
 
 
-def get_bs_cached(method, cols, basis_dir='.', verbose=False):
+def get_bs_cached(method, cols, basis_dir='', verbose=False):
     """Load Dasch method deconvolution operator array from cache, or disk.
     Generate and store if not available.
 
@@ -305,7 +306,8 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
 
     basis_dir : str or None
         path to the directory for saving or loading the deconvolution array.
-        For `None` do not save the deconvolution operator array
+        Use ``''`` for the default directory.
+        For ``None``, do not load or save the deconvolution operator array
 
     verbose: boolean
         print information (mainly for debugging purposes)
@@ -341,10 +343,13 @@ def get_bs_cached(method, cols, basis_dir='.', verbose=False):
 
     _method = method
 
+    if basis_dir == '':
+        basis_dir = abel.transform.get_basis_dir(make=True)
+
     # read deconvolution operator array if available
     if basis_dir is not None:
         path_to_basis_files = os.path.join(basis_dir, method+'_basis*')
-        basis_files = glob.glob(path_to_basis_files)
+        basis_files = glob(path_to_basis_files)
         for bf in basis_files:
             if int(bf.split('_')[-1].split('.')[0]) >= cols:
                 # relies on file order
@@ -378,7 +383,7 @@ def cache_cleanup():
     """
     Utility function.
 
-    Frees the memory caches created by ``get_bs_cached()``.
+    Frees the memory caches created by :func:`get_bs_cached`.
     This is usually pointless, but might be required after working
     with very large images, if more RAM is needed for further tasks.
 

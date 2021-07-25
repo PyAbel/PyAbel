@@ -471,8 +471,10 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
     cols : int
         width of image
 
-    basis_dir : str
-        path to the directory for saving / loading the basis
+    basis_dir : str or None
+        path to the directory for saving / loading the basis. Use ``''`` for
+        the default directory. If ``None``, the basis set will not be loaded
+        from or saved to disk.
 
     legendre_orders : list
         default [0, 2] = 0 order and 2nd order polynomials
@@ -526,6 +528,8 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
     _pas = pas
     _radial_step = radial_step
     _clip = clip
+    if basis_dir == '':
+        basis_dir = abel.transform.get_basis_dir(make=True)
     if basis_dir is not None:
         path_to_basis_file = os.path.join(basis_dir, basis_name)
         if os.path.exists(path_to_basis_file):
