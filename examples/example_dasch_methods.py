@@ -39,7 +39,7 @@ dasch_transform = {\
 for method in dasch_transform.keys():
     Q0 = Q[0].copy()
 # method inverse Abel transform
-    AQ0 = dasch_transform[method](Q0, basis_dir='bases')
+    AQ0 = dasch_transform[method](Q0)
 # speed distribution
     speed = abel.tools.vmi.angular_integration_3D(AQ0, origin=(-1, 0))
 

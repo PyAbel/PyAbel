@@ -35,10 +35,8 @@ IMcirc, sla, sc, scspl = \
                                              tol=0, return_correction=True)
 
 # inverse Abel transform for distored and circularized images ---------
-AIMdist = abel.Transform(IMdist, method="three_point",
-                         transform_options=dict(basis_dir='bases')).transform
-AIMcirc = abel.Transform(IMcirc, method="three_point",
-                         transform_options=dict(basis_dir='bases')).transform
+AIMdist = abel.Transform(IMdist, method="three_point").transform
+AIMcirc = abel.Transform(IMcirc, method="three_point").transform
 
 # respective speed distributions
 rdist, speeddist = abel.tools.vmi.angular_integration_3D(AIMdist, dr=0.5)

@@ -3,8 +3,7 @@ original     = abel.tools.analytical.SampleImage().image
 forward_abel = abel.Transform(original, direction='forward', 
                               method='hansenlaw'  ).transform
 inverse_abel = abel.Transform(forward_abel, direction='inverse',
-                              method='three_point', 
-                    transform_options=dict(basis_dir='bases')).transform
+                              method='three_point').transform
 
 
 # plot the original and transform
