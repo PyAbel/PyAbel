@@ -83,7 +83,7 @@ if _cython_installed:  # if Cython is installed, we will try to build direct-C
     ext_modules = [
         Extension("abel.lib.direct",
                   [os.path.join("abel", "lib", "direct.pyx")],
-                  'include_dirs': [np.get_include()],
+                  include_dirs=[np.get_include()],
                   libraries=libraries, 
                   **compile_args)]
 

@@ -12,7 +12,7 @@ jobs:
       python: 2.7
       env: TOXENV=py27, DEPS="numpy scipy cython"
     - os: osx
-      language: generic
+      python: 3.9
       env: TOXENV=py39, DEPS="numpy scipy cython"
     - os: windows
       python: 3.9
