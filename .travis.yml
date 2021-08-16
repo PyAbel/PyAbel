@@ -14,9 +14,9 @@ jobs:
     - os: osx
       language: generic
       env: TOXENV=py39, DEPS="numpy scipy cython"
-    - os: windows
-      language: generic
-      env: TOXENV=py39, DEPS="numpy scipy cython"      
+    # - os: windows
+    #   language: generic
+    #   env: TOXENV=py39, DEPS="numpy scipy cython"    
 install:
   - pip install --upgrade pip setuptools wheel
   - "pip install ${DEPS}"
