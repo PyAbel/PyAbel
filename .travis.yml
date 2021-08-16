@@ -12,10 +12,10 @@ jobs:
       python: 2.7
       env: TOXENV=py27, DEPS="numpy scipy cython"
     - os: osx
-      python: 3.9
+      language: generic
       env: TOXENV=py39, DEPS="numpy scipy cython"
     - os: windows
-      python: 3.9
+      language: generic
       env: TOXENV=py39, DEPS="numpy scipy cython"      
 install:
   - pip install --upgrade pip setuptools wheel
