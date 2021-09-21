@@ -201,7 +201,7 @@ problem:
 This `non-negative least-squares
 <https://en.wikipedia.org/wiki/Non-negative_least_squares>`__ solution yields
 the distribution without negative intensities that reproduces the input data as
-good as possible. In situations where the distribution must be non-negative,
+well as possible. In situations where the distribution must be non-negative,
 this is the best physically meaningful solution.
 
 The noise-filtering properties of this method come from the fact that noise in
@@ -215,7 +215,7 @@ constrained solution exactly matches the solution of the original problem
 sharp features in any case.
 
 Notice that constrained quadratic minimization remains a *non-linear* problem.
-This has two important implications. First, it is much more computationally
+This has several important implications. First, it is much more computationally
 challenging, so that transforming a megapixel image takes many seconds instead
 of several milliseconds (and depends on the image itself). Second, the average
 of transformed images is generally not equal to the transform of the averaged
@@ -223,7 +223,15 @@ image. It is thus recommended to perform as much averaging (image
 symmetrization and summation of multiple images if applicable) as possible
 before applying the transform. In particular, using ``symmetry_axis=(0, 1)`` in
 :class:`abel.transform.Transform` would in fact require transforming only one
-quadrant, which is 4 times faster that transforming the whole image.
+quadrant, which is 4 times faster that transforming the whole image. Third, the
+method is only *asymptotically* `unbiased
+<https://en.wikipedia.org/wiki/Bias_of_an_estimator>`_, but for sufficiently
+noisy data can systematically shift or blur the intensities towards the
+symmetry axis. Thus while this regularization can be very helpful in revealing
+the structure in raw images, it is not recommended when further processing
+(like model fitting) is involved. In particular, for extraction of velocity and
+anisotropy distributions from velocity-map images, the :ref:`rBasex` method,
+possibly with its “positive” regularization, is more appropriate.
 
 
 When to use it
@@ -245,9 +253,9 @@ regularity.
 The :math:`L_2` Tikhonov regularization approach is equivalent to that in the
 :ref:`BASEX` method and has the same use cases and [dis]advantages.
 
-The non-negativity regularization is recommended for very noisy images and
-images with sharp features without a broad background. However, due to its
-slowness, it cannot be used for real-time data processing.
+The non-negativity regularization is recommended for visual inspection of very
+noisy images and images with sharp features without a broad background.
+However, due to its slowness, it cannot be used for real-time data processing.
 
 
 How to use it
@@ -285,7 +293,7 @@ In this case, it is recommended to use symmetrization::
                    symmetry_axis=0,  # or symmetry_axis=(0, 1) if applicable
                    transform_options=dict{reg='nonneg'}).transform
 
-unless independent analysis of all image parts is desired.
+unless independent inspection of all image parts is desired.
 
 The algorithm can be also accessed directly (to transform a right-side
 half-image or properly oriented quadrants) through the
