@@ -68,11 +68,13 @@ def plot(directory, xlim, ylim, linex):
         plt.plot(n, t, 'o-', label=meth, ms=ms, **pargs)
 
     # Daun with reg='nonneg' for the O2-ANU1024 example
-    x = 1023
-    y = 46  # done on i5-4278U, please replace!
-    plt.plot(x, y, 's', c='#880000', mfc='w')
-    plt.annotate('daun(nonneg)\n\n', (x, y), ha='right', va='center',
-                 xytext=(5, 0), textcoords='offset points')  # 5 = fontsize / 2
+    if __name__ == "__main__":
+        x = 1023
+        y = 46  # done on i5-4278U, please replace!
+        plt.plot(x, y, 's', c='#880000', mfc='w')
+        plt.annotate('daun(nonneg)\n\n', (x, y), ha='right', va='center',
+                     xytext=(5, 0), textcoords='offset points')
+        #                    5 = fontsize / 2
 
     plt.legend()
 
