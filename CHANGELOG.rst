@@ -9,11 +9,12 @@ Unreleased
   nonintuitive behavior (PR #318, PR #319).
 * Avoid unnecessary calculations in transform.Transform() for the
   symmetry_axis=(0, 1) case (PR #324).
+* New method by Daun et al. and its extensions (PR #326).
 
 v0.8.4 (2021-04-15)
 -------------------
 * Added odd angular orders to tools.vmi.Distributions (PR #266).
-* Important! Some "center" functions/parameters are renamed to "origin" or
+* **Important!** Some "center" functions/parameters are renamed to "origin" or
   "method"; using old names still works but will print deprecation warnings,
   please update your code accordingly. Image origin is now always in the
   (row, column) format for consistency within PyAbel and with NumPy/SciPy; this
