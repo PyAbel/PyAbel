@@ -334,8 +334,7 @@ class Transform(object):
         CD\ :sub:`2`\ OH)”,
         Ph.D. dissertation, University of Southern California, 2012
         (`ProQuest <https://search.proquest.com/docview/1289069738>`__,
-        `USC <http://digitallibrary.usc.edu/cdm/ref/collection/p15799coll3/id/
-        112619>`__).
+        `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`__).
 
     ``three_point`` *
         The "Three Point" Abel transform method exploits the observation that
