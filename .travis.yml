@@ -1,17 +1,23 @@
 language: python
 sudo: false
-matrix:
+jobs:
   include:
-  - python: '3.9'
-    env: DEPS="numpy scipy cython"
-    sudo: true
-    dist: focal
-  - python: '3.8'
-    env: DEPS="numpy scipy cython"
-    sudo: true
-    dist: xenial
-  - python: '2.7'
-    env: DEPS="numpy scipy cython"
+    - os: linux
+      python: 3.9
+      env: TOXENV=py39, DEPS="numpy scipy cython"
+    - os: linux
+      python: 3.8
+      env: TOXENV=py38, DEPS="numpy scipy cython"
+    - os: linux
+      python: 2.7
+      env: TOXENV=py27, DEPS="numpy scipy cython"
+    - os: osx
+      language: generic
+      osx_image: xcode10.1
+      env: TOXENV=py39, DEPS="numpy scipy cython"
+    # - os: windows
+    #   language: generic
+    #   env: TOXENV=py39, DEPS="numpy scipy cython"    
 install:
   - pip install --upgrade pip setuptools wheel
   - "pip install ${DEPS}"
