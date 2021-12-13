@@ -31,7 +31,9 @@ class Polynomial(object):
         the function is defined as the polynomial on [**r_min**, **r_max**]
         and zero outside it;
         0 ≤ **r_min** < **r_max** ≲ **max r**
-        (**r_max** might exceed maximal **r**, but usually by < 1 pixel)
+        (**r_max** might exceed maximal **r**, but usually by < 1 pixel;
+        negative **r_min** or **r_max** are allowed for convenience but are
+        interpreted as 0)
     c: numpy array
         polynomial coefficients in order of increasing degree:
         [c₀, c₁, c₂] means c₀ + c₁ *r* + c₂ *r*\ ²
@@ -47,13 +49,24 @@ class Polynomial(object):
         at large r (and might improve numeric accuracy)
     """
     def __init__(self, r, r_min, r_max, c, r_0=0.0, s=1.0, reduced=False):
+        n = r.shape[0]
+
+        # trim negative r limits
+        if r_max <= 0:
+            # both func and abel must be zero everywhere
+            self.func = np.zeros(n)
+            self.abel = np.zeros(n)
+            return
+        if r_min < 0:
+            r_min = 0
+
         # remove zero high-order terms
         c = np.array(np.trim_zeros(c, 'b'), float)
         # if all coefficients are zero
         if len(c) == 0:
             # then both func and abel are also zero everywhere
-            self.func = np.zeros_like(r)
-            self.abel = self.func
+            self.func = np.zeros(n)
+            self.abel = np.zeros(n)
             return
         # polynomial degree
         K = len(c) - 1
@@ -83,7 +96,6 @@ class Polynomial(object):
         odd = np.any(c[1::2])
 
         # index limits
-        n = r.shape[0]
         i_min = np.searchsorted(r, r_min)
         i_max = np.searchsorted(r, r_max)
 

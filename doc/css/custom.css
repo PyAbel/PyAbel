@@ -1,0 +1,22 @@
+/*
+ * Necessary parts from
+ * Sphinx stylesheet -- basic theme
+ * absent from sphinx_rtd_theme
+ * (see https://github.com/readthedocs/sphinx_rtd_theme/issues/301)
+ */
+
+/* -- math display ---------------------------------------------------------- */
+
+span.eqno {
+    float: right;
+}
+
+span.eqno a.headerlink {
+    position: absolute;
+    z-index: 1;
+    visibility: hidden;
+}
+
+div.math:hover a.headerlink {
+    visibility: visible;
+}

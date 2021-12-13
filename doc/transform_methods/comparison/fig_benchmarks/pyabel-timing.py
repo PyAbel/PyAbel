@@ -56,8 +56,8 @@ def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
     header = f'# {method:15s} {"iabel(ms)":20s}'
     if has_basis:
         header += 'basis(ms)'
-    if method in ['basex', 'rbasex']:  # special cases
-        if method == 'basex':
+    if method in ['basex', 'daun', 'rbasex']:  # special cases
+        if method in ['basex', 'daun']:
             varnone = 'var'
             varlab = 'var.reg.'
         else:
@@ -89,8 +89,8 @@ def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
             print(t_iabel, end='')
             fp.write(t_iabel)
 
-            if method in ['basex', 'rbasex']:  # special cases
-                if method == 'basex':
+            if method in ['basex', 'daun', 'rbasex']:  # special cases
+                if method in ['basex', 'daun']:
                     varlab = method+'(var.reg.)'
                 else:
                     varlab = method+'(None)'
@@ -106,7 +106,7 @@ def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
             print(t_bs)
             fp.write(t_bs+'\n')
 
-    if method in ['basex', 'rbasex']:
+    if method in ['basex', 'daun', 'rbasex']:
         fpvar.close()
 
     # spacing between methods
@@ -172,6 +172,7 @@ methods = [
   'three_point',
   'onion_peeling',
   'hansenlaw',
+  'daun',
   'basex',
   'rbasex',
   'direct_C',

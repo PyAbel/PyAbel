@@ -27,6 +27,8 @@ Transform Methods
 ..
 ..     9. ``*`` The :doc:`rbasex <transform_methods/rbasex>` method is based on the pBasex method of Garcia et al. and basis functions developed by Ryazanov. Evaluates radial distributions of velocity-map images and transforms them to radial distributions of the reconstructed 3D distributions. This method makes additional assumptions about the symmetry of the data is not applicable to all situations! :meth:`abel.rbasrx.rbasex_transform`
 ..
+..     10. ``*`` The :doc:`daun <transform_methods/daun>` method of Daun et al. applies Tikhonov regularization to the onion-peeling deconvolution approach. The implementation is extended by several additional basis sets and regularization methods. :meth:`abel.daun.daun_transform`
+..
 ..     ``*`` Methods marked with an asterisk generate basis sets and allow these basis sets to be saved to the disk to speed up future transforms.
 
 
@@ -34,10 +36,11 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-   
+
    transform_methods/comparison
 
    transform_methods/basex
+   transform_methods/daun
    transform_methods/direct
    transform_methods/hansenlaw
    transform_methods/linbasex
@@ -46,4 +49,3 @@ Contents:
    transform_methods/rbasex
    transform_methods/three_point
    transform_methods/two_point
-   

@@ -35,7 +35,7 @@ from abel.tools.symmetry import put_image_quadrants
 #    hydroxymethyl radical (CH₂OH and CD₂OH)”,
 #   Ph.D. dissertation, University of Southern California, 2012.
 #   https://search.proquest.com/docview/1289069738
-#   http://digitallibrary.usc.edu/cdm/ref/collection/p15799coll3/id/112619
+#   https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4
 #
 ###############################################################################
 

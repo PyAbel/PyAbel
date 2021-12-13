@@ -224,5 +224,4 @@ method from the PyAbel package”, using the current Zenodo DOI (see :ref:`READM
        CD\ :sub:`2`\ OH)”,
        Ph.D. dissertation, University of Southern California, 2012.
        (`ProQuest <https://search.proquest.com/docview/1289069738>`_,
-       `USC <https://digitallibrary.usc.edu/cdm/ref/collection/p15799coll3/id/
-       112619>`_).
+       `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`_).

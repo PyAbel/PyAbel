@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import LogLocator
 
 transforms = [
-    ("basex",         '#880000', {}),
-    ("basex(var)",    '#880000', {'mfc': 'w'}),
+    ("basex",         '#006600', {}),
+    ("basex(var)",    '#006600', {'mfc': 'w'}),
+    ("daun",          '#880000', {}),
+    ("daun(var)",     '#880000', {'mfc': 'w'}),
     ("direct_C",      '#EE0000', {}),
     ("direct_Python", '#EE0000', {'mfc': 'w'}),
     ("hansenlaw",     '#CCAA00', {}),

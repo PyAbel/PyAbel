@@ -11,6 +11,7 @@ import warnings
 
 from . import basex
 from . import dasch
+from . import daun
 from . import direct
 from . import hansenlaw
 from . import linbasex
@@ -53,6 +54,9 @@ class Transform(object):
         ``basex``
             the Gaussian "basis set expansion" method of Dribinski et al.
             (2002).
+        ``daun``
+            the deconvolution method with Tikhonov regularization of Daun et
+            al. and its extensions.
         ``direct``
             a naive implementation of the analytical formula by Roman Yurchuk.
         ``hansenlaw``
@@ -231,6 +235,22 @@ class Transform(object):
         `Rev. Sci. Instrum. 73, 2634–2642 (2002)
         <https://doi.org/10.1063/1.1482156>`__.
 
+    ``daun`` *
+        Methods based on onion-peeling deconvolution using Tikhonov
+        regularization described in
+
+        K. J. Daun, K. A. Thomson, F. Liu, G. J. Smallwood,
+        "Deconvolution of axisymmetric flame properties using Tikhonov
+        regularization",
+        `Appl. Opt. 45, 4638–4646 (2006)
+        <https://doi.org/10.1364/AO.45.004638>`__.
+
+        In addition to the original implicit step-functions basis (“onion
+        peeling”) and the derivative regularization, linear and quadratic basis
+        functions are implemented, as well as the :math:`L_2`-norm Tikhonov
+        regularization (like in ``basex``) and non-negative least-squares
+        solution.
+
     ``direct``
         This method attempts a direct integration of the Abel-transform
         integral. It makes no assumptions about the data (apart from
@@ -314,8 +334,7 @@ class Transform(object):
         CD\ :sub:`2`\ OH)”,
         Ph.D. dissertation, University of Southern California, 2012
         (`ProQuest <https://search.proquest.com/docview/1289069738>`__,
-        `USC <http://digitallibrary.usc.edu/cdm/ref/collection/p15799coll3/id/
-        112619>`__).
+        `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`__).
 
     ``three_point`` *
         The "Three Point" Abel transform method exploits the observation that
@@ -491,6 +510,7 @@ class Transform(object):
 
         abel_transform = {
             "basex": basex.basex_transform,
+            "daun": daun.daun_transform,
             "direct": direct.direct_transform,
             "hansenlaw": hansenlaw.hansenlaw_transform,
             "linbasex": linbasex.linbasex_transform,

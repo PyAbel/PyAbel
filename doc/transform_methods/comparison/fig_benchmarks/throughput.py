@@ -2,11 +2,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-directory = 'benchmarks_i7-9700_Linux_5.4.0-26-generic'
-
 transforms = [
-  ("basex",         '#880000', {}),
-  ("basex(var)",    '#880000', {'mfc': 'w'}),
+  ("basex",         '#006600', {}),
+  ("basex(var)",    '#006600', {'mfc': 'w'}),
+  ("daun",          '#880000', {}),
+  ("daun(var)",     '#880000', {'mfc': 'w'}),
   ("direct_C",      '#EE0000', {}),
   ("direct_Python", '#EE0000', {'mfc': 'w'}),
   ("hansenlaw",     '#CCAA00', {}),
@@ -43,6 +43,10 @@ def plot(directory, xlim, ylim, va):
         t = times[1] * 1e-3  # in ms
         plt.plot(n, n**2 / t, 'o-', label=meth, ms=ms, **pargs)
 
+        # add an empty entry to end column 1 for more logical grouping
+        if meth == 'daun(var)':
+            plt.plot(np.NaN, np.NaN, 'o-', color='none', label=' ')
+
     plt.xlabel('Image size ($n$, pixels)')
     plt.xscale('log')
     plt.xlim(xlim)
@@ -70,5 +74,5 @@ def plot(directory, xlim, ylim, va):
 
 
 if __name__ == "__main__":
-    plot('i7-9700_Linux', xlim=(5, 1e5), ylim=(4e3, 2e9), va='top')
+    plot('i7-9700_Linux', xlim=(5, 1e5), ylim=(3e3, 2e9), va='top')
     plt.savefig('throughput.svg')

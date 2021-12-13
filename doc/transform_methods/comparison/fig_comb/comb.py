@@ -28,8 +28,10 @@ np.random.seed(4)
 func = comb.abel + np.random.random(comb.abel.size)*1.2
 
 transforms = [
-  ("basex",          abel.basex.basex_transform,               '#880000'),
-  ("basex (reg=10)", abel.basex.basex_transform,               '#880000'),
+  ("basex",          abel.basex.basex_transform,               '#006600'),
+  ("basex (reg=10)", abel.basex.basex_transform,               '#006600'),
+  ("daun (reg=5)",   abel.daun.daun_transform,                 '#880000'),
+  ("daun (nonneg)",  abel.daun.daun_transform,                 '#880000'),
   ("direct",         abel.direct.direct_transform,             '#EE0000'),
   ("hansenlaw",      abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
   ("onion_bordas",   abel.onion_bordas.onion_bordas_transform, '#00AA00'),
@@ -40,7 +42,7 @@ transforms = [
 
 ntrans = len(transforms)  # number of transforms
 
-fig, axs = plt.subplots(ntrans, 1, figsize=(5, 9),
+fig, axs = plt.subplots(ntrans, 1, figsize=(5, 10),
                         sharex=True, sharey=True)
 
 
@@ -53,7 +55,10 @@ for num, (ax, (label, transFunc, color)) in enumerate(zip(axs.ravel(),
                                                           transforms)):
     print(label)
     if 'reg' in label:
-        targs = dict(reg=10)
+        reg = label[label.rfind('=') + 1:-1]
+        targs = dict(reg=float(reg))
+    elif 'nonneg' in label:
+        targs = dict(reg='nonneg')
     else:
         targs = dict()
 
@@ -69,10 +74,10 @@ def place_letter(letter, ax, color='k', offset=(0, 0)):
                 color=color, ha='left', va='top', weight='bold')
 
 
-for ax, letter in zip(axs.ravel(), 'abcdefgh'):
+for ax, letter in zip(axs.ravel(), 'abcdefghij'):
     ax.legend(loc='upper right', frameon=False, borderaxespad=0)
     ax.set_xlim(0, 60)
-    ax.set_ylim(-0.2, 1.3)
+    ax.set_ylim(-0.2, 1.4)
     ax.set_yticks([0, 0.5, 1])
 
     ax.grid(alpha=0.2)
@@ -80,7 +85,7 @@ for ax, letter in zip(axs.ravel(), 'abcdefgh'):
     place_letter(letter+')', ax)
 
 axs[-1].set_xlabel('$r$ (pixels)')
-axs[3].set_ylabel('$z$')
+axs[4].set_ylabel('$z$')
 
 
 fig.tight_layout(pad=0)

@@ -8,7 +8,7 @@ Speed benchmarks
 
 All methods are benchmarked using their default parameters, with the following exceptions:
 
-* **basex(var)** means “variable regularization”, that is changing the regularization parameter for each transformed image.
+* **basex(var)** and **daun(var)** mean “variable regularization”, that is changing the regularization parameter for each transformed image.
 * **direct_C** and **direct_Python** correspond to the “direct” method using its C (Cython) and Python backends respectively.
 * **linbasex** and **rbasex** show whole-image (*n* × *n*) transforms, while all other methods show half-image (*n* rows, (*n* + 1)/2 columns) transforms.
 * **rbasex(None)** means no output-image creation (only the transformed radial distributions).

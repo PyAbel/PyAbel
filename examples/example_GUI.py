@@ -24,8 +24,9 @@ from six.moves import tkinter_scrolledtext as scrolledtext
 from six.moves import tkinter_tkfiledialog as filedialog
 
 
-Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_bordas',
-                'onion_peeling', 'rbasex', 'three_point', 'two_point']
+Abel_methods = ['basex', 'daun(nonneg)', 'direct', 'hansenlaw', 'linbasex',
+                'onion_bordas', 'onion_peeling', 'rbasex', 'three_point',
+                'two_point']
 
 Abel_methods_forward = ['basex', 'direct', 'hansenlaw', 'rbasex']
 
@@ -392,6 +393,10 @@ class PyAbel:  # (tk.Tk):
                     tk.END,
                     "\nbasex: first time calculation of the basis"
                     " functions may take a while ...")
+            elif self.method == "daun(nonneg)":
+                self.text.insert(
+                    tk.END,
+                    "\ndaun(reg=nonneg): calculations will take a while...")
             elif self.method == "direct":
                 self.text.insert(
                    tk.END,
@@ -404,6 +409,10 @@ class PyAbel:  # (tk.Tk):
                     self.AIM = abel.Transform(
                         self.IM, method=self.method, direction=self.fi,
                         transform_options=dict(return_Beta=True))
+                elif self.method == 'daun(nonneg)':
+                    self.AIM = abel.Transform(
+                        self.IM, method='daun', direction=self.fi,
+                        transform_options=dict(reg='nonneg'))
                 else:
                     if self.method in Abel_methods_basis:
                         basis_dir = 'bases'
