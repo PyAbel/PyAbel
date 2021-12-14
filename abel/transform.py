@@ -705,7 +705,7 @@ def default_basis_dir():
         Python on Windows / Known Issues
         <https://docs.python.org/3/using/windows.html#known-issues>`__).
         However, if ``AppData\Local\PyAbel\`` already exists (for example, was
-        manually created *not* from Python), it apparently should be usable.
+        manually created *not* from Python), apparently it should be usable.
 
       * Old Windows versions (2000, XP, Server 2003) by default don't set the
         ``LOCALAPPDATA`` environment variable, so PyAbel will create and use
@@ -716,7 +716,7 @@ def default_basis_dir():
             set LOCALAPPDATA=%USERPROFILE%\Local Settings\Application Data
 
         before starting Python. Or permanently set it in “Environment
-        Variables” from “System Properties”.
+        Variables” from Windows “System Properties”.
     """
     # Based on the appdirs module, https://github.com/ActiveState/appdirs
     # (see https://github.com/ActiveState/appdirs/blob/master/appdirs.py)
