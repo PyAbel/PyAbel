@@ -14,7 +14,7 @@ Unreleased
   see get_basis_dir() and set_basis_dir() in abel.transform (PR #327).
   **Important!** The current working directory is no longer used by default for
   loading basis sets. It is recommended to execute
-  
+
     import abel; print(abel.transform.get_basis_dir(make=True))
 
   and move all existing basis sets to the reported directory.

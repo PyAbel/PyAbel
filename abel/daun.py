@@ -7,11 +7,13 @@ from __future__ import unicode_literals
 
 import sys
 import os
-import glob
+from glob import glob
 
 import numpy as np
 from scipy.linalg import inv, toeplitz, solve_banded, solve_triangular
 from scipy.optimize import nnls
+
+import abel
 
 
 def daun_transform(data, reg=0.0, degree=0, dr=1.0, direction='inverse',
@@ -78,8 +80,9 @@ def daun_transform(data, reg=0.0, degree=0, dr=1.0, direction='inverse',
         path to the directory for saving / loading the basis set (potentially
         useful only for **degree** = 3 and transform without regularization;
         time savings in other cases are small and might be negated by the
-        disk-access overhead). If ``None`` (default), the basis set will not be
-        loaded from or saved to disk.
+        disk-access overhead). Use ``''`` for the default directory. If
+        ``None`` (default), the basis set will not be loaded from or saved to
+        disk.
     verbose : bool
         determines whether progress report should be printed
 
@@ -174,9 +177,10 @@ def get_bs_cached(n, degree=0, reg_type='diff', strength=0,
         ``'L2'``/``'L2c'``, ignored otherwise)
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
-    basis_dir : str
-        path to the directory for saving / loading the basis set.
-        If ``None``, the basis sets will not be saved to disk.
+    basis_dir : str or None
+        path to the directory for saving / loading the basis set. Use ``''``
+        for the default directory. If ``None``, the basis sets will not be
+        loaded from or saved to disk.
     verbose : bool
         print some debug information
 
@@ -192,6 +196,8 @@ def get_bs_cached(n, degree=0, reg_type='diff', strength=0,
              (_bs_prm[0] == n if degree == 3 else _bs_prm[0] >= n))  # good size
     if not bs_OK:
         # try to load
+        if basis_dir == '':
+            basis_dir = abel.transform.get_basis_dir(make=True)
         _bs = _load_bs(basis_dir, n, degree, verbose)
         if _bs is None:
             # generate and cache
@@ -258,7 +264,7 @@ def _load_bs(basis_dir, n, degree, verbose=False):
     file_mask = 'daun_basis_*_{}.npy'.format(degree)
     best_file = None
     best_size = np.inf
-    for f in glob.glob(os.path.join(basis_dir, file_mask)):
+    for f in glob(os.path.join(basis_dir, file_mask)):
         size = int(f.split('_')[-2])  # (from '...basis_<size>_<degree>.npy')
         if n <= size < best_size:
             best_size = size
@@ -459,3 +465,30 @@ def cache_cleanup(select='all'):
         _bs_prm = None
     _tr = None
     _tr_prm = None
+
+
+def basis_dir_cleanup(basis_dir=''):
+    """
+    Utility function.
+
+    Deletes basis sets saved on disk.
+
+    Parameters
+    ----------
+    basis_dir : str or None
+        absolute or relative path to the directory with saved basis sets. Use
+        ``''`` for the default directory. ``None`` does nothing.
+
+    Returns
+    -------
+    None
+    """
+    if basis_dir == '':
+        basis_dir = abel.transform.get_basis_dir(make=False)
+
+    if basis_dir is None:
+        return
+
+    files = glob(os.path.join(basis_dir, 'daun_basis_*.npy'))
+    for fname in files:
+        os.remove(fname)

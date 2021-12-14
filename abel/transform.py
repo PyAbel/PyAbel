@@ -741,7 +741,7 @@ def default_basis_dir():
 def basis_dir_cleanup(basis_dir='', method=None):
     """
     Deletes saved basis sets.
-    
+
     Parameters
     ----------
     basis_dir : str or None
