@@ -38,11 +38,10 @@ except ImportError:
 if _cython_installed:  # if Cython is installed, we will try to build direct-C
 
     if sys.platform != 'win32':
-        compile_args = dict(extra_compile_args=['-O2', '-march=native'],
-                            extra_link_args=['-O2', '-march=native'])
+        extra_compile_args = ['-Ofast']
         libraries = ["m"]
     else:
-        compile_args = dict(extra_compile_args=[])
+        extra_compile_args = []
         libraries = []
 
     # Optional compilation of Cython modules adapted from
@@ -85,7 +84,7 @@ if _cython_installed:  # if Cython is installed, we will try to build direct-C
                   [os.path.join("abel", "lib", "direct.pyx")],
                   include_dirs=[np.get_include()],
                   libraries=libraries, 
-                  **compile_args)]
+                  extra_compile_args=extra_compile_args)]
 
     setup_args = {'cmdclass': {'build_ext': TryBuildExt},
                   'include_dirs': [np.get_include()],
