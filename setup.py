@@ -37,12 +37,12 @@ except ImportError:
 
 if _cython_installed:  # if Cython is installed, we will try to build direct-C
 
-    if sys.platform != 'win32':
+    if sys.platform == 'win32':
+        extra_compile_args = ['/O2', '/fp:fast']
+        libraries = []
+    else:
         extra_compile_args = ['-Ofast']
         libraries = ["m"]
-    else:
-        extra_compile_args = []
-        libraries = []
 
     # Optional compilation of Cython modules adapted from
     # https://github.com/bsmurphy/PyKrige which was itself
