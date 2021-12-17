@@ -45,8 +45,7 @@ origin = (245, 340)
 print('Performing the inverse Abel transform:')
 
 recon = abel.Transform(raw_data, direction='inverse', method='basex',
-                       origin=origin, transform_options=dict(basis_dir='bases'),
-                       verbose=True).transform
+                       origin=origin, verbose=True).transform
                       
 speeds = abel.tools.vmi.angular_integration_3D(recon)
 

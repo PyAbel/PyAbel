@@ -73,6 +73,17 @@ Or, if you wish to edit the PyAbel source code without re-installing each time :
 
     python setup.py develop
 
+Before uninstalling
+~~~~~~~~~~~~~~~~~~~
+
+Some transform methods can save generated basis sets to disk. If you want to uninstall PyAbel completely, these files need to be removed as well. To do so, please *first* run the following script::
+
+    import abel
+    import shutil
+    shutil.rmtree(abel.transform.get_basis_dir())
+
+and *then* proceed with the usual module uninstallation process (for example, ``pip uninstall PyAbel`` if it was installed using pip).
+
 
 Example of use
 --------------

@@ -10,6 +10,14 @@ Unreleased
 * Avoid unnecessary calculations in transform.Transform() for the
   symmetry_axis=(0, 1) case (PR #324).
 * New method by Daun et al. and its extensions (PR #326).
+* Basis sets are now by default stored in a single system-specific directory,
+  see get_basis_dir() and set_basis_dir() in abel.transform (PR #327).
+  **Important!** The current working directory is no longer used by default for
+  loading basis sets. It is recommended to execute
+
+    import abel; print(abel.transform.get_basis_dir(make=True))
+
+  and move all existing basis sets to the reported directory.
 
 v0.8.4 (2021-04-15)
 -------------------

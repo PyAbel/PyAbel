@@ -74,8 +74,7 @@ for q, method in enumerate(transforms.keys()):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1,
-                              basis_dir='bases')
+    IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1)
     print ("                    {:.1f} s".format(time()-t0))
 
     # polar projection and speed profile

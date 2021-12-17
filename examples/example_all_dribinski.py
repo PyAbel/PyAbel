@@ -61,7 +61,7 @@ for q, method in enumerate(transforms.keys()):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    IAQ0 = transforms[method](Q0, direction="inverse", basis_dir='bases')
+    IAQ0 = transforms[method](Q0, direction="inverse")
 
     print ("                    {:.4f} s".format(time()-t0))
 

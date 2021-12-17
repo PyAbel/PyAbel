@@ -6,11 +6,13 @@ from __future__ import print_function
 import os.path
 from os import listdir
 import re
+from glob import glob
 
 import numpy as np
 from scipy.linalg import inv, solve_triangular, svd, pascal, invpascal
 from scipy.optimize import nnls
 
+import abel
 from abel.tools.vmi import Distributions
 from abel.tools.symmetry import put_image_quadrants
 
@@ -152,9 +154,9 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
     basis_dir : str, optional
         path to the directory for saving / loading the basis set (useful only
         for the inverse transform without regularization; time savings in other
-        cases are small and might be negated by the disk-access overhead).
-        If ``None`` (default), the basis set will not be loaded from or saved
-        to disk.
+        cases are small and might be negated by the disk-access overhead). Use
+        ``''`` for the default directory. If ``None`` (default), the basis set
+        will not be loaded from or saved to disk.
     verbose : bool
         print information about processing (for debugging), disabled by default
 
@@ -565,8 +567,9 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
     valid : None or bool array
         flags to exclude invalid radii from transform
     basis_dir : str, optional
-        path to the directory for saving / loading the basis set.
-        If ``None``, the basis set will not be saved to disk.
+        path to the directory for saving / loading the basis set. Use ``''``
+        for the default directory. If ``None``, the basis set will not be
+        loaded from or saved to disk.
     verbose : bool
         print some debug information
 
@@ -577,6 +580,9 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
         or inverse) for each angular order
     """
     global _bs_prm, _bs, _trf, _tri_full, _tri_prm, _tri
+
+    if basis_dir == '':
+        basis_dir = abel.transform.get_basis_dir(make=True)
 
     new_bs = False  # new basis set computed (for saving to disk)
 
@@ -757,3 +763,30 @@ def cache_cleanup(select='all'):
         _tri_full = None
         _tri_prm = None
         _tri = None
+
+
+def basis_dir_cleanup(basis_dir=''):
+    """
+    Utility function.
+
+    Deletes basis sets saved on disk.
+
+    Parameters
+    ----------
+    basis_dir : str or None
+        absolute or relative path to the directory with saved basis sets. Use
+        ``''`` for the default directory. ``None`` does nothing.
+
+    Returns
+    -------
+    None
+    """
+    if basis_dir == '':
+        basis_dir = abel.transform.get_basis_dir(make=False)
+
+    if basis_dir is None:
+        return
+
+    files = glob(os.path.join(basis_dir, 'rbasex_basis_*.npy'))
+    for fname in files:
+        os.remove(fname)

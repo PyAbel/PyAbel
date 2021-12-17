@@ -69,8 +69,7 @@ rH, speedsH = abel.tools.vmi.angular_integration_3D(reconH)
 # Basex inverse Abel transform
 print('Performing basex inverse Abel transform:')
 reconB = abel.Transform(im, method="basex", direction="inverse",
-                        verbose=True, symmetry_axis=None,
-                        transform_options=dict(basis_dir='bases')).transform
+                        verbose=True, symmetry_axis=None).transform
 rB, speedsB = abel.tools.vmi.angular_integration_3D(reconB)
 
 # plot the results - VMI, inverse Abel transformed image, speed profiles

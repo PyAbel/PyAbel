@@ -5,21 +5,17 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from time import time
-import os.path
-from os import listdir
-import re
-from math import exp, log
 import sys
-
+import os.path
+from glob import glob
+from math import exp, log
 
 import numpy as np
 from scipy.special import gammaln
 from scipy.linalg import inv
 
+import abel
 from abel.tools.polynomial import PiecewisePolynomial
-
-from ._version import __version__
 
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
@@ -80,9 +76,8 @@ from ._version import __version__
 #############################################################################
 
 
-def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
-                    basis_dir='./', dr=1.0,
-                    verbose=True, direction='inverse'):
+def basex_transform(data, sigma=1.0, reg=0.0, correction=True, basis_dir='',
+                    dr=1.0, verbose=True, direction='inverse'):
     """
     This function performs the BASEX (BAsis Set EXpansion)
     Abel transform. It works on a "right side" image. I.e.,
@@ -117,9 +112,10 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=True,
     correction : boolean
         apply intensity correction in order to reduce method artifacts
         (intensity normalization and oscillations)
-    basis_dir : str
-        path to the directory for saving / loading the basis sets.
-        If ``None``, the basis set will not be saved to disk.
+    basis_dir : str or None
+        path to the directory for saving / loading the basis sets. Use ``''``
+        for the default directory. If ``None``, the basis set will not be
+        loaded from or saved to disk.
     dr : float
         size of one pixel in the radial direction.
         This only affects the absolute scaling of the transformed image.
@@ -249,8 +245,8 @@ _trf = None      # Af
 _tri_prm = None  # [reg, correction, dr]
 _tri = None      # Ai
 
-def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
-                  basis_dir='.', dr=1.0, verbose=False, direction='inverse'):
+def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True, basis_dir='', dr=1.0,
+                  verbose=False, direction='inverse'):
     """
     Internal function.
 
@@ -275,9 +271,10 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
         Corrects wrong intensity normalization (seen for narrow basis sets),
         intensity oscillations (seen for broad basis sets),
         and intensity drop-off near *r* = 0 due to regularization.
-    basis_dir : str
-        path to the directory for saving / loading the basis sets.
-        If ``None``, the basis sets will not be saved to disk.
+    basis_dir : str or None
+        path to the directory for saving / loading the basis sets. Use ``''``
+        for the default directory. If ``None``, the basis sets will not be
+        loaded from or saved to disk.
     dr : float
         pixel size. This only affects the absolute scaling of the output.
     verbose : boolean
@@ -302,6 +299,9 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
             print('Using memory-cached basis sets')
         M, Mc = _bs
     else:  # try to load basis
+        if basis_dir == '':
+            basis_dir = abel.transform.get_basis_dir(make=True)
+
         if basis_dir is not None:
             basis_file = 'basex_basis_{}_{}.npy'.format(n, sigma)
 
@@ -319,16 +319,13 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True,
                 best_n = sys.maxsize
                 largest_file = None
                 largest_n = 0
-                mask = re.compile(r'basex_basis_(\d+)_{}\.npy$'.format(sigma))
-                for f in listdir(basis_dir):
-                    # filter BASEX basis files
-                    match = mask.match(f)
-                    if not match:
-                        continue
+                mask = os.path.join(basis_dir,
+                                    'basex_basis_*_{}.npy'.format(sigma))
+                for f in glob(mask):
                     # extract basis image size (sigma was fixed above)
-                    f_n = int(match.group(1))
+                    f_n = int(f.split('_')[-2])
                     # must be large enough and smaller than previous best
-                    if f_n >= n and f_n < best_n:
+                    if n <= f_n < best_n:
                         # remember as new best
                         best_file = f
                         best_n = f_n
@@ -450,6 +447,33 @@ def cache_cleanup(select='all'):
     if select in ('all', 'inverse'):
         _tri_prm = None
         _tri = None
+
+
+def basis_dir_cleanup(basis_dir=''):
+    """
+    Utility function.
+
+    Deletes basis sets saved on disk.
+
+    Parameters
+    ----------
+    basis_dir : str or None
+        absolute or relative path to the directory with saved basis sets. Use
+        ``''`` for the default directory. ``None`` does nothing.
+
+    Returns
+    -------
+    None
+    """
+    if basis_dir == '':
+        basis_dir = abel.transform.get_basis_dir(make=False)
+
+    if basis_dir is None:
+        return
+
+    files = glob(os.path.join(basis_dir, 'basex_basis_*.npy'))
+    for fname in files:
+        os.remove(fname)
 
 
 def get_basex_correction(A, sigma, direction):

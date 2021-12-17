@@ -30,9 +30,6 @@ Abel_methods = ['basex', 'daun(nonneg)', 'direct', 'hansenlaw', 'linbasex',
 
 Abel_methods_forward = ['basex', 'direct', 'hansenlaw', 'rbasex']
 
-Abel_methods_basis = ['basex', 'onion_peeling', 'three_point', 'two_point']
-                     # 'linbasex' and 'rbasex' can use disk cache but do not
-
 center_methods = ['com', 'convolution', 'gaussian', 'slice']
 
 
@@ -414,21 +411,8 @@ class PyAbel:  # (tk.Tk):
                         self.IM, method='daun', direction=self.fi,
                         transform_options=dict(reg='nonneg'))
                 else:
-                    if self.method in Abel_methods_basis:
-                        basis_dir = 'bases'
-                        if not os.path.isdir(basis_dir):
-                            self.text.insert(tk.END,
-                                "\n(No '" + basis_dir + "' directory;"
-                                " bases sets will not be loaded/saved.)")
-                            self.text.see(tk.END)
-                            self.canvas.draw()
-                            basis_dir = None
-                    else:
-                        basis_dir = None
-
                     self.AIM = abel.Transform(
                         self.IM, method=self.method, direction=self.fi,
-                        transform_options=dict(basis_dir=basis_dir),
                         symmetry_axis=None)
             except Exception as e:
                 self.text.insert(tk.END, "\nAn error occurred:\n")

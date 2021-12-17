@@ -56,8 +56,7 @@ mask[im_r < mask_r] = 0
 mask[:R, R-mask_w:R+mask_w] = 0
 
 # reconstruct "as is" by a general Abel-transform method
-rec_abel = abel.Transform(im, method='two_point',
-                          transform_options=dict(basis_dir='bases')).transform
+rec_abel = abel.Transform(im, method='two_point').transform
 # extract profiles "as is"
 r_abel, P0_abel, P2_abel = rharmonics(rec_abel)
 # extract profiles from masked reconstruction
