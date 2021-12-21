@@ -22,7 +22,7 @@ install:
   - pip install --upgrade pip setuptools wheel
   - "pip install ${DEPS}"
   - pip install --upgrade coveralls pytest pytest-cov
-  - pip install .
+  - pip install . -v
 script:
   - cd tmp/; pytest -v --cov=abel --pyargs abel
 deploy:
