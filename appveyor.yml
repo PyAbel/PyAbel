@@ -13,10 +13,10 @@ environment:
     - PYTHON_VERSION: 2.7
       PYTHON_ARCH: "64"
       MINICONDA: C:\Miniconda-x64
-    - PYTHON_VERSION: 3.7
+    - PYTHON_VERSION: 3.8
       PYTHON_ARCH: "64"
       MINICONDA: C:\Miniconda3-x64
-    - PYTHON_VERSION: 3.8
+    - PYTHON_VERSION: 3.9
       PYTHON_ARCH: "64"
       MINICONDA: C:\Miniconda3-x64
 
@@ -39,5 +39,5 @@ install:
   - pip install . -v
 
 test_script:
-  - "cd C:\\"
+  - "cd C:\\projects\\PyAbel"
   - pytest -v --cov=abel --pyargs abel
