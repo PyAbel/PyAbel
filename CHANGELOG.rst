@@ -18,6 +18,9 @@ Unreleased
     import abel; print(abel.transform.get_basis_dir(make=True))
 
   and move all existing basis sets to the reported directory.
+* Cython optimization flags are changed to make conda packages compatible with
+  all CPUs and to improve the direct_C method performance (PR #331). Bitwise
+  reproducibility of direct_C transforms might be affected.
 
 v0.8.4 (2021-04-15)
 -------------------
