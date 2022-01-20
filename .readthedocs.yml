@@ -5,6 +5,11 @@
 # Required
 version: 2
 
+python:
+ # enable access to preinstalled modules (numpy, scipy, matplotlib)
+ system_packages: true
+
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
+ # treat warnings as build errors
  fail_on_warning: true
