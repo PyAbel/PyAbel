@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+v0.8.5 (2022-01-21)
+-------------------
 
 * New functions in tools.vmi for angular integration and averaging, replacing
   angular_integration() and average_radial_intensity(), which had incorrect or
