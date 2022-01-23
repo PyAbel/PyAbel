@@ -9,6 +9,8 @@ import os.path
 import numpy as np
 import abel
 
+DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
+
 dasch_transforms = {
  "two_point": abel.dasch.two_point_transform,
  "three_point": abel.dasch.three_point_transform,
@@ -21,7 +23,7 @@ def test_dasch_shape():
     x = np.ones((n, n), dtype='float32')
 
     for method in dasch_transforms.keys():
-        recon = dasch_transforms[method](x, direction='inverse')
+        recon = dasch_transforms[method](x, direction='inverse', basis_dir=None)
         np.testing.assert_equal(recon.shape, (n, n))
 
 
@@ -30,7 +32,7 @@ def test_dasch_zeros():
     x = np.zeros((n, n), dtype='float32')
 
     for method in dasch_transforms.keys():
-        recon = dasch_transforms[method](x, direction="inverse")
+        recon = dasch_transforms[method](x, direction='inverse', basis_dir=None)
         np.testing.assert_allclose(recon, 0)
 
 
@@ -39,21 +41,24 @@ def test_dasch_deconvolution_array_sources():
     q = abel.tools.symmetry.get_image_quadrants(im)[0]
 
     # clean up any old deconvolution array files
-    fn = 'three_point_basis_{}.npy'.format(q.shape[0])
+    fn = os.path.join(DATA_DIR,
+                      'three_point_basis_{}.npy'.format(q.shape[0]))
     if os.path.exists(fn):
-        os.system('rm {}'.format(fn))
+        os.remove(fn)
 
-    gb = abel.dasch.three_point_transform(q)
+    gb = abel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
     np.testing.assert_equal(abel.dasch._source, 'generated')
 
-    cb = abel.dasch.three_point_transform(q)
+    cb = abel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
     np.testing.assert_equal(abel.dasch._source, 'cache')
     np.testing.assert_allclose(gb, cb)
 
     abel.dasch.cache_cleanup()
-    fb = abel.dasch.three_point_transform(q)
+    fb = abel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
     np.testing.assert_equal(abel.dasch._source, 'file')
     np.testing.assert_allclose(gb, fb)
+
+    os.remove(fn)
 
 
 def test_dasch_1d_gaussian(n=101):
@@ -74,7 +79,7 @@ def test_dasch_1d_gaussian(n=101):
     for method in dasch_transforms.keys():
         orig_copy = orig.copy()
 
-        recon = dasch_transforms[method](orig)
+        recon = dasch_transforms[method](orig, basis_dir=None)
 
         ratio_1d = np.sqrt(np.pi)*sigma
 
@@ -105,7 +110,7 @@ def test_dasch_cyl_gaussian(n=101):
     # dasch method inverse Abel transform
     for method in dasch_transforms.keys():
         Q0_copy = Q0.copy()
-        AQ0 = dasch_transforms[method](Q0)
+        AQ0 = dasch_transforms[method](Q0, basis_dir=None)
         ratio_2d = np.sqrt(np.pi)*sigma
 
         np.testing.assert_allclose(Q0_copy, AQ0*ratio_2d, rtol=0.0, atol=0.3)

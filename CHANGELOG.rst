@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+* Correct behavior of relative basis_dir in basex under Python 2 (PR #336).
+
 v0.8.5 (2022-01-21)
 -------------------
 

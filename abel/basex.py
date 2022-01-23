@@ -322,6 +322,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True, basis_dir='', dr=1.0,
                 mask = os.path.join(basis_dir,
                                     'basex_basis_*_{}.npy'.format(sigma))
                 for f in glob(mask):
+                    f = os.path.basename(f)
                     # extract basis image size (sigma was fixed above)
                     f_n = int(f.split('_')[-2])
                     # must be large enough and smaller than previous best
