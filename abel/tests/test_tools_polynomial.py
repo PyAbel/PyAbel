@@ -9,7 +9,7 @@ from math import factorial
 
 import abel
 from abel.tools.polynomial import Polynomial, PiecewisePolynomial, \
-    ApproxGaussian
+    rcos, Angular, SPolynomial, PiecewiseSPolynomial, ApproxGaussian
 
 
 def test_polynomial_shape():
@@ -167,6 +167,147 @@ def test_polynomial_smoothstep():
     assert_allclose(P.func, recon, atol=2.0e-2)
 
 
+def test_rcos():
+    """
+    Testing rcos shape and origin.
+    """
+    # 1D
+    rows = np.array([0, 0, -1, 1])
+    cols = np.array([0, 1,  1, 0])
+    r, cos = rcos(rows, cols)
+    assert(r.shape == cos.shape == rows.shape)
+    assert_allclose(r, [0, 1, np.sqrt(2), 1])
+    assert_allclose(cos, [0, 0, np.sqrt(1/2), -1])
+
+    n = 5
+    r, cos = rcos(shape=(n, n))
+    # shape
+    assert(r.shape == cos.shape == (5, 5))
+    # default origin
+    assert(r[n // 2, n // 2] == 0)
+    assert(r[0, 0] == r[0, -1] == r[-1, -1] == r[-1, 0] != 0)
+    assert(cos[0, n // 2] == 1)
+    assert(cos[-1, n // 2] == -1)
+    assert(cos[n // 2, 0] == cos[n // 2, -1] == 0)
+    assert(cos[0, 0] == cos[0, -1] == -cos[-1, -1] == -cos[-1, 0] != 0)
+
+    r, cos = rcos(shape=(n, n), origin=(0, 0))
+    # origin at upper left corner
+    assert(r[0, 0] == 0)
+    assert(r[0, -1] == r[-1, 0] != 0)
+    assert(cos[-1, 0] == -1)
+    assert(cos[0, -1] == 0)
+
+    r, cos = rcos(shape=(n, n), origin=(-1, 0))
+    # origin at lower left corner
+    assert(r[-1, 0] == 0)
+    assert(r[0, 0] == r[-1, -1] != 0)
+    assert(cos[0, 0] == 1)
+    assert(cos[-1, 0] == 0)
+
+    r, cos = rcos(shape=(n, n), origin=(0, -1))
+    # origin at upper right corner
+    assert(r[0, -1] == 0)
+    assert(r[0, 0] == r[-1, -1] != 0)
+    assert(cos[-1, -1] == -1)
+    assert(cos[0, 0] == 0)
+
+
+def test_angular():
+    """
+    Test Angular class.
+    """
+    # init isotropic
+    A = Angular(2)
+    assert A.c == [2.0]
+
+    # multiplication of objects
+    Ac = Angular.cos(3)
+    As = Angular.sin(4)
+    Acs = Angular.cossin(3, 4)
+    assert_allclose((Ac * As).c, Acs.c)
+
+    # Legendre, multiplication by number, subtraction
+    Al = Angular.legendre([0] * 2 + [1])  # P₂
+    Aref = 3/2 * Angular.cos(2) - Angular(1/2)
+    assert_allclose(Al.c, Aref.c, err_msg='-> P_2')
+
+    Al = Angular.legendre([0] * 3 + [1])  # P₃
+    Aref = 5/2 * Angular.cos(3) - 3/2 * Angular.cos(1)
+    assert_allclose(Al.c, Aref.c, err_msg='-> P_3')
+
+    # Legendre as anisotropy parameters
+    Al = Angular.legendre([1, 0, -1]) * 2/3  # β = −1 ⇒ sin²
+    Aref = Angular.sin(2)
+    assert_allclose(Al.c, Aref.c, err_msg='-> sin^2')
+
+    Al = Angular.legendre([1, 0, +2]) * 1/3  # β = +2 ⇒ cos²
+    Aref = Angular.cos(2)
+    assert_allclose(Al.c, Aref.c, err_msg='-> cos^2')
+
+    # division, addition, outer product
+    c = [3, 0, -1] * (Angular.cos(4) + Angular.sin(4) / 2)
+    ref = [[ 1.5, 0, -3, 0,  4.5],
+           [ 0.0, 0, -0, 0,  0.0],
+           [-0.5, 0,  1, 0, -1.5]]
+    assert_allclose(c, ref)
+
+
+def test_spolynomial_shape():
+    """
+    Testing that func and abel have the same shape as r.
+    """
+    # 2D
+    n = 20
+    r, cos = rcos(shape=(2 * n + 1, 2 * n + 1))
+    P = SPolynomial(r, cos, 0, n, [[1]])
+    assert P.func.shape == r.shape
+    assert P.abel.shape == r.shape
+
+    # 1D
+    r = np.arange(10, dtype=float)
+    cos = np.ones_like(r)
+    P = SPolynomial(r, cos, 0, n, [[1]])
+    assert P.func.shape == r.shape
+    assert P.abel.shape == r.shape
+
+
+def test_spolynomial_zeros():
+    """
+    Testing that zero coefficients produce zero func and abel.
+    """
+    n = 20
+    r, cos = rcos(shape=(2 * n + 1, 2 * n + 1))
+    P = SPolynomial(r, cos, 0, n, [[0, 0], [0, 0]])
+    assert_allclose(P.func, 0)
+    assert_allclose(P.abel, 0)
+
+
+def test_spolynomial_copy():
+    """
+    Test copy creation.
+    """
+    n = 20
+    r, cos = rcos(shape=(2 * n + 1, 2 * n + 1))
+    P0 = SPolynomial(r, cos, 0, n, [[1, 0, -1],
+                                    [-1, 0, 1]], 0, n)
+    P0c = P0.copy()
+
+    # should not change P0 and P0c
+    P1 = 2 * P0
+    assert_allclose(P0.func, P0c.func)
+    assert_allclose(P0.abel, P0c.abel)
+    assert_allclose(P1.func, (P0 * 2).func)
+    assert_allclose(P1.abel, (P0 * 2).abel)
+
+    # should change P0, but not P0c
+    P0 *= 2
+    assert_allclose(P0.func, P1.func)
+    assert_allclose(P0.abel, P1.abel)
+    assert_allclose(P0.func, (P0c * 2).func)
+    assert_allclose(P0.abel, (P0c * 2).abel)
+
+
 def test_approx_gaussian():
     """
     Test Gaussian approximation against exact Gaussian.
@@ -194,6 +335,52 @@ def test_approx_gaussian():
     assert_allclose(P.func, ref, atol=A * 5e-3)
 
 
+def test_spolynomial_gaussian():
+    """
+    Testing Gaussian approximation with spherical polynomials.
+    """
+    # reference Gaussian
+    def g(r):
+        return np.exp(-r**2 / 2)
+    n = 201
+    sigma = 20
+    r, cos = rcos(shape=(n, n))
+    ref_func = g(r / sigma)
+    mul = np.sqrt(2 * np.pi) * sigma
+    ref_abel = mul * ref_func
+    for tol in [5e-2, 1e-2, 1e-3, 1e-4, 1e-6]:
+        coef = Angular(1) * ApproxGaussian(tol).scaled(1, 0, sigma)
+        P = PiecewiseSPolynomial(r, cos, coef)
+        assert_allclose(P.func, ref_func, atol=1.001 * tol,  # with small slack
+                        err_msg='-> func, tol={}'.format(tol))
+        assert_allclose(P.abel, ref_abel, atol=0.85 * mul * tol,  # somewhat
+                        err_msg='-> abel, tol={}'.format(tol))    # better
+
+
+def test_spolynomial_high():
+    """
+    Testing higher orders of spherical polynomials
+    using ``direct`` forward transform.
+    """
+    n = 201
+    r, cos = rcos(shape=(n, n))
+
+    # smooth peak (1 − r)³ (1 + r)³ for −1 ≤ r ≤ +1
+    peak = [1, 0, -3, 0, 3, 0, -1]
+    r0 = 70
+    w = 20
+
+    for n in range(9):
+        P = SPolynomial(r, cos, r0 - w, r0 + w,
+                        peak * Angular([0] * n + [1]), r0, w)
+        ref = abel.Transform(P.func, direction='forward', method='direct',
+                             symmetry_axis=0,
+                             transform_options={'backend': 'Python'}).transform
+        assert_allclose(P.abel, ref,
+                        atol=np.max(ref) * 5.4e-3,  # 'direct' adds some error
+                        err_msg='-> n={}'.format(n))
+
+
 if __name__ == '__main__':
     test_polynomial_shape()
     test_polynomial_zeros()
@@ -202,4 +389,12 @@ if __name__ == '__main__':
     test_polynomial_step()
     test_polynomial_gaussian()
     test_polynomial_smoothstep()
+
+    test_rcos()
+    test_angular()
+    test_spolynomial_shape()
+    test_spolynomial_zeros()
+    test_spolynomial_copy()
     test_approx_gaussian()
+    test_spolynomial_gaussian()
+    test_spolynomial_high()
