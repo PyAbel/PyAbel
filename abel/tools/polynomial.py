@@ -270,3 +270,174 @@ class PiecewisePolynomial(BasePolynomial):
         for p in self.p:
             p *= num
         return self
+
+
+class ApproxGaussian(object):
+    r"""
+    Piecewise quadratic approximation (non-negative and continuous but not
+    exactly smooth) of the unit-amplitude, unit-SD Gaussian function
+    :math:`\exp(-r^2/2)`, equal to it at endpoints and midpoint of each piece.
+    The forward Abel transform of this approximation will typically have a
+    better relative accuracy than the approximation itself.
+
+    Parameters
+    ----------
+    tol : float
+        absolute approximation tolerance (maximal deviation).
+        Some reference values yielding the best accuracy for certain number of
+        segments:
+
+        .. table::
+            :widths: auto
+
+            =======  ===========  ===========
+            **tol**  Better than  Segments
+            =======  ===========  ===========
+            3.7e-2   5%           3
+            1.4e-2   2%           5
+            4.8e-3   0.5%         7 (default)
+            0.86e-3  0.1%         13
+            0.99e-4  0.01%        27
+            0.95e-5  0.001%       59
+            =======  ===========  ===========
+
+    Attributes
+    ----------
+    ranges : lists of tuple
+        list of parameters ``(r_min, r_max, [c₀, c₁, c₂], r_0, s)`` that can be
+        passed directly to :class:`PiecewisePolynomial` or, after
+        “multiplication” by :class:`Angular`, to :class:`PiecewiseSPolynomial`
+    norm : float
+        the integral :math:`\int_{-\infty}^{+\infty} f(r)\,dr` for
+        normalization (equals :math:`\sqrt{2\pi}` for the ideal Gaussian
+        function, but slightly differs for the approximation)
+    """
+    def __init__(self, tol=4.8e-3):
+        # Reference Gaussian function.
+        def g(x):
+            return np.exp(-x**2 / 2)
+
+        # Determine splitting nodes
+        xs = []  # node positions
+        # first (max. x) point: g(x) = tol / 2
+        x1 = np.sqrt(-2 * np.log(tol / 2))
+        # moving towards x = 0...
+        while x1 > 0:
+            xs.append(x1)
+
+            # Find next point x2 such that max. deviation on [x2, x1] is <= tol
+            # (SciPy tools don't like this problem, so solving it manually...)
+
+            # 3rd derivative to estimate max. deviation
+            derx1 = np.abs(3 - x1**2) * x1 * g(x1)  # at x1
+            # constant factor for max. of cubic Taylor term
+            M = 1 / (72 * np.sqrt(3))
+
+            # max. among mid- and endpoints
+            def der(x2):
+                xc = (x1 + x2) / 2
+                return M * max(derx1,
+                               np.abs(3 - xc**2) * xc * g(xc),
+                               np.abs(3 - x2**2) * x2 * g(x2))
+
+            # estimator of max. deviation
+            def dev(x2):
+                return der(x2) * (x1 - x2)**3
+
+            x2low, x2 = x1, x1  # initialize root interval
+            devx2 = 0
+            for i in range(100):  # (for safety; in fact, takes ≲20 iterations)
+                if devx2 > tol:  # switch to binary search (more stable)
+                    xc = (x2low + x2) / 2
+                    if dev(xc) > tol:
+                        x2 = xc
+                    else:
+                        x2low = xc
+                else:
+                    x2low = x2
+                    # estimate (x2 - x1) from ~cubic deviation growth
+                    dx = (tol / der(x2))**(1/3)
+                    if x2 == x1:  # for 1st estimate:
+                        dx /= 2  # carefully go only 1/2 as far
+                    x2 = max(x1 - dx, 0)  # shouldn't go beyond 0
+                    devx2 = dev(x2)
+                # terminate on root uncertainty (tol is more than enough)
+                if x2low - x2 < tol:
+                    break
+
+            # make sure that outer parabola doesn't go below 0
+            if len(xs) == 1 and g(x2) > 4 * g((x1 + x2) / 2):
+                # use node point that matches the limiting parabola (x - x1)^2
+                x2 = (x1 + 2 * np.sqrt(x1**2 - 6 * np.log(4))) / 3
+
+            # move to next segment
+            x1 = x2
+
+        # add x = 0 to split central (last) segment if its max. deviation is
+        # too large (estimated from quartic term)
+        zero = (1 + g(xs[-1])) / 2 - g(xs[-1] / np.sqrt(2)) > tol
+
+        # symmetric copy to negative x
+        if zero:
+            xs = [-x for x in xs] + [0.0] + xs[::-1]
+        else:
+            xs = [-x for x in xs] + xs[::-1]
+        N = len(xs)  # total number of nodes
+        xs = np.array(xs)
+
+        # midpoints positions
+        xc = (xs[:-1] + xs[1:]) / 2
+        # values at nodes and midpoints
+        ys = g(xs)
+        ys[0] = ys[-1] = 0  # zero at endpoints
+        yc = g(xc)
+
+        # Create polynomial parameters
+        cs = [ys[:-1],
+              -3 * ys[:-1] + 4 * yc - ys[1:],
+              2 * (ys[:-1] - 2 * yc + ys[1:])]
+        self.ranges = []
+        for i in range(N - 1):
+            self.ranges.append((xs[i], xs[i + 1],  # r_min, r_max
+                                [cs[0][i], cs[1][i], cs[2][i]],  # c
+                                xs[i], xs[i + 1] - xs[i]))  # r_0, s
+        # calculate norm
+        self.norm = ((cs[0] + cs[1] / 2 + cs[2] / 3) * np.diff(xs)).sum()
+
+    def scaled(self, A=1.0, r_0=0.0, sigma=1.0):
+        r"""
+        Parameters for piecewise polynomials corresponding to the shifted and
+        scaled Gaussian function
+        :math:`A \exp\big([(r - r_0)/\sigma]^2 / 2\big)`.
+
+        (Useful numbers: a Gaussian normalized to unit integral, that is the
+        standard normal distribution, has :math:`A = 1/\sqrt{2\pi}`; however,
+        see :attr:`norm` above. A Gaussian with FWHM = 1 has :math:`\sigma =
+        1/\sqrt{8\ln2}`.)
+
+        Parameters
+        ----------
+        A : float
+            amplitude
+        r_0 : float
+            peak position
+        sigma : float
+            standard deviation
+
+        Returns
+        -------
+        ranges : list of tuple
+            parameters for the piecewise polynomial approximating the shifted
+            and scaled Gaussian
+        """
+        ranges = []
+        for r_min, r_max, c, r, s in self.ranges:
+            r_max = r_0 + sigma * r_max
+            if r_max < 0:
+                continue
+            r_min = max(0, r_0 + sigma * r_min)
+            c = [A * cn for cn in c]
+            r = r_0 + sigma * r
+            s *= sigma
+            ranges.append((r_min, r_max, c, r, s))
+        return ranges

@@ -8,7 +8,8 @@ from scipy.special import hermite
 from math import factorial
 
 import abel
-from abel.tools.polynomial import Polynomial, PiecewisePolynomial
+from abel.tools.polynomial import Polynomial, PiecewisePolynomial, \
+    ApproxGaussian
 
 
 def test_polynomial_shape():
@@ -166,6 +167,33 @@ def test_polynomial_smoothstep():
     assert_allclose(P.func, recon, atol=2.0e-2)
 
 
+def test_approx_gaussian():
+    """
+    Test Gaussian approximation against exact Gaussian.
+    """
+    # reference Gaussian
+    def g(x):
+        return np.exp(-x**2 / 2)
+
+    # test tolerances
+    r = np.linspace(0, 5, 1000)
+    ref = g(r)
+    for tol in [5e-2, 1e-2, 1e-3, 1e-4, 1e-6]:
+        ag = ApproxGaussian(tol)
+        P = PiecewisePolynomial(r, ag.ranges)
+        assert_allclose(P.func, ref, atol=tol, err_msg='-> tol={}'.format(tol))
+
+    # test scaling
+    r = np.arange(100, dtype=float)
+    A = 2
+    r0 = 30
+    sigma = 20
+    ref = A * g((r - r0) / sigma)
+    ag = ApproxGaussian()
+    P = PiecewisePolynomial(r, ag.scaled(A, r0, sigma))
+    assert_allclose(P.func, ref, atol=A * 5e-3)
+
+
 if __name__ == '__main__':
     test_polynomial_shape()
     test_polynomial_zeros()
@@ -174,3 +202,4 @@ if __name__ == '__main__':
     test_polynomial_step()
     test_polynomial_gaussian()
     test_polynomial_smoothstep()
+    test_approx_gaussian()
