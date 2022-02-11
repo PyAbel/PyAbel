@@ -2,9 +2,11 @@
 from __future__ import division
 from __future__ import absolute_import
 import numpy as np
-import abel
 import scipy.constants as const
 import scipy.interpolate
+
+import abel
+from abel import _deprecate
 
 # This file includes functions that have a known analytical Abel transform.
 # They are used in unit testing and for comparing different Abel
@@ -389,7 +391,7 @@ class TransformPair(BaseAnalytical):
         self.mask_valid = np.ones_like(self.func)
 
 
-class SampleImage(BaseAnalytical):
+class SampleImage_(BaseAnalytical):
     """
     Sample images, made up of Gaussian functions
 
@@ -482,7 +484,7 @@ class SampleImage(BaseAnalytical):
         n2 = n//2
         self.name = name
 
-        super(SampleImage, self).__init__(n, r_max=n2, symmetric=True)
+        super(SampleImage_, self).__init__(n, r_max=n2, symmetric=True)
 
         if name == 'dribinski':
             scale = 180*2/n
@@ -500,3 +502,173 @@ class SampleImage(BaseAnalytical):
             self.image = _Ominus(R, THETA, sigma=sigma, boltzmann=boltzmann)
         else:
             raise ValueError('Sample image name not recognized')
+
+
+class SampleImage(BaseAnalytical):
+    r"""
+    Sample images, made up of Gaussian functions.
+
+    Parameters
+    ----------
+    n : integer
+        image size **n** rows × **n** cols (must be odd for most purposes;
+        even **n** values would result in half-pixel centering)
+    name : str
+        ``'Dribinski'``
+            Sample test image used in the BASEX paper `Rev. Sci. Instrum. 73,
+            2634 (2002) <https://dx.doi.org/10.1063/1.1482156>`__, intensity
+            function Eq. (16) (there are some missing negative exponents in the
+            publication).
+
+            9 Gaussian peaks with alternating anisotropies (β = −1, 0, +2),
+            plus 1 wide background Gaussian. Peak amplitudes are designed to
+            produce comparable heights in the *speed distribution*, thus the
+            peaks at small radii appear very intense in the image and its Abel
+            transform.
+        ``'Ominus'`` or ``'O-'``
+            Simulate the photoelectron spectrum of O\ :sup:`−` photodetachment
+            :math:`{}^3P_J \gets {}^2P_{3/2,1/2}`.
+
+            6 transitions, triplet neutral, and doublet anion.
+    sigma : float
+        1/*e* halfwidth of peaks in pixels, default values are:
+        2⋅\ *r*\ :sub:`max`/180 for ``'Dribinski'``,
+        2⋅\ *r*\ :sub:`max`/500 for ``'Ominus'``.
+    temperature : float
+        anion temperature in kelvins (default: 200) for ``'Ominus'``:
+        anion levels have Boltzmann population weight :math:`(2J + 1)
+        \exp[-hc \cdot 177.1~\text{cm}^{-1}/(k \cdot \textbf{temperature})]`
+
+    Attributes
+    ----------
+    name : str
+         sample-image name
+    """
+    def __init__(self, n=361, name='Dribinski', sigma=None, temperature=200):
+        super(SampleImage, self).__init__(n, r_max=(n - 1) / 2, symmetric=True)
+
+        name = name.lower()
+        if name == 'dribinski':
+            self.name = 'Dribinski'
+            self._scale = (self.r_max + 1/2) / 180
+            width = (sigma or 2) * self._scale
+            bg_width = 60 * self._scale
+            cos2 = [0, 0, 1]
+            sin2 = [1, 0, -1]
+            iso = [1]
+            # parameters:   A         r0   width     angular
+            self._peaks = [(2000 * 7,  10, width,    sin2),
+                           (2000 * 3,  15, width,    iso),
+                           (2000 * 5,  20, width,    cos2),
+                           (200 * 1,   70, width,    iso),
+                           (200 * 2,   85, width,    cos2),
+                           (200 * 1,  100, width,    sin2),
+                           (50 * 2,   145, width,    sin2),
+                           (50 * 1,   150, width,    iso),
+                           (50 * 3,   155, width,    cos2),
+                           (20 * 1,    45, bg_width, iso)]
+        elif name in ['ominus', 'o-']:
+            self.name = 'Ominus'
+            self._scale = (self.r_max + 1/2) / 501
+            width = (sigma or 2) * self._scale
+            boltzmann = np.exp(-177.1 * const.h * const.c * 100 /
+                               (const.k * temperature)) / 2
+            aniso = [1, 0, -0.2]
+            # parameters:   A                 r0   width  angular
+            self._peaks = [(1.0,              341, width, aniso),
+                           (0.8,              285, width, aniso),
+                           (0.36,             257, width, aniso),
+                           (boltzmann * 0.2,  394, width, aniso),
+                           (boltzmann * 0.36, 348, width, aniso),
+                           (boltzmann * 0.16, 324, width, aniso)]
+        else:
+            raise ValueError('Sample image name not recognized.')
+
+        # Isotropic ring for one peak.
+        def peak(r, r0, width):
+            # Gaussian function ("width" is √2 std. dev.)
+            return np.exp(-((r - r0) / width)**2)
+
+        # calculate only one quadrant Q1
+        n2 = (n + 1) // 2
+        r0 = -self.r[n2]
+        R, COS = abel.tools.polynomial.rcos(shape=(n2, n2), origin=(r0, r0))
+        Q = np.zeros_like(R)
+        for A, r0, width, cn in self._peaks:
+            ring = A * peak(R, r0 * self._scale, width)
+            Q += cn[0] * ring
+            for c in cn[1:]:
+                ring *= COS
+                if c:
+                    Q += c * ring
+
+        # unfold to whole image
+        self.func = abel.tools.symmetry.put_image_quadrants(
+                        [Q[:, ::-1]] * 4, (n, n))
+        self.mask_valid = abel.tools.symmetry.put_image_quadrants(
+                              [R[:, ::-1] != 0] * 4, (n, n))
+
+    def transform(self, tol=4.8e-3):
+        """
+        Compute forward Abel transform of the image as an analytical Abel
+        transform of its piecewise polynomial approximation.
+
+        Parameters
+        ----------
+        tol : float
+            relative tolerance of the approximation (max. deviation divided by
+            max. amplitude, default: 4.8e-3 ≲ 0.5%); the resulting Abel
+            transform is somewhat more accurate
+
+        Returns
+        -------
+        abel : 2D numpy array
+            Abel-transformed image, also accessible as the :attr:`abel`
+            attribute
+        """
+        # calculate only one quadrant Q1
+        n2 = (self.n + 1) // 2
+        r0 = -self.r[n2]
+        R, COS = abel.tools.polynomial.rcos(shape=(n2, n2), origin=(r0, r0))
+        if self.name == 'Gaussian':
+            A, r0, width, cn = self._peaks[0]
+            Q = np.sqrt(np.pi) * width * np.exp(-(R / width)**2)
+        else:
+            # approximate Gaussian
+            g = abel.tools.polynomial.ApproxGaussian(tol)
+
+            # Radial polynomial parameters for one peak.
+            def peak(A, r0, width):
+                return g.scaled(A, r0, width / np.sqrt(2))
+
+            # sum all peaks
+            Q = np.zeros_like(R)
+            for A, r0, width, cn in self._peaks:
+                Q += abel.tools.polynomial.PiecewiseSPolynomial(
+                        R, COS,
+                        peak(A, r0 * self._scale, width) *
+                        abel.tools.polynomial.Angular(cn)
+                     ).abel
+
+        # unfold to whole image
+        self._abel = abel.tools.symmetry.put_image_quadrants(
+                         [Q[:, ::-1]] * 4, (self.n, self.n))
+        return self._abel
+
+    @property
+    def image(self):
+        """Deprecated. Use :attr:`func` instead."""
+        _deprecate('SampleImage attribute ".image" is deprecated, '
+                   'use ".func" instead.')
+        return self.func
+
+    @property
+    def abel(self):
+        """
+        Abel transform of the image, computed (with default accuracy) only if
+        necessary; see :meth:`transform` for details.
+        """
+        try:
+            return self._abel
+        except AttributeError:  # not yet computed
+            return self.transform()

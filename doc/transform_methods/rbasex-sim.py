@@ -17,7 +17,7 @@ def rescaleI(im):
     return np.sqrt(np.abs(im)) * np.sign(im)
 
 # test distribution
-source = SampleImage(n=2 * rmax - 1).image / scale
+source = SampleImage(n=2 * rmax - 1).func / scale
 Isrc, _ = Ibeta(source)
 Inorm = (Isrc**2).sum()
 

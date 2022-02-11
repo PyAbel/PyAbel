@@ -31,7 +31,7 @@ vlim = 3.6  # intensity limits for images
 ylim = (-1.3, 2.7)  # limits for plots
 
 # create source distribution and its profiles for reference
-source = SampleImage(N).image / 100
+source = SampleImage(N).func / 100
 r_src, P0_src, P2_src = rharmonics(source)
 
 # simulate experimental image:

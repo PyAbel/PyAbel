@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import abel
 
 # one quadrant of Dribinski sample image, its size and intensity distribution
-im = abel.tools.analytical.SampleImage().image
+im = abel.tools.analytical.SampleImage().func
 q0 = abel.tools.symmetry.get_image_quadrants(im)[0]
 n = q0.shape[0]
 I0, _ = abel.tools.vmi.Ibeta(q0, origin='ll')

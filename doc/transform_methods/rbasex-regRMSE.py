@@ -10,7 +10,7 @@ from abel.rbasex import rbasex_transform
 # test distribution
 rmax = 200
 scale = 10000
-source = SampleImage(n=2 * rmax - 1).image / scale
+source = SampleImage(n=2 * rmax - 1).func / scale
 Isrc, _ = Ibeta(source)
 Inorm = (Isrc**2).sum()
 

@@ -1,5 +1,5 @@
 import abel
-original     = abel.tools.analytical.SampleImage().image
+original     = abel.tools.analytical.SampleImage().func
 forward_abel = abel.Transform(original, direction='forward', 
                               method='hansenlaw'  ).transform
 inverse_abel = abel.Transform(forward_abel, direction='inverse',
