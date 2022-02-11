@@ -391,119 +391,6 @@ class TransformPair(BaseAnalytical):
         self.mask_valid = np.ones_like(self.func)
 
 
-class SampleImage_(BaseAnalytical):
-    """
-    Sample images, made up of Gaussian functions
-
-    Parameters
-    ----------
-    n : integer
-        image size n rows x n cols
-
-    name : str
-        one of "dribinski" or "Ominus"
-
-    sigma : float
-        Gaussian 1/e width (pixels)
-
-    temperature : float
-        for 'Ominus' only
-        anion levels have Boltzmann population weight
-        (2J+1) exp(-177.1 h c 100/k/temperature)
-
-    Attributes
-    ----------
-    image : 2D numpy array
-         image
-
-    name : str
-         sample image name
-    """
-    def __init__(self, n=361, name="dribinski", sigma=2, temperature=200):
-
-        def _gauss(r, r0, sigma):
-            return np.exp(-(r-r0)**2/sigma**2)
-
-        def _dribinski(r, theta, sigma):
-            """
-            Sample test image used in the BASEX paper
-            Rev. Sci. Instrum. 73, 2634 (2002), intensity function Eq. (16)
-            (there are some missing negative exponents in the publication)
-
-            9 Gaussian peaks with "width" = sigma (default: 2) and
-            1 background Gaussian with "width" = 60
-            ("width" is √2 std. dev. in pixels for default n = 361
-             and scales proportionally to n)
-
-            anisotropy: ß = −1  for cosθ term
-                        ß = +2  for sinθ term
-                        ß =  0  isotropic, no angular variation
-            """
-
-            sinetheta2 = np.sin(theta)**2
-            cosinetheta2 = np.cos(theta)**2
-
-            t0 = 7*_gauss(r, 10, sigma)*sinetheta2
-            t1 = 3*_gauss(r, 15, sigma)
-            t2 = 5*_gauss(r, 20, sigma)*cosinetheta2
-            t3 = _gauss(r, 70, sigma)
-            t4 = 2*_gauss(r, 85, sigma)*cosinetheta2
-            t5 = _gauss(r, 100, sigma)*sinetheta2
-            t6 = 2*_gauss(r, 145, sigma)*sinetheta2
-            t7 = _gauss(r, 150, sigma)
-            t8 = 3*_gauss(r, 155, sigma)*cosinetheta2
-            t9 = 20*_gauss(r, 45, 60)  # background under t3 to t5
-
-            return 2000*(t0+t1+t2) + 200*(t3+t4+t5) + 50*(t6+t7+t8) + t9
-
-        def _Ominus(r, theta, sigma, boltzmann, rfact=1):
-            """
-            Simulate the photoelectron spectrum of O- photodetachment
-            3PJ <- 2P3/2,1/2
-
-            6 transitions, triplet neutral, and doublet anion
-
-            """
-            # positions based on 812.5 nm ANU O- PES
-            t1 = _gauss(r, 341*rfact, sigma)  # 3P2 <- 2P3/2
-            t2 = _gauss(r, 285*rfact, sigma)  # 3P1 <- 2P3/2
-            t3 = _gauss(r, 257*rfact, sigma)  # 3P0 <- 2P3/2
-            t4 = _gauss(r, 394*rfact, sigma)  # 3P2 <- 2P1/2
-            t5 = _gauss(r, 348*rfact, sigma)  # 3P1 <- 2P1/2
-            t6 = _gauss(r, 324*rfact, sigma)  # 3P0 <- 2P1/2
-
-            # intensities = fine-structure known ratios
-            # 2P1/2 transtions scaled by temperature-dependent Boltzmann factor
-            t = t1 + 0.8*t2 + 0.36*t3 + (0.2*t4 + 0.36*t5 + 0.16*t6)*boltzmann
-
-            # anisotropy
-            sinetheta2 = np.sin(theta)**2*0.2 + 0.8
-
-            return t*sinetheta2
-
-        n2 = n//2
-        self.name = name
-
-        super(SampleImage_, self).__init__(n, r_max=n2, symmetric=True)
-
-        if name == 'dribinski':
-            scale = 180*2/n
-        elif name == 'Ominus':
-            scale = 501*2/n
-
-        X, Y = np.meshgrid(self.r*scale, self.r*scale)
-        R, THETA = abel.tools.polar.cart2polar(X, Y)
-
-        if self.name == "dribinski":
-            self.image = _dribinski(R, THETA, sigma=sigma)
-        elif self.name == "Ominus":
-            boltzmann = np.exp(-177.1*const.h*const.c*100/const.k/temperature)\
-                        / 2
-            self.image = _Ominus(R, THETA, sigma=sigma, boltzmann=boltzmann)
-        else:
-            raise ValueError('Sample image name not recognized')
-
-
 class SampleImage(BaseAnalytical):
     r"""
     Sample images, made up of Gaussian functions.
@@ -550,8 +437,8 @@ class SampleImage(BaseAnalytical):
         name = name.lower()
         if name == 'dribinski':
             self.name = 'Dribinski'
-            self._scale = (self.r_max + 1/2) / 180
-            width = (sigma or 2) * self._scale
+            self._scale = self.r_max / 180
+            width = 2 * self._scale if sigma is None else sigma
             bg_width = 60 * self._scale
             cos2 = [0, 0, 1]
             sin2 = [1, 0, -1]
@@ -569,8 +456,8 @@ class SampleImage(BaseAnalytical):
                            (20 * 1,    45, bg_width, iso)]
         elif name in ['ominus', 'o-']:
             self.name = 'Ominus'
-            self._scale = (self.r_max + 1/2) / 501
-            width = (sigma or 2) * self._scale
+            self._scale = self.r_max / 500
+            width = 2 * self._scale if sigma is None else sigma
             boltzmann = np.exp(-177.1 * const.h * const.c * 100 /
                                (const.k * temperature)) / 2
             aniso = [1, 0, -0.2]

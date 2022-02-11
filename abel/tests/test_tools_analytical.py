@@ -8,7 +8,7 @@ from numpy.testing import assert_allclose, assert_equal
 # to suppress deprecation warnings
 from warnings import catch_warnings, simplefilter
 
-from abel.tools.analytical import SampleImage, SampleImage_
+from abel.tools.analytical import SampleImage
 from abel import Transform
 
 
@@ -16,24 +16,21 @@ def test_sample_Dribinski():
     """
     Test SampleImage 'Dribinski'.
     """
-    opt = [dict(),
-           dict(n=501),
-           dict(sigma=3),
-           dict(n=501, sigma=3)]
-
-    for kwargs in opt:
-        # test against old implementation
-        ref = SampleImage_(name='dribinski', **kwargs).image
-        test = SampleImage(name='dribinski', **kwargs)
-        n2 = ref.shape[0] // 2           # old code has different cosθ at r = 0
-        ref[n2, n2] = test.func[n2, n2]  # so ignore central pixel
-        assert_allclose(test.func, ref, err_msg='-> func, {}'.format(kwargs))
-        # test deprecated attribute
-        with catch_warnings():
-            simplefilter('ignore', category=DeprecationWarning)
-            assert_equal(test.image, test.func)
+    # test deprecated attribute
+    test = SampleImage(name='dribinski')  # (test lower-case)
+    with catch_warnings():
+        simplefilter('ignore', category=DeprecationWarning)
+        assert_equal(test.image, test.func)
 
     # .abel is difficult to test reliably due to the huge dynamic range
+
+    # test scaling
+    n = 501
+    test1 = SampleImage(n=n, name='Dribinski', sigma=2)
+    test2 = SampleImage(n=n // 2 + 1, name='Dribinski', sigma=1)  # halved
+    assert(test2.r_max == test1.r_max / 2)
+    assert_allclose(test2.func, test1.func[::2, ::2])
+    assert_allclose(test2.abel, test1.abel[::2, ::2] / 2, atol=2e-6)
 
 
 def test_sample_Ominus():
@@ -48,11 +45,7 @@ def test_sample_Ominus():
              (dict(temperature=100), 0.2)]
 
     for kwargs, tol in param:
-        # test against old implementation
-        ref = SampleImage_(name='Ominus', **kwargs).image
         test = SampleImage(name='Ominus', **kwargs)
-        assert_allclose(test.func, ref, atol=1e-15,
-                        err_msg='-> {}'.format(kwargs))
         # test deprecated .image attribute
         with catch_warnings():
             simplefilter('ignore', category=DeprecationWarning)

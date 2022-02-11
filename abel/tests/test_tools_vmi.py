@@ -201,7 +201,7 @@ def test_toPES():
 
     assert_allclose(eBE[PES.argmax()], 11780, rtol=0.001,
                     err_msg='-> eBE @ max PES')
-    assert_allclose(PES.max(), 16570, rtol=0.001,
+    assert_allclose(PES.max(), 16620, rtol=0.001,
                     err_msg='-> max PES')
 
 
