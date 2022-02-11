@@ -12,34 +12,40 @@ import scipy.interpolate
 
 
 class BaseAnalytical(object):
+    r"""
+    Base class for functions that have a known Abel transform
+    (see :class:`GaussianAnalytical` for a concrete example).
+    Every such class should expose the following public attributes:
+
+    Attributes
+    ----------
+    r : numpy array
+        vector of positions along the :math:`r` axis
+    func : numpy array
+        the values of the original function (same shape as :attr:`r` for 1D
+        functions, or same row size as :attr:`r` for 2D images)
+    abel : numpy array
+        the values of the Abel transform (same shape as :attr:`func`)
+    mask_valid : numpy array
+        mask (same shape as :attr:`func`) where the function is
+        well smoothed/well behaved (no known artefacts in the inverse
+        Abel reconstuction), typically excluding the origin, the domain
+        boundaries, and function discontinuities, that can be used for
+        unit testing.
+
+    Parameters
+    ----------
+    n : int
+        number of points along the :math:`r` axis
+        (saved to attribute :attr:`n`)
+    r_max: float
+        maximum :math:`r` value (saved to attribute :attr:`r_max`)
+    symmetric: boolean
+        if ``True``, the :math:`r` interval is [−\ **r_max**, **r_max**]
+        (and **n** should be odd),
+        otherwise, the :math:`r` interval is [0, **r_max**]
+    """
     def __init__(self, n, r_max, symmetric=True, **args):
-        """
-        This is the base class for functions that have a known Abel transform.
-        Every such class should expose the following public attributes:
-          - self.r: vector of positions along the r axis
-          - self.func: the values of the original function
-                        (same shape as self.r)
-          - self.abel: the values of the Abel transform (same shape as self.r)
-          - self.mask_valid: mask of the r interval where the function is
-            well smoothed/well behaved (no known artefacts in the inverse
-            Abel reconstuction), typically excluding the origin, the domain
-            boundaries, and function discontinuities, that can be used for
-            unit testing.
-
-        See GaussianAnalytical for a concrete example.
-
-        Parameters
-        -------a--
-        n : int
-            number of points along the r axis
-
-        r_max: float
-            maximum r interval
-
-        symmetric: boolean
-            if True, the r interval is [-r_max, r_max] (and n should be odd),
-            otherwise, the r interval is [0, r_max]
-        """
         self.n = n
         self.r_max = r_max
 
