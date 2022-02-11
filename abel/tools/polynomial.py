@@ -14,11 +14,66 @@ See :ref:`Polynomials` for details and examples.
 """
 
 
-class Polynomial(object):
+class BasePolynomial(object):
+    """
+    Abstract base class for polynomials. Implements multiplication and division
+    by numbers. (Addition and subtraction of polynomials are not implemented
+    because they are meaningful only for polynomials generated on the same
+    grid. Use ``Piecewise...`` classes for sums of polynomials.)
+
+    Attributes
+    ----------
+    func : numpy array
+        values of the original function
+    abel : numpy array
+        values of the Abel transform
+    """
+    def copy(self):
+        """
+        Return an independent copy.
+        """
+        other = self.__new__(type(self))  # create empty object (same type)
+        other.func = self.func.copy()
+        other.abel = self.abel.copy()
+        return other
+
+    def __imul__(self, num):
+        """
+        In-place multiplication: Polynomial *= num.
+        """
+        self.func *= num
+        self.abel *= num
+        return self
+
+    def __mul__(self, num):
+        """
+        Multiplication: Polynomial * num.
+        """
+        res = self.copy()
+        return res.__imul__(num)
+
+    __rmul__ = __mul__
+    __rmul__.__doc__ = \
+        """
+        Multiplication: num * Polynomial.
+        """
+
+    def __itruediv__(self, num):
+        """
+        In-place division: Polynomial /= num.
+        """
+        return self.__imul__(1 / num)
+
+    def __truediv__(self, num):
+        """
+        Division: Polynomial / num.
+        """
+        return self.__mul__(1 / num)
+
+
+class Polynomial(BasePolynomial):
     r"""
     Polynomial function and its Abel transform.
-
-    Supports multiplication and division by numbers.
 
     Parameters
     ----------
@@ -42,7 +97,7 @@ class Polynomial(object):
         c₀ + c₁ (*r* − **r_0**) + c₂ (*r* − **r_0**)² + ...
     s : float, optional
         *r* stretching factor (around **r_0**): the polynomial is defined as
-        c₀ + c₁ (*r*/**s**) + c₂ (*r*/**s**)² + ...
+        c₀ + c₁ ((*r* − **r_0**)/**s**) + c₂ ((*r* − **r_0**)/**s**)² + ...
     reduced : boolean, optional
         internally rescale the *r* range to [0, 1];
         useful to avoid floating-point overflows for high degrees
@@ -161,52 +216,11 @@ class Polynomial(object):
                 abel[span] += c[k] * 2 * a(k)
         self.abel = abel
 
-    def __imul__(self, m):
-        """
-        In-place multiplication: Polynomial *= num.
-        """
-        self.func *= m
-        self.abel *= m
-        return self
 
-    def __mul__(self, m):
-        """
-        Multiplication: Polynomial * num.
-        """
-        res = self.__new__(type(self))  # create empty object (same type)
-        res.func = self.func * m
-        res.abel = self.abel * m
-        return res
-
-    __rmul__ = __mul__
-    __rmul__.__doc__ = \
-        """
-        Multiplication: num * Polynomial.
-        """
-
-    def __itruediv__(self, m):
-        """
-        In-place division: Polynomial /= num.
-        """
-        return self.__imul__(1 / m)
-
-    def __truediv__(self, m):
-        """
-        Division: Polynomial / num.
-        """
-        return self.__mul__(1 / m)
-
-    # (Addition and subtraction are not implemented because they are
-    #  meaningful only for polynomials generated over the same r array.
-    #  Use PiecewisePolynomial for sums of polynomials.)
-
-
-class PiecewisePolynomial(Polynomial):
+class PiecewisePolynomial(BasePolynomial):
     r"""
-    Piecewise polynomial function (sum of ``Polynomial``\ s)
+    Piecewise polynomial function (sum of :class:`Polynomial`\ s)
     and its Abel transform.
-
-    Supports multiplication and division by numbers.
 
     Parameters
     ----------
@@ -225,20 +239,34 @@ class PiecewisePolynomial(Polynomial):
         All ranges are independent (may overlap and have gaps, may define
         polynomials of any degrees) and may include optional ``Polynomial``
         parameters
+
+    Attributes
+    ----------
+    p : list of Polynomial
+        :class:`Polynomial` objects corresponding to each piece
     """
     def __init__(self, r, ranges):
-        self.p = []
-        for rng in ranges:
-            self.p.append(Polynomial(r, *rng))
+        self.p = [Polynomial(r, *rng) for rng in ranges]
+        self.func = sum(p.func for p in self.p)
+        self.abel = sum(p.abel for p in self.p)
 
-        func = self.p[0].func
-        for p in self.p[1:]:
-            func += p.func
-        self.func = func
+    def copy(self):
+        """
+        Make an independent copy.
+        """
+        # make a basic copy with func and abel
+        other = super(type(self), self).copy()
+        # copy pieces also
+        other.p = [pn.copy() for pn in self.p]
+        return other
 
-        abel = self.p[0].abel
-        for p in self.p[1:]:
-            abel += p.abel
-        self.abel = abel
-
-    # (Multiplication and division methods are inherited from Polynomial.)
+    def __imul__(self, num):
+        """
+        In-place multiplication: Polynomial *= num.
+        """
+        # multiply func and abel
+        super(type(self), self).__imul__(num)
+        # multiply each piece also
+        for p in self.p:
+            p *= num
+        return self

@@ -35,6 +35,69 @@ def test_polynomial_zeros():
     assert_allclose(P.abel, 0)
 
 
+def test_polynomial_copy():
+    """
+    Test copy creation.
+    """
+    n = 20
+    r = np.arange(n, dtype=float)
+    P0 = Polynomial(r, 0, n/2, [1, -1], 0, n/2)
+    P0c = P0.copy()
+
+    # should not change P0 and P0c
+    P1 = 2 * P0
+    assert_allclose(P0.func, P0c.func)
+    assert_allclose(P0.abel, P0c.abel)
+    assert_allclose(P1.func, (P0 * 2).func)
+    assert_allclose(P1.abel, (P0 * 2).abel)
+
+    # should change P0, but not P0c
+    P0 *= 2
+    assert_allclose(P0.func, P1.func)
+    assert_allclose(P0.abel, P1.abel)
+    assert_allclose(P0.func, (P0c * 2).func)
+    assert_allclose(P0.abel, (P0c * 2).abel)
+
+
+def test_ppolynomial_copy():
+    """
+    Test copy creation.
+    """
+    n = 20
+    r = np.arange(n, dtype=float)
+    P0 = PiecewisePolynomial(r, [(0, n/2, [0, 1], 0, n/2),
+                                 (n/2, n, [1, -1], n/2, n/2)])
+    assert(len(P0.p) == 2)
+    P0c = P0.copy()
+    assert(len(P0c.p) == len(P0.p))
+
+    # should not change P0 and P0c
+    P1 = 2 * P0
+    assert(len(P1.p) == len(P0.p))
+    assert_allclose(P0.func, P0c.func)
+    assert_allclose(P0.abel, P0c.abel)
+    assert_allclose(P1.func, (P0 * 2).func)
+    assert_allclose(P1.abel, (P0 * 2).abel)
+    for i in range(len(P0.p)):
+        assert_allclose(P0.p[i].func, P0c.p[i].func)
+        assert_allclose(P0.p[i].abel, P0c.p[i].abel)
+        assert_allclose(P1.p[i].func, (P0.p[i] * 2).func)
+        assert_allclose(P1.p[i].abel, (P0.p[i] * 2).abel)
+
+    # should change P0, but not P0c
+    P0 *= 2
+    assert(len(P0.p) == len(P0c.p))
+    assert_allclose(P0.func, P1.func)
+    assert_allclose(P0.abel, P1.abel)
+    assert_allclose(P0.func, (P0c * 2).func)
+    assert_allclose(P0.abel, (P0c * 2).abel)
+    for i in range(len(P0.p)):
+        assert_allclose(P0.p[i].func, P1.p[i].func)
+        assert_allclose(P0.p[i].abel, P1.p[i].abel)
+        assert_allclose(P0.p[i].func, (P0c.p[i] * 2).func)
+        assert_allclose(P0.p[i].abel, (P0c.p[i] * 2).abel)
+
+
 def test_polynomial_step():
     """
     Testing step function (and multiplication).
@@ -67,13 +130,11 @@ def test_polynomial_gaussian():
     sigma = 15
 
     # coefficients of Taylor series around r = 1
-    c = []
-    for k in range(50):
-        c.append(np.exp(-1.0) * hermite(k)(-1.0) / factorial(k))
+    c = [np.exp(-1.0) * hermite(k)(-1.0) / factorial(k) for k in range(50)]
 
     P = Polynomial(r, 0, r[-1] + 2, c, sigma, sigma, reduced=True)
-    # scaling and shifting by sigma should produce exp(-(r/σ)^2),
-    # its Abel transform is √π σ exp(-(r/σ)^2)
+    # scaling and shifting by sigma should produce exp(-(r/σ)²),
+    # its Abel transform is √π σ exp(-(r/σ)²)
 
     func = np.exp(-(r / sigma)**2)
     abel = np.sqrt(np.pi) * sigma * func
@@ -108,6 +169,8 @@ def test_polynomial_smoothstep():
 if __name__ == '__main__':
     test_polynomial_shape()
     test_polynomial_zeros()
+    test_polynomial_copy()
+    test_ppolynomial_copy()
     test_polynomial_step()
     test_polynomial_gaussian()
     test_polynomial_smoothstep()
