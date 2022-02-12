@@ -7,8 +7,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 from abel.tools.polar import reproject_image_into_polar
-from scipy.ndimage import map_coordinates, uniform_filter1d
-from scipy.ndimage.interpolation import shift
+from scipy.ndimage import map_coordinates, uniform_filter1d, shift
 from scipy.optimize import curve_fit
 from scipy.linalg import hankel, inv, pascal
 from scipy.special import legendre

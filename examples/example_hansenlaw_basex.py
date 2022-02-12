@@ -13,8 +13,7 @@ import matplotlib.pyplot as plt
 import abel
 
 import scipy.misc
-from scipy.ndimage.interpolation import shift
-from scipy.ndimage import zoom
+from scipy.ndimage import shift, zoom
 import bz2
 
 # This example demonstrates both Hansen and Law inverse Abel transform

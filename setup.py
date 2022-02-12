@@ -101,9 +101,9 @@ setup(name='PyAbel',
       url='https://github.com/PyAbel/PyAbel',
       license='MIT',
       packages=find_packages(),
-      install_requires=["numpy >= 1.6",
-                        "setuptools >= 16.0",
-                        "scipy >= 0.14",
+      install_requires=["numpy >= 1.16",       # last for Python 2
+                        "setuptools >= 44.0",  # last for Python 2
+                        "scipy >= 1.2",        # oldest tested
                         "six >= 1.10.0"],
       package_data={'abel': ['tests/data/*']},
       long_description=long_description,

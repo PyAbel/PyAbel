@@ -8,7 +8,7 @@ import itertools
 
 import numpy as np
 from numpy.testing import assert_equal, assert_allclose
-from scipy.ndimage.interpolation import shift
+from scipy.ndimage import shift
 
 import abel
 from abel.tools.center import find_origin, center_image, set_center

@@ -236,8 +236,8 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
     #     QLz[1] = np.sum(IM, axis=0)
     # else:
     for i in range(proj):
-        Rot_IM = scipy.ndimage.interpolation.rotate(IM,
-                       proj_angles[i]*180/np.pi, axes=(1, 0), reshape=False)
+        Rot_IM = scipy.ndimage.rotate(IM, proj_angles[i]*180/np.pi,
+                                      axes=(1, 0), reshape=False)
         QLz[i, :] = np.sum(Rot_IM, axis=1)
 
     # arrange all projections for input into "lstsq"

@@ -13,7 +13,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
 from matplotlib.figure import Figure
 from matplotlib import gridspec
 
-from scipy.ndimage.interpolation import shift
+from scipy.ndimage import shift
 
 import os.path
 
