@@ -5,6 +5,11 @@ Unreleased
 ----------
 
 * Correct behavior of relative basis_dir in basex under Python 2 (PR #336).
+* Analytical Abel transform of axially symmetric piecewise polynomials in
+  spherical coordinates (PR #339).
+* Improvements in tools.analytical.SampleImage class: more consistent and
+  intuitive interface, accurate Abel transform for existing images, additional
+  sample images with exact Abel transform (PR #339).
 
 v0.8.5 (2022-01-21)
 -------------------
