@@ -393,7 +393,8 @@ class TransformPair(BaseAnalytical):
 
 class SampleImage(BaseAnalytical):
     r"""
-    Sample images, made up of Gaussian functions.
+    Sample images, made up of Gaussian functions
+    (or cubic splines, for ``'O2'``).
 
     Parameters
     ----------
@@ -412,6 +413,20 @@ class SampleImage(BaseAnalytical):
             produce comparable heights in the *speed distribution*, thus the
             peaks at small radii appear very intense in the image and its Abel
             transform.
+        ``'Gaussian'``
+            Isotropic 2D Gaussian :math:`\exp(-r^2 / \textbf{sigma}^2)`.
+
+            Its Abel transform is also a Gaussian with the same width:
+            :math:`\sqrt{\pi}\, \textbf{sigma} \exp(-r^2 / \textbf{sigma}^2)`.
+        ``'O2'``
+            Synthetic image mimicking a velocity-map image of O\ :sup:`+` from
+            multiphoton photodissociation/ionization
+            :math:`\ce{O2 ->[4h\nu] O + O+ + e^-}`
+            at :math:`44\,444~\text{cm}^{-1}` (225 nm)
+
+            Multiple peaks with various intensities and anisotropies; see, for
+            example, `J. Chem. Phys. 107, 2357 (1997)
+            <https://doi.org/10.1063/1.474624>`__.
         ``'Ominus'`` or ``'O-'``
             Simulate the photoelectron spectrum of O\ :sup:`−` photodetachment
             :math:`{}^3P_J \gets {}^2P_{3/2,1/2}`.
@@ -420,7 +435,11 @@ class SampleImage(BaseAnalytical):
     sigma : float
         1/*e* halfwidth of peaks in pixels, default values are:
         2⋅\ *r*\ :sub:`max`/180 for ``'Dribinski'``,
-        2⋅\ *r*\ :sub:`max`/500 for ``'Ominus'``.
+        2⋅\ *r*\ :sub:`max`/500 for ``'Ominus'``,
+        *r*\ :sub:`max`/3 for ``'Gaussian'``.
+
+        For ``'O2'``: HWHM of narrow peaks in pixels, default is 1.5 for any
+        *r*\ :sub:`max`.
     temperature : float
         anion temperature in kelvins (default: 200) for ``'Ominus'``:
         anion levels have Boltzmann population weight :math:`(2J + 1)
@@ -454,6 +473,43 @@ class SampleImage(BaseAnalytical):
                            (50 * 1,   150, width,    iso),
                            (50 * 3,   155, width,    cos2),
                            (20 * 1,    45, bg_width, iso)]
+        elif name == 'gaussian':
+            self.name = 'Gaussian'
+            self._scale = 0
+            width = self.r_max / 3 if sigma is None else sigma
+            # parameters:  A r0  width  angular
+            self._peaks = [(1, 0, width, [1])]
+        elif name == 'o2':
+            self.name = 'O2'
+            self._scale = self.r_max / 330
+            narrow = 1.5 if sigma is None else sigma
+            broad = 2 * narrow
+            # fitted to Fig. 3.9 from M. Ryazanov, Ph.D. dissertation (2012)
+            # parameters:   A      r0   width   angular
+            self._peaks = [(5,       0, broad,  [1]),
+                           (0.15,   63, narrow, [1, 0, 0.5]),
+                           (0.08,   69, narrow, [0, 0, 1]),
+                           (0.1,    74, narrow, [0, 0, 1]),
+                           (0.15,   95, narrow, [0.3, 0, 1]),
+                           (0.7,   111, broad,  [0.3, 0, 1]),
+                           (1.0,   141, broad,  [0.05, 0, 1]),
+                           (0.5,   153, narrow, [0.3, 0, 1]),
+                           (0.03,  172, narrow, [0, 0, 1]),
+                           (0.06,  180, narrow, [0, 0, 1]),
+                           (0.04,  190, narrow, [0.3, 0, 1]),
+                           (0.02,  201, narrow, [0.3, 0, 1]),
+                           (0.007, 213, narrow, [0, 0, 1]),
+                           (0.007, 227, narrow, [0, 0, 1]),
+                           (0.015, 239, narrow, [0.5, 0, 1]),
+                           (0.01,  250, narrow, [0, 0, 1]),
+                           (0.03,  261, narrow, [0.4, 0, 1]),
+                           (0.05,  270, narrow, [0, 0, 1]),
+                           (0.015, 278, narrow, [0, 0, 1]),
+                           (0.03,  286, narrow, [0, 0, 1]),
+                           (0.015, 294, narrow, [0, 0, 1]),
+                           (0.03,  301, narrow, [0, 0, 1]),
+                           (0.13,  307, narrow, [0, 0, 1]),
+                           (0.06,  313, narrow, [0, 0, 1])]
         elif name in ['ominus', 'o-']:
             self.name = 'Ominus'
             self._scale = self.r_max / 500
@@ -473,8 +529,15 @@ class SampleImage(BaseAnalytical):
 
         # Isotropic ring for one peak.
         def peak(r, r0, width):
-            # Gaussian function ("width" is √2 std. dev.)
-            return np.exp(-((r - r0) / width)**2)
+            if self.name == 'O2':
+                # cubic spline ("width" is HWHM)
+                dr = np.abs(r - r0) / (2 * width)
+                f = 1 - (3 - 2 * dr) * dr**2
+                f[dr > 1] = 0
+                return f
+            else:
+                # Gaussian function ("width" is √2 std. dev.)
+                return np.exp(-((r - r0) / width)**2)
 
         # calculate only one quadrant Q1
         n2 = (n + 1) // 2
@@ -498,7 +561,8 @@ class SampleImage(BaseAnalytical):
     def transform(self, tol=4.8e-3):
         """
         Compute forward Abel transform of the image as an analytical Abel
-        transform of its piecewise polynomial approximation.
+        transform of its piecewise polynomial approximation (except
+        ``'Gaussian'`` and ``'O2'``, which are computed exactly).
 
         Parameters
         ----------
@@ -521,12 +585,19 @@ class SampleImage(BaseAnalytical):
             A, r0, width, cn = self._peaks[0]
             Q = np.sqrt(np.pi) * width * np.exp(-(R / width)**2)
         else:
-            # approximate Gaussian
-            g = abel.tools.polynomial.ApproxGaussian(tol)
-
             # Radial polynomial parameters for one peak.
-            def peak(A, r0, width):
-                return g.scaled(A, r0, width / np.sqrt(2))
+            if self.name == 'O2':
+                def peak(A, r0, width):
+                    width *= 2
+                    c = [A, 0, -3 * A, 2 * A]
+                    return [(r0 - width, r0, c, r0, -width),
+                            (r0, r0 + width, c, r0, width)]
+            else:
+                # approximate Gaussian
+                g = abel.tools.polynomial.ApproxGaussian(tol)
+
+                def peak(A, r0, width):
+                    return g.scaled(A, r0, width / np.sqrt(2))
 
             # sum all peaks
             Q = np.zeros_like(R)

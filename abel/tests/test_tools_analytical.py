@@ -33,6 +33,38 @@ def test_sample_Dribinski():
     assert_allclose(test2.abel, test1.abel[::2, ::2] / 2, atol=2e-6)
 
 
+def test_sample_Gaussian():
+    """
+    Test SampleImage 'Gaussian'.
+    """
+    # SampleImage options, recon tolerance
+    param = [(dict(), 4e-4),
+             (dict(n=501), 5e-4),
+             (dict(n=501, sigma=50), 3e-9)]
+
+    # test transform using Daun with cubic splines (the most accurate)
+    for kwargs, tol in param:
+        test = SampleImage(name='Gaussian', **kwargs)
+        recon = Transform(test.abel, method='daun', symmetry_axis=(0, 1),
+                          transform_options={'degree': 3,
+                                             'verbose': False}).transform
+        assert_allclose(recon, test.func, atol=tol,
+                        err_msg='-> abel, {}'.format(kwargs))
+
+
+def test_sample_O2():
+    """
+    Test SampleImage 'O2'.
+    """
+    # test transform with forward Daun with cubic splines (the most accurate)
+    test = SampleImage(n=1001, name='O2')  # ~high resolution
+    proj = Transform(test.func, method='daun', direction='forward',
+                     symmetry_axis=(0, 1),
+                     transform_options={'degree': 3,
+                                        'verbose': False}).transform
+    assert_allclose(proj, test.abel, atol=9e-4 * np.max(proj))
+
+
 def test_sample_Ominus():
     """
     Test SampleImage 'Ominus'.
@@ -44,14 +76,9 @@ def test_sample_Ominus():
              (dict(n=501, sigma=3), 0.14),
              (dict(temperature=100), 0.2)]
 
+    # test transform using Daun with cubic splines (the most accurate)
     for kwargs, tol in param:
         test = SampleImage(name='Ominus', **kwargs)
-        # test deprecated .image attribute
-        with catch_warnings():
-            simplefilter('ignore', category=DeprecationWarning)
-            assert_equal(test.image, test.func)
-
-        # test transform (Daun with cubic splines is the most accurate)
         recon = Transform(test.abel, method='daun', symmetry_axis=(0, 1),
                           transform_options={'degree': 3,
                                              'verbose': False}).transform
@@ -70,4 +97,6 @@ def test_sample_Ominus():
 
 if __name__ == "__main__":
     test_sample_Dribinski()
+    test_sample_Gaussian()
+    test_sample_O2()
     test_sample_Ominus()
