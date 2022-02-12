@@ -421,7 +421,7 @@ class SampleImage(BaseAnalytical):
         ``'O2'``
             Synthetic image mimicking a velocity-map image of O\ :sup:`+` from
             multiphoton photodissociation/ionization
-            :math:`\ce{O2 ->[4h\nu] O + O+ + e^-}`
+            :math:`{\rm O}_2 \xrightarrow{4h\nu} {\rm O} + {\rm O}^+ + e^-`
             at :math:`44\,444~\text{cm}^{-1}` (225 nm)
 
             Multiple peaks with various intensities and anisotropies; see, for
