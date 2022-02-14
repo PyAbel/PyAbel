@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import division
 
 import numpy as np
 from numpy.testing import assert_allclose
 from scipy.special import hermite
+from scipy.interpolate import splrep, splev, make_interp_spline, UnivariateSpline
 from math import factorial
 
 import abel
 from abel.tools.polynomial import Polynomial, PiecewisePolynomial, \
-    rcos, Angular, SPolynomial, PiecewiseSPolynomial, ApproxGaussian
+    rcos, Angular, SPolynomial, PiecewiseSPolynomial, ApproxGaussian, bspline
 
 
 def test_polynomial_shape():
@@ -167,6 +167,76 @@ def test_polynomial_smoothstep():
     assert_allclose(P.func, recon, atol=2.0e-2)
 
 
+def test_approx_gaussian():
+    """
+    Test Gaussian approximation against exact Gaussian.
+    """
+    # reference Gaussian
+    def g(x):
+        return np.exp(-x**2 / 2)
+
+    # test tolerances
+    r = np.linspace(0, 5, 1000)
+    ref = g(r)
+    for tol in [5e-2, 1e-2, 1e-3, 1e-4, 1e-6]:
+        ag = ApproxGaussian(tol)
+        P = PiecewisePolynomial(r, ag.ranges)
+        assert_allclose(P.func, ref, atol=tol, err_msg='-> tol={}'.format(tol))
+
+    # test scaling
+    r = np.arange(100, dtype=float)
+    A = 2
+    r0 = 30
+    sigma = 20
+    ref = A * g((r - r0) / sigma)
+    ag = ApproxGaussian()
+    P = PiecewisePolynomial(r, ag.scaled(A, r0, sigma))
+    assert_allclose(P.func, ref, atol=A * 5e-3)
+
+
+def test_bspline():
+    """
+    Test B-spline conversion.
+    """
+    # data for fitting
+    x = np.arange(101)
+    y = np.exp(-((x - 50)/15)**2)
+    # points for output sampling
+    r = np.linspace(0, 200, 1000)
+
+    # from tck tuple
+    for k in [1, 2, 3, 4, 5]:  # all supported degrees
+        spl = splrep(x, y, k=k, s=0.1)
+        ref = splev(r, spl, ext=1)  # (0 outside)
+        P = PiecewisePolynomial(r, bspline(spl))
+        assert_allclose(P.func, ref, err_msg='-> splrep, k={}'.format(k))
+
+    # from BSpline
+    for k in [0, 1, 2, 3, 5, 7]:  # all supported degrees up to 7
+        # clamped boundary conditions
+        if k < 2:
+            bc = None
+        elif k == 2:
+            bc = (None, [(1, 0)])
+        else:
+            bc = ([(i, 0) for i in range(1, (k + 1) // 2)],) * 2
+        # spline through decimated data
+        spl = make_interp_spline(x[::10], y[::10], k=k, bc_type=bc)
+        ref = spl(r, extrapolate=False)
+        ref[np.isnan(ref)] = 0  # (0 outside)
+        P = PiecewisePolynomial(r, bspline(spl))
+        assert_allclose(P.func, ref, atol=1e-10,
+                        err_msg='-> make_interp_spline, k={}'.format(k))
+
+    # from UnivariateSpline
+    for k in [1, 2, 3, 4, 5]:  # all supported degrees up to 7
+        spl = UnivariateSpline(x, y, k=k, s=0.1, ext='zeros')
+        ref = spl(r)
+        P = PiecewisePolynomial(r, bspline(spl))
+        assert_allclose(P.func, ref,
+                        err_msg='-> UnivariateSpline, k={}'.format(k))
+
+
 def test_rcos():
     """
     Testing rcos shape and origin.
@@ -308,33 +378,6 @@ def test_spolynomial_copy():
     assert_allclose(P0.abel, (P0c * 2).abel)
 
 
-def test_approx_gaussian():
-    """
-    Test Gaussian approximation against exact Gaussian.
-    """
-    # reference Gaussian
-    def g(x):
-        return np.exp(-x**2 / 2)
-
-    # test tolerances
-    r = np.linspace(0, 5, 1000)
-    ref = g(r)
-    for tol in [5e-2, 1e-2, 1e-3, 1e-4, 1e-6]:
-        ag = ApproxGaussian(tol)
-        P = PiecewisePolynomial(r, ag.ranges)
-        assert_allclose(P.func, ref, atol=tol, err_msg='-> tol={}'.format(tol))
-
-    # test scaling
-    r = np.arange(100, dtype=float)
-    A = 2
-    r0 = 30
-    sigma = 20
-    ref = A * g((r - r0) / sigma)
-    ag = ApproxGaussian()
-    P = PiecewisePolynomial(r, ag.scaled(A, r0, sigma))
-    assert_allclose(P.func, ref, atol=A * 5e-3)
-
-
 def test_spolynomial_gaussian():
     """
     Testing Gaussian approximation with spherical polynomials.
@@ -390,11 +433,13 @@ if __name__ == '__main__':
     test_polynomial_gaussian()
     test_polynomial_smoothstep()
 
+    test_approx_gaussian()
+    test_bspline()
+
     test_rcos()
     test_angular()
     test_spolynomial_shape()
     test_spolynomial_zeros()
     test_spolynomial_copy()
-    test_approx_gaussian()
     test_spolynomial_gaussian()
     test_spolynomial_high()

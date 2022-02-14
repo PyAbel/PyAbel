@@ -4,6 +4,7 @@ from __future__ import division
 import numpy as np
 from scipy.linalg import pascal, invpascal, toeplitz
 from scipy.special import legendre
+from scipy.interpolate import PPoly, UnivariateSpline
 try:
     from functools import cache
 except ImportError:  # no functools in Python 2
@@ -860,3 +861,43 @@ class ApproxGaussian(object):
             s *= sigma
             ranges.append((r_min, r_max, c, r, s))
         return ranges
+
+
+def bspline(spl):
+    """
+    Convert SciPy B-spline to :class:`PiecewisePolynomial` parameters.
+
+    Parameters
+    ----------
+    spl : tuple or BSpline or UnivariateSpline
+        ``scipy.interpolate`` B-spline representation, such as ``splrep()``
+        results, ``BSpline`` object (result of ``make_interp_spline()``, for
+        example) or ``UnivariateSpline`` object
+
+    Returns
+    -------
+    ranges : list of tuple
+        list of parameters ``(r_min, r_max, coeffs, r_0)`` that can be passed
+        directly to :class:`PiecewisePolynomial` or, after “multiplication” by
+        :class:`Angular`, to :class:`PiecewiseSPolynomial`
+    """
+    if isinstance(spl, UnivariateSpline):
+        # extract necessary data, convert to compatible format
+        knots = spl.get_knots()
+        coeffs = spl.get_coeffs()
+        k = len(coeffs) - len(knots) + 1
+        knots = np.pad(knots, k, 'edge')
+        spl = (knots, coeffs, k)
+
+    # convert B-spline representation to piecewise polynomial representation
+    ppoly = PPoly.from_spline(spl)
+    x = ppoly.x  # breakpoints
+    c = ppoly.c.T[:, ::-1]  # coefficients (PPoly degrees are descending)
+
+    # convert to PiecewisePolynomial ranges
+    ranges = []
+    for i in range(len(x) - 1):
+        r_min, r_max = x[i], x[i + 1]
+        if r_min != r_max:  # (some PPoly intervals are degenerate)
+            ranges.append((r_min, r_max, c[i], r_min))
+    return ranges
