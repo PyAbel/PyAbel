@@ -28,7 +28,7 @@ def test_sample_Dribinski():
     n = 501
     test1 = SampleImage(n=n, name='Dribinski', sigma=2)
     test2 = SampleImage(n=n // 2 + 1, name='Dribinski', sigma=1)  # halved
-    assert(test2.r_max == test1.r_max / 2)
+    assert test2.r_max == test1.r_max / 2
     assert_allclose(test2.func, test1.func[::2, ::2])
     assert_allclose(test2.abel, test1.abel[::2, ::2] / 2, atol=2e-6)
 
@@ -50,6 +50,19 @@ def test_sample_Gaussian():
                                              'verbose': False}).transform
         assert_allclose(recon, test.func, atol=tol,
                         err_msg='-> abel, {}'.format(kwargs))
+
+    # test even size
+    n = 10
+    r_max = 4.5  # (n - 1) / 2
+    sigma = 2
+    x = np.arange(n) - r_max
+    ref = np.exp(-(x**2 + x[:, None]**2) / sigma**2)
+
+    test = SampleImage(n=n, name='Gaussian', sigma=sigma)
+    assert test.r_max == r_max
+    assert_allclose(test.r, x)
+    assert_allclose(test.func, ref)
+    assert_allclose(test.abel, np.sqrt(np.pi) * sigma * ref)
 
 
 def test_sample_O2():
