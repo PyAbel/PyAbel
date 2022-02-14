@@ -126,6 +126,7 @@ abel.tools.polynomial module
     :members:
     :undoc-members:
     :show-inheritance:
+    :exclude-members: cache
 
 abel.tools.transform_pairs module
 ----------------------------------
