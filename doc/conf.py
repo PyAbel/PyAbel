@@ -39,7 +39,7 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
             return Mock()
 
-# MOCK_MODULES = ['numpy', 'scipy', 'scipy.special', 'numpy.linalg', 'scipy.ndimage', 'scipy.ndimage.interpolation',
+# MOCK_MODULES = ['numpy', 'scipy', 'scipy.special', 'numpy.linalg', 'scipy.ndimage', 'scipy.ndimage',
 #         'scipy.linalg', 'scipy.integrate', 'scipy.optimize']
 #
 MOCK_MODULES = []

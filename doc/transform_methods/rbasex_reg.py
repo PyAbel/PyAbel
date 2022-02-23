@@ -21,7 +21,7 @@ def rescaleI(im):
 # calculate relative RMS error for given regularization parameters
 def plot(method, strength=None):
     # test distribution
-    source = SampleImage(n=2 * rmax - 1).image / scale
+    source = SampleImage(n=2 * rmax - 1).func / scale
     Isrc, _ = Ibeta(source)
     Inorm = (Isrc**2).sum()
 

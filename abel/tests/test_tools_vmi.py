@@ -175,7 +175,7 @@ def test_radial_integration():
     Basic test of radial integration.
     """
     # test image (not projected)
-    IM = SampleImage(name='dribinski').image
+    IM = SampleImage(name='dribinski').func
 
     Beta, Amplitude, Rmidpt, _, _ = \
         vmi.radial_integration(IM, radial_ranges=([(65, 75), (80, 90), (95, 105)]))
@@ -192,7 +192,7 @@ def test_toPES():
     Basic test of toPES conversion.
     """
     # test image (not projected)
-    IM = SampleImage(name='Ominus').image
+    IM = SampleImage(name='Ominus').func
 
     eBE, PES = vmi.toPES(*vmi.angular_integration_3D(IM),
                          energy_cal_factor=1.2e-5,
@@ -201,7 +201,7 @@ def test_toPES():
 
     assert_allclose(eBE[PES.argmax()], 11780, rtol=0.001,
                     err_msg='-> eBE @ max PES')
-    assert_allclose(PES.max(), 16570, rtol=0.001,
+    assert_allclose(PES.max(), 16620, rtol=0.001,
                     err_msg='-> max PES')
 
 

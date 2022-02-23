@@ -15,7 +15,7 @@ import scipy.interpolate
 
 
 # sample image -----------
-IM = abel.tools.analytical.SampleImage(n=511, name='Ominus', sigma=2).image
+IM = abel.tools.analytical.SampleImage(n=511, name='Ominus', sigma=2).func
 
 # forward transform == what is measured
 IMf = abel.Transform(IM, method='hansenlaw', direction="forward").transform

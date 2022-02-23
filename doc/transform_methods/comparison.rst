@@ -82,7 +82,7 @@ Generating a sample image, performing a forward Abel transform, and completing a
 .. code-block:: python
 
     import abel
-    im0 = abel.tools.analytical.SampleImage().image
+    im0 = abel.tools.analytical.SampleImage().func
     im1 = abel.Transform(im0,
                          direction='forward',
                          method='hansenlaw').transform

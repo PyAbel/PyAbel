@@ -20,7 +20,7 @@ is calculated as
     \text{abel}(x) = \sum_{k=0}^K c_k \int r^k \,dy,
 
 where :math:`r = \sqrt{x^2 + y^2}`, and the Abel integral is taken over the
-domain where :math:`r_\text{min} \le r \le r_\text{max}`. Namely,
+domain where :math:`r_\text{min} \leqslant r \leqslant r_\text{max}`. Namely,
 
 .. math::
     \int r^k \,dy = 2 \int_{y_\text{min}}^{y_\text{max}} r^k \,dy,
@@ -28,7 +28,7 @@ domain where :math:`r_\text{min} \le r \le r_\text{max}`. Namely,
 .. math::
     y_\text{min,max} = \begin{cases}
         \sqrt{r_\text{min,max}^2 - x^2}, &  x < r_\text{min,max}, \\
-        0 & \text{otherwise},
+        0 & \text{otherwise}.
     \end{cases}
 
 These integrals for any power :math:`k` are easily obtained from the recursive
@@ -217,4 +217,191 @@ achieved simply by scaling all the coefficients::
                           (rmin + w, rmax - w, [A]),
                           (rmax - w, rmax + w, c, rmax + w, -2 * w)], ...)
 
-.. |:ref:`abeltoolsanalytical`| replace:: ``abel.tools.analytical``
+
+In spherical coordinates
+========================
+
+Implemented as :py:class:`SPolynomial <abel.tools.polynomial.SPolynomial>`.
+
+Axially symmetric bivariate polynomials in spherical coordinates have the
+general form
+
+.. math::
+    \text{func}(\rho, \theta') = \sum_{m,n=0}^{M,N} c_{mn} \rho^m \cos^n\theta'
+
+(see :ref:`rBasexmath` for definitions of the coordinate systems).
+
+Abel transform
+--------------
+
+The forward Abel transform of this function defined on a radial domain
+:math:`[\rho_\text{min}, \rho_\text{max}]` (and zero elsewhere) is calculated
+as
+
+.. math::
+    \text{abel}(r, \theta) = \sum_{m,n=0}^{M,N} c_{mn}
+        \int \rho^m \cos^n\theta' \,dz,
+
+where
+
+.. math::
+    \rho = \sqrt{r^2 + z^2}, \quad \cos\theta' = \frac{r}{\rho} \cos\theta,
+
+and the Abel integral is taken over the domain where :math:`\rho_\text{min}
+\leqslant \rho \leqslant \rho_\text{max}`. That is, for each term we have
+
+.. math::
+    \int \rho^m \cos^n\theta' \,dz =
+    2 \int\limits_{z_\text{min}}^{z_\text{max}}
+        \rho^m \left(\frac{r}{\rho}\right)^n \,dz \cdot \cos^n\theta =
+    2 r^m \int\limits_{z_\text{min}}^{z_\text{max}}
+        \left(\frac{r}{\rho}\right)^{(n-m)} \,dz \cdot \cos^n\theta,
+
+where
+
+.. math::
+    z_\text{min,max} = \begin{cases}
+        \sqrt{\rho_\text{min,max}^2 - r^2}, &  r < \rho_\text{min,max}, \\
+        0 & \text{otherwise}.
+    \end{cases}
+
+The antiderivatives
+
+.. math::
+    F_{n-m}(r, z) = \int \left(\frac{r}{\rho}\right)^{n-m} \,dz
+
+are given in :ref:`rBasexmath`, with the only difference that besides the
+recurrence relation
+
+.. math::
+    F_{k+2}(r, z) = \frac{1}{k} \left[z \left(\frac{r}{\rho}\right)^k +
+                                      (k - 1) F_k(r, z)\right]
+
+for calculating the terms with positive :math:`k = n - m`, the reverse
+recurrence relation
+
+.. math::
+    F_k(r, z) = \frac{1}{1 - k} \left[z \left(\frac{r}{\rho}\right)^k -
+                                      k F_{k+2}(r, z)\right]
+
+is also used for negative :math:`k`, requred for the terms with :math:`m > n`.
+
+The overall Abel transform thus has the form
+
+.. math::
+    \text{abel}(r, \theta) = \sum_{m,n=0}^{M,N} c_{mn}\,
+        2 r^m [F_{n-m}(r, z_\text{max}) - F_{n-m}(r, z_\text{min})]
+        \cos^n\theta
+
+and is calculated using Horner’s method in :math:`r` and :math:`\cos\theta`
+after precomputing the :math:`F_{n-m}(r, z_\text{min,max})` pairs for each
+needed value of :math:`n - m` (there are at most :math:`M + N + 1` of them, if
+all :math:`M \times N` coefficients :math:`c_{mn} \ne 0`).
+
+Notice that these calculations are relatively expensive, since they are done
+for all pixels with :math:`\rho \leqslant \rho_\text{max}`, for each of them
+involving summation and multiplication of up to :math:`2MN` terms in the above
+expression and evaluating transcendent functions present in :math:`F_k(r, z)`.
+Moreover, the numerical problems for high-degree polynomials thus can be even
+more severe than for `univariate polynomials <#polynomials>`_.
+
+
+Approximate Gaussian
+====================
+
+Implemented as :py:class:`.ApproxGaussian`.
+
+The Gaussian function
+
+.. math::
+    A \exp\left(-\frac{(r - r_0)^2}{2\sigma^2}\right)
+
+is useful for representing peaks in simulated data but does not have an
+analytical Abel transform unless :math:`r_0 = 0`. However, it can be
+approximated by piecewise polynomials to any accuracy, and these polynomials
+can be Able-transformed analytically, as shown above, thus providing an
+arbitrarily accurate approximation to the Abel transform of the initial
+Gaussian function.
+
+In practice, it is sufficient to find the approximating piecewise polynomial
+for the Gaussian function :math:`g(r) = \exp(-r^2/2)` with unit amplitude and
+unit standard deviation, and the polynomial coefficients can then be scaled as
+described `above <#affine-transformation>`_ to account for any :math:`A`,
+:math:`r_0` and :math:`\sigma`.
+
+The goal is therefore to find :math:`f(r)` such that :math:`|f(r) - g(r)|
+\leqslant \varepsilon` for a given tolerance :math:`\varepsilon`. The
+approximation implemented here uses a piecewise quadratic polynomial:
+
+.. math::
+    f(r) = \begin{cases}
+        f_n(r) = c_{0,n} + c_{1,n} r + c_{2,n} r^2, & r \in [R_n, R_{n+1}], \\
+        0, & r \notin [R_0, R_N],
+    \end{cases}
+
+where the domain is split into :math:`N` intervals :math:`[R_n, R_{n+1}]`,
+:math:`n = 0, \dots, N - 1`. The strategy used for minimizing the number of
+intervals is to find the splitting points such that
+
+.. math::
+    f_n(r) = g(r) \quad \text{for} \quad
+    r = R_n, R_{n+\frac12}, R_{n+1}, ~\text{where}~
+    R_{n+\frac12} \equiv \frac{R_n + R_{n+1}}{2},
+.. math::
+    \max_{r \in [R_n, R_{n+1}]} \big|f_n(r) - g(r)\big| = \varepsilon,
+
+in other words, each parabolic segment matches the :math:`g(r)` values at the
+endpoints and midpoint of its interval, and its maximal deviation from
+:math:`g(r)` equals :math:`\varepsilon`. The process starts from :math:`R_0 =
+\sqrt{-2 \ln(\varepsilon/2)}`, such that :math:`g(R_0) = \varepsilon/2`, but
+setting :math:`f_0(R_0) = 0` for continuity. Then subsequent points :math:`R_1,
+R_2, \dots` are found by solving :math:`\max_{r \in [R_n, R_{n+1}]} \big|f_n(r)
+- g(r)\big| \approx \varepsilon` for :math:`R_{n+1}` numerically, using the
+following approximation obtained from the 3rd-order term of the :math:`g(r)`
+Taylor series (by construction, :math:`f_n(r)` reproduces the lower-order terms
+exactly, and the magnitudes of higher-order terms are much smaller):
+
+.. math::
+    \begin{align}
+        & \max_{r \in [R_n, R_{n+1}]} \big|f_n(r) - g(r)\big| \approx \\
+        &\qquad\approx \max_{r = R_n, R_{n+\frac12}, R_{n+1}}
+            \left|\frac{g'''(r)}{3!}\right| \cdot
+            \max_{r \in [R_n, R_{n+1}]}
+                \big|(r - R_n)(r - R_{n+\frac12})(r - R_{n+1})\big| = \\
+        &\qquad= \max_{r = R_n, R_{n+\frac12}, R_{n+1}} \big|(3 - r^2) r g(r)\big|
+            \cdot \frac{|R_n - R_{n+1}|^3}{72\sqrt{3}}.
+    \end{align}
+
+This process is repeated until :math:`r = 0` is reached, after which the found
+splitting is symmetrically extended to :math:`-R_0 \leqslant r < 0`, and the
+polynomial coefficients for each segment are trivially calculated from the
+equations :math:`f_n(r) = g(r)` for :math:`r = R_n, R_{n+\frac12}, R_{n+1}`.
+
+As an example, here is the outcome for the default approximation accuracy
+≲0.5 %, resulting in just 7 segments::
+
+    from abel.tools.polynomial import ApproxGaussian, PiecewisePolynomial
+    r = np.arange(201)
+    r0 = 100
+    sigma = 20
+    # actual Gaussian function
+    gauss = np.exp(-((r - r0) / sigma)**2 / 2)
+    # approximation with default tolerance (~0.5%)
+    approx = PiecewisePolynomial(r, ApproxGaussian().scaled(1, r0, sigma))
+
+.. plot::
+
+    from approx_gaussian import plot, approx, gauss
+    plot('func', approx.func, gauss, 0.005)
+
+The Abel transform of this approximation is even more accurate, having the
+maximal relative deviation ~0.35/170 ≈ 0.2 %:
+
+.. plot::
+
+    from approx_gaussian import plot, approx, ref
+    plot('abel', approx.abel, ref.abel, 0.35)
+
+A practical example of using :class:`.ApproxGaussian` with
+:class:`.PiecewiseSPolynomial` can be found in the :class:`.SampleImage` source
+code.

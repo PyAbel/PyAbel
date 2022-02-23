@@ -7,7 +7,7 @@ import numpy as np
 
 import abel
 
-from scipy.ndimage.interpolation import shift
+from scipy.ndimage import shift
 
 import matplotlib; matplotlib.use('TkAgg')  # avoids crash on OSX
 

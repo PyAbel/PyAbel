@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 import numpy as np
-from scipy.ndimage.interpolation import map_coordinates
+from scipy.ndimage import map_coordinates
 from scipy.interpolate import UnivariateSpline, splrep, splev
 from scipy.optimize import leastsq
 

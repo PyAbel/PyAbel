@@ -37,7 +37,7 @@ def test_dasch_zeros():
 
 
 def test_dasch_deconvolution_array_sources():
-    im = abel.tools.analytical.SampleImage(101).image
+    im = abel.tools.analytical.SampleImage(101).func
     q = abel.tools.symmetry.get_image_quadrants(im)[0]
 
     # clean up any old deconvolution array files

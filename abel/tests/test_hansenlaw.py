@@ -94,7 +94,7 @@ def test_hansenlaw_forward_dribinski_image():
     """
 
     # BASEX sample image
-    IM = abel.tools.analytical.SampleImage(n=1001, name="dribinski").image
+    IM = abel.tools.analytical.SampleImage(n=1001, name="dribinski").func
 
     # core transform(s) use top-right quadrant, Q0
     Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(IM)

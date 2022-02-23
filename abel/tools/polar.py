@@ -6,8 +6,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy.ndimage import map_coordinates
-from scipy.ndimage.interpolation import shift
+from scipy.ndimage import map_coordinates, shift
 from scipy.optimize import curve_fit, minimize
 
 

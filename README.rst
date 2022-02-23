@@ -93,7 +93,7 @@ Using PyAbel can be simple. The following Python code imports the PyAbel package
 .. code-block:: python
 
     import abel
-    original     = abel.tools.analytical.SampleImage().image
+    original     = abel.tools.analytical.SampleImage().func
     forward_abel = abel.Transform(original, direction='forward', method='hansenlaw').transform
     inverse_abel = abel.Transform(forward_abel, direction='inverse', method='three_point').transform
 

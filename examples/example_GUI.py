@@ -13,7 +13,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
 from matplotlib.figure import Figure
 from matplotlib import gridspec
 
-from scipy.ndimage.interpolation import shift
+from scipy.ndimage import shift
 
 import os.path
 
@@ -335,7 +335,7 @@ class PyAbel:  # (tk.Tk):
         else:
             self.fn = self.fn.split(' ')[-1]
             self.IM = abel.tools.analytical.SampleImage(n=1001,
-                                                        name=self.fn).image
+                                                        name=self.fn).func
             if len(self.direction["values"]) > 1:
                 self.direction.current(1)  # raw images require 'forward' transform
             self.text.insert(tk.END, "\nsample image: (1) Abel transform 'forward',\n")

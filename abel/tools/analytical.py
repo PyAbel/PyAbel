@@ -2,9 +2,11 @@
 from __future__ import division
 from __future__ import absolute_import
 import numpy as np
-import abel
 import scipy.constants as const
 import scipy.interpolate
+
+import abel
+from abel import _deprecate
 
 # This file includes functions that have a known analytical Abel transform.
 # They are used in unit testing and for comparing different Abel
@@ -12,34 +14,40 @@ import scipy.interpolate
 
 
 class BaseAnalytical(object):
+    r"""
+    Base class for functions that have a known Abel transform
+    (see :class:`GaussianAnalytical` for a concrete example).
+    Every such class should expose the following public attributes:
+
+    Attributes
+    ----------
+    r : numpy array
+        vector of positions along the :math:`r` axis
+    func : numpy array
+        the values of the original function (same shape as :attr:`r` for 1D
+        functions, or same row size as :attr:`r` for 2D images)
+    abel : numpy array
+        the values of the Abel transform (same shape as :attr:`func`)
+    mask_valid : numpy array
+        mask (same shape as :attr:`func`) where the function is
+        well smoothed/well behaved (no known artefacts in the inverse
+        Abel reconstuction), typically excluding the origin, the domain
+        boundaries, and function discontinuities, that can be used for
+        unit testing.
+
+    Parameters
+    ----------
+    n : int
+        number of points along the :math:`r` axis
+        (saved to attribute :attr:`n`)
+    r_max: float
+        maximum :math:`r` value (saved to attribute :attr:`r_max`)
+    symmetric: boolean
+        if ``True``, the :math:`r` interval is [−\ **r_max**, **r_max**]
+        (and **n** should be odd),
+        otherwise, the :math:`r` interval is [0, **r_max**]
+    """
     def __init__(self, n, r_max, symmetric=True, **args):
-        """
-        This is the base class for functions that have a known Abel transform.
-        Every such class should expose the following public attributes:
-          - self.r: vector of positions along the r axis
-          - self.func: the values of the original function
-                        (same shape as self.r)
-          - self.abel: the values of the Abel transform (same shape as self.r)
-          - self.mask_valid: mask of the r interval where the function is
-            well smoothed/well behaved (no known artefacts in the inverse
-            Abel reconstuction), typically excluding the origin, the domain
-            boundaries, and function discontinuities, that can be used for
-            unit testing.
-
-        See GaussianAnalytical for a concrete example.
-
-        Parameters
-        -------a--
-        n : int
-            number of points along the r axis
-
-        r_max: float
-            maximum r interval
-
-        symmetric: boolean
-            if True, the r interval is [-r_max, r_max] (and n should be odd),
-            otherwise, the r interval is [0, r_max]
-        """
         self.n = n
         self.r_max = r_max
 
@@ -384,113 +392,241 @@ class TransformPair(BaseAnalytical):
 
 
 class SampleImage(BaseAnalytical):
-    """
+    r"""
     Sample images, made up of Gaussian functions
+    (or cubic splines, for ``'O2'``).
 
     Parameters
     ----------
     n : integer
-        image size n rows x n cols
-
+        image size **n** rows × **n** cols (must be odd for most purposes;
+        even **n** values would result in half-pixel centering)
     name : str
-        one of "dribinski" or "Ominus"
+        ``'Dribinski'``
+            Sample test image used in the BASEX paper `Rev. Sci. Instrum. 73,
+            2634 (2002) <https://dx.doi.org/10.1063/1.1482156>`__, intensity
+            function Eq. (16) (there are some missing negative exponents in the
+            publication).
 
+            9 Gaussian peaks with alternating anisotropies (β = −1, 0, +2),
+            plus 1 wide background Gaussian. Peak amplitudes are designed to
+            produce comparable heights in the *speed distribution*, thus the
+            peaks at small radii appear very intense in the image and its Abel
+            transform.
+        ``'Gaussian'``
+            Isotropic 2D Gaussian :math:`\exp(-r^2 / \textbf{sigma}^2)`.
+
+            Its Abel transform is also a Gaussian with the same width:
+            :math:`\sqrt{\pi}\, \textbf{sigma} \exp(-r^2 / \textbf{sigma}^2)`.
+        ``'O2'``
+            Synthetic image mimicking a velocity-map image of O\ :sup:`+` from
+            multiphoton photodissociation/ionization
+            :math:`{\rm O}_2 \xrightarrow{4h\nu} {\rm O} + {\rm O}^+ + e^-`
+            at :math:`44\,444~\text{cm}^{-1}` (225 nm)
+
+            Multiple peaks with various intensities and anisotropies; see, for
+            example, `J. Chem. Phys. 107, 2357 (1997)
+            <https://doi.org/10.1063/1.474624>`__.
+        ``'Ominus'`` or ``'O-'``
+            Simulate the photoelectron spectrum of O\ :sup:`−` photodetachment
+            :math:`{}^3P_J \gets {}^2P_{3/2,1/2}`.
+
+            6 transitions, triplet neutral, and doublet anion.
     sigma : float
-        Gaussian 1/e width (pixels)
+        1/*e* halfwidth of peaks in pixels, default values are:
+        2⋅\ *r*\ :sub:`max`/180 for ``'Dribinski'``,
+        2⋅\ *r*\ :sub:`max`/500 for ``'Ominus'``,
+        *r*\ :sub:`max`/3 for ``'Gaussian'``.
 
+        For ``'O2'``: HWHM of narrow peaks in pixels, default is 1.5 for any
+        *r*\ :sub:`max`.
     temperature : float
-        for 'Ominus' only
-        anion levels have Boltzmann population weight
-        (2J+1) exp(-177.1 h c 100/k/temperature)
+        anion temperature in kelvins (default: 200) for ``'Ominus'``:
+        anion levels have Boltzmann population weight :math:`(2J + 1)
+        \exp[-hc \cdot 177.1~\text{cm}^{-1}/(k \cdot \textbf{temperature})]`
 
     Attributes
     ----------
-    image : 2D numpy array
-         image
-
     name : str
-         sample image name
+         sample-image name
     """
-    def __init__(self, n=361, name="dribinski", sigma=2, temperature=200):
+    def __init__(self, n=361, name='Dribinski', sigma=None, temperature=200):
+        super(SampleImage, self).__init__(n, r_max=(n - 1) / 2, symmetric=True)
 
-        def _gauss(r, r0, sigma):
-            return np.exp(-(r-r0)**2/sigma**2)
-
-        def _dribinski(r, theta, sigma):
-            """
-            Sample test image used in the BASEX paper
-            Rev. Sci. Instrum. 73, 2634 (2002), intensity function Eq. (16)
-            (there are some missing negative exponents in the publication)
-
-            9 Gaussian peaks with "width" = sigma (default: 2) and
-            1 background Gaussian with "width" = 60
-            ("width" is √2 std. dev. in pixels for default n = 361
-             and scales proportionally to n)
-
-            anisotropy: ß = −1  for cosθ term
-                        ß = +2  for sinθ term
-                        ß =  0  isotropic, no angular variation
-            """
-
-            sinetheta2 = np.sin(theta)**2
-            cosinetheta2 = np.cos(theta)**2
-
-            t0 = 7*_gauss(r, 10, sigma)*sinetheta2
-            t1 = 3*_gauss(r, 15, sigma)
-            t2 = 5*_gauss(r, 20, sigma)*cosinetheta2
-            t3 = _gauss(r, 70, sigma)
-            t4 = 2*_gauss(r, 85, sigma)*cosinetheta2
-            t5 = _gauss(r, 100, sigma)*sinetheta2
-            t6 = 2*_gauss(r, 145, sigma)*sinetheta2
-            t7 = _gauss(r, 150, sigma)
-            t8 = 3*_gauss(r, 155, sigma)*cosinetheta2
-            t9 = 20*_gauss(r, 45, 60)  # background under t3 to t5
-
-            return 2000*(t0+t1+t2) + 200*(t3+t4+t5) + 50*(t6+t7+t8) + t9
-
-        def _Ominus(r, theta, sigma, boltzmann, rfact=1):
-            """
-            Simulate the photoelectron spectrum of O- photodetachment
-            3PJ <- 2P3/2,1/2
-
-            6 transitions, triplet neutral, and doublet anion
-
-            """
-            # positions based on 812.5 nm ANU O- PES
-            t1 = _gauss(r, 341*rfact, sigma)  # 3P2 <- 2P3/2
-            t2 = _gauss(r, 285*rfact, sigma)  # 3P1 <- 2P3/2
-            t3 = _gauss(r, 257*rfact, sigma)  # 3P0 <- 2P3/2
-            t4 = _gauss(r, 394*rfact, sigma)  # 3P2 <- 2P1/2
-            t5 = _gauss(r, 348*rfact, sigma)  # 3P1 <- 2P1/2
-            t6 = _gauss(r, 324*rfact, sigma)  # 3P0 <- 2P1/2
-
-            # intensities = fine-structure known ratios
-            # 2P1/2 transtions scaled by temperature-dependent Boltzmann factor
-            t = t1 + 0.8*t2 + 0.36*t3 + (0.2*t4 + 0.36*t5 + 0.16*t6)*boltzmann
-
-            # anisotropy
-            sinetheta2 = np.sin(theta)**2*0.2 + 0.8
-
-            return t*sinetheta2
-
-        n2 = n//2
-        self.name = name
-
-        super(SampleImage, self).__init__(n, r_max=n2, symmetric=True)
-
+        name = name.lower()
         if name == 'dribinski':
-            scale = 180*2/n
-        elif name == 'Ominus':
-            scale = 501*2/n
-
-        X, Y = np.meshgrid(self.r*scale, self.r*scale)
-        R, THETA = abel.tools.polar.cart2polar(X, Y)
-
-        if self.name == "dribinski":
-            self.image = _dribinski(R, THETA, sigma=sigma)
-        elif self.name == "Ominus":
-            boltzmann = np.exp(-177.1*const.h*const.c*100/const.k/temperature)\
-                        / 2
-            self.image = _Ominus(R, THETA, sigma=sigma, boltzmann=boltzmann)
+            self.name = 'Dribinski'
+            self._scale = self.r_max / 180
+            width = 2 * self._scale if sigma is None else sigma
+            bg_width = 60 * self._scale
+            cos2 = [0, 0, 1]
+            sin2 = [1, 0, -1]
+            iso = [1]
+            # parameters:   A         r0   width     angular
+            self._peaks = [(2000 * 7,  10, width,    sin2),
+                           (2000 * 3,  15, width,    iso),
+                           (2000 * 5,  20, width,    cos2),
+                           (200 * 1,   70, width,    iso),
+                           (200 * 2,   85, width,    cos2),
+                           (200 * 1,  100, width,    sin2),
+                           (50 * 2,   145, width,    sin2),
+                           (50 * 1,   150, width,    iso),
+                           (50 * 3,   155, width,    cos2),
+                           (20 * 1,    45, bg_width, iso)]
+        elif name == 'gaussian':
+            self.name = 'Gaussian'
+            self._scale = 0
+            width = self.r_max / 3 if sigma is None else sigma
+            # parameters:  A r0  width  angular
+            self._peaks = [(1, 0, width, [1])]
+        elif name == 'o2':
+            self.name = 'O2'
+            self._scale = self.r_max / 330
+            narrow = 1.5 if sigma is None else sigma
+            broad = 2 * narrow
+            # fitted to Fig. 3.9 from M. Ryazanov, Ph.D. dissertation (2012)
+            # parameters:   A      r0   width   angular
+            self._peaks = [(5,       0, broad,  [1]),
+                           (0.15,   63, narrow, [1, 0, 0.5]),
+                           (0.08,   69, narrow, [0, 0, 1]),
+                           (0.1,    74, narrow, [0, 0, 1]),
+                           (0.15,   95, narrow, [0.3, 0, 1]),
+                           (0.7,   111, broad,  [0.3, 0, 1]),
+                           (1.0,   141, broad,  [0.05, 0, 1]),
+                           (0.5,   153, narrow, [0.3, 0, 1]),
+                           (0.03,  172, narrow, [0, 0, 1]),
+                           (0.06,  180, narrow, [0, 0, 1]),
+                           (0.04,  190, narrow, [0.3, 0, 1]),
+                           (0.02,  201, narrow, [0.3, 0, 1]),
+                           (0.007, 213, narrow, [0, 0, 1]),
+                           (0.007, 227, narrow, [0, 0, 1]),
+                           (0.015, 239, narrow, [0.5, 0, 1]),
+                           (0.01,  250, narrow, [0, 0, 1]),
+                           (0.03,  261, narrow, [0.4, 0, 1]),
+                           (0.05,  270, narrow, [0, 0, 1]),
+                           (0.015, 278, narrow, [0, 0, 1]),
+                           (0.03,  286, narrow, [0, 0, 1]),
+                           (0.015, 294, narrow, [0, 0, 1]),
+                           (0.03,  301, narrow, [0, 0, 1]),
+                           (0.13,  307, narrow, [0, 0, 1]),
+                           (0.06,  313, narrow, [0, 0, 1])]
+        elif name in ['ominus', 'o-']:
+            self.name = 'Ominus'
+            self._scale = self.r_max / 500
+            width = 2 * self._scale if sigma is None else sigma
+            boltzmann = np.exp(-177.1 * const.h * const.c * 100 /
+                               (const.k * temperature)) / 2
+            aniso = [1, 0, -0.2]
+            # parameters:   A                 r0   width  angular
+            self._peaks = [(1.0,              341, width, aniso),
+                           (0.8,              285, width, aniso),
+                           (0.36,             257, width, aniso),
+                           (boltzmann * 0.2,  394, width, aniso),
+                           (boltzmann * 0.36, 348, width, aniso),
+                           (boltzmann * 0.16, 324, width, aniso)]
         else:
-            raise ValueError('Sample image name not recognized')
+            raise ValueError('Sample image name not recognized.')
+
+        # Isotropic ring for one peak.
+        def peak(r, r0, width):
+            if self.name == 'O2':
+                # cubic spline ("width" is HWHM)
+                dr = np.abs(r - r0) / (2 * width)
+                f = 1 - (3 - 2 * dr) * dr**2
+                f[dr > 1] = 0
+                return f
+            else:
+                # Gaussian function ("width" is √2 std. dev.)
+                return np.exp(-((r - r0) / width)**2)
+
+        # calculate only one quadrant Q1
+        n2 = (n + 1) // 2
+        r0 = -self.r[n2]
+        R, COS = abel.tools.polynomial.rcos(shape=(n2, n2), origin=(r0, r0))
+        Q = np.zeros_like(R)
+        for A, r0, width, cn in self._peaks:
+            ring = A * peak(R, r0 * self._scale, width)
+            Q += cn[0] * ring
+            for c in cn[1:]:
+                ring *= COS
+                if c:
+                    Q += c * ring
+
+        # unfold to whole image
+        self.func = abel.tools.symmetry.put_image_quadrants(
+                        [Q[:, ::-1]] * 4, (n, n))
+        self.mask_valid = abel.tools.symmetry.put_image_quadrants(
+                              [R[:, ::-1] != 0] * 4, (n, n))
+
+    def transform(self, tol=4.8e-3):
+        """
+        Compute forward Abel transform of the image as an analytical Abel
+        transform of its piecewise polynomial approximation (except
+        ``'Gaussian'`` and ``'O2'``, which are computed exactly).
+
+        Parameters
+        ----------
+        tol : float
+            relative tolerance of the approximation (max. deviation divided by
+            max. amplitude, default: 4.8e-3 ≲ 0.5%); the resulting Abel
+            transform is somewhat more accurate
+
+        Returns
+        -------
+        abel : 2D numpy array
+            Abel-transformed image, also accessible as the :attr:`abel`
+            attribute
+        """
+        # calculate only one quadrant Q1
+        n2 = (self.n + 1) // 2
+        r0 = -self.r[n2]
+        R, COS = abel.tools.polynomial.rcos(shape=(n2, n2), origin=(r0, r0))
+        if self.name == 'Gaussian':
+            A, r0, width, cn = self._peaks[0]
+            Q = np.sqrt(np.pi) * width * np.exp(-(R / width)**2)
+        else:
+            # Radial polynomial parameters for one peak.
+            if self.name == 'O2':
+                def peak(A, r0, width):
+                    width *= 2
+                    c = [A, 0, -3 * A, 2 * A]
+                    return [(r0 - width, r0, c, r0, -width),
+                            (r0, r0 + width, c, r0, width)]
+            else:
+                # approximate Gaussian
+                g = abel.tools.polynomial.ApproxGaussian(tol)
+
+                def peak(A, r0, width):
+                    return g.scaled(A, r0, width / np.sqrt(2))
+
+            # sum all peaks
+            Q = np.zeros_like(R)
+            for A, r0, width, cn in self._peaks:
+                Q += abel.tools.polynomial.PiecewiseSPolynomial(
+                        R, COS,
+                        peak(A, r0 * self._scale, width) *
+                        abel.tools.polynomial.Angular(cn)
+                     ).abel
+
+        # unfold to whole image
+        self._abel = abel.tools.symmetry.put_image_quadrants(
+                         [Q[:, ::-1]] * 4, (self.n, self.n))
+        return self._abel
+
+    @property
+    def image(self):
+        """Deprecated. Use :attr:`func` instead."""
+        _deprecate('SampleImage attribute ".image" is deprecated, '
+                   'use ".func" instead.')
+        return self.func
+
+    @property
+    def abel(self):
+        """
+        Abel transform of the image, computed (with default accuracy) only if
+        necessary; see :meth:`transform` for details.
+        """
+        try:
+            return self._abel
+        except AttributeError:  # not yet computed
+            return self.transform()
