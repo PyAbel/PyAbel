@@ -242,8 +242,8 @@ html_css_files = ['custom.css']
 htmlhelp_basename = 'PyAbeldoc'
 
 # Options for matplotlib.sphinxext.plot_directive.
-# use SVG by default
-plot_formats = ['svg', 'png']
+# use SVG by default, make PDF for pdfLaTeX
+plot_formats = ['svg', 'png', 'pdf']
 # do not add links to source automatically
 plot_html_show_source_link = False
 # do not add links to image formats

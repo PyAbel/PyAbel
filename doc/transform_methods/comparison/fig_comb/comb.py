@@ -90,4 +90,5 @@ axs[4].set_ylabel('$z$')
 
 fig.tight_layout(pad=0)
 plt.savefig('comb.svg')
+plt.savefig('comb.pdf')
 # plt.show()

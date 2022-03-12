@@ -89,4 +89,5 @@ for ax, letter in zip(axs, 'abcdefghi'):
 
 fig.tight_layout(pad=0)
 fig.savefig('gaussian.svg')
+fig.savefig('gaussian.pdf')
 # plt.show()
