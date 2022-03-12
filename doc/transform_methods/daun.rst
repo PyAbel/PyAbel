@@ -330,8 +330,15 @@ here for :attr:`reg=0`):
 Citation
 --------
 
-.. [1] \ K. J. Daun, K. A. Thomson, F. Liu, G. J. Smallwood,
-       “Deconvolution of axisymmetric flame properties using Tikhonov
-       regularization”,
-       `Appl. Opt. 45, 4638–4646 (2006)
-       <https://doi.org/10.1364/AO.45.004638>`_.
+.. |ref1| replace:: 
+    \ K. J. Daun, K. A. Thomson, F. Liu, G. J. Smallwood,
+    “Deconvolution of axisymmetric flame properties using Tikhonov
+    regularization”,
+    `Appl. Opt. 45, 4638–4646 (2006)
+    <https://doi.org/10.1364/AO.45.004638>`__.
+
+.. [1] |ref1|
+
+.. only:: latex
+
+    * |ref1|

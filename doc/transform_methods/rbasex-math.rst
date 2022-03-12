@@ -801,8 +801,9 @@ methods, the peaks near the origin are not broadened, while the off-peak noise
 near them is reduced.
 
 
-References
-----------
+.. raw:: html
+
+    <hr>
 
 .. [1] \ M. Ryazanov,
        “Development and implementation of methods for sliced velocity map
@@ -810,11 +811,11 @@ References
        dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and
        CD\ :sub:`2`\ OH)”,
        Ph.D. dissertation, University of Southern California, 2012.
-       (`ProQuest <https://search.proquest.com/docview/1289069738>`_,
-       `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`_).
+       (`ProQuest <https://search.proquest.com/docview/1289069738>`__,
+       `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`__).
 
 .. [2] \ G. A. Garcia, L. Nahon, I. Powis,
        “Two-dimensional charged particle image inversion using a polar basis
        function expansion”,
        `Rev. Sci. Instrum. 75, 4989–4996 (2004)
-       <https://doi.org/10.1063/1.1807578>`_.
+       <https://doi.org/10.1063/1.1807578>`__.

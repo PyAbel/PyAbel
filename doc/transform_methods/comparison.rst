@@ -277,8 +277,13 @@ Methods recommended for educational purposes only (these methods are generally s
 * ``onion_bordas``
 
 
-References
-----------
+.. raw:: html
+
+    <hr>
+
+.. only:: html
+
+    .. rubric:: References
 
 .. [bordas1996] \ C. Bordas, F. Paulig, H. Helm, and D. L. Huestis. Photoelectron imaging spectrometry: Principle and inversion method. Rev. Sci. Instrum., **67**, 2257, 1996. DOI: `10.1063/1.1147044 <https://doi.org/10.1063/1.1147044>`_.
 

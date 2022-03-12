@@ -54,6 +54,15 @@ Example
 Citation
 --------
 
-.. [1] \ C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin, S. De, B. Bergues, B. Jochim, A. V. Voznyuk, N. Gregerson, B. Gaire, I. Znakovskaya, J. McKenna, K. D. Carnes, M. F. Kling, I. Ben-Itzhak, E. Wells, "Incorporating real time velocity map image reconstruction into closed-loop coherent control", `Rev. Sci. Instrum. 85, 113105 (2014) <https://doi.org/10.1063/1.4899267>`_.
+.. |ref1| replace:: \ C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin, S. De, B. Bergues, B. Jochim, A. V. Voznyuk, N. Gregerson, B. Gaire, I. Znakovskaya, J. McKenna, K. D. Carnes, M. F. Kling, I. Ben-Itzhak, E. Wells, "Incorporating real time velocity map image reconstruction into closed-loop coherent control", `Rev. Sci. Instrum. 85, 113105 (2014) <https://doi.org/10.1063/1.4899267>`__.
 
-.. [2] \ C. Bordas, F. Paulig, "Photoelectron imaging spectrometry: Principle and inversion method", `Rev. Sci. Instrum. 67, 2257–2268 (1996) <https://doi.org/10.1063/1.1147044>`_.
+.. |ref2| replace:: \ C. Bordas, F. Paulig, "Photoelectron imaging spectrometry: Principle and inversion method", `Rev. Sci. Instrum. 67, 2257–2268 (1996) <https://doi.org/10.1063/1.1147044>`__.
+
+.. [1] |ref1|
+
+.. [2] |ref2|
+
+.. only:: latex
+
+    * |ref1|
+    * |ref2|

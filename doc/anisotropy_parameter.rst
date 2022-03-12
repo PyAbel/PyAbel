@@ -50,7 +50,8 @@ See :doc:`example_anisotropy_parameter`. In this case the anisotropy parameter i
 A demonstration of using :class:`~abel.tools.vmi.Distributions` for incomplete images is also included in :doc:`example_rbasex_block`.
 
 
-Reference
----------
+.. raw:: html
+
+   <hr>
 
 .. [1] \ J. Cooper, R. N. Zare, "Angular Distribution of Photoelectrons", `J. Chem. Phys. 48, 942–943 (1968) <https://dx.doi.org/10.1063/1.1668742>`_.

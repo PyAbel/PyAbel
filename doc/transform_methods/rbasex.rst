@@ -202,24 +202,33 @@ data, as well as any other data having the same mask geometry.
 Citation
 --------
 
-This method has not yet been published elsewhere, so cite it as the “rBasex
-method from the PyAbel package”, using the current Zenodo DOI (see :ref:`README
-<READMEcitation>` for details).
+This method has not yet been published elsewhere, so please cite it as the
+“rBasex method from the PyAbel package”, using the current Zenodo DOI (see
+:ref:`README <READMEcitation>` for details).
 
-.. [1] \ G. A. Garcia, L. Nahon, I. Powis,
+.. |ref1| replace:: \ G. A. Garcia, L. Nahon, I. Powis,
        “Two-dimensional charged particle image inversion using a polar basis
        function expansion”,
        `Rev. Sci. Instrum. 75, 4989–4996 (2004)
-       <https://doi.org/10.1063/1.1807578>`_.
+       <https://doi.org/10.1063/1.1807578>`__.
 
-.. [2] \ M. Ryazanov,
+.. |ref2| replace:: \ M. Ryazanov,
        “Development and implementation of methods for sliced velocity map
        imaging. Studies of overtone-induced dissociation and isomerization
        dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and
        CD\ :sub:`2`\ OH)”,
        Ph.D. dissertation, University of Southern California, 2012.
-       (`ProQuest <https://search.proquest.com/docview/1289069738>`_,
-       `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`_).
+       (`ProQuest <https://search.proquest.com/docview/1289069738>`__,
+       `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`__).
+
+.. [1] |ref1|
+
+.. [2] |ref2|
+
+.. only:: latex
+
+    * |ref1|
+    * |ref2|
 
 
 .. toctree::

@@ -46,4 +46,10 @@ For more information on the PyAbel implementation of the ``two_point`` algorithm
 Citation
 --------
 
-.. [1] \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`_.
+.. |ref1| replace:: \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`__.
+
+.. [1] |ref1|
+
+.. only:: latex
+
+    * |ref1|

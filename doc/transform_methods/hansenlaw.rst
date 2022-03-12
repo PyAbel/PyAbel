@@ -197,8 +197,20 @@ first-order hold approximation, the linear :math:`\epsilon` term increases :math
 Citation
 --------
 
-.. [1] \ E. W. Hansen, P.-L. Law, "Recursive methods for computing the Abel transform and its inverse", `J. Opt. Soc. Am. A 2, 510–520 (1985) <https://dx.doi.org/10.1364/JOSAA.2.000510>`_.
+.. |ref1| replace:: \ E. W. Hansen, P.-L. Law, "Recursive methods for computing the Abel transform and its inverse", `J. Opt. Soc. Am. A 2, 510–520 (1985) <https://dx.doi.org/10.1364/JOSAA.2.000510>`__.
 
-.. [2] \ E. W. Hansen, "Fast Hankel transform algorithm", `IEEE Trans. Acoust. Speech Signal Proc. 33, 666–671 (1985) <https://dx.doi.org/10.1109/TASSP.1985.1164579>`_
+.. |ref2| replace:: \ E. W. Hansen, "Fast Hankel transform algorithm", `IEEE Trans. Acoust. Speech Signal Proc. 33, 666–671 (1985) <https://dx.doi.org/10.1109/TASSP.1985.1164579>`__
 
-.. [3] \ J. R. Gascooke, PhD Thesis: "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation", Flinders University (2000), (`record <https://trove.nla.gov.au/version/41486301>`_, `PDF <https://github.com/PyAbel/abel_info/raw/master/Gascooke_Thesis.pdf>`_).
+.. |ref3| replace:: \ J. R. Gascooke, PhD Thesis: "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation", Flinders University (2000), (`record <https://trove.nla.gov.au/version/41486301>`__, `PDF <https://github.com/PyAbel/abel_info/raw/master/Gascooke_Thesis.pdf>`__).
+
+.. [1] |ref1|
+
+.. [2] |ref2|
+
+.. [3] |ref3|
+
+.. only:: latex
+
+    * |ref1|
+    * |ref2|
+    * |ref3|

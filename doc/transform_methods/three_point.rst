@@ -54,6 +54,15 @@ For more information on the PyAbel implementation of the three-point algorithm, 
 Citation
 --------
 
-.. [1] \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`_.
+.. |ref1| replace:: \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`__.
 
-.. [2] \ K. Martin, PhD Thesis: "Acoustic Modification of Sooting Combustion", University of Texas at Austin (2002) (`record <http://hdl.handle.net/2152/1654>`_, `PDF <https://repositories.lib.utexas.edu/bitstream/handle/2152/1654/martinkm07836.pdf>`_).
+.. |ref2| replace:: \ K. Martin, PhD Thesis: "Acoustic Modification of Sooting Combustion", University of Texas at Austin (2002) (`record <http://hdl.handle.net/2152/1654>`__, `PDF <https://repositories.lib.utexas.edu/bitstream/handle/2152/1654/martinkm07836.pdf>`__).
+
+.. [1] |ref1|
+
+.. [2] |ref2|
+
+.. only:: latex
+
+    * |ref1|
+    * |ref2|

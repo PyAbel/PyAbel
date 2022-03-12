@@ -161,4 +161,10 @@ PyAbel python code was extracted from this `jupyter notebook <https://www.psi.ch
 Citation
 --------
 
-.. [1] \ Th. Gerber, Yu. Liu, G. Knopp, P. Hemberger, A. Bodi, P. Radi, Ya. Sych, "Charged particle velocity map image reconstruction with one-dimensional projections of spherical functions", `Rev. Sci. Instrum. 84, 033101 (2013) <https://doi.org/10.1063/1.4793404>`_.
+.. |ref1| replace:: \ Th. Gerber, Yu. Liu, G. Knopp, P. Hemberger, A. Bodi, P. Radi, Ya. Sych, "Charged particle velocity map image reconstruction with one-dimensional projections of spherical functions", `Rev. Sci. Instrum. 84, 033101 (2013) <https://doi.org/10.1063/1.4793404>`__.
+
+.. [1] |ref1|
+
+.. only:: latex
+
+    * |ref1|

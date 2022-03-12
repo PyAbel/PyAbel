@@ -83,8 +83,13 @@ Some additional information on the implementation is given in :ref:`BASEXcomp`.
 Citation
 --------
 
-.. [1] \ V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, H. Reisler, "Reconstruction of Abel-transformable images: The Gaussian basis-set expansion Abel transform method", `Rev. Sci. Instrum. 73, 2634–2642 (2002)
- <https://dx.doi.org/10.1063/1.1482156>`_, (`PDF <http://www-bcf.usc.edu/~reisler/assets/pdf/67.pdf>`_).
+.. |ref1| replace:: \ V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, H. Reisler, "Reconstruction of Abel-transformable images: The Gaussian basis-set expansion Abel transform method", `Rev. Sci. Instrum. 73, 2634–2642 (2002) <https://dx.doi.org/10.1063/1.1482156>`__, (`PDF <http://www-bcf.usc.edu/~reisler/assets/pdf/67.pdf>`__).
+
+.. [1] |ref1|
+
+.. only:: latex
+
+    * |ref1|
 
 
 .. toctree::
