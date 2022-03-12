@@ -259,6 +259,15 @@ latex_elements = {
 # The font size ('10pt', '11pt' or '12pt').
 #'pointsize': '10pt',
 
+# Extra options for documentclass
+'extraclassoptions': 'openany', # allow chapter to start on even pages
+
+# Disable "fancy" chapter formatting
+'fncychap': '',
+
+# Additional options for packages
+'passoptionstopackages': r'\PassOptionsToPackage{table}{xcolor}',
+
 # Additional stuff for the LaTeX preamble.
 'preamble':
     r'''
@@ -278,18 +287,27 @@ latex_elements = {
     \DeclareUnicodeCharacter{2273}{\ensuremath{\gtrsim}} % ≳
     \DeclareUnicodeCharacter{22C5}{\ensuremath{\cdot}} % ⋅
     \DeclareUnicodeCharacter{27C2}{\ensuremath{\perp}} % ⟂
+    % allow line break after underscore (some code doesn't fit otherwise)
+    \renewcommand\_{\textunderscore\allowbreak}
+    % table styling:
+        % light gray background for headers
+        \protected\def\sphinxstyletheadfamily{\cellcolor{black!10}}
+        % remove all lines (TODO: how to keep top and bottom?)
+        \setlength{\arrayrulewidth}{0pt}
+        % increase row separation
+        \def\arraystretch{1.5}
     ''',
 
 # Latex figure (float) alignment
-#'figure_align': 'htbp',
+'figure_align': 'H', # don't float images (most of them don't have captions)
 }
+
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'PyAbel.tex', 'PyAbel Documentation',
-   'PyAbel team', 'manual'),
+    (master_doc, 'PyAbel.tex', 'PyAbel Documentation', 'PyAbel team', 'manual')
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -351,7 +369,7 @@ texinfo_documents = [
 
 required_symlinks = [
     ('examples', '../examples/')
-    ]
+]
 
 autodoc_member_order = 'bysource'
 
