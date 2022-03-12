@@ -42,7 +42,7 @@ diff_err = rmse('diff', diff_str)
 
 pos_err = rmse('pos')
 
-SVD_str = np.arange(0, 0.056, 1.0 / rmax)
+SVD_str = np.arange(0, 0.11, 1.0 / rmax)
 SVD_err = rmse('SVD', SVD_str)
 
 # plot...
@@ -70,10 +70,10 @@ plt.subplot(122)
 
 plt.step(SVD_str, SVD_err, where='mid', c='C3', label='SVD')
 
-plt.yticks([0.079, 0.080])
+plt.ylim((0.056, 0.066))
 plt.ylabel('relative RMS error')
 
-plt.xlim((0, 0.055))
+plt.xlim((0, 0.1))
 plt.xlabel('strength')
 
 plt.legend()

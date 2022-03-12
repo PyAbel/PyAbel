@@ -692,10 +692,10 @@ Poissonian noise is added to it to simulate experimental VMI data with
 relatively low signal levels (such that the noise is prominent):
 
 .. comment
-    the only purpose of ":scale: 1" in the plots below is to make them clickable
+    the only purpose of ":scale: 100" in the plots below is to make them clickable
 
 .. plot:: transform_methods/rbasex-sim.py
-    :scale: 1
+    :scale: 100
 
 In order to characterize the regularization performance, all the methods are
 applied at various strengths to this simulated projection, and the relative
@@ -732,7 +732,7 @@ Using ``reg=None``
 """"""""""""""""""
 
 .. plot::
-    :scale: 1
+    :scale: 100
 
     from rbasex_reg import plot
     plot(None)
@@ -744,40 +744,40 @@ and the “true” distribution in red behind it. The lower plot shows the the
 difference between these two distributions in blue (red is the zero line).
 
 
-Using ``reg=('L2', 100)``
-"""""""""""""""""""""""""
+Using ``reg=('L2', 75)``
+""""""""""""""""""""""""
 
 .. plot::
-    :scale: 1
+    :scale: 100
 
     from rbasex_reg import plot
-    plot('L2', 100)
+    plot('L2', 75)
 
 The noise level is generally reduced, but the peaks near the origin are
 noticeably broadened, which actually increases deviations in this region.
 
 
-Using ``reg=('diff', 115)``
+Using ``reg=('diff', 100)``
 """""""""""""""""""""""""""
 
 .. plot::
-    :scale: 1
+    :scale: 100
 
     from rbasex_reg import plot
-    plot('diff', 115)
+    plot('diff', 100)
 
 The noise is reduced even more, especially its high-frequency components. The
 peaks near the origin also suffer, but somewhat differently.
 
 
-Using ``reg=('SVD', 0.03)``
-"""""""""""""""""""""""""""
+Using ``reg=('SVD', 0.075)``
+""""""""""""""""""""""""""""
 
 .. plot::
-    :scale: 1
+    :scale: 100
 
     from rbasex_reg import plot
-    plot('SVD', 0.03)
+    plot('SVD', 0.075)
 
 The only noticeable difference from no regularization is some noise reduction
 near the origin.
@@ -787,7 +787,7 @@ Using ``reg='pos'``
 """""""""""""""""""
 
 .. plot::
-    :scale: 1
+    :scale: 100
 
     from rbasex_reg import plot
     plot('pos')

@@ -34,7 +34,7 @@ def plot(method, strength=None):
     if strength is None:
         reg = method
     else:
-        reg=(method, strength)
+        reg = (method, strength)
     im, distr = rbasex_transform(proj, reg=reg)
     I, _ = distr.Ibeta()
 
@@ -47,7 +47,7 @@ def plot(method, strength=None):
     fig = plt.imshow(rescaleI(im), vmin=-vlim, vmax=vlim, cmap='bwr')
 
     plt.axis('off')
-    plt.text(0, 2 * rmax, method, va='top')
+    plt.text(0, 2 * rmax, str(method), va='top')
 
     # intensity
     ax = plt.subplot2grid((3, 2), (0, 1), rowspan=2)
