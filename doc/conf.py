@@ -260,7 +260,25 @@ latex_elements = {
 #'pointsize': '10pt',
 
 # Additional stuff for the LaTeX preamble.
-#'preamble': '',
+'preamble':
+    r'''
+    % additional Unicode characters:
+    \DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}} % β
+    \DeclareUnicodeCharacter{03B8}{\ensuremath{\theta}} % θ
+    \DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}} % π
+    \DeclareUnicodeCharacter{202F}{\,} % narrow nbsp
+    \DeclareUnicodeCharacter{2212}{\ensuremath{-}} % −
+    \DeclareUnicodeCharacter{2225}{\ensuremath{\parallel}} % ∥
+    \DeclareUnicodeCharacter{2248}{\ensuremath{\approx}} % ≈
+    \DeclareUnicodeCharacter{2260}{\ensuremath{\ne}} % ≠
+    \DeclareUnicodeCharacter{2264}{\ensuremath{\le}} % ≤
+    \DeclareUnicodeCharacter{2265}{\ensuremath{\ge}} % ≥
+    \DeclareUnicodeCharacter{226A}{\ensuremath{\ll}} % ≪
+    \DeclareUnicodeCharacter{2272}{\ensuremath{\lesssim}} % ≲
+    \DeclareUnicodeCharacter{2273}{\ensuremath{\gtrsim}} % ≳
+    \DeclareUnicodeCharacter{22C5}{\ensuremath{\cdot}} % ⋅
+    \DeclareUnicodeCharacter{27C2}{\ensuremath{\perp}} % ⟂
+    ''',
 
 # Latex figure (float) alignment
 #'figure_align': 'htbp',
