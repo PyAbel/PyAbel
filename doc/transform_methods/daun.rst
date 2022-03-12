@@ -302,12 +302,9 @@ half-image or properly oriented quadrants) through the
 .. note::
     If you use any non-default options (degree, regularization), please cite
     not only the article by Daun et al. and the PyAbel article, but also *this
-    PyAbel release* |zenodo|, because these capabilities are not present in the
-    original work by Daun et al. and were added to PyAbel after the RSI
-    publication.
-
-.. |zenodo| image:: https://zenodo.org/badge/30170345.svg
-    :target: https://zenodo.org/badge/latestdoi/30170345
+    PyAbel release* (see `Zenodo <https://zenodo.org/badge/latestdoi/30170345>`__),
+    because these capabilities are not present in the original work by Daun et
+    al. and were added to PyAbel after the RSI publication.
 
 
 Examples

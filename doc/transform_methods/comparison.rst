@@ -122,8 +122,7 @@ The Abel transform of a Gaussian is simply a Gaussian, which allows a comparison
     :nofigs:
 
 .. _fig_gaussian:
-.. figure:: comparison/fig_gaussian/gaussian.svg
-    :alt: gaussian
+.. figure:: comparison/fig_gaussian/gaussian.*
     :figclass: align-center
 
     Comparison of inverse Abel-transform methods for a 1D Gaussian function with 70 points. All of the inverse Abel transform methods show reasonable agreement for the inverse Abel transform of a Gaussian function. The root-mean-square error (RMSE) for each method is listed in the figure legend. In the limit of many pixels, the error trends to zero. However, when a small number of pixels is used, systematic errors are seen, especially near the origin (:math:`r=0`). The error near the origin is more pronounced in some methods than others. The lowest error seen from the ``basex``, ``daun``, ``three_point``, and ``onion_peeling`` methods. The ``daun`` method with degree=0 is identical to ``onion_peeling`` and with degree=2 is slightly better (RMSE=0.05%). The ``linbasex`` and ``rbasex`` methods are not included in this figure because they are not applicable to 1D functions.
@@ -136,7 +135,7 @@ Applying the various transform methods to a synthetic "comb" function that consi
     :nofigs:
 
 .. _fig_comb:
-.. figure:: comparison/fig_comb/comb.svg
+.. figure:: comparison/fig_comb/comb.*
     :figclass: align-center
 
     Inverse Abel-transform methods applied to a synthetic "comb" function of one-pixel-width peaks with noise added. The gray line represents the analytical inverse Abel transform in the absence of noise. Some methods reproduce the height of the peaks, while other methods reduce noise while somewhat smoothing the peaks. The regularization in the ``basex`` and ``daun`` methods provides strong noise suppression near the origin, while maintaining peak height at higher values of :math:`r`. The ``daun`` method without regularization is identical to ``onion_peeling``, and its :math:`L_2` regularization is very similar to ``basex`` regularization.
@@ -149,7 +148,7 @@ Applying the various inverse Abel-transform methods to an experimental photoelec
     :nofigs:
 
 .. _fig_experiment:
-.. figure:: comparison/fig_experiment/experiment.svg
+.. figure:: comparison/fig_experiment/experiment.*
     :figclass: align-center
 
     Comparison of inverse Abel-transform methods applied to an experimental photoelectron velocity-map image. While all methods provide a faithful reconstruction of the experimental image, some of them cause a greater amplification of the noise present in the original image. The ``linbasex`` and ``rbasex`` methods models the image using a basis set of functions that vary slowly as a function of angle, which strongly reduces the high-frequency noise seen in the other transform methods. Besides the ``basex`` and ``daun`` method with regularization, the ``direct`` and ``three_point`` methods seem particularly suited for providing a low-noise transform. The ``daun`` method without regularization is identical to ``onion_peeling``, and its :math:`L_2` regularization is very similar to ``basex`` regularization. This dataset is the photoelectron spectrum of O\ :sub:`2`\ :sup:`−` photodetachment using a 455 nm laser, as described by Van Duzor et al. [vanduzor2010]_.
@@ -159,7 +158,7 @@ To a first approximation, the results of all the transform methods look similar.
 
 
 .. _fig_integration:
-.. figure:: comparison/fig_experiment/integration.svg
+.. figure:: comparison/fig_experiment/integration.*
     :figclass: align-center
 
     Comparison of photoelectron spectra obtained by angular integration of the transformed images shown in :numref:`fig_experiment`, corresponding to various inverse Abel-transform methods applied to the same experimental velocity-map image. a) Looking at the entire photoelectron speed distribution, all of the transform methods appear to produce similar results. b) Closely examining two of the peaks shows that all of the methods produce similar results, but that some methods produce broader peaks than others. c) Examining the small peaks in the low-energy region reveals that some methods accumulate somewhat more noise than others. Notice the absence on negative intensities in the ``daun`` method with non-negativity regularization and the corresponding suppression of baseline oscillations.
@@ -220,7 +219,7 @@ A comparison of the time required to complete an inverse Abel transform versus t
     :nofigs:
 
 .. _fig_transform_time:
-.. figure:: comparison/fig_benchmarks/transform_time.svg
+.. figure:: comparison/fig_benchmarks/transform_time.*
     :figclass: align-center
 
     Computational efficiency of inverse Abel-transform methods. The time to complete an inverse Abel transform increases with the size of the image. Most of the methods display a roughly :math:`n^3` scaling (dashed gray line). The ``basex``, ``onion_peeling``, ``three_point``, and ``two_point`` methods all rely on similar matrix-algebra operations as their rate-limiting step, and consequently exhibit identical performance for typical experimental image sizes.
@@ -233,7 +232,7 @@ A comparison of the time required to complete an inverse Abel transform versus t
     :nofigs:
 
 .. _fig_throughput:
-.. figure:: comparison/fig_benchmarks/throughput.svg
+.. figure:: comparison/fig_benchmarks/throughput.*
     :figclass: align-center
 
     The performance can also be viewed as a pixels-per-second rate. Here, it is clear that some methods provide sufficient throughput to transform images at rates far exceeding high-definition video (1000×1000 pixels at 30 frames per second is :math:`3\times10^7` pixels per second).
@@ -243,7 +242,7 @@ A comparison of the time required to complete an inverse Abel transform versus t
     :nofigs:
 
 .. _fig_btime:
-.. figure:: comparison/fig_benchmarks/basis_time.svg
+.. figure:: comparison/fig_benchmarks/basis_time.*
     :figclass: align-center
 
     Computational efficiency of the basis-set generation calculation.
