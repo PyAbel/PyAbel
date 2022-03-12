@@ -201,11 +201,6 @@ Speed benchmarks
 
 The :class:`abel.benchmark.AbelTiming` class provides the ability to benchmark the speeds of the Abel transform algorithms. Here we show these benchmarks completed using a personal computer equipped with a 3.0 GHz Intel i7-9700 processor and 32 GB RAM running GNU/Linux (see also :doc:`comparison/fig_benchmarks/benchmarks` for some other systems).
 
-.. toctree::
-    :hidden:
-
-    comparison/fig_benchmarks/benchmarks
-
 A comparison of the time required to complete an inverse Abel transform versus the width of a square image is presented in :numref:`fig_transform_time`. All methods are benchmarked using their default parameters, with the following exceptions:
 
 * **basex(var)** and **daun(var)** mean “variable regularization”, that is changing the regularization parameter for each transformed image.
@@ -249,6 +244,12 @@ A comparison of the time required to complete an inverse Abel transform versus t
 
 
 The ``basex``, ``onion_peeling``, ``three_point``, and ``two_point`` methods run much faster if appropriately sized basis sets have been pre-calculated. For the ``basex`` method, the time for this pre-calculation is orders of magnitude longer than the transform time (:numref:`fig_btime`). For the Dasch methods (``onion_peeling``, ``three_point``, and ``two_point``), the pre-calculation is significantly longer than the transform time for image sizes smaller than 2000 pixels. For larger image sizes, the pre-calculation of the basis sets approaches the same speed as the transform itself. In particular, for the ``two_point`` method, the pre-calculation of the basis sets actually becomes faster than the image transform for *n* ≳ 4000. For the ``daun`` and ``linbasex`` methods, the pre-calculation of the basis sets is consistently faster than the transform itself, suggesting that the pre-calculation of basis sets isn't necessary for these methods.
+
+
+.. toctree::
+    :hidden:
+
+    comparison/fig_benchmarks/benchmarks
 
 
 Conclusion

@@ -109,7 +109,7 @@ ax3.legend(labelspacing=0.1, fontsize='small')
 plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35, hspace=0.37)
 
 # Save a image of the plot
-plt.savefig(output_plot, dpi=150)
+# plt.savefig(output_plot, dpi=150)
 
 # Show the plots
 plt.show()

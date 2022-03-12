@@ -6,27 +6,20 @@
 Welcome to PyAbel's documentation!
 ==================================
 
-Start by having a look at the :doc:`README <readme_link>`.
+.. only:: html
 
-Contents:
+    Start by having a look at the :doc:`README <readme_link>`.
+
+    Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   readme_link
-   abel
-   transform_methods
-   anisotropy_parameter
-   circularize_image
-   examples
-   contributing_link
-   changelog_link
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+    readme_link
+    abel
+    transform_methods
+    anisotropy_parameter
+    circularize_image
+    examples
+    contributing_link
+    changelog_link

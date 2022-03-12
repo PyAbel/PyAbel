@@ -77,5 +77,5 @@ axs[1, 1].legend(frameon=False)
 axs[1, 1].set_xlabel('radius (pixels)')
 axs[1, 1].set_ylabel('intensity')
 
-plt.savefig("plot_example_circularize_image.png", dpi=75)
+# plt.savefig("plot_example_circularize_image.png", dpi=75)
 plt.show()

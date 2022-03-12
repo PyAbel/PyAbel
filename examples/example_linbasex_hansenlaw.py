@@ -70,5 +70,5 @@ ax2.legend(loc=0, labelspacing=0.1, frameon=False, numpoints=1, fontsize=10)
 ax2.axis(xmax=300, ymin=-1.0, ymax=1.0)
 ax2.set_xlabel("radial coordinate (pixels)")
 
-plt.savefig("plot_example_linbasex_hansenlaw.png", dpi=100)
+# plt.savefig("plot_example_linbasex_hansenlaw.png", dpi=100)
 plt.show()

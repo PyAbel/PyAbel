@@ -79,14 +79,15 @@ PyAbel improvements
 
 Some additional information on the implementation is given in :ref:`BASEXcomp`.
 
-.. toctree::
-    :hidden:
-
-    basex-comp
-
 
 Citation
 --------
 
 .. [1] \ V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, H. Reisler, "Reconstruction of Abel-transformable images: The Gaussian basis-set expansion Abel transform method", `Rev. Sci. Instrum. 73, 2634–2642 (2002)
  <https://dx.doi.org/10.1063/1.1482156>`_, (`PDF <http://www-bcf.usc.edu/~reisler/assets/pdf/67.pdf>`_).
+
+
+.. toctree::
+    :hidden:
+
+    basex-comp

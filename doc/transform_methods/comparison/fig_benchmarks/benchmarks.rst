@@ -1,5 +1,5 @@
-Speed benchmarks
-================
+Additional speed benchmarks
+===========================
 
 .. contents::
     :local:

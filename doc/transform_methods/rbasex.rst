@@ -43,11 +43,6 @@ chosen wisely.
 
 See :ref:`rBasexmath` for the complete description.
 
-.. toctree::
-    :hidden:
-
-    rbasex-math
-
 
 Differences from pBasex
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -225,3 +220,9 @@ method from the PyAbel package”, using the current Zenodo DOI (see :ref:`READM
        Ph.D. dissertation, University of Southern California, 2012.
        (`ProQuest <https://search.proquest.com/docview/1289069738>`_,
        `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`_).
+
+
+.. toctree::
+    :hidden:
+
+    rbasex-math
