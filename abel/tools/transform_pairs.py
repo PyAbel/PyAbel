@@ -74,7 +74,7 @@ def profile1(r):
         \epsilon(r) &= 0.75 + 12r^2 - 32r^3  & 0 \le r \le 0.25
 
         \epsilon(r) &= \frac{16}{27}(1 + 6r - 15r^2 + 8r^3)
-                    & 0.25 \lt r \le 1
+                    & 0.25 < r \le 1
 
         I(r) &= \frac{1}{108}(128a_1 + a_{0.25}) + \frac{2}{27}r^2
                   (283a_{0.25} - 112a_1) + {}
@@ -83,7 +83,7 @@ def profile1(r):
           (4 + 31r^2)\ln\frac{0.25 + a_{0.25}}{r}\right] &  0 \le r \le 0.25
 
         I(r) &= \frac{32}{27}\left[a_1 - 7a_1 r + 3r^2(1 + r^2)
-                \ln\frac{1 + a_1}{r}\right]  & 0.25 \lt r \le 1
+                \ln\frac{1 + a_1}{r}\right]  & 0.25 < r \le 1
 
     ..
               source                projection
@@ -205,13 +205,13 @@ def profile3(r):
 
         \epsilon(r) &= 1 - 2r^2  & 0 \le r \le 0.5
 
-        \epsilon(r) &= 2(1 - r^2)^2 & 0.5 \lt r \le 1
+        \epsilon(r) &= 2(1 - r^2)^2 & 0.5 < r \le 1
 
         I(r) &= \frac{4a_1}{3}(1 + 2r^2) - \frac{2 a_{0.5}}{3}(1 + 8r^2) -
                 4r^2\ln\frac{1 - a_1}{0.5 + a_{0.5}} & 0 \le r \le 0.5
 
         I(r) &= \frac{4a_1}{3}(1 + 2r^2) - 4r^2\ln\frac{1 - a_1}{r} &
-                0.5 \lt r \le 1
+                0.5 < r \le 1
 
     ..
               source                projection
@@ -281,7 +281,7 @@ def profile4(r):
         \epsilon(r) &= 0.1 + 5.51r^2 - 5.25r^3 & 0 \le r \le 0.7
 
         \epsilon(r) &= -40.74 + 155.56r - 188.89r^2 + 74.07r^3
-                    & 0.7 \lt r \le1
+                    & 0.7 < r \le1
 
         I(r) &= 22.68862a_{0.7} - 14.811667a_1 + {}
 
@@ -294,7 +294,7 @@ def profile4(r):
         I(r) &= -14.811667a_1 - 196.30083a_1 r^2 + {}
 
              &\quad r^2(155.56 + 55.5525r^2) \ln\frac{1 + a_1}{r}
-             & 0.7 \lt r \le 1
+             & 0.7 < r \le 1
 
     ..
               source                projection

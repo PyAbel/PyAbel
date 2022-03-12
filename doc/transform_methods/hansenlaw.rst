@@ -116,7 +116,7 @@ right-side half-image), you can use :func:`abel.hansenlaw.hansenlaw_transform`.
 Tips
 ----
 
-`hansenlaw` tends to perform better with images of large size :math:`n \gt 1001` pixel width. For smaller images the angular_integration (speed) profile may look better if sub-pixel sampling is used::
+`hansenlaw` tends to perform better with images of large size :math:`n > 1001` pixel width. For smaller images the angular_integration (speed) profile may look better if sub-pixel sampling is used::
 
     angular_integration_options=dict(dr=0.5)
 

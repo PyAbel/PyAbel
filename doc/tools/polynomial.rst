@@ -261,7 +261,7 @@ where
 
 .. math::
     z_\text{min,max} = \begin{cases}
-        \sqrt{\rho_\text{min,max}^2 - r^2}, &  r < \rho_\text{min,max}, \\
+        \sqrt{\rho_\text{min,max}^2 - r^2}, & r < \rho_\text{min,max}, \\
         0 & \text{otherwise}.
     \end{cases}
 
@@ -362,15 +362,15 @@ Taylor series (by construction, :math:`f_n(r)` reproduces the lower-order terms
 exactly, and the magnitudes of higher-order terms are much smaller):
 
 .. math::
-    \begin{align}
-        & \max_{r \in [R_n, R_{n+1}]} \big|f_n(r) - g(r)\big| \approx \\
-        &\qquad\approx \max_{r = R_n, R_{n+\frac12}, R_{n+1}}
-            \left|\frac{g'''(r)}{3!}\right| \cdot
-            \max_{r \in [R_n, R_{n+1}]}
-                \big|(r - R_n)(r - R_{n+\frac12})(r - R_{n+1})\big| = \\
-        &\qquad= \max_{r = R_n, R_{n+\frac12}, R_{n+1}} \big|(3 - r^2) r g(r)\big|
-            \cdot \frac{|R_n - R_{n+1}|^3}{72\sqrt{3}}.
-    \end{align}
+    & \max_{r \in [R_n, R_{n+1}]} \big|f_n(r) - g(r)\big| \approx \\
+    & \qquad
+    \approx \max_{r = R_n, R_{n+\frac12}, R_{n+1}}
+        \left|\frac{g'''(r)}{3!}\right| \cdot
+        \max_{r \in [R_n, R_{n+1}]}
+            \big|(r - R_n)(r - R_{n+\frac12})(r - R_{n+1})\big| = \\
+    & \qquad
+    = \max_{r = R_n, R_{n+\frac12}, R_{n+1}} \big|(3 - r^2) r g(r)\big|
+        \cdot \frac{|R_n - R_{n+1}|^3}{72\sqrt{3}}.
 
 This process is repeated until :math:`r = 0` is reached, after which the found
 splitting is symmetrically extended to :math:`-R_0 \leqslant r < 0`, and the
