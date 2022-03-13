@@ -28,13 +28,19 @@ The algorithm is efficient, one of the few methods to provide both the **forward
 How it works
 ------------
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/13543157/c83d3796-e2bc-11e5-9210-12be6d24b8fc.png
-   :width: 200px
-   :alt: projection diag
-   :align: right
-   :figclass: align-center
+.. comment:
+   For ":align: right" figures, Sphinx uses LaTeX's wrapfig wrongly (not
+   allowing floating), so the PDF results are horrible. Thus the figures here
+   are inserted differently for "html" and "latex".
+   (In "html", it also doesn't properly break long lines in captions, so this
+   is done manually below...)
 
-   Projection geometry (Fig. 1 [1]_)
+.. only:: html
+
+   .. plot:: transform_methods/hansenlaw-proj.py
+      :align: right
+
+      Projection geometry (Fig. 1 [1]_)
 
 For an axis-symmetric source image the projection of a source image,
 :math:`g(R)`, is given by the forward Abel transform:
@@ -45,20 +51,33 @@ The corresponding inverse Abel transform is
 
 .. math:: f(r) = -\frac{1}{\pi}  \int_r^\infty \frac{g^\prime(R)}{\sqrt{R^2 - r^2}} dR
 
+.. only:: latex
+
+   .. list-table::
+
+      * - .. plot:: transform_methods/hansenlaw-proj.py
+
+              Projection geometry (Fig. 1 [1]_)
+
+        - .. plot:: transform_methods/hansenlaw-recur.py
+
+              Recursion: pixel value from adjacent outer-pixel
+
 The Hansen and Law method makes a coordinate transformation to model the Abel transform as a set of linear differential equation, with the driving function
 either the source image :math:`f(r)`,  for the forward transform, or the
 projection image gradient :math:`g^\prime(R)`, for the inverse transform.
-More detail is given in themath_ below.
+More detail is given :ref:`below <themath>`.
 
+.. |br| raw:: html
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/13544803/13bf0d0e-e2cf-11e5-97d5-bece1e61d904.png
-   :width: 350px
-   :alt: recursion
-   :align: right
-   :figclass: align-center
+   <br>
 
-   Recursion: pixel value from adjacent outer-pixel
+.. only:: html
 
+   .. plot:: transform_methods/hansenlaw-recur.py
+      :align: right
+
+      Recursion: pixel value from |br| adjacent outer-pixel
 
 Forward transform is
 
@@ -82,7 +101,7 @@ Inverse transform:
 Note the only difference between the *forward* and *inverse* algorithms is
 the exchange of :math:`f_n` with :math:`g^\prime_n` (or :math:`g_n`).
 
-Details on the evaluation of :math:`\Phi, B_{0n},` and :math:`B_{1n}` are given below, themath_.
+Details on the evaluation of :math:`\Phi, B_{0n},` and :math:`B_{1n}` are given :ref:`below <themath>`.
 
 The algorithm iterates along each individual row of the image, starting at
 the out edge, ending at the center-line. Since all rows in an image can be

@@ -28,14 +28,6 @@ making the reconstruction of sliced Newton spheres obsolete.*
 How it works
 ------------
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/14975430/ea9c25de-1144-11e6-8824-531c81976160.png
-   :width: 350px
-   :alt: projection
-   :align: right
-   :figclass: align-center
-
-   projections (Fig. 2 of [1])
-
 A projection of 3D Newton spheres along the :math:`x` axis yields a compact 1D function:
 
 .. math::
@@ -47,10 +39,10 @@ expressing :math:`L(z, u)` as a linear combination of :math:`P_\ell(z/r_k)`. The
 exists for a given base a unique set of coefficients :math:`p_{\ell k}` 
 producing a least-squares fit to the function :math:`L(z, u)`.
 
-|
-|
+.. figure:: linbasex-fig2.*
+   :figclass: align-center
 
-
+   Projections (Fig. 2 [1]_)
 
 [ *extract of a comment made by Thomas Gerber (method author)* ]
 
