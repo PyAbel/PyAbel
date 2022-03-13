@@ -141,17 +141,28 @@ Applying the various transform methods to a synthetic "comb" function that consi
     Inverse Abel-transform methods applied to a synthetic "comb" function of one-pixel-width peaks with noise added. The gray line represents the analytical inverse Abel transform in the absence of noise. Some methods reproduce the height of the peaks, while other methods reduce noise while somewhat smoothing the peaks. The regularization in the ``basex`` and ``daun`` methods provides strong noise suppression near the origin, while maintaining peak height at higher values of :math:`r`. The ``daun`` method without regularization is identical to ``onion_peeling``, and its :math:`L_2` regularization is very similar to ``basex`` regularization.
 
 
-Applying the various inverse Abel-transform methods to an experimental photoelectron-spectroscopy image (:numref:`fig_experiment`) provides a comparison of how the noise in the reconstructed image depends on the transform method.
+Applying the various inverse Abel-transform methods to an experimental photoelectron-spectroscopy image (photoelectron spectrum of O\ :sub:`2`\ :sup:`−` photodetachment using a 455 nm laser, as described by Van Duzor et al. [vanduzor2010]_) provides a comparison of how the noise in the reconstructed image depends on the transform method (:numref:`fig_experiment`).
 
 
 .. plot:: transform_methods/comparison/fig_experiment/experiment.py
     :nofigs:
 
+.. raw:: latex
+
+    % hack to insert negative space before figure (doesn't fit otherwise)
+    \let\savecentering\centering
+    \def\centering{\vspace*{-1.5em}\savecentering}
+
 .. _fig_experiment:
 .. figure:: comparison/fig_experiment/experiment.*
     :figclass: align-center
 
-    Comparison of inverse Abel-transform methods applied to an experimental photoelectron velocity-map image. While all methods provide a faithful reconstruction of the experimental image, some of them cause a greater amplification of the noise present in the original image. The ``linbasex`` and ``rbasex`` methods models the image using a basis set of functions that vary slowly as a function of angle, which strongly reduces the high-frequency noise seen in the other transform methods. Besides the ``basex`` and ``daun`` method with regularization, the ``direct`` and ``three_point`` methods seem particularly suited for providing a low-noise transform. The ``daun`` method without regularization is identical to ``onion_peeling``, and its :math:`L_2` regularization is very similar to ``basex`` regularization. This dataset is the photoelectron spectrum of O\ :sub:`2`\ :sup:`−` photodetachment using a 455 nm laser, as described by Van Duzor et al. [vanduzor2010]_.
+    Comparison of inverse Abel-transform methods applied to an experimental photoelectron velocity-map image. While all methods provide a faithful reconstruction of the experimental image, some of them cause a greater amplification of the noise present in the original image. The ``linbasex`` and ``rbasex`` methods models the image using a basis set of functions that vary slowly as a function of angle, which strongly reduces the high-frequency noise seen in the other transform methods. Besides the ``basex`` and ``daun`` method with regularization, the ``direct`` and ``three_point`` methods seem particularly suited for providing a low-noise transform. The ``daun`` method without regularization is identical to ``onion_peeling``, and its :math:`L_2` regularization is very similar to ``basex`` regularization.
+
+.. raw:: latex
+
+    % restore hacked definition
+    \let\centering\savecentering
 
 
 To a first approximation, the results of all the transform methods look similar. The ``rbasex`` and ``linbasex`` methods produces the "smoothest" image, which is a result of the fact that it models the projection using functions fitted to the image, that vary only slowly as a function of angle. The ``basex`` and ``daun`` methods incorporate a user-adjustable Tikhonov regularization factor, which tends to suppress noise, especially near the symmetry axis. Here, we set the regularization factor to 200 for ``basex`` and 100 for ``daun``, which provides significant noise suppression without noticeable broadening of the narrow features. When the regularization factor is set to zero, the ``basex`` and ``daun`` methods provide a transform that appears very similar to the ``onion_peeling`` method. For the other transform methods, the ``direct`` and ``three_point`` methods appear to have the strongest noise-filtering properties.
