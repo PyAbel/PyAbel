@@ -47,7 +47,8 @@ for method in dasch_transform.keys():
              label=method)
 
 plt.title("Dasch methods for Dribinski sample image $n={:d}$".format(n))
-plt.axis(xmax=250, ymin=-0.1)
-plt.legend(loc=0, frameon=False, labelspacing=0.1, fontsize='small')
+plt.xlim((0, 250))
+plt.legend(loc='upper center', bbox_to_anchor=(0.35, 1), frameon=False)
+plt.tight_layout()
 # plt.savefig("plot_example_dasch_methods.png",dpi=100)
 plt.show()

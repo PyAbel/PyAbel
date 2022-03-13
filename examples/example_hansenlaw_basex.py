@@ -73,14 +73,14 @@ rB, speedsB = abel.tools.vmi.angular_integration_3D(reconB)
 
 # plot the results - VMI, inverse Abel transformed image, speed profiles
 # Set up some axes
-fig = plt.figure(figsize=(15,4))
+fig = plt.figure(figsize=(15, 4.5))
 ax1 = plt.subplot(131)
 ax2 = plt.subplot(132)
 ax3 = plt.subplot(133)
 
 # Plot the raw data
-im1 = ax1.imshow(im, origin='lower', aspect='auto')
-fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
+im1 = ax1.imshow(im, origin='lower')
+fig.colorbar(im1, ax=ax1, fraction=0.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
 ax1.set_title('velocity map image: size {:d}x{:d}'.format(rows, cols))
@@ -89,24 +89,24 @@ ax1.set_title('velocity map image: size {:d}x{:d}'.format(rows, cols))
 reconH2 = reconH[:,:c2]
 reconB2 = reconB[:,c2:]
 recon = np.concatenate((reconH2,reconB2), axis=1)
-im2 = ax2.imshow(recon, origin='lower', aspect='auto', vmin=0,
+im2 = ax2.imshow(recon, origin='lower', vmin=0,
                  vmax=recon[:r2-50,:c2-50].max())
-fig.colorbar(im2, ax=ax2, fraction=.1, shrink=0.9, pad=0.03)
+fig.colorbar(im2, ax=ax2, fraction=0.1, shrink=0.9, pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
-ax2.set_title('Hansen Law | Basex',x=0.4)
+ax2.set_title('Hansen–Law | Basex', x=0.43)
 
 # Plot the 1D speed distribution - normalized
 ax3.plot(rB, speedsB/speedsB[150:].max(), 'r-', label="Basex")
-ax3.plot(rH, speedsH/speedsH[150:].max(), 'b-', label="Hansen Law")
-ax3.axis(xmax=250, ymin=-0.1, ymax=1.5)
+ax3.plot(rH, speedsH/speedsH[150:].max(), 'b-', label="Hansen–Law")
+ax3.set_xlim((0, 250))
 ax3.set_xlabel('speed (pixel)')
 ax3.set_ylabel('intensity')
 ax3.set_title('speed distribution')
 ax3.legend(labelspacing=0.1, fontsize='small')
 
 # Prettify the plot a little bit:
-plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35, hspace=0.37)
+plt.tight_layout()
 
 # Save a image of the plot
 # plt.savefig(output_plot, dpi=150)

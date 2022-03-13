@@ -44,20 +44,20 @@ recon = abel.Transform(im, method="hansenlaw", direction="inverse",
 r, speeds = abel.tools.vmi.angular_integration_3D(recon)
 
 # Set up some axes
-fig = plt.figure(figsize=(15,4))
+fig = plt.figure(figsize=(15, 4))
 ax1 = plt.subplot(131)
 ax2 = plt.subplot(132)
 ax3 = plt.subplot(133)
 
 # raw data
-im1 = ax1.imshow(im, origin='lower', aspect='auto')
+im1 = ax1.imshow(im, origin='lower')
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
 ax1.set_title('velocity map image')
 
 # 2D transform
-im2 = ax2.imshow(recon, origin='lower', aspect='auto')
+im2 = ax2.imshow(recon, origin='lower')
 fig.colorbar(im2, ax=ax2, fraction=.1, shrink=0.9, pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
@@ -71,8 +71,7 @@ ax3.set_title('Speed distribution')
 #ax3.set_yscale('log')
 
 # Prettify the plot a little bit:
-plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35,
-                    hspace=0.37)
+plt.tight_layout()
 
 # Save a image of the plot
 # plt.savefig(output_plot, dpi=100)

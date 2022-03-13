@@ -56,14 +56,14 @@ ax2 = plt.subplot(132)
 ax3 = plt.subplot(133)
 
 # Plot the raw data
-im1 = ax1.imshow(raw_data,origin='lower',aspect='auto')
-fig.colorbar(im1,ax=ax1,fraction=.1,shrink=0.9,pad=0.03)
+im1 = ax1.imshow(raw_data, origin='lower')
+fig.colorbar(im1, ax=ax1, fraction=0.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
 
 # Plot the 2D transform
-im2 = ax2.imshow(recon,origin='lower',aspect='auto',clim=(0,2000))
-fig.colorbar(im2,ax=ax2,fraction=.1,shrink=0.9,pad=0.03)
+im2 = ax2.imshow(recon, origin='lower', clim=(0,2000))
+fig.colorbar(im2, ax=ax2, fraction=0.1, shrink=0.9, pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
 
@@ -76,7 +76,7 @@ ax3.set_yscale('log')
 #ax3.set_ylim(1e2,1e5)
 
 # Prettify the plot a little bit:
-plt.subplots_adjust(left=0.06,bottom=0.17,right=0.95,top=0.89,wspace=0.35,hspace=0.37)
+plt.tight_layout()
 
 # Show the plots
 plt.show()
