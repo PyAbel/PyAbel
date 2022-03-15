@@ -28,21 +28,23 @@ making the reconstruction of sliced Newton spheres obsolete.*
 How it works
 ------------
 
-A projection of 3D Newton spheres along the :math:`x` axis yields a compact 1D function:
+A projection of 3D Newton spheres onto the detector plane followed by a
+projection of the resulting 2D image along the :math:`x` axis
 
+.. plot:: transform_methods/linbasex-proj.py
+    :align: center
+
+yields a compact 1D function:
+ 
 .. math::
 
  L(z, u) = \sum_k \sum_\ell P_\ell(u)P_\ell\left(\frac{z}{r_k}\right) \frac{\prod_{r_k}(z)}{2r_k} p_{\ell k}
 
-with :math:`u = \cos(\theta)`. This function constitutes a system of equations
-expressing :math:`L(z, u)` as a linear combination of :math:`P_\ell(z/r_k)`. There
-exists for a given base a unique set of coefficients :math:`p_{\ell k}` 
-producing a least-squares fit to the function :math:`L(z, u)`.
-
-.. figure:: linbasex-fig2.*
-   :figclass: align-center
-
-   Projections (Fig. 2 [1]_)
+with :math:`u = \cos\theta`. This function constitutes a system of equations
+expressing :math:`L(z, u)` as a linear combination of Legendre polynomials
+:math:`P_\ell(z/r_k)`. There exists for a given base a unique set of
+coefficients :math:`p_{\ell k}` producing a least-squares fit to the function
+:math:`L(z, u)`.
 
 [ *extract of a comment made by Thomas Gerber (method author)* ]
 
