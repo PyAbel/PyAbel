@@ -59,6 +59,9 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
                      weights=None, direction='inverse', reg=None, out='same',
                      basis_dir=None, verbose=False):
     r"""
+    :doc:`rBasex <transform_methods/rbasex>` Abel transform for velocity-mapping
+    images, operating in polar coordinates.
+
     This function takes the input image and outputs its forward or inverse Abel
     transform as an image and its radial distributions.
 

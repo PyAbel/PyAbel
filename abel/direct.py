@@ -56,7 +56,8 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
                      derivative=gradient, int_func=np.trapz,
                      correction=True, backend='C', **kwargs):
     """
-    This algorithm performs a direct computation of the Abel transform
+    This algorithm performs a :doc:`direct computation
+    <transform_methods/direct>` of the Abel transform
     integrals. When correction=False, the pixel at the lower bound of the
     integral (where y=r) is skipped, which causes a systematic error in the
     Abel transform. However, if correction=True is used, then an analytical

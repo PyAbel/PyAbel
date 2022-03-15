@@ -32,7 +32,7 @@ from scipy import ndimage
 ###############################################################################
 
 _linbasex_parameter_docstring = \
-    r"""Inverse Abel transform using 1d projections of images.
+    r"""Inverse Abel transform using 1D projections of images.
 
     Th. Gerber, Yu. Liu, G. Knopp, P. Hemberger, A. Bodi, P. Radi, Ya. Sych,
     "Charged particle velocity map image reconstruction with one-dimensional
@@ -40,11 +40,12 @@ _linbasex_parameter_docstring = \
     `Rev. Sci. Instrum. 84, 033101 (2013)
     <https://doi.org/10.1063/1.4793404>`__.
 
-    ``linbasex`` models the image using a sum of Legendre polynomials at each
-    radial pixel, As such, it should only be applied to situations that can
-    be adequately represented by Legendre polynomials, i.e., images that
-    feature spherical-like structures.  The reconstructed 3D object is
-    obtained by adding all the contributions, from which slices are derived.
+    :doc:`Lin-Basex <transform_methods/linbasex>` models the image using a sum
+    of Legendre polynomials at each radial pixel. As such, it should only be
+    applied to situations that can be adequately represented by Legendre
+    polynomials, i.e., images that feature spherical-like structures.  The
+    reconstructed 3D object is obtained by adding all the contributions, from
+    which slices are derived.
 
 
     Parameters
@@ -142,9 +143,8 @@ def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
     Wrapper function for linbasex to process supplied quadrant-image as a
     full-image.
 
-    PyAbel transform functions operate on the right side of an image.
-    Here we follow the `basex` technique of duplicating the right side to
-    the left re-forming the whole image.
+    PyAbel transform functions operate on the right side of an image, so
+    here we duplicate the right side to the left, re-forming the whole image.
 
     """
     IM = np.atleast_2d(IM)

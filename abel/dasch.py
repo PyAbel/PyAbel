@@ -27,7 +27,8 @@ from scipy.linalg import inv
 
 _dasch_parameter_docstring = \
     """
-    The dasch_method deconvolution method.
+    The :doc:`dasch-method deconvolution method
+    <transform_methods/dasch_method>`.
 
     C. J. Dasch,
     "One-dimensional tomography: a comparison of Abel, onion-peeling, and
@@ -92,12 +93,15 @@ def onion_peeling_transform(IM, basis_dir='', dr=1, direction="inverse",
                             verbose=verbose)
 
 
-two_point_transform.__doc__ =\
-            _dasch_parameter_docstring.replace("dasch_method", "two-point")
-three_point_transform.__doc__ =\
-            _dasch_parameter_docstring.replace("dasch_method", "three-point")
-onion_peeling_transform.__doc__ =\
-            _dasch_parameter_docstring.replace("dasch_method", "onion-peeling")
+two_point_transform.__doc__ = _dasch_parameter_docstring\
+                              .replace("dasch-method", "two-point")\
+                              .replace("dasch_method", "two_point")
+three_point_transform.__doc__ = _dasch_parameter_docstring\
+                                .replace("dasch-method", "three-point")\
+                                .replace("dasch_method", "three_point")
+onion_peeling_transform.__doc__ = _dasch_parameter_docstring\
+                                  .replace("dasch-method", "onion-peeling")\
+                                  .replace("dasch_method", "onion_peeling")
 
 
 def _dasch_transform(IM, basis_dir='', dr=1, direction="inverse",

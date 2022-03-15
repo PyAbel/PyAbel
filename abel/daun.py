@@ -28,7 +28,8 @@ def daun_transform(data, reg=0.0, degree=0, dr=1.0, direction='inverse',
     `Appl. Opt. 45, 4638–4646 (2006)
     <https://doi.org/10.1364/AO.45.004638>`__.
 
-    with additional basis-function types and regularization methods.
+    with additional basis-function types and regularization methods (see
+    :doc:`description <transform_methods/daun>`).
 
     This function operates on the “right side” of an image, that it, just one
     half of a cylindrically symmetric image, with the axial pixels located in
