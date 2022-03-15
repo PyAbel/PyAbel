@@ -1,14 +1,16 @@
 PyAbel README
 =============
 
-.. only:: html
+.. begin-github-only1
 
-    .. image:: https://travis-ci.com/PyAbel/PyAbel.svg?branch=master
-        :target: https://travis-ci.com/PyAbel/PyAbel
-    .. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
-        :target: https://ci.appveyor.com/project/PyAbel/PyAbel
+.. image:: https://travis-ci.com/PyAbel/PyAbel.svg?branch=master
+    :target: https://travis-ci.com/PyAbel/PyAbel
+.. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
+    :target: https://ci.appveyor.com/project/PyAbel/PyAbel
 
 **Note:** This readme is best viewed as part of the `PyAbel Documentation <https://pyabel.readthedocs.io/en/latest/readme_link.html>`__.
+
+.. end-github-only1
 
 
 Introduction
@@ -208,10 +210,12 @@ First and foremost, please cite the paper(s) corresponding to the implementation
 
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. You can find the DOI for the lastest verison at `Zenodo <https://dx.doi.org/10.5281/zenodo.594858>`__.
 
-.. only:: html
+.. begin-github-only2
 
-    .. image:: https://zenodo.org/badge/30170345.svg
-        :target: https://zenodo.org/badge/latestdoi/30170345
+.. image:: https://zenodo.org/badge/30170345.svg
+    :target: https://zenodo.org/badge/latestdoi/30170345
+
+.. end-github-only2
 
 Additionally, we have written a scientific paper comparing various Abel transform methods. You can find the manuscript at the Review of Scientific Instruments (DOI: `doi.org/10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`__) or on arxiv (`arxiv.org/abs/1902.09007 <https://arxiv.org/abs/1902.09007>`__).
 
