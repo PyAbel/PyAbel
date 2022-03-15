@@ -20,3 +20,12 @@ span.eqno a.headerlink {
 div.math:hover a.headerlink {
     visibility: visible;
 }
+
+/*
+ * Other adjustments
+ */
+
+/* Make text black instead of gray */
+body {
+    color: black;
+}
