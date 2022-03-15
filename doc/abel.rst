@@ -128,6 +128,11 @@ abel.tools.polynomial module
     :show-inheritance:
     :exclude-members: cache
 
+.. toctree::
+    :hidden:
+
+    tools/polynomial
+
 abel.tools.transform_pairs module
 ----------------------------------
 

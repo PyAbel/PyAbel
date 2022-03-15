@@ -76,15 +76,15 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
     .. note::  Image should be a right-side image, like this::
 
-        .         +--------      +--------+
-        .         |      *       | *      |
-        .         |   *          |    *   |  <---------- im
-        .         |  *           |     *  |
-        .         +--------      o--------+
-        .         |  *           |     *  |
-        .         |   *          |    *   |
-        .         |     *        | *      |
-        .         +--------      +--------+
+            +--------    +--------+
+            |      *     | *      |
+            |   *        |    *   |  <---- im
+            |  *         |     *  |
+            +--------    o--------+
+            |  *         |     *  |
+            |   *        |    *   |
+            |     *      | *      |
+            +--------    +--------+
 
         In accordance with all PyAbel methods the image origin ``o`` is
         defined to be mid-pixel i.e. an odd number of columns, for the

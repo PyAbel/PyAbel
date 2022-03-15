@@ -296,6 +296,8 @@ latex_elements = {
         \setlength{\arrayrulewidth}{0pt}
         % increase row separation
         \def\arraystretch{1.5}
+    % override hyphenation
+    \hyphenation{BASEX Py-Abel}
     ''',
 
 # Latex figure (float) alignment

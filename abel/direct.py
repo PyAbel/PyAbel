@@ -71,14 +71,14 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
     PyAbel with Numpy, Cython, and a C-compiler already installed.
 
     By default, integration at all other pixels is performed using the
-    Trapezoidal rule.
+    trapezoidal rule.
 
     Parameters
     ----------
 
-    fr : 1d or 2d numpy array
+    fr : 1D or 2D numpy array
         input array to which direct/inverse Abel transform will be applied.
-        For a 2d array, the first dimension is assumed to be the z axis and
+        For a 2D array, the first dimension is assumed to be the z axis and
         the second the r axis.
     dr : float
         spatial mesh resolution (optional, default to 1.0)

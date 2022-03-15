@@ -8,7 +8,7 @@ Introduction
 The onion peeling method, also known as "back projection" has been 
 ported to Python from the original Matlab implementation, created by 
 Chris Rallis and Eric Wells of Augustana University, and described in 
-[1]_. The algorithm actually originates from Bordas ~et al. [2]_.
+[1]_. The algorithm actually originates from Bordas et al. [2]_.
 
 See the discussion in `issue #56 <https://github.com/PyAbel/PyAbel/issues/56>`_.
 

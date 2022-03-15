@@ -53,10 +53,8 @@ source, projection : tuple of 1D numpy arrays of shape `r`
 
 
 def a(n, r):
-    r""" coefficient
-
-        .. math:: a_n = \sqrt{n^2 - r^2}
-
+    r"""
+    Coefficient :math:`a_n = \sqrt{n^2 - r^2}`.
     """
 
     return np.sqrt(n*n - r*r)

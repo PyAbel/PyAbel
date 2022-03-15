@@ -257,12 +257,6 @@ A comparison of the time required to complete an inverse Abel transform versus t
 The ``basex``, ``onion_peeling``, ``three_point``, and ``two_point`` methods run much faster if appropriately sized basis sets have been pre-calculated. For the ``basex`` method, the time for this pre-calculation is orders of magnitude longer than the transform time (:numref:`fig_btime`). For the Dasch methods (``onion_peeling``, ``three_point``, and ``two_point``), the pre-calculation is significantly longer than the transform time for image sizes smaller than 2000 pixels. For larger image sizes, the pre-calculation of the basis sets approaches the same speed as the transform itself. In particular, for the ``two_point`` method, the pre-calculation of the basis sets actually becomes faster than the image transform for *n* ≳ 4000. For the ``daun`` and ``linbasex`` methods, the pre-calculation of the basis sets is consistently faster than the transform itself, suggesting that the pre-calculation of basis sets isn't necessary for these methods.
 
 
-.. toctree::
-    :hidden:
-
-    comparison/fig_benchmarks/benchmarks
-
-
 Conclusion
 ----------
 
@@ -351,3 +345,9 @@ Methods recommended for educational purposes only (these methods are generally s
 .. [whitaker2003] \ B. J. Whitaker. Imaging in Molecular Dynamics: Technology and Applications. Cambridge University Press, 2003. ISBN 9781139437905. `books.google.com/books?id=m8AYdeM3aRYC <https://books.google.com/books?id=m8AYdeM3aRYC>`_.
 
 .. [yurchak2015] Roman Yurchak. Experimental and numerical study of accretion-ejection mechanisms in laboratory astrophysics. Thesis, Ecole Polytechnique (EDX), 2015. `tel.archives-ouvertes.fr/tel-01338614 <https://tel.archives-ouvertes.fr/tel-01338614>`_.
+
+
+.. toctree::
+    :hidden:
+
+    comparison/fig_benchmarks/benchmarks

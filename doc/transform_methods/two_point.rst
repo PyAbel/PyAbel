@@ -5,9 +5,9 @@ Two Point  (Dasch)
 Introduction
 ------------
 
-The "Dasch two-point" deconvolution algorithm is one of several
-described in the Dasch paper [1]_. See also the ``three_point`` and
-``onion_peeling`` descriptions.
+The "Dasch two-point" deconvolution algorithm is one of several described in
+the Dasch paper [1]_. See also the :doc:`“three-point” <three_point>` and
+:doc:`“onion peeling” <onion_peeling>` descriptions.
 
 How it works
 ------------

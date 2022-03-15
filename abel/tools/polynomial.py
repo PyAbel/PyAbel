@@ -20,11 +20,6 @@ except ImportError:  # no functools in Python 2
 
 __doc__ = """
 See :ref:`Polynomials` for details and examples.
-
-.. toctree::
-    :hidden:
-
-    tools/polynomial
 """
 
 

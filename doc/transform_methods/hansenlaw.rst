@@ -178,11 +178,11 @@ where :math:`[\tilde{A}, \tilde{B}, \tilde{C}]` realize the impulse response: :m
 
   .. math::
 
-    \tilde{A} = \rm{diag}[\lambda_1, \lambda_2, ..., \lambda_K]
+    \tilde{A} &= \rm{diag}[\lambda_1, \lambda_2, ..., \lambda_K]
 
-    \tilde{B} = [h_1, h_2, ..., h_K]^T
+    \tilde{B} &= [h_1, h_2, ..., h_K]^T
 
-    \tilde{C} = [1, 1, ..., 1]
+    \tilde{C} &= [1, 1, ..., 1]
 
 The differential equations have the transform solutions, forward:
 
