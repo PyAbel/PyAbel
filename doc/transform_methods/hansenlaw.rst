@@ -35,9 +35,15 @@ How it works
    (In "html", it also doesn't properly break long lines in captions, so this
    is done manually below...)
 
+.. plot:: transform_methods/hansenlaw-proj.py
+    :nofigs:
+
+.. plot:: transform_methods/hansenlaw-recur.py
+    :nofigs:
+
 .. only:: html
 
-   .. plot:: transform_methods/hansenlaw-proj.py
+   .. figure:: hansenlaw-proj.*
       :align: right
 
       Projection geometry (Fig. 1 [1]_)
@@ -55,11 +61,11 @@ The corresponding inverse Abel transform is
 
    .. list-table::
 
-      * - .. plot:: transform_methods/hansenlaw-proj.py
+      * - .. figure:: hansenlaw-proj.*
 
               Projection geometry (Fig. 1 [1]_)
 
-        - .. plot:: transform_methods/hansenlaw-recur.py
+        - .. figure:: hansenlaw-recur.*
 
               Recursion: pixel value from adjacent outer-pixel
 
@@ -74,7 +80,7 @@ More detail is given :ref:`below <themath>`.
 
 .. only:: html
 
-   .. plot:: transform_methods/hansenlaw-recur.py
+   .. figure:: hansenlaw-recur.*
       :align: right
 
       Recursion: pixel value from |br| adjacent outer-pixel

@@ -41,5 +41,6 @@ for n in range(7):
 
 plt.subplots_adjust(0.02, 0.19, 0.83, 0.98)
 
-#plt.savefig('hansenlaw-proj.svg')
+plt.savefig('hansenlaw-recur.svg')
+plt.savefig('hansenlaw-recur.pdf')
 #plt.show()

@@ -42,5 +42,6 @@ plt.xlim((-1.1, 1.3))
 plt.ylim((0, 3.2))
 plt.subplots_adjust(0.02, 0.05, 0.98, 0.98)
 
-#plt.savefig('hansenlaw-proj.svg')
+plt.savefig('hansenlaw-proj.svg')
+plt.savefig('hansenlaw-proj.pdf')
 #plt.show()
