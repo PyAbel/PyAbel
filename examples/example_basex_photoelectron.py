@@ -17,11 +17,11 @@ import abel
 # This spectrum was recorded in 2012 in the Kapteyn-Murnane research group at 
 # JILA / The University of Colorado at Boulder
 # by Dan Hickstein and co-workers (contact DanHickstein@gmail.com)
-# http://journals.aps.org/prl/abstract/10.1103/PhysRevLett.109.073004
+# https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.109.073004
 #
 # Before you start your own transform, identify the central pixel of the image.
 # It's nice to use a program like ImageJ for this. 
-# http://imagej.nih.gov/ij/
+# https://imagej.nih.gov/ij/
 
 # Specify the path to the file
 filename = os.path.join('data', 'Xenon_ATI_VMI_800_nm_649x519.tif')

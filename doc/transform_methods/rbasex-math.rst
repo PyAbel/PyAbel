@@ -811,7 +811,7 @@ near them is reduced.
        dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and
        CD\ :sub:`2`\ OH)”,
        Ph.D. dissertation, University of Southern California, 2012.
-       (`ProQuest <https://search.proquest.com/docview/1289069738>`__,
+       (`ProQuest <https://www.proquest.com/docview/1289069738>`__,
        `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`__).
 
 .. [2] \ G. A. Garcia, L. Nahon, I. Powis,

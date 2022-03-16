@@ -22,7 +22,7 @@ When a robust forward transform is required, this method works quite well. It is
 How to use it
 -------------
 
-To complete the forward or inverse transform of a full image with the direct method, simply use the :class:`abel.Transform` class: ::
+To complete the forward or inverse transform of a full image with the direct method, simply use the :class:`abel.Transform <abel.transform.Transform>` class::
 
     abel.Transform(myImage, method='direct', direction='forward').transform
     abel.Transform(myImage, method='direct', direction='inverse').transform

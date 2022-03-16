@@ -302,7 +302,7 @@ class GaussianAnalytical(BaseAnalytical):
         0 < r < ration_valid_sigma * sigma
         (exclude possible artefacts on the axis and the possibly clipped tail)
     """
-    # Source: http://mathworld.wolfram.com/AbelTransform.html
+    # Source: https://mathworld.wolfram.com/AbelTransform.html
 
     def __init__(self, n, r_max, sigma=1.0, A0=1.0,
                  ratio_valid_sigma=2.0, symmetric=True):

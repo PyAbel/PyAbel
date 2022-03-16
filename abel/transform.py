@@ -27,7 +27,7 @@ from abel import _deprecated, _deprecate
 
 class Transform(object):
     r"""
-    Abel transform image class.
+    Abel transform image class. Also accessible as :class:`abel.Transform`.
 
     This class provides whole-image forward and inverse Abel
     transforms, together with preprocessing (centering, symmetrizing)
@@ -145,7 +145,17 @@ class Transform(object):
 
     transform_options : dict
         Additional arguments passed to the individual transform functions.
-        See the documentation for the individual transform method for options.
+        See the documentation for the individual transform method for options:
+        :func:`basex <abel.basex.basex_transform>`,
+        :func:`daun <abel.daun.daun_transform>`,
+        :func:`direct <abel.direct.direct_transform>`,
+        :func:`hansenlaw <abel.hansenlaw.hansenlaw_transform>`,
+        :func:`linbasex <abel.linbasex.linbasex_transform>`,
+        :func:`onion_bordas <abel.onion_bordas.onion_bordas_transform>`,
+        :func:`onion_peeling <abel.dasch.onion_peeling_transform>`,
+        :func:`rbasex <abel.rbasex.rbasex_transform>`,
+        :func:`three_point <abel.dasch.three_point_transform>`,
+        :func:`two_point <abel.dasch.two_point_transform>`.
 
     center_options : dict
         Additional arguments to be passed to the centering function,
@@ -321,7 +331,7 @@ class Transform(object):
         “Two-dimensional charged particle image inversion using a polar basis
         function expansion”,
         `Rev. Sci. Instrum. 75, 4989–2996 (2004)
-        <http://doi.org/10.1063/1.1807578>`__
+        <https://doi.org/10.1063/1.1807578>`__
         adapts the BASEX ("basis set expansion") method to the specific case of
         velocity-mapping images by using a basis of 2D functions in polar
         coordinates, such that the reconstructed radial distributions are
@@ -336,7 +346,7 @@ class Transform(object):
         dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and
         CD\ :sub:`2`\ OH)”,
         Ph.D. dissertation, University of Southern California, 2012
-        (`ProQuest <https://search.proquest.com/docview/1289069738>`__,
+        (`ProQuest <https://www.proquest.com/docview/1289069738>`__,
         `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`__).
 
     ``three_point`` *

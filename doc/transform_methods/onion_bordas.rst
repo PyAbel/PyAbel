@@ -34,7 +34,8 @@ How to use it
 -------------
 
 To complete the inverse transform of a full image with the
-``onion_bordas`` method, simply use the :class:`abel.Transform`: class ::
+``onion_bordas`` method, simply use the :class:`abel.Transform
+<abel.transform.Transform>` class::
 
     abel.Transform(myImage, method='onion_bordas').transform
 

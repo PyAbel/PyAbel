@@ -42,7 +42,7 @@ states that it has less smoothing that other methods (discussed in Dasch).
 How to use it
 -------------
 
-To complete the inverse transform of a full image with the ``onion_dasch`` method, simply use the :class:`abel.Transform` class: ::
+To complete the inverse transform of a full image with the ``onion_dasch`` method, simply use the :class:`abel.Transform <abel.transform.Transform>` class::
 
     abel.Transform(myImage, method='onion_peeling').transform
 

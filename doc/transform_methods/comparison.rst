@@ -294,7 +294,7 @@ Methods recommended for educational purposes only (these methods are generally s
 
 .. [chandler1987] David W. Chandler and Paul L. Houston. Two-dimensional imaging of state-selected photodissociation products detected by multiphoton ionization. J. Chem. Phys., **87**, 1445, 1987. DOI: `10.1063/1.453276 <https://doi.org/10.1063/1.453276>`_.
 
-.. [cignoli2001] Francesco Cignoli, Silvana De Iuliis, Vittorio Manta, and Giorgio Zizak. Two-dimensional two-wavelength emission technique for soot diagnostics. Appl. Opt., **40**, 5370, 2001. DOI: `10.1364/AO.40.005370 <http://doi.org/10.1364/AO.40.005370>`_.
+.. [cignoli2001] Francesco Cignoli, Silvana De Iuliis, Vittorio Manta, and Giorgio Zizak. Two-dimensional two-wavelength emission technique for soot diagnostics. Appl. Opt., **40**, 5370, 2001. DOI: `10.1364/AO.40.005370 <https://doi.org/10.1364/AO.40.005370>`_.
 
 .. [coppersmith1990] Don Coppersmith and Shmuel Winograd. Matrix multiplication via arithmetic progressions. J. Symb. Comput., **9**, 251, 1990. DOI: `10.1016/S0747-7171(08)80013-2 <https://doi.org/10.1016/S0747-7171(08)80013-2>`_.
 
@@ -304,7 +304,7 @@ Methods recommended for educational purposes only (these methods are generally s
 
 .. [demicheli2017] Enrico De Micheli. A fast algorithm for the inversion of Abel’s transform. Appl. Math. Comput., **301**, 12, 2017. DOI: `10.1016/j.amc.2016.12.009 <https://doi.org/10.1016/j.amc.2016.12.009>`_.
 
-.. [dick2014] Bernhard Dick. Inverting ion images without Abel inversion: maximum entropy reconstruction of velocity maps. Phys. Chem. Chem. Phys., **16**, 570, 2014. DOI: `10.1039/C3CP53673D <http://doi.org/10.1039/C3CP53673D>`_.
+.. [dick2014] Bernhard Dick. Inverting ion images without Abel inversion: maximum entropy reconstruction of velocity maps. Phys. Chem. Chem. Phys., **16**, 570, 2014. DOI: `10.1039/C3CP53673D <https://doi.org/10.1039/C3CP53673D>`_.
 
 .. [deiluliis1998] \ S. De Iuliis, M. Barbini, S. Benecchi, F. Cignoli, and G. Zizak. Determination of the soot volume fraction in an ethylene diffusion flame by multiwavelength analysis of soot radiation. Combust. Flame, **115**, 253, 1998. DOI: `10.1016/S0010-2180(97)00357-X <https://doi.org/10.1016/S0010-2180(97)00357-X>`_.
 
@@ -316,7 +316,7 @@ Methods recommended for educational purposes only (these methods are generally s
 
 .. [gascooke2000] Jason R. Gascooke. Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation. PhD thesis, Flinders University, SA 5001, Australia, 2000. Available at `github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`_.
 
-.. [gascooke2017] Jason R. Gascooke, Stephen T. Gibson, and Warren D. Lawrance. A “circularisation” method to repair deformations and determine the centre of velocity map images. J. Chem. Phys., **147**, 013924, 2017. DOI: `10.1063/1.4981024 <http://doi.org10.1063/1.4981024>`_.
+.. [gascooke2017] Jason R. Gascooke, Stephen T. Gibson, and Warren D. Lawrance. A “circularisation” method to repair deformations and determine the centre of velocity map images. J. Chem. Phys., **147**, 013924, 2017. DOI: `10.1063/1.4981024 <https://doi.org/10.1063/1.4981024>`_.
 
 .. [gerber2013] Thomas Gerber, Yuzhu Liu, Gregor Knopp, Patrick Hemberger, Andras Bodi, Peter Radi, and Yaroslav Sych. Charged particle velocity map image reconstruction with one-dimensional projections of spherical functions. Rev. Sci. Instrum., **84**, 033101, 2013. DOI: `10.1063/1.4793404 <https://doi.org/10.1063/1.4793404>`_.
 
@@ -332,11 +332,11 @@ Methods recommended for educational purposes only (these methods are generally s
 
 .. [hickstein2019] Daniel D. Hickstein, Stephen T. Gibson, Roman Yurchak, Dhrubajyoti D. Das, Mikhail Ryazanov. A direct comparison of high-speed methods for the numerical Abel transform. Rev. Sci. Instrum., **90**, 065115, 2019. DOI: `10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`_.
 
-.. [lumpe2007] \ J. D. Lumpe, L. E. Floyd, L. C. Herring, S. T. Gibson, and B. R. Lewis. Measurements of thermospheric molecular oxygen from the solar ultraviolet spectral irradiance monitor. J. Geophys. Res. Atmos., **112**, D16308, 2007. DOI: `10.1029/2006JD008076 <http://doi.org/10.1029/2006JD008076>`_.
+.. [lumpe2007] \ J. D. Lumpe, L. E. Floyd, L. C. Herring, S. T. Gibson, and B. R. Lewis. Measurements of thermospheric molecular oxygen from the solar ultraviolet spectral irradiance monitor. J. Geophys. Res. Atmos., **112**, D16308, 2007. DOI: `10.1029/2006JD008076 <https://doi.org/10.1029/2006JD008076>`_.
 
 .. [rallis2014] \ C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin, S. De, B. Bergues, Bethany Jochim,A. V. Voznyuk, Neal Gregerson, B. Gaire, I. Znakovskaya, J. McKenna, K. D. Carnes, M. F. Kling, I. Ben-Itzhak, and E. Wells. Incorporating real time velocity map image reconstruction into closed-loop coherent control. Rev. Sci. Instrum., **85**, 113105, 2014. DOI: `10.1063/1.4899267 <https://doi.org/10.1063/1.4899267>`_.
 
-.. [ryazanov2012] Mikhail Ryazanov. Development and implementation of methods for sliced velocity map imaging. Studies of overtone-induced dissociation and isomerization dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and CD\ :sub:`2`\ OH). PhD thesis, University of Southern California, 2012. `search.proquest.com/docview/1289069738 <https://search.proquest.com/docview/1289069738>`_
+.. [ryazanov2012] Mikhail Ryazanov. Development and implementation of methods for sliced velocity map imaging. Studies of overtone-induced dissociation and isomerization dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and CD\ :sub:`2`\ OH). PhD thesis, University of Southern California, 2012. `www.proquest.com/docview/1289069738 <https://www.proquest.com/docview/1289069738>`_
 
 .. [snelling1999] David R. Snelling, Kevin A. Thomson, Gregory J. Smallwood, and Ömer L. Gülder. Two-dimensional imaging of soot volume fraction in laminar diffusion flames. Appl. Opt., **38**, 2478, 1999. DOI: `10.1364/AO.38.002478 <https://doi.org/10.1364/AO.38.002478>`_.
 

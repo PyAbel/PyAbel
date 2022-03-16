@@ -417,7 +417,7 @@ def cache_cleanup(select='all'):
     """
     Utility function.
 
-    Frees the memory caches created by ``get_bs_cached()``.
+    Frees the memory caches created by :func:`get_bs_cached`.
     This is usually pointless, but might be required after working
     with very large images, if more RAM is needed for further tasks.
 

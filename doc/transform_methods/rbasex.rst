@@ -130,7 +130,7 @@ special case, it offers several benefits:
 How to use it
 -------------
 
-The method can be accessed through the universal :class:`Transform
+The method can be accessed through the universal :class:`abel.Transform
 <abel.transform.Transform>` class::
 
     res = abel.Transform(image, method='rbasex')
@@ -218,7 +218,7 @@ This method has not yet been published elsewhere, so please cite it as the
        dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and
        CD\ :sub:`2`\ OH)”,
        Ph.D. dissertation, University of Southern California, 2012.
-       (`ProQuest <https://search.proquest.com/docview/1289069738>`__,
+       (`ProQuest <https://www.proquest.com/docview/1289069738>`__,
        `USC <https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4>`__).
 
 .. [1] |ref1|

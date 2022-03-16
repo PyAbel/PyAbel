@@ -26,7 +26,7 @@ incorporates no smoothing.
 How to use it
 -------------
 
-To complete the inverse transform of a full image with the ``two_point method``, simply use the :class:`abel.Transform` class: ::
+To complete the inverse transform of a full image with the ``two_point method``, simply use the :class:`abel.Transform <abel.transform.Transform>` class::
 
     abel.Transform(myImage, method='two_point').transform
 

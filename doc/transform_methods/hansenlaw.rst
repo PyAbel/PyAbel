@@ -122,7 +122,8 @@ How to use it
 -------------
 
 To complete the forward or inverse transform of a full image with the
-``hansenlaw method``, simply use the :class:`abel.Transform`: class::
+``hansenlaw method``, simply use the :class:`abel.Transform
+<abel.transform.Transform>` class::
 
     abel.Transform(myImage, method='hansenlaw', direction='forward').transform
     abel.Transform(myImage, method='hansenlaw', direction='inverse').transform
@@ -220,7 +221,7 @@ Citation
 
 .. |ref2| replace:: \ E. W. Hansen, "Fast Hankel transform algorithm", `IEEE Trans. Acoust. Speech Signal Proc. 33, 666–671 (1985) <https://dx.doi.org/10.1109/TASSP.1985.1164579>`__
 
-.. |ref3| replace:: \ J. R. Gascooke, PhD Thesis: "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation", Flinders University (2000), (`record <https://trove.nla.gov.au/version/41486301>`__, `PDF <https://github.com/PyAbel/abel_info/raw/master/Gascooke_Thesis.pdf>`__).
+.. |ref3| replace:: \ J. R. Gascooke, PhD Thesis: "Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation", Flinders University (2000), (`record <https://trove.nla.gov.au/version/41486301>`__, `PDF <https://raw.githubusercontent.com/PyAbel/abel_info/master/Gascooke_Thesis.pdf>`__).
 
 .. [1] |ref1|
 

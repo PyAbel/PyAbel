@@ -27,7 +27,7 @@ He also notes that this technique works best for cases where the real difference
 How to use it
 -------------
 
-To complete the inverse transform of a full image with the ``three_point method``, simply use the :class:`abel.Transform` class: ::
+To complete the inverse transform of a full image with the ``three_point method``, simply use the :class:`abel.Transform <abel.transform.Transform>` class::
 
     abel.Transform(myImage, method='three_point', direction='inverse').transform
 
@@ -56,7 +56,7 @@ Citation
 
 .. |ref1| replace:: \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`__.
 
-.. |ref2| replace:: \ K. Martin, PhD Thesis: "Acoustic Modification of Sooting Combustion", University of Texas at Austin (2002) (`record <http://hdl.handle.net/2152/1654>`__, `PDF <https://repositories.lib.utexas.edu/bitstream/handle/2152/1654/martinkm07836.pdf>`__).
+.. |ref2| replace:: \ K. Martin, PhD Thesis: "Acoustic Modification of Sooting Combustion", University of Texas at Austin (2002) (`record <https://repositories.lib.utexas.edu/handle/2152/1654>`__, `PDF <https://repositories.lib.utexas.edu/bitstream/handle/2152/1654/martinkm07836.pdf>`__).
 
 .. [1] |ref1|
 
