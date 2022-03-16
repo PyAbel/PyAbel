@@ -56,7 +56,7 @@ clean:
 	rm -rf $(BUILDDIR)/*
 
 livehtml:
-	sphinx-autobuild -b html -z ../ --open-browser $(LIVEHTMLOPTS) $(BUILDDIR)/html
+	sphinx-autobuild -b html --watch ../ --open-browser $(LIVEHTMLOPTS) $(BUILDDIR)/html
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
