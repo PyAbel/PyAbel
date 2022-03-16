@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import abel
+from abel.tools.circularize import circularize, circularize_image
 import scipy.interpolate
 
 #######################################################################
@@ -25,14 +26,12 @@ def flower_scaling(theta, freq=2, amp=0.1):
     return 1 + amp * np.sin(freq * theta)**4
 
 # distort the image
-IMdist = abel.tools.circularize.circularize(IMf,
-                                            radial_correction_function=flower_scaling)
+IMdist = circularize(IMf, radial_correction_function=flower_scaling)
 
 # circularize ------------
-IMcirc, sla, sc, scspl = \
-    abel.tools.circularize.circularize_image(IMdist,
-                                             method='lsq', dr=0.5, dt=0.1,
-                                             tol=0, return_correction=True)
+IMcirc, sla, sc, scspl = circularize_image(IMdist,
+                                           method='lsq', dr=0.5, dt=0.1,
+                                           tol=0, return_correction=True)
 
 # inverse Abel transform for distored and circularized images ---------
 AIMdist = abel.Transform(IMdist, method="three_point").transform

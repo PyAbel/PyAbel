@@ -4,17 +4,17 @@ import matplotlib.pyplot as plt
 import abel
 
 transforms = [
-    ('basex',         abel.basex.basex_transform),
+    ('basex',             abel.basex.basex_transform),
     (r'daun\ (degree=1)', lambda *args, **kwargs:
-                      abel.daun.daun_transform(*args, degree=1, **kwargs)),
+                          abel.daun.daun_transform(*args, degree=1, **kwargs)),
     (r'daun\ (degree=3)', lambda *args, **kwargs:
-                      abel.daun.daun_transform(*args, degree=3, **kwargs)),
-    ('direct',        abel.direct.direct_transform),
-    ('hansenlaw',     abel.hansenlaw.hansenlaw_transform),
-    ('onion_bordas',  abel.onion_bordas.onion_bordas_transform),
-    ('onion_peeling', abel.dasch.onion_peeling_transform),
-    ('three_point',   abel.dasch.three_point_transform),
-    ('two_point',     abel.dasch.two_point_transform)
+                          abel.daun.daun_transform(*args, degree=3, **kwargs)),
+    ('direct',            abel.direct.direct_transform),
+    ('hansenlaw',         abel.hansenlaw.hansenlaw_transform),
+    ('onion_bordas',      abel.onion_bordas.onion_bordas_transform),
+    ('onion_peeling',     abel.dasch.onion_peeling_transform),
+    ('three_point',       abel.dasch.three_point_transform),
+    ('two_point',         abel.dasch.two_point_transform)
 ]
 
 ntrans = len(transforms)  # number of transforms

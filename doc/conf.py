@@ -37,11 +37,11 @@ else:
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
-            return Mock()
+        return Mock()
 
-# MOCK_MODULES = ['numpy', 'scipy', 'scipy.special', 'numpy.linalg', 'scipy.ndimage', 'scipy.ndimage',
-#         'scipy.linalg', 'scipy.integrate', 'scipy.optimize']
-#
+# MOCK_MODULES = ['numpy', 'scipy', 'scipy.special', 'numpy.linalg',
+#                 'scipy.ndimage', 'scipy.ndimage', 'scipy.linalg',
+#                 'scipy.integrate', 'scipy.optimize']
 MOCK_MODULES = []
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
@@ -253,57 +253,56 @@ plot_html_show_formats = False
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+    # The paper size ('letterpaper' or 'a4paper').
+    #'papersize': 'letterpaper',
 
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+    # The font size ('10pt', '11pt' or '12pt').
+    #'pointsize': '10pt',
 
-# Extra options for documentclass
-'extraclassoptions': 'openany', # allow chapter to start on even pages
+    # Extra options for documentclass
+    'extraclassoptions': 'openany',  # allow chapter to start on even pages
 
-# Disable "fancy" chapter formatting
-'fncychap': '',
+    # Disable "fancy" chapter formatting
+    'fncychap': '',
 
-# Additional options for packages
-'passoptionstopackages': r'\PassOptionsToPackage{table}{xcolor}',
+    # Additional options for packages
+    'passoptionstopackages': r'\PassOptionsToPackage{table}{xcolor}',
 
-# Additional stuff for the LaTeX preamble.
-'preamble':
-    r'''
-    % additional Unicode characters:
-    \DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}} % β
-    \DeclareUnicodeCharacter{03B8}{\ensuremath{\theta}} % θ
-    \DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}} % π
-    \DeclareUnicodeCharacter{202F}{\,} % narrow nbsp
-    \DeclareUnicodeCharacter{2212}{\ensuremath{-}} % −
-    \DeclareUnicodeCharacter{2225}{\ensuremath{\parallel}} % ∥
-    \DeclareUnicodeCharacter{2248}{\ensuremath{\approx}} % ≈
-    \DeclareUnicodeCharacter{2260}{\ensuremath{\ne}} % ≠
-    \DeclareUnicodeCharacter{2264}{\ensuremath{\le}} % ≤
-    \DeclareUnicodeCharacter{2265}{\ensuremath{\ge}} % ≥
-    \DeclareUnicodeCharacter{226A}{\ensuremath{\ll}} % ≪
-    \DeclareUnicodeCharacter{2272}{\ensuremath{\lesssim}} % ≲
-    \DeclareUnicodeCharacter{2273}{\ensuremath{\gtrsim}} % ≳
-    \DeclareUnicodeCharacter{22C5}{\ensuremath{\cdot}} % ⋅
-    \DeclareUnicodeCharacter{27C2}{\ensuremath{\perp}} % ⟂
-    % allow line break after underscore (some code doesn't fit otherwise)
-    \renewcommand\_{\textunderscore\allowbreak}
-    % table styling:
-        % light gray background for headers
-        \protected\def\sphinxstyletheadfamily{\cellcolor{black!10}}
-        % remove all lines (TODO: how to keep top and bottom?)
-        \setlength{\arrayrulewidth}{0pt}
-        % increase row separation
-        \def\arraystretch{1.5}
-    % override hyphenation
-    \hyphenation{BASEX Py-Abel}
-    ''',
+    # Additional stuff for the LaTeX preamble.
+    'preamble':
+        r'''
+        % additional Unicode characters:
+        \DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}} % β
+        \DeclareUnicodeCharacter{03B8}{\ensuremath{\theta}} % θ
+        \DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}} % π
+        \DeclareUnicodeCharacter{202F}{\,} % narrow nbsp
+        \DeclareUnicodeCharacter{2212}{\ensuremath{-}} % −
+        \DeclareUnicodeCharacter{2225}{\ensuremath{\parallel}} % ∥
+        \DeclareUnicodeCharacter{2248}{\ensuremath{\approx}} % ≈
+        \DeclareUnicodeCharacter{2260}{\ensuremath{\ne}} % ≠
+        \DeclareUnicodeCharacter{2264}{\ensuremath{\le}} % ≤
+        \DeclareUnicodeCharacter{2265}{\ensuremath{\ge}} % ≥
+        \DeclareUnicodeCharacter{226A}{\ensuremath{\ll}} % ≪
+        \DeclareUnicodeCharacter{2272}{\ensuremath{\lesssim}} % ≲
+        \DeclareUnicodeCharacter{2273}{\ensuremath{\gtrsim}} % ≳
+        \DeclareUnicodeCharacter{22C5}{\ensuremath{\cdot}} % ⋅
+        \DeclareUnicodeCharacter{27C2}{\ensuremath{\perp}} % ⟂
+        % allow line break after underscore (some code doesn't fit otherwise)
+        \renewcommand\_{\textunderscore\allowbreak}
+        % table styling:
+            % light gray background for headers
+            \protected\def\sphinxstyletheadfamily{\cellcolor{black!10}}
+            % remove all lines (TODO: how to keep top and bottom?)
+            \setlength{\arrayrulewidth}{0pt}
+            % increase row separation
+            \def\arraystretch{1.5}
+        % override hyphenation
+        \hyphenation{BASEX Py-Abel}
+        ''',
 
-# Latex figure (float) alignment
-'figure_align': 'H', # don't float images (most of them don't have captions)
+    # LaTeX figure (float) alignment
+    'figure_align': 'H',  # don't float images (most have no captions)
 }
-
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,

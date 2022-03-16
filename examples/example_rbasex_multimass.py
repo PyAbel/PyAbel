@@ -100,7 +100,8 @@ plt.subplot(222)
 plt.title('Distributions: left image')
 # the reconstructed image is not used in this example, so it is not created;
 # also notice that order=0 is enough for this totally isotropic case
-_, distr = rbasex_transform(im, origin=origin1, rmax=r1, order=0, weights=mask1, out=None)
+_, distr = rbasex_transform(im, origin=origin1, rmax=r1, order=0,
+                            weights=mask1, out=None)
 r, I = distr.rIbeta()
 plt.plot(r, I, c=rgb(0), label='$I(r)$')
 plt.legend()
@@ -110,7 +111,7 @@ plt.autoscale(enable=True, tight=True)
 plt.subplot(223)
 plt.title('Distributions: central image')
 # here the default order=2 is needed and used
-_, distr = rbasex_transform(im, origin=origin2, rmax=r2, weights=mask2, out=None)
+_, distr = rbasex_transform(im, origin=origin2, rmax=r2,weights=mask2, out=None)
 r, I, beta = distr.rIbeta()
 plt.plot(r, I, c=rgb(1), label='$I(r)$')
 # beta(r) I(r) is the "speed distribution" of P_2(r)

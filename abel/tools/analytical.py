@@ -62,7 +62,7 @@ class BaseAnalytical(object):
 
 
 class StepAnalytical(BaseAnalytical):
-    """
+    r"""
     Define a step function and calculate its analytical Abel transform:
 
     ..
