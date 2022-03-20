@@ -84,3 +84,4 @@ def plot(directory, xlim, ylim, linex):
 if __name__ == "__main__":
     plot('i7-9700_Linux', xlim=(5, 1e5), ylim=(7e-7, 1e4), linex=1e2)
     plt.savefig('transform_time.svg')
+    plt.savefig('transform_time.pdf')

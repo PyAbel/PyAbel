@@ -13,3 +13,7 @@ python:
 sphinx:
  # treat warnings as build errors
  fail_on_warning: true
+
+# Also build downloadable PDF
+formats:
+ - pdf

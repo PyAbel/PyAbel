@@ -42,13 +42,13 @@ eBE, PES = abel.tools.vmi.toPES(*AIM.angular_integration,
                                 zoom=IM.shape[-1]/2048)
 
 # Set up some axes
-fig = plt.figure(figsize=(15, 4))
+fig = plt.figure(figsize=(15, 4.5))
 ax1 = plt.subplot2grid((1, 3), (0, 0))
 ax2 = plt.subplot2grid((1, 3), (0, 1))
 ax3 = plt.subplot2grid((1, 3), (0, 2))
 
 # raw image
-im1 = ax1.imshow(IM, aspect='auto', extent=[-512, 512, -512, 512])
+im1 = ax1.imshow(IM, extent=[-512, 512, -512, 512])
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
@@ -56,7 +56,7 @@ ax1.set_title('velocity map image: size {:d}x{:d}'.format(rows, cols))
 
 # 2D transform
 c2 = cols//2   # half-image width
-im2 = ax2.imshow(AIM.transform, aspect='auto', vmin=0,
+im2 = ax2.imshow(AIM.transform, vmin=0,
                  vmax=AIM.transform[:c2-50, :c2-50].max(),
                  extent=[-512, 512, -512, 512])
 fig.colorbar(im2, ax=ax2, fraction=.1, shrink=0.9, pad=0.03)
@@ -79,10 +79,9 @@ ax3.set_ylabel('intensity')
 ax3.set_title(r'O${_2}{^-}$ 454 nm photoelectron spectrum')
 
 # Prettify the plot a little bit:
-plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, wspace=0.35,
-                    hspace=0.37)
+plt.tight_layout()
 
 # save copy of the plot
-plt.savefig('plot_example_hansenlaw.png', dpi=100)
+# plt.savefig('plot_example_hansenlaw.png', dpi=100)
 
 plt.show()

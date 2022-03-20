@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import abel
+from abel.tools.circularize import circularize, circularize_image
 import scipy.interpolate
 
 #######################################################################
@@ -25,14 +26,12 @@ def flower_scaling(theta, freq=2, amp=0.1):
     return 1 + amp * np.sin(freq * theta)**4
 
 # distort the image
-IMdist = abel.tools.circularize.circularize(IMf,
-                                            radial_correction_function=flower_scaling)
+IMdist = circularize(IMf, radial_correction_function=flower_scaling)
 
 # circularize ------------
-IMcirc, sla, sc, scspl = \
-    abel.tools.circularize.circularize_image(IMdist,
-                                             method='lsq', dr=0.5, dt=0.1,
-                                             tol=0, return_correction=True)
+IMcirc, sla, sc, scspl = circularize_image(IMdist,
+                                           method='lsq', dr=0.5, dt=0.1,
+                                           tol=0, return_correction=True)
 
 # inverse Abel transform for distored and circularized images ---------
 AIMdist = abel.Transform(IMdist, method="three_point").transform
@@ -54,10 +53,10 @@ fig.subplots_adjust(wspace=0.5, hspace=0.5)
 
 extent = (np.min(-col // 2), np.max(col // 2),
           np.min(-row // 2), np.max(row // 2))
-axs[0, 0].imshow(IMdist, aspect='auto', origin='lower', extent=extent)
+axs[0, 0].imshow(IMdist, origin='lower', extent=extent)
 axs[0, 0].set_title("Ominus distorted sample image")
 
-axs[0, 1].imshow(AIMcirc, vmin=0, aspect='auto', origin='lower', extent=extent)
+axs[0, 1].imshow(AIMcirc, vmin=0, origin='lower', extent=extent)
 axs[0, 1].set_title("circ. + inv. Abel")
 
 axs[1, 0].plot(sla, sc, 'o')
@@ -77,5 +76,6 @@ axs[1, 1].legend(frameon=False)
 axs[1, 1].set_xlabel('radius (pixels)')
 axs[1, 1].set_ylabel('intensity')
 
-plt.savefig("plot_example_circularize_image.png", dpi=75)
+plt.tight_layout(h_pad=2, w_pad=2)
+# plt.savefig("plot_example_circularize_image.png", dpi=75)
 plt.show()

@@ -56,9 +56,9 @@ anisotropy = LIM.Beta[1]
 speed /= speed[200:].max()  # exclude transform noise near centerline of image
 
 # plots of the analysis
-fig = plt.figure(figsize=(11, 5))
-ax1 = plt.subplot2grid((1, 2), (0, 0))
-ax2 = plt.subplot2grid((1, 2), (0, 1))
+fig = plt.figure(figsize=(10, 5))
+ax1 = plt.subplot(121)
+ax2 = plt.subplot(122)
 
 # join 1/2 raw data : 1/2 inversion image
 inv_IM = LIM.transform
@@ -69,10 +69,10 @@ inv_IM *= vmax/inv_IM[:, c2+100:].max()
 JIM = np.concatenate((IM[:, :c2], inv_IM[:, c2:]), axis=1)
 
 # raw data
-im1 = ax1.imshow(JIM, origin='upper', aspect='auto', vmin=0, vmax=vmax)
+im1 = ax1.imshow(JIM, origin='upper', vmin=0, vmax=vmax)
 ax1.set_xlabel('column (pixels)')
 ax1.set_ylabel('row (pixels)')
-ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(*inv_IM.shape),
+ax1.set_title('VMI, inverse Abel: {:d}×{:d}'.format(*inv_IM.shape),
               fontsize='small')
 
 # Plot the 1D speed distribution and anisotropy parameter ("looks" better
@@ -81,18 +81,20 @@ ax2.plot(radial, speed, label='speed')
 ax2.plot(radial, speed*anisotropy, label=r'anisotropy $\times$ speed')
 ax2.set_xlabel('radial pixel')
 row, cols = IM.shape
-ax2.axis(xmin=100*cols/1024, xmax=500*cols/1024, ymin=-1.5, ymax=1.8)
-ax2.set_title("speed, anisotropy parameter", fontsize='small')
+ax2.axis(xmin=100*cols/1024, xmax=500*cols/1024)
+ax2.set_title('speed, anisotropy parameter', fontsize='small')
 ax2.set_ylabel('intensity')
 ax2.set_xlabel('radial coordinate (pixels)')
 
 plt.legend(loc='best', frameon=False, labelspacing=0.1, fontsize='small')
-plt.suptitle(
-r'linbasex inverse Abel transform of O$_{2}{}^{-}$ electron velocity-map image',
+plt.suptitle(r'linbasex inverse Abel transform of O$_{2}{}^{-}$ electron '
+             'velocity-map image',
              fontsize='larger')
 
+plt.tight_layout()
+
 # Save a image of the plot
-plt.savefig("plot_example_linbasex.png", dpi=100)
+# plt.savefig("plot_example_linbasex.png", dpi=100)
 
 # Show the plots
 plt.show()

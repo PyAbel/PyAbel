@@ -5,9 +5,9 @@ Two Point  (Dasch)
 Introduction
 ------------
 
-The "Dasch two-point" deconvolution algorithm is one of several
-described in the Dasch paper [1]_. See also the ``three_point`` and
-``onion_peeling`` descriptions.
+The "Dasch two-point" deconvolution algorithm is one of several described in
+the Dasch paper [1]_. See also the :doc:`“three-point” <three_point>` and
+:doc:`“onion peeling” <onion_peeling>` descriptions.
 
 How it works
 ------------
@@ -26,7 +26,7 @@ incorporates no smoothing.
 How to use it
 -------------
 
-To complete the inverse transform of a full image with the ``two_point method``, simply use the :class:`abel.Transform` class: ::
+To complete the inverse transform of a full image with the ``two_point method``, simply use the :class:`abel.Transform <abel.transform.Transform>` class::
 
     abel.Transform(myImage, method='two_point').transform
 
@@ -46,4 +46,10 @@ For more information on the PyAbel implementation of the ``two_point`` algorithm
 Citation
 --------
 
-.. [1] \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`_.
+.. |ref1| replace:: \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`__.
+
+.. [1] |ref1|
+
+.. only:: latex
+
+    * |ref1|

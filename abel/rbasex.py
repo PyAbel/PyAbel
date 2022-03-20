@@ -28,7 +28,7 @@ from abel.tools.symmetry import put_image_quadrants
 #   “Two-dimensional charged particle image inversion using a polar basis
 #    function expansion”,
 #   Review of Scientific Instruments 75, 4989 (2004).
-#   http://dx.doi.org/10.1063/1.1807578
+#   https://dx.doi.org/10.1063/1.1807578
 #
 # Ryazanov:
 #   Mikhail Ryazanov,
@@ -36,7 +36,7 @@ from abel.tools.symmetry import put_image_quadrants
 #    Studies of overtone-induced dissociation and isomerization dynamics of
 #    hydroxymethyl radical (CH₂OH and CD₂OH)”,
 #   Ph.D. dissertation, University of Southern California, 2012.
-#   https://search.proquest.com/docview/1289069738
+#   https://www.proquest.com/docview/1289069738
 #   https://digitallibrary.usc.edu/asset-management/2A3BF169XWB4
 #
 ###############################################################################
@@ -59,6 +59,9 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
                      weights=None, direction='inverse', reg=None, out='same',
                      basis_dir=None, verbose=False):
     r"""
+    :doc:`rBasex <transform_methods/rbasex>` Abel transform for
+    velocity-mapping images, operating in polar coordinates.
+
     This function takes the input image and outputs its forward or inverse Abel
     transform as an image and its radial distributions.
 
@@ -729,7 +732,7 @@ def cache_cleanup(select='all'):
     """
     Utility function.
 
-    Frees the memory caches created by ``get_bs_cached()``.
+    Frees the memory caches created by :func:`get_bs_cached`.
     This is usually pointless, but might be required after working
     with very large images, if more RAM is needed for further tasks.
 

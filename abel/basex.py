@@ -79,9 +79,9 @@ from abel.tools.polynomial import PiecewisePolynomial
 def basex_transform(data, sigma=1.0, reg=0.0, correction=True, basis_dir='',
                     dr=1.0, verbose=True, direction='inverse'):
     """
-    This function performs the BASEX (BAsis Set EXpansion)
-    Abel transform. It works on a "right side" image. I.e.,
-    it works on just half of a cylindrically symmetric
+    This function performs the :doc:`BASEX (BAsis Set EXpansion)
+    <transform_methods/basex>` Abel transform. It works on a "right side"
+    image. I.e., it works on just half of a cylindrically symmetric
     object, and ``data[0,0]`` should correspond to a central pixel.
     To perform a BASEX transform on a whole image, use ::
 
@@ -417,7 +417,7 @@ def cache_cleanup(select='all'):
     """
     Utility function.
 
-    Frees the memory caches created by ``get_bs_cached()``.
+    Frees the memory caches created by :func:`get_bs_cached`.
     This is usually pointless, but might be required after working
     with very large images, if more RAM is needed for further tasks.
 

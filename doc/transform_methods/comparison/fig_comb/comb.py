@@ -28,22 +28,23 @@ np.random.seed(4)
 func = comb.abel + np.random.random(comb.abel.size)*1.2
 
 transforms = [
-  ("basex",          abel.basex.basex_transform,               '#006600'),
-  ("basex (reg=10)", abel.basex.basex_transform,               '#006600'),
-  ("daun (reg=5)",   abel.daun.daun_transform,                 '#880000'),
-  ("daun (nonneg)",  abel.daun.daun_transform,                 '#880000'),
-  ("direct",         abel.direct.direct_transform,             '#EE0000'),
-  ("hansenlaw",      abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
-  ("onion_bordas",   abel.onion_bordas.onion_bordas_transform, '#00AA00'),
-  ("onion_peeling",  abel.dasch.onion_peeling_transform,       '#00CCFF'),
-  ("three_point",    abel.dasch.three_point_transform,         '#0000FF'),
-  ("two_point",      abel.dasch.two_point_transform,           '#CC00FF'),
+    ('basex',          abel.basex.basex_transform,               '#006600'),
+    ('basex (reg=10)', abel.basex.basex_transform,               '#006600'),
+    ('daun (reg=5)',   abel.daun.daun_transform,                 '#880000'),
+    ('daun (nonneg)',  abel.daun.daun_transform,                 '#880000'),
+    ('direct',         abel.direct.direct_transform,             '#EE0000'),
+    ('hansenlaw',      abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
+    ('onion_bordas',   abel.onion_bordas.onion_bordas_transform, '#00AA00'),
+    ('onion_peeling',  abel.dasch.onion_peeling_transform,       '#00CCFF'),
+    ('three_point',    abel.dasch.three_point_transform,         '#0000FF'),
+    ('two_point',      abel.dasch.two_point_transform,           '#CC00FF'),
 ]
 
 ntrans = len(transforms)  # number of transforms
 
-fig, axs = plt.subplots(ntrans, 1, figsize=(5, 10),
+fig, axs = plt.subplots((ntrans + 1) // 2, 2, figsize=(7, 6),
                         sharex=True, sharey=True)
+axs = axs.T.reshape(-1)
 
 
 def mysum(x,  dx=1, axis=1):
@@ -85,9 +86,11 @@ for ax, letter in zip(axs.ravel(), 'abcdefghij'):
     place_letter(letter+')', ax)
 
 axs[-1].set_xlabel('$r$ (pixels)')
-axs[4].set_ylabel('$z$')
+axs[(ntrans - 1) // 2].set_xlabel('$r$ (pixels)')
+axs[ntrans // 4].set_ylabel('$z$')
 
 
-fig.tight_layout(pad=0)
+fig.tight_layout(pad=0.1)
 plt.savefig('comb.svg')
-# plt.show()
+plt.savefig('comb.pdf')
+#plt.show()

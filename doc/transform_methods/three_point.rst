@@ -5,7 +5,7 @@ Three Point
 Introduction
 ------------
 
-The "Three Point" Abel transform method exploits the observation that the value of the Abel inverted data at any radial position ``r`` is primarily determined from changes in the projection data in the neighborhood of ``r``. This technique was developed by Dasch [1]_.
+The "Three Point" Abel transform method exploits the observation that the value of the Abel inverted data at any radial position *r* is primarily determined from changes in the projection data in the neighborhood of *r*. This technique was developed by Dasch [1]_.
 
 How it works
 ------------
@@ -21,13 +21,13 @@ When to use it
 --------------
 
 Dasch recommends this method based on its speed of implementation, robustness in the presence of sharp edges, and low noise.
-He also notes that this technique works best for cases where the real difference between adjacent projections is much greater than the noise in the projections. This is important, because if the projections are oversampled (raw data :math:`\mathbf{P}` taken with data points very close to each other), the spacing between adjacent projections is decreased, and the real difference between them becomes comparable with the noise in the projections. In such situations, the deconvolution is highly inaccurate, and the projection data :math:`\mathbf{P}` must be smoothed before this technique is used. (Consider smoothing with `scipy.ndimage.filters.gaussian_filter <http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.ndimage.filters.gaussian_filter.html>`_.)
+He also notes that this technique works best for cases where the real difference between adjacent projections is much greater than the noise in the projections. This is important, because if the projections are oversampled (raw data :math:`\mathbf{P}` taken with data points very close to each other), the spacing between adjacent projections is decreased, and the real difference between them becomes comparable with the noise in the projections. In such situations, the deconvolution is highly inaccurate, and the projection data :math:`\mathbf{P}` must be smoothed before this technique is used. (Consider smoothing with `scipy.ndimage.gaussian_filter <https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter.html>`_.)
 
 
 How to use it
 -------------
 
-To complete the inverse transform of a full image with the ``three_point method``, simply use the :class:`abel.Transform` class: ::
+To complete the inverse transform of a full image with the ``three_point method``, simply use the :class:`abel.Transform <abel.transform.Transform>` class::
 
     abel.Transform(myImage, method='three_point', direction='inverse').transform
 
@@ -54,6 +54,15 @@ For more information on the PyAbel implementation of the three-point algorithm, 
 Citation
 --------
 
-.. [1] \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`_.
+.. |ref1| replace:: \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`__.
 
-.. [2] \ K. Martin, PhD Thesis: "Acoustic Modification of Sooting Combustion", University of Texas at Austin (2002) (`record <http://hdl.handle.net/2152/1654>`_, `PDF <https://repositories.lib.utexas.edu/bitstream/handle/2152/1654/martinkm07836.pdf>`_).
+.. |ref2| replace:: \ K. Martin, PhD Thesis: "Acoustic Modification of Sooting Combustion", University of Texas at Austin (2002) (`record <https://repositories.lib.utexas.edu/handle/2152/1654>`__, `PDF <https://repositories.lib.utexas.edu/bitstream/handle/2152/1654/martinkm07836.pdf>`__).
+
+.. [1] |ref1|
+
+.. [2] |ref2|
+
+.. only:: latex
+
+    * |ref1|
+    * |ref2|

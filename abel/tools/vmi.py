@@ -438,7 +438,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
         The units affect the units of the output. e.g. inputs in
         eV/pixel\ :sup:`2`, will give output energy units in eV.  A value of
         :math:`1.148427\times 10^{-5}` cm\ :math:`^{-1}/`\ pixel\ :sup:`2`
-        applies for "examples/data/O-ANU1024.txt" (with Vrep = -98 volts).
+        applies for "examples/data/O-ANU1024.txt" (with Vrep = −98 volts).
 
     per_energy_scaling : bool
 

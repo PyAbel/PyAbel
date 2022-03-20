@@ -42,11 +42,11 @@ According to Dribinski et al., BASEX has several advantages:
 How to use it
 -------------
 
-The recommended way to complete the inverse Abel transform using the BASEX algorithm for a full image is to use the :py:class:`abel.transform.Transform` class::
+The recommended way to complete the inverse Abel transform using the BASEX algorithm for a full image is to use the :py:class:`abel.Transform <abel.transform.Transform>` class::
 
-    abel.transform.Transform(raw_image, method='basex', direction='inverse').transform
+    abel.Transform(raw_image, method='basex', direction='inverse').transform
 
-The additional BASEX parameters are described in :py:func:`abel.basex.basex_transform` an can be passed to ``Transform()`` using the ``transform_options`` argument.
+The additional BASEX parameters are described in :py:func:`abel.basex.basex_transform` an can be passed to :class:`Transform <abel.transform.Transform>` using the ``transform_options`` argument.
 
 If you would like to access the BASEX algorithm directly (to transform a right-side half-image), you can use :py:func:`abel.basex.basex_transform`.
 
@@ -79,14 +79,20 @@ PyAbel improvements
 
 Some additional information on the implementation is given in :ref:`BASEXcomp`.
 
-.. toctree::
-    :hidden:
-
-    basex-comp
-
 
 Citation
 --------
 
-.. [1] \ V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, H. Reisler, "Reconstruction of Abel-transformable images: The Gaussian basis-set expansion Abel transform method", `Rev. Sci. Instrum. 73, 2634–2642 (2002)
- <https://dx.doi.org/10.1063/1.1482156>`_, (`PDF <http://www-bcf.usc.edu/~reisler/assets/pdf/67.pdf>`_).
+.. |ref1| replace:: \ V. Dribinski, A. Ossadtchi, V. A. Mandelshtam, H. Reisler, "Reconstruction of Abel-transformable images: The Gaussian basis-set expansion Abel transform method", `Rev. Sci. Instrum. 73, 2634–2642 (2002) <https://dx.doi.org/10.1063/1.1482156>`__, (`PDF <https://web.archive.org/web/20170627145906/http://www-bcf.usc.edu/~reisler/assets/pdf/67.pdf>`__).
+
+.. [1] |ref1|
+
+.. only:: latex
+
+    * |ref1|
+
+
+.. toctree::
+    :hidden:
+
+    basex-comp

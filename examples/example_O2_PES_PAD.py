@@ -52,7 +52,8 @@ r_range = [(93, 111), (145, 162), (255, 280), (330, 350), (350, 370),
            (370, 390), (390, 410), (410, 430)]
 
 # map to intensity vs theta for each radial range
-Beta, Amp, rad,intensities, theta = abel.tools.vmi.radial_integration(AIM, radial_ranges=r_range)
+Beta, Amp, rad, intensities, theta = \
+    abel.tools.vmi.radial_integration(AIM, radial_ranges=r_range)
 
 print("radial-range      anisotropy parameter (beta)")
 for beta, rr in zip(Beta, r_range):
@@ -61,7 +62,7 @@ for beta, rr in zip(Beta, r_range):
     print(result)
 
 # plots of the analysis
-fig = plt.figure(figsize=(15, 4))
+fig = plt.figure(figsize=(15, 4.5))
 ax1 = plt.subplot(131)
 ax2 = plt.subplot(132)
 ax3 = plt.subplot(133)
@@ -76,7 +77,7 @@ beta, amp = Beta[-3], Amp[-3]
 
 # Prettify the plot a little bit:
 # Plot the raw data
-im1 = ax1.imshow(JIM, origin='lower', aspect='auto', vmin=0, vmax=vmax)
+im1 = ax1.imshow(JIM, origin='lower', vmin=0, vmax=vmax)
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
@@ -86,7 +87,7 @@ ax1.set_title('VMI, inverse Abel: {:d}x{:d}'\
 # Plot the 1D speed distribution
 ax2.plot(speed)
 ax2.plot((rr[0], rr[0], rr[1], rr[1]), (1, 1.1, 1.1, 1), 'r-')  # red highlight
-ax2.axis(xmax=450, ymin=-0.05, ymax=1.2)
+ax2.axis(xmin=0, xmax=450, ymin=-0.05, ymax=1.2)
 ax2.set_xlabel('radial pixel')
 ax2.set_ylabel('intensity')
 ax2.set_title('speed distribution')
@@ -108,18 +109,17 @@ ax3.plot(theta, PAD(theta, beta[0], amp[0]), 'b', lw=2, label="fit")
 ax3.annotate("$\\beta = ${:+.2f}+-{:.2f}".format(*beta), (-2, -1.1))
 ax3.legend(loc=1, labelspacing=0.1, fontsize='small')
 
-ax3.axis(ymin=-2, ymax=12)
+ax3.axis(xmin=-np.pi, xmax=np.pi, ymin=-2, ymax=12)
 ax3.set_xlabel("angle $\\theta$ (radians)")
 ax3.set_ylabel("intensity")
 ax3.set_title("anisotropy parameter")
 
 
 # Plot the angular distribution 
-plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89, 
-                    wspace=0.35, hspace=0.37)
+plt.tight_layout()
 
 # Save a image of the plot
-plt.savefig("plot_example_O2_PES_PAD.png", dpi=100)
+# plt.savefig("plot_example_O2_PES_PAD.png", dpi=100)
 
 # Show the plots
 plt.show()

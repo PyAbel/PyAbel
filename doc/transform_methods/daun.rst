@@ -302,12 +302,9 @@ half-image or properly oriented quadrants) through the
 .. note::
     If you use any non-default options (degree, regularization), please cite
     not only the article by Daun et al. and the PyAbel article, but also *this
-    PyAbel release* |zenodo|, because these capabilities are not present in the
-    original work by Daun et al. and were added to PyAbel after the RSI
-    publication.
-
-.. |zenodo| image:: https://zenodo.org/badge/30170345.svg
-    :target: https://zenodo.org/badge/latestdoi/30170345
+    PyAbel release* (see `Zenodo <https://zenodo.org/badge/latestdoi/30170345>`__),
+    because these capabilities are not present in the original work by Daun et
+    al. and were added to PyAbel after the RSI publication.
 
 
 Examples
@@ -333,8 +330,15 @@ here for :attr:`reg=0`):
 Citation
 --------
 
-.. [1] \ K. J. Daun, K. A. Thomson, F. Liu, G. J. Smallwood,
-       “Deconvolution of axisymmetric flame properties using Tikhonov
-       regularization”,
-       `Appl. Opt. 45, 4638–4646 (2006)
-       <https://doi.org/10.1364/AO.45.004638>`_.
+.. |ref1| replace:: 
+    \ K. J. Daun, K. A. Thomson, F. Liu, G. J. Smallwood,
+    “Deconvolution of axisymmetric flame properties using Tikhonov
+    regularization”,
+    `Appl. Opt. 45, 4638–4646 (2006)
+    <https://doi.org/10.1364/AO.45.004638>`__.
+
+.. [1] |ref1|
+
+.. only:: latex
+
+    * |ref1|

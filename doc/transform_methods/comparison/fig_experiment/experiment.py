@@ -132,5 +132,7 @@ fig1.tight_layout()
 axs1[1].legend(fontsize=8)
 
 fig.savefig('experiment.svg')
+fig.savefig('experiment.pdf')
 fig1.savefig('integration.svg')
+fig1.savefig('integration.pdf')
 # plt.show()

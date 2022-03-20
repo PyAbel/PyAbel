@@ -62,27 +62,38 @@ class BaseAnalytical(object):
 
 
 class StepAnalytical(BaseAnalytical):
-    """
-    Define a symmetric step function and calculate its analytical
-    Abel transform. See :doc:`examples/example_basex_step.py
-    <example_basex_step>`.
+    r"""
+    Define a step function and calculate its analytical Abel transform:
+
+    ..
+        A0 +                  +-------------+
+           |                  |             |
+           |                  |             |
+         0 | -----------------+             +-------------
+           +------------------+-------------+------------>
+           0                  r1            r2           r axis
+
+    .. plot:: tools/step_analytical.py
+
+    See :doc:`examples/example_basex_step.py <example_basex_step>`.
 
     Parameters
     ----------
     n : int
-        number of points along the r axis
+        number of points along the `r` axis
     r_max : float
-        range of the r interval
+        range of the `r` interval
     symmetric : boolean
-        if True, the r interval is [-r_max, r_max] (and n should be odd),
-        otherwise the r interval is [0, r_max]
+        if ``True``, the `r` interval is [−\ **r_max**, **r_max**]
+        (and **n** should be odd),
+        otherwise the `r` interval is [0, **r_max**]
     r1, r2 : float
-        bounds of the step function if r > 0
-        (symmetric function is constructed for r < 0)
+        bounds of the step function for `r` > 0
+        (symmetric function is constructed for `r` < 0)
     A0: float
         height of the step
     ratio_valid_step: float
-        in the benchmark take only the central ratio*100% of the step
+        in the benchmark take only the central ratio × 100% of the step
         (exclude possible artefacts on the edges)
     """
     # see https://github.com/PyAbel/PyAbel/pull/16
@@ -110,17 +121,7 @@ class StepAnalytical(BaseAnalytical):
     def abel_step_analytical(self, r, A0, r0, r1):
         """
         Forward Abel transform of a step function located between r0 and r1,
-        with a height A0
-
-        ::
-
-            A0 +                  +-------------+
-               |                  |             |
-               |                  |             |
-             0 | -----------------+             +-------------
-               +------------------+-------------+------------>
-               0                  r0            r1           r axis
-
+        with a height A0.
 
         Parameters
         ----------
@@ -301,7 +302,7 @@ class GaussianAnalytical(BaseAnalytical):
         0 < r < ration_valid_sigma * sigma
         (exclude possible artefacts on the axis and the possibly clipped tail)
     """
-    # Source: http://mathworld.wolfram.com/AbelTransform.html
+    # Source: https://mathworld.wolfram.com/AbelTransform.html
 
     def __init__(self, n, r_max, sigma=1.0, A0=1.0,
                  ratio_valid_sigma=2.0, symmetric=True):

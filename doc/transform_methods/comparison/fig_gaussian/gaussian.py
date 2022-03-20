@@ -1,19 +1,21 @@
+# -*- coding: UTF-8 -*-
 import numpy as np
 import matplotlib.pyplot as plt
 import abel
 
 transforms = [
-  ("basex",         abel.basex.basex_transform),
-  (r"daun\ (degree=1)", lambda *args, **kwargs:
-                    abel.daun.daun_transform(*args, degree=1, **kwargs)),
-  (r"daun\ (degree=3)", lambda *args, **kwargs:
-                    abel.daun.daun_transform(*args, degree=3, **kwargs)),
-  ("direct",        abel.direct.direct_transform),
-  ("hansenlaw",     abel.hansenlaw.hansenlaw_transform),
-  ("onion_bordas",  abel.onion_bordas.onion_bordas_transform),
-  ("onion_peeling", abel.dasch.onion_peeling_transform),
-  ("three_point",   abel.dasch.three_point_transform),
-  ("two_point",     abel.dasch.two_point_transform)]
+    ('basex',             abel.basex.basex_transform),
+    (r'daun\ (degree=1)', lambda *args, **kwargs:
+                          abel.daun.daun_transform(*args, degree=1, **kwargs)),
+    (r'daun\ (degree=3)', lambda *args, **kwargs:
+                          abel.daun.daun_transform(*args, degree=3, **kwargs)),
+    ('direct',            abel.direct.direct_transform),
+    ('hansenlaw',         abel.hansenlaw.hansenlaw_transform),
+    ('onion_bordas',      abel.onion_bordas.onion_bordas_transform),
+    ('onion_peeling',     abel.dasch.onion_peeling_transform),
+    ('three_point',       abel.dasch.three_point_transform),
+    ('two_point',         abel.dasch.two_point_transform)
+]
 
 ntrans = len(transforms)  # number of transforms
 
@@ -46,7 +48,9 @@ if case == 'circ':
     proj = 2*np.sqrt(1-r**2)
     dr = r[1] - r[0]
 
-fig, axs = plt.subplots(ntrans, 1, figsize=(5, 10), sharex=True, sharey=True)
+fig, axs = plt.subplots((ntrans + 1) // 2, 2, figsize=(7, 6),
+                        sharex=True, sharey=True)
+axs = axs.T.reshape(-1)
 
 for row, (label, transFunc) in enumerate(transforms):
     axs[row].plot(r, func, label='Analytical' if row == 0 else None, lw=1)
@@ -55,23 +59,25 @@ for row, (label, transFunc) in enumerate(transforms):
 
     rms = np.mean((inverse - func)**2)**0.5
     boldlabel = '$\\bf ' + label.replace('_', '\\_') + '$'
-    axs[row].plot(r, inverse, 'o', ms=1.5,
-                  label=boldlabel + ', RMSE=%.2f%%' % (rms*100))
+    axs[row].plot(r, inverse, 'o', ms=1.5, label=boldlabel)
 
     axs[row].plot(r, (inverse-func)*error_scale, 'o-', ms=1, color='r',
                   alpha=0.7, lw=1,
-                  label='Error (x%i)' % error_scale if row == 0 else None)
+                  label='Error (×%i)' % error_scale if row == 0 else None)
+
+    axs[row].plot([], [], ' ', label='RMSE = {:.2f}%'.format(rms * 100))
 
     axs[row].axhline(0, color='k', alpha=0.3, lw=1)
 
-    axs[row].legend(loc='upper right', frameon=False,
+    axs[row].legend(loc='upper right', frameon=False, labelspacing=0.2,
                     handletextpad=0 if row > 0 else None)
 
     axs[row].grid(ls='solid', alpha=0.05, color='k')
 
 
-axs[-1].set_xlabel("$r$ (pixels)")
-axs[4].set_ylabel('$z$')
+axs[-1].set_xlabel('$r$ (pixels)')
+axs[(ntrans - 1) // 2].set_xlabel('$r$ (pixels)')
+axs[ntrans // 4].set_ylabel('$z$')
 
 for ax, letter in zip(axs, 'abcdefghi'):
     ax.grid(ls='solid', alpha=0.05, color='k')
@@ -86,7 +92,7 @@ for ax, letter in zip(axs, 'abcdefghi'):
                 textcoords='offset points', xycoords='axes fraction',
                 weight='bold')
 
-
-fig.tight_layout(pad=0)
+fig.tight_layout(pad=0.1)
 fig.savefig('gaussian.svg')
-# plt.show()
+fig.savefig('gaussian.pdf')
+#plt.show()

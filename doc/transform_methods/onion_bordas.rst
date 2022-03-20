@@ -8,7 +8,7 @@ Introduction
 The onion peeling method, also known as "back projection" has been 
 ported to Python from the original Matlab implementation, created by 
 Chris Rallis and Eric Wells of Augustana University, and described in 
-[1]_. The algorithm actually originates from Bordas ~et al. [2]_.
+[1]_. The algorithm actually originates from Bordas et al. [2]_.
 
 See the discussion in `issue #56 <https://github.com/PyAbel/PyAbel/issues/56>`_.
 
@@ -34,7 +34,8 @@ How to use it
 -------------
 
 To complete the inverse transform of a full image with the
-``onion_bordas`` method, simply use the :class:`abel.Transform`: class ::
+``onion_bordas`` method, simply use the :class:`abel.Transform
+<abel.transform.Transform>` class::
 
     abel.Transform(myImage, method='onion_bordas').transform
 
@@ -54,6 +55,15 @@ Example
 Citation
 --------
 
-.. [1] \ C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin, S. De, B. Bergues, B. Jochim, A. V. Voznyuk, N. Gregerson, B. Gaire, I. Znakovskaya, J. McKenna, K. D. Carnes, M. F. Kling, I. Ben-Itzhak, E. Wells, "Incorporating real time velocity map image reconstruction into closed-loop coherent control", `Rev. Sci. Instrum. 85, 113105 (2014) <https://doi.org/10.1063/1.4899267>`_.
+.. |ref1| replace:: \ C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin, S. De, B. Bergues, B. Jochim, A. V. Voznyuk, N. Gregerson, B. Gaire, I. Znakovskaya, J. McKenna, K. D. Carnes, M. F. Kling, I. Ben-Itzhak, E. Wells, "Incorporating real time velocity map image reconstruction into closed-loop coherent control", `Rev. Sci. Instrum. 85, 113105 (2014) <https://doi.org/10.1063/1.4899267>`__.
 
-.. [2] \ C. Bordas, F. Paulig, "Photoelectron imaging spectrometry: Principle and inversion method", `Rev. Sci. Instrum. 67, 2257–2268 (1996) <https://doi.org/10.1063/1.1147044>`_.
+.. |ref2| replace:: \ C. Bordas, F. Paulig, "Photoelectron imaging spectrometry: Principle and inversion method", `Rev. Sci. Instrum. 67, 2257–2268 (1996) <https://doi.org/10.1063/1.1147044>`__.
+
+.. [1] |ref1|
+
+.. [2] |ref2|
+
+.. only:: latex
+
+    * |ref1|
+    * |ref2|

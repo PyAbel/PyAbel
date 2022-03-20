@@ -67,3 +67,4 @@ def plot(directory, xlim, ylim, linex):
 if __name__ == "__main__":
     plot('i7-9700_Linux', xlim=(5, 1e5), ylim=(3e-5, 2e4), linex=1e2)
     plt.savefig('basis_time.svg')
+    plt.savefig('basis_time.pdf')

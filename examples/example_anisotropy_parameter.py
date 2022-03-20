@@ -72,7 +72,7 @@ I /= I.max()
 beta2[I < 0.01] = np.nan
 
 # plots of the analysis
-fig = plt.figure(figsize=(8, 4))
+fig = plt.figure(figsize=(8, 3.5))
 ax1 = plt.subplot(121)
 ax2 = plt.subplot(122)
 
@@ -85,7 +85,7 @@ AIM *= vmax/AIM[:, c2+100:].max()
 JIM = np.concatenate((IM[:, :c2], AIM[:, c2:]), axis=1)
 
 # Plot the image data VMI | inverse Abel
-im1 = ax1.imshow(JIM, origin='lower', aspect='auto', vmin=0, vmax=vmax)
+im1 = ax1.imshow(JIM, origin='lower', vmin=0, vmax=vmax)
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
@@ -116,11 +116,10 @@ ax2.set_xlabel('radial pixel')
 ax2.set_ylabel('speed/anisotropy')
 ax2.set_title('speed/anisotropy distribution')
 
-plt.subplots_adjust(left=0.06, bottom=0.17, right=0.95, top=0.89,
-                    wspace=0.35, hspace=0.37)
+plt.tight_layout()
 
 # Save a image of the plot
-plt.savefig("plot_example_PAD.png", dpi=100)
+# plt.savefig("plot_example_PAD.png", dpi=100)
 
 # Show the plots
 plt.show()

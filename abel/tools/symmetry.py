@@ -14,7 +14,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
                         use_quadrants=(True, True, True, True),
                         symmetrize_method="average"):
     """
-    Given an image (m,n) return its 4 quadrants Q0, Q1, Q2, Q3
+    Given an image (m, n) return its 4 quadrants Q0, Q1, Q2, Q3
     as defined below.
 
     Parameters
@@ -26,9 +26,9 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         Reorient quadrants to match the orientation of Q0 (top-right)
 
     symmetry_axis : int or tuple
-        can have values of ``None``, ``0``, ``1``, or ``(0,1)`` and specifies
-        no symmetry, vertical symmetry axis, horizontal symmetry axis, and both vertical
-        and horizontal symmetry axes. Quadrants are added.
+        can have values of ``None``, ``0``, ``1``, or ``(0, 1)`` and specifies
+        no symmetry, vertical symmetry axis, horizontal symmetry axis, and both
+        vertical and horizontal symmetry axes. Quadrants are added.
         See Note.
 
     use_quadrants : boolean tuple
@@ -55,7 +55,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
     Returns
     -------
     Q0, Q1, Q2, Q3 : tuple of 2D np.arrays
-        shape: (``rows//2+rows%2, cols//2+cols%2``)
+        shape: (``rows // 2 + rows % 2, cols // 2 + cols % 2``)
         all oriented in the same direction as Q0 if ``reorient=True``
 
 
@@ -67,17 +67,17 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         +--------+--------+
         | Q1   * | *   Q0 |
         |   *    |    *   |
-        |  *     |     *  |               cQ1 | cQ0
-        +--------o--------+ --(output) -> ----o----
-        |  *     |     *  |               cQ2 | cQ3
+        |  *     |     *  |                 cQ1 | cQ0
+        +--------o--------+  --(output)-->  ----o----
+        |  *     |     *  |                 cQ2 | cQ3
         |   *    |    *   |
         | Q2  *  | *   Q3 |          cQi == combined quadrants
         +--------+--------+
 
-        symmetry_axis = None - individual quadrants
-        symmetry_axis = 0 (vertical) - average Q0+Q1, and Q2+Q3
-        symmetry_axis = 1 (horizontal) - average Q1+Q2, and Q0+Q3
-        symmetry_axis = (0, 1) (both) - combine and average all 4 quadrants
+        symmetry_axis = None           — individual quadrants
+        symmetry_axis = 0 (vertical)   — average Q0 + Q1, and Q2 + Q3
+        symmetry_axis = 1 (horizontal) — average Q1 + Q2, and Q0 + Q3
+        symmetry_axis = (0, 1) (both)  — combine and average all 4 quadrants
 
 
     The end results look like this::
@@ -85,28 +85,28 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
         (0) symmetry_axis = None
 
             returned image   Q1 | Q0
-                            ----o----
+                             ---o---
                              Q2 | Q3
 
         (1) symmetry_axis = 0
 
             Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
             returned image   Q01 | Q01
-                            -----o-----
+                             ----o----
                              Q23 | Q23
 
         (2) symmetry_axis = 1
 
             Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
             returned image   Q12 | Q03
-                            -----o-----
+                             ----o----
                              Q12 | Q03
 
         (3) symmetry_axis = (0, 1)
 
             Combine all quadrants: Q = Q0 + Q1 + Q2 + Q3
             returned image   Q | Q
-                            ---o---  all quadrants equivalent
+                             --o--   all quadrants equivalent
                              Q | Q
 
     """
@@ -194,7 +194,7 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
 def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
     """
     Reassemble image from 4 quadrants Q = (Q0, Q1, Q2, Q3)
-    The reverse process to get_image_quadrants(reorient=True)
+    The reverse process to :func:`get_image_quadrants` with ``reorient=True``.
 
     Note: the quadrants should all be oriented as Q0, the upper right quadrant
 
@@ -202,7 +202,7 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
     ----------
     Q : tuple of np.array (Q0, Q1, Q2, Q3)
         Image quadrants all oriented as Q0
-        shape (``rows//2+rows%2, cols//2+cols%2``) ::
+        shape (``rows // 2 + rows % 2, cols // 2 + cols % 2``) ::
 
             +--------+--------+
             | Q1   * | *   Q0 |
@@ -217,7 +217,8 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
     original_image_shape : tuple
         (rows, cols)
 
-        reverses the padding added by `get_image_quadrants()` for odd-axis sizes
+        reverses the padding added by :func:`get_image_quadrants` for odd axis
+        sizes
 
         odd row trims 1 row from Q1, Q0
 
@@ -226,22 +227,22 @@ def put_image_quadrants(Q, original_image_shape, symmetry_axis=None):
     symmetry_axis : int or tuple
         impose image symmetry
 
-            ``symmetry_axis = 0 (vertical)   - Q0 == Q1 and Q3 == Q2``
-            ``symmetry_axis = 1 (horizontal) - Q2 == Q1 and Q3 == Q0``
+            ``symmetry_axis = 0 (vertical)   — Q0 == Q1 and Q3 == Q2``
+            ``symmetry_axis = 1 (horizontal) — Q2 == Q1 and Q3 == Q0``
 
 
     Returns
     -------
     IM : np.array
-        Reassembled image of shape (rows, cols): ::
+        Reassembled image of shape (rows, cols)::
 
             symmetry_axis =
 
-            None             0              1           (0,1)
+                None:      0:          1:         (0, 1):
 
-             Q1 | Q0        Q1 | Q1        Q1 | Q0       Q1 | Q1
-            ----o----  or  ----o----  or  ----o----  or ----o----
-             Q2 | Q3        Q2 | Q2        Q1 | Q0       Q1 | Q1
+                Q1 | Q0    Q1 | Q1     Q1 | Q0    Q1 | Q1
+                ---o---    ---o----    ---o---    ---o---
+                Q2 | Q3    Q2 | Q2     Q1 | Q0    Q1 | Q1
 
     """
 

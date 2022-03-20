@@ -32,7 +32,7 @@ Note that this requires that you have `pytest <https://docs.pytest.org/en/latest
 Documentation
 -------------
 
-PyAbel uses Sphinx and `Napoleon <http://sphinxcontrib-napoleon.readthedocs.io/en/latest/index.html>`__ to process Numpy-style docstrings and is synchronized to `pyabel.readthedocs.io <http://pyabel.readthedocs.io>`__. To build the documentation locally, you will need `Sphinx <http://www.sphinx-doc.org/>`__, the `recommonmark <https://github.com/rtfd/recommonmark>`__ package, and the `sphinx_rtd_theme <https://github.com/snide/sphinx_rtd_theme/>`__. You can install them using ::
+PyAbel uses Sphinx and `Napoleon <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/index.html>`__ to process Numpy-style docstrings and is synchronized to `pyabel.readthedocs.io <https://pyabel.readthedocs.io>`__. To build the documentation locally, you will need `Sphinx <https://www.sphinx-doc.org/>`__, the `recommonmark <https://github.com/readthedocs/recommonmark>`__ package, and the `sphinx_rtd_theme <https://github.com/readthedocs/sphinx_rtd_theme>`__. You can install them using ::
 
     pip install sphinx
     pip install recommonmark
@@ -50,7 +50,7 @@ Then you can open ``doc/_build/hmtl/index.html`` to look at the documentation. S
 
 to clear out the old documentation and get things to re-build properly.
 
-When you get tired of typing ``make html`` every time you make a change to the documentation, it's nice to use use `sphix-autobuild <https://pypi.python.org/pypi/sphinx-autobuild>`__ to automatically update the documentation in your browser for you. So, install sphinx-autobuild using ::
+When you get tired of typing ``make html`` every time you make a change to the documentation, it's nice to use use `sphix-autobuild <https://pypi.org/project/sphinx-autobuild/>`__ to automatically update the documentation in your browser for you. So, install sphinx-autobuild using ::
 
     pip install sphinx-autobuild
 
@@ -61,7 +61,7 @@ Now you should be able to ::
 
 which should launch a browser window displaying the docs. When you save a change to any of the docs, the re-build should happen automatically and the docs should update in a matter of a few seconds.
 
-Alternatively, `restview <https://pypi.python.org/pypi/restview>`__ is a nice way to preview the ``.rst`` files.
+Alternatively, `restview <https://pypi.org/project/restview/>`__ is a nice way to preview the ``.rst`` files.
 
 
 Code Style
@@ -69,13 +69,13 @@ Code Style
 
 We hope that the PyAbel code will be understandable, hackable, and maintainable for many years to come. So, please use good coding style, include plenty of comments, use docstrings for functions, and pick informative variable names.
 
-PyAbel attempts to follow `PEP8 <https://www.python.org/dev/peps/pep-0008/>`__ style whenever possible, since the PEP8 recommendations typically produces code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`__, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all Pull Requests using `pep8speaks <https://pep8speaks.com/>`__. However, `producing readable code <https://www.python.org/dev/peps/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`__ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines.
+PyAbel attempts to follow `PEP8 <https://peps.python.org/pep-0008/>`__ style whenever possible, since the PEP8 recommendations typically produces code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`__, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all Pull Requests using `pep8speaks <https://github.com/apps/pep8-speaks>`__. However, `producing readable code <https://peps.python.org/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`__ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines.
 
 
 Before merging
 --------------
 
-If possible, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-to-update-a-github-forked-repository>`__::
+If possible, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-do-i-update-or-sync-a-forked-repository-on-github>`__::
 
     # Add the remote, call it "upstream" (only the fist time)
     git remote add upstream https://github.com/PyAbel/PyAbel.git
@@ -100,7 +100,7 @@ If possible, before merging your pull request please rebase your fork on the las
 
     git push -f
 
-See `this wiki <https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request>`__ for more information.
+See `this wiki <https://github.com/openedx/edx-platform/wiki/How-to-Rebase-a-Pull-Request>`__ for more information.
 
 
 Adding a new forward or inverse Abel implementation

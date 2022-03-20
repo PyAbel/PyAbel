@@ -52,5 +52,5 @@ for axi in ax:
     axi.set_xlim(0, 20)
     axi.legend(labelspacing=0.1, fontsize='smaller')
 
-plt.savefig("plot_example_direct_gaussian.png", dpi=100)
+# plt.savefig("plot_example_direct_gaussian.png", dpi=100)
 plt.show()

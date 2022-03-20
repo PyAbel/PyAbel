@@ -134,5 +134,5 @@ ax1.legend(loc=0, labelspacing=0.1, fontsize=10, frameon=False)
 plt.tight_layout()
 
 # save a copy of the plot
-plt.savefig('plot_example_all_O2.png', dpi=100)
+# plt.savefig('plot_example_all_O2.png', dpi=100)
 plt.show()

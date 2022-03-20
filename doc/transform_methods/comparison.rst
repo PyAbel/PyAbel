@@ -122,8 +122,7 @@ The Abel transform of a Gaussian is simply a Gaussian, which allows a comparison
     :nofigs:
 
 .. _fig_gaussian:
-.. figure:: comparison/fig_gaussian/gaussian.svg
-    :alt: gaussian
+.. figure:: comparison/fig_gaussian/gaussian.*
     :figclass: align-center
 
     Comparison of inverse Abel-transform methods for a 1D Gaussian function with 70 points. All of the inverse Abel transform methods show reasonable agreement for the inverse Abel transform of a Gaussian function. The root-mean-square error (RMSE) for each method is listed in the figure legend. In the limit of many pixels, the error trends to zero. However, when a small number of pixels is used, systematic errors are seen, especially near the origin (:math:`r=0`). The error near the origin is more pronounced in some methods than others. The lowest error seen from the ``basex``, ``daun``, ``three_point``, and ``onion_peeling`` methods. The ``daun`` method with degree=0 is identical to ``onion_peeling`` and with degree=2 is slightly better (RMSE=0.05%). The ``linbasex`` and ``rbasex`` methods are not included in this figure because they are not applicable to 1D functions.
@@ -136,30 +135,41 @@ Applying the various transform methods to a synthetic "comb" function that consi
     :nofigs:
 
 .. _fig_comb:
-.. figure:: comparison/fig_comb/comb.svg
+.. figure:: comparison/fig_comb/comb.*
     :figclass: align-center
 
     Inverse Abel-transform methods applied to a synthetic "comb" function of one-pixel-width peaks with noise added. The gray line represents the analytical inverse Abel transform in the absence of noise. Some methods reproduce the height of the peaks, while other methods reduce noise while somewhat smoothing the peaks. The regularization in the ``basex`` and ``daun`` methods provides strong noise suppression near the origin, while maintaining peak height at higher values of :math:`r`. The ``daun`` method without regularization is identical to ``onion_peeling``, and its :math:`L_2` regularization is very similar to ``basex`` regularization.
 
 
-Applying the various inverse Abel-transform methods to an experimental photoelectron-spectroscopy image (:numref:`fig_experiment`) provides a comparison of how the noise in the reconstructed image depends on the transform method.
+Applying the various inverse Abel-transform methods to an experimental photoelectron-spectroscopy image (photoelectron spectrum of O\ :sub:`2`\ :sup:`−` photodetachment using a 455 nm laser, as described by Van Duzor et al. [vanduzor2010]_) provides a comparison of how the noise in the reconstructed image depends on the transform method (:numref:`fig_experiment`).
 
 
 .. plot:: transform_methods/comparison/fig_experiment/experiment.py
     :nofigs:
 
+.. raw:: latex
+
+    % hack to insert negative space before figure (doesn't fit otherwise)
+    \let\savecentering\centering
+    \def\centering{\vspace*{-1.5em}\savecentering}
+
 .. _fig_experiment:
-.. figure:: comparison/fig_experiment/experiment.svg
+.. figure:: comparison/fig_experiment/experiment.*
     :figclass: align-center
 
-    Comparison of inverse Abel-transform methods applied to an experimental photoelectron velocity-map image. While all methods provide a faithful reconstruction of the experimental image, some of them cause a greater amplification of the noise present in the original image. The ``linbasex`` and ``rbasex`` methods models the image using a basis set of functions that vary slowly as a function of angle, which strongly reduces the high-frequency noise seen in the other transform methods. Besides the ``basex`` and ``daun`` method with regularization, the ``direct`` and ``three_point`` methods seem particularly suited for providing a low-noise transform. The ``daun`` method without regularization is identical to ``onion_peeling``, and its :math:`L_2` regularization is very similar to ``basex`` regularization. This dataset is the photoelectron spectrum of O\ :sub:`2`\ :sup:`−` photodetachment using a 455 nm laser, as described by Van Duzor et al. [vanduzor2010]_.
+    Comparison of inverse Abel-transform methods applied to an experimental photoelectron velocity-map image. While all methods provide a faithful reconstruction of the experimental image, some of them cause a greater amplification of the noise present in the original image. The ``linbasex`` and ``rbasex`` methods models the image using a basis set of functions that vary slowly as a function of angle, which strongly reduces the high-frequency noise seen in the other transform methods. Besides the ``basex`` and ``daun`` method with regularization, the ``direct`` and ``three_point`` methods seem particularly suited for providing a low-noise transform. The ``daun`` method without regularization is identical to ``onion_peeling``, and its :math:`L_2` regularization is very similar to ``basex`` regularization.
+
+.. raw:: latex
+
+    % restore hacked definition
+    \let\centering\savecentering
 
 
 To a first approximation, the results of all the transform methods look similar. The ``rbasex`` and ``linbasex`` methods produces the "smoothest" image, which is a result of the fact that it models the projection using functions fitted to the image, that vary only slowly as a function of angle. The ``basex`` and ``daun`` methods incorporate a user-adjustable Tikhonov regularization factor, which tends to suppress noise, especially near the symmetry axis. Here, we set the regularization factor to 200 for ``basex`` and 100 for ``daun``, which provides significant noise suppression without noticeable broadening of the narrow features. When the regularization factor is set to zero, the ``basex`` and ``daun`` methods provide a transform that appears very similar to the ``onion_peeling`` method. For the other transform methods, the ``direct`` and ``three_point`` methods appear to have the strongest noise-filtering properties.
 
 
 .. _fig_integration:
-.. figure:: comparison/fig_experiment/integration.svg
+.. figure:: comparison/fig_experiment/integration.*
     :figclass: align-center
 
     Comparison of photoelectron spectra obtained by angular integration of the transformed images shown in :numref:`fig_experiment`, corresponding to various inverse Abel-transform methods applied to the same experimental velocity-map image. a) Looking at the entire photoelectron speed distribution, all of the transform methods appear to produce similar results. b) Closely examining two of the peaks shows that all of the methods produce similar results, but that some methods produce broader peaks than others. c) Examining the small peaks in the low-energy region reveals that some methods accumulate somewhat more noise than others. Notice the absence on negative intensities in the ``daun`` method with non-negativity regularization and the corresponding suppression of baseline oscillations.
@@ -202,11 +212,6 @@ Speed benchmarks
 
 The :class:`abel.benchmark.AbelTiming` class provides the ability to benchmark the speeds of the Abel transform algorithms. Here we show these benchmarks completed using a personal computer equipped with a 3.0 GHz Intel i7-9700 processor and 32 GB RAM running GNU/Linux (see also :doc:`comparison/fig_benchmarks/benchmarks` for some other systems).
 
-.. toctree::
-    :hidden:
-
-    comparison/fig_benchmarks/benchmarks
-
 A comparison of the time required to complete an inverse Abel transform versus the width of a square image is presented in :numref:`fig_transform_time`. All methods are benchmarked using their default parameters, with the following exceptions:
 
 * **basex(var)** and **daun(var)** mean “variable regularization”, that is changing the regularization parameter for each transformed image.
@@ -220,7 +225,7 @@ A comparison of the time required to complete an inverse Abel transform versus t
     :nofigs:
 
 .. _fig_transform_time:
-.. figure:: comparison/fig_benchmarks/transform_time.svg
+.. figure:: comparison/fig_benchmarks/transform_time.*
     :figclass: align-center
 
     Computational efficiency of inverse Abel-transform methods. The time to complete an inverse Abel transform increases with the size of the image. Most of the methods display a roughly :math:`n^3` scaling (dashed gray line). The ``basex``, ``onion_peeling``, ``three_point``, and ``two_point`` methods all rely on similar matrix-algebra operations as their rate-limiting step, and consequently exhibit identical performance for typical experimental image sizes.
@@ -233,7 +238,7 @@ A comparison of the time required to complete an inverse Abel transform versus t
     :nofigs:
 
 .. _fig_throughput:
-.. figure:: comparison/fig_benchmarks/throughput.svg
+.. figure:: comparison/fig_benchmarks/throughput.*
     :figclass: align-center
 
     The performance can also be viewed as a pixels-per-second rate. Here, it is clear that some methods provide sufficient throughput to transform images at rates far exceeding high-definition video (1000×1000 pixels at 30 frames per second is :math:`3\times10^7` pixels per second).
@@ -243,7 +248,7 @@ A comparison of the time required to complete an inverse Abel transform versus t
     :nofigs:
 
 .. _fig_btime:
-.. figure:: comparison/fig_benchmarks/basis_time.svg
+.. figure:: comparison/fig_benchmarks/basis_time.*
     :figclass: align-center
 
     Computational efficiency of the basis-set generation calculation.
@@ -277,14 +282,19 @@ Methods recommended for educational purposes only (these methods are generally s
 * ``onion_bordas``
 
 
-References
-----------
+.. raw:: html
+
+    <hr>
+
+.. only:: html
+
+    .. rubric:: References
 
 .. [bordas1996] \ C. Bordas, F. Paulig, H. Helm, and D. L. Huestis. Photoelectron imaging spectrometry: Principle and inversion method. Rev. Sci. Instrum., **67**, 2257, 1996. DOI: `10.1063/1.1147044 <https://doi.org/10.1063/1.1147044>`_.
 
 .. [chandler1987] David W. Chandler and Paul L. Houston. Two-dimensional imaging of state-selected photodissociation products detected by multiphoton ionization. J. Chem. Phys., **87**, 1445, 1987. DOI: `10.1063/1.453276 <https://doi.org/10.1063/1.453276>`_.
 
-.. [cignoli2001] Francesco Cignoli, Silvana De Iuliis, Vittorio Manta, and Giorgio Zizak. Two-dimensional two-wavelength emission technique for soot diagnostics. Appl. Opt., **40**, 5370, 2001. DOI: `10.1364/AO.40.005370 <http://doi.org/10.1364/AO.40.005370>`_.
+.. [cignoli2001] Francesco Cignoli, Silvana De Iuliis, Vittorio Manta, and Giorgio Zizak. Two-dimensional two-wavelength emission technique for soot diagnostics. Appl. Opt., **40**, 5370, 2001. DOI: `10.1364/AO.40.005370 <https://doi.org/10.1364/AO.40.005370>`_.
 
 .. [coppersmith1990] Don Coppersmith and Shmuel Winograd. Matrix multiplication via arithmetic progressions. J. Symb. Comput., **9**, 251, 1990. DOI: `10.1016/S0747-7171(08)80013-2 <https://doi.org/10.1016/S0747-7171(08)80013-2>`_.
 
@@ -294,7 +304,7 @@ References
 
 .. [demicheli2017] Enrico De Micheli. A fast algorithm for the inversion of Abel’s transform. Appl. Math. Comput., **301**, 12, 2017. DOI: `10.1016/j.amc.2016.12.009 <https://doi.org/10.1016/j.amc.2016.12.009>`_.
 
-.. [dick2014] Bernhard Dick. Inverting ion images without Abel inversion: maximum entropy reconstruction of velocity maps. Phys. Chem. Chem. Phys., **16**, 570, 2014. DOI: `10.1039/C3CP53673D <http://doi.org/10.1039/C3CP53673D>`_.
+.. [dick2014] Bernhard Dick. Inverting ion images without Abel inversion: maximum entropy reconstruction of velocity maps. Phys. Chem. Chem. Phys., **16**, 570, 2014. DOI: `10.1039/C3CP53673D <https://doi.org/10.1039/C3CP53673D>`_.
 
 .. [deiluliis1998] \ S. De Iuliis, M. Barbini, S. Benecchi, F. Cignoli, and G. Zizak. Determination of the soot volume fraction in an ethylene diffusion flame by multiwavelength analysis of soot radiation. Combust. Flame, **115**, 253, 1998. DOI: `10.1016/S0010-2180(97)00357-X <https://doi.org/10.1016/S0010-2180(97)00357-X>`_.
 
@@ -306,7 +316,7 @@ References
 
 .. [gascooke2000] Jason R. Gascooke. Energy Transfer in Polyatomic-Rare Gas Collisions and Van Der Waals Molecule Dissociation. PhD thesis, Flinders University, SA 5001, Australia, 2000. Available at `github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf <https://github.com/PyAbel/abel_info/blob/master/Gascooke_Thesis.pdf>`_.
 
-.. [gascooke2017] Jason R. Gascooke, Stephen T. Gibson, and Warren D. Lawrance. A “circularisation” method to repair deformations and determine the centre of velocity map images. J. Chem. Phys., **147**, 013924, 2017. DOI: `10.1063/1.4981024 <http://doi.org10.1063/1.4981024>`_.
+.. [gascooke2017] Jason R. Gascooke, Stephen T. Gibson, and Warren D. Lawrance. A “circularisation” method to repair deformations and determine the centre of velocity map images. J. Chem. Phys., **147**, 013924, 2017. DOI: `10.1063/1.4981024 <https://doi.org/10.1063/1.4981024>`_.
 
 .. [gerber2013] Thomas Gerber, Yuzhu Liu, Gregor Knopp, Patrick Hemberger, Andras Bodi, Peter Radi, and Yaroslav Sych. Charged particle velocity map image reconstruction with one-dimensional projections of spherical functions. Rev. Sci. Instrum., **84**, 033101, 2013. DOI: `10.1063/1.4793404 <https://doi.org/10.1063/1.4793404>`_.
 
@@ -322,11 +332,11 @@ References
 
 .. [hickstein2019] Daniel D. Hickstein, Stephen T. Gibson, Roman Yurchak, Dhrubajyoti D. Das, Mikhail Ryazanov. A direct comparison of high-speed methods for the numerical Abel transform. Rev. Sci. Instrum., **90**, 065115, 2019. DOI: `10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`_.
 
-.. [lumpe2007] \ J. D. Lumpe, L. E. Floyd, L. C. Herring, S. T. Gibson, and B. R. Lewis. Measurements of thermospheric molecular oxygen from the solar ultraviolet spectral irradiance monitor. J. Geophys. Res. Atmos., **112**, D16308, 2007. DOI: `10.1029/2006JD008076 <http://doi.org/10.1029/2006JD008076>`_.
+.. [lumpe2007] \ J. D. Lumpe, L. E. Floyd, L. C. Herring, S. T. Gibson, and B. R. Lewis. Measurements of thermospheric molecular oxygen from the solar ultraviolet spectral irradiance monitor. J. Geophys. Res. Atmos., **112**, D16308, 2007. DOI: `10.1029/2006JD008076 <https://doi.org/10.1029/2006JD008076>`_.
 
 .. [rallis2014] \ C. E. Rallis, T. G. Burwitz, P. R. Andrews, M. Zohrabi, R. Averin, S. De, B. Bergues, Bethany Jochim,A. V. Voznyuk, Neal Gregerson, B. Gaire, I. Znakovskaya, J. McKenna, K. D. Carnes, M. F. Kling, I. Ben-Itzhak, and E. Wells. Incorporating real time velocity map image reconstruction into closed-loop coherent control. Rev. Sci. Instrum., **85**, 113105, 2014. DOI: `10.1063/1.4899267 <https://doi.org/10.1063/1.4899267>`_.
 
-.. [ryazanov2012] Mikhail Ryazanov. Development and implementation of methods for sliced velocity map imaging. Studies of overtone-induced dissociation and isomerization dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and CD\ :sub:`2`\ OH). PhD thesis, University of Southern California, 2012. `search.proquest.com/docview/1289069738 <https://search.proquest.com/docview/1289069738>`_
+.. [ryazanov2012] Mikhail Ryazanov. Development and implementation of methods for sliced velocity map imaging. Studies of overtone-induced dissociation and isomerization dynamics of hydroxymethyl radical (CH\ :sub:`2`\ OH and CD\ :sub:`2`\ OH). PhD thesis, University of Southern California, 2012. `www.proquest.com/docview/1289069738 <https://www.proquest.com/docview/1289069738>`_
 
 .. [snelling1999] David R. Snelling, Kevin A. Thomson, Gregory J. Smallwood, and Ömer L. Gülder. Two-dimensional imaging of soot volume fraction in laminar diffusion flames. Appl. Opt., **38**, 2478, 1999. DOI: `10.1364/AO.38.002478 <https://doi.org/10.1364/AO.38.002478>`_.
 
@@ -335,3 +345,9 @@ References
 .. [whitaker2003] \ B. J. Whitaker. Imaging in Molecular Dynamics: Technology and Applications. Cambridge University Press, 2003. ISBN 9781139437905. `books.google.com/books?id=m8AYdeM3aRYC <https://books.google.com/books?id=m8AYdeM3aRYC>`_.
 
 .. [yurchak2015] Roman Yurchak. Experimental and numerical study of accretion-ejection mechanisms in laboratory astrophysics. Thesis, Ecole Polytechnique (EDX), 2015. `tel.archives-ouvertes.fr/tel-01338614 <https://tel.archives-ouvertes.fr/tel-01338614>`_.
+
+
+.. toctree::
+    :hidden:
+
+    comparison/fig_benchmarks/benchmarks

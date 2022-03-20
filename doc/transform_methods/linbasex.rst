@@ -28,29 +28,23 @@ making the reconstruction of sliced Newton spheres obsolete.*
 How it works
 ------------
 
-.. figure:: https://cloud.githubusercontent.com/assets/10932229/14975430/ea9c25de-1144-11e6-8824-531c81976160.png
-   :width: 350px
-   :alt: projection
-   :align: right
-   :figclass: align-center
+A projection of 3D Newton spheres onto the detector plane followed by a
+projection of the resulting 2D image along the :math:`x` axis
 
-   projections (Fig. 2 of [1])
+.. plot:: transform_methods/linbasex-proj.py
+    :align: center
 
-A projection of 3D Newton spheres along the :math:`x` axis yields a compact 1D function:
-
+yields a compact 1D function:
+ 
 .. math::
 
  L(z, u) = \sum_k \sum_\ell P_\ell(u)P_\ell\left(\frac{z}{r_k}\right) \frac{\prod_{r_k}(z)}{2r_k} p_{\ell k}
 
-with :math:`u = \cos(\theta)`. This function constitutes a system of equations
-expressing :math:`L(z, u)` as a linear combination of :math:`P_\ell(z/r_k)`. There
-exists for a given base a unique set of coefficients :math:`p_{\ell k}` 
-producing a least-squares fit to the function :math:`L(z, u)`.
-
-|
-|
-
-
+with :math:`u = \cos\theta`. This function constitutes a system of equations
+expressing :math:`L(z, u)` as a linear combination of Legendre polynomials
+:math:`P_\ell(z/r_k)`. There exists for a given base a unique set of
+coefficients :math:`p_{\ell k}` producing a least-squares fit to the function
+:math:`L(z, u)`.
 
 [ *extract of a comment made by Thomas Gerber (method author)* ]
 
@@ -109,7 +103,8 @@ How to use it
 -------------
 
 To complete the inverse Abel transform of a full image with the 
-``linbasex method``, simply use the :class:`abel.Transform`: class ::
+``linbasex method``, simply use the :class:`abel.Transform
+<abel.transform.Transform>` class::
 
     abel.Transform(myImage, method='linbasex').transform
 
@@ -155,10 +150,16 @@ Example
 Historical
 ----------
 
-PyAbel python code was extracted from this `jupyter notebook <https://www.psi.ch/sls/vuv/Station1_IntroEN/Lin_Basex0.7.zip>`_ supplied by Thomas Gerber.
+PyAbel python code was extracted from this `jupyter notebook <https://www.psi.ch/sites/default/files/import/sls/vuv/Station1_IntroEN/Lin_Basex0.7.zip>`_ supplied by Thomas Gerber.
 
 
 Citation
 --------
 
-.. [1] \ Th. Gerber, Yu. Liu, G. Knopp, P. Hemberger, A. Bodi, P. Radi, Ya. Sych, "Charged particle velocity map image reconstruction with one-dimensional projections of spherical functions", `Rev. Sci. Instrum. 84, 033101 (2013) <https://doi.org/10.1063/1.4793404>`_.
+.. |ref1| replace:: \ Th. Gerber, Yu. Liu, G. Knopp, P. Hemberger, A. Bodi, P. Radi, Ya. Sych, "Charged particle velocity map image reconstruction with one-dimensional projections of spherical functions", `Rev. Sci. Instrum. 84, 033101 (2013) <https://doi.org/10.1063/1.4793404>`__.
+
+.. [1] |ref1|
+
+.. only:: latex
+
+    * |ref1|

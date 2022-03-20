@@ -1,12 +1,16 @@
 PyAbel README
 =============
 
+.. begin-github-only1
+
 .. image:: https://travis-ci.com/PyAbel/PyAbel.svg?branch=master
     :target: https://travis-ci.com/PyAbel/PyAbel
 .. image:: https://ci.appveyor.com/api/projects/status/g1rj5f0g7nohcuuo
     :target: https://ci.appveyor.com/project/PyAbel/PyAbel
 
 **Note:** This readme is best viewed as part of the `PyAbel Documentation <https://pyabel.readthedocs.io/en/latest/readme_link.html>`__.
+
+.. end-github-only1
 
 
 Introduction
@@ -15,9 +19,9 @@ Introduction
 ``PyAbel`` is a Python package that provides functions for the forward and inverse `Abel transforms <https://en.wikipedia.org/wiki/Abel_transform>`__. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse Abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
 
 .. image:: https://user-images.githubusercontent.com/1107796/48970223-1b477b80-efc7-11e8-9feb-c614d6cadab6.png
-   :width: 500px
-   :alt: PyAbel
-   :align: right
+    :width: 500px
+    :alt: PyAbel
+    :align: right
 
 Inverse Abel transforms play an important role in analyzing the projections of angle-resolved photoelectron/photoion spectra, plasma plumes, flames, and solar occultation.
 
@@ -53,7 +57,7 @@ The outcome of the numerical Abel transform depends on the exact method used. So
 Installation
 ------------
 
-PyAbel requires Python 3.5-3.9. (Note: PyAbel is also currently tested to work with Python 2.7, but Python 2 support will be removed soon.) `NumPy <https://www.numpy.org/>`__ and `SciPy <https://www.scipy.org/>`__ are also required, and `Matplotlib <https://matplotlib.org/>`__ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.anaconda.com/products/individual>`__, which is available for free.
+PyAbel requires Python 3.5-3.9. (Note: PyAbel is also currently tested to work with Python 2.7, but Python 2 support will be removed soon.) `NumPy <https://numpy.org/>`__ and `SciPy <https://scipy.org/>`__ are also required, and `Matplotlib <https://matplotlib.org/>`__ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.anaconda.com/products/individual>`__, which is available for free.
 
 With pip
 ~~~~~~~~
@@ -122,8 +126,8 @@ The results can then be plotted using Matplotlib:
 Output:
 
 .. image:: https://cloud.githubusercontent.com/assets/1107796/13401302/d89aed7e-dec8-11e5-944f-fcafa1b75328.png
-   :width: 400px
-   :alt: example abel transform
+    :width: 400px
+    :alt: example abel transform
 
 .. note:: Additional examples can be viewed on the `PyAbel examples <https://pyabel.readthedocs.io/en/latest/examples.html>`__ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`__ directory.
 
@@ -194,7 +198,7 @@ Either open a new `Issue <https://github.com/PyAbel/PyAbel/issues>`__ or make a 
 License
 -------
 
-PyAble is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE.txt>`__, so it can be used for pretty much whatever you want! Of course, it is provided "as is" with absolutely no warranty.
+PyAbel is licensed under the `MIT license <https://github.com/PyAbel/PyAbel/blob/master/LICENSE.txt>`__, so it can be used for pretty much whatever you want! Of course, it is provided "as is" with absolutely no warranty.
 
 
 .. _READMEcitation:
@@ -204,10 +208,14 @@ Citation
 
 First and foremost, please cite the paper(s) corresponding to the implementation of the Abel transform that you use in your work. The references can be found at the links above.
 
-If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. You can find the DOI for the lastest verison `here <https://dx.doi.org/10.5281/zenodo.594858>`__
+If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. You can find the DOI for the lastest verison at `Zenodo <https://dx.doi.org/10.5281/zenodo.594858>`__.
+
+.. begin-github-only2
 
 .. image:: https://zenodo.org/badge/30170345.svg
-   :target: https://zenodo.org/badge/latestdoi/30170345
+    :target: https://zenodo.org/badge/latestdoi/30170345
+
+.. end-github-only2
 
 Additionally, we have written a scientific paper comparing various Abel transform methods. You can find the manuscript at the Review of Scientific Instruments (DOI: `doi.org/10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`__) or on arxiv (`arxiv.org/abs/1902.09007 <https://arxiv.org/abs/1902.09007>`__).
 

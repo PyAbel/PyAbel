@@ -76,3 +76,4 @@ def plot(directory, xlim, ylim, va):
 if __name__ == "__main__":
     plot('i7-9700_Linux', xlim=(5, 1e5), ylim=(3e3, 2e9), va='top')
     plt.savefig('throughput.svg')
+    plt.savefig('throughput.pdf')
