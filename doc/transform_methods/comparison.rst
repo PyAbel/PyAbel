@@ -12,9 +12,7 @@ Introduction
 The projection of a three-dimensional (3D) object onto a two-dimensional (2D) surface takes place in many measurement processes; a simple example is the recording of an X-ray image of a soup bowl, donut, egg, wineglass, or other cylindrically symmetric object :numref:`fig_overview`, where the axis of cylindrical symmetry is parallel to the plane of the detector. Such a projection is an example of a *forward* Abel transform and occurs in numerous experiments, including photoelectron/photoion spectroscopy ([dribinski2002]_, [bordas1996]_, [chandler1987]_) the studies of plasma plumes ([glasser1978]_), flames ([deiluliis1998]_, [cignoli2001]_, [snelling1999]_, [das2017]_), and solar occulation of planetary atmospheres ([gladstone2016]_, [lumpe2007]_). The analysis of data from these experiments requires the use of the *inverse* Abel transform to recover the 3D object from its 2D projection.
 
 .. _fig_overview:
-.. figure:: https://user-images.githubusercontent.com/1107796/48970223-1b477b80-efc7-11e8-9feb-c614d6cadab6.png
-   :width: 600px
-   :alt: PyAbel
+.. figure:: ../overview.*
    :figclass: align-center
 
    The forward Abel transform maps a cylindrically symmetric three-dimensional (3D) object to its two-dimensional (2D) projection, a physical process that occurs in many experimental situations. For example, an X-ray image of the object on the left would produce the projection shown on the right. The *inverse* Abel transform takes the 2D projection and mathematically reconstructs the 3D object. As indicated by the Abel transform equations (below), the 3D object is described in terms of :math:`(r, z)` coordinates, while the 2D projection is recorded in :math:`(y, z)` coordinates.

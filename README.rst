@@ -1,6 +1,9 @@
 PyAbel README
 =============
 
+..
+    Parts between "github-only1" comments below are excluded or treated differently by Sphinx (see doc/readme_link.rst)
+
 .. begin-github-only1
 
 .. image:: https://travis-ci.com/PyAbel/PyAbel.svg?branch=master
@@ -18,10 +21,12 @@ Introduction
 
 ``PyAbel`` is a Python package that provides functions for the forward and inverse `Abel transforms <https://en.wikipedia.org/wiki/Abel_transform>`__. The forward Abel transform takes a slice of a cylindrically symmetric 3D object and provides the 2D projection of that object. The inverse Abel transform takes a 2D projection and reconstructs a slice of the cylindrically symmetric 3D distribution.
 
+.. begin-github-only2
+
 .. image:: https://user-images.githubusercontent.com/1107796/48970223-1b477b80-efc7-11e8-9feb-c614d6cadab6.png
-    :width: 500px
-    :alt: PyAbel
-    :align: right
+    :width: 600px
+
+.. end-github-only2
 
 Inverse Abel transforms play an important role in analyzing the projections of angle-resolved photoelectron/photoion spectra, plasma plumes, flames, and solar occultation.
 
@@ -210,12 +215,12 @@ First and foremost, please cite the paper(s) corresponding to the implementation
 
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. You can find the DOI for the lastest verison at `Zenodo <https://dx.doi.org/10.5281/zenodo.594858>`__.
 
-.. begin-github-only2
+.. begin-github-only3
 
 .. image:: https://zenodo.org/badge/30170345.svg
     :target: https://zenodo.org/badge/latestdoi/30170345
 
-.. end-github-only2
+.. end-github-only3
 
 Additionally, we have written a scientific paper comparing various Abel transform methods. You can find the manuscript at the Review of Scientific Instruments (DOI: `doi.org/10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`__) or on arxiv (`arxiv.org/abs/1902.09007 <https://arxiv.org/abs/1902.09007>`__).
 

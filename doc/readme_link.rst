@@ -8,5 +8,12 @@
     :start-after: end-github-only1
     :end-before: begin-github-only2
 
+.. image:: overview.*
+    :align: center
+
 .. include:: ../README.rst
     :start-after: end-github-only2
+    :end-before: begin-github-only3
+
+.. include:: ../README.rst
+    :start-after: end-github-only3
