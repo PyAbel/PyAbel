@@ -2,7 +2,7 @@ PyAbel README
 =============
 
 ..
-    Parts between "github-only1" comments below are excluded or treated differently by Sphinx (see doc/readme_link.rst)
+    Parts between "github-only" comments below are excluded or treated differently by Sphinx (see doc/readme_link.rst)
 
 .. begin-github-only1
 
@@ -23,8 +23,7 @@ Introduction
 
 .. begin-github-only2
 
-.. image:: https://user-images.githubusercontent.com/1107796/48970223-1b477b80-efc7-11e8-9feb-c614d6cadab6.png
-    :width: 600px
+.. image:: doc/overview.svg
 
 .. end-github-only2
 
