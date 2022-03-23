@@ -31,6 +31,7 @@ help:
 	@echo "  singlehtml to make a single large HTML file"
 	@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
 	@echo "  linkcheck  to check all external links for integrity"
+	@echo "  clean      to delete all generated files"
 #	These aren't tested and probably don't work properly, try at your own risk:
 #	@echo "  pickle     to make pickle files"
 #	@echo "  json       to make JSON files"
