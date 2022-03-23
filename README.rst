@@ -102,8 +102,10 @@ Using PyAbel can be simple. The following Python code imports the PyAbel package
 
     import abel
     original     = abel.tools.analytical.SampleImage().func
-    forward_abel = abel.Transform(original, direction='forward', method='hansenlaw').transform
-    inverse_abel = abel.Transform(forward_abel, direction='inverse', method='three_point').transform
+    forward_abel = abel.Transform(original, direction='forward',
+                                  method='hansenlaw').transform
+    inverse_abel = abel.Transform(forward_abel, direction='inverse',
+                                  method='three_point').transform
 
 Note: the ``abel.Transform()`` class returns a Python ``class`` object, where the 2D Abel transform is accessed through the ``.transform`` attribute.
 
@@ -114,26 +116,27 @@ The results can then be plotted using Matplotlib:
     import matplotlib.pyplot as plt
     import numpy as np
 
-    fig, axs = plt.subplots(1, 2, figsize=(6, 4))
+    fig, axs = plt.subplots(1, 2, figsize=(6, 3))
 
-    axs[0].imshow(forward_abel, clim=(0, np.max(forward_abel) * 0.6),
-                  origin='lower', extent=(-1, 1, -1, 1))
-    axs[1].imshow(inverse_abel, clim=(0, np.max(inverse_abel) * 0.4),
-                  origin='lower', extent=(-1, 1, -1, 1))
+    axs[0].imshow(forward_abel, cmap='ocean_r')
+    axs[1].imshow(inverse_abel, cmap='ocean_r')
 
-    axs[0].set_title('Forward Abel Transform')
-    axs[1].set_title('Inverse Abel Transform')
+    axs[0].set_title('Forward Abel transform')
+    axs[1].set_title('Inverse Abel transform')
 
     plt.tight_layout()
     plt.show()
 
 Output:
 
-.. image:: https://cloud.githubusercontent.com/assets/1107796/13401302/d89aed7e-dec8-11e5-944f-fcafa1b75328.png
-    :width: 400px
-    :alt: example abel transform
+.. begin-github-only3
+
+.. image:: https://user-images.githubusercontent.com/12854133/159737698-30ee69d1-e12d-438a-a9ea-7d7bb0c97f9a.svg
+    :alt: example Abel transform
 
 .. note:: Additional examples can be viewed on the `PyAbel examples <https://pyabel.readthedocs.io/en/latest/examples.html>`__ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`__ directory.
+
+.. end-github-only3
 
 
 Documentation
@@ -214,14 +217,14 @@ First and foremost, please cite the paper(s) corresponding to the implementation
 
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. You can find the DOI for the lastest verison at `Zenodo <https://dx.doi.org/10.5281/zenodo.594858>`__.
 
-.. begin-github-only3
+.. begin-github-only4
 
 .. image:: https://zenodo.org/badge/30170345.svg
     :target: https://zenodo.org/badge/latestdoi/30170345
 
-.. end-github-only3
+.. end-github-only4
 
-Additionally, we have written a scientific paper comparing various Abel transform methods. You can find the manuscript at the Review of Scientific Instruments (DOI: `doi.org/10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`__) or on arxiv (`arxiv.org/abs/1902.09007 <https://arxiv.org/abs/1902.09007>`__).
+Additionally, we have written a scientific paper comparing various Abel transform methods. You can find the manuscript at the Review of Scientific Instruments (DOI: `10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`__) or on arxiv (`arxiv.org/abs/1902.09007 <https://arxiv.org/abs/1902.09007>`__).
 
 
 **Have fun!**
