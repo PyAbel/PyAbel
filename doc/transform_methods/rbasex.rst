@@ -202,9 +202,11 @@ data, as well as any other data having the same mask geometry.
 Citation
 --------
 
+.. include:: ../doi.rst
+
 This method has not yet been published elsewhere, so please cite it as the
-“rBasex method from the PyAbel package”, using the current Zenodo DOI (see
-:ref:`README <READMEcitation>` for details).
+“rBasex method from the PyAbel package”, using the current Zenodo DOI:
+|doi_link|.
 
 .. |ref1| replace:: \ G. A. Garcia, L. Nahon, I. Powis,
        “Two-dimensional charged particle image inversion using a polar basis
