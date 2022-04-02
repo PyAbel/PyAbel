@@ -299,13 +299,6 @@ The algorithm can be also accessed directly (to transform a right-side
 half-image or properly oriented quadrants) through the
 :func:`abel.daun.daun_transform()` function.
 
-.. note::
-    If you use any non-default options (degree, regularization), please cite
-    not only the article by Daun et al. and the PyAbel article, but also *this
-    PyAbel release* (see `Zenodo <https://zenodo.org/badge/latestdoi/30170345>`__),
-    because these capabilities are not present in the original work by Daun et
-    al. and were added to PyAbel after the RSI publication.
-
 
 Examples
 --------
@@ -342,3 +335,13 @@ Citation
 .. only:: latex
 
     * |ref1|
+
+.. include:: ../doi.rst
+
+.. note::
+    If you use any non-default options (degree, regularization), please cite
+    not only the article by Daun et al. and the `PyAbel article
+    <https://doi.org/10.1063/1.5092635>`__, but also *this PyAbel release*
+    (DOI: |doi_link|), because these capabilities are not present in the
+    original work by Daun et al. and were added to PyAbel after the RSI
+    publication.
