@@ -23,7 +23,7 @@ Introduction
 
 .. begin-github-only2
 
-.. image:: doc/overview.svg
+.. image:: https://raw.githubusercontent.com/PyAbel/PyAbel/master/doc/overview.svg
 
 .. end-github-only2
 
@@ -131,7 +131,7 @@ Output:
 
 .. begin-github-only3
 
-.. image:: https://user-images.githubusercontent.com/12854133/159737698-30ee69d1-e12d-438a-a9ea-7d7bb0c97f9a.svg
+.. image:: https://pyabel.readthedocs.io/en/latest/_images/readme_link-1.svg
     :alt: example Abel transform
 
 .. note:: Additional examples can be viewed on the `PyAbel examples <https://pyabel.readthedocs.io/en/latest/examples.html>`__ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`__ directory.

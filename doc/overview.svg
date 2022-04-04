@@ -92,7 +92,7 @@ Convert to PDF:
     </radialGradient>
   </defs>
 
-  <g font-family='sans' font-size='16'>
+  <g font-family='DejaVu Sans, Verdana, sans-serif' font-size='16'>
     <!-- Object -->
     <g transform='translate(90 290)'>
       <!-- origin -->
