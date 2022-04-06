@@ -4,39 +4,39 @@ Drawn by Mikhail Ryazanov based on PNG render by Daniel Hickstein
 (see doi:10.1063/1.5092635 and Rev. Sci. Instrum. 90(6) cover).
 
 Validate:
-  https://validator.w3.org/check
+  https://validator.w3.org/#validate_by_upload
 
 Convert to PDF:
   inkscape -o overview.pdf overview.svg
 
 -->
 <svg xmlns='http://www.w3.org/2000/svg' version='1.1'
-     width='6in' height='3.5in' viewBox='0 0 600 350'>
+     width='6in' height='3in' viewBox='0 0 600 300'>
   <defs>
     <!-- 3D origin -->
     <radialGradient id='origin' cx='0.4' cy='0.3'>
-      <stop offset='0' stop-color='#666'/>
-      <stop offset='1' stop-color='#000'/>
+      <stop offset='0' stop-color='#CCC'/>
+      <stop offset='1' stop-color='#666'/>
     </radialGradient>
 
     <!-- 3D r axis -->
     <linearGradient id='r_axis'>
-      <stop offset='0.0' stop-color='#D0D'/>
-      <stop offset='0.2' stop-color='#E0E'/>
-      <stop offset='0.4' stop-color='#D0D'/>
-      <stop offset='0.6' stop-color='#C0C'/>
-      <stop offset='0.8' stop-color='#909'/>
-      <stop offset='1.0' stop-color='#707'/>
+      <stop offset='0.0' stop-color='#E0E'/>
+      <stop offset='0.2' stop-color='#F0F'/>
+      <stop offset='0.4' stop-color='#E0E'/>
+      <stop offset='0.6' stop-color='#D0D'/>
+      <stop offset='0.8' stop-color='#A0A'/>
+      <stop offset='1.0' stop-color='#808'/>
     </linearGradient>
     <!-- its head (fake conical gradient) -->
     <radialGradient id='r_head' r='112.4' cx='-100' cy='50' fx='0.28' fy='-0.5'>
-      <stop offset='0.000' stop-color='#C0C'/>
-      <stop offset='0.013' stop-color='#D0D'/>
-      <stop offset='0.070' stop-color='#707'/>
+      <stop offset='0.000' stop-color='#D0D'/>
+      <stop offset='0.013' stop-color='#E0E'/>
+      <stop offset='0.070' stop-color='#808'/>
     </radialGradient>
 
     <!-- 3D z axis -->
-    <linearGradient id='z_axis'>
+    <linearGradient id='z_axis_bottom'>
       <stop offset='0.0' stop-color='#090'/>
       <stop offset='0.2' stop-color='#0B0'/>
       <stop offset='0.4' stop-color='#0C0'/>
@@ -44,11 +44,19 @@ Convert to PDF:
       <stop offset='0.8' stop-color='#090'/>
       <stop offset='1.0' stop-color='#070'/>
     </linearGradient>
+    <linearGradient id='z_axis_top'>
+      <stop offset='0.0' stop-color='#0C0'/>
+      <stop offset='0.2' stop-color='#0D0'/>
+      <stop offset='0.4' stop-color='#0E0'/>
+      <stop offset='0.6' stop-color='#0D0'/>
+      <stop offset='0.8' stop-color='#0C0'/>
+      <stop offset='1.0' stop-color='#0A0'/>
+    </linearGradient>
     <!-- its head (fake conical gradient) -->
     <radialGradient id='z_head' r='112.4' cx='-100' cy='50' fx='0.28' fy='-0.5'>
-      <stop offset='0.000' stop-color='#0A0'/>
-      <stop offset='0.013' stop-color='#0D0'/>
-      <stop offset='0.070' stop-color='#0B0'/>
+      <stop offset='0.000' stop-color='#0C0'/>
+      <stop offset='0.013' stop-color='#0F0'/>
+      <stop offset='0.070' stop-color='#0D0'/>
     </radialGradient>
 
     <!-- object outer shading -->
@@ -92,21 +100,19 @@ Convert to PDF:
     </radialGradient>
   </defs>
 
-  <g font-family='DejaVu Sans, Verdana, sans-serif' font-size='16'>
+  <g font-family='DejaVu Sans, Verdana, sans-serif' font-size='16' font-weight='bold'>
     <!-- Object -->
-    <g transform='translate(90 290)'>
+    <g transform='translate(90 255)'>
       <!-- origin -->
-      <circle r='5' fill='url(#origin)'/>
+      <circle r='6' fill='url(#origin)'/>
       <!-- r axis -->
-      <g transform='rotate(105)'>
-        <path d='M -3 -3.5 a 3 1.5 0 0 0 6 0 l 0 -90 l -6 0 z' fill='url(#r_axis)'/>
-        <path d='M -8 -90 a 8 3 0 1 0 16 0 l -8 -14 l -8 14 z' fill='url(#r_head)'/>
+      <g transform='rotate(100)'>
+        <path d='M -4 -4 a 4 1.5 0 0 0 8 0 l 0 -90 l -8 0 z' fill='url(#r_axis)'/>
+        <path d='M -9 -90 a 9 3 0 1 0 18 0 l -9 -17 l -9 17 z' fill='url(#r_head)'/>
       </g>
-      <text x='88' y='44' text-anchor='middle' font-style='italic' fill='#C0C'>r</text>
-      <!-- z axis -->
-      <path d='M -3 -3.5 a 3 1 0 0 0 6 0 l 0 -220 l -6 0 z' fill='url(#z_axis)'/>
-      <path d='M -8 -220 a 8 2 0 1 0 16 0 l -8 -16 l -8 16 z' fill='url(#z_head)'/>
-      <text x='-15' y='-220' text-anchor='middle' font-style='italic' fill='#0A0'>z</text>
+      <text x='95' y='35' text-anchor='middle' font-style='italic' fill='#D0D'>r</text>
+      <!-- z axis (bottom) -->
+      <path d='M -4 -4 a 4 1 0 0 0 8 0 l 0 -220 l -8 0 z' fill='url(#z_axis_bottom)'/>
       <!-- object... -->
       <!-- outer -->
       <clipPath id='object_clip_out'>
@@ -118,125 +124,127 @@ Convert to PDF:
       <!-- inner -->
       <clipPath id='object_clip_in'>
         <!-- (1px larger to avoid edge-stitching artifacts) -->
-        <path d='M -68 -180 a 68 18 0 0 0 136 0 a 68 18 0 0 0 -136 0 z'/>
+        <path d='M -68 -180 a 68 13 0 0 0 136 0 a 68 13 0 0 0 -136 0 z'/>
       </clipPath>
       <g clip-path='url(#object_clip_in)'>
         <circle r='360' transform='translate(0 -420) scale(0.25 1)' fill='url(#object_in)'/>
       </g>
       <!-- top -->
-      <path d='M -80 -180 a 80 20 0 0 0 160 0 a 80 20 0 0 0 -160 0 z
-               M -67 -180 a 67 17 0 0 0 134 0 a 67 17 0 0 0 -134 0 z'
+      <path d='M -80 -180 a 80 14 0 0 0 160 0 a 80 14 0 0 0 -160 0 z
+               M -67 -180 a 67 12 0 0 0 134 0 a 67 12 0 0 0 -134 0 z'
                fill-rule='evenodd' fill='#4AF'/>
-      <!-- inner z axis -->
+      <!-- z axis (top) -->
       <clipPath id='object_clip_axis'>
-        <path d='M -67 -180 a 67 17 0 0 0 134 0 l 0 -20 l -107 0 z'/>
+        <path d='M -67 -180 a 67 12 0 0 0 134 0 l 0 -50 l -107 0 z'/>
       </clipPath>
       <path clip-path='url(#object_clip_axis)'
-            d='M -3 -3 a 3 1 0 0 0 6 0 l 0 -220 l -6 0 z' fill='url(#z_axis)'/>
+            d='M -4 -4 a 4 1 0 0 0 8 0 l 0 -220 l -8 0 z' fill='url(#z_axis_top)'/>
+      <path d='M -9 -220 a 9 1.5 0 1 0 18 0 l -9 -18 l -9 18 z' fill='url(#z_head)'/>
+      <text x='-15' y='-225' text-anchor='middle' font-style='italic' fill='#0E0'>z</text>
       <!-- label -->
       <g fill='#FFF' text-anchor='middle'>
-        <text y='-130' font-weight='bold'>3D object</text>
-        <g font-size='80%'>
-          <text y='-110'>(cylindrically</text>
-          <text y='-95'>symmetric)</text>
+        <!--text y='-135' font-weight='bold'>3D object</text-->
+        <g transform='translate(0 -135)' font-weight='bold'>
+          <text transform='translate(-37.5 -2  ) skewY( 6  )'>3</text>
+          <text transform='translate(-25.2 -1  ) skewY( 3.5)'>D</text>
+          <text transform='translate( -7.5 -0.2) skewY( 1  )'>o</text>
+          <text transform='translate(  3.7 -0.2) skewY(-1  )'>b</text>
+          <text transform='translate( 12.2 -0.4) skewY(-1.5)'>j</text>
+          <text transform='translate( 20.5 -0.7) skewY(-3.0)'>e</text>
+          <text transform='translate( 30.5 -1.4) skewY(-4.5)'>c</text>
+          <text transform='translate( 39   -2.2) skewY(-6.5)'>t</text>
+        </g>
+        <g font-size='80%' font-weight='normal'>
+          <!--text y='-115'>(cylindrically</text-->
+          <g transform='translate(0 -115)'>
+            <text transform='translate(-39.5 -2.3) skewY( 7  )'>(</text>
+            <text transform='translate(-33.4 -1.6) skewY( 6  )'>c</text>
+            <text transform='translate(-26.1 -0.9) skewY( 4.5)'>y</text>
+            <text transform='translate(-20.2 -0.5) skewY( 3  )'>l</text>
+            <text transform='translate(-16.3 -0.4) skewY( 2.5)'>i</text>
+            <text transform='translate(-10.5 -0.2) skewY( 1.5)'>n</text>
+            <text transform='translate( -2.3  0  ) skewY( 0.5)'>d</text>
+            <text transform='translate(  4.5  0  ) skewY(-0.5)'>r</text>
+            <text transform='translate(  9.2 -0.1) skewY(-1.5)'>i</text>
+            <text transform='translate( 14.5 -0.3) skewY(-2.5)'>c</text>
+            <text transform='translate( 21.9 -0.7) skewY(-3.5)'>a</text>
+            <text transform='translate( 28   -1.1) skewY(-4.5)'>l</text>
+            <text transform='translate( 32.2 -1.5) skewY(-5.5)'>l</text>
+            <text transform='translate( 38.1 -2.1) skewY(-7  )'>y</text>
+          </g>
+          <!--text y='-100'>symmetric)</text-->
+          <g transform='translate(0 -100)'>
+            <text transform='translate(-33.3 -1.7) skewY( 6.5)'>s</text>
+            <text transform='translate(-26.2 -1.0) skewY( 4.5)'>y</text>
+            <text transform='translate(-16.2 -0.4) skewY( 2.5)'>m</text>
+            <text transform='translate( -3.7 -0.1) skewY( 0.5)'>m</text>
+            <text transform='translate(  6.5 -0.1) skewY(-1  )'>e</text>
+            <text transform='translate( 12.9 -0.3) skewY(-2  )'>t</text>
+            <text transform='translate( 18.2 -0.5) skewY(-3  )'>r</text>
+            <text transform='translate( 22.9 -0.8) skewY(-4  )'>i</text>
+            <text transform='translate( 28.1 -1.2) skewY(-5  )'>c</text>
+            <text transform='translate( 34.1 -1.8) skewY(-6.5)'>)</text>
+          </g>
         </g>
       </g>
     </g>
 
     <!-- Inverse arrow -->
-    <g transform='translate(290 100) skewY(-15) scale(0.866 1)'>
+    <g transform='translate(290 100) skewY(-10) scale(0.866 1)'>
       <!-- arrow -->
       <path d='M 110 -20 l 0 40 l -180 0 l 0 20 l -50 -40 l 50 -40 l 0 20 z' fill='#D0D'/>
       <!-- top -->
-      <path d='M 110 -20 l -10 -5 l -170 0 l 0 5 z' fill='#E8E'/>
+      <path d='M 110 -20 l -16 -5 l -164 0 l 0 5 z' fill='#E8E'/>
       <!-- head top -->
-      <path d='M -70 -40 l -10 -5 l -50 40 l 10 5 z' fill='#E8E'/>
+      <path d='M -70 -40 l -16 -5 l -50 40 l 16 5 z' fill='#E8E'/>
       <!-- head bottom -->
-      <path d='M -120 0 l -10 -5 l 50 40 l 10 5 z' fill='#B0B'/>
+      <path d='M -120 0 l -16 -5 l 50 40 l 16 5 z' fill='#B0B'/>
       <!-- label -->
       <text x='0' y='4' text-anchor='middle' fill='#FFF'>Inverse Abel transform</text>
     </g>
 
     <!-- Forward arrow -->
-    <g transform='translate(290 200) skewY(-15) scale(0.866 1)'>
+    <g transform='translate(290 180) skewY(-10) scale(0.866 1)'>
       <!-- arrow -->
       <path d='M -110 -20 l 0 40 l 180 0 l 0 20 l 50 -40 l -50 -40 l 0 20 z' fill='#D44'/>
       <!-- left -->
-      <path d='M -110 20 l -10 -5 l 0 -40 l 10 5 z' fill='#C44'/>
+      <path d='M -110 20 l -16 -5 l 0 -40 l 16 5 z' fill='#C44'/>
       <!-- top -->
-      <path d='M -110 -20 l -10 -5 l 180 0 l 10 5 z' fill='#E88'/>
+      <path d='M -110 -20 l -16 -5 l 180 0 l 16 5 z' fill='#E88'/>
       <!-- head left top -->
-      <path d='M 70 -20 l -10 -5 l 0 -20 l 10 5 z' fill='#C44'/>
+      <path d='M 70 -20 l -16 -5 l 0 -20 l 16 5 z' fill='#C44'/>
       <!-- head left bottom -->
-      <path d='M 70 40 l -10 -5 l 0 -15 l 10 0 z' fill='#C44'/>
+      <path d='M 70 40 l -16 -5 l 0 -15 l 16 0 z' fill='#C44'/>
       <!-- label -->
       <text x='0' y='4' text-anchor='middle' fill='#FFF'>Forward Abel transform</text>
     </g>
 
     <!-- Projection -->
-    <g transform='translate(400 20) skewY(15) scale(0.866 1)'>
+    <g transform='translate(400 20) skewY(10) scale(0.866 1)'>
       <!-- plane -->
-      <rect width='190' height='200' fill='#EEE'/>
+      <rect width='190' height='200' fill='#F7F7F7'/>
       <!-- grid -->
-      <g stroke='#888' stroke-linecap='round'>
+      <g stroke='#DDD' stroke-linecap='round'>
         <!-- horizontal -->
-        <line x1='0' y1=  '0' x2='190' y2=  '0'/>
-        <line x1='0' y1= '10' x2='190' y2= '10'/>
-        <line x1='0' y1= '20' x2='190' y2= '20'/>
-        <line x1='0' y1= '30' x2='190' y2= '30'/>
-        <line x1='0' y1= '40' x2='190' y2= '40'/>
-        <line x1='0' y1= '50' x2='190' y2= '50'/>
-        <line x1='0' y1= '60' x2='190' y2= '60'/>
-        <line x1='0' y1= '70' x2='190' y2= '70'/>
-        <line x1='0' y1= '80' x2='190' y2= '80'/>
-        <line x1='0' y1= '90' x2='190' y2= '90'/>
-        <line x1='0' y1='100' x2='190' y2='100'/>
-        <line x1='0' y1='110' x2='190' y2='110'/>
-        <line x1='0' y1='120' x2='190' y2='120'/>
-        <line x1='0' y1='130' x2='190' y2='130'/>
-        <line x1='0' y1='140' x2='190' y2='140'/>
-        <line x1='0' y1='150' x2='190' y2='150'/>
-        <line x1='0' y1='160' x2='190' y2='160'/>
-        <line x1='0' y1='170' x2='190' y2='170'/>
-        <line x1='0' y1='180' x2='190' y2='180'/>
-        <line x1='0' y1='190' x2='190' y2='190'/>
-        <line x1='0' y1='200' x2='190' y2='200'/>
+        <path d='M 0 0 H 190 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190
+                 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0
+                 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190
+                 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0
+                 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190
+                 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0
+                 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190
+                 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0 m 0 5 H 190 m 0 5 H 0
+                 m 0 5 H 190'/>
         <!-- vertical -->
-        <line x1=  '0' y1='0' x2=  '0' y2='200'/>
-        <line x1= '10' y1='0' x2= '10' y2='200'/>
-        <line x1= '20' y1='0' x2= '20' y2='200'/>
-        <line x1= '30' y1='0' x2= '30' y2='200'/>
-        <line x1= '40' y1='0' x2= '40' y2='200'/>
-        <line x1= '50' y1='0' x2= '50' y2='200'/>
-        <line x1= '60' y1='0' x2= '60' y2='200'/>
-        <line x1= '70' y1='0' x2= '70' y2='200'/>
-        <line x1= '80' y1='0' x2= '80' y2='200'/>
-        <line x1= '90' y1='0' x2= '90' y2='200'/>
-        <line x1='100' y1='0' x2='100' y2='200'/>
-        <line x1='110' y1='0' x2='110' y2='200'/>
-        <line x1='120' y1='0' x2='120' y2='200'/>
-        <line x1='130' y1='0' x2='130' y2='200'/>
-        <line x1='140' y1='0' x2='140' y2='200'/>
-        <line x1='150' y1='0' x2='150' y2='200'/>
-        <line x1='160' y1='0' x2='160' y2='200'/>
-        <line x1='170' y1='0' x2='170' y2='200'/>
-        <line x1='180' y1='0' x2='180' y2='200'/>
-        <line x1='190' y1='0' x2='190' y2='200'/>
+        <path d='M 0 0 V 200 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200
+                 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0
+                 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200
+                 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0
+                 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200
+                 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0
+                 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200
+                 m 5 0 V 0 m 5 0 V 200 m 5 0 V 0 m 5 0 V 200'/>
       </g>
-      <!-- x axis -->
-      <g fill='#C00'>
-        <path d='M 95 195 l 115 0 m 0 0 l -6 3 l 0 -6 l 6 3 z'
-              stroke='#C00' stroke-width='6' stroke-miterlimit='10'/>
-        <text x='200' y='215' text-anchor='middle' font-style='italic'>y</text>
-      </g>
-      <!-- z axis -->
-      <g fill='#0A0'>
-        <path d='M 95 195 l 0 -215 m 0 0 l 3 6 l -6 0 l 3 -6 z'
-              stroke='#0A0' stroke-width='6' stroke-miterlimit='10'/>
-        <text x='80' y='-10' text-anchor='middle' font-style='italic'>z</text>
-      </g>
-      <!-- origin -->
-      <circle cx='95' cy='195' r='5' fill='#000'/>
       <!-- projection -->
       <clipPath id='projection_clip'>
         <rect y='20' width='190' height='180'/>
@@ -244,8 +252,22 @@ Convert to PDF:
       <g clip-path='url(#projection_clip)'>
         <circle r='400' transform='translate(95 -220) scale(0.25 1)' fill='url(#projection)'/>
       </g>
+      <!-- y axis -->
+      <g fill='#E00'>
+        <path d='M 95 200 l 115 0 m 0 0 l -6 3 l 0 -6 l 6 3 z'
+              stroke='#E00' stroke-width='8' stroke-miterlimit='10'/>
+        <text x='210' y='220' text-anchor='middle' font-style='italic'>y</text>
+      </g>
+      <!-- z axis -->
+      <g fill='#0E0'>
+        <path d='M 95 200 l 0 -220 m 0 0 l 3 6 l -6 0 l 3 -6 z'
+              stroke='#0E0' stroke-width='8' stroke-miterlimit='10'/>
+        <text x='80' y='-15' text-anchor='middle' font-style='italic'>z</text>
+      </g>
+      <!-- origin -->
+      <circle cx='95' cy='200' r='6' fill='#999'/>
       <!-- label -->
-      <text x='95' y='225' text-anchor='middle' font-weight='bold'>2D projection</text>
+      <text x='95' y='230' text-anchor='middle' font-weight='bold'>2D projection</text>
     </g>
   </g>
 </svg>
