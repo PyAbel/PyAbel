@@ -19,7 +19,7 @@ sigma = 10
 
 ref = GaussianAnalytical(n, r_max, sigma, symmetric=False)
 
-fig, ax = plt.subplots(1,2)
+fig, ax = plt.subplots(1, 2)
 
 # forward Abel transform
 reconC = direct_transform(ref.func, dr=ref.dr, direction="forward",
@@ -29,8 +29,8 @@ reconP = direct_transform(ref.func, dr=ref.dr, direction="forward",
 
 ax[0].set_title('Forward transform of a Gaussian', fontsize='smaller')
 ax[0].plot(ref.r, ref.abel, label='Analytical transform')
-ax[0].plot(ref.r, reconC , '--', label='correction=True')
-ax[0].plot(ref.r, reconP , ':', label='correction=False')
+ax[0].plot(ref.r, reconC, '--', label='correction=True')
+ax[0].plot(ref.r, reconP, ':', label='correction=False')
 ax[0].set_ylabel('intensity (arb. units)')
 ax[0].set_xlabel('radius')
 
@@ -38,14 +38,14 @@ ax[0].set_xlabel('radius')
 # inverse Abel transform
 reconc = direct_transform(ref.abel, dr=ref.dr, direction="inverse",
                           correction=True)
- 
+
 reconnoc = direct_transform(ref.abel, dr=ref.dr, direction="inverse",
-                         correction=False)
+                            correction=False)
 
 ax[1].set_title('Inverse transform of a Gaussian', fontsize='smaller')
 ax[1].plot(ref.r, ref.func, 'C0', label='Original function')
-ax[1].plot(ref.r, reconc , 'C1--', label='correction=True')
-ax[1].plot(ref.r, reconnoc , 'C2:', label='correction=False')
+ax[1].plot(ref.r, reconc, 'C1--', label='correction=True')
+ax[1].plot(ref.r, reconnoc, 'C2:', label='correction=False')
 ax[1].set_xlabel('radius')
 
 for axi in ax:

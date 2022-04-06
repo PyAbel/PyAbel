@@ -111,7 +111,7 @@ plt.autoscale(enable=True, tight=True)
 plt.subplot(223)
 plt.title('Distributions: central image')
 # here the default order=2 is needed and used
-_, distr = rbasex_transform(im, origin=origin2, rmax=r2,weights=mask2, out=None)
+_, distr = rbasex_transform(im, origin=origin2, rmax=r2, weights=mask2, out=None)
 r, I, beta = distr.rIbeta()
 plt.plot(r, I, c=rgb(1), label='$I(r)$')
 # beta(r) I(r) is the "speed distribution" of P_2(r)

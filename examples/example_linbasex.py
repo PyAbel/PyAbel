@@ -11,27 +11,27 @@ import bz2
 import matplotlib.pylab as plt
 
 # This example demonstrates ``linbasex`` inverse Abel transform
-# of a velocity-map image of photoelectrons from O2- photodetachment at 454 nm. 
+# of a velocity-map image of photoelectrons from O2- photodetachment at 454 nm.
 # Measured at  The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
-# Load image as a numpy array - numpy handles .gz, .bz2 
+# Load image as a numpy array - numpy handles .gz, .bz2
 imagefile = bz2.BZ2File('data/O2-ANU1024.txt.bz2')
 IM = np.loadtxt(imagefile)
 
 if os.environ.get('READTHEDOCS', None) == 'True':
-    IM = IM[::2,::2]
+    IM = IM[::2, ::2]
 # the [::2, ::2] reduces the image size x1/2, decreasing processing memory load
 # for the online readthedocs.org
 
-# Image center should be mid-pixel and the image square, 
+# Image center should be mid-pixel and the image square,
 # `center=convolution` takes care of this
 
 un = [0, 2]  # spherical harmonic orders
-proj_angles = np.arange(0, 2*np.pi, np.pi/20) # projection angles
+proj_angles = np.arange(0, 2*np.pi, np.pi/20)  # projection angles
 # adjust these parameter to 'improve' the look
-smoothing = 0.9  # smoothing Gaussian 1/e width
-threshold = 0.01 # exclude small amplitude Newton spheres
+smoothing = 0.9   # smoothing Gaussian 1/e width
+threshold = 0.01  # exclude small amplitude Newton spheres
 # no need to change these
 radial_step = 1
 clip = 0
@@ -44,7 +44,7 @@ LIM = abel.Transform(IM, method="linbasex", origin="convolution",
                                             proj_angles=proj_angles,
                                             smoothing=smoothing,
                                             radial_step=radial_step, clip=clip,
-                                            threshold=threshold)) 
+                                            threshold=threshold))
 
 # angular, and radial integration - direct from `linbasex` transform
 # as class attributes
@@ -63,7 +63,7 @@ ax2 = plt.subplot(122)
 # join 1/2 raw data : 1/2 inversion image
 inv_IM = LIM.transform
 cols = inv_IM.shape[1]
-c2 = cols//2 
+c2 = cols//2
 vmax = IM[:, :c2-100].max()
 inv_IM *= vmax/inv_IM[:, c2+100:].max()
 JIM = np.concatenate((IM[:, :c2], inv_IM[:, c2:]), axis=1)

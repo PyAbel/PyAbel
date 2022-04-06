@@ -9,7 +9,7 @@ import matplotlib.pylab as plt
 import bz2
 
 # Hansen and Law inverse Abel transform of velocity-map imaged electrons
-# from O2- photodetachement at 454 nm. The spectrum was recorded in 2010  
+# from O2- photodetachement at 454 nm. The spectrum was recorded in 2010
 # at the Australian National University (ANU)
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
@@ -29,7 +29,7 @@ IMc = abel.tools.center.center_image(IM, method='com')
 AIM = abel.Transform(IMc, method='hansenlaw',
                      use_quadrants=(True, True, True, True),
                      symmetry_axis=None,
-                     transform_options=dict(dr=0.5, align_grid=False), 
+                     transform_options=dict(dr=0.5, align_grid=False),
                      angular_integration=True,
                      angular_integration_options=dict(dr=0.5),
                      verbose=True)

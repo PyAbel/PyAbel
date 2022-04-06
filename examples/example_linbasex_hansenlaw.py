@@ -10,16 +10,17 @@ proj_angles = np.arange(0, np.pi/2, np.pi/10)  # projection angles in 10 degree 
 radial_step = 1  # pixel grid
 smoothing = 1  # smoothing 1/e-width for Gaussian convolution smoothing
 threshold = 0.2  # threshold for normalization of higher order Newton spheres
-clip=0  # clip first vectors (smallest Newton spheres) to avoid singularities
+clip = 0  # clip first vectors (smallest Newton spheres) to avoid singularities
 
 # linbasex method - center ensures image has odd square shape
 #                 - speed and anisotropy parameters evaluated by method
 LIM = abel.Transform(IM, method='linbasex', origin='convolution',
                      center_options=dict(square=True),
-                     transform_options=dict(basis_dir=None,
-                     proj_angles=proj_angles, radial_step=radial_step,
-                     smoothing=smoothing, threshold=threshold, clip=clip,
-                     return_Beta=True, verbose=True))
+                     transform_options=dict(
+                         basis_dir=None, proj_angles=proj_angles,
+                         radial_step=radial_step, smoothing=smoothing,
+                         threshold=threshold, clip=clip, return_Beta=True,
+                         verbose=True))
 
 # hansenlaw method - speed and anisotropy parameters evaluated by integration
 HIM = abel.Transform(IM, method="hansenlaw", origin='convolution',
@@ -32,10 +33,10 @@ Beta, Amp, rr, intensity, theta =\
       abel.tools.vmi.radial_integration(HIM.transform, radial_ranges=rrange)
 
 plt.figure(figsize=(12, 6))
-ax0 = plt.subplot2grid((2,4), (0,0))
-ax3 = plt.subplot2grid((2,4), (1,0))
-ax1 = plt.subplot2grid((2,4), (0,1), colspan=2, rowspan=2)
-ax2 = plt.subplot2grid((2,4), (0,3), sharex=ax1, rowspan=2)
+ax0 = plt.subplot2grid((2, 4), (0, 0))
+ax3 = plt.subplot2grid((2, 4), (1, 0))
+ax1 = plt.subplot2grid((2, 4), (0, 1), colspan=2, rowspan=2)
+ax2 = plt.subplot2grid((2, 4), (0, 3), sharex=ax1, rowspan=2)
 
 ax0.imshow(LIM.transform, vmin=0, vmax=LIM.transform.max()*2/3)
 ax0.set_aspect('equal')

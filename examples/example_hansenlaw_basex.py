@@ -44,18 +44,18 @@ im = np.loadtxt(imagefile)
 print("scaling image to size 501 reduce the time of the basis set calculation")
 im = zoom(im, 0.4892578125)
 (rows, cols) = np.shape(im)
-if cols%2 == 0:
-    print ("Even pixel image cols={:d}, adjusting image centre\n",
-           " center_image()".format(cols))
+if cols % 2 == 0:
+    print("Even pixel image cols={:d}, adjusting image centre\n",
+          " center_image()".format(cols))
     im = abel.tools.center.center_image(im, center="slice", odd_size=True)
     # alternative
-    #im = shift(im,(0.5,0.5))
+    #im = shift(im,(0.5, 0.5))
     #im = im[:-1, 1::]  # drop left col, bottom row
-    (rows,cols) = np.shape(im)
+    (rows, cols) = np.shape(im)
 
 c2 = cols//2   # half-image width
 r2 = rows//2   # half-image height
-print ('image size {:d}x{:d}'.format(rows,cols))
+print('image size {:d}x{:d}'.format(rows, cols))
 
 # Hansen & Law inverse Abel transform
 print('Performing Hansen and Law inverse Abel transform:')
@@ -86,11 +86,11 @@ ax1.set_ylabel('y (pixels)')
 ax1.set_title('velocity map image: size {:d}x{:d}'.format(rows, cols))
 
 # Plot the 2D transform
-reconH2 = reconH[:,:c2]
-reconB2 = reconB[:,c2:]
-recon = np.concatenate((reconH2,reconB2), axis=1)
+reconH2 = reconH[:, :c2]
+reconB2 = reconB[:, c2:]
+recon = np.concatenate((reconH2, reconB2), axis=1)
 im2 = ax2.imshow(recon, origin='lower', vmin=0,
-                 vmax=recon[:r2-50,:c2-50].max())
+                 vmax=recon[:r2-50, :c2-50].max())
 fig.colorbar(im2, ax=ax2, fraction=0.1, shrink=0.9, pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
