@@ -65,6 +65,24 @@ def test_sample_Gaussian():
     assert_allclose(test.abel, np.sqrt(np.pi) * sigma * ref)
 
 
+def test_sample_Gerber():
+    """
+    Test SampleImage 'Gerber'.
+    """
+    # test transform with forward Daun with cubic splines (the most accurate)
+    test = SampleImage(n=513, name='Gerber')  # original resolution, rmax = 256
+    proj = Transform(test.func, method='daun', direction='forward',
+                     symmetry_axis=(0, 1),
+                     transform_options={'degree': 3,
+                                        'verbose': False}).transform
+    assert_allclose(proj, test.abel, atol=6e-3 * np.max(proj))
+
+    # test sigma-independence of total intensity
+    test1 = SampleImage(name='Gerber', sigma=1)
+    test2 = SampleImage(name='Gerber', sigma=2)
+    assert_allclose(test1.abel.sum(), test2.abel.sum(), rtol=1e-3)
+
+
 def test_sample_O2():
     """
     Test SampleImage 'O2'.
@@ -111,5 +129,6 @@ def test_sample_Ominus():
 if __name__ == "__main__":
     test_sample_Dribinski()
     test_sample_Gaussian()
+    test_sample_Gerber()
     test_sample_O2()
     test_sample_Ominus()
