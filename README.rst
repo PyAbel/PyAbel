@@ -24,6 +24,7 @@ Introduction
 .. begin-github-only2
 
 .. image:: https://raw.githubusercontent.com/PyAbel/PyAbel/master/doc/overview.svg
+    :align: center
 
 .. end-github-only2
 
