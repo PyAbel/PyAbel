@@ -21,7 +21,7 @@ origQ = abel.tools.symmetry.get_image_quadrants(IM)
 orig_speed = abel.tools.vmi.angular_integration_3D(origQ[0], origin=(-1, 0))
 scale_factor = orig_speed[1].max()
 
-plt.plot(orig_speed[0], orig_speed[1]/scale_factor, linestyle='dashed', 
+plt.plot(orig_speed[0], orig_speed[1]/scale_factor, linestyle='dashed',
          label="Dribinski sample")
 
 
@@ -31,10 +31,11 @@ fIM = abel.Transform(IM, direction="forward", method="hansenlaw").transform
 # split projected image into quadrants
 Q = abel.tools.symmetry.get_image_quadrants(fIM)
 
-dasch_transform = {\
-"two_point": abel.dasch.two_point_transform,
-"three_point": abel.dasch.three_point_transform, 
-"onion_peeling": abel.dasch.onion_peeling_transform}
+dasch_transform = {
+    "two_point": abel.dasch.two_point_transform,
+    "three_point": abel.dasch.three_point_transform,
+    "onion_peeling": abel.dasch.onion_peeling_transform
+}
 
 for method in dasch_transform.keys():
     Q0 = Q[0].copy()
@@ -43,7 +44,7 @@ for method in dasch_transform.keys():
 # speed distribution
     speed = abel.tools.vmi.angular_integration_3D(AQ0, origin=(-1, 0))
 
-    plt.plot(speed[0], speed[1]*orig_speed[1][14]/speed[1][14]/scale_factor, 
+    plt.plot(speed[0], speed[1]*orig_speed[1][14]/speed[1][14]/scale_factor,
              label=method)
 
 plt.title("Dasch methods for Dribinski sample image $n={:d}$".format(n))

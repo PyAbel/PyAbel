@@ -419,6 +419,13 @@ class SampleImage(BaseAnalytical):
 
             Its Abel transform is also a Gaussian with the same width:
             :math:`\sqrt{\pi}\, \textbf{sigma} \exp(-r^2 / \textbf{sigma}^2)`.
+        ``'Gerber'``
+            Artificial test image used in the lin-BASEX article
+            `Rev. Sci. Instrum. 84, 033101 (2013)
+            <https://dx.doi.org/10.1063/1.4793404>`__, Table I.
+
+            8 Gaussian peaks with various intensities and anisotropies up to
+            4th order (β\ :sub:`4`).
         ``'O2'``
             Synthetic image mimicking a velocity-map image of O\ :sup:`+` from
             multiphoton photodissociation/ionization
@@ -437,7 +444,8 @@ class SampleImage(BaseAnalytical):
         1/*e* halfwidth of peaks in pixels, default values are:
         2⋅\ *r*\ :sub:`max`/180 for ``'Dribinski'``,
         2⋅\ *r*\ :sub:`max`/500 for ``'Ominus'``,
-        *r*\ :sub:`max`/3 for ``'Gaussian'``.
+        *r*\ :sub:`max`/3 for ``'Gaussian'``,
+        :math:`\sqrt{2}` (std. dev. = 1) for ``'Gerber'``.
 
         For ``'O2'``: HWHM of narrow peaks in pixels, default is 1.5 for any
         *r*\ :sub:`max`.
@@ -478,8 +486,28 @@ class SampleImage(BaseAnalytical):
             self.name = 'Gaussian'
             self._scale = 0
             width = self.r_max / 3 if sigma is None else sigma
-            # parameters:  A r0  width  angular
+            # parameters:   A  r0 width  angular
             self._peaks = [(1, 0, width, [1])]
+        elif name == 'gerber':
+            self.name = 'Gerber'
+            self._scale = self.r_max / 256
+            width = np.sqrt(2) if sigma is None else sigma
+
+            def sphere(r, beta0, beta2, beta4):
+                N = 160000 / (4 * np.pi * np.sqrt(np.pi) * width)
+                return (N / r**2, r, width,
+                        beta0 * np.array([1, 0, 0, 0, 0]) +
+                        beta2 * np.array([-1/2, 0, 3/2, 0, 0]) +
+                        beta4 * np.array([3/8, 0, -30/8, 0, 35/8]))
+            # parameters:         r0   beta0 beta2 beta4
+            self._peaks = [sphere(38,  1.2, -0.4,  0),
+                           sphere(70,  1.5, -1,    0.5),
+                           sphere(90,  1.5,  1,    0.4),
+                           sphere(134, 2,    1,    0.4),
+                           sphere(138, 1.8,  0.5,  0),
+                           sphere(143, 1,    0.5,  0.25),
+                           sphere(196, 2,    1,   -0.5),
+                           sphere(230, 2,    1,   -0.5)]
         elif name == 'o2':
             self.name = 'O2'
             self._scale = self.r_max / 330

@@ -250,7 +250,7 @@ def radial_integration(IM, origin=None, radial_ranges=None):
     r""" Intensity variation in the angular coordinate.
 
     This function is the :math:`\theta`-coordinate complement to
-    :func:`abel.tools.vmi.angular_integration`.
+    :func:`abel.tools.vmi.average_radial_intensity_3D`.
 
     Evaluates intensity vs angle for defined radial ranges.
     Determines the anisotropy parameter for each radial range.
@@ -266,14 +266,16 @@ def radial_integration(IM, origin=None, radial_ranges=None):
         image origin in the (row, column) format. If ``None``, the geometric
         center of the image (``rows // 2, cols // 2``) is used.
 
-    radial_ranges : list of tuple ranges or int step
-        tuple
+    radial_ranges : list of tuple or int
+        list of tuple
             integration ranges
-            ``[(r0, r1), (r2, r3), ...]``
-            evaluates the intensity vs angle
+            ``[(r0, r1), (r2, r3), ...]``.
+            Evaluates the intensity vs angle
             for the radial ranges ``r0_r1``, ``r2_r3``, etc.
 
         int
+            radial step.
+            Evaluates the intensity vs angle for
             the whole radial range ``(0, step), (step, 2*step), ..``
 
     Returns

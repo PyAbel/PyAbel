@@ -29,10 +29,11 @@ clip = 0  # clip first vectors (smallest Newton spheres) to avoid singularities
 # linbasex method - center and center_options ensure image has odd square shape
 LIM = abel.Transform(IM, method='linbasex', origin='slice',
                      center_options=dict(square=True),
-                     transform_options=dict(basis_dir=None,
-                     proj_angles=proj_angles, radial_step=radial_step,
-                     smoothing=smoothing, threshold=threshold, clip=clip,
-                     return_Beta=True, verbose=True))
+                     transform_options=dict(
+                         basis_dir=None, proj_angles=proj_angles,
+                         radial_step=radial_step, smoothing=smoothing,
+                         threshold=threshold, clip=clip, return_Beta=True,
+                         verbose=True))
 
 
 # === Hansen & Law inverse Abel transform ==================

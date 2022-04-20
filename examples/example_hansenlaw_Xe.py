@@ -12,10 +12,10 @@ import abel
 import scipy.misc
 
 # This example demonstrates Hansen and Law inverse Abel transform
-# of an image obtained using a velocity map imaging (VMI) photoelecton 
-# spectrometer to record the photoelectron angular distribution resulting 
+# of an image obtained using a velocity map imaging (VMI) photoelecton
+# spectrometer to record the photoelectron angular distribution resulting
 # from photodetachement of O2- at 454 nm.
-# This spectrum was recorded in 2010  
+# This spectrum was recorded in 2010
 # ANU / The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
@@ -29,18 +29,18 @@ output_plot  = 'plot_' + name + '_comparison_HansenLaw.png'
 
 print('Loading ' + filename)
 #im = np.loadtxt(filename)
-im = plt.imread(filename) 
-(rows,cols) = np.shape(im)
-print ('image size {:d}x{:d}'.format(rows,cols))
+im = plt.imread(filename)
+(rows, cols) = np.shape(im)
+print('image size {:d}x{:d}'.format(rows, cols))
 
 
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon = abel.Transform(im, method="hansenlaw", direction="inverse", 
-                       symmetry_axis=None, verbose=True, 
-                       origin=(240,340)).transform
-                       
+recon = abel.Transform(im, method="hansenlaw", direction="inverse",
+                       symmetry_axis=None, verbose=True,
+                       origin=(240, 340)).transform
+
 r, speeds = abel.tools.vmi.angular_integration_3D(recon)
 
 # Set up some axes

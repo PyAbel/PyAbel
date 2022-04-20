@@ -10,13 +10,13 @@ import bz2
 import matplotlib.pylab as plt
 
 # This example demonstrates Hansen and Law inverse Abel transform
-# of an image obtained using a velocity map imaging (VMI) photoelecton 
-# spectrometer to record the photoelectron angular distribution resulting 
-# from photodetachement of O2- at 454 nm. 
+# of an image obtained using a velocity map imaging (VMI) photoelecton
+# spectrometer to record the photoelectron angular distribution resulting
+# from photodetachement of O2- at 454 nm.
 # Measured at  The Australian National University
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
-# Load image as a numpy array - numpy handles .gz, .bz2 
+# Load image as a numpy array - numpy handles .gz, .bz2
 imagefile = bz2.BZ2File('data/O2-ANU1024.txt.bz2')
 IM = np.loadtxt(imagefile)
 # use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
@@ -24,8 +24,8 @@ IM = np.loadtxt(imagefile)
 rows, cols = IM.shape    # image size
 
 # Image center should be mid-pixel, i.e. odd number of colums
-if cols % 2 != 1: 
-    print ("even pixel width image, make it odd and re-adjust image center")
+if cols % 2 != 1:
+    print("even pixel width image, make it odd and re-adjust image center")
     IM = abel.tools.center.center_image(IM, method="slice")
     rows, cols = IM.shape   # new image size
 
@@ -48,7 +48,7 @@ speed /= speed[200:].max()  # exclude transform noise near centerline of image
 print('Calculating angular distribution:')
 # radial ranges (of spectral features) to follow intensity vs angle
 # view the speed distribution to determine radial ranges
-r_range = [(93, 111), (145, 162), (255, 280), (330, 350), (350, 370), 
+r_range = [(93, 111), (145, 162), (255, 280), (330, 350), (350, 370),
            (370, 390), (390, 410), (410, 430)]
 
 # map to intensity vs theta for each radial range
@@ -81,8 +81,7 @@ im1 = ax1.imshow(JIM, origin='lower', vmin=0, vmax=vmax)
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('VMI, inverse Abel: {:d}x{:d}'\
-              .format(rows, cols))
+ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(rows, cols))
 
 # Plot the 1D speed distribution
 ax2.plot(speed)
@@ -115,7 +114,7 @@ ax3.set_ylabel("intensity")
 ax3.set_title("anisotropy parameter")
 
 
-# Plot the angular distribution 
+# Plot the angular distribution
 plt.tight_layout()
 
 # Save a image of the plot

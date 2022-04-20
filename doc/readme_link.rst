@@ -18,7 +18,7 @@
 .. plot::
 
     import abel
-    original     = abel.tools.analytical.SampleImage().func
+    original = abel.tools.analytical.SampleImage(name='Gerber').func
     forward_abel = abel.Transform(original, direction='forward',
                                   method='hansenlaw').transform
     inverse_abel = abel.Transform(forward_abel, direction='inverse',
@@ -29,8 +29,8 @@
 
     fig, axs = plt.subplots(1, 2, figsize=(6, 3))
 
-    axs[0].imshow(forward_abel, cmap='ocean_r')
-    axs[1].imshow(inverse_abel, cmap='ocean_r')
+    axs[0].imshow(forward_abel, clim=(0, None), cmap='ocean_r')
+    axs[1].imshow(inverse_abel, clim=(0, None), cmap='ocean_r')
 
     axs[0].set_title('Forward Abel transform')
     axs[1].set_title('Inverse Abel transform')

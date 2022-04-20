@@ -24,14 +24,14 @@ import bz2
 #   dictionary of method: function()
 
 transforms = {
-  "basex": abel.basex.basex_transform,
-  "linbasex": abel.linbasex.linbasex_transform,
-  "direct": abel.direct.direct_transform,
-  "hansenlaw": abel.hansenlaw.hansenlaw_transform,
-  "onion_bordas": abel.onion_bordas.onion_bordas_transform,
-  "onion_dasch": abel.dasch.onion_peeling_transform,
-  "three_point": abel.dasch.three_point_transform,
-  "two_point" : abel.dasch.two_point_transform,
+    "basex": abel.basex.basex_transform,
+    "linbasex": abel.linbasex.linbasex_transform,
+    "direct": abel.direct.direct_transform,
+    "hansenlaw": abel.hansenlaw.hansenlaw_transform,
+    "onion_bordas": abel.onion_bordas.onion_bordas_transform,
+    "onion_dasch": abel.dasch.onion_peeling_transform,
+    "three_point": abel.dasch.three_point_transform,
+    "two_point": abel.dasch.two_point_transform,
 }
 # sort dictionary
 transforms = collections.OrderedDict(sorted(transforms.items()))
@@ -53,7 +53,7 @@ Q = abel.tools.symmetry.get_image_quadrants(IModd, reorient=True)
 
 Q0 = Q[0]
 Q0fresh = Q0.copy()    # keep clean copy
-print ("quadrant shape {}".format(Q0.shape))
+print("quadrant shape {}".format(Q0.shape))
 
 # Intensity mask used for intensity normalization
 #   quadrant image region of bright pixels
@@ -70,12 +70,12 @@ for q, method in enumerate(transforms.keys()):
 
     Q0 = Q0fresh.copy()   # top-right quadrant of O2- image
 
-    print ("\n------- {:s} inverse ...".format(method))
+    print("\n------- {:s} inverse ...".format(method))
     t0 = time()
 
     # inverse Abel transform using 'method'
     IAQ0 = transforms[method](Q0, direction="inverse", dr=0.1)
-    print ("                    {:.1f} s".format(time()-t0))
+    print("                    {:.1f} s".format(time()-t0))
 
     # polar projection and speed profile
     radial, speed = abel.tools.vmi.angular_integration_3D(IAQ0, origin=(-1, 0),
@@ -96,7 +96,7 @@ for q, method in enumerate(transforms.keys()):
 ax0 = plt.subplot2grid((1, 2), (0, 0))
 ax1 = plt.subplot2grid((1, 2), (0, 1))
 
-def ann_plt (quad, subquad, txt):
+def ann_plt(quad, subquad, txt):
     # -ve because numpy coords from top
     annot_angle = -(30+30*subquad+quad*90)*np.pi/180
     annot_coord = (h/2+(h*0.8)*np.cos(annot_angle)/2,
@@ -122,7 +122,7 @@ for q in range(4):
 
 # reassemble image from transformed (part-)quadrants
 im = abel.tools.symmetry.put_image_quadrants((Q[0], Q[1], Q[2], Q[3]),
-                                              original_image_shape=IModd.shape)
+                                             original_image_shape=IModd.shape)
 
 ax0.axis('off')
 ax0.set_title("inverse Abel transforms")
