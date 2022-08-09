@@ -280,18 +280,18 @@ def radial_integration(IM, origin=None, radial_ranges=None):
 
     Returns
     -------
-    Beta : array of tuples
+    Beta : list of tuples
         (beta0, error_beta_fit0), (beta1, error_beta_fit1), ...
         corresponding to the radial ranges
 
-    Amplitude : array of tuples
+    Amplitude : list of tuples
         (amp0, error_amp_fit0), (amp1, error_amp_fit1), ...
         corresponding to the radial ranges
 
-    Rmidpt : numpy float 1D array
+    Rmidpt : list of float
         radial mid-point of each radial range
 
-    Intensity_vs_theta: 2D numpy.array
+    Intensity_vs_theta: list of numpy.array
         intensity vs angle distribution for each selected radial range
 
     theta: 1D numpy.array
@@ -358,10 +358,11 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     intensity : 1D numpy array
         intensity variation with angle
 
-    theta_ranges: list of tuples
+    theta_ranges: list of tuples or None
         angular ranges over which to fit
         ``[(theta1, theta2), (theta3, theta4)]``.
-        Allows data to be excluded from fit, default include all data.
+        Allows data to be excluded from fit; default (``None``) is to include
+        all data.
 
     Returns
     -------

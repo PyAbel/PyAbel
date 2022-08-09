@@ -32,6 +32,5 @@ from . import onion_bordas
 from . import rbasex
 from . import tools
 from . import transform
-from . import tests
 from .transform import Transform
 from .tools.center import center_image

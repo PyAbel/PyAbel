@@ -357,13 +357,13 @@ def find_origin_by_center_of_mass(IM, axes=(0, 1), verbose=False,
     IM : numpy 2D array
         image data
 
-    round_output : bool
-        if ``True``, the coordinates are rounded to integers;
-        otherwise they are floats.
-
     axes : int or tuple
         find origin coordinates: ``0`` (vertical), or ``1`` (horizontal), or
         ``(0, 1)`` (both vertical and horizontal).
+
+    round_output : bool
+        if ``True``, the coordinates are rounded to integers;
+        otherwise they are floats.
 
     Returns
     -------
@@ -440,7 +440,7 @@ def find_origin_by_convolution(IM, axes=(0, 1), projections=False, **kwargs):
         return origin
 
 
-def find_origin_by_center_of_image(data, axes=(0, 1), verbose=False, **kwargs):
+def find_origin_by_center_of_image(IM, axes=(0, 1), verbose=False, **kwargs):
     """
     Find image origin simply as its center, from its dimensions.
 
@@ -458,7 +458,7 @@ def find_origin_by_center_of_image(data, axes=(0, 1), verbose=False, **kwargs):
         (row, column)
 
     """
-    return (data.shape[0] // 2, data.shape[1] // 2)
+    return (IM.shape[0] // 2, IM.shape[1] // 2)
 
 
 def find_origin_by_gaussian_fit(IM, axes=(0, 1), verbose=False,
@@ -669,13 +669,13 @@ def find_center_by_convolution(IM, **kwargs):
     return find_origin_by_convolution(IM, **kwargs)
 
 
-def find_center_by_center_of_image(data, verbose=False, **kwargs):
+def find_center_by_center_of_image(IM, verbose=False, **kwargs):
     """Deprecated function. Use :func:`find_origin_by_center_of_image`
     instead."""
     _deprecate('abel.tools.center.find_center_by_center_of_image() '
                'is deprecated, use '
                'abel.tools.center.find_origin_by_center_of_image() instead.')
-    return find_origin_by_center_of_image(data, verbose, **kwargs)
+    return find_origin_by_center_of_image(IM, verbose, **kwargs)
 
 
 def find_center_by_gaussian_fit(IM, verbose=False, round_output=False,

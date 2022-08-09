@@ -6,8 +6,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy.ndimage import map_coordinates, shift
-from scipy.optimize import curve_fit, minimize
+from scipy.ndimage import map_coordinates
 
 
 def reproject_image_into_polar(data, origin=None, Jacobian=False,
