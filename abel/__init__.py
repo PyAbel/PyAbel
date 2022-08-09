@@ -25,6 +25,7 @@ filterwarnings('default', r'^abel\.', category=DeprecationWarning)
 from . import basex
 from . import benchmark
 from . import dasch
+from . import daun
 from . import direct
 from . import hansenlaw
 from . import linbasex
