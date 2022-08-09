@@ -14,7 +14,6 @@ from __future__ import unicode_literals
 import numpy as np
 import abel
 
-import collections
 import matplotlib.pylab as plt
 from time import time
 
@@ -32,12 +31,10 @@ transforms = {
     "two_point": abel.dasch.two_point_transform,
 }
 
-# sort dictionary:
-transforms = collections.OrderedDict(sorted(transforms.items()))
 # number of transforms:
-ntrans = np.size(transforms.keys())
+ntrans = len(transforms)
 
-IM = abel.tools.analytical.SampleImage(n=301, name="dribinski").func
+IM = abel.tools.analytical.SampleImage(n=301, name="Dribinski").func
 
 h, w = IM.shape
 
@@ -53,7 +50,7 @@ print("quadrant shape {}".format(Q0.shape))
 
 iabelQ = []  # keep inverse Abel transformed image
 
-for q, method in enumerate(transforms.keys()):
+for q, method in enumerate(sorted(transforms.keys())):
 
     Q0 = Q0fresh.copy()   # top-right quadrant of O2- image
 

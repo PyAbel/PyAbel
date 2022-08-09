@@ -14,7 +14,6 @@ from __future__ import unicode_literals
 import numpy as np
 import abel
 
-import collections
 import matplotlib.pylab as plt
 from time import time
 
@@ -28,9 +27,7 @@ transforms = {
     "basex": abel.basex.basex_transform,
     "three_point": abel.dasch.three_point_transform,
 }
-# sort dictionary
-transforms = collections.OrderedDict(sorted(transforms.items()))
-ntrans = np.size(transforms.keys())  # number of transforms
+ntrans = len(transforms)  # number of transforms
 
 
 # Image:   O2- VMI 1024x1024 pixel ------------------
@@ -54,7 +51,7 @@ iabelQ = []  # keep inverse Abel transformed image
 ax_im = plt.subplot(121)
 ax_sp = plt.subplot(122)
 
-for q, method in enumerate(transforms.keys()):
+for q, method in enumerate(sorted(transforms.keys())):
 
     Q0 = Q0fresh.copy()   # top-right quadrant of O2- image
 
