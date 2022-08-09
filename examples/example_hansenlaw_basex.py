@@ -45,9 +45,9 @@ print("scaling image to size 501 reduce the time of the basis set calculation")
 im = zoom(im, 0.4892578125)
 (rows, cols) = np.shape(im)
 if cols % 2 == 0:
-    print("Even pixel image cols={:d}, adjusting image centre\n",
+    print("Even pixel image cols={:d}, adjusting image centre\n"
           " center_image()".format(cols))
-    im = abel.tools.center.center_image(im, center="slice", odd_size=True)
+    im = abel.tools.center.center_image(im, origin="slice", odd_size=True)
     # alternative
     #im = shift(im,(0.5, 0.5))
     #im = im[:-1, 1::]  # drop left col, bottom row
