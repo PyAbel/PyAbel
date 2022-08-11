@@ -20,6 +20,9 @@ jobs:
     #   env: TOXENV=py39, DEPS="numpy scipy cython"    
 install:
   - pip install --upgrade pip setuptools wheel
+  # python >=3.7 has built-in dataclasses,
+  # and the external package preinstalled on Travis breaks SciPy
+  - pip uninstall -y dataclasses
   - "pip install ${DEPS}"
   - pip install --upgrade coveralls pytest pytest-cov
   - pip install . -v

@@ -125,13 +125,13 @@ class StepAnalytical(BaseAnalytical):
 
         Parameters
         ----------
-        r1 : 1D array
-            vecor of positions along the r axis. Must start with 0.
-        r0, r1 : float
-            positions of the step along the r axis
+        r : 1D array
+            array of positions along the r axis. Must start with 0.
         A0 : float or 1D array
             height of the step. If 1D array, the height can be variable
             along the z axis
+        r0, r1 : float
+            positions of the step along the r axis
 
         Returns
         -------
@@ -182,10 +182,6 @@ class Polynomial(BaseAnalytical):
         number of points along the *r* axis
     r_max : float
         range of the *r* interval
-    symmetric : boolean
-        if ``True``, the *r* interval is [−\ **r_max**, +\ **r_max**]
-        (and **n** should be odd),
-        otherwise the *r* interval is [0, **r_max**]
     r_1, r_2 : float
         *r* bounds of the polynomial function if *r* > 0;
         outside [**r_1**, **r_2**] the function is set to zero
@@ -203,6 +199,10 @@ class Polynomial(BaseAnalytical):
         internally rescale the *r* range to [0, 1];
         useful to avoid floating-point overflows for high degrees
         at large *r* (and might improve numerical accuracy)
+    symmetric : boolean
+        if ``True``, the *r* interval is [−\ **r_max**, +\ **r_max**]
+        (and **n** should be odd),
+        otherwise the *r* interval is [0, **r_max**]
     """
     def __init__(self, n, r_max,
                  r_1, r_2, c, r_0=0.0, s=1.0, reduced=False,
@@ -238,10 +238,6 @@ class PiecewisePolynomial(BaseAnalytical):
         number of points along the *r* axis
     r_max : float
         range of the *r* interval
-    symmetric : boolean
-        if ``True``, the *r* interval is [−\ **r_max**, +\ **r_max**]
-        (and **n** should be odd),
-        otherwise the *r* interval is [0, **r_max**]
     ranges : iterable of unpackable
         (list of tuples of) polynomial parameters for each piece::
 
@@ -254,6 +250,10 @@ class PiecewisePolynomial(BaseAnalytical):
         All ranges are independent (may overlap and have gaps, may define
         polynomials of any degrees) and may include optional ``Polynomial``
         parameters
+    symmetric : boolean
+        if ``True``, the *r* interval is [−\ **r_max**, +\ **r_max**]
+        (and **n** should be odd),
+        otherwise the *r* interval is [0, **r_max**]
     """
     def __init__(self, n, r_max,
                  ranges,
@@ -290,10 +290,7 @@ class GaussianAnalytical(BaseAnalytical):
         number of points along the r axis
     r_max : float
         range of the r interval
-    symmetric : boolean
-        if True, the r interval is [-r_max, r_max] (and n should be odd),
-        otherwise, the r interval is [0, r_max]
-    sigma : floats
+    sigma : float
         sigma parameter for the gaussian
     A0 : float
         amplitude of the gaussian
@@ -301,6 +298,9 @@ class GaussianAnalytical(BaseAnalytical):
         in the benchmark take only the range
         0 < r < ration_valid_sigma * sigma
         (exclude possible artefacts on the axis and the possibly clipped tail)
+    symmetric : boolean
+        if True, the r interval is [-r_max, r_max] (and n should be odd),
+        otherwise, the r interval is [0, r_max]
     """
     # Source: https://mathworld.wolfram.com/AbelTransform.html
 

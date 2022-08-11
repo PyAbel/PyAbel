@@ -784,8 +784,7 @@ def is_symmetric(arr, i_sym=True, j_sym=True):
 
     Returns
     -------
-    a binary array with the symmetry condition for the corresponding quadrants.
-    The globa
+    a binary array with the symmetry condition for the corresponding quadrants
 
     Notes
     -----

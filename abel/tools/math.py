@@ -2,8 +2,6 @@ import numpy as np
 from scipy.linalg import circulant
 from scipy.optimize import curve_fit, brentq
 from scipy.interpolate import interp1d
-from scipy.ndimage import gaussian_filter
-import scipy.ndimage as nd
 
 
 def gradient(f, x=None, dx=1, axis=-1):

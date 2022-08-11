@@ -102,11 +102,9 @@ def test_daun_bs_cache():
         bs0 = get_bs_cached(n1, 0)
         bs1 = get_bs_cached(n1, 1)
         assert_allclose(bs0, bs0_ref, atol=1e-15,
-                        err_msg='-> {}: degree>'.
-                                format(direction, degree, reg_type))
+                        err_msg='-> {}: degree>'.format(direction))
         assert_allclose(bs1, bs1_ref, atol=1e-15,
-                        err_msg='-> {}: degree<'.
-                                format(direction, degree, reg_type))
+                        err_msg='-> {}: degree<'.format(direction))
 
     # changing regularization strength
     bs_ref = []

@@ -35,11 +35,11 @@ def _construct_r_grid(n, dr=None, r=None):
         dr = 1.0
 
     if dr is not None and r is not None:
-        raise ValueError('Both r and dr input parameters cannot be specified \
-                            at the same time')
+        raise ValueError('Both r and dr input parameters cannot be specified '
+                         'at the same time')
     elif dr is None and r is not None:
         if r.ndim != 1 or r.shape[0] != n:
-            raise ValueError('The input parameter r should be a 1D array'
+            raise ValueError('The input parameter r should be a 1D array '
                              'of shape = ({},), got shape = {}'.format(
                                                                 n, r.shape))
         # not so sure about this, needs verification -RY

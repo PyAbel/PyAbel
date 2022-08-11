@@ -237,6 +237,9 @@ def circularize(IM, radial_correction_function, ref_angle=None):
         A function returning the radial correction for a given angle. It
         should accept a numpy 1D array of angles.
 
+    ref_angle : None or float
+        Reference angle at which the radial correction function is renormalized
+        to unity. If ``None``, the angular average is used for renormalization.
     """
     # cartesian coordinate system
     Y, X = np.indices(IM.shape)
@@ -289,7 +292,6 @@ def correction(polarIMTrans, angles, radial, method):
     Determines a radial correction factors that align an angular slice
     radial intensity profile with its adjacent (previous) slice profile.
 
-
     Parameters
     ----------
     polarIMTrans : numpy 2D array
@@ -309,6 +311,11 @@ def correction(polarIMTrans, angles, radial, method):
         ``lsq``
             least-squares determine a radial correction factor that will align
             a radial intensity profile with the previous, adjacent slice.
+
+    Returns
+    -------
+    radcorr : numpy 1D array
+        radial correction factors for angles
     """
 
     if method == "argmax":
@@ -354,4 +361,4 @@ def correction(polarIMTrans, angles, radial, method):
         raise ValueError("method variable must be one of 'argmax' or 'lsq',"
                          " not '{}'".format(method))
 
-    return radcorr
+    return np.asarray(radcorr)
