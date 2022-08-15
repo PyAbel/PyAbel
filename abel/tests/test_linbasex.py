@@ -18,7 +18,7 @@ def test_linbasex_shape():
 
     recon = abel.linbasex.linbasex_transform_full(x, basis_dir=None)
 
-    assert recon[0].shape == (n+1, n+1)   # NB shape+1
+    assert recon[0].shape == (n, n)
 
 
 def test_linbasex_forward_dribinski_image():

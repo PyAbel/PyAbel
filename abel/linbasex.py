@@ -296,7 +296,7 @@ def _Slices(Beta, legendre_orders, smoothing=0):
     index = range(NP)
 
     Beta_convol = np.zeros((pol, NP))
-    Slice_3D = np.zeros((pol, 2*NP, 2*NP))
+    Slice_3D = np.zeros((pol, 2 * NP - 1, 2 * NP - 1))
 
     # Convolve Beta's with smoothing function
     if smoothing > 0:
@@ -309,9 +309,11 @@ def _Slices(Beta, legendre_orders, smoothing=0):
         Beta_convol = Beta
 
     # Calculate ordered slices:
+    col = np.arange(-NP + 1, NP)
+    row = col[:, None]
     for i in range(pol):
-        Slice_3D[i] = np.fromfunction(lambda k, l: _SL(i, (k-NP), (l-NP),
-                       Beta_convol, index, legendre_orders), (2*NP, 2*NP))
+        Slice_3D[i] = _SL(i, row, col, Beta_convol, index, legendre_orders)
+
     # Sum ordered slices up
     Slice = np.sum(Slice_3D, axis=0)
 
