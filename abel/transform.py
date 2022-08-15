@@ -412,9 +412,6 @@ class Transform(object):
         with ``method=rbasex``: the object from which various radial
         distributions can be retrieved
     """
-
-    _verbose = False
-
     def __init__(self, IM,
                  direction='inverse', method='three_point', origin='none',
                  symmetry_axis=None, use_quadrants=(True, True, True, True),
@@ -442,7 +439,8 @@ class Transform(object):
         self._use_quadrants = use_quadrants
         self._transform_options = transform_options
         self._recast_as_float64 = recast_as_float64
-        _verbose = verbose
+
+        self._verboseprint = print if verbose else lambda *a, **k: None
 
         # image processing
         self._verify_some_inputs()
@@ -455,8 +453,6 @@ class Transform(object):
                           **angular_integration_options)
 
     # end of class instance
-
-    _verboseprint = print if _verbose else lambda *a, **k: None
 
     def _verify_some_inputs(self):
         if self.IM.ndim == 1 or np.shape(self.IM)[0] <= 2:
