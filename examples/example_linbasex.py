@@ -39,8 +39,7 @@ clip = 0
 
 # linbasex inverse Abel transform
 LIM = abel.Transform(IM, method="linbasex",
-                     transform_options=dict(basis_dir=None, return_Beta=True,
-                                            legendre_orders=un,
+                     transform_options=dict(legendre_orders=un,
                                             proj_angles=proj_angles,
                                             smoothing=smoothing,
                                             radial_step=radial_step, clip=clip,

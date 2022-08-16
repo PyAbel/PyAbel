@@ -404,8 +404,7 @@ class PyAbel:  # (tk.Tk):
             try:
                 if self.method == 'linbasex':
                     self.AIM = abel.Transform(
-                        self.IM, method=self.method, direction=self.fi,
-                        transform_options=dict(return_Beta=True))
+                        self.IM, method=self.method, direction=self.fi)
                 elif self.method == 'daun(nonneg)':
                     self.AIM = abel.Transform(
                         self.IM, method='daun', direction=self.fi,

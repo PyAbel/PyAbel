@@ -4,13 +4,15 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import numpy as np
-import abel
 import os
 from glob import glob
+import numpy as np
 import scipy
 from scipy.special import eval_legendre
 from scipy import ndimage
+
+import abel
+from abel import _deprecated, _deprecate
 
 ###############################################################################
 # linbasex - inversion procedure based on 1-dimensional projections of
@@ -31,7 +33,89 @@ from scipy import ndimage
 #
 ###############################################################################
 
-_linbasex_parameter_docstring = \
+# cache basis
+_basis = None
+_los = None   # legendre_orders string
+_pas = None   # proj_angles string
+_radial_step = None
+_clip = None
+
+
+def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
+                       legendre_orders=[0, 2], radial_step=1, smoothing=0,
+                       rcond=0.0005, threshold=0.2, return_Beta=False, clip=0,
+                       norm_range=(0, -1), direction="inverse", verbose=False,
+                       dr=None):
+    """
+    Wrapper function for linbasex to process a single image quadrant in the
+    upper right orientation (Q0).
+    *Is not applicable to images with odd Legendre orders.*
+
+    Parameters not described below are passed directly to
+    :func:`linbasex_transform_full`.
+
+    Parameters
+    ----------
+    IM : numpy 2D array
+        upper right quadrant of the image data, must be square in shape
+    return_Beta : bool
+        in addition to the transformed image, return the **radial**, **Beta**
+        and **projections** arrays
+    dr : any
+        dummy variable for call compatibility with the other methods
+
+    Returns
+    -------
+    inv_IM : numpy 2D array
+        upper right quadrant of the inverse Abel transformed image
+    radial : numpy 1D array
+        (only if **return_Beta** = ``True``)
+        radii of each Newton sphere
+    Beta : numpy 2D array
+        (only if **return_Beta** = ``True``)
+        contributions of each spherical harmonic :math:`Y_{i0}` to the 3D
+        distribution contain all the information one can get from an experiment.
+        For the case **legendre_orders** = [0, 2]:
+
+           **Beta[0]** vs **radial** is the speed distribution
+
+           **Beta[1]** vs **radial** is the anisotropy of each Newton sphere
+
+    projections : numpy 2D array
+        (only if **return_Beta** = ``True``)
+        projection profiles at angles **proj_angles**
+    """
+    IM = np.atleast_2d(IM)
+
+    # duplicate the quadrant, re-forming the whole image.
+    quad_rows, quad_cols = IM.shape
+    full_image = abel.tools.symmetry.put_image_quadrants((IM, IM, IM, IM),
+                 original_image_shape=(quad_rows*2-1, quad_cols*2-1))
+
+    # inverse Abel transform
+    recon, radial, Beta, QLz = linbasex_transform_full(full_image,
+                               basis_dir=basis_dir, proj_angles=proj_angles,
+                               legendre_orders=legendre_orders,
+                               radial_step=radial_step, smoothing=smoothing,
+                               threshold=threshold, clip=clip,
+                               norm_range=norm_range,
+                               verbose=verbose)
+
+    # unpack upper right quadrant
+    inv_IM = abel.tools.symmetry.get_image_quadrants(recon)[0]
+
+    if return_Beta:
+        return inv_IM, radial, Beta, QLz
+    else:
+        return inv_IM
+
+
+def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
+                            legendre_orders=[0, 2],
+                            radial_step=1, smoothing=0,
+                            rcond=0.0005, threshold=0.2, clip=0,
+                            return_Beta=_deprecated, norm_range=(0, -1),
+                            direction="inverse", verbose=False):
     r"""Inverse Abel transform using 1D projections of images.
 
     Th. Gerber, Yu. Liu, G. Knopp, P. Hemberger, A. Bodi, P. Radi, Ya. Sych,
@@ -47,139 +131,76 @@ _linbasex_parameter_docstring = \
     reconstructed 3D object is obtained by adding all the contributions, from
     which slices are derived.
 
+    This function operates on the whole image.
 
     Parameters
     ----------
     IM : numpy 2D array
-        image data must be square shape of odd size
-    proj_angles : list
+        image data must have square shape of odd size
+    basis_dir : str or None
+        path to the directory for saving / loading the basis sets. Use ``''``
+        for the default directory. If ``None`` (default), the basis set will
+        not be loaded from or saved to disk.
+    proj_angles : list of float
         projection angles, in radians (default :math:`[0, \pi/2]`)
-        e.g. :math:`[0, \pi/2]` or :math:`[0, 0.955, \pi/2]` or :math:`[0, \pi/4, \pi/2, 3\pi/4]`
-    legendre_orders : list
+        e.g. :math:`[0, \pi/2]` or :math:`[0, 0.955, \pi/2]` or
+        :math:`[0, \pi/4, \pi/2, 3\pi/4]`
+    legendre_orders : list of int
         orders of Legendre polynomials to be used as the expansion
 
         * even polynomials [0, 2, ...] gerade
         * odd polynomials [1, 3, ...] ungerade
         * all orders [0, 1, 2, ...].
 
-        In a single photon experiment there are only anisotropies up to
-        second order. The interaction of 4 photons (four wave mixing) yields
+        In a single-photon experiment there are only anisotropies up to
+        second order. The interaction of 4 photons (four-wave mixing) yields
         anisotropies up to order 8.
     radial_step : int
         number of pixels per Newton sphere (default 1)
     smoothing: float
-        convolve Beta array with a Gaussian function of 1/e 1/2 width `smoothing`.
+        convolve **Beta** array with a Gaussian function of :math:`1/e`
+        halfwidth equal to **smoothing**.
     rcond : float
-        (default 0.0005) scipy.linalg.lstsq fit conditioning value.
-        set rcond to zero to switch conditioning off.
-        Note: In the presence of noise the equation system may be ill posed.
-        Increasing rcond smoothes the result, lowering it beyond a minimum
-        renders the solution unstable. Tweak rcond to get a "reasonable"
+        (default 0.0005) :func:`scipy.linalg.lstsq` fit conditioning value.
+        Use 0 to switch conditioning off.
+        Note: In the presence of noise the equation system may be ill-posed.
+        Increasing **rcond** smoothes the result, lowering it beyond a minimum
+        renders the solution unstable. Tweak **rcond** to get a "reasonable"
         solution with acceptable resolution.
+    threshold : float
+        threshold for normalization of higher-order Newton spheres (default
+        0.2): if **Beta[0]** < **threshold**, the associated **Beta[j]** for
+        all j ⩾ 1 are set to zero
     clip : int
         clip first vectors (smallest Newton spheres) to avoid singularities
         (default 0)
-    norm_range : tuple
+    norm_range : tuple of int
         (low, high)
-        normalization of Newton spheres, maximum in range Beta[0, low:high].
-        Note: Beta[0, i] the total number of counts integrated over sphere i,
-        becomes 1.
-    threshold : float
-        threshold for normalization of higher order Newton spheres (default 0.2)
-        Set all Beta[j], j>=1 to zero if the associated Beta[0] is smaller
-        than threshold.
-    return_Beta : bool
-        return the Beta array of Newton spheres, as the tuple: radial-grid, Beta
-        for the case :attr:`legendre_orders=[0, 2]`
-
-            Beta[0] vs radius -> speed distribution
-
-            Beta[2] vs radius -> anisotropy of each Newton sphere
-
-        see 'Returns'.
+        normalization of Newton spheres, maximum in range **Beta[0, low:high]**.
+        Note: **Beta[0, i]**, the total number of counts integrated over sphere
+        i, becomes 1.
     direction : str
-        "inverse" - only option for this method.
-        Abel transform direction.
-    dr : None
-        dummy variable for call compatibility with the other methods
+        Abel transform direction. Only "inverse" is supported for this method.
     verbose : bool
         print information about processing (normally used for debugging)
-
 
     Returns
     -------
     inv_IM : numpy 2D array
-       inverse Abel transformed image
+        inverse Abel transformed image
+    radial : numpy 1D array
+        radii of each Newton sphere
+    Beta : numpy 2D array
+        contributions of each spherical harmonic :math:`Y_{i0}` to the 3D
+        distribution contain all the information one can get from an experiment.
+        For the case **legendre_orders** = [0, 2]:
 
-    radial, Beta, projections : tuple
-       (if :attr:`return_Beta=True`)
+           **Beta[0]** vs **radial** is the speed distribution
 
-       contributions of each spherical harmonic :math:`Y_{i0}` to the 3D
-       distribution contain all the information one can get from an experiment.
-       For the case :attr:`legendre_orders=[0, 2]`:
+           **Beta[1]** vs **radial** is the anisotropy of each Newton sphere
 
-           Beta[0] vs radius -> speed distribution
-
-           Beta[1] vs radius -> anisotropy of each Newton sphere.
-
-       projections : are the radial projection profiles at angles `proj_angles`
-
-    """
-
-# cache basis
-_basis = None
-_los = None   # legendre_orders string
-_pas = None   # proj_angles string
-_radial_step = None
-_clip = None
-
-
-def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
-                       legendre_orders=[0, 2], radial_step=1, smoothing=0,
-                       rcond=0.0005, threshold=0.2, return_Beta=False, clip=0,
-                       norm_range=(0, -1), direction="inverse", verbose=False,
-                       dr=None):
-    """
-    Wrapper function for linbasex to process supplied quadrant-image as a
-    full-image.
-
-    PyAbel transform functions operate on the right side of an image, so
-    here we duplicate the right side to the left, re-forming the whole image.
-
-    """
-    IM = np.atleast_2d(IM)
-
-    quad_rows, quad_cols = IM.shape
-    full_image = abel.tools.symmetry.put_image_quadrants((IM, IM, IM, IM),
-                 original_image_shape=(quad_rows*2-1, quad_cols*2-1))
-
-    # inverse Abel transform
-    recon, radial, Beta, QLz = linbasex_transform_full(full_image,
-                               basis_dir=basis_dir, proj_angles=proj_angles,
-                               legendre_orders=legendre_orders,
-                               radial_step=radial_step, smoothing=smoothing,
-                               threshold=threshold, clip=clip,
-                               norm_range=norm_range,
-                               verbose=verbose)
-
-    # unpack right-side
-    inv_IM = abel.tools.symmetry.get_image_quadrants(recon)[0]
-
-    if return_Beta:
-        return inv_IM, radial, Beta, QLz
-    else:
-        return inv_IM
-
-
-def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
-                            legendre_orders=[0, 2],
-                            radial_step=1, smoothing=0,
-                            rcond=0.0005, threshold=0.2, clip=0,
-                            return_Beta=False, norm_range=(0, -1),
-                            direction="inverse", verbose=False):
-    """interface function that fetches/calculates the Basis and
-       then evaluates the linbasex inverse Abel transform for the image.
-
+    projections : numpy 2D array
+        projection profiles at angles **proj_angles**
     """
 
     IM = np.atleast_2d(IM)
@@ -193,6 +214,11 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
     if rows != cols:
         raise ValueError('image has shape ({}, {}), '.format(rows, cols) +
                          'must be square for a "linbasex" transform')
+
+    if return_Beta is not _deprecated:
+        _deprecate('abel.linbasex.linbasex_transform_full() '
+                   'argument "return_Beta" is deprecated, these arrays are '
+                   'returned always.')
 
     # generate basis or read from file if available
     _basis = get_bs_cached(cols, basis_dir=basis_dir, proj_angles=proj_angles,
@@ -255,9 +281,6 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
 
     # Fix Me! Issue #202 the correct scaling factor for inv_IM intensity?
     return inv_IM, radial, Beta, QLz
-
-
-linbasex_transform_full.__doc__ = _linbasex_parameter_docstring
 
 
 def _beta_solve(Basis, bb, pol, rcond=0.0005):
@@ -610,6 +633,3 @@ def basis_dir_cleanup(basis_dir=''):
     files = glob(os.path.join(basis_dir, 'linbasex_basis_*.npy'))
     for fname in files:
         os.remove(fname)
-
-
-linbasex_transform.__doc__ += _linbasex_parameter_docstring

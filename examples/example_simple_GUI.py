@@ -108,13 +108,8 @@ def _transform():
     canvas.draw()
 
     # inverse Abel transform of whole image
-    if method == 'linbasex':
-        AIM = abel.Transform(IM, method=method, direction="inverse",
-                             symmetry_axis=None,
-                             transform_options=dict(return_Beta=True))
-    else:
-        AIM = abel.Transform(IM, method=method, direction="inverse",
-                             symmetry_axis=None)
+    AIM = abel.Transform(IM, method=method, direction="inverse",
+                         symmetry_axis=None)
 
     f.clf()
     a = f.add_subplot(111)

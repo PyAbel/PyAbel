@@ -30,9 +30,9 @@ clip = 0  # clip first vectors (smallest Newton spheres) to avoid singularities
 LIM = abel.Transform(IM, method='linbasex', origin='slice',
                      center_options=dict(square=True),
                      transform_options=dict(
-                         basis_dir=None, proj_angles=proj_angles,
+                         proj_angles=proj_angles,
                          radial_step=radial_step, smoothing=smoothing,
-                         threshold=threshold, clip=clip, return_Beta=True,
+                         threshold=threshold, clip=clip,
                          verbose=True))
 
 

@@ -390,26 +390,27 @@ class Transform(object):
     direction : str
         transform direction, as specified by the input option.
 
-    Beta : numpy 2D array
-        with ``method=linbasex, transform_options=dict(return_Beta=True)``:
-        Beta array coefficients of Newton-sphere spherical harmonics
-
-            Beta[0] - the radial intensity variation
-
-            Beta[1] - the anisotropy parameter variation
-
-            ...Beta[n] - higher-order terms up to ``legedre_orders=[0, ..., n]``
-
     radial : numpy 1D array
-        with ``method=linbasex, transform_options=dict(return_Beta=True)``:
-        radial grid for Beta array
+        with ``method='linbasex'``:
+        radial grid for **Beta** array
+
+    Beta : numpy 2D array
+        with ``method='linbasex'``:
+        coefficients of Newton-sphere spherical harmonics
+
+            **Beta[0]** — the radial intensity variation
+
+            **Beta[1]** — the anisotropy parameter variation
+
+            ... **Beta[n]** — higher-order terms up to **legedre_orders** =
+            [0, ..., n]
 
     projection : numpy 2D array
-        with ``method=linbasex, transform_options=dict(return_Beta=True)``:
+        with ``method='linbasex'``:
         radial projection profiles at angles **proj_angles**
 
     distr : Distributions.Results object
-        with ``method=rbasex``: the object from which various radial
+        with ``method='rbasex'``: the object from which various radial
         distributions can be retrieved
     """
     def __init__(self, IM,
