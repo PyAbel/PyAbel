@@ -497,7 +497,7 @@ class Transform(object):
                           '\n    image size: {:d}x{:d}'.format(*self.IM.shape))
         t0 = time.time()
 
-        if self.method == "linbasex" and self._symmetry_axis is not None:
+        if self.method == "linbasex":
             self._abel_transform_image_full_linbasex(**transform_options)
         elif self.method == "rbasex":
             self._abel_transform_image_full_rbasex(**transform_options)
@@ -522,7 +522,6 @@ class Transform(object):
             "daun": daun.daun_transform,
             "direct": direct.direct_transform,
             "hansenlaw": hansenlaw.hansenlaw_transform,
-            "linbasex": linbasex.linbasex_transform,
             "onion_bordas": onion_bordas.onion_bordas_transform,
             "onion_peeling": dasch.onion_peeling_transform,
             "two_point": dasch.two_point_transform,
@@ -559,26 +558,6 @@ class Transform(object):
 
         if None in self._symmetry_axis:
             AQ3 = selected_transform(Q3)
-
-        if self.method == "linbasex" and\
-           "return_Beta" in transform_options.keys():
-            # linbasex evaluates speed and anisotropy parameters
-            # AQi == AIM, R, Beta, QLz
-            Beta0 = AQ0[2]
-            Beta1 = AQ1[2]
-            Beta2 = AQ2[2]
-            Beta3 = AQ3[2]
-            # rconstructed images of each quadrant
-            AQ0 = AQ0[0]
-            AQ1 = AQ1[0]
-            AQ2 = AQ2[0]
-            AQ3 = AQ3[0]
-            # speed
-            self.linbasex_angular_integration = self.Beta[0]\
-                 (Beta0[0] + Beta1[0] + Beta2[0] + Beta3[0])/4
-            # anisotropy
-            self.linbasex_anisotropy_parameter = self.Beta[1]\
-                 (Beta0[1] + Beta1[1] + Beta2[1] + Beta3[1])/4
 
         # reassemble image
         self.transform = tools.symmetry.put_image_quadrants(
