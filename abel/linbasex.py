@@ -251,6 +251,11 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
 
     Beta = _beta_solve(Basis, bb, pol, rcond=rcond)
 
+    # reverse the sign for odd orders (the basis is historically upside down)
+    for i in range(pol):
+        if legendre_orders[i] % 2:
+            Beta[i] = -Beta[i]
+
     radial = np.linspace(clip, cols // 2, len(Beta[0]))
 
     inv_IM, Beta_convol = _Slices(radial, Beta, legendre_orders,
@@ -309,8 +314,8 @@ def _Slices(radial, Beta, legendre_orders, smoothing=0):
     for i in range(pol):
         # interpolated β(r), where r=radius
         BB = np.interp(r, radial, Beta_convol[i, :], left=0)
-        # multiplied by angular part, row / r = cos θ
-        Slice += BB * eval_legendre(legendre_orders[i], row / r)
+        # multiplied by angular part, -row / r = cos θ
+        Slice += BB * eval_legendre(legendre_orders[i], -row / r)
 
     # normalize: division by sphere area
     Slice /= 4 * np.pi * r**2
