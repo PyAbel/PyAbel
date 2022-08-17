@@ -221,29 +221,9 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
                    'returned always.')
 
     # generate basis or read from file if available
-    _basis = get_bs_cached(cols, basis_dir=basis_dir, proj_angles=proj_angles,
+    Basis = get_bs_cached(cols, basis_dir=basis_dir, proj_angles=proj_angles,
                   legendre_orders=legendre_orders, radial_step=radial_step,
                   clip=clip, verbose=verbose)
-
-    return _linbasex_transform_with_basis(IM, _basis, proj_angles=proj_angles,
-                                    legendre_orders=legendre_orders,
-                                    radial_step=radial_step,
-                                    rcond=rcond, smoothing=smoothing,
-                                    threshold=threshold, clip=clip,
-                                    norm_range=norm_range)
-
-
-def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
-                                   legendre_orders=[0, 2], radial_step=1,
-                                   rcond=0.0005, smoothing=0, threshold=0.2,
-                                   clip=0, norm_range=(0, -1)):
-    """linbasex inverse Abel transform evaluated with supplied basis set Basis.
-
-    """
-
-    IM = np.atleast_2d(IM)
-
-    rows, cols = IM.shape
 
     # Number of used polynoms
     pol = len(legendre_orders)
@@ -271,13 +251,15 @@ def _linbasex_transform_with_basis(IM, Basis, proj_angles=[0, np.pi/2],
 
     Beta = _beta_solve(Basis, bb, pol, rcond=rcond)
 
-    inv_IM, Beta_convol = _Slices(Beta, legendre_orders, smoothing=smoothing)
+    radial = np.linspace(clip, cols // 2, len(Beta[0]))
+
+    inv_IM, Beta_convol = _Slices(radial, Beta, legendre_orders,
+                                  smoothing=smoothing)
 
     # normalize
     Beta = _single_Beta_norm(Beta_convol, threshold=threshold,
                              norm_range=norm_range)
-
-    radial = np.linspace(clip, cols//2, len(Beta[0]))
+    inv_IM /= radial_step
 
     # Fix Me! Issue #202 the correct scaling factor for inv_IM intensity?
     return inv_IM, radial, Beta, QLz
@@ -298,28 +280,15 @@ def _beta_solve(Basis, bb, pol, rcond=0.0005):
     return Beta
 
 
-def _SL(i, x, y, Beta_convol, index, legendre_orders):
-    """Calculates interpolated β(r), where r= radius"""
-    r = np.sqrt(x**2 + y**2 + 0.1)  # + 0.1 to avoid divison by zero.
-
-    # normalize: divison by circumference.
-    # @stggh 2/r to correctly normalize intensity cf O2 PES
-    BB = np.interp(r, index, Beta_convol[i, :], left=0)/(4*np.pi*r*r)
-
-    return BB*eval_legendre(legendre_orders[i], x/r)
-
-
-def _Slices(Beta, legendre_orders, smoothing=0):
+def _Slices(radial, Beta, legendre_orders, smoothing=0):
     """Convolve Beta with a Gaussian function of 1/e width smoothing.
 
     """
-
+    R = int(radial[-1])  # outer radius
     pol = len(legendre_orders)
-    NP = len(Beta[0])  # number of points in 3_d plot.
-    index = range(NP)
+    NP = len(Beta[0])  # number of Newton spheres
 
     Beta_convol = np.zeros((pol, NP))
-    Slice_3D = np.zeros((pol, 2 * NP - 1, 2 * NP - 1))
 
     # Convolve Beta's with smoothing function
     if smoothing > 0:
@@ -331,14 +300,20 @@ def _Slices(Beta, legendre_orders, smoothing=0):
     else:
         Beta_convol = Beta
 
-    # Calculate ordered slices:
-    col = np.arange(-NP + 1, NP)
+    Slice = np.zeros((2 * R + 1, 2 * R + 1))  # full image size
+    col = np.arange(-R, R + 1)
     row = col[:, None]
-    for i in range(pol):
-        Slice_3D[i] = _SL(i, row, col, Beta_convol, index, legendre_orders)
+    r = np.sqrt(row**2 + col**2 + 0.1)  # + 0.1 to avoid division by zero
 
-    # Sum ordered slices up
-    Slice = np.sum(Slice_3D, axis=0)
+    # Sum ordered slices up:
+    for i in range(pol):
+        # interpolated β(r), where r=radius
+        BB = np.interp(r, radial, Beta_convol[i, :], left=0)
+        # multiplied by angular part, row / r = cos θ
+        Slice += BB * eval_legendre(legendre_orders[i], row / r)
+
+    # normalize: division by sphere area
+    Slice /= 4 * np.pi * r**2
 
     return Slice, Beta_convol
 
