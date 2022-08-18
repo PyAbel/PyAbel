@@ -98,7 +98,7 @@ def ann_plt(quad, subquad, txt):
     annot_angle = -(30+30*subquad+quad*90)*np.pi/180
     annot_coord = (h/2+(h*0.8)*np.cos(annot_angle)/2,
                    w/2+(w*0.8)*np.sin(annot_angle)/2)
-    ax0.annotate(txt, annot_coord, color="yellow", horizontalalignment='left')
+    ax0.annotate(txt, annot_coord, color="yellow", ha='center')
 
 # for < 4 images pad using a blank quadrant
 r, c = Q0.shape
@@ -112,7 +112,7 @@ for q in range(4):
     ax1.plot(*(sp[iq]), label=meth[iq], alpha=0.5)
     iq += 1
     if iq < len(transforms):
-        Q[q][indx] = np.triu(iabelQ[iq])[indx]
+        (Q[q][::-1])[indx] = (iabelQ[iq][::-1])[indx]
         ann_plt(q, 1, meth[iq])
         ax1.plot(*(sp[iq]), label=meth[iq], alpha=0.5)
     iq += 1
