@@ -180,7 +180,7 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
         Note: **Beta[0, i]**, the total number of counts integrated over sphere
         i, becomes 1.
     direction : str
-        Abel transform direction. Only "inverse" is supported for this method.
+        Abel transform direction. Only "inverse" is implemented.
     verbose : bool
         print information about processing (normally used for debugging)
 
