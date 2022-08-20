@@ -326,6 +326,13 @@ def _Slices(radial, Beta, legendre_orders, smoothing=0):
 def int_beta(Beta, radial_step=1, threshold=0.1, regions=None):
     """Integrate beta over a range of Newton spheres.
 
+    .. warning::
+        This function is deprecated and will be remove in the future. See
+        `issue #356 <https://github.com/PyAbel/PyAbel/issues/356>`__.
+
+        For integrating the speed distribution and averaging the anisotropy,
+        please use :func:`mean_beta`.
+
     Parameters
     ----------
     Beta : numpy array
@@ -343,6 +350,8 @@ def int_beta(Beta, radial_step=1, threshold=0.1, regions=None):
         integrated normalized Beta array [Newton sphere, region]
 
     """
+    _deprecate('int_beta() is deprecated, consider using mean_beta().')
+
     pol = Beta.shape[0]
     # Define new array for normalized beta's, independent of Beat_norm
     Beta_n = np.zeros(Beta.shape)
@@ -362,6 +371,46 @@ def int_beta(Beta, radial_step=1, threshold=0.1, regions=None):
             Beta_int[i, j] = np.sum(Beta_n[i, range(*reg)])/(reg[1]-reg[0])
 
     return Beta_int
+
+
+def mean_beta(radial, Beta, regions):
+    """
+    Integrate normalized intensity (``Beta[0]``) and perform intensity-weighted
+    averaging of anisotropy (``Beta[1:]``) over ranges of Newton spheres.
+
+    Parameters
+    ----------
+    radial : numpy 1D array
+        radii of Newton spheres
+    Beta : numpy 2D array
+        speed and anisotropy distribution from :func:`linbasex_transform_full`
+    regions : list of tuple of int
+        radial ranges [(min0, max0), (min1, max1), ...].
+        Note that inclusion of regions where **Beta[0]** is below **threshold**
+        set in :func:`linbasex_transform_full` will bias the mean anisotropies
+        towards zero.
+
+    Returns
+    -------
+    Beta_mean : 2D numpy array
+        overall intensity (``Beta_mean[0]``) and mean anisotropy values
+        (``Beta_mean[1:]``) in each region
+    """
+    pol = Beta.shape[0]
+
+    Beta_mean = np.empty((pol, len(regions)))
+
+    for i, (rmin, rmax) in enumerate(regions):
+        # radial indices within region
+        idx = np.where((rmin <= radial) & (radial <= rmax))[0]  # until PEP 535
+        # intensity: average
+        Imean = Beta[0, idx].mean()
+        # integrated
+        Beta_mean[0, i] = Imean * (rmax - rmin + 1)
+        # anisotropies: intensity-weighted average
+        Beta_mean[1:, i] = (Beta[1:, idx] * Beta[0, idx]).mean(axis=1) / Imean
+
+    return Beta_mean
 
 
 def _single_Beta_norm(Beta, threshold=0.2, norm_range=(0, -1)):
