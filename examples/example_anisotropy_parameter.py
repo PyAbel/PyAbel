@@ -19,8 +19,7 @@ IM = np.loadtxt(imagefile)
 # use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
 
 # === linbasex transform ===================================
-legendre_orders = [0, 2, 4]  # Legendre polynomial orders
-proj_angles = range(0, 180, 10)  # projection angles in 10 degree steps
+proj_angles = np.arange(0, 180, 10)/180*np.pi  # projection angles in 10° steps
 radial_step = 1  # pixel grid
 smoothing = 0.9  # smoothing 1/e-width for Gaussian convolution smoothing
 threshold = 0.2  # threshold for normalization of higher order Newton spheres
