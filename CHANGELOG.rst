@@ -4,14 +4,14 @@ Changelog
 Unreleased
 ----------
 
-* Offline HTML and PDF documentation is now available at Read the Docs and can
-  be built locally (PR #343, #348, #349).
 * Correct behavior of relative basis_dir in basex under Python 2 (PR #336).
-* Analytical Abel transform of axially symmetric piecewise polynomials in
-  spherical coordinates (PR #339).
 * Improvements in tools.analytical.SampleImage class: more consistent and
   intuitive interface, accurate Abel transform for existing images, additional
   sample images with exact Abel transform (PR #339, #352).
+* Analytical Abel transform of axially symmetric piecewise polynomials in
+  spherical coordinates (PR #339).
+* Offline HTML and PDF documentation is now available at Read the Docs and can
+  be built locally (PR #343, #348, #349).
 
 v0.8.5 (2022-01-21)
 -------------------
