@@ -465,12 +465,10 @@ class AbelTiming(object):
         self._benchmark('bs', 'linbasex',
                         gen_basis)
 
-        # get the basis (is already cached)
-        basis = linbasex.get_bs_cached(self.h, basis_dir=None)
-        # benchmark the transform
+        # benchmark the transform (basis is already cached)
         self._benchmark('inverse', 'linbasex',
-                        linbasex._linbasex_transform_with_basis,
-                        self.whole_image, basis)
+                        linbasex.linbasex_transform_full,
+                        self.whole_image)
 
         # discard all caches
         linbasex.cache_cleanup()
