@@ -58,6 +58,20 @@ def test_linbasex_shape_clip():
     assert proj.shape == (2, n)
 
 
+def test_linbasex_zeros():
+    """ Check that zero input produces zero output
+    """
+    R = 10
+    n = 2 * R + 1
+    x = np.zeros((n, n), dtype='float32')
+
+    recon, radial, beta, proj = linbasex_transform_full(x)
+
+    assert_allclose(recon, 0)
+    assert_allclose(beta, 0)
+    assert_allclose(proj, 0)
+
+
 def test_linbasex_forward_dribinski_image():
     """ Check hansenlaw forward/inverse transform
         using BASEX sample image, comparing speed distributions
@@ -100,9 +114,8 @@ def test_linbasex_odd_sign():
     recon, radial, beta, proj = linbasex_transform_full(im, legendre_orders=[0, 1])
 
     assert np.all(recon[0] > recon[-1]), 'incorrect output orientation'
-    # ignoring r = 0:
-    assert_array_less(0, beta[0][1:], err_msg='beta[0] must be positive')
-    assert_array_less(0, beta[1][1:], err_msg='beta[1] must be positive')
+    assert_array_less(-1e-9, beta[0][1:], err_msg='beta[0] must be positive')
+    assert_array_less(-1e-9, beta[1][1:], err_msg='beta[1] must be positive')
 
 
 def test_linbasex_mean_beta():
@@ -145,21 +158,22 @@ def test_linbasex_mean_beta():
         beta_mean = abel.linbasex.mean_beta(radial, beta, regions)
 
         param = 'radial_step={}, clip={}'.format(radial_step, clip)
-        assert_allclose(beta_mean[0], ref[0], atol=I_tol,
+        assert_allclose(beta_mean[0], ref[0], rtol=I_tol,
                         err_msg=param + ': I')
         assert_allclose(beta_mean[1:], ref[1:], atol=beta_tol,
                         err_msg=param + ': beta')
 
     # default parameters:
-    check(0.07, 0.03)
+    check(0.02, 0.03)
     # sparse, without center:
-    check(0.2, 0.03, radial_step=2, clip=10)
+    check(0.03, 0.03, radial_step=2, clip=10)
 
 
 if __name__ == "__main__":
     test_linbasex_shape()
     test_linbasex_shape_radial_step()
     test_linbasex_shape_clip()
+    test_linbasex_zeros()
     test_linbasex_forward_dribinski_image()
     test_linbasex_odd_sign()
     test_linbasex_mean_beta()

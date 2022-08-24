@@ -9,7 +9,7 @@ from glob import glob
 import numpy as np
 import scipy
 from scipy.special import eval_legendre
-from scipy.ndimage import rotate, gaussian_filter1d
+from scipy.ndimage import rotate, shift, gaussian_filter1d
 
 import abel
 from abel import _deprecated, _deprecate
@@ -250,6 +250,9 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
 
     Beta = _beta_solve(Basis, bb, pol, rcond=rcond)
 
+    # compensate 1/2-pixel shift (basis issue? see PR #357)
+    Beta = shift(Beta, (0, 0.5 / radial_step), mode='nearest')
+
     # reverse the sign for odd orders (the basis is historically upside down)
     for i in range(pol):
         if legendre_orders[i] % 2:
@@ -428,16 +431,13 @@ def _single_Beta_norm(Beta, threshold=0.2, norm_range=(0, -1)):
         normalized Beta array
 
     """
-    pol = Beta.shape[0]
-
     Beta_norm = np.zeros_like(Beta)
     # Normalized to Newton sphere with maximum counts in chosen range.
     max_counts = Beta[0, norm_range[0]:norm_range[1]].max()
-
-    Beta_norm[0] = Beta[0]/max_counts
-    for i in range(1, pol):
-        Beta_norm[i] = np.where(Beta[0]/max_counts > threshold,
-                                Beta[i]/Beta[0], 0)
+    if max_counts > 0:  # (don't fail for zero images)
+        Beta_norm[0] = Beta[0] / max_counts
+    np.divide(Beta[1:], Beta[0], out=Beta_norm[1:],
+              where=Beta_norm[0] > threshold)
 
     return Beta_norm
 
