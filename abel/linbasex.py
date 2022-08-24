@@ -256,7 +256,8 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
         if legendre_orders[i] % 2:
             Beta[i] = -Beta[i]
 
-    radial = np.linspace(clip * radial_step, cols // 2, len(Beta[0]))
+    R = cols // 2  # outer radius: cols = 2R + 1
+    radial = np.linspace(clip * radial_step + R % radial_step, R, len(Beta[0]))
 
     inv_IM, Beta_convol = _Slices(radial, Beta, legendre_orders,
                                   smoothing=smoothing)
