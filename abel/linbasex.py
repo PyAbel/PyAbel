@@ -9,7 +9,7 @@ from glob import glob
 import numpy as np
 import scipy
 from scipy.special import eval_legendre
-from scipy import ndimage
+from scipy.ndimage import rotate, gaussian_filter1d
 
 import abel
 from abel import _deprecated, _deprecate
@@ -242,8 +242,7 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
     #     QLz[1] = np.sum(IM, axis=0)
     # else:
     for i in range(proj):
-        Rot_IM = scipy.ndimage.rotate(IM, proj_angles[i]*180/np.pi,
-                                      axes=(1, 0), reshape=False)
+        Rot_IM = rotate(IM, proj_angles[i] * 180 / np.pi, reshape=False)
         QLz[i, :] = np.sum(Rot_IM, axis=1)
 
     # arrange all projections for input into "lstsq"
@@ -291,15 +290,10 @@ def _Slices(radial, Beta, legendre_orders, smoothing=0):
     pol = len(legendre_orders)
     NP = len(Beta[0])  # number of Newton spheres
 
-    Beta_convol = np.zeros((pol, NP))
-
-    # Convolve Beta's with smoothing function
+    # Convolve Beta with Gaussian smoothing function
     if smoothing > 0:
-        # smoothing function
-        Basis_s = np.fromfunction(lambda i: np.exp(-(i - (NP)/2)**2 /
-                                  (2*smoothing**2))/(smoothing*2.5), (NP,))
-        for i in range(pol):
-            Beta_convol[i] = np.convolve(Basis_s, Beta[i], mode='same')
+        Beta_convol = gaussian_filter1d(Beta, smoothing, axis=1,
+                                        mode='constant', cval=0)
     else:
         Beta_convol = Beta
 
