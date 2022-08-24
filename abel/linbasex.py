@@ -274,14 +274,11 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
 def _beta_solve(Basis, bb, pol, rcond=0.0005):
     # set rcond to zero to switch conditioning off
 
-    # array for solutions. len(Basis[0,:])//pol is an integer.
-    Beta = np.zeros((pol, len(Basis[0])//pol))
-
     # solve equation
     Sol = np.linalg.lstsq(Basis, bb, rcond)
 
-    # arrange solutions into subarrays for each β.
-    Beta = Sol[0].reshape((pol, len(Sol[0])//pol))
+    # arrange solutions into subarrays for each β
+    Beta = Sol[0].reshape((pol, len(Sol[0]) // pol))
 
     return Beta
 
@@ -451,42 +448,35 @@ def _single_Beta_norm(Beta, threshold=0.2, norm_range=(0, -1)):
     return Beta_norm
 
 
-def _bas(ord, angle, COS, TRI):
-    """Define Basis vectors for a given polynomial order "order" and a
+def _bas(order, angle, COS, TRI):
+    """Define basis vectors for a given polynomial order "order" and a
        given projection angle "angle".
-
     """
-
-    basis_vec = scipy.special.eval_legendre(ord, angle) *\
-                scipy.special.eval_legendre(ord, COS) * TRI
-    return basis_vec
+    return eval_legendre(order, angle) * eval_legendre(order, COS) * TRI
 
 
 def _bs_linbasex(cols, proj_angles=[0, np.pi/2], legendre_orders=[0, 2],
                  radial_step=1, clip=0):
 
-    pol = len(legendre_orders)
+    n = cols // 2 + 1  # 0 to outer R
     proj = len(proj_angles)
+    pol = len(legendre_orders)
 
-    # Calculation of Base vectors
-    # Define triangular matrix containing columns :math:`x/y` (representing :math:`\cos(\theta))`.
-    n = cols//2 + cols % 2
+    # Calculation of base vectors,
+    # using only each radial_step other vector but keeping the outer radius
+
+    # Matrix representing cos θ (rows z / columns r_k)
     Index = np.indices((n, n))
     Index[:, 0, 0] = 1
-    cos = Index[0]*np.tri(n, n, k=0)[::-1, ::-1]/np.diag(Index[0])
+    cos = np.triu(Index[0] / np.diag(Index[0]))
+    cos = cos[:, ::-radial_step][:, ::-1]  # decimate r_k
 
-    # Concatenate to "bi"-triangular matrix
-    COS = np.concatenate((-cos[::-1, :], cos[1:, :]), axis=0)
-    TRI = np.concatenate((np.tri(n, n, k=0,)[:-1, ::-1],
-                          np.tri(n, n, k=0,)[::-1, ::-1]), axis=0)
+    # Matrix representing step functions Pi (decimated upper triangular)
+    tri = np.tri(n)[::-1, ::radial_step][:, ::-1]
 
-    # radial_step: use only each radial_step other vector.
-    # Keep the base vector with full span
-    COS = COS[:, ::-radial_step]
-    TRI = TRI[:, ::-radial_step]
-
-    COS = COS[:, ::-1]  # rearrange base vectors again in ascending order
-    TRI = TRI[:, ::-1]
+    # Concatenate to double-sided matrices (-R to R)
+    COS = np.concatenate((-cos[::-1], cos[1:]), axis=0)
+    TRI = np.concatenate((tri[::-1], tri[1:]), axis=0)
 
     if clip > 0:
         # clip first vectors (smallest Newton spheres) to avoid singularities
@@ -495,18 +485,18 @@ def _bs_linbasex(cols, proj_angles=[0, np.pi/2], legendre_orders=[0, 2],
         TRI = TRI[:, clip:]  # usually no clipping works fine.
 
     # Calculate base vectors for each projection and each order.
-    B = np.zeros((pol, proj, len(COS[:, 0]), len(COS[0, :])))
+    B = np.zeros((pol, proj) + COS.shape)
 
-    Norm = np.sum(_bas(0, 1, COS, TRI), axis=0)  # calculate normalization
-    cos_an = np.cos(proj_angles)  # angles in radians
+    Norm = np.sum(_bas(0, 1, COS, TRI), axis=0)  # normalization
+    cos_an = np.cos(proj_angles)  # cosines of projection angles
 
     for p in range(pol):
         for u in range(proj):
-            B[p, u] = _bas(legendre_orders[p], cos_an[u], COS, TRI)/Norm
+            B[p, u] = _bas(legendre_orders[p], cos_an[u], COS, TRI) / Norm
 
     # concatenate vectors to one matrix of bases
-    Bpol = np.concatenate((B), axis=2)
-    Basis = np.concatenate((Bpol), axis=0)
+    Bpol = np.concatenate(B, axis=2)
+    Basis = np.concatenate(Bpol, axis=0)
 
     return Basis
 
