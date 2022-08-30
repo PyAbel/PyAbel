@@ -39,8 +39,9 @@ ntrans = len(transforms)  # number of transforms
 imagefile = bz2.BZ2File('data/O2-ANU1024.txt.bz2')
 IM = np.loadtxt(imagefile)
 
-# recenter the image to mid-pixel (odd image width)
-IModd = abel.tools.center.center_image(IM, method="slice", odd_size=True)
+# recenter the image to mid-pixel (odd image width, square shape)
+IModd = abel.tools.center.center_image(IM, method="convolution",
+                                       odd_size=True, square=True)
 
 h, w = IModd.shape
 print("centered image 'data/O2-ANU2048.txt' shape = {:d}x{:d}".format(h, w))
