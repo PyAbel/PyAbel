@@ -291,10 +291,13 @@ latex_elements = {
         \DeclareUnicodeCharacter{2264}{\ensuremath{\le}} % ≤
         \DeclareUnicodeCharacter{2265}{\ensuremath{\ge}} % ≥
         \DeclareUnicodeCharacter{226A}{\ensuremath{\ll}} % ≪
+        \DeclareUnicodeCharacter{226B}{\ensuremath{\gg}} % ≫
         \DeclareUnicodeCharacter{2272}{\ensuremath{\lesssim}} % ≲
         \DeclareUnicodeCharacter{2273}{\ensuremath{\gtrsim}} % ≳
         \DeclareUnicodeCharacter{22C5}{\ensuremath{\cdot}} % ⋅
         \DeclareUnicodeCharacter{27C2}{\ensuremath{\perp}} % ⟂
+        \DeclareUnicodeCharacter{2A7D}{\ensuremath{\leqslant}} % ⩽
+        \DeclareUnicodeCharacter{2A7E}{\ensuremath{\geqslant}} % ⩾
         % allow line break after underscore (some code doesn't fit otherwise)
         \renewcommand\_{\textunderscore\allowbreak}
         % table styling:
