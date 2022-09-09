@@ -271,6 +271,8 @@ def profile4(r):
     <https://doi.org/10.1016/S0584-8547(02)00087-3>`_, Eq. (10).
 
     Note:
+        This profile has a small discontinuity at :math:`r = 0.7`.
+
         Published projection has misprints
         (“19\ **3**\ .30083” instead of “19\ **6**\ .30083” in both cases).
 
@@ -379,6 +381,12 @@ def profile5(r):
     M. L. Brake,
     `J. Quant. Spectrosc. Radiat. Transf. 55, 231–243 (1996)
     <https://doi.org/10.1016/0022-4073(95)00149-2>`_, Table 1, № 1.
+
+    Note:
+        This profile is discontinuous (and its projection is not smooth) at
+        :math:`r = 1`, which can cause different problems in different methods,
+        in particular, depending on their assumptions where the singularity is
+        located within the last pixel.
 
     .. math::
 
