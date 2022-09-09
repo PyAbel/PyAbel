@@ -3,6 +3,10 @@ sudo: false
 jobs:
   include:
     - os: linux
+      dist: jammy
+      python: 3.10
+      env: DEPS="numpy scipy cython"
+    - os: linux
       python: 3.9
       env: TOXENV=py39, DEPS="numpy scipy cython"
     - os: linux
