@@ -3,6 +3,8 @@ from scipy.linalg import circulant
 from scipy.optimize import curve_fit, brentq
 from scipy.interpolate import interp1d
 
+from abel import _deprecate
+
 
 def gradient(f, x=None, dx=1, axis=-1):
     """
@@ -89,7 +91,7 @@ def gaussian(x, a, mu, sigma, c):
     return a * np.exp(-((x - mu) ** 2) / 2 / sigma ** 2) + c
 
 
-def guss_gaussian(x):
+def guess_gaussian(x):
     """
     Find a set of better starting parameters for Gaussian function fitting
 
@@ -113,11 +115,11 @@ def guss_gaussian(x):
 
     try:
         sigma_l_guess = brentq(_, 0, mu_guess)
-    except:
+    except ValueError:
         sigma_l_guess = len(x) / 4
     try:
         sigma_r_guess = brentq(_, mu_guess, len(x) - 1)
-    except:
+    except ValueError:
         sigma_r_guess = 3 * len(x) / 4
     return a_guess, mu_guess, (sigma_r_guess -
                                sigma_l_guess) / 2.35482, c_guess
@@ -137,5 +139,12 @@ def fit_gaussian(x):
     out : tuple of float
         (a, mu, sigma, c)
     """
-    p, q = curve_fit(gaussian, list(range(x.size)), x, p0=guss_gaussian(x))
-    return p
+    res = curve_fit(gaussian, np.arange(x.size), x, p0=guess_gaussian(x))
+    return res[0]  # extract optimal values
+
+
+def guss_gaussian(x):
+    """Deprecated function. Use :func:`guess_gaussian` instead."""
+    _deprecate('abel.tools.math.guss_gaussian() is renamed to '
+               '...guess_gaussian(), please update your code.')
+    return guess_gaussian(x)
