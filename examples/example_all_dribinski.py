@@ -1,118 +1,95 @@
 # -*- coding: utf-8 -*-
 
-# This example compares the available inverse Abel transform methods
-# for the Ominus sample image
-#
-# Note it transforms only the Q0 (top-right) quadrant
-# using the fundamental transform code
+# This example compares some available inverse Abel transform methods
+# for the Dribinski sample image
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from time import time
+import matplotlib.pylab as plt
 import numpy as np
+
 import abel
 
-import matplotlib.pylab as plt
-from time import time
-
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
 # inverse Abel transform methods -----------------------------
-#   dictionary of method: function()
-
-transforms = {
-    "direct": abel.direct.direct_transform,
-    "hansenlaw": abel.hansenlaw.hansenlaw_transform,
-    "onion": abel.dasch.onion_peeling_transform,
-    "basex": abel.basex.basex_transform,
-    "three_point": abel.dasch.three_point_transform,
-    "two_point": abel.dasch.two_point_transform,
-}
-
+transforms = [
+    "basex",
+    "direct",
+    "hansenlaw",
+    "linbasex",
+    "onion_peeling",
+    "rbasex",
+    "three_point",
+    "two_point",
+]
 # number of transforms:
 ntrans = len(transforms)
 
-IM = abel.tools.analytical.SampleImage(n=301, name="Dribinski").func
+# sample image radius in pixels
+R = 150
 
-h, w = IM.shape
+fIM = abel.tools.analytical.SampleImage(n=2 * R + 1, name="Dribinski").abel
+# fIM += np.random.normal(0, 5000, fIM.shape)  # try adding some noise
 
-# forward transform:
-fIM = abel.Transform(IM, direction="forward", method="hansenlaw").transform
+print("image shape {}".format(fIM.shape))
 
-Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(fIM, reorient=True)
+# sectors for combining output images (clockwise from top)
+row = np.arange(-R, R + 1)[:, None]
+col = np.arange(-R, R + 1)
+sector = np.asarray(ntrans * (1 - np.arctan2(col, row) / np.pi) / 2, dtype=int)
 
-Q0fresh = Q0.copy()    # keep clean copy
-print("quadrant shape {}".format(Q0.shape))
+# apply each method --------------------
 
-# process Q0 quadrant using each method --------------------
+IM = np.zeros_like(fIM)  # for inverse Abel transformed images
+ymax = 0  # max. speed distribution
 
-iabelQ = []  # keep inverse Abel transformed image
-
-for q, method in enumerate(sorted(transforms.keys())):
-
-    Q0 = Q0fresh.copy()   # top-right quadrant of O2- image
-
+for i, method in enumerate(transforms):
     print("\n------- {:s} inverse ...".format(method))
     t0 = time()
 
     # inverse Abel transform using 'method'
-    IAQ0 = transforms[method](Q0, direction="inverse")
+    recon = abel.Transform(fIM, method=method, direction="inverse",
+                           symmetry_axis=(0, 1)).transform
 
     print("                    {:.4f} s".format(time()-t0))
 
-    iabelQ.append(IAQ0)  # store for plot
-
-    # polar projection and speed profile
-    radial, speed = abel.tools.vmi.angular_integration_3D(IAQ0, origin=(-1, 0))
-
-    # normalize image intensity and speed distribution
-    IAQ0 /= IAQ0.max()
-    speed /= speed.max()
+    # copy sector to combined output image
+    idx = sector == i
+    IM[idx] = recon[idx]
 
     # method label for each quadrant
-    annot_angle = -(45+q*90)*np.pi/180  # -ve because numpy coords from top
-    if q > 3:
-        annot_angle += 50*np.pi/180    # shared quadrant - move the label
-    annot_coord = (h/2 + (h*0.9)*np.cos(annot_angle)/2 - 50,
-                   w/2 + (w*0.9)*np.sin(annot_angle)/2)
-    ax1.annotate(method, annot_coord, color="yellow")
+    annot_angle = 2 * np.pi * (0.5 + i) / ntrans
+    annot_coord = (R + 0.8 * R * np.sin(annot_angle),
+                   R - 0.8 * R * np.cos(annot_angle))
+    ax1.annotate(method, annot_coord, color="white", ha="center")
+
+    # polar projection and speed profile
+    radial, speed = abel.tools.vmi.angular_integration_3D(recon)
 
     # plot speed distribution
     ax2.plot(radial, speed, label=method)
 
-# reassemble image, each quadrant a different method
-
-# for < 4 images pad using a blank quadrant
-blank = np.zeros(IAQ0.shape)
-for q in range(ntrans, 4):
-    iabelQ.append(blank)
-
-# more than 4, split quadrant
-if ntrans == 5:
-    # split last quadrant into 2 = upper and lower triangles
-    tmp_img = np.tril(np.flipud(iabelQ[-2])) +\
-              np.triu(np.flipud(iabelQ[-1]))
-    iabelQ[3] = np.flipud(tmp_img)
-
-im = abel.tools.symmetry.put_image_quadrants((iabelQ[0], iabelQ[1],
-                                              iabelQ[2], iabelQ[3]),
-                                             original_image_shape=IM.shape)
-
-ax1.imshow(im, vmin=0, vmax=0.15)
-ax1.set_title('Inverse Abel comparison')
-
-
-ax2.set_xlim(0, 200)
-ax2.set_ylim(-0.5, 2)
-ax2.legend(loc=0, labelspacing=0.1, frameon=False)
-ax2.set_title('Angular integration')
-ax2.set_xlabel('Radial coordinate (pixel)')
-ax2.set_ylabel('Integrated intensity')
-
+    # update limit
+    ymax = max(ymax, speed.max())
 
 plt.suptitle('Dribinski sample image')
+
+ax1.set_title('Inverse Abel comparison')
+vmax = IM[:, R+2:].max()  # ignoring pixels near center line
+ax1.imshow(IM, vmin=0, vmax=0.1 * vmax)
+
+ax2.set_title('Angular integration')
+ax2.set_xlabel('Radial coordinate (pixel)')
+ax2.set_xlim(0, 150)
+ax2.set_ylabel('Integrated intensity')
+ax2.set_ylim(-0.1 * ymax, 1.2 * ymax)
+ax2.set_yticks([])
+ax2.legend(ncol=2, labelspacing=0.1, frameon=False)
 
 plt.tight_layout()
 # plt.savefig('plot_example_all_dribinski.png', dpi=100)

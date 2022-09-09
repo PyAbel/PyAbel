@@ -4,14 +4,26 @@ Changelog
 Unreleased
 ----------
 
-* Offline HTML and PDF documentation is now available at Read the Docs and can
-  be built locally (PR #343, #348, #349).
 * Correct behavior of relative basis_dir in basex under Python 2 (PR #336).
-* Analytical Abel transform of axially symmetric piecewise polynomials in
-  spherical coordinates (PR #339).
 * Improvements in tools.analytical.SampleImage class: more consistent and
   intuitive interface, accurate Abel transform for existing images, additional
   sample images with exact Abel transform (PR #339, #352).
+* Analytical Abel transform of axially symmetric piecewise polynomials in
+  spherical coordinates (PR #339).
+* Offline HTML and PDF documentation is now available at Read the Docs and can
+  be built locally (PR #343, #348, #349).
+* **Important** changes in the **lin-BASEX** implementation (PR #357):
+
+  - It was erroneously producing even-sized images with offset origin. Now the
+    output is odd-sized and properly centered.
+  - Output images for radial_step > 1 were scaled down by the same factor. Now
+    they have the save size as the input.
+  - The sign of Beta for odd Legendre orders is reversed to be consistent with
+    PyAbel conventions (zero angle is upwards, towards smaller row indices).
+
+* Transform() with method='linbasex' now always stores the radial, Beta and
+  projection attributes, so there is no need to pass return_Beta=True
+  in transform_options (PR #357).
 
 v0.8.5 (2022-01-21)
 -------------------

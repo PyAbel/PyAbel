@@ -25,7 +25,8 @@ if os.environ.get('READTHEDOCS', None) == 'True':
 # for the online readthedocs.org
 
 # Image center should be mid-pixel and the image square,
-# `center=convolution` takes care of this
+# `origin="convolution"` takes care of this
+IM = abel.tools.center.center_image(IM, origin="convolution", square=True)
 
 un = [0, 2]  # spherical harmonic orders
 proj_angles = np.arange(0, 2*np.pi, np.pi/20)  # projection angles
@@ -37,10 +38,8 @@ radial_step = 1
 clip = 0
 
 # linbasex inverse Abel transform
-LIM = abel.Transform(IM, method="linbasex", origin="convolution",
-                     center_options=dict(square=True),
-                     transform_options=dict(basis_dir=None, return_Beta=True,
-                                            legendre_orders=un,
+LIM = abel.Transform(IM, method="linbasex",
+                     transform_options=dict(legendre_orders=un,
                                             proj_angles=proj_angles,
                                             smoothing=smoothing,
                                             radial_step=radial_step, clip=clip,

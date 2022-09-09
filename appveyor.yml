@@ -35,9 +35,8 @@ install:
   - activate abel-env
   - pip install coverage pytest pytest-cov
   - dir 
-  - "cd C:\\projects\\PyAbel"
   - pip install . -v
 
 test_script:
-  - "cd C:\\projects\\PyAbel"
+  - cd "%TMP%"
   - pytest -v --cov=abel --pyargs abel

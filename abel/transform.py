@@ -390,31 +390,29 @@ class Transform(object):
     direction : str
         transform direction, as specified by the input option.
 
-    Beta : numpy 2D array
-        with ``method=linbasex, transform_options=dict(return_Beta=True)``:
-        Beta array coefficients of Newton-sphere spherical harmonics
-
-            Beta[0] - the radial intensity variation
-
-            Beta[1] - the anisotropy parameter variation
-
-            ...Beta[n] - higher-order terms up to ``legedre_orders=[0, ..., n]``
-
     radial : numpy 1D array
-        with ``method=linbasex, transform_options=dict(return_Beta=True)``:
-        radial grid for Beta array
+        with ``method='linbasex'``:
+        radial grid for **Beta** array
+
+    Beta : numpy 2D array
+        with ``method='linbasex'``:
+        coefficients of Newton-sphere spherical harmonics
+
+            **Beta[0]** — the radial intensity variation
+
+            **Beta[1]** — the anisotropy parameter variation
+
+            ... **Beta[n]** — higher-order terms up to **legedre_orders** =
+            [0, ..., n]
 
     projection : numpy 2D array
-        with ``method=linbasex, transform_options=dict(return_Beta=True)``:
+        with ``method='linbasex'``:
         radial projection profiles at angles **proj_angles**
 
     distr : Distributions.Results object
-        with ``method=rbasex``: the object from which various radial
+        with ``method='rbasex'``: the object from which various radial
         distributions can be retrieved
     """
-
-    _verbose = False
-
     def __init__(self, IM,
                  direction='inverse', method='three_point', origin='none',
                  symmetry_axis=None, use_quadrants=(True, True, True, True),
@@ -442,7 +440,8 @@ class Transform(object):
         self._use_quadrants = use_quadrants
         self._transform_options = transform_options
         self._recast_as_float64 = recast_as_float64
-        _verbose = verbose
+
+        self._verboseprint = print if verbose else lambda *a, **k: None
 
         # image processing
         self._verify_some_inputs()
@@ -455,8 +454,6 @@ class Transform(object):
                           **angular_integration_options)
 
     # end of class instance
-
-    _verboseprint = print if _verbose else lambda *a, **k: None
 
     def _verify_some_inputs(self):
         if self.IM.ndim == 1 or np.shape(self.IM)[0] <= 2:
@@ -501,7 +498,7 @@ class Transform(object):
                           '\n    image size: {:d}x{:d}'.format(*self.IM.shape))
         t0 = time.time()
 
-        if self.method == "linbasex" and self._symmetry_axis is not None:
+        if self.method == "linbasex":
             self._abel_transform_image_full_linbasex(**transform_options)
         elif self.method == "rbasex":
             self._abel_transform_image_full_rbasex(**transform_options)
@@ -526,7 +523,6 @@ class Transform(object):
             "daun": daun.daun_transform,
             "direct": direct.direct_transform,
             "hansenlaw": hansenlaw.hansenlaw_transform,
-            "linbasex": linbasex.linbasex_transform,
             "onion_bordas": onion_bordas.onion_bordas_transform,
             "onion_peeling": dasch.onion_peeling_transform,
             "two_point": dasch.two_point_transform,
@@ -563,26 +559,6 @@ class Transform(object):
 
         if None in self._symmetry_axis:
             AQ3 = selected_transform(Q3)
-
-        if self.method == "linbasex" and\
-           "return_Beta" in transform_options.keys():
-            # linbasex evaluates speed and anisotropy parameters
-            # AQi == AIM, R, Beta, QLz
-            Beta0 = AQ0[2]
-            Beta1 = AQ1[2]
-            Beta2 = AQ2[2]
-            Beta3 = AQ3[2]
-            # rconstructed images of each quadrant
-            AQ0 = AQ0[0]
-            AQ1 = AQ1[0]
-            AQ2 = AQ2[0]
-            AQ3 = AQ3[0]
-            # speed
-            self.linbasex_angular_integration = self.Beta[0]\
-                 (Beta0[0] + Beta1[0] + Beta2[0] + Beta3[0])/4
-            # anisotropy
-            self.linbasex_anisotropy_parameter = self.Beta[1]\
-                 (Beta0[1] + Beta1[1] + Beta2[1] + Beta3[1])/4
 
         # reassemble image
         self.transform = tools.symmetry.put_image_quadrants(
