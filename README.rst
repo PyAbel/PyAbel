@@ -3,6 +3,7 @@ PyAbel README
 
 ..
     Parts between "github-only" comments below are excluded or treated differently by Sphinx (see doc/readme_link.rst)
+    Links to RTD "latest" and GitHub "master" are also replaced with current version in setup.py for PyPI.
 
 .. begin-github-only1
 
@@ -67,7 +68,7 @@ PyAbel requires Python 3.5-3.9. (Note: PyAbel is also currently tested to work w
 With pip
 ~~~~~~~~
 
-The latest release can be installed from PyPi with ::
+The latest release can be installed from PyPI with ::
 
     pip install PyAbel
 
