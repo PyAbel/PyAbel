@@ -136,9 +136,11 @@ Output:
 .. image:: https://pyabel.readthedocs.io/en/latest/_images/readme_link-1.svg
     :alt: example Abel transform
 
-.. note:: Additional examples can be viewed on the `PyAbel examples <https://pyabel.readthedocs.io/en/latest/examples.html>`__ page and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`__ directory.
+.. |examples| replace:: on the `PyAbel examples <https://pyabel.readthedocs.io/en/latest/examples.html>`__ page
 
 .. end-github-only3
+
+.. note:: Additional examples can be viewed |examples|, and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`__ directory.
 
 
 Documentation
@@ -199,9 +201,15 @@ Contributing
 
 We welcome suggestions for improvement, together with any interesting images that demonstrate  application of PyAbel.
 
-Either open a new `Issue <https://github.com/PyAbel/PyAbel/issues>`__ or make a `Pull Request <https://github.com/PyAbel/PyAbel/pulls>`__.
+Either open a new `issue <https://github.com/PyAbel/PyAbel/issues>`__ or make a `pull request <https://github.com/PyAbel/PyAbel/pulls>`__.
 
-`CONTRIBUTING.rst <https://github.com/PyAbel/PyAbel/blob/master/CONTRIBUTING.rst>`__ has more information on how to contribute, such as how to run the unit tests and how to build the documentation.
+.. begin-github-only4
+
+.. |CONTRIBUTING| replace:: `CONTRIBUTING.rst <https://github.com/PyAbel/PyAbel/blob/master/CONTRIBUTING.rst>`__
+
+.. end-github-only4
+
+|CONTRIBUTING| has more information on how to contribute, such as how to run the unit tests and how to build the documentation.
 
 
 License
@@ -219,12 +227,12 @@ First and foremost, please cite the paper(s) corresponding to the implementation
 
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. You can find the DOI for the lastest verison at `Zenodo <https://dx.doi.org/10.5281/zenodo.594858>`__.
 
-.. begin-github-only4
+.. begin-github-only5
 
 .. image:: https://zenodo.org/badge/30170345.svg
     :target: https://zenodo.org/badge/latestdoi/30170345
 
-.. end-github-only4
+.. end-github-only5
 
 Additionally, we have written a scientific paper comparing various Abel transform methods. You can find the manuscript at the Review of Scientific Instruments (DOI: `10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`__) or on arxiv (`arxiv.org/abs/1902.09007 <https://arxiv.org/abs/1902.09007>`__).
 

@@ -37,11 +37,17 @@
 
     plt.tight_layout()
 
-.. note:: Additional examples can be viewed in :doc:`PyAbel examples <examples>` and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`__ directory.
+.. |examples| replace:: in :doc:`PyAbel examples <examples>`
 
 .. include:: ../README.rst
     :start-after: end-github-only3
     :end-before: begin-github-only4
 
+.. |CONTRIBUTING| replace:: :doc:`Contributing to PyAbel <contributing_link>`
+
 .. include:: ../README.rst
     :start-after: end-github-only4
+    :end-before: begin-github-only5
+
+.. include:: ../README.rst
+    :start-after: end-github-only5
