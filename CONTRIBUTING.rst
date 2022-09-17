@@ -171,7 +171,7 @@ First, make a pull request that does the following:
 
 After the PR is merged:
 
-- Press the "Draft New Release" button on the `Releases <https://github.com/PyAbel/PyAbel/releases>`__ page and create a new tag, matching the new version number (for example, "v1.2.3" for version "1.2.3").
+- Press the "Draft a new release" button on the `Releases <https://github.com/PyAbel/PyAbel/releases>`__ page and create a new tag, matching the new version number (for example, "v1.2.3" for version "1.2.3").
 - Copy and paste the release notes from the PR into the release notes.
 - Release it!
 - PyAbel should be automatically released on PyPI (see `PR #161 <https://github.com/PyAbel/PyAbel/pull/161>`__).
