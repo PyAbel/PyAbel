@@ -5,7 +5,7 @@ import os.path
 from setuptools import setup, find_packages, Extension
 from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
 
-# a define the version string inside the package, see:
+# define the version string inside the package, see:
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 VERSIONFILE = "abel/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()
@@ -91,8 +91,23 @@ if _cython_installed:  # if Cython is installed, we will try to build direct-C
                   'ext_modules': ext_modules}
 
 
+# use README as project description on PyPI:
 with open('README.rst') as file:
     long_description = file.read()
+
+# but remove CI badges
+long_description = re.sub(
+    '^.+?https://(travis-ci\.com|ci\.appveyor\.com)/.+?\n', '',
+    long_description, flags=re.MULTILINE,
+    count=4)  # limit to top 2 pairs of image + target
+
+# and change GH and RTD links to specific PyAbel version
+long_description = long_description.\
+    replace('https://github.com/PyAbel/PyAbel/tree/master/',
+            'https://github.com/PyAbel/PyAbel/tree/v' + version + '/').\
+    replace('https://pyabel.readthedocs.io/en/latest/',
+            'https://pyabel.readthedocs.io/en/v' + version + '/')
+
 
 setup(name='PyAbel',
       version=version,
@@ -107,6 +122,7 @@ setup(name='PyAbel',
                         "six >= 1.10.0"],
       package_data={'abel': ['tests/data/*']},
       long_description=long_description,
+      long_description_content_type='text/x-rst',
       classifiers=[
           # How mature is this project? Common values are
           #  3 - Alpha
@@ -134,6 +150,7 @@ setup(name='PyAbel',
           'Programming Language :: Python :: 3.8',
           'Programming Language :: Python :: 3.9',
           'Programming Language :: Python :: 3.10',
+          'Programming Language :: Python :: 3.11',
           ],
       **setup_args
       )

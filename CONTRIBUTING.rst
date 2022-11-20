@@ -4,19 +4,52 @@ Contributing to PyAbel
 
 PyAbel is an open-source project, and we welcome improvements! Please let us know about any issues with the software, even if's just a typo. The easiest way to get started is to open a `new issue <https://github.com/PyAbel/PyAbel/issues>`__.
 
-If you would like to make a Pull Request, the following information may be useful.
+If you would like to make a `pull request <https://github.com/PyAbel/PyAbel/pulls>`__, the following information may be useful.
 
 
-Change Log
+Rebasing
+--------
+
+If possible, before submitting your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-do-i-update-or-sync-a-forked-repository-on-github>`__::
+
+    # Add the remote, call it "upstream" (only the fist time)
+    git remote add upstream https://github.com/PyAbel/PyAbel.git
+
+    # Fetch all the branches of that remote into remote-tracking branches,
+    # such as upstream/master:
+
+    git fetch upstream
+
+    # Make sure that you're on your master branch
+    # or any other branch your are working on
+
+    git checkout master  # or your other working branch
+
+    # Rewrite your master branch so that any commits of yours that
+    # aren't already in upstream/master are replayed on top of that
+    # other branch:
+
+    git rebase upstream/master
+
+    # push the changes to your fork
+
+    git push -f
+
+See `this wiki <https://github.com/openedx/edx-platform/wiki/How-to-Rebase-a-Pull-Request>`__ for more information.
+
+
+Code style
 ----------
 
-If the change is significant (more than just a typo-fix), please leave a short note about the change in `CHANGELOG.rst <https://github.com/PyAbel/PyAbel/blob/master/CHANGELOG.rst>`__
+We hope that the PyAbel code will be understandable, hackable, and maintainable for many years to come. So, please use good coding style, include plenty of comments, use docstrings for functions, and pick informative variable names.
+
+PyAbel attempts to follow `PEP8 <https://peps.python.org/pep-0008/>`__ style whenever possible, since the PEP8 recommendations typically produces code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`__, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all pull requests using `pep8speaks <https://github.com/apps/pep8-speaks>`__. However, `producing readable code <https://peps.python.org/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`__ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines.
 
 
 Unit tests
 ----------
 
-Before submitting at Pull Request, be sure to run the unit tests. The test suite can be run from within the PyAbel package with ::
+Before submitting a pull request, be sure to run the unit tests. The test suite can be run from within the PyAbel package with ::
     
     pytest
     
@@ -64,43 +97,10 @@ which should launch a browser window displaying the docs. When you save a change
 Alternatively, `restview <https://pypi.org/project/restview/>`__ is a nice way to preview the ``.rst`` files.
 
 
-Code Style
-----------
+Changelog
+---------
 
-We hope that the PyAbel code will be understandable, hackable, and maintainable for many years to come. So, please use good coding style, include plenty of comments, use docstrings for functions, and pick informative variable names.
-
-PyAbel attempts to follow `PEP8 <https://peps.python.org/pep-0008/>`__ style whenever possible, since the PEP8 recommendations typically produces code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`__, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all Pull Requests using `pep8speaks <https://github.com/apps/pep8-speaks>`__. However, `producing readable code <https://peps.python.org/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`__ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines.
-
-
-Before merging
---------------
-
-If possible, before merging your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-do-i-update-or-sync-a-forked-repository-on-github>`__::
-
-    # Add the remote, call it "upstream" (only the fist time)
-    git remote add upstream https://github.com/PyAbel/PyAbel.git
-
-    # Fetch all the branches of that remote into remote-tracking branches,
-    # such as upstream/master:
-
-    git fetch upstream
-
-    # Make sure that you're on your master branch
-    # or any other branch your are working on
-
-    git checkout master  # or your other working branch
-
-    # Rewrite your master branch so that any commits of yours that
-    # aren't already in upstream/master are replayed on top of that
-    # other branch:
-
-    git rebase upstream/master
-
-    # push the changes to your fork
-
-    git push -f
-
-See `this wiki <https://github.com/openedx/edx-platform/wiki/How-to-Rebase-a-Pull-Request>`__ for more information.
+If the change is significant (more than just a typo-fix), please leave a short note about the change in `CHANGELOG.rst <https://github.com/PyAbel/PyAbel/blob/master/CHANGELOG.rst>`__, at the bottom of the "Unreleased" section (the PR number can be added later).
 
 
 Adding a new forward or inverse Abel implementation
@@ -116,8 +116,8 @@ Naming conventions
 
 The implementation named ``<implementation>``, located under ``abel/<implementation>.py``, should use the following naming system for top-level functions:
 
-- ``<implemenation>_transform`` :  core transform (when defined)
-- ``_bs_<implementation>`` :  function that generates  the basis sets (if necessary)
+- ``<implemenation>_transform`` — core transform (when defined)
+- ``_bs_<implementation>`` — function that generates  the basis sets (if necessary)
 
 
 Unit tests
@@ -136,26 +136,47 @@ Unit tests for a given implementation are located under ``abel/tests/test_<imple
 - ``test_<implementation>_zeros``
 - ``test_<implementation>_gaussian``
 
-See ``abel/tests/test_basex.py`` for a concrete example.
+.. |test_basex.py| replace:: ``abel/tests/test_basex.py``
+.. _test_basex.py: https://github.com/PyAbel/PyAbel/blob/master/abel/tests/test_basex.py
+
+See |test_basex.py|_ for a concrete example.
 
 
 Dependencies
 ------------
 
-The current list of dependencies can be found in `setup.py <https://github.com/PyAbel/PyAbel/blob/master/setup.py>`__. Please refrain from adding new dependencies, unless it cannot be avoided.
+.. |setup.py| replace:: ``setup.py``
+.. _setup.py: https://github.com/PyAbel/PyAbel/blob/master/setup.py
 
-
-
-Releasing on PyPi
------------------
-
-PyAbel should be automatically released on PyPi (see `PR #161 <https://github.com/PyAbel/PyAbel/pull/161>`__) whenever a new release is drafted on GitHub via the "Draft New Release" button on the `Releases page <https://github.com/PyAbel/PyAbel/releases>`__. But first, make a Pull Request that does the following:
-
-- Increment the version number in abel/_version.py.
-- Modify CHANGELOG.rst to include the new changes in the new version.
+The current list of dependencies can be found in |setup.py|_. Please refrain from adding new dependencies, unless it cannot be avoided.
 
 
 Citations
 ---------
 
-Each version of PyAbel that is released triggers a new DOI on Zenodo, so that people can cite the project. If you would like you name added to the author list on Zenodo, please include it in ``.zenodo.json``. 
+Each version of PyAbel that is released triggers a new DOI on Zenodo, so that people can cite the project. If you would like you name added to the author list on Zenodo, please include it in ``.zenodo.json``.
+
+
+----
+
+For maintainers: Releasing a new version
+----------------------------------------
+
+First, make a pull request that does the following:
+
+- Increment the version number in ``abel/_version.py``.
+- Update ``CHANGELOG.rst`` by renaming the "Unreleased" section to the new version and the expected release date.
+- Use the changelog to write version release notes that can be included as a comment in the PR and will be used later.
+- Update copyright years in ``doc/conf.py``.
+
+After the PR is merged:
+
+- Press the "Draft a new release" button on the `Releases <https://github.com/PyAbel/PyAbel/releases>`__ page and create a new tag, matching the new version number (for example, "v1.2.3" for version "1.2.3").
+- Copy and paste the release notes from the PR into the release notes.
+- Release it!
+- PyAbel should be automatically released on PyPI (see `PR #161 <https://github.com/PyAbel/PyAbel/pull/161>`__).
+- Check that the new package is `on PyPI <https://pypi.org/project/PyAbel/>`__.
+- Check that the new docs are `on Read the Docs <https://readthedocs.org/projects/pyabel/versions/>`__.
+- Check that the new version is `on Zenodo <https://zenodo.org/record/5888391#.Yerecn3MKgw>`__.
+- A bot should automatically make a PR on the `conda-forge repo <https://github.com/conda-forge/pyabel-feedstock>`__. This takes a while and needs to be merged manually.
+- Check that the new conda packages are `on Anaconda.org <https://anaconda.org/conda-forge/pyabel/files>`__.
