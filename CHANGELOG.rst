@@ -1,9 +1,8 @@
 Changelog
 =========
 
-Unreleased
-----------
-
+v0.9.0rc1 (2022-12-05)
+----------------------
 * Correct behavior of relative basis_dir in basex under Python 2 (PR #336).
 * Improvements in tools.analytical.SampleImage class: more consistent and
   intuitive interface, accurate Abel transform for existing images, additional
@@ -27,7 +26,6 @@ Unreleased
 
 v0.8.5 (2022-01-21)
 -------------------
-
 * New functions in tools.vmi for angular integration and averaging, replacing
   angular_integration() and average_radial_intensity(), which had incorrect or
   nonintuitive behavior (PR #318, PR #319).
