@@ -12,7 +12,7 @@ jobs:
         username: DanHickstein
         password:
           secure: RlJ41NowzFZ57pzbCQNTnm2OY5tSoCocbassn03GEzWrUqDnVG/jtvqWxf5bKdJ5T1WrFmjeI6/GWGx9Xk5HXAfWQLJjtmtrN/SYerBtdUAEyyV0s//o/Wd2qEB3tj8FCtUAx+mf5Q9ck3mRCFuYqK9rApXXxeUOqCE3R6pnEf/Ubpg7NYqMphziZA65qClqJNl1RFxBRD8mVoik99IrLitka6UnctFMBMWhchuGP80FTG5kyl6sIvVn1cwQISSF3Yr+IVqiKQGL1syRnef4FzOhn5sY4tZwR50cEF1CdAAZQU5GqiFwMKTjmocT/YIMVViJm6/SukJUzPeZNC7YuQBb9ZGroF257PgYyrnGkEK6qs3i3qexRI2c2uLmq19H0FbBtNo1ZHYUF6kzmga+7dW9brzd7zLU2em+nqN7w09JO1Z9gFfHIC5XD276bkwtIK5qT0r7SjNY/HdO/HYaSCLI+FR4R/XpTzC+vWIkhpdv3WZ5IpdIFn9f1SW3Uq4hyro0wlojb26TUyidSIzHDYgPepxLVy5YPuT8Css0kqMh5j9uZeTCqMkyeeSrTBOF64NO6w7RH5cLTYGXMixMNudzHY8yZfH9NaynG+dRwwyy7okFg5D8qKT4zMJfn3yvzg1DAENqz2/cNL38epDEXRruTR99qGnN+xMG2WE/WRs=
-        distributions: sdist bdist_wheel
+        distributions: sdist
         skip_existing: true
         on:
           tags: true
