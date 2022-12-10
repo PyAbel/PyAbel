@@ -24,18 +24,6 @@ v0.9.0 (2022-12-14)
   projection attributes, so there is no need to pass return_Beta=True
   in transform_options (PR #357).
 
-v0.9.0rc3 (2022-12-08)
-----------------------
-Third release candidate for 0.9.0.
-
-v0.9.0rc2 (2022-12-07)
-----------------------
-Second release candidate for 0.9.0.
-
-v0.9.0rc1 (2022-12-05)
-----------------------
-First release candidate for 0.9.0.
-
 v0.8.5 (2022-01-21)
 -------------------
 * New functions in tools.vmi for angular integration and averaging, replacing
