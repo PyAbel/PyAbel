@@ -1,8 +1,8 @@
 Changelog
 =========
 
-v0.9.0rc3 (2022-12-08)
-----------------------
+v0.9.0 (2022-12-14)
+-------------------
 * Correct behavior of relative basis_dir in basex under Python 2 (PR #336).
 * Improvements in tools.analytical.SampleImage class: more consistent and
   intuitive interface, accurate Abel transform for existing images, additional
@@ -23,6 +23,10 @@ v0.9.0rc3 (2022-12-08)
 * Transform() with method='linbasex' now always stores the radial, Beta and
   projection attributes, so there is no need to pass return_Beta=True
   in transform_options (PR #357).
+
+v0.9.0rc3 (2022-12-08)
+----------------------
+Third release candidate for 0.9.0.
 
 v0.9.0rc2 (2022-12-07)
 ----------------------
