@@ -177,6 +177,6 @@ After the PR is merged:
 - PyAbel should be automatically released on PyPI (see `PR #161 <https://github.com/PyAbel/PyAbel/pull/161>`__).
 - Check that the new package is `on PyPI <https://pypi.org/project/PyAbel/>`__.
 - Check that the new docs are `on Read the Docs <https://readthedocs.org/projects/pyabel/versions/>`__.
-- Check that the new version is `on Zenodo <https://zenodo.org/record/5888391#.Yerecn3MKgw>`__.
+- Check that the new version is `on Zenodo <https://zenodo.org/record/594858>`__.
 - A bot should automatically make a PR on the `conda-forge repo <https://github.com/conda-forge/pyabel-feedstock>`__. This takes a while and needs to be merged manually.
 - Check that the new conda packages are `on Anaconda.org <https://anaconda.org/conda-forge/pyabel/files>`__.
