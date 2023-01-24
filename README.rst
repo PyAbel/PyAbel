@@ -69,7 +69,7 @@ The latest release can be installed from `PyPI <https://pypi.org/project/PyAbel/
 
     pip install PyAbel
 
-If you prefer the development version from GitHub, download it `here <https://github.com/PyAbel/PyAbel/tree/master>`__ (clicking the :guilabel:`Code ▾` button), ``cd`` to the PyAbel directory, and use ::
+If you prefer the development version from GitHub, download it `here <https://github.com/PyAbel/PyAbel/tree/master>`__ (clicking the [Code ▾] button), ``cd`` to the PyAbel directory, and use ::
 
     pip install .
 
