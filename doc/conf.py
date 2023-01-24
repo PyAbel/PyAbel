@@ -295,6 +295,7 @@ latex_elements = {
         \DeclareUnicodeCharacter{2272}{\ensuremath{\lesssim}} % ≲
         \DeclareUnicodeCharacter{2273}{\ensuremath{\gtrsim}} % ≳
         \DeclareUnicodeCharacter{22C5}{\ensuremath{\cdot}} % ⋅
+        \DeclareUnicodeCharacter{25BE}{\ensuremath{\blacktriangledown}} % ▾
         \DeclareUnicodeCharacter{27C2}{\ensuremath{\perp}} % ⟂
         \DeclareUnicodeCharacter{2A7D}{\ensuremath{\leqslant}} % ⩽
         \DeclareUnicodeCharacter{2A7E}{\ensuremath{\geqslant}} % ⩾
@@ -307,6 +308,8 @@ latex_elements = {
             \setlength{\arrayrulewidth}{0pt}
             % increase row separation
             \def\arraystretch{1.5}
+        % GUI labels like in HTML
+        \def\sphinxguilabel#1{\fbox{#1}}
         % override hyphenation
         \hyphenation{BASEX Py-Abel}
         ''',
