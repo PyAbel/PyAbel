@@ -80,7 +80,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PyAbel'
-copyright = u'2016–2022, PyAbel team'
+copyright = u'2016–2023, PyAbel team'
 author = 'PyAbel team'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -101,7 +101,7 @@ exec(open('conf/doi.py').read())
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -295,6 +295,7 @@ latex_elements = {
         \DeclareUnicodeCharacter{2272}{\ensuremath{\lesssim}} % ≲
         \DeclareUnicodeCharacter{2273}{\ensuremath{\gtrsim}} % ≳
         \DeclareUnicodeCharacter{22C5}{\ensuremath{\cdot}} % ⋅
+        \DeclareUnicodeCharacter{25BE}{\ensuremath{\blacktriangledown}} % ▾
         \DeclareUnicodeCharacter{27C2}{\ensuremath{\perp}} % ⟂
         \DeclareUnicodeCharacter{2A7D}{\ensuremath{\leqslant}} % ⩽
         \DeclareUnicodeCharacter{2A7E}{\ensuremath{\geqslant}} % ⩾
