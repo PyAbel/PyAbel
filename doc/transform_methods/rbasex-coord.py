@@ -14,7 +14,7 @@ an = 11  # angle arc segments
 anc = an // 2  # index of central point
 
 fig = plt.figure(figsize=(3, 3), frameon=False)
-ax = fig.gca(projection='3d')
+ax = plt.subplot(projection='3d')
 ax.set_proj_type('ortho')
 ax.view_init(elev=30, azim=45)
 ax.set_axis_off()

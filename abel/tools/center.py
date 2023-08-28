@@ -613,7 +613,7 @@ def find_origin_by_slice(IM, axes=(0, 1), slice_width=10, radial_range=(0, -1),
         fit = minimize(_align, initial_shift, args=(top, bottom),
                        bounds=((-50, 50), ), tol=0.1)
         if fit["success"]:
-            xyoffset[0] = -float(fit['x']) / 2  # x1/2 for image shift
+            xyoffset[0] = -fit['x'][0] / 2  # x1/2 for image shift
         else:
             raise RuntimeError("fit failure: axis 0, zero shift set", fit)
 
@@ -622,7 +622,7 @@ def find_origin_by_slice(IM, axes=(0, 1), slice_width=10, radial_range=(0, -1),
         fit = minimize(_align, initial_shift, args=(left, right),
                        bounds=((-50, 50), ), tol=0.1)
         if fit["success"]:
-            xyoffset[1] = -float(fit['x']) / 2  # x1/2 for image shift
+            xyoffset[1] = -fit['x'][0] / 2  # x1/2 for image shift
         else:
             raise RuntimeError("fit failure: axis 1, zero shift set", fit)
 

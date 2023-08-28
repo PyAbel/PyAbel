@@ -20,35 +20,11 @@ import shlex
 
 import sphinx_rtd_theme
 
-from recommonmark.parser import CommonMarkParser
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../'))
 
-# Scipy and Numpy packages cannot be installed in on readthedocs.io
-# https://read-the-docs.readthedocs.io/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
-if six.PY3:
-    from unittest.mock import MagicMock
-else:
-    from mock import Mock as MagicMock
-
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-        return Mock()
-
-# MOCK_MODULES = ['numpy', 'scipy', 'scipy.special', 'numpy.linalg',
-#                 'scipy.ndimage', 'scipy.ndimage', 'scipy.linalg',
-#                 'scipy.integrate', 'scipy.optimize']
-MOCK_MODULES = []
-
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-
-source_parsers = {
-    '.md': CommonMarkParser,
-}
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -70,7 +46,7 @@ templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-source_suffix = ['.rst', '.md']
+source_suffix = ['.rst']
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
@@ -363,9 +339,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'PyAbel', 'PyAbel Documentation',
-   author, 'PyAbel', 'One line description of project.',
-   'Miscellaneous'),
+    (master_doc, 'PyAbel', 'PyAbel Documentation', author,
+     'PyAbel', 'A Python package for forward and inverse Abel transforms.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.

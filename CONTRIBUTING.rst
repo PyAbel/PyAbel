@@ -65,10 +65,9 @@ Note that this requires that you have `pytest <https://docs.pytest.org/en/latest
 Documentation
 -------------
 
-PyAbel uses Sphinx and `Napoleon <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/index.html>`__ to process Numpy-style docstrings and is synchronized to `pyabel.readthedocs.io <https://pyabel.readthedocs.io>`__. To build the documentation locally, you will need `Sphinx <https://www.sphinx-doc.org/>`__, the `recommonmark <https://github.com/readthedocs/recommonmark>`__ package, and the `sphinx_rtd_theme <https://github.com/readthedocs/sphinx_rtd_theme>`__. You can install them using ::
+PyAbel uses Sphinx and `Napoleon <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/index.html>`__ to process Numpy-style docstrings and is synchronized to `pyabel.readthedocs.io <https://pyabel.readthedocs.io>`__. To build the documentation locally, you will need `Sphinx <https://www.sphinx-doc.org/>`__ and the `sphinx_rtd_theme <https://github.com/readthedocs/sphinx_rtd_theme>`__. You can install them using ::
 
     pip install sphinx
-    pip install recommonmark
     pip install sphinx_rtd_theme
 
 Once you have these packages installed, you can build the documentation using ::
