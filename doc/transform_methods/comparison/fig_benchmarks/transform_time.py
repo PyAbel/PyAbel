@@ -8,13 +8,14 @@ transforms = [
   ("basex(var)",    '#006600', {'mfc': 'w'}),
   ("daun",          '#880000', {}),
   ("daun(var)",     '#880000', {'mfc': 'w'}),
+  ("daun(nonneg)",  '#880000', {'mfc': 'w'}),
   ("direct_C",      '#EE0000', {}),
   ("direct_Python", '#EE0000', {'mfc': 'w'}),
   ("hansenlaw",     '#CCAA00', {}),
   ("onion_bordas",  '#00AA00', {}),
-  ("onion_peeling", '#00CCFF', {}),
+  ("onion_peeling", '#00CCFF', {'ms': 7}),
   ("three_point",   '#0000FF', {}),
-  ("two_point",     '#CC00FF', {}),
+  ("two_point",     '#CC00FF', {'ms': 3}),
   ("linbasex",      '#AAAAAA', {}),
   ("rbasex",        '#AACC00', {}),
   ("rbasex(None)",  '#AACC00', {'mfc': 'w'}),
@@ -49,32 +50,19 @@ def plot(directory, xlim, ylim, linex):
 
     # all timings
     for meth, color, pargs in transforms:
-        pargs.update(color=color)
-        if meth == 'two_point':
-            ms = 3
-        elif meth == 'three_point':
-            ms = 5
-        elif meth == 'onion_peeling':
-            ms = 7
-        else:
-            ms = 5
-
         try:
             times = np.loadtxt(directory + '/' + meth + '.dat', unpack=True)
         except OSError:
             continue
         n = times[0]
         t = times[1] * 1e-3  # in ms
-        plt.plot(n, t, 'o-', label=meth, ms=ms, **pargs)
-
-    # Daun with reg='nonneg' for the O2-ANU1024 example
-    if __name__ == "__main__":
-        x = 1023
-        y = 46  # done on i5-4278U, please replace!
-        plt.plot(x, y, 's', c='#880000', mfc='w')
-        plt.annotate('daun(nonneg)\n\n', (x, y), ha='right', va='center',
-                     xytext=(5, 0), textcoords='offset points')
-        #                    5 = fontsize / 2
+        pargs = {'color': color, 'ms': 5} | pargs
+        if meth != 'daun(nonneg)':
+            plt.plot(n, t, 'o-', label=meth, **pargs)
+        else:  # Daun with reg='nonneg' for the O2-ANU1024 example
+            plt.plot(n, t, 's', **pargs)
+            plt.annotate('daun(nonneg)\n\n', (n, t), ha='right', va='center',
+                         xytext=(5, 0), textcoords='offset points')
 
     plt.legend()
 
