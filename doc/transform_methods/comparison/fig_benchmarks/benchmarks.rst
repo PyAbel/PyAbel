@@ -194,7 +194,7 @@ Raspberry Pi 4B (Linux)
     4 GB LPDDR4-3200
 
 :OS:
-    `Raspbian GNU/Linux 10 <https://www.raspberrypi.org/downloads/raspbian/>`_
+    `Raspbian GNU/Linux 10 <https://web.archive.org/web/20200518230945/https://www.raspberrypi.org/downloads/raspbian//>`_
 
 :Libraries:
     * NumPy 1.16.2

@@ -477,7 +477,7 @@ preferred as long as the noise forward transforms is close to zero
 (:math:`\|\mathcal A \delta(r)\| < \|\delta(r)\|`).
 
 Notice, however, that for very large Tikhonov factors the regularization term
-starts to dominate in the minimization problem, which tend to
+starts to dominate in the minimization problem, which tends to
 
 .. math::
     \tilde{\mathbf x} = \varepsilon^2

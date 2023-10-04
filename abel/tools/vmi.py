@@ -441,7 +441,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
         The units affect the units of the output. e.g. inputs in
         eV/pixel\ :sup:`2`, will give output energy units in eV.  A value of
         :math:`1.148427\times 10^{-5}` cm\ :math:`^{-1}/`\ pixel\ :sup:`2`
-        applies for "examples/data/O-ANU1024.txt" (with Vrep = −98 volts).
+        applies for "examples/data/O2-ANU1024.txt" (with Vrep = −98 volts).
 
     per_energy_scaling : bool
 
@@ -456,14 +456,14 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
         electron-binding-energy in units of **energy_cal_factor**. The
         conversion from wavelength (nm) to **photon_energy** (cm\ :sup:`−1`)
         is :math:`10^{7}/\lambda` (nm) e.g. ``1.0e7/812.51`` for
-        "examples/data/O-ANU1024.txt".
+        "examples/data/O2-ANU1024.txt".
 
     Vrep : None or float
 
         repeller voltage. Convenience parameter to allow the
         **energy_cal_factor** to remain constant, for different VMI lens
         repeller voltages. Defaults to `None`, in which case no extra scaling
-        is applied. e.g. ``-98`` (volts), for "examples/data/O-ANU1024.txt".
+        is applied. e.g. ``-98`` (volts), for "examples/data/O2-ANU1024.txt".
 
     zoom : float
 

@@ -342,7 +342,7 @@ Methods recommended for educational purposes only (these methods are generally s
 
 .. [whitaker2003] \ B. J. Whitaker. Imaging in Molecular Dynamics: Technology and Applications. Cambridge University Press, 2003. ISBN 9781139437905. `books.google.com/books?id=m8AYdeM3aRYC <https://books.google.com/books?id=m8AYdeM3aRYC>`_.
 
-.. [yurchak2015] Roman Yurchak. Experimental and numerical study of accretion-ejection mechanisms in laboratory astrophysics. Thesis, Ecole Polytechnique (EDX), 2015. `tel.archives-ouvertes.fr/tel-01338614 <https://tel.archives-ouvertes.fr/tel-01338614>`_.
+.. [yurchak2015] Roman Yurchak. Experimental and numerical study of accretion-ejection mechanisms in laboratory astrophysics. Thesis, Ecole Polytechnique (EDX), 2015. `theses.hal.science/tel-01338614 <https://theses.hal.science/tel-01338614>`_.
 
 
 .. toctree::
