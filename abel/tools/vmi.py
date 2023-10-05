@@ -419,9 +419,9 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     remain approximately constant.
 
     The **energy_cal_factor** is readily determined by comparing the
-    generated energy scale with published spectra. e.g. for O\ :sup:`−`
-    photodetachment, the strongest fine-structure transition occurs at the
-    electron affinity :math:`EA = 11\,784.676(7)` cm\ :math:`^{-1}`. Values for
+    generated energy scale with published spectra. e.g. for
+    O\ :sub:`2`\ :sup:`−` photodetachment, the origin band occurs at the
+    electron affinity :math:`EA = 3613` cm\ :sup:`−1`. Values for
     the ANU experiment are given below, see also
     :doc:`examples/example_hansenlaw.py <example_hansenlaw>`.
 
@@ -440,8 +440,8 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
         energy calibration factor that will convert radius squared into energy.
         The units affect the units of the output. e.g. inputs in
         eV/pixel\ :sup:`2`, will give output energy units in eV.  A value of
-        :math:`1.148427\times 10^{-5}` cm\ :math:`^{-1}/`\ pixel\ :sup:`2`
-        applies for "examples/data/O2-ANU1024.txt" (with Vrep = −98 volts).
+        :math:`1.204\times 10^{-5}` cm\ :sup:`−1`/pixel\ :sup:`2`
+        applies for "examples/data/O2-ANU1024.txt" (with Vrep = −2200 volts).
 
     per_energy_scaling : bool
 
@@ -455,7 +455,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
         measurement photon energy. The output energy scale is then set to
         electron-binding-energy in units of **energy_cal_factor**. The
         conversion from wavelength (nm) to **photon_energy** (cm\ :sup:`−1`)
-        is :math:`10^{7}/\lambda` (nm) e.g. ``1.0e7/812.51`` for
+        is :math:`10^{7}/\lambda` (nm) e.g. ``1.0e7/454.5`` for
         "examples/data/O2-ANU1024.txt".
 
     Vrep : None or float
@@ -463,7 +463,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
         repeller voltage. Convenience parameter to allow the
         **energy_cal_factor** to remain constant, for different VMI lens
         repeller voltages. Defaults to `None`, in which case no extra scaling
-        is applied. e.g. ``-98`` (volts), for "examples/data/O2-ANU1024.txt".
+        is applied. e.g. ``-2200`` (volts), for "examples/data/O2-ANU1024.txt".
 
     zoom : float
 
