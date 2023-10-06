@@ -11,9 +11,9 @@ transforms = [
   ("direct_Python", '#EE0000', {'mfc': 'w'}),
   ("hansenlaw",     '#CCAA00', {}),
   ("onion_bordas",  '#00AA00', {}),
-  ("onion_peeling", '#00CCFF', {}),
+  ("onion_peeling", '#00CCFF', {'ms': 7}),
   ("three_point",   '#0000FF', {}),
-  ("two_point",     '#CC00FF', {}),
+  ("two_point",     '#CC00FF', {'ms': 3}),
   ("linbasex",      '#AAAAAA', {}),
   ("rbasex",        '#AACC00', {}),
   ("rbasex(None)",  '#AACC00', {'mfc': 'w'}),
@@ -25,23 +25,14 @@ def plot(directory, xlim, ylim, va):
 
     # all timings
     for meth, color, pargs in transforms:
-        pargs.update(color=color)
-        if meth == 'two_point':
-            ms = 3
-        elif meth == 'three_point':
-            ms = 5
-        elif meth == 'onion_peeling':
-            ms = 7
-        else:
-            ms = 5
-
         try:
             times = np.loadtxt(directory + '/' + meth + '.dat', unpack=True)
         except OSError:
             continue
         n = times[0]
         t = times[1] * 1e-3  # in ms
-        plt.plot(n, n**2 / t, 'o-', label=meth, ms=ms, **pargs)
+        pargs = {'color': color, 'ms': 5} | pargs
+        plt.plot(n, n**2 / t, 'o-', label=meth, **pargs)
 
         # add an empty entry to end column 1 for more logical grouping
         if meth == 'daun(var)':
@@ -70,7 +61,7 @@ def plot(directory, xlim, ylim, va):
 
     plt.tight_layout(pad=0.1)
 
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":

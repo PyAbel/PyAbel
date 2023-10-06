@@ -87,7 +87,7 @@ the Abel transform of which is simply
 
 .. note::
     The original MATLAB implementation by Dribinski used an incorrect prefactor
-    “2” instead if “:math:`\sqrt{\pi}`” in calculations of the basis
+    “2” instead of “:math:`\sqrt{\pi}`” in calculations of the basis
     projections :math:`\chi_k` (in the above expression the :math:`\sqrt{\pi}`
     factor for :math:`k > 0` is invisibly present in the :math:`\Gamma(\ldots +
     1/2)` terms). The `BASEX.exe` program by Karpichev also uses these

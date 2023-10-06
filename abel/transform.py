@@ -686,7 +686,7 @@ def default_basis_dir():
 
       * Python installed from Microsoft Store redirects subdirectory creation
         in ``AppData\Local`` to a `"private per-user, per-app location"
-        <https://docs.microsoft.com/en-us/windows/msix/desktop/desktop-to-uwp-behind-the-scenes>`__
+        <https://learn.microsoft.com/en-us/windows/msix/desktop/desktop-to-uwp-behind-the-scenes>`__
         ``AppData\Local\Packages\Python...\LocalCache\Local`` (see `Using
         Python on Windows / Known Issues
         <https://docs.python.org/3/using/windows.html#known-issues>`__).

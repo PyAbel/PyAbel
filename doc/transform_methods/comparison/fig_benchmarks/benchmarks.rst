@@ -100,22 +100,22 @@ Results
     plot('i7-6700_Linux', xlim=(5, 1e5), ylim=(4e-5, 1e4), linex=1e2)
 
 
-AMD Ryzen 3 2200G (Linux)
+AMD Ryzen 5 5600G (Linux)
 -------------------------
 
 :CPU:
-    `AMD Ryzen 3 2200G <https://www.amd.com/en/products/apu/amd-ryzen-3-2200g>`_ (4 cores, 4 threads; 3.5 GHz base, 3.7 GHz max)
+    `AMD Ryzen 5 5600G <https://www.amd.com/en/products/apu/amd-ryzen-5-5600g>`_ (6 cores, 12 threads; 3.9 GHz base, 4.4 GHz max)
 
 :RAM:
-    16 GB DDR4-2400
+    32 GB DDR4-3200
 
 :OS:
-    `Debian GNU/Linux 9 <https://www.debian.org/releases/stretch/>`_
+    `Debian GNU/Linux 12 <https://www.debian.org/releases/bookworm/>`_
 
 :Libraries:
-    * NumPy 1.12.1
-    * SciPy 0.18.1
-    * OpenBLAS 0.2.19
+    * NumPy 1.24.2
+    * SciPy 1.10.1
+    * OpenBLAS 0.3.21
 
 
 Results
@@ -125,39 +125,39 @@ Results
     :align: center
 
     from transform_time import plot
-    plot('Ryzen3-2200G_Linux', xlim=(5, 1e5), ylim=(9e-7, 2e4), linex=7e1)
+    plot('Ryzen5-5600G_Linux', xlim=(5, 1e5), ylim=(4e-7, 3e3), linex=9e1)
 
 
 .. plot::
     :align: center
 
     from throughput import plot
-    plot('Ryzen3-2200G_Linux', xlim=(5, 1e5), ylim=(3e3, 6e8), va='top')
+    plot('Ryzen5-5600G_Linux', xlim=(5, 1e5), ylim=(4e3, 1e9), va='top')
 
 
 .. plot::
     :align: center
 
     from basis_time import plot
-    plot('Ryzen3-2200G_Linux', xlim=(5, 1e5), ylim=(6e-5, 5e3), linex=1e2)
+    plot('Ryzen5-5600G_Linux', xlim=(5, 1e5), ylim=(2e-5, 2e3), linex=1e2)
 
 
-AMD Ryzen 3 2200G (Windows)
+AMD Ryzen 5 5600G (Windows)
 ---------------------------
 
 :CPU:
-    `AMD Ryzen 3 2200G <https://www.amd.com/en/products/apu/amd-ryzen-3-2200g>`_ (4 cores, 4 threads; 3.5 GHz base, 3.7 GHz max)
+    `AMD Ryzen 5 5600G <https://www.amd.com/en/products/apu/amd-ryzen-5-5600g>`_ (6 cores, 12 threads; 3.9 GHz base, 4.4 GHz max)
 
 :RAM:
-    16 GB DDR4-2400
+    32 GB DDR4-3200
 
 :OS:
-    `Microsoft Windows 10 <https://www.microsoft.com/en-us/windows/windows-10-specifications>`_
+    `Microsoft Windows 11 <https://www.microsoft.com/en-us/windows/windows-11-specifications>`_
 
 :Libraries:
-    * NumPy 1.18.4
-    * SciPy 1.4.1
-    * OpenBLAS 0.3.7
+    * NumPy 1.26.0
+    * SciPy 1.11.2
+    * OpenBLAS 0.3.23
 
 
 Results
@@ -167,21 +167,21 @@ Results
     :align: center
 
     from transform_time import plot
-    plot('Ryzen3-2200G_Windows', xlim=(5, 1e5), ylim=(1e-6, 3e4), linex=7e1)
+    plot('Ryzen5-5600G_Windows', xlim=(5, 1e5), ylim=(5e-7, 6e3), linex=8e1)
 
 
 .. plot::
     :align: center
 
     from throughput import plot
-    plot('Ryzen3-2200G_Windows', xlim=(5, 1e5), ylim=(1e3, 5e8), va='bottom')
+    plot('Ryzen5-5600G_Windows', xlim=(5, 1e5), ylim=(8e2, 1e9), va='top')
 
 
 .. plot::
     :align: center
 
     from basis_time import plot
-    plot('Ryzen3-2200G_Windows', xlim=(5, 1e5), ylim=(7e-5, 4e3), linex=1e2)
+    plot('Ryzen5-5600G_Windows', xlim=(5, 1e5), ylim=(2e-5, 3e3), linex=8e1)
 
 
 Raspberry Pi 4B (Linux)
@@ -194,7 +194,7 @@ Raspberry Pi 4B (Linux)
     4 GB LPDDR4-3200
 
 :OS:
-    `Raspbian GNU/Linux 10 <https://www.raspberrypi.org/downloads/raspbian/>`_
+    `Raspbian GNU/Linux 10 <https://web.archive.org/web/20200518230945/https://www.raspberrypi.org/downloads/raspbian//>`_
 
 :Libraries:
     * NumPy 1.16.2
