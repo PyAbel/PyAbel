@@ -187,7 +187,8 @@ The PyAbel code adheres to the following conventions:
 Support
 -------
 
-If you have a question or suggestion about PyAbel, the best way to contact the PyAbel Developers Team is to `open a new issue <https://github.com/PyAbel/PyAbel/issues>`__.
+If you have a question about using PyAbel, the best way to contact the PyAbel Developers Team is through GitHub `discussions <https://github.com/PyAbel/PyAbel/discussions>`__.
+To report a bug or make a suggestion, please open a new `issue <https://github.com/PyAbel/PyAbel/issues>`__.
 
 
 Contributing
