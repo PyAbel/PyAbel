@@ -97,7 +97,7 @@ with open('README.rst') as file:
 
 # but remove CI badges
 long_description = re.sub(
-    '^.+?https://(travis-ci\.com|ci\.appveyor\.com)/.+?\n', '',
+    r'^.+?https://(travis-ci\.com|ci\.appveyor\.com)/.+?\n', '',
     long_description, flags=re.MULTILINE,
     count=4)  # limit to top 2 pairs of image + target
 
@@ -151,6 +151,7 @@ setup(name='PyAbel',
           'Programming Language :: Python :: 3.9',
           'Programming Language :: Python :: 3.10',
           'Programming Language :: Python :: 3.11',
+          'Programming Language :: Python :: 3.12',
           ],
       **setup_args
       )

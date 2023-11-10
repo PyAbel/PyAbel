@@ -63,7 +63,7 @@ The outcome of the numerical Abel transform depends on the exact method used. So
 Installation
 ------------
 
-PyAbel requires Python 3.7–3.11. (Note: PyAbel is also currently tested to work with Python 2.7, but Python 2 support will be removed soon.) `NumPy <https://numpy.org/>`__ and `SciPy <https://scipy.org/>`__ are also required, and `Matplotlib <https://matplotlib.org/>`__ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.anaconda.com/download>`__, which is available for free.
+PyAbel requires Python 3.7–3.12. (Note: PyAbel is also currently tested to work with Python 2.7, but Python 2 support will be removed soon.) `NumPy <https://numpy.org/>`__ and `SciPy <https://scipy.org/>`__ are also required, and `Matplotlib <https://matplotlib.org/>`__ is required to run the examples. If you don't already have Python, we recommend an "all in one" Python package such as the `Anaconda Python Distribution <https://www.anaconda.com/download>`__, which is available for free.
 
 The latest release can be installed from `PyPI <https://pypi.org/project/PyAbel/>`__ with ::
 
@@ -178,7 +178,7 @@ The PyAbel code adheres to the following conventions:
     The ``abel.tools.polar.cart2polar`` and ``abel.tools.polar.polar2cart`` functions are available for conversion between these Cartesian and polar grids.
 
 -
-    **Image origin:** Fundamentally, the forward and inverse Abel transforms in PyAbel consider the origin of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The central pixel is effectively "shared" between both halves of the image.) In most situations, the image origin is specified using the ``origin`` keyword in ``abel.Transform`` (or directly using ``abel.center.center_image`` to find the origin (the center of symmetry) of your image). This processing step takes care of shifting the origin of the image to the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image. Some methods also provide low-level functions for transforming only the right half of the image (with the origin located in the middle of a 0th-column pixel).
+    **Image origin:** Fundamentally, the forward and inverse Abel transforms in PyAbel consider the origin of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The central pixel is effectively "shared" between both halves of the image.) In most situations, the image origin is specified using the ``origin`` keyword in ``abel.Transform`` (or directly using ``abel.tools.center.center_image`` to find the origin (the center of symmetry) of your image). This processing step takes care of shifting the origin of the image to the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image. Some methods also provide low-level functions for transforming only the right half of the image (with the origin located in the middle of a 0th-column pixel).
 
 -
     **Intensity:** The pixel intensities can have any value (within the floating-point range). However, the intensity scale must be linear. Keep in mind that cameras and common image formats often use `gamma correction <https://en.wikipedia.org/wiki/Gamma_correction>`__ and thus provide data with nonlinear intensity encoding. Thus, if possible, it is recommended to disable the gamma correction on cameras used to record images that will be inverse Abel-transformed. If this is not possible, then it is necessary to apply the appropriate intensity transformations before the analysis. Most PyAbel methods also assume intensities to be floating-point numbers, and when applied to integer types, can return inappropriately rounded results. The ``abel.Transform`` class recasts the input image to ``float64`` by default, but if you wish to call the transform methods directly or use other tools, you might need to perform the conversion yourself (as ``IM.astype(float)``, for example).
@@ -187,7 +187,8 @@ The PyAbel code adheres to the following conventions:
 Support
 -------
 
-If you have a question or suggestion about PyAbel, the best way to contact the PyAbel Developers Team is to `open a new issue <https://github.com/PyAbel/PyAbel/issues>`__.
+If you have a question about using PyAbel, the best way to contact the PyAbel Developers Team is through GitHub `discussions <https://github.com/PyAbel/PyAbel/discussions>`__.
+To report a bug or make a suggestion, please open a new `issue <https://github.com/PyAbel/PyAbel/issues>`__.
 
 
 Contributing
