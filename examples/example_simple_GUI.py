@@ -83,7 +83,7 @@ def _center():
     text.delete(1.0, tk.END)
     text.insert(
         tk.END,
-        "centering image using abel.tools.center_image(method={})\n"
+        "centering image using abel.tools.center.center_image(method={})\n"
         .format(method))
     canvas.draw()
 
