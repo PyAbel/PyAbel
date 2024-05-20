@@ -5,6 +5,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+if hasattr(np, 'trapezoid'):  # numpy >= 2
+    trapezoid = np.trapezoid
+else:
+    trapezoid = np.trapz
 from .tools.math import gradient
 
 try:
@@ -53,7 +57,7 @@ def _construct_r_grid(n, dr=None, r=None):
 
 
 def direct_transform(fr, dr=None, r=None, direction='inverse',
-                     derivative=gradient, int_func=np.trapz,
+                     derivative=gradient, int_func=trapezoid,
                      correction=True, backend='C', **kwargs):
     """
     This algorithm performs a :doc:`direct computation
@@ -94,8 +98,8 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
         with respect to r. (only used in the inverse Abel transform).
     int_func : function
         This function is used to complete the integration. It should resemble
-        np.trapz, in that it must be callable using axis=, x=, and dx=
-        keyword arguments.
+        np.trapz/np.trapezoid, in that it must be callable using axis=, x=, and
+        dx= keyword arguments.
     correction : boolean
         If False the pixel where the weighting function has a singular value
         (where r==y) is simply skipped, causing a systematic under-estimation
@@ -155,7 +159,7 @@ def direct_transform(fr, dr=None, r=None, direction='inverse',
         return out
 
 
-def _pyabel_direct_integral(f, r, correction, int_func=np.trapz):
+def _pyabel_direct_integral(f, r, correction, int_func=trapezoid):
     """
     Calculation of the integral  used in Abel transform
     (both direct and inverse).
