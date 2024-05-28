@@ -36,7 +36,7 @@ def plot(directory, xlim, ylim, va):
 
         # add an empty entry to end column 1 for more logical grouping
         if meth == 'daun(var)':
-            plt.plot(np.NaN, np.NaN, 'o-', color='none', label=' ')
+            plt.plot(np.nan, np.nan, 'o-', color='none', label=' ')
 
     plt.xlabel('Image size ($n$, pixels)')
     plt.xscale('log')

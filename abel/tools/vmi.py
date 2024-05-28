@@ -6,6 +6,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+if hasattr(np, 'trapezoid'):  # numpy >= 2
+    trapezoid = np.trapezoid
+else:
+    trapezoid = np.trapz
 from abel.tools.polar import reproject_image_into_polar
 from scipy.ndimage import map_coordinates, uniform_filter1d, shift
 from scipy.optimize import curve_fit
@@ -78,8 +82,8 @@ def radial_intensity(kind, IM, origin=None, dr=1, dt=None):
     # integrate over theta
     dt = T[0, 1] - T[0, 0]  # get the actual number, if dt=None was passed
     intensity = polarIM.sum(axis=1) * dt
-    # (np.trapz() doesn't know about periodic functions and thus underuses
-    # boundary points; direct Riemann sum is more accurate here)
+    # (np.trapz()/np.trapezoid() doesn't know about periodic functions and thus
+    # underuses boundary points; direct Riemann sum is more accurate here)
 
     return R[:, 0], intensity
 
@@ -197,7 +201,7 @@ def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
     if Jacobian:  # × r sinθ
         polarIM *= R * np.abs(np.sin(T))
 
-    speeds = np.trapz(polarIM, axis=1, dx=dt)
+    speeds = trapezoid(polarIM, axis=1, dx=dt)
 
     n = speeds.shape[0]
 

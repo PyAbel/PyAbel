@@ -73,7 +73,7 @@ for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
 
 
 axc = fig.add_axes([0.93, 0.05, 0.01, 0.94])
-cbar = plt.colorbar(im, orientation="vertical", cax=axc, label='Intensity')
+cbar = fig.colorbar(im, orientation="vertical", cax=axc, label='Intensity')
 cbar.ax.xaxis.set_ticks_position('top')
 cbar.ax.xaxis.set_label_position('top')
 
