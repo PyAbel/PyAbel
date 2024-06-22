@@ -151,7 +151,7 @@ Conventions
 The PyAbel code adheres to the following conventions:
 
 -
-    **Image orientation:** PyAbel adopts the "television" convention, where ``IM[0, 0]`` refers to the **upper** left corner of the image. (This means that ``plt.imshow(IM)`` should display the image in the proper orientation, without the need to use the ``origin='lower'`` keyword.) Image coordinates are in the (row, column) format, consistent with NumPy array indexing, and negative values are interpreted as relative to the end of the corresponding axis. For example, ``(-1, 0)`` refers to the lower left corner (last row, 0th column). Cartesian coordinates can also be generated if needed. For example, the x, y grid for a centered 5×5 image:
+    **Image orientation:** The cylindrical symmetry axis in PyAbel is always **vertical**; if your data is instead symmetric around the horizontal axis, the image must be transposed or rotated by 90° before applying any Abel transform (and then back, to recover the original orientation). PyAbel adopts the "television" convention, where ``IM[0, 0]`` refers to the **upper** left corner of the image. (This means that ``plt.imshow(IM)`` should display the image in the proper orientation, without the need to use the ``origin='lower'`` keyword.) Image coordinates are in the (row, column) format, consistent with NumPy array indexing, and negative values are interpreted as relative to the end of the corresponding axis. For example, ``(-1, 0)`` refers to the lower left corner (last row, 0th column). Cartesian coordinates can also be generated if needed. For example, the x, y grid for a centered 5×5 image:
 
     .. code-block:: python
 
