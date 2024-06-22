@@ -56,7 +56,7 @@ Citation
 
 .. |ref1| replace:: \ C. J. Dasch, "One-dimensional tomography: a comparison of Abel, onion-peeling, and filtered backprojection methods", `Appl. Opt. 31, 1146–1152 (1992) <https://doi.org/10.1364/AO.31.001146>`__.
 
-.. |ref2| replace:: \ K. Martin, PhD Thesis: "Acoustic Modification of Sooting Combustion", University of Texas at Austin (2002) (`record <https://repositories.lib.utexas.edu/handle/2152/1654>`__, `PDF <https://repositories.lib.utexas.edu/bitstream/handle/2152/1654/martinkm07836.pdf>`__).
+.. |ref2| replace:: \ K. Martin, PhD Thesis: "Acoustic Modification of Sooting Combustion", University of Texas at Austin (2002) (`record <https://repositories.lib.utexas.edu/items/53b5dc6d-df47-41a0-a5b7-0552a3f0bf8b>`__, `PDF <https://repositories.lib.utexas.edu/server/api/core/bitstreams/f5a54b91-cb02-47f3-9cf7-c1189184b2ff/content>`__).
 
 .. [1] |ref1|
 

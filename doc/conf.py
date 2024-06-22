@@ -56,7 +56,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PyAbel'
-copyright = u'2016–2023, PyAbel team'
+copyright = u'2016–2024, PyAbel team'
 author = 'PyAbel team'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -373,3 +373,18 @@ from docutils.utils import get_source_line
 #        self._warnfunc(msg, '%s:%s' % get_source_line(node))
 
 #sphinx.environment.BuildEnvironment.warn_node = _warn_node
+
+
+# -- Options for the linkcheck builder ------------------------------------
+
+# as of Jun 2024, default is 'Mozilla/5.0', but some websites don't like it
+# and forbid access; thus using UA from a recent Chromium browser
+# (still doesn't work for Science and Wiley, but OK for the rest)
+user_agent = 'Chromium/125.0.6422.60 Linux'
+
+# also avoid multiple parallel requests
+linkcheck_workers = 1  # default is 5
+
+# and reduce time-outs
+linkcheck_timeout = 10
+linkcheck_rate_limit_timeout = 70.0  # default is 300 s = 5 min
