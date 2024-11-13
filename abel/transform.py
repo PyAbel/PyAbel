@@ -198,7 +198,14 @@ class Transform(object):
 
         1) symmetry_axis = 0 (vertical)::
 
-            Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
+            Combine:  Q01:
+                        = average(Q0, Q1) if use_quadrants[0] is True and use_quadrants[1] is True
+                        = Q0 if use_quadrants[0] is True and use_quadrants[1] is False
+                        = Q1 if use_quadrants[0] is False and use_quadrants[1] is True
+                      Q23: 
+                        = average(Q2, Q3) if use_quadrants[2] is True and use_quadrants[3] is True
+                        = Q2 if use_quadrants[2] is True and use_quadrants[3] is False
+                        = Q3 if use_quadrants[2] is False and use_quadrants[3] is True
             inverse image   AQ01 | AQ01
                             -----o----- (left and right sides equivalent)
                             AQ23 | AQ23
@@ -206,7 +213,14 @@ class Transform(object):
 
         2) symmetry_axis = 1 (horizontal)::
 
-            Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
+            Combine: Q12
+                       = average(Q1, Q2) if use_quadrants[1] is True and use_quadrants[2] is True
+                       = Q1 if use_quadrants[1] is True and use_quadrants[2] is False
+                       = Q2 if use_quadrants[1] is False and use_quadrants[2] is True
+                     Q03
+                       = average(Q0, Q3) if use_quadrants[0] is True and use_quadrants[3] is True
+                       = Q0 if use_quadrants[0] is True and use_quadrants[3] is False
+                       = Q3 if use_quadrants[0] is False and use_quadrants[3] is True
             inverse image   AQ12 | AQ03
                             -----o----- (top and bottom equivalent)
                             AQ12 | AQ03
@@ -214,7 +228,7 @@ class Transform(object):
 
         3) symmetry_axis = (0, 1) (both)::
 
-            Combine: Q = Q0 + Q1 + Q2 + Q3
+            Combine: Q = average of all the quadrants specified by the use_quadrants parameter.
             inverse image   AQ | AQ
                             ---o---  (all quadrants equivalent)
                             AQ | AQ
