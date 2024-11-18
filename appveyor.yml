@@ -16,7 +16,7 @@ environment:
     - PYTHON_VERSION: 3.7
       PYTHON_ARCH: "64"
       MINICONDA: C:\Miniconda3-x64
-    - PYTHON_VERSION: 3.11
+    - PYTHON_VERSION: 3.13
       PYTHON_ARCH: "64"
       MINICONDA: C:\Miniconda3-x64
 

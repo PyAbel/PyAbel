@@ -4,7 +4,7 @@ env: DEPS="numpy scipy cython"
 jobs:
   include:
     - dist: jammy
-      python: 3.11
+      python: 3.13
       # give RTD enough time to build the docs before the PyPI deployment
       before_deploy: sleep 5m
       deploy:
@@ -17,10 +17,10 @@ jobs:
         on:
           tags: true
           repo: PyAbel/PyAbel
+    - python: 3.12
     # SciPy fails to install for current 3.10.8
     #- dist: jammy
     #  python: 3.10
-    - python: 3.9
     - python: 3.8
     - python: 2.7
     - os: osx
