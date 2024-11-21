@@ -17,12 +17,15 @@ jobs:
         on:
           tags: true
           repo: PyAbel/PyAbel
-    - python: 3.12
+    - dist: jammy
+      python: 3.12
     # SciPy fails to install for current 3.10.8
     #- dist: jammy
     #  python: 3.10
-    - python: 3.8
-    - python: 2.7
+    - dist: jammy
+      python: 3.8
+    - dist: xenial
+      python: 2.7
     - os: osx
       language: generic
       osx_image: xcode10.1
