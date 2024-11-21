@@ -1,7 +1,6 @@
 Contributing to PyAbel
 ======================
 
-
 PyAbel is an open-source project, and we welcome improvements! Please let us know about any issues with the software, even if's just a typo. The easiest way to get started is to open a `new issue <https://github.com/PyAbel/PyAbel/issues>`__.
 
 If you would like to make a `pull request <https://github.com/PyAbel/PyAbel/pulls>`__, the following information may be useful.
@@ -10,7 +9,7 @@ If you would like to make a `pull request <https://github.com/PyAbel/PyAbel/pull
 Rebasing
 --------
 
-If possible, before submitting your pull request please rebase your fork on the last master on PyAbel. This could be done `as explained in this post <https://stackoverflow.com/questions/7244321/how-do-i-update-or-sync-a-forked-repository-on-github>`__::
+If possible, before submitting your pull request please `rebase <https://git-scm.com/book/en/v2/Git-Branching-Rebasing>`__ your fork on the last master on PyAbel::
 
     # Add the remote, call it "upstream" (only the fist time)
     git remote add upstream https://github.com/PyAbel/PyAbel.git
@@ -34,8 +33,6 @@ If possible, before submitting your pull request please rebase your fork on the 
     # push the changes to your fork
 
     git push -f
-
-See `this wiki <https://github.com/openedx/edx-platform/wiki/How-to-Rebase-a-Pull-Request>`__ for more information.
 
 
 Code style

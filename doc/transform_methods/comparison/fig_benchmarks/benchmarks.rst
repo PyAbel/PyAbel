@@ -18,7 +18,8 @@ Intel i7-9700 (Linux)
 ---------------------
 
 :CPU:
-    `Intel Core i7-9700 <https://ark.intel.com/content/www/us/en/ark/products/191792/intel-core-i79700-processor-12m-cache-up-to-4-70-ghz.html>`_ (8 cores, 8 threads; 3.0 GHz base, 4.7 GHz max)
+    `Intel Core i7-9700 <https://ark.intel.com/content/www/us/en/ark/products/191792/intel-core-i7-9700-processor-12m-cache-up-to-4-70-ghz.html>`_
+    (8 cores, 8 threads; 3.0 GHz base, 4.7 GHz max)
 
 :RAM:
     32 GB DDR4-2666
@@ -61,7 +62,8 @@ Intel i7-6700 (Linux)
 ---------------------
 
 :CPU:
-    `Intel Core i7-6700 <https://ark.intel.com/content/www/us/en/ark/products/88196/intel-core-i76700-processor-8m-cache-up-to-4-00-ghz.html>`_ (4 cores, 8 threads; 3.4 GHz base, 4.0 GHz max)
+    `Intel Core i7-6700 <https://ark.intel.com/content/www/us/en/ark/products/88196/intel-core-i7-6700-processor-8m-cache-up-to-4-00-ghz.html>`_
+    (4 cores, 8 threads; 3.4 GHz base, 4.0 GHz max)
 
 :RAM:
     32 GB DDR4-2133
@@ -104,7 +106,8 @@ AMD Ryzen 5 5600G (Linux)
 -------------------------
 
 :CPU:
-    `AMD Ryzen 5 5600G <https://www.amd.com/en/products/apu/amd-ryzen-5-5600g>`_ (6 cores, 12 threads; 3.9 GHz base, 4.4 GHz max)
+    `AMD Ryzen 5 5600G <https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-5-5600g.html#amd_support_product_spec>`_
+    (6 cores, 12 threads; 3.9 GHz base, 4.4 GHz max)
 
 :RAM:
     32 GB DDR4-3200
@@ -146,7 +149,8 @@ AMD Ryzen 5 5600G (Windows)
 ---------------------------
 
 :CPU:
-    `AMD Ryzen 5 5600G <https://www.amd.com/en/products/apu/amd-ryzen-5-5600g>`_ (6 cores, 12 threads; 3.9 GHz base, 4.4 GHz max)
+    `AMD Ryzen 5 5600G <https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-5-5600g.html#amd_support_product_spec>`_
+    (6 cores, 12 threads; 3.9 GHz base, 4.4 GHz max)
 
 :RAM:
     32 GB DDR4-3200
@@ -188,7 +192,8 @@ Raspberry Pi 4B (Linux)
 -----------------------
 
 :CPU:
-    `Broadcom BCM2711 <https://www.raspberrypi.com/documentation/computers/processors.html#bcm2711>`_ (4 cores; 1.5 GHz)
+    `Broadcom BCM2711 <https://www.raspberrypi.com/documentation/computers/processors.html#bcm2711>`_
+    (4 cores; 1.5 GHz)
 
 :RAM:
     4 GB LPDDR4-3200
