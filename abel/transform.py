@@ -179,7 +179,9 @@ class Transform(object):
     .. note::
         Quadrant combining:
         The quadrants can be combined (averaged) using the ``use_quadrants``
-        keyword in order to provide better data quality.
+        keyword in order to provide better data quality. If a quadrant is 
+        excluded by ``use_quadrants``, the averaging only occurs over the 
+        remaining quadrants.
 
         The quadrants are numbered starting from Q0 in the upper right and
         proceeding counter-clockwise::
@@ -198,7 +200,8 @@ class Transform(object):
 
         1) symmetry_axis = 0 (vertical)::
 
-            Combine:  Q01 = Q0 + Q1, Q23 = Q2 + Q3
+            Combine:  Q01 = average of use_quadrants-included quadrants in the list [Q0,Q1].
+                      Q23 = average of use_quadrants-included quadrants in the list [Q2,Q3].
             inverse image   AQ01 | AQ01
                             -----o----- (left and right sides equivalent)
                             AQ23 | AQ23
@@ -206,7 +209,8 @@ class Transform(object):
 
         2) symmetry_axis = 1 (horizontal)::
 
-            Combine: Q12 = Q1 + Q2, Q03 = Q0 + Q3
+            Combine: Q12 = average of use_quadrants-included quadrants in the list [Q1,Q2].
+                     Q03 = average of use_quadrants-included quadrants in the list [Q0,Q3].
             inverse image   AQ12 | AQ03
                             -----o----- (top and bottom equivalent)
                             AQ12 | AQ03
@@ -214,7 +218,7 @@ class Transform(object):
 
         3) symmetry_axis = (0, 1) (both)::
 
-            Combine: Q = Q0 + Q1 + Q2 + Q3
+            Combine: Q = average of all the quadrants included by the use_quadrants parameter.
             inverse image   AQ | AQ
                             ---o---  (all quadrants equivalent)
                             AQ | AQ
