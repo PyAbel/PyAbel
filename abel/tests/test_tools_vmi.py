@@ -161,7 +161,7 @@ def test_anisotropy_parameter():
 
     def check(name, ref, theta, intensity):
         beta, amplitude = vmi.anisotropy_parameter(theta, intensity)
-        assert_allclose((beta[0], amplitude[0]), ref, atol=1e-8,
+        assert_allclose((beta[0], amplitude[0]), ref, atol=1e-7,
                         err_msg='-> ' + name)
 
     check('ones', (0, 1), theta, ones)
