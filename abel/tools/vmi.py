@@ -399,8 +399,8 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         beta, amplitude = popt
         error_beta, error_amplitude = np.sqrt(np.diag(pcov))
         # physical range
-        if beta > 2 or beta < -1:
-            beta, error_beta = np.nan, np.nan
+        #if beta > 2 or beta < -1:
+        #    beta, error_beta = np.nan, np.nan
     except:
         beta, error_beta = np.nan, np.nan
         amplitude, error_amplitude = np.nan, np.nan
