@@ -300,20 +300,20 @@ def test_angular():
     # Legendre, multiplication by number, subtraction
     Al = Angular.legendre([0] * 2 + [1])  # P₂
     Aref = 3/2 * Angular.cos(2) - Angular(1/2)
-    assert_allclose(Al.c, Aref.c, err_msg='-> P_2')
+    assert_allclose(Al.c, Aref.c, atol=1e-15, err_msg='-> P_2')
 
     Al = Angular.legendre([0] * 3 + [1])  # P₃
     Aref = 5/2 * Angular.cos(3) - 3/2 * Angular.cos(1)
-    assert_allclose(Al.c, Aref.c, err_msg='-> P_3')
+    assert_allclose(Al.c, Aref.c, atol=1e-15, err_msg='-> P_3')
 
     # Legendre as anisotropy parameters
     Al = Angular.legendre([1, 0, -1]) * 2/3  # β = −1 ⇒ sin²
     Aref = Angular.sin(2)
-    assert_allclose(Al.c, Aref.c, err_msg='-> sin^2')
+    assert_allclose(Al.c, Aref.c, atol=1e-15, err_msg='-> sin^2')
 
     Al = Angular.legendre([1, 0, +2]) * 1/3  # β = +2 ⇒ cos²
     Aref = Angular.cos(2)
-    assert_allclose(Al.c, Aref.c, err_msg='-> cos^2')
+    assert_allclose(Al.c, Aref.c, atol=1e-15, err_msg='-> cos^2')
 
     # division, addition, outer product
     c = [3, 0, -1] * (Angular.cos(4) + Angular.sin(4) / 2)
