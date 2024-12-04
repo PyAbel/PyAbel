@@ -394,7 +394,8 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
 
     # fit angular intensity distribution
     try:
-        popt, pcov = curve_fit(PAD, theta, intensity)
+        # using 'trf' because default 'lm' is broken, see SciPy Issue #21995
+        popt, pcov = curve_fit(PAD, theta, intensity, method='trf')
         beta, amplitude = popt
         error_beta, error_amplitude = np.sqrt(np.diag(pcov))
         # physical range
