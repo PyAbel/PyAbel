@@ -338,7 +338,7 @@ def radial_integration(IM, origin=None, radial_ranges=None):
     return Beta, Amp, radial_midpt, Intensity_vs_theta, theta
 
 
-def anisotropy_parameter(theta, intensity, theta_ranges=None):
+def anisotropy_parameter(theta, intensity, theta_ranges=None, beta_out='nan'):
     r"""
     Evaluate anisotropy parameter :math:`\beta`, for :math:`I` vs
     :math:`\theta` data:
@@ -368,6 +368,21 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         Allows data to be excluded from fit; default (``None``) is to include
         all data.
 
+    beta_out: str
+        behavior when the evaluated anisotropy parameter would be outside the
+        physical range :math:`-1 \leqslant \beta \leqslant 2`:
+
+        ``'raw'``
+            return the results regardless of their values
+        ``'nan'`` (default)
+            return ``(nan, nan)`` in **beta** (useful for excluding such data
+            points from plots)
+        ``'bound'``
+            use constrained fitting with :math:`-2 \leqslant \beta \leqslant
+            1`; return **beta** and **amplitude** corresponding to the "best
+            fit" (useful for noisy data but could potentially hide severe
+            problems)
+
     Returns
     -------
     beta : tuple of floats
@@ -393,15 +408,20 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         intensity = intensity[subtheta]
 
     # fit angular intensity distribution
+    if beta_out == 'bound':
+        bounds = {'bounds': ([-1, -np.inf], [2, np.inf])}
+    else:
+        bounds = {}
     try:
-        # using 'trf' because default 'lm' is broken, see SciPy Issue #21995
-        popt, pcov = curve_fit(PAD, theta, intensity, method='trf')
+        # using 'trf' because default 'lm' is broken, see SciPy issue #21995
+        popt, pcov = curve_fit(PAD, theta, intensity, method='trf', **bounds)
         beta, amplitude = popt
         error_beta, error_amplitude = np.sqrt(np.diag(pcov))
-        # physical range
-        #if beta > 2 or beta < -1:
-        #    beta, error_beta = np.nan, np.nan
-    except:
+        if beta_out == 'nan':
+            # physical range
+            if beta > 2 or beta < -1:
+                beta, error_beta = np.nan, np.nan
+    except RuntimeError:
         beta, error_beta = np.nan, np.nan
         amplitude, error_amplitude = np.nan, np.nan
 
