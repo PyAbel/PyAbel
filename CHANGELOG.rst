@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Unreleased
+----------
+* Minor updates for compatibility with recent Python, NumPy, SciPy and
+  Matplotlib versions (PR #373, #378).
+* Various documentation updates, corrections and improvements.
+* The optimization method in tools.vmi.anisotropy_parameter() and
+  math.fit_gaussian() is changed to "trf" from the default "lm", which has a
+  defective implementation in SciPy and could produce wrong error estimates or
+  OptimizeWarning in some cases (PR #394).
+* New option beta_out for tools.vmi.anisotropy_parameter() to control its
+  behavior when beta is outside the physical range (PR #394).
+
 v0.9.0 (2022-12-14)
 -------------------
 * Correct behavior of relative basis_dir in basex under Python 2 (PR #336).
