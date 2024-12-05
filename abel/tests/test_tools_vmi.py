@@ -158,7 +158,9 @@ def test_anisotropy_parameter():
     ones = np.ones_like(theta)
     cos2 = np.cos(theta)**2
     sin2 = np.sin(theta)**2
+
     noise = 0.01 * (2 * (np.arange(n) % 2) - 1)
+    chi2 = 0.01 / np.sqrt(n - 2)  # reduced chi2 for "noise"
 
     def check(name, bref, aref, theta, intensity, beta_out='raw'):
         """
@@ -168,12 +170,11 @@ def test_anisotropy_parameter():
         """
         beta, amplitude = vmi.anisotropy_parameter(theta, intensity,
                                                    beta_out=beta_out)
-        norm = np.sqrt(n) / 0.01
         err_msg = '-> {}, {}'.format(name, beta_out)
         assert_allclose((beta[0], amplitude[0]), (bref[0], aref[0]), atol=2e-8,
                         err_msg=err_msg + ' (val)')
-        assert_allclose((beta[1] * norm, amplitude[1] * norm),
-                        (bref[1], aref[1]), atol=1e-8 * norm, rtol=0.02,
+        assert_allclose((beta[1] / chi2, amplitude[1] / chi2),
+                        (bref[1], aref[1]), atol=1e-8 / chi2, rtol=0.01,
                         err_msg=err_msg + ' (err)')
 
     # exact
@@ -183,10 +184,10 @@ def test_anisotropy_parameter():
     # noisy
     check('ones+noise', (0, 1.89), (1, 1.11), theta, ones + noise)
     # bad
-    check('cos2sin2', (0, 133), (1/8, 9.8), theta, cos2 * sin2)
-    check('cos4', (3.2, 198), (5/24, 9.8), theta, cos2 * cos2)
-    check('cos4', (np.nan, np.nan), (5/24, 9.8), theta, cos2 * cos2, 'nan')
-    check('cos4', (2, 143), (5/18, 12.7), theta, cos2 * cos2, 'bound')
+    check('cos2sin2', (0, 133), (1/8, 9.77), theta, cos2 * sin2)
+    check('cos4', (3.2, 198), (5/24, 9.77), theta, cos2 * cos2)
+    check('cos4', (np.nan, np.nan), (5/24, 9.77), theta, cos2 * cos2, 'nan')
+    check('cos4', (2, 142), (5/18, 12.6), theta, cos2 * cos2, 'bound')
 
 
 def test_radial_integration():
