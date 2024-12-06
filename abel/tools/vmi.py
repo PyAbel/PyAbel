@@ -250,7 +250,8 @@ def average_radial_intensity(IM, **kwargs):
     return R, intensity
 
 
-def radial_integration(IM, origin=None, radial_ranges=None):
+def radial_integration(IM, origin=None, radial_ranges=None, theta_ranges=None,
+                       mode='reject'):
     r""" Intensity variation in the angular coordinate.
 
     This function is the :math:`\theta`-coordinate complement to
@@ -282,6 +283,16 @@ def radial_integration(IM, origin=None, radial_ranges=None):
             Evaluates the intensity vs angle for
             the whole radial range ``(0, step), (step, 2*step), ..``
 
+    theta_ranges : list of tuples or None
+        fit the data only within angular ranges
+        ``[(theta1, theta2), (theta3, theta4)]``,
+        allowing data to be excluded from fit; default (``None``) is to use all
+        angles.
+
+    mode : str
+        ``'raw'``/``'reject'``/``'bound'`` mode for evaluating and reporting
+        the angular dependence, see :func:`anisotropy_parameter` for details
+
     Returns
     -------
     Beta : list of tuples
@@ -295,10 +306,10 @@ def radial_integration(IM, origin=None, radial_ranges=None):
     Rmidpt : list of float
         radial mid-point of each radial range
 
-    Intensity_vs_theta: list of numpy.array
+    Intensity_vs_theta : list of numpy.array
         intensity vs angle distribution for each selected radial range
 
-    theta: 1D numpy.array
+    theta : 1D numpy.array
         angle coordinates, referenced to vertical direction
     """
     if origin is not None and not isinstance(origin, tuple):
@@ -331,7 +342,8 @@ def radial_integration(IM, origin=None, radial_ranges=None):
         Intensity_vs_theta.append(intensity_vs_theta_at_R)
         radial_midpt.append(np.mean(rr))
 
-        beta, amp = anisotropy_parameter(theta, intensity_vs_theta_at_R)
+        beta, amp = anisotropy_parameter(theta, intensity_vs_theta_at_R,
+                                         theta_ranges, mode)
         Beta.append(beta)
         Amp.append(amp)
 
@@ -362,13 +374,13 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None, mode='reject'):
     intensity : 1D numpy array
         intensity variation with angle
 
-    theta_ranges: list of tuples or None
+    theta_ranges : list of tuples or None
         angular ranges over which to fit
         ``[(theta1, theta2), (theta3, theta4)]``.
         Allows data to be excluded from fit; default (``None``) is to include
         all data.
 
-    mode: str
+    mode : str
         ``'raw'``
             return the results regardless of their values
         ``'reject'`` (default)
