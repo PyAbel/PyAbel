@@ -250,7 +250,8 @@ def average_radial_intensity(IM, **kwargs):
     return R, intensity
 
 
-def radial_integration(IM, origin=None, radial_ranges=None):
+def radial_integration(IM, origin=None, radial_ranges=None, theta_ranges=None,
+                       mode='reject'):
     r""" Intensity variation in the angular coordinate.
 
     This function is the :math:`\theta`-coordinate complement to
@@ -282,6 +283,16 @@ def radial_integration(IM, origin=None, radial_ranges=None):
             Evaluates the intensity vs angle for
             the whole radial range ``(0, step), (step, 2*step), ..``
 
+    theta_ranges : list of tuples or None
+        fit the data only within angular ranges
+        ``[(theta1, theta2), (theta3, theta4)]``,
+        allowing data to be excluded from fit; default (``None``) is to use all
+        angles.
+
+    mode : str
+        ``'raw'``/``'reject'``/``'bound'`` mode for evaluating and reporting
+        the angular dependence, see :func:`anisotropy_parameter` for details
+
     Returns
     -------
     Beta : list of tuples
@@ -295,10 +306,10 @@ def radial_integration(IM, origin=None, radial_ranges=None):
     Rmidpt : list of float
         radial mid-point of each radial range
 
-    Intensity_vs_theta: list of numpy.array
+    Intensity_vs_theta : list of numpy.array
         intensity vs angle distribution for each selected radial range
 
-    theta: 1D numpy.array
+    theta : 1D numpy.array
         angle coordinates, referenced to vertical direction
     """
     if origin is not None and not isinstance(origin, tuple):
@@ -331,14 +342,15 @@ def radial_integration(IM, origin=None, radial_ranges=None):
         Intensity_vs_theta.append(intensity_vs_theta_at_R)
         radial_midpt.append(np.mean(rr))
 
-        beta, amp = anisotropy_parameter(theta, intensity_vs_theta_at_R)
+        beta, amp = anisotropy_parameter(theta, intensity_vs_theta_at_R,
+                                         theta_ranges, mode)
         Beta.append(beta)
         Amp.append(amp)
 
     return Beta, Amp, radial_midpt, Intensity_vs_theta, theta
 
 
-def anisotropy_parameter(theta, intensity, theta_ranges=None):
+def anisotropy_parameter(theta, intensity, theta_ranges=None, mode='reject'):
     r"""
     Evaluate anisotropy parameter :math:`\beta`, for :math:`I` vs
     :math:`\theta` data:
@@ -362,11 +374,24 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
     intensity : 1D numpy array
         intensity variation with angle
 
-    theta_ranges: list of tuples or None
+    theta_ranges : list of tuples or None
         angular ranges over which to fit
         ``[(theta1, theta2), (theta3, theta4)]``.
         Allows data to be excluded from fit; default (``None``) is to include
         all data.
+
+    mode : str
+        ``'raw'``
+            return the results regardless of their values
+        ``'reject'`` (default)
+            return ``(nan, nan)`` in **beta** if anisotropy parameter is
+            outside the physical range :math:`-1 \leqslant \beta \leqslant 2`
+            (useful for excluding such data points from plots)
+        ``'bound'``
+            use constrained fitting with :math:`-1 \leqslant \beta \leqslant
+            2`; return **beta** and **amplitude** corresponding to the "best
+            fit" (useful for noisy data but could potentially hide severe
+            problems)
 
     Returns
     -------
@@ -393,14 +418,20 @@ def anisotropy_parameter(theta, intensity, theta_ranges=None):
         intensity = intensity[subtheta]
 
     # fit angular intensity distribution
+    if mode == 'bound':
+        bounds = {'bounds': ([-1, -np.inf], [2, np.inf])}
+    else:
+        bounds = {}
     try:
-        popt, pcov = curve_fit(PAD, theta, intensity)
+        # using 'trf' because default 'lm' is broken, see SciPy issue #21995
+        popt, pcov = curve_fit(PAD, theta, intensity, method='trf', **bounds)
         beta, amplitude = popt
         error_beta, error_amplitude = np.sqrt(np.diag(pcov))
-        # physical range
-        if beta > 2 or beta < -1:
-            beta, error_beta = np.nan, np.nan
-    except:
+        if mode == 'reject':
+            # physical range
+            if beta > 2 or beta < -1:
+                beta, error_beta = np.nan, np.nan
+    except RuntimeError:
         beta, error_beta = np.nan, np.nan
         amplitude, error_amplitude = np.nan, np.nan
 

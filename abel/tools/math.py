@@ -139,7 +139,8 @@ def fit_gaussian(x):
     out : tuple of float
         (a, mu, sigma, c)
     """
-    res = curve_fit(gaussian, np.arange(x.size), x, p0=guess_gaussian(x))
+    res = curve_fit(gaussian, np.arange(x.size), x, p0=guess_gaussian(x),
+                    method='trf')  # default 'lm' is broken, see Scipy #21995
     return res[0]  # extract optimal values
 
 
