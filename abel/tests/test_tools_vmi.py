@@ -162,15 +162,14 @@ def test_anisotropy_parameter():
     noise = 0.01 * (2 * (np.arange(n) % 2) - 1)
     chi2 = 0.01 / np.sqrt(n - 2)  # reduced chi2 for "noise"
 
-    def check(name, bref, aref, theta, intensity, beta_out='raw'):
+    def check(name, bref, aref, theta, intensity, mode='raw'):
         """
         Reference values:
             bref = (beta, error_beta / chi2)
             aref = (amplitude, error_amplitude / chi2)
         """
-        beta, amplitude = vmi.anisotropy_parameter(theta, intensity,
-                                                   beta_out=beta_out)
-        err_msg = '-> {}, {}'.format(name, beta_out)
+        beta, amplitude = vmi.anisotropy_parameter(theta, intensity, mode=mode)
+        err_msg = '-> {}, {}'.format(name, mode)
         assert_allclose((beta[0], amplitude[0]), (bref[0], aref[0]), atol=2e-8,
                         err_msg=err_msg + ' (val)')
         assert_allclose((beta[1] / chi2, amplitude[1] / chi2),
@@ -186,7 +185,7 @@ def test_anisotropy_parameter():
     # bad
     check('cos2sin2', (0, 133), (1/8, 9.77), theta, cos2 * sin2)
     check('cos4', (3.2, 198), (5/24, 9.77), theta, cos2 * cos2)
-    check('cos4', (np.nan, np.nan), (5/24, 9.77), theta, cos2 * cos2, 'nan')
+    check('cos4', (np.nan, np.nan), (5/24, 9.77), theta, cos2 * cos2, 'reject')
     check('cos4', (2, 142), (5/18, 12.6), theta, cos2 * cos2, 'bound')
 
 
