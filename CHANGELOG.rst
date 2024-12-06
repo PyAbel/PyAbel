@@ -10,8 +10,9 @@ Unreleased
   math.fit_gaussian() is changed to "trf" from the default "lm", which has a
   defective implementation in SciPy and could produce wrong error estimates or
   OptimizeWarning in some cases (PR #394).
-* New option beta_out for tools.vmi.anisotropy_parameter() to control its
-  behavior when beta is outside the physical range (PR #394).
+* New option "mode" for tools.vmi.anisotropy_parameter() to control its
+  behavior when beta is outside the physical range. For consistency,
+  radial_integration() now also accepts theta_ranges and mode (PR #394).
 
 v0.9.0 (2022-12-14)
 -------------------
