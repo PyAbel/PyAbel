@@ -16,10 +16,11 @@ python:
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
- # treat warnings as build errors
- fail_on_warning: true
+  configuration: doc/conf.py
+  # treat warnings as build errors
+  fail_on_warning: true
 
 # Also build downloadable PDF
 formats:
- - pdf
- - htmlzip
+  - pdf
+  - htmlzip
