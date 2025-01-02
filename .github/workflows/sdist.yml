@@ -1,0 +1,63 @@
+name: Build sdist
+
+on: [workflow_dispatch, workflow_call]
+
+env:
+  FORCE_COLOR: 1 # colored output where possible
+
+jobs:
+  sdist:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12" # only for setuptools
+    - name: Update setup
+      run: python -m pip install --upgrade pip setuptools
+    - name: Create source distribution
+      run: python setup.py sdist
+    - uses: actions/upload-artifact@v4
+      with:
+        name: sdist-${{ github.ref_name }}
+        path: ./dist/*
+
+  sdist-test:
+    needs: sdist
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        py-ver: ["3.7", "3.13"]
+        ext: [cython, no-cython] # with/without Cython extension
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github/workflows/info.py
+        sparse-checkout-cone-mode: false
+    - uses: actions/download-artifact@v4
+      with:
+        name: sdist-${{ github.ref_name }}
+    - run: rm -rf .git; ls -Al
+    - name: Set up Python ${{ matrix.py-ver }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.py-ver }}
+    - name: Update setup
+      run: python -m pip install --upgrade pip setuptools wheel
+    - name: Install Cython
+      if: matrix.ext != 'no-cython'
+      # NumPy and Cython must be preinstalled for building Cython extension
+      run: python -m pip install numpy cython
+    - name: Information
+      run: python .github/workflows/info.py
+    - name: Install PyAbel from source distribution
+      run: python -m pip install -v *.tar.gz
+    - name: Information
+      run: python .github/workflows/info.py
+    - name: Install pytest
+      run: python -m pip install pytest
+    - name: TESTS
+      run: python -m pytest -v --pyargs abel
