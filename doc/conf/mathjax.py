@@ -5,7 +5,7 @@ Helper script for HTML builds: try to download MathJax and use its local copy
 
 if any('html' in arg for arg in sys.argv):  # any argument has substring 'html'
     # URL (most complete standalone script, ~2 MB)
-    mj_url = 'https://github.com/mathjax/MathJax/raw/master/es5/tex-svg-full.js'
+    mj_url = 'https://cdn.jsdelivr.net/npm/mathjax@4/tex-svg.js'
     # local file name
     mj_file = 'mathjax.js'
     # relative file path in source tree
