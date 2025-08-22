@@ -15,6 +15,12 @@
     :start-after: end-github-only2
     :end-before: begin-github-only3
 
+.. |methods| replace:: :doc:`transform methods <transform_methods>`
+
+.. include:: ../README.rst
+    :start-after: end-github-only3
+    :end-before: begin-github-only4
+
 .. plot::
 
     import abel
@@ -40,14 +46,14 @@
 .. |examples| replace:: in :doc:`PyAbel examples <examples>`
 
 .. include:: ../README.rst
-    :start-after: end-github-only3
-    :end-before: begin-github-only4
+    :start-after: end-github-only4
+    :end-before: begin-github-only5
 
 .. |CONTRIBUTING| replace:: :doc:`Contributing to PyAbel <contributing_link>`
 
 .. include:: ../README.rst
-    :start-after: end-github-only4
-    :end-before: begin-github-only5
+    :start-after: end-github-only5
+    :end-before: begin-github-only6
 
 .. include:: ../README.rst
-    :start-after: end-github-only5
+    :start-after: end-github-only6

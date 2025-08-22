@@ -37,7 +37,13 @@ PyAbel provides efficient implementations of several Abel transform algorithms, 
 Transform Methods
 -----------------
 
-The outcome of the numerical Abel transform depends on the exact method used. So far, PyAbel includes the following `transform methods <https://pyabel.readthedocs.io/en/latest/transform_methods.html>`__:
+.. begin-github-only3
+
+.. |methods| replace:: `transform methods <https://pyabel.readthedocs.io/en/latest/transform_methods.html>`__
+
+.. end-github-only3
+
+The outcome of the numerical Abel transform depends on the exact method used. So far, PyAbel includes the following |methods|:
 
 1. ``basex`` – Gaussian basis set expansion of Dribinski and co-workers.
 
@@ -125,14 +131,14 @@ The results can then be plotted using Matplotlib:
 
 Output:
 
-.. begin-github-only3
+.. begin-github-only4
 
 .. image:: https://pyabel.readthedocs.io/en/latest/_images/readme_link-1.svg
     :alt: example Abel transform
 
 .. |examples| replace:: on the `PyAbel examples <https://pyabel.readthedocs.io/en/latest/examples.html>`__ page
 
-.. end-github-only3
+.. end-github-only4
 
 .. note:: Additional examples can be viewed |examples|, and even more are found in the `PyAbel/examples <https://github.com/PyAbel/PyAbel/tree/master/examples>`__ directory.
 
@@ -198,11 +204,11 @@ We welcome suggestions for improvement, together with any interesting images tha
 
 Either open a new `issue <https://github.com/PyAbel/PyAbel/issues>`__ or make a `pull request <https://github.com/PyAbel/PyAbel/pulls>`__.
 
-.. begin-github-only4
+.. begin-github-only5
 
 .. |CONTRIBUTING| replace:: `CONTRIBUTING.rst <https://github.com/PyAbel/PyAbel/blob/master/CONTRIBUTING.rst>`__
 
-.. end-github-only4
+.. end-github-only5
 
 |CONTRIBUTING| has more information on how to contribute, such as how to run the unit tests and how to build the documentation.
 
@@ -222,12 +228,12 @@ First and foremost, please cite the paper(s) corresponding to the implementation
 
 If you find PyAbel useful in you work, it would bring us great joy if you would cite the project. You can find the DOI for the lastest verison at `Zenodo <https://dx.doi.org/10.5281/zenodo.594858>`__.
 
-.. begin-github-only5
+.. begin-github-only6
 
 .. image:: https://zenodo.org/badge/30170345.svg
     :target: https://zenodo.org/badge/latestdoi/30170345
 
-.. end-github-only5
+.. end-github-only6
 
 Additionally, we have written a scientific paper comparing various Abel transform methods. You can find the manuscript at the Review of Scientific Instruments (DOI: `10.1063/1.5092635 <https://doi.org/10.1063/1.5092635>`__) or on arxiv (`arxiv.org/abs/1902.09007 <https://arxiv.org/abs/1902.09007>`__).
 
