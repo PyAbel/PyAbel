@@ -319,7 +319,7 @@ The Gaussian function
 is useful for representing peaks in simulated data but does not have an
 analytical Abel transform unless :math:`r_0 = 0`. However, it can be
 approximated by piecewise polynomials to any accuracy, and these polynomials
-can be Able-transformed analytically, as shown above, thus providing an
+can be Abel-transformed analytically, as shown above, thus providing an
 arbitrarily accurate approximation to the Abel transform of the initial
 Gaussian function.
 
