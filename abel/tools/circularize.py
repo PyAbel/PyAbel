@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import division
 import numpy as np
 from scipy.ndimage import map_coordinates
 from scipy.interpolate import UnivariateSpline, splrep, splev

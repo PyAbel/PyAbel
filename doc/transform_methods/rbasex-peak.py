@@ -1,5 +1,3 @@
-from __future__ import print_function, division
-
 import numpy as np
 from numpy import log, arctan2
 import matplotlib.pyplot as plt

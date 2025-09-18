@@ -65,17 +65,6 @@ if _cython_installed:  # if Cython is installed, we will try to build direct-C
                       "  - issues using mingw compiler on Windows 64bit (experimental support for now)\n"
                       "This only means that the abel.direct C implementation will not be available.\n")
                 print("**************************************************")
-                if os.environ.get('CI'):
-                    # running on Travis CI or Appveyor CI
-                    if sys.platform == 'win32' and sys.version_info < (3, 0):
-                        # Cython extensions are not built on Appveyor (Win)
-                        # for PY2.7. See PR #185
-                        pass
-                    else:
-                        raise
-                else:
-                    # regular install, Cython extensions won't be compiled
-                    pass
             except:
                 raise
 
@@ -116,10 +105,9 @@ setup(name='PyAbel',
       url='https://github.com/PyAbel/PyAbel',
       license='MIT',
       packages=find_packages(),
-      install_requires=["numpy >= 1.16",       # last for Python 2
-                        "setuptools >= 44.0",  # last for Python 2
-                        "scipy >= 1.2",        # oldest tested
-                        "six >= 1.10.0"],
+      install_requires=["numpy >= 1.16",       # was last for Python 2
+                        "setuptools >= 44.0",  # was last for Python 2
+                        "scipy >= 1.2"],
       package_data={'abel': ['tests/data/*']},
       long_description=long_description,
       long_description_content_type='text/x-rst',
@@ -143,8 +131,6 @@ setup(name='PyAbel',
 
           # Specify the Python versions you support here. In particular, ensure
           # that you indicate whether you support Python 2, Python 3 or both.
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',

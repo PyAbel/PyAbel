@@ -1,12 +1,5 @@
-# -*- coding: utf-8 -*-
-
 # This example compares some available inverse Abel transform methods
 # for the Dribinski sample image
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 from time import time
 import matplotlib.pylab as plt
