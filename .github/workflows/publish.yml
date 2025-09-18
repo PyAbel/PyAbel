@@ -1,0 +1,50 @@
+name: Publish to (Test)PyPI
+
+on:
+  workflow_dispatch: # trigger manually to publish any branch/tag to TestPyPI
+    inputs:
+      _unused: # actions have no description, so show a useless "input" instead
+        description: 'Test publishing to TestPyPI'
+        type: choice
+        options:
+        - yes
+      skip_build:
+        description: 'Reuse last build (must exist)'
+        type: boolean
+        default: false
+  push: # triggered by "Publish release" on GitHub to publish it to PyPI
+    tags:
+    - 'v[0-9]+.*'
+
+jobs:
+  build:
+    if: ${{ !inputs.skip_build }}
+    uses: ./.github/workflows/build.yml
+
+  publish:
+    needs: build
+    if: ${{ success() || needs.build.result == 'skipped' }}
+    runs-on: ubuntu-22.04
+    environment: pypi
+    permissions:
+      id-token: write # required for Trusted Publishing
+    env:
+      # TEST_REPOSITORY or DEFAULT_REPOSITORY from pypa/twine/twine/utils.py
+      PYPI_URL: >-
+        ${{ github.event_name == 'workflow_dispatch' &&
+            'https://test.pypi.org/legacy/' ||
+            'https://upload.pypi.org/legacy/' }}
+    steps:
+    - name: Download package
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh run download -R '${{ github.repository }}' \
+                        -n 'package-${{ github.ref_name }}' \
+                        -D dist
+        ls -Al dist
+    - name: Publish to ${{ env.PYPI_URL }}
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: ${{ env.PYPI_URL }}
+        verbose: true
