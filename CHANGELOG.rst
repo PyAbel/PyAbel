@@ -13,6 +13,8 @@ Unreleased
 * New option "mode" for tools.vmi.anisotropy_parameter() to control its
   behavior when beta is outside the physical range. For consistency,
   radial_integration() now also accepts theta_ranges and mode (PR #394).
+* Building and publishing AMD64 and ARM64 wheels for Linux, macOS, and Windows
+  (PR #395, #403).
 
 v0.9.0 (2022-12-14)
 -------------------
