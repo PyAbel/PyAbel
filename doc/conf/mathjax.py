@@ -4,27 +4,33 @@ Helper script for HTML builds: try to download MathJax and use its local copy
 """
 
 if any('html' in arg for arg in sys.argv):  # any argument has substring 'html'
-    # URL (most complete standalone script, ~2 MB)
-    mj_url = 'https://cdn.jsdelivr.net/npm/mathjax@4/tex-svg.js'
-    # local file name
-    mj_file = 'mathjax.js'
-    # relative file path in source tree
-    mj_path = 'static/' + mj_file
+    # URLs for MathJax parts
+    mj_url = 'https://cdn.jsdelivr.net/npm/mathjax@4/'  # main
+    mjf_url = 'https://cdn.jsdelivr.net/npm/@mathjax/'  # fonts
+    mj_files = [
+        (mj_url, 'tex-svg.js'),  # combined component
+        (mj_url, 'input/tex/extensions/boldsymbol.js'),  # for \boldsymbol
+        (mjf_url, 'mathjax-newcm-font/svg/dynamic/calligraphic.js'),  # for \mathcal
+        (mjf_url, 'mathjax-newcm-font/svg/dynamic/script.js'),  # for \ell
+    ]
+    # local relative paths in source tree
+    mj_path = 'static/mathjax/'
+    mj_script = mj_path + 'tex-svg.js'
 
-    if not os.path.exists(mj_path):
+    if not os.path.exists(mj_script):
         print('Downloading MathJax...')
         try:
             from urllib.request import urlretrieve
-            urlretrieve(mj_url, mj_path)
+            for url, fname in mj_files:
+                dest = mj_path + fname
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                urlretrieve(url + fname, dest)
         except Exception as e:
             print(e)
 
-    if os.path.exists(mj_path):
+    if os.path.exists(mj_script):
         print('Using local MathJax script.')
-        mathjax_path = mj_file  # configure sphinx.ext.mathjax
-        # Sphinx fails to enable MathJax automatically for "single HTML" build
-        if 'singlehtml' in sys.argv:
-            print('  (force inclusion)')
-            html_js_files += [mj_file]  # so add it manually
+        mathjax_path = 'mathjax/tex-svg.js'  # configure sphinx.ext.mathjax
+        html_js_files += ['mathjax/config.js']  # MathJax local config
     else:
         print('Local MathJax not found, using default CDN script.')
