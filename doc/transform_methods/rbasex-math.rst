@@ -691,11 +691,7 @@ BASEX article is forward Abel-transformed to obtain its projection, and then
 Poissonian noise is added to it to simulate experimental VMI data with
 relatively low signal levels (such that the noise is prominent):
 
-.. comment
-    the only purpose of ":scale: 100" in the plots below is to make them clickable
-
 .. plot:: transform_methods/rbasex-sim.py
-    :scale: 100
 
 In order to characterize the regularization performance, all the methods are
 applied at various strengths to this simulated projection, and the relative
@@ -732,7 +728,6 @@ Using ``reg=None``
 """"""""""""""""""
 
 .. plot::
-    :scale: 100
 
     from rbasex_reg import plot
     plot(None)
@@ -748,7 +743,6 @@ Using ``reg=('L2', 75)``
 """"""""""""""""""""""""
 
 .. plot::
-    :scale: 100
 
     from rbasex_reg import plot
     plot('L2', 75)
@@ -761,7 +755,6 @@ Using ``reg=('diff', 100)``
 """""""""""""""""""""""""""
 
 .. plot::
-    :scale: 100
 
     from rbasex_reg import plot
     plot('diff', 100)
@@ -774,7 +767,6 @@ Using ``reg=('SVD', 0.075)``
 """"""""""""""""""""""""""""
 
 .. plot::
-    :scale: 100
 
     from rbasex_reg import plot
     plot('SVD', 0.075)
@@ -787,7 +779,6 @@ Using ``reg='pos'``
 """""""""""""""""""
 
 .. plot::
-    :scale: 100
 
     from rbasex_reg import plot
     plot('pos')
