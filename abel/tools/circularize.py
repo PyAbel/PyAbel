@@ -5,8 +5,6 @@ from scipy.optimize import leastsq
 
 import abel
 
-from abel import _deprecated, _deprecate
-
 #########################################################################
 # circularize.py
 #
@@ -22,9 +20,8 @@ from abel import _deprecated, _deprecate
 
 
 def circularize_image(IM, method="lsq", origin=None, radial_range=None,
-                      dr=0.5, dt=0.5, smooth=_deprecated, ref_angle=None,
-                      inverse=False, return_correction=False, tol=0,
-                      center=_deprecated):
+                      dr=0.5, dt=0.5, ref_angle=None, inverse=False,
+                      return_correction=False, tol=0):
     r"""
     Corrects image distortion on the basis that the structure should be
     circular.
@@ -106,11 +103,6 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
 
         Also passed to :func:`abel.tools.polar.reproject_image_into_polar`.
 
-    smooth : float
-        Deprecated, use **tol** instead. The relationship is
-        **smooth** = `N`\ :sub:`angles` × **tol**\ :sup:`2`,
-        where `N`\ :sub:`angles` is the number of slices (see **dt**).
-
     ref_angle : None or float
         Reference angle for which radial coordinate is unchanged.
         Angle varies between :math:`-\pi` and :math:`\pi`, with zero angle
@@ -167,11 +159,6 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
         angle.
 
     """
-    if center is not _deprecated:
-        _deprecate('abel.tools.circularize.circularize_image() '
-                   'argument "center" is deprecated, use "origin" instead.')
-        origin = center
-
     if origin is not None:
         # convenience function for the case image is not centered
         IM = abel.tools.center.center_image(IM, method=origin)
@@ -200,15 +187,10 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
     # evaluate radial correction factor that aligns each angular slice
     radcorr = correction(polarIM.T, angles, radial, method=method)
 
-    if smooth is not _deprecated:
-        _deprecate('abel.tools.circularize.circularize_image() '
-                   'argument "smooth" is deprecated, use "tol" instead.')
-    else:
-        smooth = len(angles) * tol**2
-
     # periodic spline radial correction vs angle
     spl = splrep(np.append(angles, angles[0] + 2 * np.pi),
-                 np.append(radcorr, radcorr[0]), s=smooth, per=True)
+                 np.append(radcorr, radcorr[0]),
+                 s=len(angles) * tol**2, per=True)
 
     def radial_correction_function(angle):
         return splev(angle, spl)

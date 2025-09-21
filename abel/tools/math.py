@@ -3,8 +3,6 @@ from scipy.linalg import circulant
 from scipy.optimize import curve_fit, brentq
 from scipy.interpolate import interp1d
 
-from abel import _deprecate
-
 
 def gradient(f, x=None, dx=1, axis=-1):
     """
@@ -142,10 +140,3 @@ def fit_gaussian(x):
     res = curve_fit(gaussian, np.arange(x.size), x, p0=guess_gaussian(x),
                     method='trf')  # default 'lm' is broken, see Scipy #21995
     return res[0]  # extract optimal values
-
-
-def guss_gaussian(x):
-    """Deprecated function. Use :func:`guess_gaussian` instead."""
-    _deprecate('abel.tools.math.guss_gaussian() is renamed to '
-               '...guess_gaussian(), please update your code.')
-    return guess_gaussian(x)

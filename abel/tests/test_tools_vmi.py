@@ -1,9 +1,6 @@
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
-# to suppress deprecation warnings
-from warnings import catch_warnings, simplefilter
-
 from abel.tools.analytical import SampleImage
 import abel.tools.vmi as vmi
 
@@ -85,64 +82,6 @@ def test_radial_intensity():
     check('ones', avg, 1e-4, 'avg3D', ones, dt=0.01)
     check('cos2', avg, 0.01, 'avg3D', cos2 * 3)
     check('sin2', avg, 0.01, 'avg3D', sin2 * 3/2)
-
-
-def test_angular_integration():
-    """
-    Basic tests of angular integration
-    (in its current form, with wrong output).
-    """
-    R = 50  # image radius
-    n, ones, cos2, sin2 = make_images(R)
-
-    def check(name, ref, rtol, IM, **kwargs):
-        with catch_warnings():
-            simplefilter('ignore', category=DeprecationWarning)
-            r, speeds = vmi.angular_integration(IM, **kwargs)
-        # (ignoring pixels at r = 0 and 1, which can be poor)
-        assert_allclose(speeds[2:R], ref(r[2:R]), rtol=rtol,
-                        err_msg='-> {}, {}'.format(name, kwargs))
-
-    # for Jacobian=True
-    def spher(r):
-        return 4 * r**2  # (in fact, must be 4 * np.pi * r**2)
-
-    check('ones', spher, 0.001, ones)
-    check('ones', spher, 0.001, ones, dr=0.5)
-    check('ones', spher, 0.0001, ones, dt=0.01)
-    check('cos2', spher, 0.01, cos2 * 3)
-    check('sin2', spher, 0.01, sin2 * 3/2)
-
-    # for Jacobian=False
-    def polar(r):
-        return np.full_like(r, 2 * np.pi)  # (in fact, should be 2 * np.pi * r)
-
-    check('ones', polar, 0.02, ones, Jacobian=False)
-    check('ones', polar, 0.02, ones, Jacobian=False, dr=0.5)
-    check('ones', polar, 0.01, ones, Jacobian=False, dt=0.01)
-    check('cos2', polar, 0.03, cos2 * 2, Jacobian=False)
-    check('sin2', polar, 0.001, sin2 * 2, Jacobian=False)
-
-
-def test_average_radial_intensity():
-    """
-    Basic tests of angular averaging.
-    """
-    R = 50  # image radius
-    n, ones, cos2, sin2 = make_images(R)
-
-    def check(name, ref, atol, IM, **kwargs):
-        with catch_warnings():
-            simplefilter('ignore', category=DeprecationWarning)
-            r, intensity = vmi.average_radial_intensity(IM, **kwargs)
-        assert_allclose(intensity[2:R], ref, atol=atol,
-                        err_msg='-> {}, {}'.format(name, kwargs))
-
-    check('ones', 1, 0.02, ones)
-    check('ones', 1, 0.02, ones, dr=0.5)
-    check('ones', 1, 0.01, ones, dt=0.01)
-    check('cos2', 1/2, 0.02, cos2)
-    check('sin2', 1/2, 0.001, sin2)
 
 
 def test_anisotropy_parameter():
