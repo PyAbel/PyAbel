@@ -1,7 +1,7 @@
 Changelog
 =========
 
-v0.9.1rc2 (2025-09-17)
+v0.9.1rc3 (2025-09-21)
 ----------------------
 * Minor updates for compatibility with recent Python, NumPy, SciPy and
   Matplotlib versions (PR #373, #378).
