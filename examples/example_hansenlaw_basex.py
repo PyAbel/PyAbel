@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 
 import abel
 
-import scipy.misc
 from scipy.ndimage import shift, zoom
 import bz2
 
