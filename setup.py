@@ -3,7 +3,7 @@ import sys
 import re
 import os.path
 from setuptools import setup, find_packages, Extension
-from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
+from setuptools.errors import CCompilerError, ExecError, PlatformError
 
 # define the version string inside the package, see:
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
@@ -17,6 +17,7 @@ if mo:
 else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
+
 # try to import numpy and Cython to build Cython extensions:
 try:
     import numpy as np
@@ -24,16 +25,13 @@ try:
     import Cython.Compiler.Options
     Cython.Compiler.Options.annotate = False
     _cython_installed = True
-
 except ImportError:
     _cython_installed = False
-    build_ext = object  # avoid a syntax error in TryBuildExt
     setup_args = {}
     print('='*80)
     print('Warning: Cython extensions will not be built as Cython is not installed!\n'\
           '         This means that the abel.direct C implementation will not be available.')
     print('='*80)
-
 
 if _cython_installed:  # if Cython is installed, we will try to build direct-C
 
@@ -48,8 +46,6 @@ if _cython_installed:  # if Cython is installed, we will try to build direct-C
     # https://github.com/bsmurphy/PyKrige which was itself
     # adapted from a StackOverflow post
 
-    ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError)
-
     class TryBuildExt(build_ext):
         """Class to  build the direct-C extensions."""
 
@@ -57,7 +53,7 @@ if _cython_installed:  # if Cython is installed, we will try to build direct-C
             """Try to build the direct-C extension."""
             try:
                 build_ext.build_extensions(self)
-            except ext_errors:
+            except (CCompilerError, ExecError, PlatformError):
                 print("**************************************************")
                 print("WARNING: Cython extensions failed to build (used in abel.direct).\n"
                       "Typical reasons for this problem are:\n"
