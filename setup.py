@@ -97,7 +97,7 @@ with open('README.rst') as file:
 
 # but remove CI badges
 long_description = re.sub(
-    r'^.+?https://(travis-ci\.com|ci\.appveyor\.com)/.+?\n', '',
+    r'^.+?https://(github\.com/.+/pytest.yml|ci\.appveyor\.com/).*?\n', '',
     long_description, flags=re.MULTILINE,
     count=4)  # limit to top 2 pairs of image + target
 
