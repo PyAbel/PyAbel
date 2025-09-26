@@ -170,9 +170,15 @@ After the PR is merged:
 - Press the "Draft a new release" button on the `Releases <https://github.com/PyAbel/PyAbel/releases>`__ page and create a new tag, matching the new version number (for example, "v1.2.3" for version "1.2.3").
 - Copy and paste the release notes from the PR into the release notes.
 - Release it!
-- PyAbel should be automatically released on PyPI (see `PR #161 <https://github.com/PyAbel/PyAbel/pull/161>`__).
-- Check that the new package is `on PyPI <https://pypi.org/project/PyAbel/>`__.
-- Check that the new docs are `on Read the Docs <https://readthedocs.org/projects/pyabel/versions/>`__.
-- Check that the new version is `on Zenodo <https://zenodo.org/record/594858>`__.
-- A bot should automatically make a PR on the `conda-forge repo <https://github.com/conda-forge/pyabel-feedstock>`__. This takes a while and needs to be merged manually.
+- Check that the new version appears `on Zenodo <https://zenodo.org/record/594858>`__. If it does not, toggle the GitHub synchronization off and on in Zenodo (see Dan's `comment <https://github.com/PyAbel/PyAbel/issues/401#issuecomment-3315466954>`__).
+- PyAbel source (sdist) and binary (wheels) distributions should be automatically built by corresponding `GitHub actions <https://github.com/PyAbel/PyAbel/actions>`__ and published to PyPI (see `PR #395 <https://github.com/PyAbel/PyAbel/pull/395>`__ and `#403 <https://github.com/PyAbel/PyAbel/pull/403>`__).
+- In parallel, Read the Docs should build the docs and activate the new version, check this `on Read the Docs <https://readthedocs.org/projects/pyabel/versions/>`__.
+- Check that the new package is `on PyPI <https://pypi.org/project/PyAbel/#history>`__ (the "Example of use" output image in the project description will appear only after the new version is activated on Read the Docs).
+- A bot should automatically make a PR on the `conda-forge repo <https://github.com/conda-forge/pyabel-feedstock>`__. This can take several hours and needs to be merged manually.
 - Check that the new conda packages are `on Anaconda.org <https://anaconda.org/conda-forge/pyabel/files>`__.
+
+Notes:
+
+- The workflows to build sdist and wheels can also be run manually for testing the distributions. This also runs PyAbel tests on more platforms than routine PR tests and helps to catch errors before making a release.
+- Running the "Publish to (Test)PyPI" workflow manually will publish the current (or selected) version `to TestPyPI <https://test.pypi.org/project/PyAbel/#history>`__. However, TestPyPI will reject attempts to publish a package with any version previously published on TestPyPI, even if it was deleted. Thus the version in ``abel/_version.py`` must be made unique (by using ``rc``, ``.post`` or ``.dev`` suffixes, see `Version specifiers <https://packaging.python.org/en/latest/specifications/version-specifiers/#version-scheme>`__), maybe in a separate branch, before running the workflow. **Do no create a new tag**, as this will initiate the actual release process.
+- Pre-releases (with ``rc`` suffixes) do not trigger automatic Read the Docs updates, but the new version can be activated there manually. The conda-forge bot is triggered only by final releases ("latest version") on PyPI.
