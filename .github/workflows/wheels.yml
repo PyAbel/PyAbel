@@ -51,5 +51,5 @@ jobs:
       run: python -m cibuildwheel --output-dir wheels
     - uses: actions/upload-artifact@v4
       with:
-        name: wheels-${{ github.ref_name }}-${{ matrix.os }}
+        name: wheels(${{ github.ref_name }})${{ matrix.os }}
         path: ./wheels/*

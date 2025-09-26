@@ -20,7 +20,7 @@ jobs:
       run: python setup.py sdist
     - uses: actions/upload-artifact@v4
       with:
-        name: sdist-${{ github.ref_name }}
+        name: sdist(${{ github.ref_name }})
         path: ./dist/*
 
   sdist-test:
@@ -41,7 +41,7 @@ jobs:
         sparse-checkout-cone-mode: false
     - uses: actions/download-artifact@v4
       with:
-        name: sdist-${{ github.ref_name }}
+        name: sdist(${{ github.ref_name }})
     - run: rm -rf .git; ls -Al
     - name: Set up Python ${{ matrix.py-ver }}
       uses: actions/setup-python@v5
@@ -68,5 +68,5 @@ jobs:
                sdist-install-${{ matrix.py-ver }}-${{ matrix.ext }}
     - uses: actions/upload-artifact@v4
       with:
-        name: sdist-${{ github.ref_name }}-test-${{ matrix.py-ver }}-${{ matrix.ext }}
+        name: sdist(${{ github.ref_name }})test-${{ matrix.py-ver }}-${{ matrix.ext }}
         path: sdist*.json

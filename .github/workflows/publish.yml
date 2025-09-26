@@ -40,7 +40,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: |
         gh run download -R '${{ github.repository }}' \
-                        -n 'package-${{ github.ref_name }}' \
+                        -n 'package(${{ github.ref_name }})' \
                         -D dist
         ls -Al dist
     - name: Publish to ${{ env.PYPI_URL }}
