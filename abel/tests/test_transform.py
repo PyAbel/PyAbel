@@ -12,7 +12,7 @@ def test_basis_dir():
     """
     # check that default directory is not '' or None and can be created
     basis_dir = get_basis_dir(make=True)
-    assert basis_dir, 'basis_dir = {}'.format(repr(basis_dir))
+    assert basis_dir, f'basis_dir = {basis_dir!r}'
 
     # check saving to default directory
     path = os.path.join(basis_dir, 'test.npy')
@@ -22,14 +22,12 @@ def test_basis_dir():
     # check that default directory can be set to None
     set_basis_dir(None)
     tmp = get_basis_dir()
-    assert tmp is None, \
-           'basis_dir = {} after set_basis_dir(None)'.format(repr(tmp))
+    assert tmp is None, f'basis_dir = {tmp!r} after set_basis_dir(None)'
 
     # check that default directory can be reset to system default
     set_basis_dir('', make=False)
     tmp = get_basis_dir()
-    assert tmp == basis_dir, \
-           'basis_dir = {} after set_basis_dir("")'.format(repr(tmp))
+    assert tmp == basis_dir, f'basis_dir = {tmp!r} after set_basis_dir("")'
 
     # check loading from default directory
     loaded = np.load(path)

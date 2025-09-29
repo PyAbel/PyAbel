@@ -25,7 +25,7 @@ def test_origin():
     for r, y in zip(row, yc):
         for c, x in zip(col, xc):
             assert_equal(harmonics(IM, r + c), harmonics(IM, (y, x)),
-                         err_msg='-> origin "{}" != {}'.format(r + c, (y, x)))
+                         err_msg=f'-> origin "{r + c}" != {(y, x)}')
 
 
 def run_order(method, tol):
@@ -60,8 +60,7 @@ def run_order(method, tol):
             Q += peak(i)
 
         for rmax in ['MIN', 'all']:
-            param = '-> rmax = {}, order={}, method = {}'.\
-                    format(rmax, 2 * n, method)
+            param = f'-> {rmax=}, order={2 * n}, {method=}'
             res = Distributions('ul', rmax, 2 * n, method=method).image(Q)
             cossin = res.cossin()
             # extract values at peak centers
@@ -120,8 +119,7 @@ def run_order_odd(method, tol):
             Q += peak(i)
 
         for rmax in ['MIN', 'all']:
-            param = '-> rmax = {}, order={}, method = {}'.\
-                    format(rmax, n, method)
+            param = f'-> {rmax=}, order={n}, {method=}'
             res = Distributions((int(size), 0), rmax, n, odd=True,
                                 method=method).image(Q)
             cossin = res.cossin()
@@ -200,8 +198,7 @@ def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
         return r, P0, P2, I, beta
 
     for y0, x0 in itertools.product(yc, xc):
-        param = ' @ y0 = {}, x0 = {}, rmax = {}, method = {}'.\
-                format(y0, x0, rmax, method)
+        param = f' @ {y0=}, {x0=}, {rmax=}, {method=}'
 
         # determine largest radius extracted from image
         if rmax == 'MIN':
@@ -227,8 +224,7 @@ def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
                    (True, '1', w1)]
         P0, P2, r, I, beta = {}, {}, {}, {}, {}
         for use_sin, wname, warray in weights:
-            weight_param = param + \
-                           ', sin = {}, weights = {}'.format(use_sin, wname)
+            weight_param = param + f', sin={use_sin}, weights={wname}'
             key = (use_sin, wname)
 
             distr = Distributions((y0, x0), rmax, use_sin=use_sin,
@@ -244,7 +240,7 @@ def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
                 rms = np.sqrt(np.mean((a - ref)**2))
                 assert rms < rmstol, \
                        '\n' + msg + weight_param + \
-                       '\nRMS error = {} > {}'.format(rms, rmstol)
+                       f'\nRMS error = {rms} > {rmstol}'
 
             assert_cmp('-> P0', P0[key], refP0, tolP0)
             assert_cmp('-> P2', P2[key], refP2, tolP2)
@@ -269,7 +265,7 @@ def run_method(method, rmax, tolP0, tolP2, tolI, tolbeta, weq=True):
         for key1, key2 in [((False, '1'), (False, None)),
                            ((False, 'sin'), (True, None)),
                            ((True, '1'), (False, 'sin'))]:
-            pair_param = param + ', sin + weights {} != {}'.format(key1, key2)
+            pair_param = param + f', sin + weights {key1} != {key2}'
             assert_allclose(P0[key1], P0[key2],
                             err_msg='-> P0' + pair_param)
             assert_allclose(P2[key1], P2[key2],
@@ -365,8 +361,7 @@ def run_method_odd(method, rmax, tolP0, tolP1, tolP2,
         return r, P0, P1, P2, I, beta1, beta2
 
     for y0, x0 in itertools.product(yc, xc):
-        param = ' @ y0 = {}, x0 = {}, rmax = {}, method = {}'.\
-                format(y0, x0, rmax, method)
+        param = f' @ {y0=}, {x0=}, {rmax=}, {method=}'
 
         # determine largest radius extracted from image
         if rmax == 'MIN':
@@ -396,8 +391,7 @@ def run_method_odd(method, rmax, tolP0, tolP1, tolP2,
                    (True, '1', w1)]
         P0, P1, P2, r, I, beta1, beta2 = {}, {}, {}, {}, {}, {}, {}
         for use_sin, wname, warray in weights:
-            weight_param = param + \
-                           ', sin = {}, weights = {}'.format(use_sin, wname)
+            weight_param = param + f', sin={use_sin}, weights={wname}'
             key = (use_sin, wname)
 
             distr = Distributions((y0, x0), rmax, odd=True, use_sin=use_sin,
@@ -413,7 +407,7 @@ def run_method_odd(method, rmax, tolP0, tolP1, tolP2,
                 rms = np.sqrt(np.mean((a - ref)**2))
                 assert rms < rmstol, \
                        '\n' + msg + weight_param + \
-                       '\nRMS error = {} > {}'.format(rms, rmstol)
+                       f'\nRMS error = {rms} > {rmstol}'
 
             assert_cmp('-> P0', P0[key], refP0, tolP0)
             assert_cmp('-> P1', P1[key], refP1, tolP1)
@@ -442,7 +436,7 @@ def run_method_odd(method, rmax, tolP0, tolP1, tolP2,
         for key1, key2 in [((False, '1'), (False, None)),
                            ((False, 'sin'), (True, None)),
                            ((True, '1'), (False, 'sin'))]:
-            pair_param = param + ', sin + weights {} != {}'.format(key1, key2)
+            pair_param = param + f', sin + weights {key1} != {key2}'
             assert_allclose(P0[key1], P0[key2],
                             err_msg='-> P0' + pair_param)
             assert_allclose(P1[key1], P1[key2],
@@ -520,15 +514,14 @@ def run_random(method, odd, use_sin, parts=True):
             else:
                 cmp = assert_equal
             cmp(ho, hf,
-                err_msg='-> flip({}, {}) @ method = {}, odd = {}, sin = {}'.
-                        format(ydir, xdir, method, odd, use_sin))
+                err_msg=f'-> flip({ydir}, {xdir}) @'
+                        f' {method=}, {odd=}, sin={use_sin}')
 
     # parts
     if not parts:
         return
     for y0, x0 in itertools.product([15, m // 2, 25], [10, n // 2, 40]):
-        param = ' @ y0 = {}, x0 = {}, method = {}, odd = {}, sin = {}'.\
-                format(y0, x0, method, odd, use_sin)
+        param = f' @ {y0=}, {x0=}, {method=}, {odd=}, sin={use_sin}'
 
         # trim border
         trim = (slice(1, -1), slice(1, -1))

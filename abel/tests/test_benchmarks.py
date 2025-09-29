@@ -36,25 +36,24 @@ def test_symmetry_function():
 
         f1 = np.cos(XX)*np.cos(YY)
         assert_equal(is_symmetric(f1, i_sym=True, j_sym=True), True,
-                     'cos(x)*cos(y) polar symmetry: n={}, m={}'.format(n, m))
+                     f'cos(x)*cos(y) polar symmetry: {n=}, {m=}')
 
         f2 = np.cos(XX)*np.sin(YY)
         assert_equal(is_symmetric(f2, i_sym=True, j_sym=False), True,
-                     'cos(x)*sin(y) i symmetry: n={}, m={}'.format(n, m))
+                     f'cos(x)*sin(y) i symmetry: {n=}, {m=}')
 
         f3 = np.sin(XX)*np.cos(YY)
         assert_equal(is_symmetric(f3, i_sym=False, j_sym=True), True,
-                     'sin(x)*cos(y) j symmetry: n={}, m={}'.format(n, m))
+                     f'sin(x)*cos(y) j symmetry: {n=}, {m=}')
 
         assert_equal(is_symmetric(f3, i_sym=True, j_sym=False), False,
-                     'sin(x)*cos(y) must not have i symmetry: n={}, m={}'.
-                     format(n, m))
+                     f'sin(x)*cos(y) must not have i symmetry: {n=}, {m=}')
 
     for n in [10, 11]:
         x = np.linspace(-np.pi, np.pi, n)
         f1 = np.cos(x)
         assert_equal(is_symmetric(f1, i_sym=True, j_sym=False), True,
-                     'cos(x) symmetry in 1D: n={}, m={}'.format(n, m))
+                     f'cos(x) symmetry in 1D: {n=}, {m=}')
 
 
 def test_absolute_ratio_benchmark():
@@ -76,11 +75,11 @@ def test_absolute_ratio_benchmark():
             backend_name = type(ref).__name__
 
             assert_allclose(ratio.mean(), 1.0,
-                            err_msg='Sanity test, sym={}: {}: ratio == 1.0'.
-                                    format(symmetric, backend_name))
+                            err_msg=f'Sanity test, sym={symmetric}:'
+                                    f'{backend_name}: ratio == 1.0')
             assert_allclose(ratio.std(), 0.0,
-                            err_msg='Sanity test, sym={}: {}: std == 0.0'.
-                                    format(symmetric, backend_name))
+                            err_msg=f'Sanity test, sym={symmetric}:'
+                                    f' {backend_name}: std == 0.0')
 
 
 if __name__ == '__main__':
