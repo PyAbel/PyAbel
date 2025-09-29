@@ -281,8 +281,8 @@ class PyAbel:  # (tk.Tk):
                                    fill=tk.BOTH, expand=1)
 
     def _onclick(self, event):
-        print('button={:d}, x={:f}, y={:f}, xdata={:f}, ydata={:f}'.format(
-            event.button, event.x, event.y, event.xdata, event.ydata))
+        print(f'button={event.button}, x={event.x:f}, y={event.y:f}, '
+              f'xdata={event.xdata:f}, ydata={event.ydata:f}')
 
     # call back functions -----------------------
     def _display(self):
@@ -310,7 +310,7 @@ class PyAbel:  # (tk.Tk):
 
         self.fn = self.sample_image.get()
         # update what is occurring text box
-        self.text.insert(tk.END, "\nloading image {:s}".format(self.fn))
+        self.text.insert(tk.END, f'\nloading image {self.fn}')
         self.text.see(tk.END)
         self.canvas.draw()
 
@@ -360,14 +360,13 @@ class PyAbel:  # (tk.Tk):
 
         center_method = self.center_method.get()
         # update information text box
-        self.text.insert(tk.END, "\ncentering image using {:s}".
-                         format(center_method))
+        self.text.insert(tk.END, f'\ncentering image using {center_method}')
         self.canvas.draw()
 
         # center image via chosen method
         self.IM = abel.tools.center.center_image(self.IM, method=center_method,
                                                  odd_size=True)
-        # self.text.insert(tk.END, "\ncenter offset = {:}".format(self.offset))
+        # self.text.insert(tk.END, f'\ncenter offset = {self.offset}')
         self.text.see(tk.END)
 
         self._display()
@@ -379,8 +378,8 @@ class PyAbel:  # (tk.Tk):
 
         if self.method != self.old_method or self.fi != self.old_fi:
             # Abel transform of whole image
-            self.text.insert(tk.END, "\n{:s} {:s} Abel transform:".
-                             format(self.method, self.fi))
+            self.text.insert(tk.END,
+                             f'\n{self.method} {self.fi} Abel transform:')
             if self.method == "basex":
                 self.text.insert(
                     tk.END,
@@ -422,14 +421,13 @@ class PyAbel:  # (tk.Tk):
 
         if self.old_method != self.method or self.fi != self.old_fi or\
            self.action not in ["speed", "anisotropy"]:
-            self.plt[2].set_title(
-                self.method+" {:s} Abel transform".format(self.fi),
-                fontsize=10)
+            self.plt[2].set_title(f'{self.method} {self.fi} Abel transform',
+                                  fontsize=10)
             self.plt[2].imshow(self.AIM.transform, vmin=0,
                                vmax=self.AIM.transform.max()/5.0)
             # self.f.colorbar(self.c.get_children()[2], ax=self.f.gca())
-            # self.text.insert(tk.END, "{:s} inverse Abel transformed image"
-            # .format(self.method))
+            # self.text.insert(tk.END,
+            #                  f'{self.method} inverse Abel transformed image')
 
         self.text.see(tk.END)
         self.old_method = self.method
@@ -494,16 +492,14 @@ class PyAbel:  # (tk.Tk):
         self._transform()
 
         if self.method in ['linbasex', 'rbasex']:
-            self.text.insert(tk.END,
-                             "\nanisotropy parameter pixel range 0 to {}: "
-                             .format(self.rmx[1]))
+            self.text.insert(tk.END, '\nanisotropy parameter pixel range '
+                                     f'0 to {self.rmx[1]}: ')
         else:
             # radial range over which to follow the intensity
             # variation with angle
             self.rmx = (int(self.rmin.get()), int(self.rmax.get()))
-            self.text.insert(
-                tk.END, "\nanisotropy parameter pixel range {:} to {:}: "
-                .format(*self.rmx))
+            self.text.insert( tk.END, '\nanisotropy parameter pixel range '
+                                      f'{self.rmx[0]} to {self.rmx[1]}: ')
         self.canvas.draw()
 
         # inverse Abel transform
@@ -539,7 +535,7 @@ class PyAbel:  # (tk.Tk):
                                                  radial_ranges=[self.rmx, ])
 
             self.text.insert(
-                tk.END, " beta = {:g}+-{:g}".format(*self.beta[0]))
+                tk.END, f' beta = {self.beta[0][0]:g} ± {self.beta[0][1]:g}')
 
             self._clr_plt(3)
             self.plt[3].axis("on")
@@ -550,9 +546,9 @@ class PyAbel:  # (tk.Tk):
                                 self.amp[0][0]), 'b-', lw=2)
             # I don't see the following annotation anywhere - DH 2020-01-16:
             self.plt[3].annotate(
-                r"$\beta({:d},{:d})={:.2g}\pm{:.2g}$"
-                .format(*self.rmx+self.beta[0]),
-                (-3, self.intensity[0].min()/0.8))
+                fr'$\beta({self.rmx[0]}, {self.rmx[1]}) = '
+                fr'{self.beta[0][0]:.2g} \pm {self.beta[0][1]:.2g}$',
+                (-3, self.intensity[0].min() / 0.8))
             self.plt[3].set_title("anisotropy", fontsize=12)
             self.plt[3].set_xlabel("angle", fontsize=9)
             self.plt[3].set_ylabel("intensity")

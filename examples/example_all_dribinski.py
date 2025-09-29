@@ -29,7 +29,7 @@ R = 150
 fIM = abel.tools.analytical.SampleImage(n=2 * R + 1, name="Dribinski").abel
 # fIM += np.random.normal(0, 5000, fIM.shape)  # try adding some noise
 
-print("image shape {}".format(fIM.shape))
+print(f'image shape {fIM.shape}')
 
 # sectors for combining output images (clockwise from top)
 row = np.arange(-R, R + 1)[:, None]
@@ -42,14 +42,14 @@ IM = np.zeros_like(fIM)  # for inverse Abel transformed images
 ymax = 0  # max. speed distribution
 
 for i, method in enumerate(transforms):
-    print("\n------- {:s} inverse ...".format(method))
+    print(f'\n------- {method} inverse ...')
     t0 = time()
 
     # inverse Abel transform using 'method'
     recon = abel.Transform(fIM, method=method, direction="inverse",
                            symmetry_axis=(0, 1)).transform
 
-    print("                    {:.4f} s".format(time()-t0))
+    print(f'                    {time() - t0:.4f} s')
 
     # copy sector to combined output image
     idx = sector == i

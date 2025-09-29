@@ -64,7 +64,7 @@ JIM = np.concatenate((IM[:, :c2], inv_IM[:, c2:]), axis=1)
 im1 = ax1.imshow(JIM, origin='upper', vmin=0, vmax=vmax)
 ax1.set_xlabel('column (pixels)')
 ax1.set_ylabel('row (pixels)')
-ax1.set_title('VMI, inverse Abel: {:d}×{:d}'.format(*inv_IM.shape),
+ax1.set_title(f'VMI, inverse Abel: {inv_IM.shape[0]}×{inv_IM.shape[1]}',
               fontsize='small')
 
 # Plot the 1D speed distribution and anisotropy parameter ("looks" better

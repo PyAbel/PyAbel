@@ -34,7 +34,7 @@ fIM = abel.Transform(IM, direction="forward", method="hansenlaw").transform
 Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(fIM, reorient=True)
 
 Q0fresh = Q0.copy()  # keep clean copy
-print("quadrant shape {}".format(Q0.shape))
+print(f'quadrant shape {Q0.shape}')
 
 # process Q0 quadrant using each method --------------------
 
@@ -48,13 +48,13 @@ for q, method in enumerate(sorted(transforms.keys())):
 
     Q0 = Q0fresh.copy()   # top-right quadrant of O2- image
 
-    print("\n------- {:s} inverse ...".format(method))
+    print(f'\n------- {method} inverse ...')
     t0 = time()
 
     # inverse Abel transform using 'method'
     IAQ0 = transforms[method](Q0, direction="inverse")
 
-    print("                    {:.1f} s".format(time()-t0))
+    print(f'                    {time() - t0:.1f} s')
 
     iabelQ.append(IAQ0)  # store for plot
 

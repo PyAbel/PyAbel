@@ -50,9 +50,7 @@ Beta, Amp, rad, intensities, theta = \
 
 print("radial-range      anisotropy parameter (beta)")
 for beta, rr in zip(Beta, r_range):
-    result = "    {:3d}-{:3d}        {:+.2f}+-{:.2f}"\
-             .format(rr[0], rr[1], beta[0], beta[1])
-    print(result)
+    print(f'    {rr[0]:3d}-{rr[1]:3d}        {beta[0]:+.2f}+-{beta[1]:.2f}')
 
 # plots of the analysis
 fig = plt.figure(figsize=(15, 4.5))
@@ -74,7 +72,7 @@ im1 = ax1.imshow(JIM, origin='lower', vmin=0, vmax=vmax)
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('VMI, inverse Abel: {:d}x{:d}'.format(rows, cols))
+ax1.set_title(f'VMI, inverse Abel: {rows}x{cols}')
 
 # Plot the 1D speed distribution
 ax2.plot(speed)
@@ -85,8 +83,7 @@ ax2.set_ylabel('intensity')
 ax2.set_title('speed distribution')
 
 # Plot anisotropy variation
-ax3.plot(theta, intensity, 'r',
-         label="expt. data r=[{:d}:{:d}]".format(*rr))
+ax3.plot(theta, intensity, 'r', label=f'expt. data r=[{rr[0]}:{rr[1]}]')
 
 
 def P2(x):   # 2nd order Legendre polynomial
@@ -98,7 +95,7 @@ def PAD(theta, beta, amp):
 
 
 ax3.plot(theta, PAD(theta, beta[0], amp[0]), 'b', lw=2, label="fit")
-ax3.annotate("$\\beta = ${:+.2f}+-{:.2f}".format(*beta), (-2, -1.1))
+ax3.annotate(fr'$\beta = {beta[0]:+.2f} \pm {beta[1]:.2f}$', (-2, -1.1))
 ax3.legend(loc=1, labelspacing=0.1, fontsize='small')
 
 ax3.axis(xmin=-np.pi, xmax=np.pi, ymin=-2, ymax=12)

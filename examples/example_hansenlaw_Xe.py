@@ -23,7 +23,7 @@ print('Loading ' + filename)
 #im = np.loadtxt(filename)
 im = plt.imread(filename)
 (rows, cols) = np.shape(im)
-print('image size {:d}x{:d}'.format(rows, cols))
+print(f'image size {rows}x{cols}')
 
 
 # Step 2: perform the Hansen & Law transform!
@@ -53,7 +53,7 @@ im2 = ax2.imshow(recon, origin='lower')
 fig.colorbar(im2, ax=ax2, fraction=.1, shrink=0.9, pad=0.03)
 ax2.set_xlabel('x (pixels)')
 ax2.set_ylabel('y (pixels)')
-ax2.set_title('Hansen Law inverse Abel')
+ax2.set_title('Hansen−Law inverse Abel')
 
 # 1D speed distribution
 ax3.plot(speeds)

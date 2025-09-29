@@ -39,7 +39,7 @@ for method in dasch_transform.keys():
     plt.plot(speed[0], speed[1]*orig_speed[1][14]/speed[1][14]/scale_factor,
              label=method)
 
-plt.title("Dasch methods for Dribinski sample image $n={:d}$".format(n))
+plt.title(f'Dasch methods for Dribinski sample image ${n=}$')
 plt.xlim((0, 250))
 plt.legend(loc='upper center', bbox_to_anchor=(0.35, 1), frameon=False)
 plt.tight_layout()

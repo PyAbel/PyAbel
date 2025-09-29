@@ -57,7 +57,7 @@ def _getfilename():
 
     # update what is occurring text box
     text.delete(1.0, tk.END)
-    text.insert(tk.END, "reading image file {:s}\n".format(fn))
+    text.insert(tk.END, f'reading image file {fn}\n')
     canvas.draw()
 
     # read image file
@@ -83,8 +83,7 @@ def _center():
     text.delete(1.0, tk.END)
     text.insert(
         tk.END,
-        "centering image using abel.tools.center.center_image(method={})\n"
-        .format(method))
+        f'centering image using abel.tools.center.center_image({method=})\n')
     canvas.draw()
 
     # center image via horizontal (left, right), and vertical (top, bottom)
@@ -100,11 +99,13 @@ def _transform():
     method = transform.get()
 
     text.delete(1.0, tk.END)
-    text.insert(tk.END, "inverse Abel transform: {:s}\n".format(method))
+    text.insert(tk.END, f'inverse Abel transform: {method}\n')
     if "basex" in method:
-        text.insert(tk.END, "  first time calculation of the basis functions may take a while ...\n")
+        text.insert(tk.END, '  first time calculation of the basis functions '
+                            'may take a while ...\n')
     if "direct" in method:
-        text.insert(tk.END, "   calculation is slowed if Cython unavailable ...\n")
+        text.insert(tk.END, '  calculation is slowed if Cython '
+                            'unavailable ...\n')
     canvas.draw()
 
     # inverse Abel transform of whole image
@@ -165,7 +166,7 @@ def _anisotropy():
 
     text.delete(1.0, tk.END)
     text.insert(tk.END,
-                "anisotropy parameter pixel range {:} to {:}\n".format(*rmx))
+                f'anisotropy parameter pixel range {rmx[0]} to {rmx[1]}\n')
     canvas.draw()
 
     f.clf()
@@ -188,12 +189,12 @@ def _anisotropy():
 
         beta = beta[0]
         amp = amp[0]
-        text.insert(tk.END, "beta = {:g}+-{:g}\n".format(beta[0], beta[1]))
+        text.insert(tk.END, f'beta = {beta[0]:g} ± {beta[1]:g}\n')
 
         a.plot(theta, intensity[0], 'r-')
         a.plot(theta, PAD(theta, beta[0], amp[0]), 'b-', lw=2)
-        a.annotate(r"$\beta({:d},{:d})={:.2g}\pm{:.2g}$"
-                   .format(rmx[0], rmx[1], beta[0], beta[1]), (-np.pi/2, -2))
+        a.annotate(fr'$\beta({rmx[0]}, {rmx[1]}) = '
+                   fr'{beta[0]:.2g} \pm {beta[1]:.2g}$', (-np.pi/2, -2))
 
     canvas.draw()
 
@@ -265,6 +266,6 @@ text = tk.Text(master=root, height=4, fg="blue")
 text.pack(fill=tk.X)
 text.insert(
     tk.END,
-    "To start load an image data file using the `Load image file' button\n")
+    'To start load an image data file using the "Load image file" button\n')
 
 tk.mainloop()

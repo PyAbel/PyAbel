@@ -82,7 +82,7 @@ im1 = ax1.imshow(JIM, origin='lower', vmin=0, vmax=vmax)
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('VMI, inverse Abel: {:d}×{:d}'.format(rows, cols))
+ax1.set_title(f'VMI, inverse Abel: {rows}×{cols}')
 
 # Plot the 1D speed distribution
 line01, = ax2.plot(LIM.Beta[0], 'r-', label='linbasex-Beta[0]')

@@ -45,7 +45,7 @@ im1 = ax1.imshow(IM, extent=[-512, 512, -512, 512])
 fig.colorbar(im1, ax=ax1, fraction=.1, shrink=0.9, pad=0.03)
 ax1.set_xlabel('x (pixels)')
 ax1.set_ylabel('y (pixels)')
-ax1.set_title('velocity map image: size {:d}x{:d}'.format(rows, cols))
+ax1.set_title(f'velocity map image: size {rows}x{cols}')
 
 # 2D transform
 c2 = cols//2   # half-image width
