@@ -379,7 +379,7 @@ class TransformPair(BaseAnalytical):
             raise ValueError('Only 1-7 profiles: '
                              'see "abel/tools/transform_pairs.py"')
 
-        self.label = 'profile{}'.format(profile)
+        self.label = f'profile{profile}'
 
         self.profile = getattr(abel.tools.transform_pairs, self.label)
         self.func, self.abel = self.profile(r)

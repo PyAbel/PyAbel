@@ -98,7 +98,7 @@ def daun_transform(data, reg=0.0, degree=0, dr=1.0, direction='inverse',
     elif isinstance(reg, (float, int)):
         reg_type, strength = 'diff', reg
     elif np.ndim(reg) == 0 and reg != 'nonneg':
-        raise ValueError('Wrong regularization format "{}"'.format(reg))
+        raise ValueError(f'Wrong regularization format "{reg}"')
     else:
         reg_type, strength = reg
 
@@ -114,7 +114,7 @@ def daun_transform(data, reg=0.0, degree=0, dr=1.0, direction='inverse',
         # transform row by row
         for i in range(h):
             if verbose:
-                print('\r{}/{}'.format(1 + i, h), end='')
+                print(f'\r{1 + i}/{h}', end='')
                 sys.stdout.flush()
             recon[i] = nnls(M.T, data[i])[0]
         if verbose:
@@ -255,7 +255,7 @@ def _load_bs(basis_dir, n, degree, verbose=False):
     if basis_dir is None:
         return None
 
-    file_mask = 'daun_basis_*_{}.npy'.format(degree)
+    file_mask = f'daun_basis_*_{degree}.npy'
     best_file = None
     best_size = np.inf
     for f in glob(os.path.join(basis_dir, file_mask)):
@@ -278,7 +278,7 @@ def _load_bs(basis_dir, n, degree, verbose=False):
     if size > n:
         bs = bs[:n, :n]
         if verbose:
-            print('(cropped to {})'.format(n))
+            print(f'(cropped to {n})')
 
     return bs
 
@@ -292,7 +292,7 @@ def _save_bs(basis_dir, n, degree, bs, verbose=False):
     if basis_dir is None:
         return
 
-    file_name = 'daun_basis_{}_{}.npy'.format(n, degree)
+    file_name = f'daun_basis_{n}_{degree}.npy'
     if verbose:
         print('Saving basis set to disk as', file_name)
     np.save(os.path.join(basis_dir, file_name), bs)
@@ -401,12 +401,10 @@ def _bs_daun(n, degree=0, verbose=False):
                             x2logx[j - 1]
             return o
     else:
-        raise ValueError('Wrong degree={} (must be 0, 1, 2 or 3).'.
-                         format(repr(degree)))
+        raise ValueError(f'Wrong degree={degree!r} (must be 0, 1, 2 or 3).')
 
     if verbose:
-        print('Generating basis projections for '
-              'n = {}, degree = {}...'.format(n, degree))
+        print(f'Generating basis projections for {n=}, {degree=}...')
 
     # fill the coefficient matrix
     # (transposed compared to the Daun article, since our data are in rows)

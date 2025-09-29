@@ -38,8 +38,7 @@ def _construct_r_grid(n, dr=None, r=None):
     elif dr is None and r is not None:
         if r.ndim != 1 or r.shape[0] != n:
             raise ValueError('The input parameter r should be a 1D array '
-                             'of shape = ({},), got shape = {}'.format(
-                                                                n, r.shape))
+                             f'of shape ({n},), got shape {r.shape}')
         # not so sure about this, needs verification -RY
         dr = np.gradient(r)
 

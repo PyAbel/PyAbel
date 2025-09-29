@@ -130,9 +130,8 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=True, basis_dir='',
     if data.shape[0] == 1:
         data_ndim = 1
     elif data.shape[1] == 1:
-        raise ValueError('Wrong input shape for '
-                         'data {0}, should be (N1, N2) '
-                         'or (1, N), not (N, 1)'.format(data.shape))
+        raise ValueError(f'Wrong input shape for data {data.shape}, '
+                         'should be (N1, N2) or (1, N), not (N, 1)')
     else:
         data_ndim = 2
 
@@ -296,7 +295,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True, basis_dir='', dr=1.0,
             basis_dir = abel.transform.get_basis_dir(make=True)
 
         if basis_dir is not None:
-            basis_file = 'basex_basis_{}_{}.npy'.format(n, sigma)
+            basis_file = f'basex_basis_{n}_{sigma}.npy'
 
             def full_path(file_name):
                 return os.path.join(basis_dir, file_name)
@@ -312,8 +311,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True, basis_dir='', dr=1.0,
                 best_n = sys.maxsize
                 largest_file = None
                 largest_n = 0
-                mask = os.path.join(basis_dir,
-                                    'basex_basis_*_{}.npy'.format(sigma))
+                mask = os.path.join(basis_dir, f'basex_basis_*_{sigma}.npy')
                 for f in glob(mask):
                     f = os.path.basename(f)
                     # extract basis image size (sigma was fixed above)
@@ -341,7 +339,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True, basis_dir='', dr=1.0,
                         M = M[:n, :nbf]
                         Mc = Mc[:n, :nbf]
                         if verbose:
-                            print('(cropped from {})'.format(best_file))
+                            print(f'(cropped from {best_file})')
                 except ValueError:
                     print('Cached basis file incompatible.')
 
@@ -358,7 +356,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True, basis_dir='', dr=1.0,
             try:
                 oldM, oldMc = np.load(full_path(largest_file))
                 if verbose:
-                    print('(extending {})'.format(largest_file))
+                    print(f'(extending {largest_file})')
             except:
                 oldM = None  # (old Mc is not needed)
 
@@ -367,8 +365,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True, basis_dir='', dr=1.0,
             if basis_dir is not None:
                 np.save(full_path(basis_file), (M, Mc))
                 if verbose:
-                    print('Basis set saved for later use to')
-                    print('  {}'.format(basis_file))
+                    print(f'Basis set saved for later use to\n  {basis_file}')
 
         _bs_prm = [n, sigma]
         _bs = [M, Mc]
@@ -575,7 +572,7 @@ def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
 
     if verbose:
         print('Generating horizontal BASEX basis sets for '
-              'n = {}, sigma = {} (nbf = {}):'.format(n, sigma, nbf))
+              f'{n=}, {sigma=} ({nbf=}):')
         print('k = 0...', end='')
         sys.stdout.flush()
 
@@ -647,7 +644,7 @@ def _bs_basex(n=251, sigma=1.0, oldM=None, verbose=True):
             M[i, k] = np.exp(ek - u2 + G[minl:maxl+1] + lnu2L).sum()
 
         if verbose and k % 50 == 0:
-            print('{}...'.format(k), end='')
+            print(f'{k}...', end='')
             sys.stdout.flush()
 
     if verbose:

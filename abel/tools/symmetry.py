@@ -125,10 +125,9 @@ def get_image_quadrants(IM, reorient=True, symmetry_axis=None,
                                                                 or
         not np.any(use_quadrants)
         ):
-        raise ValueError('At least one quadrant would be empty.'
-                         ' Please check symmetry_axis and use_quadrant'
-                         ' values to ensure that all quadrants will have a'
-                         ' defined value.')
+        raise ValueError('At least one quadrant would be empty. Please check '
+                         'symmetry_axis and use_quadrant values to ensure '
+                         'that all quadrants will have a defined value.')
 
     n, m = IM.shape
 
