@@ -1,7 +1,7 @@
 Contributing to PyAbel
 ======================
 
-PyAbel is an open-source project, and we welcome improvements! Please let us know about any issues with the software, even if's just a typo. The easiest way to get started is to open a `new issue <https://github.com/PyAbel/PyAbel/issues>`__.
+PyAbel is an open-source project, and we welcome improvements! Please let us know about any issues with the software, even if it's just a typo. The easiest way to get started is to open a `new issue <https://github.com/PyAbel/PyAbel/issues>`__.
 
 If you would like to make a `pull request <https://github.com/PyAbel/PyAbel/pulls>`__, the following information may be useful.
 
@@ -11,7 +11,7 @@ Rebasing
 
 If possible, before submitting your pull request please `rebase <https://git-scm.com/book/en/v2/Git-Branching-Rebasing>`__ your fork on the last master on PyAbel::
 
-    # Add the remote, call it "upstream" (only the fist time)
+    # Add the remote, call it "upstream" (only the first time)
     git remote add upstream https://github.com/PyAbel/PyAbel.git
 
     # Fetch all the branches of that remote into remote-tracking branches,
@@ -20,7 +20,7 @@ If possible, before submitting your pull request please `rebase <https://git-scm
     git fetch upstream
 
     # Make sure that you're on your master branch
-    # or any other branch your are working on
+    # or any other branch you are working on
 
     git checkout master  # or your other working branch
 
@@ -30,7 +30,7 @@ If possible, before submitting your pull request please `rebase <https://git-scm
 
     git rebase upstream/master
 
-    # push the changes to your fork
+    # Push the changes to your fork
 
     git push -f
 
@@ -40,7 +40,7 @@ Code style
 
 We hope that the PyAbel code will be understandable, hackable, and maintainable for many years to come. So, please use good coding style, include plenty of comments, use docstrings for functions, and pick informative variable names.
 
-PyAbel attempts to follow `PEP8 <https://peps.python.org/pep-0008/>`__ style whenever possible, since the PEP8 recommendations typically produces code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`__, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all pull requests using `pep8speaks <https://github.com/apps/pep8-speaks>`__. However, `producing readable code <https://peps.python.org/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`__ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines.
+PyAbel attempts to follow `PEP8 <https://peps.python.org/pep-0008/>`__ style whenever possible, since the PEP8 recommendations typically produce code that is easier to read. You can check your code using `pycodestyle <https://pypi.org/project/pycodestyle/>`__, which can be called from the command line or incorporated right into most text editors. Also, PyAbel is using automated pycodestyle checking of all pull requests using `pep8speaks <https://github.com/apps/pep8-speaks>`__. However, `producing readable code <https://peps.python.org/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds>`__ is the primary goal, so please go ahead and break the rules of PEP8 when doing so improves readability. For example, if a section of your code is easier to read with lines slightly longer than 79 characters, then use the longer lines.
 
 
 Unit tests
@@ -72,14 +72,14 @@ Once you have these packages installed, you can build the documentation using ::
     cd PyAbel/doc/
     make html
 
-Then you can open ``doc/_build/hmtl/index.html`` to look at the documentation. Sometimes you need to use ::
+Then you can open ``doc/_build/html/index.html`` to look at the documentation. Sometimes you need to use ::
 
     make clean
     make html
 
 to clear out the old documentation and get things to re-build properly.
 
-When you get tired of typing ``make html`` every time you make a change to the documentation, it's nice to use use `sphix-autobuild <https://pypi.org/project/sphinx-autobuild/>`__ to automatically update the documentation in your browser for you. So, install sphinx-autobuild using ::
+When you get tired of typing ``make html`` every time you make a change to the documentation, it's nice to use `sphinx-autobuild <https://pypi.org/project/sphinx-autobuild/>`__ to automatically update the documentation in your browser for you. So, install sphinx-autobuild using ::
 
     pip install sphinx-autobuild
 
@@ -112,7 +112,7 @@ Naming conventions
 
 The implementation named ``<implementation>``, located under ``abel/<implementation>.py``, should use the following naming system for top-level functions:
 
-- ``<implemenation>_transform`` — core transform (when defined)
+- ``<implementation>_transform`` — core transform (when defined)
 - ``_bs_<implementation>`` — function that generates  the basis sets (if necessary)
 
 
@@ -124,9 +124,9 @@ To detect issues early, the submitted implementation should have the following p
 
 2. Given an array with all 0 elements, the reconstruction should also be a 0 array.
 
-3. The implementation should be able to calculated the inverse (or forward) transform of a Gaussian function defined by a standard deviation ``sigma``, with better than a 10 % relative error with respect to the analytical solution for ``0 < r < 2*sigma``.
+3. The implementation should be able to calculate the inverse (or forward) transform of a Gaussian function defined by a standard deviation ``sigma``, with better than a 10 % relative error with respect to the analytical solution for ``0 < r < 2*sigma``.
 
-Unit tests for a given implementation are located under ``abel/tests/test_<implemenation>.py``, which should contain at least the following 3 functions:
+Unit tests for a given implementation are located under ``abel/tests/test_<implementation>.py``, which should contain at least the following 3 functions:
 
 - ``test_<implementation>_shape``
 - ``test_<implementation>_zeros``
@@ -150,7 +150,7 @@ The current list of dependencies can be found in |setup.py|_. Please refrain fro
 Citations
 ---------
 
-Each version of PyAbel that is released triggers a new DOI on Zenodo, so that people can cite the project. If you would like you name added to the author list on Zenodo, please include it in ``.zenodo.json``.
+Each version of PyAbel that is released triggers a new DOI on Zenodo, so that people can cite the project. If you would like your name added to the author list on Zenodo, please include it in ``.zenodo.json``.
 
 
 ----
@@ -161,7 +161,7 @@ For maintainers: Releasing a new version
 First, make a pull request that does the following:
 
 - Increment the version number in ``abel/_version.py``.
-- Update ``CHANGELOG.rst`` by renaming the "Unreleased" section to the new version and the expected release date.
+- Update ``CHANGELOG.rst`` by renaming the "Unreleased" section to the new version and adding the expected release date.
 - Use the changelog to write version release notes that can be included as a comment in the PR and will be used later.
 - Update copyright years in ``doc/conf.py``.
 
@@ -171,8 +171,8 @@ After the PR is merged:
 - Copy and paste the release notes from the PR into the release notes.
 - Release it!
 - Check that the new version appears `on Zenodo <https://zenodo.org/record/594858>`__. If it does not, toggle the GitHub synchronization off and on in Zenodo (see Dan's `comment <https://github.com/PyAbel/PyAbel/issues/401#issuecomment-3315466954>`__).
-- PyAbel source (sdist) and binary (wheels) distributions should be automatically built by corresponding `GitHub actions <https://github.com/PyAbel/PyAbel/actions>`__ and published to PyPI (see `PR #395 <https://github.com/PyAbel/PyAbel/pull/395>`__ and `#403 <https://github.com/PyAbel/PyAbel/pull/403>`__).
-- In parallel, Read the Docs should build the docs and activate the new version, check this `on Read the Docs <https://readthedocs.org/projects/pyabel/versions/>`__.
+- PyAbel source (sdist) and binary (wheels) distributions should be automatically built by the corresponding `GitHub actions <https://github.com/PyAbel/PyAbel/actions>`__ and published to PyPI (see `PR #395 <https://github.com/PyAbel/PyAbel/pull/395>`__ and `#403 <https://github.com/PyAbel/PyAbel/pull/403>`__).
+- In parallel, Read the Docs should build the docs and activate the new version; check this `on Read the Docs <https://readthedocs.org/projects/pyabel/versions/>`__.
 - Check that the new package is `on PyPI <https://pypi.org/project/PyAbel/#history>`__ (the "Example of use" output image in the project description will appear only after the new version is activated on Read the Docs).
 - A bot should automatically make a PR on the `conda-forge repo <https://github.com/conda-forge/pyabel-feedstock>`__. This can take several hours and needs to be merged manually.
 - Check that the new conda packages are `on Anaconda.org <https://anaconda.org/conda-forge/pyabel/files>`__.
@@ -180,5 +180,5 @@ After the PR is merged:
 Notes:
 
 - The workflows to build sdist and wheels can also be run manually for testing the distributions. This also runs PyAbel tests on more platforms than routine PR tests and helps to catch errors before making a release.
-- Running the "Publish to (Test)PyPI" workflow manually will publish the current (or selected) version `to TestPyPI <https://test.pypi.org/project/PyAbel/#history>`__. However, TestPyPI will reject attempts to publish a package with any version previously published on TestPyPI, even if it was deleted. Thus the version in ``abel/_version.py`` must be made unique (by using ``rc``, ``.post`` or ``.dev`` suffixes, see `Version specifiers <https://packaging.python.org/en/latest/specifications/version-specifiers/#version-scheme>`__), maybe in a separate branch, before running the workflow. **Do no create a new tag**, as this will initiate the actual release process.
+- Running the "Publish to (Test)PyPI" workflow manually will publish the current (or selected) version `to TestPyPI <https://test.pypi.org/project/PyAbel/#history>`__. However, TestPyPI will reject attempts to publish a package with any version previously published on TestPyPI, even if it was deleted. Thus the version in ``abel/_version.py`` must be made unique (by using ``rc``, ``.post`` or ``.dev`` suffixes; see `Version specifiers <https://packaging.python.org/en/latest/specifications/version-specifiers/#version-scheme>`__), maybe in a separate branch, before running the workflow. **Do not create a new tag**, as this will initiate the actual release process.
 - Pre-releases (with ``rc`` suffixes) do not trigger automatic Read the Docs updates, but the new version can be activated there manually. The conda-forge bot is triggered only by final releases ("latest version") on PyPI.
