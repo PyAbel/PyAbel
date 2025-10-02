@@ -2,8 +2,6 @@ import numpy as np
 import abel
 
 import os
-import sys
-import platform
 
 
 def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):

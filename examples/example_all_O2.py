@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This example compares the available inverse Abel transform methods
 # currently - direct, hansenlaw, and basex
 # processing the O2- photoelectron velocity-map image
@@ -7,17 +5,11 @@
 # Note it transforms only the Q0 (top-right) quadrant
 # using the fundamental transform code
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import numpy as np
 import abel
 
 import matplotlib.pylab as plt
 from time import time
-import bz2
 
 # inverse Abel transform methods -----------------------------
 #   dictionary of method: function()
@@ -36,8 +28,7 @@ ntrans = len(transforms)  # number of transforms
 
 
 # Image:   O2- VMI 1024x1024 pixel ------------------
-imagefile = bz2.BZ2File('data/O2-ANU1024.txt.bz2')
-IM = np.loadtxt(imagefile)
+IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 
 # recenter the image to mid-pixel (odd image width, square shape)
 IModd = abel.tools.center.center_image(IM, method="convolution",

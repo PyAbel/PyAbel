@@ -1,5 +1,3 @@
-# -*- coding: iso-8859-1 -*-
-
 # Illustrative GUI driving a small subset of PyAbel methods
 
 import numpy as np
@@ -15,13 +13,11 @@ from matplotlib import gridspec
 
 from scipy.ndimage import shift
 
-import os.path
-
-from six.moves import tkinter as tk
-from six.moves import tkinter_ttk as ttk
-from six.moves import tkinter_font as tkFont
-from six.moves import tkinter_scrolledtext as scrolledtext
-from six.moves import tkinter_tkfiledialog as filedialog
+import tkinter as tk
+import tkinter.ttk as ttk
+import tkinter.font as tkFont
+import tkinter.scrolledtext as scrolledtext
+import tkinter.filedialog as filedialog
 
 
 Abel_methods = ['basex', 'daun(nonneg)', 'direct', 'hansenlaw', 'linbasex',

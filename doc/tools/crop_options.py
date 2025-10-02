@@ -1,5 +1,3 @@
-from __future__ import print_function, division
-
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
 from copy import copy

@@ -1,15 +1,8 @@
-# -*- coding: utf-8 -*-
-
 # This example compares the available inverse Abel transform methods
 # for the Ominus sample image
 #
 # Note it transforms only the Q0 (top-right) quadrant
 # using the fundamental transform code
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
 import abel

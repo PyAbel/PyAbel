@@ -1,6 +1,7 @@
-numpy >= 1.16      # last for Python 2
-scipy >= 1.2       # last for Python 2
-matplotlib >= 2.2  # last for Python 2
+# last versions for Python 3.7
+numpy >= 1.21
+scipy >= 1.7
+matplotlib >= 3.5
 
 # See https://docs.readthedocs.io/en/stable/build-default-versions.html
 sphinx >= 2.0.0            # default v1.8.6 isn't compatible with Python >= 3.10,

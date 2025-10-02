@@ -1,5 +1,3 @@
-# -*- coding: UTF-8 -*-
-from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import make_interp_spline, splev

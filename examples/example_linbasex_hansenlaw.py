@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import numpy as np
 import abel
 import matplotlib.pyplot as plt

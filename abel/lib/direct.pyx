@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
+# cython: language_level=3
 # cython: boundscheck=False
 # cython: cdivision=True
 # cython: wraparound=False
 
 import numpy as np
-cimport numpy as np
 from libc.math cimport sqrt, log
 
 # define the hyperbolic arccos function since some old compilers (MSVC 2008) don't have this

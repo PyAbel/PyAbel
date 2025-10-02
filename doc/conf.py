@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # PyAbel documentation build configuration file, created by
 # sphinx-quickstart on Wed Jan 13 17:11:12 2016.
@@ -14,7 +13,6 @@
 # serve to show the default.
 
 import sys
-import six
 import os
 import shlex
 

@@ -1,16 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import numpy as np
 from .math import fit_gaussian
 import warnings
 from scipy.ndimage import center_of_mass, shift
 from scipy.optimize import minimize
-# testing strings with Python 2 and 3 compatibility
-from six import string_types
 
 from abel import _deprecated, _deprecate
 
@@ -162,7 +154,7 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
         rows, cols = IM.shape
 
     # origin is in (row, column) format!
-    if isinstance(method, string_types):
+    if isinstance(method, str):
         origin = find_origin(IM, method=method, axes=axes, verbose=verbose,
                              **kwargs)
     else:

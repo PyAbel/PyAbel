@@ -3,7 +3,6 @@ Print summary information about current OS, Python, and required packages.
 """
 import platform
 import sys
-import os
 
 print('Platorm:', platform.platform())
 print('Python:', sys.version)
