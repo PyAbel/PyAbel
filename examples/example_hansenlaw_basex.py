@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import abel
 
 from scipy.ndimage import shift, zoom
-import bz2
 
 # This example demonstrates both Hansen and Law inverse Abel transform
 # and basex for an image obtained using a velocity map imaging (VMI)
@@ -30,8 +29,7 @@ output_plot  = 'plot_' + name + '_comparison_HansenLaw.png'
 
 # Load an image file as a numpy array
 print('Loading ' + filename)
-imagefile = bz2.BZ2File(filename)
-im = np.loadtxt(imagefile)
+im = np.loadtxt(filename)
 
 print("scaling image to size 501 reduce the time of the basis set calculation")
 im = zoom(im, 0.4892578125)

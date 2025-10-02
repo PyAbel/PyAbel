@@ -10,7 +10,6 @@ import abel
 
 import matplotlib.pylab as plt
 from time import time
-import bz2
 
 # inverse Abel transform methods -----------------------------
 #   dictionary of method: function()
@@ -29,8 +28,7 @@ ntrans = len(transforms)  # number of transforms
 
 
 # Image:   O2- VMI 1024x1024 pixel ------------------
-imagefile = bz2.BZ2File('data/O2-ANU1024.txt.bz2')
-IM = np.loadtxt(imagefile)
+IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 
 # recenter the image to mid-pixel (odd image width, square shape)
 IModd = abel.tools.center.center_image(IM, method="convolution",
