@@ -43,14 +43,19 @@ jobs:
         cache: "pip"
         cache-dependency-path: setup.py
     - name: Update setup
-      run: python -m pip install --upgrade pip setuptools wheel
+      run: python -m pip install --upgrade pip setuptools
     - name: Install Cython
-      if: matrix.ext != 'no-cython'
+      if: matrix.ext == 'cython'
       # NumPy and Cython must be preinstalled for building Cython extension
       run: python -m pip install numpy cython
     - name: Install pytest
       run: python -m pip install pytest pytest-cov
     - name: Install PyAbel
+      env:
+        # building Cython extension requires no build isolaton
+        # (confusingly, must be set to 0 to disable isolation;
+        # using "!=" because the first value after "&&" must be truthy)
+        PIP_NO_BUILD_ISOLATION: ${{ matrix.ext != 'cython' && 1 || 0 }}
       run: python -m pip install . -v
     - name: Information
       run: python .github/workflows/info.py

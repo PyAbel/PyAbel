@@ -26,7 +26,7 @@ install:
   - activate abel-env
   - pip install coverage pytest pytest-cov
   - dir 
-  - pip install . -v
+  - pip install . -v --no-build-isolation
 
 test_script:
   - cd "%TMP%"
