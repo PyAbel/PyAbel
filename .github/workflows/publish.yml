@@ -24,7 +24,7 @@ jobs:
   publish:
     needs: build
     if: ${{ success() || needs.build.result == 'skipped' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     environment: pypi
     permissions:
       id-token: write # required for Trusted Publishing
