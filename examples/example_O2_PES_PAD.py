@@ -1,11 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import numpy as np
 import abel
-import bz2
 
 import matplotlib.pylab as plt
 
@@ -17,8 +11,7 @@ import matplotlib.pylab as plt
 # J. Chem. Phys. 133, 174311 (2010) DOI: 10.1063/1.3493349
 
 # Load image as a numpy array - numpy handles .gz, .bz2
-imagefile = bz2.BZ2File('data/O2-ANU1024.txt.bz2')
-IM = np.loadtxt(imagefile)
+IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 # use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
 
 rows, cols = IM.shape    # image size

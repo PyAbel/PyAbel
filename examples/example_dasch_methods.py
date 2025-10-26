@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-"""example_dasch_methods.py.
-"""
-
 import numpy as np
 import abel
 import matplotlib.pyplot as plt

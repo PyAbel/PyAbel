@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import division
-
 import numpy as np
 from numpy.testing import assert_allclose
 from scipy.special import hermite

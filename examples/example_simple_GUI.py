@@ -16,9 +16,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
 from matplotlib.figure import Figure
 from matplotlib.pyplot import imread
 
-from six.moves import tkinter as tk
-from six.moves import tkinter_ttk as ttk
-from six.moves import tkinter_tkfiledialog as filedialog
+import tkinter as tk
+import tkinter.ttk as ttk
+import tkinter.filedialog as filedialog
 
 
 Abel_methods = ['basex', 'direct', 'hansenlaw', 'linbasex', 'onion_bordas',

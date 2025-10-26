@@ -1,5 +1,3 @@
-from __future__ import division, print_function
-
 import numpy as np
 from scipy.linalg import inv, svd
 import matplotlib.pyplot as plt

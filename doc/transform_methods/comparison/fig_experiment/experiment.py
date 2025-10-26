@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import abel
-import bz2
 
 transforms = [
   ("basex (reg=200)", abel.basex.basex_transform,               '#006600'),
@@ -17,8 +16,7 @@ transforms = [
   ("rbasex",          abel.rbasex.rbasex_transform,             '#AACC00'),
 ]
 
-infile = bz2.BZ2File('../../../../examples/data/O2-ANU1024.txt.bz2')
-IM = np.loadtxt(infile)
+IM = np.loadtxt('../../../../examples/data/O2-ANU1024.txt.bz2')
 
 IModd = abel.tools.center.center_image(IM, origin="convolution",
                                        odd_size=True, square=True)

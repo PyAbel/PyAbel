@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Unreleased
+----------
+* Python 2 support is dropped, the library code and examples are simplified for
+  Python 3.x (PR #408).
+
 v0.9.1 (2025-09-22)
 -------------------
 * Minor updates for compatibility with recent Python, NumPy, SciPy and

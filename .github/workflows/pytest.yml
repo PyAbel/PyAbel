@@ -18,16 +18,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-13, macos-latest, windows-latest]
-        py-ver: ["3.7", "3.13"]
+        os: [ubuntu-22.04, macos-15-intel, macos-latest, windows-latest]
+        py-ver: ["3.7", "3.14"]
         ext: [cython, no-cython] # with/without Cython extension
         exclude:
           - os: macos-latest
             py-ver: "3.7" # not available
-          - os: macos-13
-            py-ver: "3.13" # to save resources
+          - os: macos-15-intel
+            py-ver: "3.14" # to save resources
           # skip no-cython on slower systems
-          - os: macos-13
+          - os: macos-15-intel
             ext: no-cython
           - os: macos-latest
             ext: no-cython

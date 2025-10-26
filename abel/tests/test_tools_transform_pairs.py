@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from numpy.testing import assert_allclose
 
 from abel.tools.analytical import TransformPair

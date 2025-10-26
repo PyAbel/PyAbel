@@ -25,11 +25,11 @@ jobs:
 
   sdist-test:
     needs: sdist
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        py-ver: ["3.7", "3.13"]
+        py-ver: ["3.7", "3.14"]
         ext: [cython, no-cython] # with/without Cython extension
 
     steps:

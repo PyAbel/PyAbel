@@ -1,11 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import numpy as np
 import abel
-import bz2
 
 import matplotlib.pylab as plt
 
@@ -14,8 +8,7 @@ import matplotlib.pylab as plt
 # (b) from the inverse Abel transformed image
 
 # Load image as a numpy array
-imagefile = bz2.BZ2File('data/O2-ANU1024.txt.bz2')
-IM = np.loadtxt(imagefile)
+IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 # use scipy.misc.imread(filename) to load image formats (.png, .jpg, etc)
 
 # === linbasex transform ===================================
