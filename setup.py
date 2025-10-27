@@ -37,7 +37,9 @@ try:
         libraries = ["m"]
         extra_compile_args = ['-O3', '-ffast-math', '-g0']
     ext_modules = [
-        Extension('abel.lib.direct', ['abel/lib/direct.pyx'],
+	# ("Path" below is a workaround for Setuptools bug on Windows,
+	#  see https://github.com/pypa/setuptools/issues/5093)
+        Extension('abel.lib.direct', [Path('abel/lib/direct.pyx')],
                   include_dirs=[numpy.get_include()],
                   libraries=libraries,
                   extra_compile_args=extra_compile_args)
