@@ -1,0 +1,88 @@
+[project]
+name = "PyAbel"
+description = "A Python package for forward and inverse Abel transforms"
+authors = [
+  {name = "The PyAbel Team"},
+]
+maintainers = [
+  {name = "Daniel D. Hickstein"},
+  {name = "Mikhail Ryazanov"},
+  {name = "Stephen Gibson"},
+]
+requires-python = ">=3.8"
+dependencies = [  # lowest tested version (last available in win32 conda)
+  "numpy>=1.21",
+  "scipy>=1.7",
+]
+keywords = [
+  "Abel transform",
+  "velocity map imaging",
+  "VMI",
+  "tomography",
+  "axisymmetric",
+]
+classifiers = [
+  # How mature is this project? Common values are
+  #  3 - Alpha
+  #  4 - Beta
+  #  5 - Production/Stable
+  "Development Status :: 4 - Beta",
+
+  # Indicate who your project is intended for
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Scientific/Engineering :: Physics",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+
+  # Specify the Python versions you support here.
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+# fields updated automatically in setup.py:
+dynamic = [
+  "version",  # __version__ from abel/_version.py
+  "readme",   # actually long_description created from README.rst
+  "license",  # = "MIT", but setuptools<77 can't understand this here
+]
+
+[project.urls]
+homepage = "https://github.com/PyAbel/PyAbel"
+documentation = "https://pyabel.readthedocs.io/en/latest/readme_link.html"
+github = "https://github.com/PyAbel/PyAbel.git"
+issues = "https://github.com/PyAbel/PyAbel/issues"
+changelog = "https://github.com/PyAbel/PyAbel/blob/master/CHANGELOG.rst"
+
+[build-system]
+# Building Cython extensions *optionally* cannot be achieved by any standard
+# means (see https://github.com/pypa/pip/issues/6144), thus a pure Python
+# package is built by default.
+# To build with Cython: preinstall setuptools, numpy, cython, and disable build
+# isolation ("pip install . --no-build-isolation" or set the environment
+# variable PIP_NO_BUILD_ISOLATION=0 before "pip install .").
+requires = [  # last version available for Python 3.8 and tested
+  "setuptools>=75.0",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["abel*"]
+
+[tool.cibuildwheel]
+build-verbosity = 1
+# colored output where possible
+environment.FORCE_COLOR = 1
+# don't try to compile NumPy from source
+environment.PIP_ONLY_BINARY = ":all:"
+# preinstall packages required to build Cython extensions
+before-build = "python -m pip install setuptools numpy cython"
+# disable PEP 517 build isolation, instead use already installed packages
+build-frontend = { name = "build", args = ["--no-isolation"] }
+# (other options are controlled externally)

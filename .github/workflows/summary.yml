@@ -26,7 +26,7 @@ jobs:
     - run: cp -v -t . sdist\(*/*.json wheels\(*/*.json || true
     - uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
     - name: SUMMARY
       run: |
         python .github/workflows/summary.py
