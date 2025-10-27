@@ -33,9 +33,9 @@ try:
     if sys.platform == 'win32':  # for MSVC
         libraries = []
         extra_compile_args = ['/Ox', '/fp:fast']
-    else:  # for GCC-compatible
+    else:  # for GCC and Clang
         libraries = ["m"]
-        extra_compile_args = ['-Ofast', '-g0']
+        extra_compile_args = ['-O3', '-ffast-math', '-g0']
     ext_modules = [
         Extension('abel.lib.direct', ['abel/lib/direct.pyx'],
                   include_dirs=[numpy.get_include()],
