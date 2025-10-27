@@ -4,6 +4,7 @@ on: [workflow_dispatch, workflow_call]
 
 env:
   FORCE_COLOR: 1 # colored output where possible
+  PIP_PROGRESS_BAR: off # disable progress bar for downloads
 
 jobs:
   sdist:
