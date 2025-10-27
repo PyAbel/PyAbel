@@ -13,26 +13,27 @@ env:
 
 jobs:
   pytest:
-
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-15-intel, macos-latest, windows-latest]
-        py-ver: ["3.7", "3.14"]
-        ext: [cython, no-cython] # with/without Cython extension
+        os: [ubuntu-latest, macos-15-intel, macos-latest, windows-latest]
+        py-ver: ["3.8", "3.14"]
+        ext: [cython] # with/without Cython extension
+        include:
+          # test no-cython only on Ubuntu (fastest runner)
+          - os: ubuntu-latest
+            py-ver: "3.8"
+            ext: no-cython
+          - os: ubuntu-latest
+            py-ver: "3.14"
+            ext: no-cython
         exclude:
-          - os: macos-latest
-            py-ver: "3.7" # not available
+          # skip to save resources
           - os: macos-15-intel
-            py-ver: "3.14" # to save resources
-          # skip no-cython on slower systems
-          - os: macos-15-intel
-            ext: no-cython
+            py-ver: "3.14"
           - os: macos-latest
-            ext: no-cython
-          - os: windows-latest
-            ext: no-cython
+            py-ver: "3.8"
 
     steps:
     - uses: actions/checkout@v4

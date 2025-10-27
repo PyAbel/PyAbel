@@ -13,7 +13,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12" # only for setuptools
+        python-version: "3.13" # only for setuptools
     - name: Update setup, install build
       run: python -m pip install --upgrade pip setuptools build
     - name: Create source distribution
@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        py-ver: ["3.7", "3.14"]
+        py-ver: ["3.8", "3.14"]
         ext: [cython, no-cython] # with/without Cython extension
 
     steps:

@@ -9,10 +9,10 @@ maintainers = [
   {name = "Mikhail Ryazanov"},
   {name = "Stephen Gibson"},
 ]
-requires-python = ">=3.7"
-dependencies = [  # last versions available for Python 3.7 and tested
-  "numpy>=1.21",
-  "scipy>=1.7",
+requires-python = ">=3.8"
+dependencies = [  # last versions available for Python 3.8 and tested
+  "numpy>=1.24",
+  "scipy>=1.10",
 ]
 keywords = [
   "Abel transform",
@@ -38,7 +38,6 @@ classifiers = [
 
   # Specify the Python versions you support here.
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -68,8 +67,8 @@ changelog = "https://github.com/PyAbel/PyAbel/blob/master/CHANGELOG.rst"
 # To build with Cython: preinstall setuptools, numpy, cython, and disable build
 # isolation ("pip install . --no-build-isolation" or set the environment
 # variable PIP_NO_BUILD_ISOLATION=0 before "pip install .").
-requires = [  # last version available for Python 3.7 and tested
-  "setuptools>=68.0",
+requires = [  # last version available for Python 3.8 and tested
+  "setuptools>=75.0",
 ]
 build-backend = "setuptools.build_meta"
 
