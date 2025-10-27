@@ -10,9 +10,9 @@ maintainers = [
   {name = "Stephen Gibson"},
 ]
 requires-python = ">=3.8"
-dependencies = [  # last versions available for Python 3.8 and tested
-  "numpy>=1.24",
-  "scipy>=1.10",
+dependencies = [  # lowest tested version (last available in win32 conda)
+  "numpy>=1.21",
+  "scipy>=1.7",
 ]
 keywords = [
   "Abel transform",
