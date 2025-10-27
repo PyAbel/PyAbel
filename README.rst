@@ -75,13 +75,24 @@ The latest release can be installed from `PyPI <https://pypi.org/project/PyAbel/
 
     pip install PyAbel
 
+or, for Anaconda, from its `conda-forge <https://anaconda.org/conda-forge>`__ channel::
+
+    conda install conda-forge::pyabel
+
+Development version
+~~~~~~~~~~~~~~~~~~~
+
 If you prefer the development version from GitHub, download it `here <https://github.com/PyAbel/PyAbel/tree/master>`__ (clicking the [Code ▾] button), ``cd`` to the PyAbel directory, and use ::
 
     pip install .
 
-Or, if you wish to edit the PyAbel source code without re-installing each time, ::
+For maximal portability, installing PyAbel from source does not build the Cython extensions (optionally used by the ``direct`` transform method) by default. To build them, preinstall Setuptools, NumPy and Cython, and have a `suitable C compiler <https://cython.readthedocs.io/en/stable/src/quickstart/install.html>`__ (GCC/Clang on Linux/macOS and MSVC on Windows) available, then use ::
 
-    pip install -e .
+    pip install . --no-build-isolation
+
+If you wish to edit the PyAbel source code without re-installing each time, use ::
+
+    pip install -e . --no-build-isolation
 
 Before uninstalling
 ~~~~~~~~~~~~~~~~~~~
