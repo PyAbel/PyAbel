@@ -24,9 +24,11 @@ install:
   - conda info -a
   - "conda create -q -n abel-env python=%PYTHON_VERSION% numpy scipy cython"
   - activate abel-env
-  - pip install coverage pytest pytest-cov
+  - conda install coverage pytest pytest-cov pip
+  # win32 conda has only oudated Setuptools, so install them from PyPI
+  - python -m pip install --upgrade setuptools packaging
   - dir 
-  - pip install . -v
+  - pip install . -v --no-build-isolation
 
 test_script:
   - cd "%TMP%"

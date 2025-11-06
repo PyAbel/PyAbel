@@ -4,20 +4,21 @@ on: [workflow_dispatch, workflow_call]
 
 env:
   FORCE_COLOR: 1 # colored output where possible
+  PIP_PROGRESS_BAR: off # disable progress bar for downloads
 
 jobs:
   sdist:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12" # only for setuptools
-    - name: Update setup
-      run: python -m pip install --upgrade pip setuptools
+        python-version: "3.13" # only for setuptools
+    - name: Update setup, install build
+      run: python -m pip install --upgrade pip setuptools build
     - name: Create source distribution
-      run: python setup.py sdist
+      run: python -m build --sdist
     - uses: actions/upload-artifact@v4
       with:
         name: sdist(${{ github.ref_name }})
@@ -29,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        py-ver: ["3.7", "3.14"]
+        py-ver: ["3.8", "3.14"]
         ext: [cython, no-cython] # with/without Cython extension
 
     steps:
@@ -48,14 +49,19 @@ jobs:
       with:
         python-version: ${{ matrix.py-ver }}
     - name: Update setup
-      run: python -m pip install --upgrade pip setuptools wheel
+      run: python -m pip install --upgrade pip setuptools
     - name: Install Cython
-      if: matrix.ext != 'no-cython'
+      if: matrix.ext == 'cython'
       # NumPy and Cython must be preinstalled for building Cython extension
       run: python -m pip install numpy cython
     - name: Information
       run: python .github/workflows/info.py
     - name: Install PyAbel from source distribution
+      env:
+        # building Cython extension requires no build isolaton
+        # (confusingly, must be set to 0 to disable isolation;
+        # using "!=" because the first value after "&&" must be truthy)
+        PIP_NO_BUILD_ISOLATION: ${{ matrix.ext != 'cython' && 1 || 0 }}
       run: python -m pip install -v *.tar.gz
     - name: Information
       run: python .github/workflows/info.py

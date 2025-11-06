@@ -5,6 +5,8 @@ Unreleased
 ----------
 * Python 2 support is dropped, the library code and examples are simplified for
   Python 3.x (PR #408).
+* The build system is updated to modern standards (PR #410). If you install
+  PyAbel from source, please see the updated instructions in the README.
 
 v0.9.1 (2025-09-22)
 -------------------
