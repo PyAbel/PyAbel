@@ -208,7 +208,7 @@ def test_daun_gaussian():
         recon = recon[n // 2 + n % 2]
         skip = 1 if isinstance(reg, tuple) and reg[0] == 'L2' else 0
         assert_allclose(recon[skip:], ref.func[skip:], atol=tol,
-                        err_msg='-> reg = ' + repr(reg))
+                        err_msg=f'-> {reg=!r}')
 
     # test dr
     recon = daun_transform(tr, dr=0.5, verbose=False)[0]

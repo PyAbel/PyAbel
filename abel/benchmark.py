@@ -257,7 +257,7 @@ class AbelTiming(object):
                     if methods & need_whole:
                         self.whole_image = np.random.randn(self.h, self.h)
                 except (KeyboardInterrupt, MemoryError) as e:
-                    self._vprint(repr(e) + ' during image creation! '
+                    self._vprint(f'{e!r} during image creation! '
                                  'Skipping the rest...')
                     self.t_max = -1.0
                     # (the images will not be used, so leaving them as is)
@@ -268,7 +268,7 @@ class AbelTiming(object):
                 try:
                     getattr(self, '_time_' + method)()
                 except (KeyboardInterrupt, MemoryError) as e:
-                    self._vprint('\n' + repr(e) + '! Skipping the rest...')
+                    self._vprint(f'\n{e!r}! Skipping the rest...')
                     self.t_max = -1.0
                     # rerun this interrupted benchmark to nan-fill its results
                     getattr(self, '_time_' + method)()
