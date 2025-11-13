@@ -7,6 +7,10 @@ Unreleased
   Python 3.x (PR #408).
 * The build system is updated to modern standards (PR #410). If you install
   PyAbel from source, please see the updated instructions in the README.
+* All functions and arguments deprecated in v0.9.0 are removed (PR #413).
+  If your code stops working after upgrading PyAbel, downgrage it to v0.9.1 and
+  pay close attention to deprecation warnings (or check v0.9.1 documentation
+  for suggested replacements).
 
 v0.9.1 (2025-09-22)
 -------------------

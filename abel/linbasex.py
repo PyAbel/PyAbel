@@ -6,7 +6,6 @@ from scipy.special import eval_legendre
 from scipy.ndimage import rotate, shift, gaussian_filter1d
 
 import abel
-from abel import _deprecated, _deprecate
 
 ###############################################################################
 # linbasex - inversion procedure based on 1-dimensional projections of
@@ -108,8 +107,8 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
                             legendre_orders=[0, 2],
                             radial_step=1, smoothing=0,
                             rcond=0.0005, threshold=0.2, clip=0,
-                            return_Beta=_deprecated, norm_range=(0, -1),
-                            direction="inverse", verbose=False):
+                            norm_range=(0, -1), direction="inverse",
+                            verbose=False):
     r"""Inverse Abel transform using 1D projections of images.
 
     Th. Gerber, Yu. Liu, G. Knopp, P. Hemberger, A. Bodi, P. Radi, Ya. Sych,
@@ -209,11 +208,6 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
         raise ValueError('image has shape ({}, {}), '.format(rows, cols) +
                          'must be square for a "linbasex" transform')
 
-    if return_Beta is not _deprecated:
-        _deprecate('abel.linbasex.linbasex_transform_full() '
-                   'argument "return_Beta" is deprecated, these arrays are '
-                   'returned always.')
-
     # generate basis or read from file if available
     Basis = get_bs_cached(cols, basis_dir=basis_dir, proj_angles=proj_angles,
                   legendre_orders=legendre_orders, radial_step=radial_step,
@@ -310,56 +304,6 @@ def _Slices(radial, Beta, legendre_orders, smoothing=0):
     Slice /= 4 * np.pi * r**2
 
     return Slice, Beta_convol
-
-
-def int_beta(Beta, radial_step=1, threshold=0.1, regions=None):
-    """Integrate beta over a range of Newton spheres.
-
-    .. warning::
-        This function is deprecated and will be remove in the future. See
-        `issue #356 <https://github.com/PyAbel/PyAbel/issues/356>`__.
-
-        For integrating the speed distribution and averaging the anisotropy,
-        please use :func:`mean_beta`.
-
-    Parameters
-    ----------
-    Beta : numpy array
-        Newton spheres
-    radial_step : int
-        number of pixels per Newton sphere (default 1)
-    threshold : float
-        threshold for normalisation of higher orders, 0.0 ... 1.0.
-    regions : list of tuple radial ranges
-        [(min0, max0), (min1, max1), ...]
-
-    Returns
-    -------
-    Beta_in : numpy array
-        integrated normalized Beta array [Newton sphere, region]
-
-    """
-    _deprecate('int_beta() is deprecated, consider using mean_beta().')
-
-    pol = Beta.shape[0]
-    # Define new array for normalized beta's, independent of Beat_norm
-    Beta_n = np.zeros(Beta.shape)
-
-    # Normalized to Newton sphere with maximal counts.
-    max_counts = max(Beta[0, :])
-
-    Beta_n[0] = Beta[0]/max_counts
-    for i in range(1, pol):
-        Beta_n[i] = np.where(Beta[0]/max_counts > threshold, Beta[i]/Beta[0],
-                             0)
-
-    Beta_int = np.zeros((pol, len(regions)))   # arrays for results
-
-    for j, reg in enumerate(regions):
-        for i in range(pol):
-            Beta_int[i, j] = np.sum(Beta_n[i, range(*reg)])/(reg[1]-reg[0])
-
-    return Beta_int
 
 
 def mean_beta(radial, Beta, regions):

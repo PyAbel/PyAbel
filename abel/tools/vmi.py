@@ -9,8 +9,6 @@ from scipy.optimize import curve_fit
 from scipy.linalg import hankel, inv, pascal
 from scipy.special import legendre
 
-from abel import _deprecate
-
 
 def radial_intensity(kind, IM, origin=None, dr=1, dt=None):
     """
@@ -127,122 +125,6 @@ def average_radial_intensity_3D(IM, origin=None, dr=1, dt=None):
     return radial_intensity('avg3D', IM, origin=origin, dr=dr, dt=dt)
 
 
-def angular_integration(IM, origin=None, Jacobian=True, dr=1, dt=None):
-    r"""Angular integration of the image.
-
-    Returns the one-dimensional intensity profile as a function of the
-    radial coordinate.
-
-    Note: the use of ``Jacobian=True`` applies the correct Jacobian for the
-    integration of a 3D object in spherical coordinates.
-
-    .. warning::
-        This function behaves incorrectly: misses a factor of π for 3D
-        integration, with ``Jacobian=True``, and for ``Jacobian=False`` returns
-        the *average* (over polar angles) multiplied by 2π instead of
-        integrating. It is currently deprecated and is provided only for
-        backward compatibility, but will be removed in the future.
-
-        Please use :func:`radial_intensity`, :func:`angular_integration_2D` or
-        :func:`angular_integration_3D`.
-
-    Parameters
-    ----------
-    IM : 2D numpy.array
-        the image data
-
-    origin : tuple or None
-        image origin in the (row, column) format. If ``None``, the geometric
-        center of the image (``rows // 2, cols // 2``) is used.
-
-    Jacobian : bool
-        Include :math:`r\sin\theta` in the angular sum (integration).
-        Also, ``Jacobian=True`` is passed to
-        :func:`abel.tools.polar.reproject_image_into_polar`,
-        which includes another value of `r`, thus providing the appropriate
-        total Jacobian of :math:`r^2\sin\theta`.
-
-    dr : float
-        radial grid spacing in pixels (default 1). ``dr=0.5`` may
-        reduce pixel granularity of the speed profile.
-
-    dt : float or None
-        angular grid spacing in radians.
-        If ``None``, the number of theta values will be set to largest
-        dimension (the height or the width) of the image, which should
-        typically ensure good sampling.
-
-    Returns
-    ------
-    r : 1D numpy.array
-        radial coordinates
-
-    speeds : 1D numpy.array
-        integrated intensity array (vs radius).
-
-    """
-    _deprecate('angular_integration() is deprecated, please see the '
-               'documentation for details. '
-               'Use radial_intensity(), angular_integration_2D() or '
-               'angular_integration_3D() instead.')
-
-    polarIM, R, T = reproject_image_into_polar(
-        IM, origin, Jacobian=Jacobian, dr=dr, dt=dt)
-
-    dt = T[0, 1] - T[0, 0]
-
-    if Jacobian:  # × r sinθ
-        polarIM *= R * np.abs(np.sin(T))
-
-    speeds = trapezoid(polarIM, axis=1, dx=dt)
-
-    n = speeds.shape[0]
-
-    return R[:n, 0], speeds  # limit radial coordinates range to match speed
-
-
-def average_radial_intensity(IM, **kwargs):
-    """Calculate the average radial intensity of the image, averaged over all
-    angles. This differs form :func:`abel.tools.vmi.angular_integration` only
-    in that it returns the average intensity, and not the integrated intensity
-    of a 3D image. It is equivalent to calling
-    :func:`abel.tools.vmi.angular_integration` with
-    ``Jacobian=True`` and then dividing the result by 2π.
-
-    .. warning::
-        This function is currently deprecated and is provided only for backward
-        compatibility, but will be removed in the future.
-
-        Please use :func:`radial_intensity`,
-        :func:`average_radial_intensity_2D` or
-        :func:`average_radial_intensity_3D`.
-
-    Parameters
-    ----------
-    IM : 2D numpy.array
-        the image data
-
-    kwargs :
-        additional keyword arguments to be passed to
-        :func:`abel.tools.vmi.angular_integration`
-
-    Returns
-    -------
-    r : 1D numpy.array
-        radial coordinates
-
-    intensity : 1D numpy.array
-        intensity profile as a function of the radial coordinate
-    """
-    _deprecate('average_radial_intensity() is deprecated, '
-               'use average_radial_intensity_2D(), '
-               'average_radial_intensity_3D() or radial_intensity() instead.')
-
-    R, intensity = angular_integration(IM, Jacobian=False, **kwargs)
-    intensity /= 2 * np.pi
-    return R, intensity
-
-
 def radial_integration(IM, origin=None, radial_ranges=None, theta_ranges=None,
                        mode='reject'):
     r""" Intensity variation in the angular coordinate.
@@ -305,12 +187,6 @@ def radial_integration(IM, origin=None, radial_ranges=None, theta_ranges=None,
     theta : 1D numpy.array
         angle coordinates, referenced to vertical direction
     """
-    if origin is not None and not isinstance(origin, tuple):
-        _deprecate('radial_integration() has 2nd argument "origin", '
-                   'use keyword argument "radial_ranges" or insert "None".')
-        radial_ranges = origin
-        origin = None
-
     polarIM, r_grid, theta_grid = reproject_image_into_polar(IM, origin)
 
     theta = theta_grid[0, :]  # theta coordinates

@@ -1,9 +1,6 @@
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
-# to suppress deprecation warnings
-from warnings import catch_warnings, simplefilter
-
 from abel.tools.analytical import SampleImage
 from abel import Transform
 
@@ -12,12 +9,6 @@ def test_sample_Dribinski():
     """
     Test SampleImage 'Dribinski'.
     """
-    # test deprecated attribute
-    test = SampleImage(name='dribinski')  # (test lower-case)
-    with catch_warnings():
-        simplefilter('ignore', category=DeprecationWarning)
-        assert_equal(test.image, test.func)
-
     # .abel is difficult to test reliably due to the huge dynamic range
 
     # test scaling

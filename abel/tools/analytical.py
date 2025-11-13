@@ -3,7 +3,6 @@ import scipy.constants as const
 import scipy.interpolate
 
 import abel
-from abel import _deprecate
 
 # This file includes functions that have a known analytical Abel transform.
 # They are used in unit testing and for comparing different Abel
@@ -638,13 +637,6 @@ class SampleImage(BaseAnalytical):
         self._abel = abel.tools.symmetry.put_image_quadrants(
                          [Q[:, ::-1]] * 4, (self.n, self.n))
         return self._abel
-
-    @property
-    def image(self):
-        """Deprecated. Use :attr:`func` instead."""
-        _deprecate('SampleImage attribute ".image" is deprecated, '
-                   'use ".func" instead.')
-        return self.func
 
     @property
     def abel(self):

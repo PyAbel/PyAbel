@@ -4,8 +4,6 @@ import warnings
 from scipy.ndimage import center_of_mass, shift
 from scipy.optimize import minimize
 
-from abel import _deprecated, _deprecate
-
 
 def find_origin(IM, method='image_center', axes=(0, 1), verbose=False,
                 **kwargs):
@@ -50,8 +48,7 @@ def find_origin(IM, method='image_center', axes=(0, 1), verbose=False,
 
 
 def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
-                 crop='maintain_size', order=3, verbose=False,
-                 center=_deprecated, **kwargs):
+                 crop='maintain_size', order=3, verbose=False, **kwargs):
     """
     Center image with the custom value or by several methods provided in
     :func:`find_origin()` function.
@@ -121,11 +118,6 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
     out : 2D np.array
         centered image
     """
-    if center is not _deprecated:
-        _deprecate('abel.tools.center.center_image() '
-                   'argument "center" is deprecated, use "method" instead.')
-        method = center
-
     rows, cols = IM.shape
 
     if odd_size and cols % 2 == 0:
@@ -166,7 +158,7 @@ def center_image(IM, method='com', odd_size=True, square=False, axes=(0, 1),
 
 
 def set_center(data, origin, crop='maintain_size', axes=(0, 1), order=3,
-               verbose=False, center=_deprecated):
+               verbose=False):
     """
     Move image origin to mid-point of image (``rows // 2, cols // 2``).
 
@@ -217,11 +209,6 @@ def set_center(data, origin, crop='maintain_size', axes=(0, 1), order=3,
     out : 2D np.array
         centered image
     """
-    if center is not _deprecated:
-        _deprecate('abel.tools.center.set_center() '
-                   'argument "center" is deprecated, use "origin" instead.')
-        origin = center
-
     def center_of(a):
         """ Indices of array center """
         return np.array(a.shape) // 2
@@ -543,7 +530,7 @@ def axis_slices(IM, radial_range=(0, -1), slice_width=10):
 
 
 def find_origin_by_slice(IM, axes=(0, 1), slice_width=10, radial_range=(0, -1),
-                         axis=_deprecated, **kwargs):
+                         **kwargs):
     """
     Find the image origin by comparing opposite sides.
 
@@ -569,11 +556,6 @@ def find_origin_by_slice(IM, axes=(0, 1), slice_width=10, radial_range=(0, -1),
         (row, column)
 
     """
-    if axis is not _deprecated:
-        _deprecate('abel.tools.center.find_origin_by_slice() '
-                   'argument "axis" is deprecated, use "axes" instead.')
-        axes = axis
-
     def _align(offset, sliceA, sliceB):
         """
         Intensity difference between an axial slice and its shifted opposite.
@@ -629,60 +611,3 @@ func_method = {
     "gaussian": find_origin_by_gaussian_fit,
     "slice": find_origin_by_slice
 }
-
-
-# Deprecated functions
-
-def find_center(IM, center='image_center', square=False, verbose=False,
-                **kwargs):
-    """Deprecated function. Use :func:`find_origin` instead."""
-    _deprecate('abel.tools.center.find_center() '
-               'is deprecated, use abel.tools.center.find_origin() instead.')
-    if square:
-        _deprecate('Argument "square" has no effect and is deprecated.')
-    return find_origin(IM, center, verbose, **kwargs)
-
-
-def find_center_by_center_of_mass(IM, verbose=False, round_output=False,
-                                  **kwargs):
-    """Deprecated function. Use :func:`find_origin_by_center_of_mass`
-    instead."""
-    _deprecate('abel.tools.center.find_center_by_center_of_mass() '
-               'is deprecated, use '
-               'abel.tools.center.find_origin_by_center_of_mass() instead.')
-    return find_origin_by_center_of_mass(IM, verbose, round_output, **kwargs)
-
-
-def find_center_by_convolution(IM, **kwargs):
-    """Deprecated function. Use :func:`find_origin_by_convolution` instead."""
-    _deprecate('abel.tools.center.find_center_by_convolution() '
-               'is deprecated, use '
-               'abel.tools.center.find_origin_by_convolution() instead.')
-    return find_origin_by_convolution(IM, **kwargs)
-
-
-def find_center_by_center_of_image(IM, verbose=False, **kwargs):
-    """Deprecated function. Use :func:`find_origin_by_center_of_image`
-    instead."""
-    _deprecate('abel.tools.center.find_center_by_center_of_image() '
-               'is deprecated, use '
-               'abel.tools.center.find_origin_by_center_of_image() instead.')
-    return find_origin_by_center_of_image(IM, verbose, **kwargs)
-
-
-def find_center_by_gaussian_fit(IM, verbose=False, round_output=False,
-                                **kwargs):
-    """Deprecated function. Use :func:`find_origin_by_gaussian_fit` instead."""
-    _deprecate('abel.tools.center.find_center_by_gaussian_fit() '
-               'is deprecated, use '
-               'abel.tools.center.find_origin_by_gaussian_fit() instead.')
-    return find_origin_by_gaussian_fit(IM, verbose, round_output, **kwargs)
-
-
-def find_image_center_by_slice(IM, slice_width=10, radial_range=(0, -1),
-                               axis=(0, 1), **kwargs):
-    """Deprecated function. Use :func:`find_origin_by_slice` instead."""
-    _deprecate('abel.tools.center.find_image_center_by_slice() '
-               'is deprecated, use '
-               'abel.tools.center.find_origin_by_slice() instead.')
-    return find_origin_by_slice(IM, slice_width, radial_range, axis, **kwargs)

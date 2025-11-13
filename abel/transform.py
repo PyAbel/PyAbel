@@ -15,8 +15,6 @@ from . import onion_bordas
 from . import rbasex
 from . import tools
 
-from abel import _deprecated, _deprecate
-
 
 class Transform(object):
     r"""
@@ -416,15 +414,10 @@ class Transform(object):
                  symmetrize_method='average', angular_integration=False,
                  transform_options=dict(), center_options=dict(),
                  angular_integration_options=dict(),
-                 recast_as_float64=True, verbose=False, center=_deprecated):
+                 recast_as_float64=True, verbose=False):
         """
         The one-stop transform function.
         """
-        if center is not _deprecated:
-            _deprecate('abel.transform.Transform() '
-                       'argument "center" is deprecated, use "origin" instead.')
-            origin = center
-
         # public class variables
         self.IM = IM  # (optionally) centered, odd-width image
         self.method = method
