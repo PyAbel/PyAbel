@@ -79,7 +79,7 @@ ax2.set_ylabel('intensity')
 ax2.set_xlabel('radial coordinate (pixels)')
 
 plt.legend(loc='best', frameon=False, labelspacing=0.1, fontsize='small')
-plt.suptitle(r'linbasex inverse Abel transform of O$_{2}{}^{-}$ electron '
+plt.suptitle(r'linbasex inverse Abel transform of O$_2^-$ electron '
              'velocity-map image',
              fontsize='larger')
 

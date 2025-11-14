@@ -69,7 +69,7 @@ ax3.plot(eBE, PES/PES[eBE < 5000].max())
 ax3.axis(xmin=0)
 ax3.set_xlabel(r'elecron binding energy (cm$^{-1}$)')
 ax3.set_ylabel('intensity')
-ax3.set_title(r'O${_2}{^-}$ 454 nm photoelectron spectrum')
+ax3.set_title(r'O$_2^-$ 454 nm photoelectron spectrum')
 
 # Prettify the plot a little bit:
 plt.tight_layout()
