@@ -9,7 +9,7 @@ import abel
 # impementations.
 
 
-class BaseAnalytical(object):
+class BaseAnalytical:
     r"""
     Base class for functions that have a known Abel transform
     (see :class:`GaussianAnalytical` for a concrete example).

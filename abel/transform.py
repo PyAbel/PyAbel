@@ -16,7 +16,7 @@ from . import rbasex
 from . import tools
 
 
-class Transform(object):
+class Transform:
     r"""
     Abel transform image class. Also accessible as :class:`abel.Transform`.
 

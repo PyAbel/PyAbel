@@ -29,7 +29,7 @@ def _roundsf(x, n):
     return float(f'{x:.{f"{n}g"}}')
 
 
-class Timent(object):
+class Timent:
     """
     Helper class for measuring execution times.
 
@@ -117,7 +117,7 @@ class Timent(object):
         return (t - t0) / self.count
 
 
-class AbelTiming(object):
+class AbelTiming:
     """
     Benchmark performance of different Abel implementations
     (basis generation, forward and inverse transforms, as applicable).
@@ -571,7 +571,7 @@ class AbelTiming(object):
         return '\n'.join(out)
 
 
-class DistributionsTiming(object):
+class DistributionsTiming:
     """
     Benchmark performance of different VMI distributions implementations.
 

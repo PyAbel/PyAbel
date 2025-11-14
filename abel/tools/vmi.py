@@ -416,7 +416,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     return eBKE[indx], intensity[indx]
 
 
-class Distributions(object):
+class Distributions:
     r"""
     Class for calculating various radial distributions.
 
@@ -1032,7 +1032,7 @@ class Distributions(object):
 
         self.ready = True
 
-    class Results(object):
+    class Results:
         r"""
         Class for holding the results of image analysis.
 
