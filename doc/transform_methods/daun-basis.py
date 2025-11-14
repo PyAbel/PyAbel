@@ -46,7 +46,7 @@ colors = cm.rainbow(np.linspace(1, 0, n - 1))
 
 for degree in range(4):
     plt.subplot(4, 1, 1 + degree)
-    plt.title('degree = ' + str(degree),
+    plt.title(f'{degree = }',
               fontdict={'fontsize': plt.rcParams['axes.labelsize'],
                         'fontweight': 'bold'},
               loc='left')

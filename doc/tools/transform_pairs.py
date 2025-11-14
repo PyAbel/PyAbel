@@ -7,7 +7,7 @@ n = 100
 
 
 def plot(profile):
-    profile = 'profile' + str(profile)
+    profile = f'profile{profile}'
 
     fig, axs = plt.subplots(1, 2, figsize=(6, 2.5))
 

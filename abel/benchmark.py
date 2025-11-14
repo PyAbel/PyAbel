@@ -745,7 +745,7 @@ class DistributionsTiming(object):
                     for weight in self.weights:
                         res = resr[weight]
                         t = list(zip(*res))[0 if mode == 'single' else 1]
-                        out += [ROW_FORMAT.format(rmax, str(weight), *t)]
+                        out += [ROW_FORMAT.format(rmax, weight, *t)]
             return out
 
         out += print_benchmark('single')

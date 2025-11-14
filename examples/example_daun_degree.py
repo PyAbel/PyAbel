@@ -31,7 +31,7 @@ for degree in range(4):
 
     q = abel.daun.daun_transform(Q, degree=degree)
     plt.imshow(q, clim=(-3, 3), cmap='seismic')
-    plt.text(n / 2, 0, 'degree=' + str(degree), ha='center', va='top')
+    plt.text(n / 2, 0, f'{degree=}', ha='center', va='top')
 
     I, _ = abel.tools.vmi.Ibeta(q, origin='ll')
     Is.append(I)

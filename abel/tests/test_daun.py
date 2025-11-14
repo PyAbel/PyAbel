@@ -53,7 +53,7 @@ def test_daun_bs():
     for degree in range(4):
         A = _bs_daun(n, degree)
         Aref = daun_bs(n, degree)
-        assert_allclose(A, Aref, err_msg='-> degree = ' + str(degree))
+        assert_allclose(A, Aref, err_msg=f'-> {degree=}')
 
 
 def test_daun_bs_cache():
@@ -196,7 +196,7 @@ def test_daun_gaussian():
         recon = daun_transform(tr, degree=degree, verbose=False)
         recon = recon[n // 2 + n % 2]
         assert_allclose(recon, ref.func, atol=tol,
-                        err_msg='-> degree = ' + str(degree))
+                        err_msg=f'-> {degree=}')
 
     for reg, tol in ([None, 2e-3],
                      [1, 1e-3],
@@ -228,7 +228,7 @@ def test_daun_forward_gaussian():
                               verbose=False)
         proj = proj[n // 2 + n % 2]
         assert_allclose(proj, ref.abel, atol=tol,
-                        err_msg='-> degree = ' + str(degree))
+                        err_msg=f'-> {degree=}')
 
     # test dr
     proj = daun_transform(tr, dr=0.5, direction='forward', verbose=False)[0]

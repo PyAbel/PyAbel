@@ -681,7 +681,7 @@ class Angular(object):
         return Angular(self.c / num)
 
     def __repr__(self):
-        return str(self.c) + '.[cos^n]'
+        return f'{self.c}.[cos^n]'
 
 
 class ApproxGaussian(object):

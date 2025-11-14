@@ -135,7 +135,7 @@ def run_orders(odd=False):
                                             reg=reg, out='fold')
                 recon[rmax-2:rmax+3, :2] = 0  # exclude pixels near center
                 assert_allclose(recon, src, atol=0.03,
-                                err_msg='-> reg = ' + str(reg) + param + mode)
+                                err_msg=f'-> {reg=}' + param + mode)
 
 
 def test_rbasex_orders():
