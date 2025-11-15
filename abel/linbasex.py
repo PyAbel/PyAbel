@@ -201,12 +201,12 @@ def linbasex_transform_full(IM, basis_dir=None, proj_angles=[0, np.pi/2],
     rows, cols = IM.shape
 
     if cols % 2 == 0:
-        raise ValueError('image width ({}) must be odd and equal to the height'
-                         .format(cols))
+        raise ValueError(f'image width ({cols}) must be odd and equal to the '
+                         'height')
 
     if rows != cols:
-        raise ValueError('image has shape ({}, {}), '.format(rows, cols) +
-                         'must be square for a "linbasex" transform')
+        raise ValueError(f'image has shape ({rows}, {cols}) must be square '
+                         'for a "linbasex" transform')
 
     # generate basis or read from file if available
     Basis = get_bs_cached(cols, basis_dir=basis_dir, proj_angles=proj_angles,
@@ -499,8 +499,7 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
                 return _basis
 
     # Fix Me! not a simple unique naming mechanism
-    basis_name = "linbasex_basis_{}_{}_{}_{}_{}.npy".format(cols, los, pas,
-                                                            radial_step, clip)
+    basis_name = f'linbasex_basis_{cols}_{los}_{pas}_{radial_step}_{clip}.npy'
 
     _los = los
     _pas = pas
@@ -512,7 +511,7 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
         path_to_basis_file = os.path.join(basis_dir, basis_name)
         if os.path.exists(path_to_basis_file):
             if verbose:
-                print('loading {} ...'.format(path_to_basis_file))
+                print(f'loading {path_to_basis_file} ...')
             _basis = np.load(path_to_basis_file)
             return _basis
 
@@ -528,8 +527,7 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
         path_to_basis_file = os.path.join(basis_dir, basis_name)
         np.save(path_to_basis_file, _basis)
         if verbose:
-            print("linbasex basis saved for later use to {}"
-                  .format(path_to_basis_file))
+            print(f'linbasex basis saved for later use to {path_to_basis_file}')
 
     return _basis
 

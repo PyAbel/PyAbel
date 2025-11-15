@@ -44,11 +44,10 @@ def test_radial_intensity():
         r, intensity = vmi.radial_intensity(kind, IM, **kwargs)
         r_, intensity_ = func[kind](IM, **kwargs)
         assert_equal([r_, intensity_], [r, intensity],
-                     err_msg='{}(...) != radial_intensity({}, ...)'.
-                             format(func[kind], kind))
+                     err_msg=f'{func[kind]}(...) != radial_intensity({kind}, ...)')
         # (ignoring pixels at r = 0 and 1, which can be poor)
         assert_allclose(intensity[2:R], ref(r[2:R]), rtol=rtol,
-                        err_msg='-> {}, {}, {}'.format(kind, name, kwargs))
+                        err_msg=f'-> {kind}, {name}, {kwargs}')
 
     def int2D(r):
         return 2 * np.pi * r
@@ -105,7 +104,7 @@ def test_anisotropy_parameter():
             aref = (amplitude, error_amplitude / chi2)
         """
         beta, amplitude = vmi.anisotropy_parameter(theta, intensity, mode=mode)
-        err_msg = '-> {}, {}'.format(name, mode)
+        err_msg = f'-> {name}, {mode}'
         assert_allclose((beta[0], amplitude[0]), (bref[0], aref[0]), atol=2e-8,
                         err_msg=err_msg + ' (val)')
         assert_allclose((beta[1] / chi2, amplitude[1] / chi2),

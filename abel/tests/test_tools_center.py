@@ -28,10 +28,8 @@ def test_find_origin():
                        col if 1 in axes else cols // 2)
                 tol = 0.2  # 'convolution' rounds to 0.5 pixels
                 assert_allclose(origin, ref, atol=tol, verbose=False,
-                                err_msg='-> {} x {}, method = {}, axes = {}: '
-                                        'origin = {} not equal {}'.
-                                        format(rows, cols, method, axes,
-                                               origin, ref))
+                                err_msg=f'-> {rows} x {cols}, {method=},'
+                                        f' {axes=}: {origin=} not equal {ref}')
 
 
 def test_set_center_int():
@@ -95,11 +93,10 @@ def test_set_center_int():
                     # check set_center() result
                     result = set_center(data, (row, col), crop=crop)
                     assert_equal(result, ref, verbose=False,
-                                 err_msg='-> {} x {}, origin = {}, crop = {}\n'
-                                         'result =\n{}\n'
-                                         'must be =\n{}'.
-                                         format(rows, cols, (row, col), crop,
-                                                result, ref))
+                                 err_msg=f'-> {rows} x {cols},'
+                                         f' origin={(row, col)}, {crop=}\n'
+                                         f'result =\n{result}\n'
+                                         f'must be =\n{ref}')
 
 
 def test_set_center_float():
@@ -165,12 +162,11 @@ def test_set_center_float():
                     refrange = (slice(*rrange), slice(*crange))
                     reforigin = (refrows // 2 if row else default,
                                  refcols // 2 if col else default)
-                    msg = '-> {} x {}, origin = {}, crop = {}: '.\
-                          format(rows, cols, (row, col), crop)
+                    msg = f'-> {rows} x {cols}, origin={(row, col)}, {crop=}: '
                     # shape
                     assert_equal(result.shape, refshape, verbose=False,
-                                 err_msg=msg + 'shape {} not equal {}'.
-                                               format(result.shape, refshape))
+                                 err_msg=msg + f'shape {result.shape} not'
+                                               f' equal {refshape}')
                     # non-zero data
                     assert_equal(result[refrange] != 0, True,
                                  err_msg=msg + 'zeros in non-zero range')
@@ -182,9 +178,9 @@ def test_set_center_float():
                     # gaussian center
                     origin = find_origin(result, 'gaussian')
                     assert_allclose(origin, reforigin, atol=0.01,
-                                    verbose=False, err_msg=msg +
-                                    'shifted center {} not equal {}'.
-                                    format(origin, reforigin))
+                                    verbose=False,
+                                    err_msg=msg + f'shifted center {origin}'
+                                                  f' not equal {reforigin}')
 
 
 def test_set_center_axes():
@@ -194,7 +190,7 @@ def test_set_center_axes():
     for N in [4, 5]:
         data = np.arange(N**2).reshape((N, N))
         c = N // 2
-        msg = '-> N = {}, '.format(N)
+        msg = f'-> {N=}, '
         assert_equal(set_center(data, (None, None)),
                      data,
                      err_msg=msg + '(None, None)')

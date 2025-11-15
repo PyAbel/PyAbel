@@ -338,7 +338,7 @@ def correction(polarIMTrans, angles, radial, method):
             fitpar = result[0]
 
     else:
-        raise ValueError("method variable must be one of 'argmax' or 'lsq',"
-                         " not '{}'".format(method))
+        raise ValueError('method argument must be "argmax" or "lsq",'
+                         f' not "{method}"')
 
     return np.asarray(radcorr)

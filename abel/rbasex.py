@@ -224,7 +224,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         width = Rmax + 1
         row = Rmax if odd else 0
     else:
-        raise ValueError('Wrong output shape "{}"'.format(out))
+        raise ValueError(f'Wrong output shape "{out}"')
     # construct output image from transformed radial profiles
     if verbose:
         print('Constructing output image...')
@@ -427,8 +427,9 @@ def _load_bs(basis_dir, Rmax, order, odd, inv=False, verbose=False):
         return os.path.join(basis_dir, file_name)
 
     # exact file name
-    basis_file = 'rbasex_basis_{}_{}{}{}.npy'.\
-                 format(Rmax, order, 'o' if odd else '', 'i' if inv else '')
+    has_odd = 'o' if odd else ''
+    has_inv = 'i' if inv else ''
+    basis_file = f'rbasex_basis_{Rmax}_{order}{has_odd}{has_inv}.npy'
     if os.path.exists(full_path(basis_file)):
         # have exactly needed
         best_file = basis_file
@@ -437,8 +438,8 @@ def _load_bs(basis_dir, Rmax, order, odd, inv=False, verbose=False):
         # Find the best (smallest among sufficient)
         best_file = None
         best_size = np.inf
-        mask = re.compile(r'rbasex_basis_(\d+)_(\d+)(o{})(i?)\.npy'.
-                          format('' if odd else '?'))
+        opt_odd = '' if odd else '?'
+        mask = re.compile(fr'rbasex_basis_(\d+)_(\d+)(o{opt_odd})(i?)\.npy')
         for f in listdir(basis_dir):
             # filter rBasex files
             match = mask.match(f)
@@ -490,7 +491,7 @@ def _load_bs(basis_dir, Rmax, order, odd, inv=False, verbose=False):
     if best_prm['Rmax'] > Rmax:
         bs = [M[:Rmax + 1, :Rmax + 1] for M in bs]
         if verbose:
-            print('(cropped to {})'.format(Rmax))
+            print(f'(cropped to {Rmax})')
     # separate into P and Ai
     if best_prm['inv']:
         if inv:
@@ -534,8 +535,7 @@ def _save_bs(basis_dir, Rmax, order, odd, bs, tri=False, verbose=False):
     else:
         has_inv = ''
         out = bs
-    file_name = 'rbasex_basis_{}_{}{}{}.npy'.format(Rmax, order,
-                                                    has_odd, has_inv)
+    file_name = f'rbasex_basis_{Rmax}_{order}{has_odd}{has_inv}.npy'
     if verbose:
         print('Saving basis set to disk as', file_name)
     np.save(os.path.join(basis_dir, file_name), out)
@@ -677,8 +677,7 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
                 # make single matrix from blocks
                 _tri = np.block(A)
             elif np.ndim(reg) == 0:  # not sequence type
-                raise ValueError('Wrong regularization format "{}"'.
-                                 format(reg))
+                raise ValueError(f'Wrong regularization format "{reg}"')
             elif reg[0] == 'L2':  # Tikhonov L2 norm
                 if verbose:
                     print('Calculating L2-regularized transform matrices...')
@@ -701,8 +700,7 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
                 if verbose:
                     print('Calculating SVD-regularized transform matrices...')
                 if reg[1] > 1:
-                    raise ValueError('Wrong SVD truncation factor {} > 1'.
-                                     format(reg[1]))
+                    raise ValueError(f'Wrong SVD truncation factor {reg[1]} > 1')
                 # truncation index (smallest SV of P -> largest SV of inverse)
                 smax = int((1 - reg[1]) * Rmax) + 1
                 _tri = []
@@ -716,8 +714,7 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
                     # regularized inverse for this angular order
                     _tri.append((U * s).dot(Vh))
             else:
-                raise ValueError('Wrong regularization type "{}"'.
-                                 format(reg[0]))
+                raise ValueError(f'Wrong regularization type "{reg[0]}"')
         if new_bs:
             _save_bs(basis_dir, Rmax, order, odd, _bs, _tri_full, verbose)
         return _tri

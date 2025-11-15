@@ -22,7 +22,7 @@ plt.figure(figsize=(6, 3))
 colors = cm.rainbow(np.linspace(1, 0, 7))
 
 for k, c in enumerate(colors):
-    plt.plot(x, rho(x, k), color=c, label=r'$k = {}$'.format(k))
+    plt.plot(x, rho(x, k), color=c, label=fr'${k=}$')
 
 plt.plot(x, sum([rho(x, k) for k in range(n)]),
          color='black', label=r'$\sum\rho_k$')

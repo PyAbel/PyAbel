@@ -26,10 +26,10 @@ def _roundsf(x, n):
     """
     Round to n significant digits
     """
-    return float('{:.{p}g}'.format(x, p=n))
+    return float(f'{x:.{f"{n}g"}}')
 
 
-class Timent(object):
+class Timent:
     """
     Helper class for measuring execution times.
 
@@ -117,7 +117,7 @@ class Timent(object):
         return (t - t0) / self.count
 
 
-class AbelTiming(object):
+class AbelTiming:
     """
     Benchmark performance of different Abel implementations
     (basis generation, forward and inverse transforms, as applicable).
@@ -215,8 +215,7 @@ class AbelTiming(object):
             methods = set()
             for method in select:
                 if method not in all_methods:
-                    print('Warning: Unsupported method "{}" ignored!'.
-                          format(method))
+                    print(f'Warning: Unsupported method "{method}" ignored!')
                 else:
                     methods.add(method)
         if not methods:
@@ -258,8 +257,8 @@ class AbelTiming(object):
                     if methods & need_whole:
                         self.whole_image = np.random.randn(self.h, self.h)
                 except (KeyboardInterrupt, MemoryError) as e:
-                    self._vprint(repr(e) + ' during image creation!'
-                                 ' Skipping the rest...')
+                    self._vprint(f'{e!r} during image creation! '
+                                 'Skipping the rest...')
                     self.t_max = -1.0
                     # (the images will not be used, so leaving them as is)
 
@@ -269,7 +268,7 @@ class AbelTiming(object):
                 try:
                     getattr(self, '_time_' + method)()
                 except (KeyboardInterrupt, MemoryError) as e:
-                    self._vprint('\n' + repr(e) + '! Skipping the rest...')
+                    self._vprint(f'\n{e!r}! Skipping the rest...')
                     self.t_max = -1.0
                     # rerun this interrupted benchmark to nan-fill its results
                     getattr(self, '_time_' + method)()
@@ -327,9 +326,8 @@ class AbelTiming(object):
             def decorated(self):
                 # get the estimated time (use 0 if cannot) and report it
                 t_est = self._pace.get(method, 0) * self.ni**3
-                self._vprint('    estimated ' +
-                             ('{:g} s'.format(_roundsf(t_est, 2)) if t_est
-                              else '???'), end='')
+                t_est_out = f'{_roundsf(t_est, 2):g} s' if t_est else '???'
+                self._vprint('    estimated ' + t_est_out, end='')
                 # skip the benchmark if it would take too long
                 if t_est > self.t_max:
                     self._vprint(' -- skipped')
@@ -342,7 +340,7 @@ class AbelTiming(object):
                     # calculate the actual total time and report it
                     t = (sum(self.res[k][m][-1] for k, m in res_keys) *
                          self.repeat) / 1000  # [ms] -> [s]
-                    self._vprint(', actually {:.3f} s'.format(t))
+                    self._vprint(f', actually {t:.3f} s')
                     # save the pace for future estimations
                     self._pace[method] = t / self.ni**3
             return decorated
@@ -538,7 +536,7 @@ class AbelTiming(object):
     def __repr__(self):
         import platform
 
-        out = ['PyAbel benchmark run on {}\n'.format(platform.processor()),
+        out = [f'PyAbel benchmark run on {platform.processor()}\n',
                'time in milliseconds']
 
         # field widths are chosen to accommodate up to:
@@ -548,14 +546,12 @@ class AbelTiming(object):
         # data columns are 9 characters wide and separated by 3 spaces
         TITLE_FORMAT = '=== {} ==='
         HEADER_ROW = 'Method         ' + \
-                     ''.join(['   {:>9}'.
-                              format('n = {}'.format(ni)) for ni in self.n])
+                     ''.join([f'   {f"n = {ni}":>9}' for ni in self.n])
         SEP_ROW = '-' * len(HEADER_ROW)
         ROW_FORMAT = '{:15}' + '   {:9.1f}' * len(self.n)
 
         def print_benchmark(name, res):
-            title = '{:=<{w}}'.format(TITLE_FORMAT.format(name),
-                                      w=len(SEP_ROW))
+            title = f'{TITLE_FORMAT.format(name):=<{f"{len(SEP_ROW)}"}}'
             out = ['\n' + title + '\n']
             out += [HEADER_ROW]
             out += [SEP_ROW]
@@ -575,7 +571,7 @@ class AbelTiming(object):
         return '\n'.join(out)
 
 
-class DistributionsTiming(object):
+class DistributionsTiming:
     """
     Benchmark performance of different VMI distributions implementations.
 
@@ -650,7 +646,7 @@ class DistributionsTiming(object):
             origin = 'cc'
             self.shape = 'Full image'
         else:
-            raise ValueError('Incorrect shape "{}"'.format(shape))
+            raise ValueError(f'Incorrect shape "{shape}"')
 
         self.rmaxs = rmaxs = _ensure_list(rmax)
 
@@ -702,8 +698,7 @@ class DistributionsTiming(object):
                         elif weight == 'sin+array':
                             w = {'use_sin': True, 'weights': warray}
                         else:
-                            raise ValueError('Incorrect weight "{}"'.
-                                             format(weight))
+                            raise ValueError(f'Incorrect weight "{weight}"')
                         # single-image
                         t1 = time(Ibeta,
                                   IM, origin, rmax, order, method=method, **w)
@@ -723,8 +718,8 @@ class DistributionsTiming(object):
     def __repr__(self):
         import platform
 
-        out = ['PyAbel benchmark run on {}\n'.format(platform.processor()),
-               'order = {}, time in milliseconds'.format(self.order)]
+        out = [f'PyAbel benchmark run on {platform.processor()}\n',
+               f'order = {self.order}, time in milliseconds']
 
         # field widths are chosen to accommodate up to:
         #   rmax + weight = 3 leading spaces + 14 characters
@@ -733,14 +728,12 @@ class DistributionsTiming(object):
         # data columns are 9 characters wide and separated by 3 spaces
         TITLE_FORMAT = '=== ' + self.shape + ', {} ==='
         HEADER_ROW = 'Method           ' + \
-                     ''.join(['   {:>9}'.
-                              format('n = {}'.format(ni)) for ni in self.n])
+                     ''.join([f'   {f"n = {ni}":>9}' for ni in self.n])
         SEP_ROW = '-' * len(HEADER_ROW)
         ROW_FORMAT = '   {}, {:9}' + '   {:9.1f}' * len(self.n)
 
         def print_benchmark(mode):
-            title = '{:=<{w}}'.format(TITLE_FORMAT.format(mode),
-                                      w=len(SEP_ROW))
+            title = f'{TITLE_FORMAT.format(mode):=<{f"{len(SEP_ROW)}"}}'
             out = ['\n' + title + '\n']
             out += [HEADER_ROW]
             out += [SEP_ROW]
@@ -752,7 +745,7 @@ class DistributionsTiming(object):
                     for weight in self.weights:
                         res = resr[weight]
                         t = list(zip(*res))[0 if mode == 'single' else 1]
-                        out += [ROW_FORMAT.format(rmax, str(weight), *t)]
+                        out += [ROW_FORMAT.format(rmax, weight, *t)]
             return out
 
         out += print_benchmark('single')

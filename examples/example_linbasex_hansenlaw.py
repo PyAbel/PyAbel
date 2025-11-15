@@ -54,9 +54,8 @@ ax1.plot(HIM.angular_integration[0],
          'b-', label='hansenlaw')
 ax1.legend(loc=0, labelspacing=0.1, frameon=False, numpoints=1, fontsize=10)
 proj_angles *= 100/np.pi
-ax1.set_title("Beta0 norm an={} un={} inc={} sig={} th={}".
-              format(proj_angles.astype(int), legendre_orders,
-                     radial_step, smoothing, threshold), fontsize=10)
+ax1.set_title(f'Beta0 norm an={proj_angles.astype(int)} un={legendre_orders} '
+              f'inc={radial_step} sig={smoothing} th={threshold}', fontsize=10)
 ax1.axis(ymin=-0.1, ymax=1.2)
 ax1.set_xlabel("radial coordinate (pixels)")
 

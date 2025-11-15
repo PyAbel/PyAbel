@@ -328,11 +328,11 @@ def get_bs_cached(method, cols, basis_dir='', verbose=False):
         if _D.shape[0] >= cols and _method == method:
             if verbose:
                 print('Using memory cached deconvolution operator array,'
-                      ' shape {}'.format(_D.shape))
+                      f' shape {_D.shape}')
             _source = 'cache'
             return _D[:cols, :cols]  # sliced to correct size
 
-    D_name = "{}_basis_{}.npy".format(method, cols)
+    D_name = f'{method}_basis_{cols}.npy'
     D_generator = {
         "onion_peeling": abel.dasch._bs_onion_peeling,
         "three_point": abel.dasch._bs_three_point,
@@ -352,17 +352,15 @@ def get_bs_cached(method, cols, basis_dir='', verbose=False):
             if int(bf.split('_')[-1].split('.')[0]) >= cols:
                 # relies on file order
                 if verbose:
-                    print("Loading deconvolution operator array from"
-                          " file {:s}".format(bf))
+                    print('Loading deconvolution operator array from file', bf)
                 # slice to size
                 _D = np.load(bf)[:cols, :cols]
                 _source = 'file'
                 return _D
 
     if verbose:
-        print("A suitable deconvolution array for '{:s}' was not found.".
-              format(method))
-        print("A new array will be generated.")
+        print(f'A suitable deconvolution array for "{method}" was not found.\n'
+              'A new array will be generated.')
 
     _D = D_generator[method](cols)
     _source = 'generated'
@@ -371,8 +369,8 @@ def get_bs_cached(method, cols, basis_dir='', verbose=False):
         path_to_basis_file = os.path.join(basis_dir, D_name)
         np.save(path_to_basis_file, _D)
         if verbose:
-            print("\ndeconvolution operator array saved to '{:s}"
-                  .format(path_to_basis_file))
+            print('\ndeconvolution operator array saved to'
+                  f' "{path_to_basis_file}"')
 
     return _D
 
@@ -428,7 +426,7 @@ def basis_dir_cleanup(method, basis_dir=''):
         return
 
     if method not in ['onion_peeling', 'three_point', 'two_point']:
-        raise ValueError('Incorrect method "{}"!'.format(method))
+        raise ValueError(f'Incorrect method "{method}"!')
 
     files = glob(os.path.join(basis_dir, method + '_basis_*.npy'))
     for fname in files:

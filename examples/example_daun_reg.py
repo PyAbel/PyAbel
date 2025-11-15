@@ -36,7 +36,7 @@ for i, reg in enumerate(regs):
 
     q = abel.daun.daun_transform(Q, degree=1, reg=reg)
     plt.imshow(q, clim=(-3, 3), cmap='seismic')
-    plt.text(n / 2, 0, 'reg=' + repr(reg), ha='center', va='top')
+    plt.text(n / 2, 0, f'{reg=!r}', ha='center', va='top')
 
     I, _ = abel.tools.vmi.Ibeta(q, origin='ll')
     Is.append(I)

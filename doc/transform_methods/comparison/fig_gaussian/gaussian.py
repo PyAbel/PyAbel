@@ -62,9 +62,9 @@ for row, (label, transFunc) in enumerate(transforms):
 
     axs[row].plot(r, (inverse-func)*error_scale, 'o-', ms=1, color='r',
                   alpha=0.7, lw=1,
-                  label='Error (×%i)' % error_scale if row == 0 else None)
+                  label=f'Error (×{error_scale})' if row == 0 else None)
 
-    axs[row].plot([], [], ' ', label='RMSE = {:.2f}%'.format(rms * 100))
+    axs[row].plot([], [], ' ', label=f'RMSE = {rms * 100:.2f}%')
 
     axs[row].axhline(0, color='k', alpha=0.3, lw=1)
 

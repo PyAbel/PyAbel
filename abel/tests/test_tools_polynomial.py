@@ -178,7 +178,7 @@ def test_approx_gaussian():
     for tol in [5e-2, 1e-2, 1e-3, 1e-4, 1e-6]:
         ag = ApproxGaussian(tol)
         P = PiecewisePolynomial(r, ag.ranges)
-        assert_allclose(P.func, ref, atol=tol, err_msg='-> tol={}'.format(tol))
+        assert_allclose(P.func, ref, atol=tol, err_msg=f'-> {tol=}')
 
     # test scaling
     r = np.arange(100, dtype=float)
@@ -206,7 +206,7 @@ def test_bspline():
         spl = splrep(x, y, k=k, s=0.1)
         ref = splev(r, spl, ext=1)  # (0 outside)
         P = PiecewisePolynomial(r, bspline(spl))
-        assert_allclose(P.func, ref, err_msg='-> splrep, k={}'.format(k))
+        assert_allclose(P.func, ref, err_msg=f'-> splrep, {k=}')
 
     # from BSpline
     for k in [0, 1, 2, 3, 5, 7]:  # all supported degrees up to 7
@@ -223,15 +223,14 @@ def test_bspline():
         ref[np.isnan(ref)] = 0  # (0 outside)
         P = PiecewisePolynomial(r, bspline(spl))
         assert_allclose(P.func, ref, atol=1e-10,
-                        err_msg='-> make_interp_spline, k={}'.format(k))
+                        err_msg=f'-> make_interp_spline, {k=}')
 
     # from UnivariateSpline
     for k in [1, 2, 3, 4, 5]:  # all supported degrees up to 7
         spl = UnivariateSpline(x, y, k=k, s=0.1, ext='zeros')
         ref = spl(r)
         P = PiecewisePolynomial(r, bspline(spl))
-        assert_allclose(P.func, ref,
-                        err_msg='-> UnivariateSpline, k={}'.format(k))
+        assert_allclose(P.func, ref, err_msg=f'-> UnivariateSpline, {k=}')
 
 
 def test_rcos():
@@ -392,9 +391,9 @@ def test_spolynomial_gaussian():
         coef = Angular(1) * ApproxGaussian(tol).scaled(1, 0, sigma)
         P = PiecewiseSPolynomial(r, cos, coef)
         assert_allclose(P.func, ref_func, atol=1.001 * tol,  # with small slack
-                        err_msg='-> func, tol={}'.format(tol))
+                        err_msg=f'-> func, {tol=}')
         assert_allclose(P.abel, ref_abel, atol=0.85 * mul * tol,  # somewhat
-                        err_msg='-> abel, tol={}'.format(tol))    # better
+                        err_msg=f'-> abel, {tol=}')               # better
 
 
 def test_spolynomial_high():
@@ -418,7 +417,7 @@ def test_spolynomial_high():
                              transform_options={'backend': 'Python'}).transform
         assert_allclose(P.abel, ref,
                         atol=np.max(ref) * 5.4e-3,  # 'direct' adds some error
-                        err_msg='-> n={}'.format(n))
+                        err_msg=f'-> {n=}')
 
 
 if __name__ == '__main__':

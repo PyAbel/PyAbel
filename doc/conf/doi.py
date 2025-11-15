@@ -30,14 +30,14 @@ except Exception as e:
                 doi = md['doi']
                 break
         else:
-            raise LookupError('Error: Version {} not found.'.format(ver))
-        print('  Found DOI {} for version {}.'.format(doi, ver))
+            raise LookupError(f'Error: Version {ver} not found.')
+        print(f'  Found DOI {doi} for version {ver}.')
     except Exception as e:
-        print('  {}\n  Using concept DOI {}.'.format(e, doi))
+        print(f'  {e}\n  Using concept DOI {doi}.')
         ver = 'PyAbel'  # don't use specific version
     # write file
     with open(doi_file, 'w') as f:
-        f.write('''\
+        f.write(f'''\
 ..
     DOI for {ver}
     Don't edit this file, it's updated automatically by conf.py!
@@ -45,4 +45,4 @@ except Exception as e:
 .. |doi| replace:: {doi}
 
 .. |doi_link| replace:: `{doi} <https://doi.org/{doi}>`__
-'''.format(ver=ver, doi=doi))
+''')

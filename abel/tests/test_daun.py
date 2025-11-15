@@ -53,7 +53,7 @@ def test_daun_bs():
     for degree in range(4):
         A = _bs_daun(n, degree)
         Aref = daun_bs(n, degree)
-        assert_allclose(A, Aref, err_msg='-> degree = ' + str(degree))
+        assert_allclose(A, Aref, err_msg=f'-> {degree=}')
 
 
 def test_daun_bs_cache():
@@ -70,9 +70,9 @@ def test_daun_bs_cache():
         bs2 = get_bs_cached(n2, degree, direction='forward')
         bs1 = get_bs_cached(n1, degree, direction='forward')
         assert_allclose(bs1, bs1_ref, atol=1e-15,
-                        err_msg='-> forward: n<, degree = {}'.format(degree))
+                        err_msg=f'-> forward: n<, {degree=}')
         assert_allclose(bs2, bs2_ref, atol=1e-15,
-                        err_msg='-> forward: n>, degree = {}'.format(degree))
+                        err_msg=f'-> forward: n>, {degree=}')
 
         # inverse
         for reg_type in [None, 'diff', 'L2', 'nonneg']:
@@ -83,11 +83,9 @@ def test_daun_bs_cache():
             bs2 = get_bs_cached(n2, degree, reg_type, 1)
             bs1 = get_bs_cached(n1, degree, reg_type, 1)
             assert_allclose(bs1, bs1_ref, atol=1e-15,
-                            err_msg='-> inverse: n<, degree = {}, reg_type = {}'.
-                                    format(degree, reg_type))
+                            err_msg=f'-> inverse: n<, {degree=}, {reg_type=}')
             assert_allclose(bs2, bs2_ref, atol=1e-15,
-                            err_msg='-> inverse: n>, degree = {}, reg_type = {}'.
-                                    format(degree, reg_type))
+                            err_msg=f'-> inverse: n>, {degree=}, {reg_type=}')
 
     # changing degree
     for direction in ['forward', 'inverse']:
@@ -98,9 +96,9 @@ def test_daun_bs_cache():
         bs0 = get_bs_cached(n1, 0)
         bs1 = get_bs_cached(n1, 1)
         assert_allclose(bs0, bs0_ref, atol=1e-15,
-                        err_msg='-> {}: degree>'.format(direction))
+                        err_msg=f'-> {direction}: degree>')
         assert_allclose(bs1, bs1_ref, atol=1e-15,
-                        err_msg='-> {}: degree<'.format(direction))
+                        err_msg=f'-> {direction}: degree<')
 
     # changing regularization strength
     bs_ref = []
@@ -116,7 +114,7 @@ def test_daun_bs_cache():
 
 
 def get_basis_file_name(n, degree):
-    return os.path.join(DATA_DIR, 'daun_basis_{}_{}.npy'.format(n, degree))
+    return os.path.join(DATA_DIR, f'daun_basis_{n}_{degree}.npy')
 
 
 def test_daun_bs_disk_cache():
@@ -135,31 +133,31 @@ def test_daun_bs_disk_cache():
     cache_cleanup()
     bs_n1_0 = get_bs_cached(n1, 0, basis_dir=DATA_DIR)
     assert os.path.exists(f_n1_0), \
-           'Basis set n = {}, degree = {} was not saved!'.format(n1, 0)
+           f'Basis set n={n1}, degree=0 was not saved!'
 
     bs_n2_0 = get_bs_cached(n2, 0, basis_dir=DATA_DIR)
     assert os.path.exists(f_n2_0), \
-           'Basis set n = {}, degree = {} was not saved!'.format(n2, 0)
+           f'Basis set n={n2}, degree=0 was not saved!'
 
     bs_n1_1 = get_bs_cached(n1, 1, basis_dir=DATA_DIR)
     assert os.path.exists(f_n1_1), \
-           'Basis set n = {}, degree = {} was not saved!'.format(n1, 1)
+           f'Basis set n={n1}, degree=1 was not saved!'
 
     # loading
     cache_cleanup()
     bs = get_bs_cached(n1, 0, basis_dir=DATA_DIR)
-    assert_allclose(bs_n1_0, bs, err_msg='Loaded basis set ' +
-                    'n = {}, degree = {} differs from saved!'.format(n1, 0))
+    assert_allclose(bs_n1_0, bs, err_msg=f'Loaded basis set n={n1}, degree=0 '
+                                         'differs from saved!')
 
     cache_cleanup()
     bs = get_bs_cached(n2, 0, basis_dir=DATA_DIR)
-    assert_allclose(bs_n2_0, bs, err_msg='Loaded basis set ' +
-                    'n = {}, degree = {} differs from saved!'.format(n2, 0))
+    assert_allclose(bs_n2_0, bs, err_msg=f'Loaded basis set n={n2}, degree=0 '
+                                         'differs from saved!')
 
     cache_cleanup()
     bs = get_bs_cached(n1, 1, basis_dir=DATA_DIR)
-    assert_allclose(bs_n1_1, bs, err_msg='Loaded basis set ' +
-                    'n = {}, degree = {} differs from saved!'.format(n1, 1))
+    assert_allclose(bs_n1_1, bs, err_msg=f'Loaded basis set n={n1}, degree=1 '
+                                         'differs from saved!')
 
     # crop-loading
     os.remove(f_n1_0)
@@ -198,7 +196,7 @@ def test_daun_gaussian():
         recon = daun_transform(tr, degree=degree, verbose=False)
         recon = recon[n // 2 + n % 2]
         assert_allclose(recon, ref.func, atol=tol,
-                        err_msg='-> degree = ' + str(degree))
+                        err_msg=f'-> {degree=}')
 
     for reg, tol in ([None, 2e-3],
                      [1, 1e-3],
@@ -210,7 +208,7 @@ def test_daun_gaussian():
         recon = recon[n // 2 + n % 2]
         skip = 1 if isinstance(reg, tuple) and reg[0] == 'L2' else 0
         assert_allclose(recon[skip:], ref.func[skip:], atol=tol,
-                        err_msg='-> reg = ' + repr(reg))
+                        err_msg=f'-> {reg=!r}')
 
     # test dr
     recon = daun_transform(tr, dr=0.5, verbose=False)[0]
@@ -230,7 +228,7 @@ def test_daun_forward_gaussian():
                               verbose=False)
         proj = proj[n // 2 + n % 2]
         assert_allclose(proj, ref.abel, atol=tol,
-                        err_msg='-> degree = ' + str(degree))
+                        err_msg=f'-> {degree=}')
 
     # test dr
     proj = daun_transform(tr, dr=0.5, direction='forward', verbose=False)[0]

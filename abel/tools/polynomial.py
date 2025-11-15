@@ -20,7 +20,7 @@ See :ref:`Polynomials` for details and examples.
 """
 
 
-class BasePolynomial(object):
+class BasePolynomial:
     """
     Abstract base class for polynomials. Implements multiplication and division
     by numbers. (Addition and subtraction of polynomials are not implemented
@@ -524,7 +524,7 @@ def rcos(rows=None, cols=None, shape=None, origin=None):
     return r, cos
 
 
-class Angular(object):
+class Angular:
     r"""
     Class helping to define angular dependences for :class:`SPolynomial` and
     :class:`PiecewiseSPolynomial`.
@@ -681,10 +681,10 @@ class Angular(object):
         return Angular(self.c / num)
 
     def __repr__(self):
-        return str(self.c) + '.[cos^n]'
+        return f'{self.c}.[cos^n]'
 
 
-class ApproxGaussian(object):
+class ApproxGaussian:
     r"""
     Piecewise quadratic approximation (non-negative and continuous but not
     exactly smooth) of the unit-amplitude, unit-SD Gaussian function

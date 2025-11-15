@@ -48,11 +48,10 @@ def p(n):
 
 plt.plot([0, R - 1, R, R + 1, rmax],
          [0,     0, 1,     0,    0],
-         'k--', label='$b_{}$'.format(R))
-lpR = '$p_{' + str(R) + ';'
-plt.plot(r, p(0), 'b', label=lpR+'0}$')
-plt.plot(r, p(1), 'g', label=lpR+'1}$')
-plt.plot(r, p(2), 'r', label=lpR+'2}$')
+         'k--', label=f'$b_{R}$')
+plt.plot(r, p(0), 'b', label=f'$p_{{{R};0}}$')
+plt.plot(r, p(1), 'g', label=f'$p_{{{R};1}}$')
+plt.plot(r, p(2), 'r', label=f'$p_{{{R};2}}$')
 
 plt.ylim(bottom=0)
 

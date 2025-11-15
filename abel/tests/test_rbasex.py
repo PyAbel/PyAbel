@@ -113,7 +113,7 @@ def run_orders(odd=False):
         # reference forward transform
         abel = hansenlaw_transform(src, direction='forward', hold_order=1)
 
-        param = ', order = {}, odd = {}, '.format(order, odd)
+        param = f', {order=}, {odd=}, '
 
         # test forward transform
         for mode in ['clean', 'cached']:
@@ -135,7 +135,7 @@ def run_orders(odd=False):
                                             reg=reg, out='fold')
                 recon[rmax-2:rmax+3, :2] = 0  # exclude pixels near center
                 assert_allclose(recon, src, atol=0.03,
-                                err_msg='-> reg = ' + str(reg) + param + mode)
+                                err_msg=f'-> {reg=}' + param + mode)
 
 
 def test_rbasex_orders():
@@ -196,7 +196,7 @@ def test_rbasex_pos():
         # with some noise
         abel += 0.05 * np.random.RandomState(0).rand(*abel.shape)
 
-        param = '-> order = {}, '.format(order)
+        param = f'-> {order=}, '
 
         # test inverse transform
         for mode in ['clean', 'cached']:
@@ -244,7 +244,7 @@ def run_out(odd=False):
     abel = Transform(src, direction='forward', method='hansenlaw',
                      transform_options={'hold_order': 1}).transform
 
-    param = '-> odd = {}, '.format(odd)
+    param = f'-> {odd=}, '
 
     # Test forward transform:
 
@@ -305,10 +305,9 @@ def test_rbasex_out_odd():
 
 
 def get_basis_file_name(rmax, order, odd, inv):
-    return os.path.join(DATA_DIR,
-                        'rbasex_basis_{}_{}{}{}.npy'.format(rmax, order,
-                                                            'o' if odd else '',
-                                                            'i' if inv else ''))
+    o = 'o' if odd else ''
+    i = 'i' if inv else ''
+    return os.path.join(DATA_DIR, f'rbasex_basis_{rmax}_{order}{o}{i}.npy')
 
 
 def test_rbasex_bs_cache():

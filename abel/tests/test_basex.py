@@ -12,8 +12,7 @@ DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
 
 def get_basis_file_name(n, sigma):
-    return os.path.join(DATA_DIR,
-                        'basex_basis_{}_{}.npy'.format(n, float(sigma)))
+    return os.path.join(DATA_DIR, f'basex_basis_{n}_{float(sigma)}.npy')
 
 
 def test_basex_basis_sets_cache():

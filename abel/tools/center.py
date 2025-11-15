@@ -323,7 +323,7 @@ def set_center(data, origin, crop='maintain_size', axes=(0, 1), order=3,
                   'centered at', tuple(center_of(out)))
         return out
     else:
-        raise ValueError('Invalid crop option "{}".'.format(crop))
+        raise ValueError(f'Invalid crop option "{crop}".')
 
 
 def find_origin_by_center_of_mass(IM, axes=(0, 1), verbose=False,
@@ -359,12 +359,12 @@ def find_origin_by_center_of_mass(IM, axes=(0, 1), verbose=False,
     origin = tuple(origin)
 
     if verbose:
-        to_print = "Center of mass at {}".format(origin)
+        to_print = f'Center of mass at {origin}'
 
     if round_output:
         origin = (round(origin[0]), round(origin[1]))
         if verbose:
-            to_print += " ... round to {}".format(origin)
+            to_print += f' ... round to {origin}'
 
     if verbose:
         print(to_print)
@@ -476,12 +476,12 @@ def find_origin_by_gaussian_fit(IM, axes=(0, 1), verbose=False,
     origin = tuple(origin)
 
     if verbose:
-        to_print = "Gaussian origin at {}".format(origin)
+        to_print = f'Gaussian origin at {origin}'
 
     if round_output:
         origin = (round(origin[0]), round(origin[1]))
         if verbose:
-            to_print += " ... round to {}".format(origin)
+            to_print += f' ... round to {origin}'
 
     if verbose:
         print(to_print)

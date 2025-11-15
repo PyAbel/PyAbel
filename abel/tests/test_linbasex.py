@@ -152,7 +152,7 @@ def test_linbasex_mean_beta():
 
         beta_mean = abel.linbasex.mean_beta(radial, beta, regions)
 
-        param = 'radial_step={}, clip={}'.format(radial_step, clip)
+        param = f'{radial_step=}, {clip=}'
         assert_allclose(beta_mean[0], ref[0], rtol=I_tol,
                         err_msg=param + ': I')
         assert_allclose(beta_mean[1:], ref[1:], atol=beta_tol,

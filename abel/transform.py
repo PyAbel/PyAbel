@@ -16,7 +16,7 @@ from . import rbasex
 from . import tools
 
 
-class Transform(object):
+class Transform:
     r"""
     Abel transform image class. Also accessible as :class:`abel.Transform`.
 
@@ -483,9 +483,9 @@ class Transform(object):
                                                 **center_options)
 
     def _abel_transform_image(self, **transform_options):
-        self._verboseprint('Calculating {0} Abel transform using {1} method -'
-                          .format(self.direction, self.method),
-                          '\n    image size: {:d}x{:d}'.format(*self.IM.shape))
+        self._verboseprint(f'Calculating {self.direction} Abel transform using'
+                           f' {self.method} method -\n    image size:'
+                           f' {self.IM.shape[0]}x{self.IM.shape[1]}')
         t0 = time.time()
 
         if self.method == "linbasex":
@@ -495,7 +495,7 @@ class Transform(object):
         else:
             self._abel_transform_image_by_quadrant(**transform_options)
 
-        self._verboseprint("{:.2f} seconds".format(time.time() - t0))
+        self._verboseprint(f'{time.time() - t0:.2f} seconds')
 
     def _abel_transform_image_full_linbasex(self, **transform_options):
         self.transform, self.radial, self.Beta, self.projection = \
@@ -519,9 +519,9 @@ class Transform(object):
             "three_point": dasch.three_point_transform,
         }
 
-        self._verboseprint('Calculating {0} Abel transform using {1} method -'
-                          .format(self.direction, self.method),
-                          '\n    image size: {:d}x{:d}'.format(*self.IM.shape))
+        self._verboseprint(f'Calculating {self.direction} Abel transform using'
+                           f' {self.method} method -\n    image size:'
+                           f' {self.IM.shape[0]}x{self.IM.shape[1]}')
 
         t0 = time.time()
 
@@ -556,7 +556,7 @@ class Transform(object):
                                 original_image_shape=self.IM.shape,
                                 symmetry_axis=self._symmetry_axis)
 
-        self._verboseprint("{:.2f} seconds".format(time.time()-t0))
+        self._verboseprint(f'{time.time() - t0:.2f} seconds')
 
     def _integration(self, angular_integration, transform_options,
                      **angular_integration_options):
@@ -644,9 +644,8 @@ def _make_basis_dir():
     try:
         os.makedirs(_basis_dir)
     except Exception as e:
-        print('Cannot create the directory\n"{}"\n'
-              'for saving/loading basis sets:'.format(_basis_dir))
-        raise
+        raise IOError(f'Cannot create the directory\n"{_basis_dir}"\n'
+                      'for saving/loading basis sets:') from e
 
 
 def default_basis_dir():
@@ -752,12 +751,12 @@ def basis_dir_cleanup(basis_dir='', method=None):
         else:
             module = sys.modules.get('abel.' + method)
             if not module:
-                warn('Unknown method "{}"!'.format(method),
+                warn(f'Unknown method "{method}"!',
                      SyntaxWarning, stacklevel=2)
                 continue
             func = getattr(module, 'basis_dir_cleanup', None)
             if func:
                 func(basis_dir)
             else:
-                warn('Method "{}" does not save basis sets.'.format(method),
+                warn(f'Method "{method}" does not save basis sets.',
                      SyntaxWarning, stacklevel=2)

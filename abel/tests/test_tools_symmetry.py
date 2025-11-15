@@ -25,7 +25,7 @@ def test_symmetry_get_put_quadrants(image_shape=(5,5), verbose=False):
 
     if verbose:
         for i, qi in enumerate(q):
-            print("\nreoriented quadrant Q{:d}".format(i))
+            print(f'\nreoriented quadrant Q{i}')
             print(qi)
 
     r = abel.tools.symmetry.put_image_quadrants(q, original_image_shape=z.shape)
@@ -42,7 +42,7 @@ def test_symmetry_get_put_quadrants(image_shape=(5,5), verbose=False):
 
     if verbose:
         for i, qi in enumerate(q):
-            print("\nreoriented quadrant Q{:d}".format(i))
+            print(f'\nreoriented quadrant Q{i}')
             print(qi)
 """
 

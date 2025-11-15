@@ -35,8 +35,7 @@ def test_dasch_deconvolution_array_sources():
     q = abel.tools.symmetry.get_image_quadrants(im)[0]
 
     # clean up any old deconvolution array files
-    fn = os.path.join(DATA_DIR,
-                      'three_point_basis_{}.npy'.format(q.shape[0]))
+    fn = os.path.join(DATA_DIR, f'three_point_basis_{q.shape[0]}.npy')
     if os.path.exists(fn):
         os.remove(fn)
 

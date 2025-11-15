@@ -36,7 +36,7 @@ def test_sample_Gaussian():
                           transform_options={'degree': 3,
                                              'verbose': False}).transform
         assert_allclose(recon, test.func, atol=tol,
-                        err_msg='-> abel, {}'.format(kwargs))
+                        err_msg=f'-> abel, {kwargs}')
 
     # test even size
     n = 10
@@ -101,7 +101,7 @@ def test_sample_Ominus():
                           transform_options={'degree': 3,
                                              'verbose': False}).transform
         assert_allclose(recon, test.func, atol=tol,
-                        err_msg='-> abel, {}'.format(kwargs))
+                        err_msg=f'-> abel, {kwargs}')
 
     # test transform tol
     test = SampleImage(name='Ominus')

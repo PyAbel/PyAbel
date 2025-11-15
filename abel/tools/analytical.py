@@ -9,7 +9,7 @@ import abel
 # impementations.
 
 
-class BaseAnalytical(object):
+class BaseAnalytical:
     r"""
     Base class for functions that have a known Abel transform
     (see :class:`GaussianAnalytical` for a concrete example).
@@ -379,7 +379,7 @@ class TransformPair(BaseAnalytical):
             raise ValueError('Only 1-7 profiles: '
                              'see "abel/tools/transform_pairs.py"')
 
-        self.label = 'profile{}'.format(profile)
+        self.label = f'profile{profile}'
 
         self.profile = getattr(abel.tools.transform_pairs, self.label)
         self.func, self.abel = self.profile(r)

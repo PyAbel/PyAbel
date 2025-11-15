@@ -68,7 +68,7 @@ def radial_intensity(kind, IM, origin=None, dr=1, dt=None):
     elif kind == 'avg3D':
         polarIM *= np.abs(np.sin(T)) / 4
     else:
-        raise ValueError('Incorrect kind={}'.format(kind))
+        raise ValueError(f'Incorrect {kind=}')
 
     # integrate over theta
     dt = T[0, 1] - T[0, 0]  # get the actual number, if dt=None was passed
@@ -416,7 +416,7 @@ def toPES(radial, intensity, energy_cal_factor, per_energy_scaling=True,
     return eBKE[indx], intensity[indx]
 
 
-class Distributions(object):
+class Distributions:
     r"""
     Class for calculating various radial distributions.
 
@@ -577,7 +577,7 @@ class Distributions(object):
         self.origin = origin
         self.rmax_in = rmax
         if order < 0:
-            raise ValueError('Incorrect order={}'.format(order))
+            raise ValueError(f'Incorrect {order=}')
         self.order = order
         if order == 0:
             self.odd = False  # (to eliminate additional checks)
@@ -681,8 +681,8 @@ class Distributions(object):
         if self.ready and shape == self.shape:  # already done
             return
         if self.weights is not None and shape != self.shape:
-            raise ValueError('Image shape {} does not match weights shape {}'.
-                             format(shape, self.shape))
+            raise ValueError(f'Image shape {shape} does not match '
+                             f'weights shape {self.shape}')
 
         height, width = self.shape = shape
 
@@ -704,22 +704,21 @@ class Distributions(object):
                     # extract first letters
                     r, c = [word[0] for word in self.origin.split()]
                 except ValueError:
-                    raise ValueError('Incorrect origin "{}"'.
-                                     format(self.origin))
+                    raise ValueError(f'Incorrect origin "{self.origin}"')
             # vertical
             if   r in ('t', 'u'): row = 0
             elif r == 'c'       : row = height // 2
             elif r in ('b', 'l'): row = height - 1
             else:
-                raise ValueError('Incorrect vertical position in "{}"'.
-                                 format(self.origin))
+                raise ValueError('Incorrect vertical position in '
+                                 f'"{self.origin}"')
             # horizontal
             if   c == 'l': col = 0
             elif c == 'c': col = width // 2
             elif c == 'r': col = width - 1
             else:
-                raise ValueError('Incorrect horizontal position in "{}"'.
-                                 format(self.origin))
+                raise ValueError('Incorrect horizontal position in '
+                                 f'"{self.origin}"')
         # from the other side
         row_ = height - 1 - row
         col_ = width - 1 - col
@@ -744,7 +743,7 @@ class Distributions(object):
         elif rmax_in == 'MAX': rmax = max(HOR, VER)
         elif rmax_in == 'all': rmax = int(np.sqrt(HOR**2 + VER**2))
         else:
-            raise ValueError('Incorrect radial range "{}"'.format(rmax_in))
+            raise ValueError(f'Incorrect radial range "{rmax_in}"')
         self.rmax = rmax
 
         # Folding to one quadrant with origin at [0, 0]
@@ -957,7 +956,7 @@ class Distributions(object):
             pc = np.array(pc).T  # [r, n]
 
         else:
-            raise ValueError('Incorrect method "{}"'.format(self.method))
+            raise ValueError(f'Incorrect method "{self.method}"')
 
         # higher cos powers are not needed any more
         self.c = self.c[:self.N]
@@ -1033,7 +1032,7 @@ class Distributions(object):
 
         self.ready = True
 
-    class Results(object):
+    class Results:
         r"""
         Class for holding the results of image analysis.
 

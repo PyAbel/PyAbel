@@ -35,14 +35,14 @@ IModd = abel.tools.center.center_image(IM, method="convolution",
                                        odd_size=True, square=True)
 
 h, w = IModd.shape
-print("centered image 'data/O2-ANU2048.txt' shape = {:d}x{:d}".format(h, w))
+print(f'centered image "data/O2-ANU2048.txt" shape = {h}x{w}')
 
 # split image into quadrants
 Q = abel.tools.symmetry.get_image_quadrants(IModd, reorient=True)
 
 Q0 = Q[0]
 Q0fresh = Q0.copy()    # keep clean copy
-print("quadrant shape {}".format(Q0.shape))
+print(f'quadrant shape {Q0.shape}')
 
 # Intensity mask used for intensity scale
 #   quadrant image region of bright pixels
@@ -61,12 +61,12 @@ for q, method in enumerate(sorted(transforms.keys())):
 
     Q0 = Q0fresh.copy()   # top-right quadrant of O2- image
 
-    print("\n------- {:s} inverse ...".format(method))
+    print(f'\n------- {method} inverse ...')
     t0 = time()
 
     # inverse Abel transform using 'method'
     IAQ0 = transforms[method](Q0, direction="inverse")
-    print("                    {:.1f} s".format(time()-t0))
+    print(f'                    {time() - t0:.1f} s')
 
     # polar projection and speed profile
     radial, speed = abel.tools.vmi.angular_integration_3D(IAQ0, origin=(-1, 0),
