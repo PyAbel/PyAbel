@@ -34,7 +34,7 @@ class Timent:
     Helper class for measuring execution times.
 
     The constructor only initializes the timing-procedure parameters.
-    Use the :py:meth:`.time` method to run it for particular functions.
+    Use the :meth:`.time` method to run it for particular functions.
 
     Parameters
     ----------
@@ -49,6 +49,11 @@ class Timent:
         Must be positive.
     duration : float
         minimal duration (in seconds) of the measurements.
+
+    Attributes
+    ----------
+    count : int
+        number of measured iterations performed
     """
     def __init__(self, skip=0, repeat=1, duration=0.0):
         self.skip = int(skip)
@@ -61,7 +66,7 @@ class Timent:
         least **duration** seconds (see above), then returns the average time
         per iteration.
         The actual number of measured iterations can be retrieved from
-        :py:attr:`Timent.count`.
+        :attr:`.count`.
 
         Parameters
         ----------
@@ -163,8 +168,8 @@ class AbelTiming:
                 inverse Abel transform
 
         with methods as keys and lists of timings in milliseconds as entries.
-        Timings correspond to array sizes in :py:attr:`AbelTiming.n`; for
-        skipped benchmarks (see **t_max**) they are ``np.nan``.
+        Timings correspond to array sizes in :attr:`.n`; for skipped benchmarks
+        (see **t_max**) they are ``np.nan``.
 
     Notes
     -----
@@ -620,11 +625,10 @@ class DistributionsTiming:
     results : dict of dict of dict of list of tuple of float
         benchmark results — multi-level dictionary, in which
         ``results[method][rmax][weight]`` is the list of timings in
-        milliseconds corresponding to array sizes in
-        :py:attr:`DistributionsTiming.n`. Each timing is a tuple (*t*:sub:`1`,
-        *t*:sub:`∞`) with *t*:sub:`1` corresponding to single-image
-        (non-cached) performance, and *t*:sub:`∞` corresponding to batch
-        (cached) performance.
+        milliseconds corresponding to array sizes in :attr:`.n`. Each timing is
+        a tuple (*t*:sub:`1`, *t*:sub:`∞`) with *t*:sub:`1` corresponding to
+        single-image (non-cached) performance, and *t*:sub:`∞` corresponding to
+        batch (cached) performance.
 
     Notes
     -----

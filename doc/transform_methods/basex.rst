@@ -42,13 +42,13 @@ According to Dribinski et al., BASEX has several advantages:
 How to use it
 -------------
 
-The recommended way to complete the inverse Abel transform using the BASEX algorithm for a full image is to use the :py:class:`abel.Transform <abel.transform.Transform>` class::
+The recommended way to complete the inverse Abel transform using the BASEX algorithm for a full image is to use the :class:`abel.Transform <abel.transform.Transform>` class::
 
     abel.Transform(raw_image, method='basex', direction='inverse').transform
 
-The additional BASEX parameters are described in :py:func:`abel.basex.basex_transform` an can be passed to :class:`Transform <abel.transform.Transform>` using the ``transform_options`` argument.
+The additional BASEX parameters are described in :func:`abel.basex.basex_transform` an can be passed to :class:`~abel.transform.Transform` using the ``transform_options`` argument.
 
-If you would like to access the BASEX algorithm directly (to transform a right-side half-image), you can use :py:func:`abel.basex.basex_transform`.
+If you would like to access the BASEX algorithm directly (to transform a right-side half-image), you can use :func:`abel.basex.basex_transform`.
 
 The behavior of the original `BASEX.exe` program by Karpichev with top–bottom symmetry and the “narrow” basis set can be reproduced as follows::
 
