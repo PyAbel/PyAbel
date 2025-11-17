@@ -196,7 +196,9 @@ class AbelTiming:
             'basex',
             'daun',
             'direct_C',
+            'direct_C_new',
             'direct_Python',
+            'direct_Py_new',
             'hansenlaw',
             'onion_bordas',
             'onion_peeling',
@@ -211,7 +213,7 @@ class AbelTiming:
         all_methods = need_half | need_whole
         # remove direct_C, if not supported
         if not direct.cython_ext:
-            all_methods = all_methods - frozenset(['direct_C'])
+            all_methods = all_methods - frozenset(['direct_C', 'direct_C_new'])
 
         # Select methods
         if 'all' in select:
@@ -438,11 +440,26 @@ class AbelTiming:
                             direct.direct_transform,
                             self.half_image, direction=direction, backend='C')
 
+    @_skip((['inverse', 'forward'], 'direct_C_new'))
+    def _time_direct_C_new(self):
+        for direction in ['inverse', 'forward']:
+            self._benchmark(direction, 'direct_C_new',
+                            direct.direct_transform_new,
+                            self.half_image, direction=direction, backend='C')
+
     @_skip((['inverse', 'forward'], 'direct_Python'))
     def _time_direct_Python(self):
         for direction in ['inverse', 'forward']:
             self._benchmark(direction, 'direct_Python',
                             direct.direct_transform,
+                            self.half_image, direction=direction,
+                            backend='python')
+
+    @_skip((['inverse', 'forward'], 'direct_Py_new'))
+    def _time_direct_Py_new(self):
+        for direction in ['inverse', 'forward']:
+            self._benchmark(direction, 'direct_Py_new',
+                            direct.direct_transform_new,
                             self.half_image, direction=direction,
                             backend='python')
 
