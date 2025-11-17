@@ -58,6 +58,38 @@ def gradient(f, x=None, dx=1, axis=-1):
         return np.dot(I / H, f.T).T
 
 
+def trapezoid_new(f, x):
+    """
+    Trapezoidal-rule integration along each row of 2D array **f**, with
+    coordinates corresponding to each column given by 1D array **x**.
+
+    This function is a faster equivalent of :func:`numpy.trapezoid` (called
+    ``numpy.trapz()`` before NumPy 2.0) and is used for integration in
+    :func:`abel.direct.direct_transform_new` by default.
+
+    Parameters
+    ----------
+    f : numpy 2D array
+        integrand
+
+    x : numpy 1D array
+        coordinates corresponding to columns of **f**
+
+    Returns
+    -------
+    out : numpy 1D array
+        integrals for each row
+    """
+    if x.size < 2:
+        return np.zeros(f.shape[0], dtype=f.dtype)
+    dx = np.empty_like(x)
+    dx[0] = x[1] - x[0]     # left endpoint: forward difference
+    dx[-1] = x[-1] - x[-2]  # right endpoint: backwards difference
+    if x.size > 2:          # interior points: central difference (doubled)
+        dx[1:-1] = x[2:] - x[:-2]
+    return f.dot(dx / 2)
+
+
 def gaussian(x, a, mu, sigma, c):
     r"""
     `Gaussian function <https://en.wikipedia.org/wiki/Gaussian_function>`_

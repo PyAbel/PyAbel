@@ -1,14 +1,17 @@
+from warnings import warn
+
 import numpy as np
 if hasattr(np, 'trapezoid'):  # numpy >= 2
     trapezoid = np.trapezoid
 else:
     trapezoid = np.trapz
-from .tools.math import gradient
 
+from . import _deprecate
+from .tools.math import gradient, trapezoid_new
 try:
-    from .lib.direct import _cabel_direct_integral
+    from .lib.direct import _cabel_direct_integral, _cabel_direct_integral_new
     cython_ext = True
-except (ImportError, UnicodeDecodeError):
+except ImportError:
     cython_ext = False
 
 ###########################################################################
@@ -236,3 +239,185 @@ def is_uniform_sampling(r):
     dr = np.diff(r)
     ddr = np.diff(dr)
     return np.allclose(ddr, 0, atol=1e-13)
+
+
+def direct_transform_new(f, dr=None, r=None, direction='inverse',
+                         derivative=None, integral=None, correction=True,
+                         backend='C', **kwargs):
+    """
+    This algorithm performs a :doc:`direct computation
+    <transform_methods/direct>` of the Abel transform integrals.
+
+    The direct method is implemented both in Python and as a Cython extension,
+    compiled through C to machine code and thus working much faster. The
+    implementation can be selected using the **backend** argument. (See the
+    installation details in README if the C backend is not available.)
+
+    Parameters
+    ----------
+    f : numpy 1D or 2D darray
+        input array to which the Abel transform will be applied. For a 2D
+        array, the first dimension (rows) is assumed to be the :math:`z` axis,
+        and the second (columns) the :math:`r` axis.
+    dr : float, optional
+        mesh step for uniformly sampled data (default is 1)
+    r : numpy 1D array, optional
+        possibly non-uniform mesh along the :math:`r` axis (default is uniform
+        with **dr** step size). Must start at ``r[0] = 0`` and be strictly
+        increasing.
+    direction : str, optional
+        ``'forward'`` or ``'inverse'`` (default): determines which Abel
+        transform will be applied
+    derivative : callable, optional
+        function that will be called as ``derivative(f, r)`` and should return
+        the derivative of ``f`` with respect to ``r`` (by default, the
+        derivative is computed as :func:`numpy.gradient(f, r, axis=-1)
+        <numpy.gradient>`). Only used in the inverse Abel transform.
+    integral : callable, optional
+        function that will be called like ``integral(f, r)`` and should return
+        ``f`` integrated over ``r`` row by row. Only used by the Python backend
+        (:func:`abel.tools.math.trapezoid_new` by default); the C backend
+        always uses the trapezoidal rule.
+    correction : bool, optional
+        If ``False``, the pixel where the Abel integrand has a singularity is
+        simply skipped, causing a systematic underestimation of the Abel
+        transform.
+        If ``True`` (default), integration near the singularity is performed
+        analytically, by assuming that the data is linear across that pixel.
+    backend : str, optional
+        select the implementation (case-insensitive):
+
+        ``'C'``:
+            compiled Cython extension. Is faster and used by default, with a
+            fallback to ``'Python'`` if the extension is not available.
+        ``'Python'``:
+            Python, using NumPy. Slower but allows custom **integral** and is
+            always available.
+
+        Both implementations produce identical results (within numerical
+        errors).
+
+    Returns
+    -------
+    out : numpy 1D or 2D array
+        the forward or inverse Abel transform of **f**, with the same shape
+    """
+    g = np.atleast_2d(f.copy())
+
+    if dr is not None and r is not None:
+        raise ValueError('Specifying both dr and r is meaningless.')
+    if r is None:  # use dr
+        r = np.arange(g.shape[1], dtype=float)
+        if dr is not None:
+            r *= dr
+    else:  # use r
+        if np.ndim(r) != 1:
+            raise ValueError(f'r must be a 1D array (got {r!r}).')
+        if r.shape != (g.shape[1],):
+            raise ValueError(f'The length of r ({r.shape[0]}) does not match '
+                             f'the numer of columns in f ({g.shape[1]}).')
+        if r[0] != 0:
+            _deprecate('r[0] must be zero. If you imply that f is flat near '
+                       'the axis, use r[0] = 0 and f[:, 0] = f[:, 1].')
+
+    if direction == 'inverse':
+        if derivative is None:
+            g = np.gradient(g, r, axis=-1)
+        else:
+            try:
+                g = derivative(g, r)
+            except TypeError:
+                _deprecate('Passing one-argument derivative function to '
+                           'abel.direct.direct_transform() is deprecated.')
+                g = derivative(g) / (r[1] - r[0])  # assuming uniform
+        g /= -np.pi
+    else:  # 'forward'
+        g *= 2 * r[None, :]
+
+    backend = backend.lower()
+
+    if backend == 'c' and not cython_ext:
+        warn('Cython extensions were not built, the C backend is not '
+             'available! Falling back to the Python backend...',
+             RuntimeWarning, stacklevel=2)
+        backend = 'python'
+
+    if backend == 'c':
+        if integral is not None:
+            warn('C backend ignores the integral argument; to use it, '
+                 'specify backed="Python"',
+                 RuntimeWarning, stacklevel=2)
+        g = np.asarray(g, order='C', dtype=float)
+        out = _cabel_direct_integral_new(g, r, int(correction))
+    elif backend == 'python':
+        out = _pyabel_direct_integral_new(g, r, correction,
+                                          integral or trapezoid_new)
+    else:
+        raise ValueError(f'backend must be "C" or "Python" (got {backend!r})')
+
+    if out.shape[0] == 1:
+        return out[0]
+    return out
+
+
+def _pyabel_direct_integral_new(g, x, correction, integral):
+    """
+    Calculation of the integral
+               ∞
+               ⌠     g(x)
+        G(r) = ⎮ ──────────── dx
+               ⎮   _________
+               ⌡  √ x² − r²
+               r
+    used in the forward and inverse Abel transforms.
+
+    Parameters
+    ----------
+    g : numpy 2D array
+        array with function values, indexed by (row, column)
+    x : numpy 1D array
+        array with corresponding coordinates, indexed by columns
+    correction : bool
+        if ``False``, the singularity at :math:`x = r` is skipped; otherwise,
+        the singularity is integrated using local linear approximation for
+        :math:`g(x)`
+    integral : callable
+        function for numerical integration
+
+    Returns:
+    --------
+    G : numpy 2D array
+        array of the same shape as g, with the integral evaluated for each row
+        and each r value from the x array
+    """
+    cols = g.shape[1]
+
+    mask = x[:, None] < x  # where r < x
+    # y = sqrt(x^2 - r^2)
+    y = np.zeros((cols, cols), dtype=float)
+    y[mask] = np.sqrt((x**2 - x[:, None]**2)[mask])
+    # y^{-1} = 1 / y
+    y_1 = np.zeros_like(y)
+    y_1[mask] = 1 / y[mask]
+
+    out = np.empty_like(g)
+
+    # Integration for x > r (skipping the singularity)
+    for j in range(cols - 2):
+        out[:, j] = integral(g[:, j+1:] * y_1[j, j+1:], x[j+1:])
+    # ?? correct for the extra triangle at the start of the integral
+    out[:, -2] = integral(g[:, -2:] * y_1[-2, -2:], x[-2:]) / 2
+    out[:, -1] = 0  # (last column is always singular)
+
+    # Integration of the segment with x = r, assuming that g is linear there
+    if correction:
+        # slopes of g
+        dg = (g[:, 1:] - g[:, :-1]) / (x[1:] - x[:-1])
+        # superdiagonal of y
+        yd = np.sqrt(x[1:]**2 - x[:-1]**2)
+        # hyperbolic arccosines
+        ach = np.append(1, np.arccosh(x[2:] / x[1:-1]))
+        # add integrated segments to previous truncated integrals
+        out[:, :-1] += ach * g[:, :-1] + (yd - ach * x[:-1]) * dg
+
+    return out
