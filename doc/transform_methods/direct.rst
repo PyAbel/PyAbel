@@ -29,3 +29,29 @@ To complete the forward or inverse transform of a full image with the direct met
 
 
 If you would like to access the Direct algorithm directly (to transform a right-side half-image), you can use :func:`abel.direct.direct_transform`.
+
+
+Examples
+--------
+
+
+Non-uniform sampling
+^^^^^^^^^^^^^^^^^^^^
+
+.. plot:: ../examples/example_direct_nonuniform.py
+
+.. admonition:: Source code
+    :collapsible: closed
+
+    .. literalinclude:: /../examples/example_direct_nonuniform.py
+
+
+Custom differentiation and integration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. plot:: ../examples/example_direct_custom.py
+
+.. admonition:: Source code
+    :collapsible: closed
+
+    .. literalinclude:: /../examples/example_direct_custom.py
