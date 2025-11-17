@@ -30,19 +30,22 @@ try:
     import numpy
     from Cython.Compiler import Options
     Options.annotate = False  # don't create HTML
+    libraries = []
+    extra_link_args = []
     if sys.platform == 'win32':  # for MSVC
-        libraries = []
-        extra_compile_args = ['/Ox', '/fp:fast']
+        extra_compile_args = ['/Ox', '/fp:fast', '/openmp']
     else:  # for GCC and Clang
-        libraries = ["m"]
-        extra_compile_args = ['-O3', '-ffast-math', '-g0']
+        libraries = ['m']
+        extra_compile_args = ['-O3', '-ffast-math', '-fopenmp', '-g0']
+        extra_link_args = ['-fopenmp']
     ext_modules = [
-	# ("Path" below is a workaround for Setuptools bug on Windows,
-	#  see https://github.com/pypa/setuptools/issues/5093)
+        # ("Path" below is a workaround for Setuptools bug on Windows,
+        #  see https://github.com/pypa/setuptools/issues/5093)
         Extension('abel.lib.direct', [Path('abel/lib/direct.pyx')],
                   include_dirs=[numpy.get_include()],
                   libraries=libraries,
-                  extra_compile_args=extra_compile_args)
+                  extra_compile_args=extra_compile_args,
+                  extra_link_args=extra_link_args)
     ]
 except ImportError:
     ext_modules = None
