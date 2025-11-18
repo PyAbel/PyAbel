@@ -36,8 +36,10 @@ try:
         extra_compile_args = ['/Ox', '/fp:fast', '/openmp']
     else:  # for GCC and Clang
         libraries = ['m']
-        extra_compile_args = ['-O3', '-ffast-math', '-fopenmp', '-g0']
-        extra_link_args = ['-fopenmp']
+        extra_compile_args = ['-O3', '-ffast-math', '-g0']
+        if sys.platform != 'darwin':  # macOS has no OpenMP by default
+            extra_compile_args += ['-fopenmp']
+            extra_link_args = ['-fopenmp']
     ext_modules = [
         # ("Path" below is a workaround for Setuptools bug on Windows,
         #  see https://github.com/pypa/setuptools/issues/5093)
