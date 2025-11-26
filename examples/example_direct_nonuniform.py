@@ -5,8 +5,8 @@ from abel.direct import direct_transform_new
 
 # a Gaussian sampled on a non-uniform grid (denser in more curved regions)
 n = 30
-r = np.cumsum(np.sin(np.arange(n) / 5)**2 + 0.5) / 10
-r -= r[0]  # (r must start at 0)
+r = np.linspace(0, 3, n)
+r -= 0.5 * np.sin(r * 4) / 4
 f = np.exp(-r**2)
 
 ref = GaussianAnalytical(100, r[-1], symmetric=False)
