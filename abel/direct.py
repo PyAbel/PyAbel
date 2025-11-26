@@ -360,14 +360,14 @@ def direct_transform_new(f, dr=None, r=None, direction='inverse',
     return out
 
 
-def _pyabel_direct_integral_new(g, x, correction, integral):
+def _pyabel_direct_integral_new(g, r, correction, integral):
     """
     Calculation of the integral
                ∞
-               ⌠     g(x)
-        G(r) = ⎮ ──────────── dx
+               ⌠     g(r)
+        G(x) = ⎮ ──────────── dr
                ⎮   _________
-               ⌡  √ x² − r²
+               ⌡  √ r² − x²
                r
     used in the forward and inverse Abel transforms.
 
@@ -375,12 +375,12 @@ def _pyabel_direct_integral_new(g, x, correction, integral):
     ----------
     g : numpy 2D array
         array with function values, indexed by (row, column)
-    x : numpy 1D array
+    r : numpy 1D array
         array with corresponding coordinates, indexed by columns
     correction : bool
-        if ``False``, the singularity at :math:`x = r` is skipped; otherwise,
+        if ``False``, the singularity at :math:`r = x` is skipped; otherwise,
         the singularity is integrated using local linear approximation for
-        :math:`g(x)`
+        :math:`g(r)`
     integral : callable
         function for numerical integration
 
@@ -388,36 +388,37 @@ def _pyabel_direct_integral_new(g, x, correction, integral):
     --------
     G : numpy 2D array
         array of the same shape as g, with the integral evaluated for each row
-        and each r value from the x array
+        and each x value from the r array
     """
     cols = g.shape[1]
 
-    mask = x[:, None] < x  # where r < x
-    # y = sqrt(x^2 - r^2)
+    x = r[:, None]
+    mask = r > x
+    # y = sqrt(r^2 - x^2)
     y = np.zeros((cols, cols), dtype=float)
-    y[mask] = np.sqrt((x**2 - x[:, None]**2)[mask])
+    y[mask] = np.sqrt((r**2 - x**2)[mask])
     # y^{-1} = 1 / y
     y_1 = np.zeros_like(y)
     y_1[mask] = 1 / y[mask]
 
     out = np.empty_like(g)
 
-    # Integration for x > r (skipping the singularity)
+    # Integration for r > x (skipping the singularity)
     for j in range(cols - 2):
-        out[:, j] = integral(g[:, j+1:] * y_1[j, j+1:], x[j+1:])
+        out[:, j] = integral(g[:, j+1:] * y_1[j, j+1:], r[j+1:])
     # ?? correct for the extra triangle at the start of the integral
-    out[:, -2] = integral(g[:, -2:] * y_1[-2, -2:], x[-2:]) / 2
+    out[:, -2] = integral(g[:, -2:] * y_1[-2, -2:], r[-2:]) / 2
     out[:, -1] = 0  # (last column is always singular)
 
-    # Integration of the segment with x = r, assuming that g is linear there
+    # Integration of the segment with r = x, assuming that g is linear there
     if correction:
         # slopes of g
-        dg = (g[:, 1:] - g[:, :-1]) / (x[1:] - x[:-1])
+        dg = (g[:, 1:] - g[:, :-1]) / (r[1:] - r[:-1])
         # superdiagonal of y
-        yd = np.sqrt(x[1:]**2 - x[:-1]**2)
+        yd = np.sqrt(r[1:]**2 - r[:-1]**2)
         # hyperbolic arccosines
-        ach = np.append(1, np.arccosh(x[2:] / x[1:-1]))
+        ach = np.append(1, np.arccosh(r[2:] / r[1:-1]))
         # add integrated segments to previous truncated integrals
-        out[:, :-1] += ach * g[:, :-1] + (yd - ach * x[:-1]) * dg
+        out[:, :-1] += ach * g[:, :-1] + (yd - ach * r[:-1]) * dg
 
     return out
