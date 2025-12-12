@@ -158,8 +158,8 @@ cpdef _cabel_direct_integral_new(const double[:, ::1] g, const double[::1] r,
                 if j + 1 < cols and correction:
                     # Integration of the singularity at r = x (k = j), assuming
                     # linear behaviour of g(r) between r[j] and r[j+1]
-                    if j == 0:  # x = r[0] = 0, g[i, 0] = 0
-                        s = s + g[i, j+1]
+                    if r[j] == 0:  # r = 0 ==> j = 0, g[i, 0] = 0
+                        s = s + g[i, 1]
                     else:
                         s = s + ((g[i, j] * r[j+1] - g[i, j+1] * r[j]) *
                                  log((r[j+1] + y[j, j+1]) / r[j]) +

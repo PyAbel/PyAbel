@@ -262,9 +262,8 @@ def direct_transform_new(f, dr=None, r=None, direction='inverse',
     dr : float, optional
         mesh step for uniformly sampled data (default is 1)
     r : numpy 1D array, optional
-        possibly non-uniform mesh along the :math:`r` axis (default is uniform
-        with **dr** step size). Must start at ``r[0] = 0`` and be strictly
-        increasing.
+        possibly non-uniform mesh along the :math:`r` axis (default is uniform,
+        starting at 0 and with **dr** step size). Must be strictly increasing.
     direction : str, optional
         ``'forward'`` or ``'inverse'`` (default): determines which Abel
         transform will be applied
@@ -316,9 +315,6 @@ def direct_transform_new(f, dr=None, r=None, direction='inverse',
         if r.shape != (g.shape[1],):
             raise ValueError(f'The length of r ({r.shape[0]}) does not match '
                              f'the numer of columns in f ({g.shape[1]}).')
-        if r[0] != 0:
-            _deprecate('r[0] must be zero. If you imply that f is flat near '
-                       'the axis, use r[0] = 0 and f[:, 0] = f[:, 1].')
 
     if direction == 'inverse':
         if derivative is None:
@@ -417,7 +413,8 @@ def _pyabel_direct_integral_new(g, r, correction, integral):
         # superdiagonal of y
         yd = np.sqrt(r[1:]**2 - r[:-1]**2)
         # hyperbolic arccosines
-        ach = np.append(1, np.arccosh(r[2:] / r[1:-1]))
+        ach = np.append(np.arccosh(r[1] / r[0]) if r[0] else 1,
+                        np.arccosh(r[2:] / r[1:-1]))
         # add integrated segments to previous truncated integrals
         out[:, :-1] += ach * g[:, :-1] + (yd - ach * r[:-1]) * dg
 

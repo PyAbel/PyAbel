@@ -76,6 +76,19 @@ Examples
 --------
 
 
+Incomplete data
+^^^^^^^^^^^^^^^
+
+The transform integral for any :math:`x` depends only on the function at :math:`r \geqslant x`, thus it is possible to transform incomplete data, with the signal near the symmetry axis unavailable or contaminated. (See also :doc:`../example_rbasex_block`.)
+
+.. plot:: ../examples/example_direct_rmin.py
+
+.. admonition:: Source code ▾
+    :collapsible: closed
+
+    .. literalinclude:: /../examples/example_direct_rmin.py
+
+
 Non-uniform sampling
 ^^^^^^^^^^^^^^^^^^^^
 
