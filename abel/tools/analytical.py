@@ -328,6 +328,8 @@ class TransformPair(BaseAnalytical):
     `Spectrochimica Acta B 61, 31–41 (2006)
     <https://doi.org/10.1016/j.sab.2005.11.009>`_.
 
+    **profiles 8--9**: Adaptations of profile 5 (step function) to pixel data.
+
     See :mod:`abel.tools.transform_pairs`.
 
 
@@ -362,7 +364,7 @@ class TransformPair(BaseAnalytical):
             number of points along the r axis
 
         profile: int
-            the profile number 1-7, see 'abel/tools/transform_pairs.py'
+            the profile number 1-9, see 'abel/tools/transform_pairs.py'
 
         """
 
@@ -375,8 +377,8 @@ class TransformPair(BaseAnalytical):
         r[0] = 1.0e-8
         r[-1] -= 1.0e-8
 
-        if profile > 7:
-            raise ValueError('Only 1-7 profiles: '
+        if profile > 9:
+            raise ValueError('Only 1-9 profiles: '
                              'see "abel/tools/transform_pairs.py"')
 
         self.label = f'profile{profile}'

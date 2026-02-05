@@ -25,6 +25,9 @@ profiles 1--7:
     `Spectrochimica Acta B 61, 31–41 (2006)
     <https://doi.org/10.1016/j.sab.2005.11.009>`_, Table 1.
 
+profiles 8--9:
+    Adaptations of profile 5 (step function) to pixel data.
+
 Note:
     the transform pair functions are more conveniently accessed through
     :class:`abel.tools.analytical.TransformPair`::
@@ -382,9 +385,11 @@ def profile5(r):
 
     Note:
         This profile is discontinuous (and its projection is not smooth) at
-        :math:`r = 1`, which can cause different problems in different methods,
-        in particular, depending on their assumptions where the singularity is
-        located within the last pixel.
+        :math:`r = 1`, which is in the *middle* of the last pixel and thus can
+        cause different problems in different methods, in particular, depending
+        on their assumptions where the singularity is located within that
+        pixel. See also :func:`profile8` and :func:`profile9`, which have the
+        discontinuity at the inner or outer edge of the last pixel.
 
     .. math::
 
@@ -516,5 +521,113 @@ def profile7(r):
 
     source = (1 + 10*r**2 - 23*r**4 + 12*r**6)/2
     projection = a(1, r)*(19 + 34*r**2 - 125*r**4 + 72*r**6)*8/105
+
+    return source, projection
+
+
+def profile8(r):
+    r"""**profile8**:
+    Similar to :func:`profile5` but has the step located at the inner edge of
+    the last pixel instead of its middle, making it more compatible with
+    :ref:`PyAbel conventions <READMEconventions>`.
+
+    Note:
+        This profile is discontinuous (and its projection is not smooth) at
+        :math:`r = 1 - dr/2`, which can cause different problems in different
+        methods, depending on their assumptions about the function behavior
+        between sampling points.
+
+    .. math::
+
+        \epsilon(r) &= 1 & 0 \le r \le 1 - dr/2
+
+        I(r) &= 2a_{1-dr/2} & 0 \le r \le 1 - dr/2
+
+    ..
+              source                projection
+        ┼+2.1                  ┼+2.1               
+        │                      │     o o           
+        │                      │         o o       
+        │                      │             o     
+        │                      │                   
+        │                      │               o   
+        x x x x x x x x x x    │                   
+        │                      │                 o 
+        │                      │                   
+        │                      │                   
+        ┼+0────────────────x   ┼+0────────────────o
+        0          r      +1   0          r      +1
+
+    .. plot::
+
+        from tools.transform_pairs import plot
+        plot(8)
+    """
+
+    if np.any(r < 0) or np.any(r > 1):
+        raise ValueError('r must be 0 <= r <= 1')
+
+    if not hasattr(r, '__len__'):
+        r = np.asarray([r])
+
+    source = np.ones_like(r)
+    source[-1] = 0
+    dr = r[-1] - r[-2]
+    projection = np.zeros_like(r)
+    projection[:-1] = 2*a(1 - dr/2, r[:-1])
+
+    return source, projection
+
+
+def profile9(r):
+    r"""**profile9**:
+    Similar to :func:`profile5` but has the step located at the outer edge of
+    the last pixel instead of its middle, making it more compatible with
+    :ref:`PyAbel conventions <READMEconventions>`.
+
+    Note:
+        This profile is discontinuous (and its projection is not smooth) at
+        :math:`r = 1 + dr/2`, which can cause different problems in different
+        methods, depending on their assumptions about the function behavior
+        between sampling points. Also, the last pixel has a non-zero intensity,
+        which can lead to different results, depending on implicit assumptions
+        about the function beyond the sampled range.
+
+    .. math::
+
+        \epsilon(r) &= 1 & 0 \le r \le 1 + dr/2
+
+        I(r) &= 2a_{1+dr/2} & 0 \le r \le 1 + dr/2
+
+    ..
+              source                projection
+        ┼+2.1                  ┼+2.1               
+        │                      │     o o           
+        │                      │         o o       
+        │                      │             o     
+        │                      │               o   
+        │                      │                   
+        x x x x x x x x x x    │                 o 
+        │                      │                   
+        │                      │                   
+        │                      │                  o
+        ┼+0────────────────+   ┼+0─────────────────
+        0          r      +1   0          r      +1
+
+    .. plot::
+
+        from tools.transform_pairs import plot
+        plot(9)
+    """
+
+    if np.any(r < 0) or np.any(r > 1):
+        raise ValueError('r must be 0 <= r <= 1')
+
+    if not hasattr(r, '__len__'):
+        r = np.asarray([r])
+
+    source = np.ones_like(r)
+    dr = r[-1] - r[-2]
+    projection = 2*a(1 + dr/2, r)
 
     return source, projection
