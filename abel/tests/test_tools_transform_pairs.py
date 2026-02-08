@@ -10,7 +10,7 @@ def test_transform_pairs():
     """
     n = 101  # dr = 0.01
 
-    for i in range(1, 8):
+    for i in range(1, 10):
         pair = TransformPair(n, profile=i)
         proj = daun_transform(pair.func, degree=3, direction='forward',
                               dr=pair.dr, verbose=False)
@@ -22,6 +22,8 @@ def test_transform_pairs():
         elif i == 5:  # harsh
             tol = 0.05
             clip = -2
+        elif i >= 8:  # less harsh variants of 5
+            tol = 0.03
 
         assert_allclose(pair.abel[:clip], proj[:clip], atol=tol,
                         err_msg='-> ' + pair.label)

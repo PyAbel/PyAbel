@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 if hasattr(np, 'trapezoid'):  # numpy >= 2
     trapezoid = np.trapezoid
@@ -6,7 +7,7 @@ else:
 from abel.tools.polar import reproject_image_into_polar
 from scipy.ndimage import map_coordinates, uniform_filter1d, shift
 from scipy.optimize import curve_fit
-from scipy.linalg import hankel, inv, pascal
+from scipy.linalg import hankel, inv, pascal, LinAlgError, LinAlgWarning
 from scipy.special import legendre
 
 
@@ -1009,7 +1010,7 @@ class Distributions:
                         raise np.linalg.LinAlgError
                     C[:m, :m] = Pi  # (this is faster than np.pad)
                     return C
-                except np.linalg.LinAlgError:
+                except (LinAlgError, LinAlgWarning):
                     pass  # try lower rank
             # rank <= 1
             if P[0, 0] != 0:
@@ -1024,8 +1025,12 @@ class Distributions:
         elif self.N == 3:
             self.C = np.array([inv3(p) for p in pc])
         else:
-            self.C = np.array([invn(hankel(p[:self.N], p[self.N - 1:]))
-                               for p in pc])
+            # SciPy >= 1.17 shows "ill-conditioned" warning for near-degenerate
+            # matrices; treat them as errors instead (see above why)
+            with warnings.catch_warnings():
+                warnings.simplefilter('error', category=LinAlgWarning)
+                self.C = np.array([invn(hankel(p[:self.N], p[self.N - 1:]))
+                                   for p in pc])
 
         # valid radii
         self.valid = (self.C[:, 0, 0] != 0)
