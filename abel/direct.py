@@ -115,9 +115,8 @@ def direct_transform(f, dr=None, r=None, direction='inverse', derivative=None,
     backend = backend.lower()
 
     if backend == 'c' and not cython_ext:
-        warn('Cython extensions were not built, the C backend is not '
-             'available! Falling back to the Python backend...',
-             RuntimeWarning, stacklevel=2)
+        print('Cython extensions were not built, the C backend is not '
+              'available! Falling back to the Python backend...')
         backend = 'python'
 
     if backend == 'c':
