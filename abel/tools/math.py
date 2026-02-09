@@ -58,14 +58,14 @@ def gradient(f, x=None, dx=1, axis=-1):
         return np.dot(I / H, f.T).T
 
 
-def trapezoid_new(f, x):
+def trapezoid(f, x):
     """
     Trapezoidal-rule integration along each row of 2D array **f**, with
     coordinates corresponding to each column given by 1D array **x**.
 
     This function is a faster equivalent of :func:`numpy.trapezoid` (called
     ``numpy.trapz()`` before NumPy 2.0) and is used for integration in
-    :func:`abel.direct.direct_transform_new` by default.
+    :func:`abel.direct.direct_transform` by default.
 
     Parameters
     ----------
