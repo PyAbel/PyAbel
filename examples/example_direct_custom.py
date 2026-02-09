@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 import matplotlib.pyplot as plt
 from abel.tools.analytical import TransformPair
-from abel.direct import direct_transform_new
+from abel.direct import direct_transform
 
 ref = TransformPair(100, profile=6)
 noise = 0.05  # RMS intensity of additive noise
@@ -22,7 +22,7 @@ plt.xlim(0, 1)
 plt.legend()
 
 # inverse transform using default differentiation and integration
-default = direct_transform_new(noisy_abel, r=ref.r, direction='inverse')
+default = direct_transform(noisy_abel, r=ref.r, direction='inverse')
 
 # example of a custom derivative function
 def derivative(f, x):
@@ -39,9 +39,9 @@ def integral(f, x):
     return scipy.integrate.simpson(f, x, axis=1)
 
 # inverse transform using custom derivative and integral
-custom = direct_transform_new(noisy_abel, r=ref.r, direction='inverse',
-                              derivative=derivative, integral=integral,
-                              backend='Python')
+custom = direct_transform(noisy_abel, r=ref.r, direction='inverse',
+                          derivative=derivative, integral=integral,
+                          backend='Python')
 
 plt.subplot(122)
 plt.title('Inverse Abel transform')

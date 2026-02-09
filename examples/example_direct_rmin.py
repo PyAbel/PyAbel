@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from abel.direct import direct_transform_new
+from abel.direct import direct_transform
 from abel.tools.analytical import TransformPair
 
 ref = TransformPair(n=100, profile=4)
@@ -11,7 +11,7 @@ cut_r = ref.r[n_min:]
 cut_abel = ref.abel[n_min:]
 
 # inverse Abel transform for r > r_min
-cut_res = direct_transform_new(cut_abel, r=cut_r, direction='inverse')
+cut_res = direct_transform(cut_abel, r=cut_r, direction='inverse')
 
 plt.figure(figsize=(6, 4))
 plt.title('Inverse Abel transform of incomplete data')

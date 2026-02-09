@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from abel.tools.analytical import GaussianAnalytical
-from abel.direct import direct_transform_new
+from abel.direct import direct_transform
 
 # a Gaussian sampled on a non-uniform grid (denser in more curved regions)
 n = 30
@@ -15,7 +15,7 @@ plt.figure(figsize=(8, 4))
 
 plt.subplot(121)
 plt.title('Forward transform')
-fabel = direct_transform_new(f, r=r, direction='forward')
+fabel = direct_transform(f, r=r, direction='forward')
 plt.xlabel('Radius')
 plt.ylabel('Intensity')
 plt.vlines(r, 0, fabel, lw=0.5, colors='0.8')
@@ -27,7 +27,7 @@ plt.legend()
 plt.subplot(122)
 plt.title('Inverse transform')
 f *= ref.abel[0]
-iabel = direct_transform_new(f, r=r, direction='inverse')
+iabel = direct_transform(f, r=r, direction='inverse')
 plt.xlabel('Radius')
 plt.vlines(r, 0, f, lw=0.5, colors='0.8')
 plt.plot(r, f, 'C0.-', label='Sampled function')
