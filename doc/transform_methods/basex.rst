@@ -46,7 +46,7 @@ The recommended way to complete the inverse Abel transform using the BASEX algor
 
     abel.Transform(raw_image, method='basex', direction='inverse').transform
 
-The additional BASEX parameters are described in :func:`abel.basex.basex_transform` an can be passed to :class:`~abel.transform.Transform` using the ``transform_options`` argument.
+The additional BASEX parameters are described in :func:`abel.basex.basex_transform` and can be passed to :class:`~abel.transform.Transform` using the ``transform_options`` argument.
 
 If you would like to access the BASEX algorithm directly (to transform a right-side half-image), you can use :func:`abel.basex.basex_transform`.
 
