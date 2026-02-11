@@ -862,9 +862,11 @@ def bspline(spl):
     Parameters
     ----------
     spl : tuple or BSpline or UnivariateSpline
-        ``scipy.interpolate`` B-spline representation, such as ``splrep()``
-        results, ``BSpline`` object (result of ``make_interp_spline()``, for
-        example) or ``UnivariateSpline`` object
+        :mod:`scipy.interpolate` B-spline representation, such as
+        :func:`~scipy.interpolate.splrep` results,
+        :class:`~scipy.interpolate.BSpline` object (result of
+        :func:`~scipy.interpolate.make_interp_spline`, for example) or
+        :class:`~scipy.interpolate.UnivariateSpline` object
 
     Returns
     -------

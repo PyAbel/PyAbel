@@ -3,7 +3,7 @@
 Polynomials
 ===========
 
-Implemented in :py:class:`abel.tools.polynomial`.
+Implemented in :mod:`abel.tools.polynomial`.
 
 Abel transform
 --------------
@@ -207,7 +207,7 @@ polynomial by :math:`A`:
     plt.show()
 
 ``Polynomial`` and ``PiecewisePolynomial`` are also accessible through the
-:py:class:`abel.tools.analytical` module. Amplitude scaling by multiplying the
+:mod:`abel.tools.analytical` module. Amplitude scaling by multiplying the
 “function” (a Python object actually) is not supported there, but it can be
 achieved simply by scaling all the coefficients::
 
@@ -221,7 +221,7 @@ achieved simply by scaling all the coefficients::
 In spherical coordinates
 ========================
 
-Implemented as :py:class:`SPolynomial <abel.tools.polynomial.SPolynomial>`.
+Implemented as :class:`.SPolynomial`.
 
 Axially symmetric bivariate polynomials in spherical coordinates have the
 general form
@@ -309,7 +309,7 @@ more severe than for `univariate polynomials <#polynomials>`_.
 Approximate Gaussian
 ====================
 
-Implemented as :py:class:`.ApproxGaussian`.
+Implemented as :class:`.ApproxGaussian`.
 
 The Gaussian function
 

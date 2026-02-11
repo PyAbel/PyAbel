@@ -250,7 +250,7 @@ def circularize(IM, radial_correction_function, ref_angle=None):
 
 
 def _residual(param, radial, profile, previous):
-    """ `scipy.optimize.leastsq` residuals function.
+    """ :func:`scipy.optimize.leastsq` residuals function.
 
         Evaluate the difference between a radial-scaled intensity profile
         and its adjacent "previous" angular slice.

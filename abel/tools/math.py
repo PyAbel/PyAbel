@@ -1,61 +1,51 @@
 import numpy as np
-from scipy.linalg import circulant
 from scipy.optimize import curve_fit, brentq
 from scipy.interpolate import interp1d
+from abel import _deprecate
 
 
 def gradient(f, x=None, dx=1, axis=-1):
     """
-    Return the gradient of 1 or 2-dimensional array.
-    The gradient is computed using central differences in the interior
-    and first differences at the boundaries.
+    This function is deprecated, use :func:`numpy.gradient` instead.
 
-    Irregular sampling is supported (it isn't supported by np.gradient)
+    .. note ::
+        Results for irregular sampling were incorrect before PyAbel 0.10.0.
+    """
+    _deprecate('abel.tools.math.gradient() is deprecated, '
+               'use numpy.gradient() instead.')
+    return np.gradient(f, dx if x is None else x, axis=axis)
+
+
+def trapezoid(f, x):
+    """
+    Trapezoidal-rule integration along each row of 2D array **f**, with
+    coordinates corresponding to each column given by 1D array **x**.
+
+    This function is a faster equivalent of :func:`numpy.trapezoid` (called
+    ``numpy.trapz()`` before NumPy 2.0) and is used for integration in
+    :func:`abel.direct.direct_transform` by default.
 
     Parameters
     ----------
-    f : 1d or 2d numpy array
-        Input array.
-    x : array_like, optional
-       Points where the function f is evaluated. It must be of the same
-       length as ``f.shape[axis]``.
-       If None, regular sampling is assumed (see dx)
-    dx : float, optional
-       If `x` is None, spacing given by `dx` is assumed. Default is 1.
-    axis : int, optional
-       The axis along which the difference is taken.
+    f : numpy 2D array
+        integrand
+
+    x : numpy 1D array
+        coordinates corresponding to columns of **f**
 
     Returns
     -------
-    out : array_like
-        Returns the gradient along the given axis.
-
-    Notes
-    -----
-    To-Do: implement smooth noise-robust differentiators for use on experimental data.
-    http://www.holoborodko.com/pavel/numerical-methods/numerical-derivative/smooth-low-noise-differentiators/
+    out : numpy 1D array
+        integrals for each row
     """
-
-    if x is None:
-        x = np.arange(f.shape[axis]) * dx
-    else:
-        assert x.shape[0] == f.shape[axis]
-    I = np.zeros(f.shape[axis])
-    I[:2] = np.array([0, -1])
-    I[-1] = 1
-    I = circulant(I)
-    I[0, 0] = -1
-    I[-1, -1] = 1
-    I[0, -1] = 0
-    I[-1, 0] = 0
-    H = np.zeros((f.shape[axis], 1))
-    H[1:-1, 0] = x[2:] - x[:-2]
-    H[0] = x[1] - x[0]
-    H[-1] = x[-1] - x[-2]
-    if axis == 0:
-        return np.dot(I / H, f)
-    else:
-        return np.dot(I / H, f.T).T
+    if x.size < 2:
+        return np.zeros(f.shape[0], dtype=f.dtype)
+    dx = np.empty_like(x)
+    dx[0] = x[1] - x[0]     # left endpoint: forward difference
+    dx[-1] = x[-1] - x[-2]  # right endpoint: backwards difference
+    if x.size > 2:          # interior points: central difference (doubled)
+        dx[1:-1] = x[2:] - x[:-2]
+    return f.dot(dx / 2)
 
 
 def gaussian(x, a, mu, sigma, c):

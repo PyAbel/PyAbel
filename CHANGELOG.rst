@@ -11,6 +11,8 @@ Unreleased
   If your code stops working after upgrading PyAbel, downgrage it to v0.9.1 and
   pay close attention to deprecation warnings (or check v0.9.1 documentation
   for suggested replacements).
+* Improvements to direct method (both C and Python backends): much better
+  performance and full support of non-uniform sampling (PR #415).
 
 v0.9.1 (2025-09-22)
 -------------------

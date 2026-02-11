@@ -123,7 +123,7 @@ they can be recast as
 
 in which all terms are comparable to :math:`k^2` and :math:`u^2`. In
 particular, :math:`\ln \Gamma(z) \sim (\ln z - 1) z` and is available directly
-as :py:func:`scipy.special.gammaln`.
+as :func:`scipy.special.gammaln`.
 
 The :math:`\ln \Gamma(z)` functions are relatively computationally expensive,
 but as can be seen, computing the projections :math:`\chi_k(u)` for all
@@ -287,7 +287,7 @@ the “broad” basis set can be reproduced by replacing the line ::
 
     return rawdata.dot(A)
 
-in :py:func:`abel.basex.basex_core_transform` with the following code::
+in :func:`abel.basex.basex_core_transform` with the following code::
 
     Mc = (_bs[1])[::-1]  # PyAbel and BASEX.exe use different coordinates
     V = Mc.dot(inv((Mc.T).dot(Mc))).dot(Mc.T)

@@ -21,7 +21,7 @@ When to use it
 --------------
 
 Dasch recommends this method based on its speed of implementation, robustness in the presence of sharp edges, and low noise.
-He also notes that this technique works best for cases where the real difference between adjacent projections is much greater than the noise in the projections. This is important, because if the projections are oversampled (raw data :math:`\mathbf{P}` taken with data points very close to each other), the spacing between adjacent projections is decreased, and the real difference between them becomes comparable with the noise in the projections. In such situations, the deconvolution is highly inaccurate, and the projection data :math:`\mathbf{P}` must be smoothed before this technique is used. (Consider smoothing with `scipy.ndimage.gaussian_filter <https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter.html>`_.)
+He also notes that this technique works best for cases where the real difference between adjacent projections is much greater than the noise in the projections. This is important, because if the projections are oversampled (raw data :math:`\mathbf{P}` taken with data points very close to each other), the spacing between adjacent projections is decreased, and the real difference between them becomes comparable with the noise in the projections. In such situations, the deconvolution is highly inaccurate, and the projection data :math:`\mathbf{P}` must be smoothed before this technique is used. (Consider smoothing with :func:`scipy.ndimage.gaussian_filter`.)
 
 
 How to use it
