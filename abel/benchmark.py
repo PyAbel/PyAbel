@@ -1,5 +1,10 @@
+from timeit import default_timer as timer
+import itertools
+import sys
+
 import numpy as np
 import abel
+
 from . import basex
 from . import dasch
 from . import daun
@@ -9,10 +14,6 @@ from . import linbasex
 from . import onion_bordas
 from . import rbasex
 from . import tools
-
-from timeit import default_timer as timer
-import itertools
-import sys
 
 
 def _ensure_list(x):
