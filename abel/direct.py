@@ -204,12 +204,8 @@ def _pyabel_direct_integral(g, r, correction, integral):
     out = np.empty_like(g)
 
     # Integration for r > x (skipping the singularity)
-    for j in range(cols - 2):
+    for j in range(cols):
         out[:, j] = integral(g[:, j+1:] * y_1[j, j+1:], r[j+1:])
-    # TODO: this "correct for the extra triangle at the start of the integral"
-    # from the old implementation is probably an artifact
-    out[:, -2] = integral(g[:, -2:] * y_1[-2, -2:], r[-2:]) / 2
-    out[:, -1] = 0  # (last column is always singular)
 
     # Integration of the segment with r = x, assuming that g is linear there
     if correction:
