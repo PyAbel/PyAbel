@@ -204,8 +204,9 @@ def _pyabel_direct_integral(g, r, correction, integral):
     out = np.empty_like(g)
 
     # Integration for r > x (skipping the singularity)
-    for j in range(cols):
+    for j in range(cols - 1):
         out[:, j] = integral(g[:, j+1:] * y_1[j, j+1:], r[j+1:])
+    out[:, -1] = 0
 
     # Integration of the segment with r = x, assuming that g is linear there
     if correction:
