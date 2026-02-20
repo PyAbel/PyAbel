@@ -25,7 +25,7 @@ except ImportError:
 
 def direct_transform(f, dr=None, r=None, direction='inverse', derivative=None,
                      int_func=_deprecated, integral=None, correction=True,
-                     backend='C', **kwargs):
+                     background=0, backend='C', **kwargs):
     """
     This algorithm performs a :doc:`direct computation
     <transform_methods/direct>` of the Abel transform integrals.
@@ -65,6 +65,20 @@ def direct_transform(f, dr=None, r=None, direction='inverse', derivative=None,
         transform.
         If ``True`` (default), integration near the singularity is performed
         analytically, by assuming that the data is linear across that pixel.
+    background : float or None, optional
+        Direct application of the inverse Abel transform uses the derivative of
+        **f**, meaning that non-zero intensity of the outermost pixel would be
+        effectively subtracted from the whole row. This was the behavior in
+        PyAbel < 0.10.0 and can be reproduced by ``background=None``. However,
+        usual assumptions are that the function outside the input range is zero
+        (``background=0``, current default). Other values can be passed to
+        subtract a non-zero background.
+
+        The forward transform with ``background=None`` evaluates the Abel
+        integral only to the center of the outermost pixel, thus missing its
+        remaining intensity if it is non-zero (behavior in PyAbel < 0.10.0).
+        Using ``background=0`` (current default) extends the integral by
+        another step, where the intensity linearly drops to zero.
     backend : str, optional
         select the implementation (case-insensitive):
 
@@ -83,34 +97,40 @@ def direct_transform(f, dr=None, r=None, direction='inverse', derivative=None,
     out : numpy 1D or 2D array
         the forward or inverse Abel transform of **f**, with the same shape
     """
-    g = np.atleast_2d(f.copy())
+    f = np.atleast_2d(f)
+    cols = f.shape[1]
+    if background is not None:
+        f = np.pad(f, ((0, 0), (0, 1)), constant_values=background)
 
     if dr is not None and r is not None:
         raise ValueError('Specifying both dr and r is meaningless.')
     if r is None:  # use dr
-        r = np.arange(g.shape[1], dtype=float)
+        r = np.arange(f.shape[1], dtype=float)  # (optionally padded width)
         if dr is not None:
             r *= dr
     else:  # use r
         if np.ndim(r) != 1:
             raise ValueError(f'r must be a 1D array (got {r!r}).')
-        if r.shape != (g.shape[1],):
+        if r.shape[0] != cols:  # (original width)
             raise ValueError(f'The length of r ({r.shape[0]}) does not match '
-                             f'the numer of columns in f ({g.shape[1]}).')
+                             f'the numer of columns in f ({cols}).')
+        if background is not None:
+            # extend by one step of the same size as the last one
+            r = np.append(r, 2 * r[-1] - r[-2])
 
     if direction == 'inverse':
         if derivative is None:
-            g = np.gradient(g, r, axis=-1)
+            g = np.gradient(f, r, axis=-1)
         else:
             try:
-                g = derivative(g, r)
+                g = derivative(f, r)
             except TypeError:
                 _deprecate('Passing one-argument derivative function to '
                            'abel.direct.direct_transform() is deprecated.')
-                g = derivative(g) / (r[1] - r[0])  # assuming uniform
+                g = derivative(f) / (r[1] - r[0])  # assuming uniform
         g /= -np.pi
     else:  # 'forward'
-        g *= 2 * r[None, :]
+        g = 2 * r[None, :] * f
 
     backend = backend.lower()
 
@@ -136,8 +156,8 @@ def direct_transform(f, dr=None, r=None, direction='inverse', derivative=None,
         raise ValueError(f'backend must be "C" or "Python" (got {backend!r})')
 
     if out.shape[0] == 1:
-        return out[0]
-    return out
+        return out[0, :cols]
+    return out[:, :cols]
 
 
 def _pyabel_direct_integral(g, r, correction, integral):
@@ -184,12 +204,9 @@ def _pyabel_direct_integral(g, r, correction, integral):
     out = np.empty_like(g)
 
     # Integration for r > x (skipping the singularity)
-    for j in range(cols - 2):
+    for j in range(cols - 1):
         out[:, j] = integral(g[:, j+1:] * y_1[j, j+1:], r[j+1:])
-    # TODO: this "correct for the extra triangle at the start of the integral"
-    # from the old implementation is probably an artifact
-    out[:, -2] = integral(g[:, -2:] * y_1[-2, -2:], r[-2:]) / 2
-    out[:, -1] = 0  # (last column is always singular)
+    out[:, -1] = 0
 
     # Integration of the segment with r = x, assuming that g is linear there
     if correction:

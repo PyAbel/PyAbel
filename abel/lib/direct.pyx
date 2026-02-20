@@ -48,20 +48,19 @@ cpdef _cabel_direct_integral(const double[:, ::1] g, const double[::1] r,
 
     with nogil:
         # precompute helper arrays
-        for j in range(cols):
+        for j in range(cols - 1):
             for k in range(j + 1, cols):
                 y[j, k] = sqrt(r[k]**2 - r[j]**2)
 
             # left edge (forward difference)
-            if j + 1 < cols:
-                h[j, j+1] = (r[j+1] - r[j]) / y[j, j+1]
+            h[j, j+1] = (r[j+1] - r[j]) / y[j, j+1]
             # inner points (central difference)
             for k in range(j + 2, cols - 1):
                 h[j, k] = (r[k+1] - r[k-1]) / y[j, k]
             # right edge (backward difference)
             h[j, cols-1] = (r[cols-1] - r[cols-2]) / y[j, cols-1]
-        # TODO: check "edge-case, to match the Direct-Python implementation"
-        h[cols-2, cols-1] /= 2
+        # (last output column should skip trapezoidal integration)
+        h[cols-2, cols-1] = 0
 
         # Parallelized loop over rows (must use "s = s + ..." instead of
         # "s += ..." because Cython interprets "+=" as parallel reduction)

@@ -13,6 +13,8 @@ Unreleased
   for suggested replacements).
 * Improvements to direct method (both C and Python backends): much better
   performance and full support of non-uniform sampling (PR #415).
+* Direct method now, by default, assumes zero intensity outside the image frame
+  but can optionally disregard a constant background, as before (PR #419).
 
 v0.9.1 (2025-09-22)
 -------------------
