@@ -1,14 +1,17 @@
 import numpy as np
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_array_less
 
 import abel
+from abel.hansenlaw import hansenlaw_transform
+from abel.tools.analytical import GaussianAnalytical, SampleImage, \
+                                  TransformPair
 
 
 def test_hansenlaw_shape():
     n = 21
     x = np.ones((n, n), dtype='float32')
 
-    recon = abel.hansenlaw.hansenlaw_transform(x, direction='inverse')
+    recon = hansenlaw_transform(x, direction='inverse')
 
     assert recon.shape == (n, n)
 
@@ -17,7 +20,7 @@ def test_hansenlaw_zeros():
     n = 21
     x = np.zeros((n, n), dtype='float32')
 
-    recon = abel.hansenlaw.hansenlaw_transform(x, direction="inverse")
+    recon = hansenlaw_transform(x, direction="inverse")
 
     assert_allclose(recon, 0)
 
@@ -27,11 +30,9 @@ def test_hansenlaw_forward_tansform_gaussian():
     n = 1001
     r_max = 501   # more points better fit
 
-    ref = abel.tools.analytical.GaussianAnalytical(n,
-                     r_max, symmetric=False,  sigma=200)
+    ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=200)
 
-    recon = abel.hansenlaw.hansenlaw_transform(ref.func, ref.dr,
-                                               direction='forward')
+    recon = hansenlaw_transform(ref.func, ref.dr, direction='forward')
 
     ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='forward')
 
@@ -43,11 +44,10 @@ def test_hansenlaw_inverse_transform_gaussian():
     n = 1001   # better with a larger number of points
     r_max = 501
 
-    ref = abel.tools.analytical.GaussianAnalytical(n, r_max,
-                     symmetric=False,  sigma=200)
+    ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=200)
     tr = np.tile(ref.abel[None, :], (n, 1))  # make a 2D array from 1D
 
-    recon = abel.hansenlaw.hansenlaw_transform(tr, ref.dr, direction='inverse')
+    recon = hansenlaw_transform(tr, ref.dr, direction='inverse')
     recon1d = recon[n//2]  # center row
 
     ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)
@@ -60,12 +60,10 @@ def test_hansenlaw_forward_curveA():
     """
 
     n = 101
-    curveA = abel.tools.analytical.TransformPair(n, profile=3)
+    curveA = TransformPair(n, profile=3)
 
     # forward Abel == g(r)
-    Aproj = abel.hansenlaw.hansenlaw_transform(curveA.func, curveA.dr,
-                                               direction='forward')
-
+    Aproj = hansenlaw_transform(curveA.func, curveA.dr, direction='forward')
 
     assert_allclose(curveA.abel, Aproj, rtol=0, atol=8.0e-2)
 
@@ -75,11 +73,10 @@ def test_hansenlaw_inverse_transform_curveA():
     """
 
     n = 101
-    curveA = abel.tools.analytical.TransformPair(n, profile=3)
+    curveA = TransformPair(n, profile=3)
 
     # inverse Abel == f(r)
-    recon = abel.hansenlaw.hansenlaw_transform(curveA.abel, curveA.dr,
-                                               direction='inverse')
+    recon = hansenlaw_transform(curveA.abel, curveA.dr, direction='inverse')
 
     assert_allclose(curveA.func[:n//2], recon[:n//2], rtol=0.09, atol=0)
 
@@ -90,28 +87,83 @@ def test_hansenlaw_forward_dribinski_image():
     """
 
     # BASEX sample image
-    IM = abel.tools.analytical.SampleImage(n=1001, name="dribinski").func
+    IM = SampleImage(n=1001, name="dribinski").func
 
     # core transform(s) use top-right quadrant, Q0
     Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(IM)
 
     # forward Abel transform
-    fQ0 = abel.hansenlaw.hansenlaw_transform(Q0, direction='forward')
+    fQ0 = hansenlaw_transform(Q0, direction='forward')
 
     # inverse Abel transform
-    ifQ0 = abel.hansenlaw.hansenlaw_transform(fQ0, direction='inverse')
+    ifQ0 = hansenlaw_transform(fQ0, direction='inverse')
 
     # speed distribution
-    orig_speed, orig_radial = abel.tools.vmi.angular_integration_3D(Q0,
-                              origin=(0, 0))
+    orig_speed, orig_radial = \
+        abel.tools.vmi.angular_integration_3D(Q0, origin=(0, 0))
 
-    speed, radial_coords = abel.tools.vmi.angular_integration_3D(ifQ0,
-                           origin=(0, 0))
+    speed, radial_coords = \
+        abel.tools.vmi.angular_integration_3D(ifQ0, origin=(0, 0))
 
     orig_speed /= orig_speed[50:125].max()
     speed /= speed[50:125].max()
 
     assert np.allclose(orig_speed[50:125], speed[50:125], rtol=0.5, atol=0)
+
+
+def test_hansenlaw_background():
+    """ Check hansenlaw transforms with/without background """
+    n = 10
+    # profiles with the step at last pixel's edge:
+    prof8 = TransformPair(n, 8)  # inner
+    prof9 = TransformPair(n, 9)  # outer
+    dr = prof8.dr
+
+    # Forward:
+    # background=None
+    kwargs = {'direction': 'forward', 'dr': dr, 'background': None}
+    proj8 = hansenlaw_transform(prof8.func, **kwargs)
+    proj9 = hansenlaw_transform(prof9.func, **kwargs)
+    # last input pixel is disregarded
+    assert_allclose(proj8, proj9)
+
+    # background=0
+    kwargs['background'] = 0
+    proj8 = hansenlaw_transform(prof8.func, **kwargs)
+    proj9 = hansenlaw_transform(prof9.func, **kwargs)
+    # last pixels adds intensity
+    assert_array_less(proj8, proj9)
+
+    # Inverse:
+    # background=None
+    kwargs = {'direction': 'inverse', 'dr': dr, 'background': None}
+    recon8 = hansenlaw_transform(prof8.abel, **kwargs)
+    recon9 = hansenlaw_transform(prof9.abel, **kwargs)
+    # with intensity shift
+    recon9_1 = hansenlaw_transform(prof9.abel + 1, **kwargs)
+    recon8_1 = hansenlaw_transform(prof8.abel + 1, **kwargs)
+    # shift is disregarded
+    assert_allclose(recon8, recon8_1)
+    assert_allclose(recon9, recon9_1)
+    # profile 8 OK
+    assert_allclose(recon8[:-2], 1, atol=4e-2)
+    # profile 9 not OK
+    assert_array_less(recon9, 1)
+
+    # background=0
+    kwargs['background'] = 0
+    recon8 = hansenlaw_transform(prof8.abel, **kwargs)
+    recon9 = hansenlaw_transform(prof9.abel, **kwargs)
+    # with intensity shift
+    recon9_1 = hansenlaw_transform(prof9.abel + 1, **kwargs)
+    recon8_1 = hansenlaw_transform(prof8.abel + 1, **kwargs)
+    # shift adds intensity
+    assert_array_less(recon8, recon8_1)
+    assert_array_less(recon9, recon9_1)
+    # both profiles OK
+    assert_allclose(recon8[:-2], 1, atol=4e-2)
+    assert_allclose(recon9[:-2], 1, atol=4e-2)
+
 
 if __name__ == "__main__":
     test_hansenlaw_shape()
@@ -121,3 +173,4 @@ if __name__ == "__main__":
     test_hansenlaw_forward_curveA()
     test_hansenlaw_inverse_transform_curveA()
     test_hansenlaw_forward_dribinski_image()
+    test_hansenlaw_background()
