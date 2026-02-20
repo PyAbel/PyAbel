@@ -48,7 +48,7 @@ import numpy as np
 
 
 def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
-                        **kwargs):
+                        background=0, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm from
 
     E. W. Hansen,
@@ -120,6 +120,15 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         may yield a more accurate transform for some functions (see PR 211).
         Default: ``0``.
 
+    background : float or None, optional
+        Initial conditions at the outer edge. ``None`` reproduces the behavior
+        in PyAbel < 0.10.0, were they were taken from the edge column. This
+        lead to the transformed image missing the outermost column (it was
+        filled by duplicating the previous one). Also, the inverse transform
+        used intensities relative to the edge pixel, such that its intensity
+        (if not zero) was essentially subtracted from the whole row.
+        Default: ``0``.
+
     Returns
     -------
     aim : 1D or 2D numpy array
@@ -151,8 +160,11 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     aim = np.empty_like(image)  # Abel transform array
     rows, cols = image.shape
 
+    if background is not None:
+        image = np.pad(image, ((0, 0), (0, 1)), constant_values=background)
+
     if direction == 'forward':
-        # copy image for the driving function, include Jacobian factor,
+        # the driving function, including the Jacobian factor
         drive = -2*dr*np.pi*image
         a = 1  # integration increases lambda + 1
     else:  # inverse Abel transform
@@ -165,7 +177,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
             drive = np.gradient(image, dr, axis=-1)
         a = 0  # due to 1/piR factor
 
-    n = np.arange(cols-1, 1, -1)
+    n = np.arange(image.shape[1] - 1, 1, -1)
 
     phi = np.empty((n.size, h.size))
     for k, lamk in enumerate(lam):
@@ -191,9 +203,14 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
                                  + B1[indx][:, None]*drive[:, col]
         aim[:, col] = x.sum(axis=0)
 
-    # missing column at each side of image
+    # missing axial column
     aim[:, 0] = aim[:, 1]
-    aim[:, -1] = aim[:, -2]
+    if background is not None:
+        # crop to original size
+        aim = aim[:, :cols]
+    else:
+        # missing edge column
+        aim[:, -1] = aim[:, -2]
 
     if rows == 1:
         aim = aim[0]  # flatten to a vector
