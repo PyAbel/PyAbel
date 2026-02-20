@@ -90,42 +90,40 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
     Inverse Abel transform::
 
-      iAbel = abel.Transform(image, method='hansenlaw').transform
+        iAbel = abel.Transform(image, method='hansenlaw').transform
 
     Forward Abel transform::
 
-      fAbel = abel.Transform(image, direction='forward', method='hansenlaw').transform
+        fAbel = abel.Transform(image, direction='forward', method='hansenlaw').transform
 
 
     Parameters
     ----------
     image : 1D or 2D numpy array
-        Right-side half-image (or quadrant). See figure below.
+        Right-side half-image (or quadrant). See figure above.
 
     dr : float
         Sampling size, used for Jacobian scaling.
-        Default: `1` (appliable for pixel images).
+        Default: ``1`` (appliable for pixel images).
 
     direction : string 'forward' or 'inverse'
-        ``forward`` or ``inverse`` Abel transform.
-        Default: 'inverse'.
+        ``'forward'`` or ``'inverse'`` Abel transform.
+        Default: ``'inverse'``.
 
     hold_order : int 0 or 1
-        The order of the hold approximation, used to evaluate the state equation
-        integral. 
-        `0` assumes a constant intensity across a pixel (between grid points)
+        The order of the hold approximation, used to evaluate the state
+        equation integral.
+        ``0`` assumes a constant intensity across a pixel (between grid points)
         for the driving function (the image gradient for the inverse transform,
         or the original image, for the forward transform).
-        `1` assumes a linear intensity variation between grid points, which may
-        yield a more accurate transform for some functions (see PR 211).
-        Default: `0`.
+        ``1`` assumes a linear intensity variation between grid points, which
+        may yield a more accurate transform for some functions (see PR 211).
+        Default: ``0``.
 
     Returns
     -------
     aim : 1D or 2D numpy array
         forward/inverse Abel transform half-image
-
-
     """
 
     # state equation integral_r0^r (epsilon/r)^(lamda+a) d\epsilon
@@ -155,7 +153,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
     if direction == 'forward':
         # copy image for the driving function, include Jacobian factor,
-        drive = -2*dr*np.pi*np.copy(image)
+        drive = -2*dr*np.pi*image
         a = 1  # integration increases lambda + 1
     else:  # inverse Abel transform
         if hold_order == 0:
@@ -177,7 +175,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
     if hold_order == 0:  # Hansen (& Law) zero-order hold approximation
         B1 = gamma0
-        B0 = gamma0*0  # empty array
+        B0 = np.zeros_like(gamma0)  # empty array
 
     else:  # Hansen first-order hold approximation
         gamma1 = I(n, lam, a+1)*h
