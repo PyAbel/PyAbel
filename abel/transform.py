@@ -11,6 +11,7 @@ from . import daun
 from . import direct
 from . import hansenlaw
 from . import linbasex
+from . import nestorolsen
 from . import onion_bordas
 from . import rbasex
 from . import tools
@@ -58,6 +59,8 @@ class Transform:
         ``linbasex``
             the 1D projections of velocity-mapping images in terms of 1D
             spherical functions by Gerber et al. (2013).
+        ``nestorolsen``
+            the line probe deconvolution by Nestor, Olsen (1960).
         ``onion_bordas``
             the algorithm of Bordas and co-workers (1996),
             re-implemented by Rallis, Wells and co-workers (2014).
@@ -142,6 +145,7 @@ class Transform:
         :func:`direct <abel.direct.direct_transform>`,
         :func:`hansenlaw <abel.hansenlaw.hansenlaw_transform>`,
         :func:`linbasex <abel.linbasex.linbasex_transform>`,
+        :func:`nestorolsen <abel.nestorolsen.nestorolsen_transform>`,
         :func:`onion_bordas <abel.onion_bordas.onion_bordas_transform>`,
         :func:`onion_peeling <abel.dasch.onion_peeling_transform>`,
         :func:`rbasex <abel.rbasex.rbasex_transform>`,
@@ -292,6 +296,15 @@ class Transform:
         one-dimensional projections of spherical functions",
         `Rev. Sci. Instrum. 84, 033101 (2013)
         <https://doi.org/10.1063/1.4793404>`__.
+
+    ``nestorolsen`` *
+        One of the first Abel transform methods for experimental data.
+        Conceptually it is similar to "Two point" and "Three point".
+
+        O. H. Nestor and H. N. Olsen,
+        "Numerical Methods for Reducing Line and Surface Probe Data",
+        `SIAM Review, vol. 2, no. 3, 1960, pp. 200–07
+        <https://doi.org/10.1137/1002042>`__.
 
     ``onion_bordas``
         The onion peeling method, also known as "back projection", originates
@@ -513,6 +526,7 @@ class Transform:
             "daun": daun.daun_transform,
             "direct": direct.direct_transform,
             "hansenlaw": hansenlaw.hansenlaw_transform,
+            "nestorolsen": nestorolsen.nestorolsen_transform,
             "onion_bordas": onion_bordas.onion_bordas_transform,
             "onion_peeling": dasch.onion_peeling_transform,
             "two_point": dasch.two_point_transform,
@@ -738,8 +752,8 @@ def basis_dir_cleanup(basis_dir='', method=None):
 
     # make the list of methods
     if method == 'all':
-        methods = ['basex', 'daun', 'linbasex', 'onion_peeling', 'rbasex',
-                   'three_point', 'two_point']
+        methods = ['basex', 'daun', 'linbasex', 'nestorolsen', 'onion_peeling',
+                   'rbasex', 'three_point', 'two_point']
     elif np.ndim(method) == 0:  # single string
         methods = [method]
     else:  # already a list
