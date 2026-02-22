@@ -123,10 +123,10 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     background : float or None, optional
         Initial conditions at the outer edge. ``None`` reproduces the behavior
         in PyAbel < 0.10.0, were they were taken from the edge column. This
-        lead to the transformed image missing the outermost column (it was
-        filled by duplicating the previous one). Also, the inverse transform
-        used intensities relative to the edge pixel, such that its intensity
-        (if not zero) was essentially subtracted from the whole row.
+        lead to the transformed image missing the outermost column. Also, the
+        inverse transform used intensities relative to the edge pixel, such
+        that its intensity (if not zero) was essentially subtracted from the
+        whole row.
         Default: ``0``.
 
     Returns
@@ -205,12 +205,12 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
     # missing axial column
     aim[:, 0] = aim[:, 1]
-    if background is not None:
+    if background is None:
+        # edge column is zero
+        aim[:, -1] = 0
+    else:
         # crop to original size
         aim = aim[:, :cols]
-    else:
-        # missing edge column
-        aim[:, -1] = aim[:, -2]
 
     if rows == 1:
         aim = aim[0]  # flatten to a vector
