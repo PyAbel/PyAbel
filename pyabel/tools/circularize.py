@@ -3,7 +3,7 @@ from scipy.ndimage import map_coordinates
 from scipy.interpolate import UnivariateSpline, splrep, splev
 from scipy.optimize import leastsq
 
-import abel
+import pyabel
 
 #########################################################################
 # circularize.py
@@ -73,7 +73,7 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
             It aligns the slices with sub-pixel precision.
 
     origin : float tuple, str or None
-        Pre-center image using :func:`abel.tools.center.center_image`.
+        Pre-center image using :func:`pyabel.tools.center.center_image`.
         May be an explicit (row, column) tuple or a method name: ``'com'``,
         ``'convolution'``, ``'gaussian;``, ``'image_center'``, ``'slice'``.
         ``None`` (default) assumes that the image is already centered.
@@ -87,7 +87,7 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
 
     dr : float
         Radial grid size for the polar coordinate image, default = 0.5 pixel.
-        This is passed to :func:`abel.tools.polar.reproject_image_into_polar`.
+        This is passed to :func:`pyabel.tools.polar.reproject_image_into_polar`.
 
         Small values may improve the distortion correction, which is often of
         sub-pixel dimensions, at the cost of reduced signal to noise for the
@@ -101,7 +101,7 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
         correction, at the cost of greater signal to noise in the correction
         function.
 
-        Also passed to :func:`abel.tools.polar.reproject_image_into_polar`.
+        Also passed to :func:`pyabel.tools.polar.reproject_image_into_polar`.
 
     ref_angle : None or float
         Reference angle for which radial coordinate is unchanged.
@@ -161,17 +161,17 @@ def circularize_image(IM, method="lsq", origin=None, radial_range=None,
     """
     if origin is not None:
         # convenience function for the case image is not centered
-        IM = abel.tools.center.center_image(IM, method=origin)
+        IM = pyabel.tools.center.center_image(IM, method=origin)
 
     # map image into polar coordinates - much easier to slice
     # cartesian (Y, X) -> polar (Radius, Theta)
     polarIM, radial_coord, angle_coord = \
-        abel.tools.polar.reproject_image_into_polar(IM, dr=dr, dt=dt)
+        pyabel.tools.polar.reproject_image_into_polar(IM, dr=dr, dt=dt)
 
     if inverse:
         # pseudo inverse Abel transform of the polar image, removes background
         # to enhance transition peaks
-        polarIM = abel.dasch.two_point_transform(polarIM.T).T
+        polarIM = pyabel.dasch.two_point_transform(polarIM.T).T
 
     # more convenient 1-D coordinate arrays
     angles = angle_coord[0]  # angle coordinate

@@ -2,7 +2,7 @@ import numpy as np
 import scipy.constants as const
 import scipy.interpolate
 
-import abel
+import pyabel
 
 # This file includes functions that have a known analytical Abel transform.
 # They are used in unit testing and for comparing different Abel
@@ -211,7 +211,7 @@ class Polynomial(BaseAnalytical):
         else:
             r = self.r
 
-        P = abel.tools.polynomial.Polynomial(r, r_1, r_2, c, r_0, s, reduced)
+        P = pyabel.tools.polynomial.Polynomial(r, r_1, r_2, c, r_0, s, reduced)
         self.func = P.func
         self.abel = P.abel
 
@@ -262,7 +262,7 @@ class PiecewisePolynomial(BaseAnalytical):
         else:
             r = self.r
 
-        P = abel.tools.polynomial.PiecewisePolynomial(r, ranges)
+        P = pyabel.tools.polynomial.PiecewisePolynomial(r, ranges)
         self.func = P.func
         self.abel = P.abel
 
@@ -330,7 +330,7 @@ class TransformPair(BaseAnalytical):
 
     **profiles 8--9**: Adaptations of profile 5 (step function) to pixel data.
 
-    See :mod:`abel.tools.transform_pairs`.
+    See :mod:`pyabel.tools.transform_pairs`.
 
 
     Returns
@@ -364,7 +364,7 @@ class TransformPair(BaseAnalytical):
             number of points along the r axis
 
         profile: int
-            the profile number 1-9, see 'abel/tools/transform_pairs.py'
+            the profile number 1-9, see 'pyabel/tools/transform_pairs.py'
 
         """
 
@@ -383,7 +383,7 @@ class TransformPair(BaseAnalytical):
 
         self.label = f'profile{profile}'
 
-        self.profile = getattr(abel.tools.transform_pairs, self.label)
+        self.profile = getattr(pyabel.tools.transform_pairs, self.label)
         self.func, self.abel = self.profile(r)
 
         # function values to use for testing
@@ -569,7 +569,7 @@ class SampleImage(BaseAnalytical):
         # calculate only one quadrant Q1
         n2 = (n + 1) // 2
         r0 = -self.r[n2]
-        R, COS = abel.tools.polynomial.rcos(shape=(n2, n2), origin=(r0, r0))
+        R, COS = pyabel.tools.polynomial.rcos(shape=(n2, n2), origin=(r0, r0))
         Q = np.zeros_like(R)
         for A, r0, width, cn in self._peaks:
             ring = A * peak(R, r0 * self._scale, width)
@@ -580,9 +580,9 @@ class SampleImage(BaseAnalytical):
                     Q += c * ring
 
         # unfold to whole image
-        self.func = abel.tools.symmetry.put_image_quadrants(
+        self.func = pyabel.tools.symmetry.put_image_quadrants(
                         [Q[:, ::-1]] * 4, (n, n))
-        self.mask_valid = abel.tools.symmetry.put_image_quadrants(
+        self.mask_valid = pyabel.tools.symmetry.put_image_quadrants(
                               [R[:, ::-1] != 0] * 4, (n, n))
 
     def transform(self, tol=4.8e-3):
@@ -607,7 +607,7 @@ class SampleImage(BaseAnalytical):
         # calculate only one quadrant Q1
         n2 = (self.n + 1) // 2
         r0 = -self.r[n2]
-        R, COS = abel.tools.polynomial.rcos(shape=(n2, n2), origin=(r0, r0))
+        R, COS = pyabel.tools.polynomial.rcos(shape=(n2, n2), origin=(r0, r0))
         if self.name == 'Gaussian':
             A, r0, width, cn = self._peaks[0]
             Q = np.sqrt(np.pi) * width * np.exp(-(R / width)**2)
@@ -621,7 +621,7 @@ class SampleImage(BaseAnalytical):
                             (r0, r0 + width, c, r0, width)]
             else:
                 # approximate Gaussian
-                g = abel.tools.polynomial.ApproxGaussian(tol)
+                g = pyabel.tools.polynomial.ApproxGaussian(tol)
 
                 def peak(A, r0, width):
                     return g.scaled(A, r0, width / np.sqrt(2))
@@ -629,14 +629,14 @@ class SampleImage(BaseAnalytical):
             # sum all peaks
             Q = np.zeros_like(R)
             for A, r0, width, cn in self._peaks:
-                Q += abel.tools.polynomial.PiecewiseSPolynomial(
+                Q += pyabel.tools.polynomial.PiecewiseSPolynomial(
                         R, COS,
                         peak(A, r0 * self._scale, width) *
-                        abel.tools.polynomial.Angular(cn)
+                        pyabel.tools.polynomial.Angular(cn)
                      ).abel
 
         # unfold to whole image
-        self._abel = abel.tools.symmetry.put_image_quadrants(
+        self._abel = pyabel.tools.symmetry.put_image_quadrants(
                          [Q[:, ::-1]] * 4, (self.n, self.n))
         return self._abel
 

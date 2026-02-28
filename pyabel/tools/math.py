@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.optimize import curve_fit, brentq
 from scipy.interpolate import interp1d
-from abel import _deprecate
+from pyabel import _deprecate
 
 
 def gradient(f, x=None, dx=1, axis=-1):
@@ -11,7 +11,7 @@ def gradient(f, x=None, dx=1, axis=-1):
     .. note ::
         Results for irregular sampling were incorrect before PyAbel 0.10.0.
     """
-    _deprecate('abel.tools.math.gradient() is deprecated, '
+    _deprecate('pyabel.tools.math.gradient() is deprecated, '
                'use numpy.gradient() instead.')
     return np.gradient(f, dx if x is None else x, axis=axis)
 
@@ -23,7 +23,7 @@ def trapezoid(f, x):
 
     This function is a faster equivalent of :func:`numpy.trapezoid` (called
     ``numpy.trapz()`` before NumPy 2.0) and is used for integration in
-    :func:`abel.direct.direct_transform` by default.
+    :func:`pyabel.direct.direct_transform` by default.
 
     Parameters
     ----------

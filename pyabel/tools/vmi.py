@@ -4,7 +4,7 @@ if hasattr(np, 'trapezoid'):  # numpy >= 2
     trapezoid = np.trapezoid
 else:
     trapezoid = np.trapz
-from abel.tools.polar import reproject_image_into_polar
+from pyabel.tools.polar import reproject_image_into_polar
 from scipy.ndimage import map_coordinates, uniform_filter1d, shift
 from scipy.optimize import curve_fit
 from scipy.linalg import hankel, inv, pascal, LinAlgError, LinAlgWarning
@@ -131,7 +131,7 @@ def radial_integration(IM, origin=None, radial_ranges=None, theta_ranges=None,
     r""" Intensity variation in the angular coordinate.
 
     This function is the :math:`\theta`-coordinate complement to
-    :func:`abel.tools.vmi.average_radial_intensity_3D`.
+    :func:`pyabel.tools.vmi.average_radial_intensity_3D`.
 
     Evaluates intensity vs angle for defined radial ranges.
     Determines the anisotropy parameter for each radial range.

@@ -10,8 +10,8 @@ import numpy as np
 #             https://github.com/PyAbel/PyAbel/issues/19#issuecomment-158244527
 #
 # Note: preferable to call these functions via the class method:
-#        func = abel.tools.analytical.TransformPair(n, profile=#)
-#   see abel/tools/analytical.py for Class attributes
+#        func = pyabel.tools.analytical.TransformPair(n, profile=#)
+#   see pyabel/tools/analytical.py for Class attributes
 #
 ##############################################################################
 
@@ -30,9 +30,9 @@ profiles 8--9:
 
 Note:
     the transform pair functions are more conveniently accessed through
-    :class:`abel.tools.analytical.TransformPair`::
+    :class:`pyabel.tools.analytical.TransformPair`::
 
-        func = abel.tools.analytical.TransformPair(n, profile=nprofile)
+        func = pyabel.tools.analytical.TransformPair(n, profile=nprofile)
 
     which sets the radial range `r` and provides attributes
     ``.func`` (source), ``.abel`` (projection), ``.r`` (radial range),
