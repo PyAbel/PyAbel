@@ -32,4 +32,4 @@ install:
 
 test_script:
   - cd "%TMP%"
-  - pytest -v --cov=abel --pyargs abel
+  - pytest -v --cov=pyabel --pyargs pyabel

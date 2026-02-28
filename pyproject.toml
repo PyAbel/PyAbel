@@ -48,7 +48,7 @@ classifiers = [
 ]
 # fields updated automatically in setup.py:
 dynamic = [
-  "version",  # __version__ from abel/_version.py
+  "version",  # __version__ from pyabel/_version.py
   "readme",   # actually long_description created from README.rst
   "license",  # = "MIT", but setuptools<77 can't understand this here
 ]
@@ -73,7 +73,7 @@ requires = [  # last version available for Python 3.8 and tested
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["abel*"]
+include = ["pyabel*", "abel*"]
 
 [tool.cibuildwheel]
 build-verbosity = 1

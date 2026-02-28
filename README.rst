@@ -99,9 +99,9 @@ Before uninstalling
 
 Some transform methods can save generated basis sets to disk. If you want to uninstall PyAbel completely, these files need to be removed as well. To do so, please *first* run the following script::
 
-    import abel
+    import pyabel
     import shutil
-    shutil.rmtree(abel.transform.get_basis_dir())
+    shutil.rmtree(pyabel.transform.get_basis_dir())
 
 and *then* proceed with the usual module uninstallation process (for example, ``pip uninstall PyAbel`` if it was installed using pip).
 
@@ -113,14 +113,14 @@ Using PyAbel can be simple. The following Python code imports the PyAbel package
 
 .. code-block:: python
 
-    import abel
-    original = abel.tools.analytical.SampleImage(name='Gerber').func
-    forward_abel = abel.Transform(original, direction='forward',
+    import pyabel
+    original = pyabel.tools.analytical.SampleImage(name='Gerber').func
+    forward_abel = pyabel.Transform(original, direction='forward',
                                   method='hansenlaw').transform
-    inverse_abel = abel.Transform(forward_abel, direction='inverse',
+    inverse_abel = pyabel.Transform(forward_abel, direction='inverse',
                                   method='three_point').transform
 
-Note: the ``abel.Transform()`` class returns a Python ``class`` object, where the 2D Abel transform is accessed through the ``.transform`` attribute.
+Note: the ``pyabel.Transform()`` class returns a Python ``class`` object, where the 2D Abel transform is accessed through the ``.transform`` attribute.
 
 The results can then be plotted using Matplotlib:
 
@@ -175,7 +175,7 @@ The PyAbel code adheres to the following conventions:
         x = np.linspace(-2, 2, 5)
         X, Y = np.meshgrid(x, -x)  # notice the minus sign in front of the y coordinate
 
-    The ``abel.tools.polar.index_coords`` function does this for images of any shape with any origin.
+    The ``pyabel.tools.polar.index_coords`` function does this for images of any shape with any origin.
 
 -
     **Angle:** All angles in PyAbel are measured in radians. When an absolute angle is defined, zero angle corresponds to the upwards vertical direction. Positive values are on the right side, and negative values on the left side. The range of angles is from −π to +π. The polar grid for a centered 5×5 image can be generated (following the code above) using
@@ -192,13 +192,13 @@ The PyAbel code adheres to the following conventions:
         X = R * np.sin(THETA)
         Y = R * np.cos(THETA)
 
-    The ``abel.tools.polar.cart2polar`` and ``abel.tools.polar.polar2cart`` functions are available for conversion between these Cartesian and polar grids.
+    The ``pyabel.tools.polar.cart2polar`` and ``pyabel.tools.polar.polar2cart`` functions are available for conversion between these Cartesian and polar grids.
 
 -
-    **Image origin:** Fundamentally, the forward and inverse Abel transforms in PyAbel consider the origin of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The central pixel is effectively "shared" between both halves of the image.) In most situations, the image origin is specified using the ``origin`` keyword in ``abel.Transform`` (or directly using ``abel.tools.center.center_image`` to find the origin (the center of symmetry) of your image). This processing step takes care of shifting the origin of the image to the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image. Some methods also provide low-level functions for transforming only the right half of the image (with the origin located in the middle of a 0th-column pixel).
+    **Image origin:** Fundamentally, the forward and inverse Abel transforms in PyAbel consider the origin of the image to be located in the center of a pixel. This means that, for a symmetric image, the image will have a width that is an odd number of pixels. (The central pixel is effectively "shared" between both halves of the image.) In most situations, the image origin is specified using the ``origin`` keyword in ``pyabel.Transform`` (or directly using ``pyabel.tools.center.center_image`` to find the origin (the center of symmetry) of your image). This processing step takes care of shifting the origin of the image to the middle of the central pixel. However, if the individual Abel transforms methods are used directly, care must be taken to supply a properly centered image. Some methods also provide low-level functions for transforming only the right half of the image (with the origin located in the middle of a 0th-column pixel).
 
 -
-    **Intensity:** The pixel intensities can have any value (within the floating-point range). However, the intensity scale must be linear. Keep in mind that cameras and common image formats often use `gamma correction <https://en.wikipedia.org/wiki/Gamma_correction>`__ and thus provide data with nonlinear intensity encoding. Thus, if possible, it is recommended to disable the gamma correction on cameras used to record images that will be inverse Abel-transformed. If this is not possible, then it is necessary to apply the appropriate intensity transformations before the analysis. Most PyAbel methods also assume intensities to be floating-point numbers, and when applied to integer types, can return inappropriately rounded results. The ``abel.Transform`` class recasts the input image to ``float64`` by default, but if you wish to call the transform methods directly or use other tools, you might need to perform the conversion yourself (as ``IM.astype(float)``, for example).
+    **Intensity:** The pixel intensities can have any value (within the floating-point range). However, the intensity scale must be linear. Keep in mind that cameras and common image formats often use `gamma correction <https://en.wikipedia.org/wiki/Gamma_correction>`__ and thus provide data with nonlinear intensity encoding. Thus, if possible, it is recommended to disable the gamma correction on cameras used to record images that will be inverse Abel-transformed. If this is not possible, then it is necessary to apply the appropriate intensity transformations before the analysis. Most PyAbel methods also assume intensities to be floating-point numbers, and when applied to integer types, can return inappropriately rounded results. The ``pyabel.Transform`` class recasts the input image to ``float64`` by default, but if you wish to call the transform methods directly or use other tools, you might need to perform the conversion yourself (as ``IM.astype(float)``, for example).
 
 
 Support
