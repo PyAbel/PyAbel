@@ -5,7 +5,7 @@ from numpy.testing import assert_equal, assert_allclose
 from scipy.ndimage import shift
 
 import pyabel
-from pypyabel.tools.center import find_origin, center_image, set_center
+from pyabel.tools.center import find_origin, center_image, set_center
 
 
 def test_find_origin():

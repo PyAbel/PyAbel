@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 
 import pyabel
-from pypyabel.tools.circularize import circularize, circularize_image
+from pyabel.tools.circularize import circularize, circularize_image
 
 
 def test_circularize_image():
