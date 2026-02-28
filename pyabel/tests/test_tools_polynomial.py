@@ -4,8 +4,8 @@ from scipy.special import hermite
 from scipy.interpolate import splrep, splev, make_interp_spline, UnivariateSpline
 from math import factorial
 
-import abel
-from abel.tools.polynomial import Polynomial, PiecewisePolynomial, \
+import pyabel
+from pyabel.tools.polynomial import Polynomial, PiecewisePolynomial, \
     rcos, Angular, SPolynomial, PiecewiseSPolynomial, ApproxGaussian, bspline
 
 
@@ -159,7 +159,7 @@ def test_polynomial_smoothstep():
                                 (r_max - w, r_max + w, c, r_max, -w)])
     P *= h
 
-    recon = abel.direct.direct_transform(P.abel, backend='python')
+    recon = pyabel.direct.direct_transform(P.abel, backend='python')
 
     assert_allclose(P.func, recon, atol=2.0e-2)
 
@@ -412,7 +412,7 @@ def test_spolynomial_high():
     for n in range(9):
         P = SPolynomial(r, cos, r0 - w, r0 + w,
                         peak * Angular([0] * n + [1]), r0, w)
-        ref = abel.Transform(P.func, direction='forward', method='direct',
+        ref = pyabel.Transform(P.func, direction='forward', method='direct',
                              symmetry_axis=0,
                              transform_options={'backend': 'Python'}).transform
         assert_allclose(P.abel, ref,

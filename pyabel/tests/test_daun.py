@@ -4,10 +4,10 @@ import numpy as np
 from numpy.testing import assert_allclose
 from scipy.linalg import inv, toeplitz
 
-import abel
-from abel.daun import _bs_daun, get_bs_cached, cache_cleanup, daun_transform
-from abel.tools.polynomial import PiecewisePolynomial as PP
-from abel.tools.analytical import GaussianAnalytical
+import pyabel
+from pyabel.daun import _bs_daun, get_bs_cached, cache_cleanup, daun_transform
+from pyabel.tools.polynomial import PiecewisePolynomial as PP
+from pyabel.tools.analytical import GaussianAnalytical
 
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
@@ -180,7 +180,7 @@ def test_daun_shape():
 def test_daun_zeros():
     n = 21
     x = np.zeros((n, n), dtype='float32')
-    recon = abel.daun.daun_transform(x, verbose=False)
+    recon = pyabel.daun.daun_transform(x, verbose=False)
     assert_allclose(recon, 0)
 
 

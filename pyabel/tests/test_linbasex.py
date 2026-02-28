@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_less
-import abel
-from abel.linbasex import linbasex_transform_full
+import pyabel
+from pyabel.linbasex import linbasex_transform_full
 
 
 def test_linbasex_shape():
@@ -73,18 +73,18 @@ def test_linbasex_forward_dribinski_image():
     """
 
     # BASEX sample image
-    IM = abel.tools.analytical.SampleImage(n=1001, name="dribinski").func
+    IM = pyabel.tools.analytical.SampleImage(n=1001, name="dribinski").func
 
     # forward Abel transform
-    fIM = abel.Transform(IM, method='hansenlaw', direction='forward')
+    fIM = pyabel.Transform(IM, method='hansenlaw', direction='forward')
 
     # inverse Abel transform
-    ifIM = abel.Transform(fIM.transform, method='linbasex',
+    ifIM = pyabel.Transform(fIM.transform, method='linbasex',
                           transform_options=dict(legendre_orders=[0, 2],
                                                  proj_angles=[0, np.pi/2]))
 
     # speed distribution
-    orig_radial, orig_speed = abel.tools.vmi.angular_integration_3D(IM)
+    orig_radial, orig_speed = pyabel.tools.vmi.angular_integration_3D(IM)
 
     radial = ifIM.radial
     speed = ifIM.Beta[0]
@@ -117,7 +117,7 @@ def test_linbasex_mean_beta():
     """Check integrated intensities and averaged anisotropies using the
        Lin-BASEX test image
     """
-    im = abel.tools.analytical.SampleImage(n=513, name='Gerber', sigma=5).abel
+    im = pyabel.tools.analytical.SampleImage(n=513, name='Gerber', sigma=5).abel
 
     # original radii and beta values for Gerber sample image:
     # sphere: 1     2    3    4    5    6      7     8
@@ -150,7 +150,7 @@ def test_linbasex_mean_beta():
             clip=clip
         )
 
-        beta_mean = abel.linbasex.mean_beta(radial, beta, regions)
+        beta_mean = pyabel.linbasex.mean_beta(radial, beta, regions)
 
         param = f'{radial_step=}, {clip=}'
         assert_allclose(beta_mean[0], ref[0], rtol=I_tol,

@@ -4,8 +4,8 @@ import numpy as np
 from numpy.testing import assert_equal, assert_allclose
 from scipy.ndimage import shift
 
-import abel
-from abel.tools.center import find_origin, center_image, set_center
+import pyabel
+from pypyabel.tools.center import find_origin, center_image, set_center
 
 
 def test_find_origin():
@@ -245,7 +245,7 @@ def test_center_image():
 
     # BASEX sample image, Gaussians at 10, 15, 20, 70,85, 100, 145, 150, 155
     # image width, height n = 361, origin = (180, 180)
-    IM = abel.tools.analytical.SampleImage(n=361, name="dribinski").func
+    IM = pyabel.tools.analytical.SampleImage(n=361, name="dribinski").func
 
     # artificially displace origin, now at (179, 182)
     IMx = shift(IM, (-1, 2))

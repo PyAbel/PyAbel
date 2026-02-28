@@ -1,13 +1,13 @@
 import numpy as np
 from numpy.testing import assert_allclose
 
-import abel
-from abel.tools.circularize import circularize, circularize_image
+import pyabel
+from pypyabel.tools.circularize import circularize, circularize_image
 
 
 def test_circularize_image():
 
-    IM = abel.tools.analytical.SampleImage(n=511, name='Ominus').func
+    IM = pyabel.tools.analytical.SampleImage(n=511, name='Ominus').func
 
     # flower image distortion
     def flower_scaling(theta, freq=2, amp=0.1):

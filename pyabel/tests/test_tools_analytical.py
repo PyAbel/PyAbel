@@ -1,8 +1,8 @@
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
-from abel.tools.analytical import SampleImage
-from abel import Transform
+from pyabel.tools.analytical import SampleImage
+from pyabel import Transform
 
 
 def test_sample_Dribinski():

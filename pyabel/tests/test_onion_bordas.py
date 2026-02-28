@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.testing import assert_allclose
 
-import abel
+import pyabel
 
 # Curve A, Table 2, Fig 3. Abel transform pair  Hansen&Law JOSA A2 510 (1985)
 def f(r):
@@ -23,7 +23,7 @@ def test_onion_bordas_shape():
     n = 21
     x = np.ones((n, n), dtype='float32')
 
-    recon = abel.onion_bordas.onion_bordas_transform(x, direction='inverse')
+    recon = pyabel.onion_bordas.onion_bordas_transform(x, direction='inverse')
 
     assert recon.shape == (n, n) 
 
@@ -32,7 +32,7 @@ def test_onion_bordas_zeros():
     n = 21
     x = np.zeros((n, n), dtype='float32')
 
-    recon = abel.onion_bordas.onion_bordas_transform(x, direction="inverse")
+    recon = pyabel.onion_bordas.onion_bordas_transform(x, direction="inverse")
 
     assert_allclose(recon, 0)
 
@@ -42,14 +42,14 @@ def test_onion_bordas_inverse_transform_gaussian():
     n = 501   
     r_max = 251
 
-    ref = abel.tools.analytical.GaussianAnalytical(n, r_max, 
+    ref = pyabel.tools.analytical.GaussianAnalytical(n, r_max, 
           symmetric=False,  sigma=10)
     tr = np.tile(ref.abel[None, :], (n, 1)) # make a 2D array from 1D
 
-    recon = abel.onion_bordas.onion_bordas_transform(tr, ref.dr, direction='inverse')
+    recon = pyabel.onion_bordas.onion_bordas_transform(tr, ref.dr, direction='inverse')
     recon1d = recon[n//2 + n%2]  # centre row
 
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)
+    ratio = pyabel.benchmark.absolute_ratio_benchmark(ref, recon1d)
 
     assert_allclose(ratio, 1.0, rtol=0, atol=0.1)
 
@@ -67,7 +67,7 @@ def test_onion_bordas_inverse_transform_curveA():
     proj = np.concatenate((g(rl),g(rr)), axis=0)   # g(r)
 
     # inverse Abel 
-    recon = abel.onion_bordas.onion_bordas_transform(proj, r[1]-r[0],
+    recon = pyabel.onion_bordas.onion_bordas_transform(proj, r[1]-r[0],
                                                direction='inverse') 
                                                        # == f(r)
     ratio = orig[20]/recon[20]
@@ -90,7 +90,7 @@ def test_onion_bordas_1d_gaussian(n=100):
     orig = gauss(r, 0, sigma)
     orig_copy = orig.copy()
 
-    recon = abel.onion_bordas.onion_bordas_transform(orig, shift_grid=False)
+    recon = pyabel.onion_bordas.onion_bordas_transform(orig, shift_grid=False)
 
     ratio_1d = np.sqrt(np.pi)*sigma
 
@@ -115,7 +115,7 @@ def test_onion_bordas_2d_gaussian(n=100):
     Q0_copy = Q0.copy()
 
     # onion_bordas inverse Abel transform
-    AQ0 = abel.onion_bordas.onion_bordas_transform(Q0, shift_grid=False)
+    AQ0 = pyabel.onion_bordas.onion_bordas_transform(Q0, shift_grid=False)
     profQ0 = Q0_copy[-10:,:].sum(axis=0)
     profAQ0 = AQ0[-10:,:].sum(axis=0)
 

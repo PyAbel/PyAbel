@@ -1,7 +1,7 @@
 from numpy.testing import assert_allclose
 
-from abel.tools.analytical import TransformPair
-from abel.daun import daun_transform
+from pyabel.tools.analytical import TransformPair
+from pyabel.daun import daun_transform
 
 
 def test_transform_pairs():

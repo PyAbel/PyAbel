@@ -1,14 +1,14 @@
 import os.path
 
 import numpy as np
-import abel
+import pyabel
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
 dasch_transforms = {
- "two_point": abel.dasch.two_point_transform,
- "three_point": abel.dasch.three_point_transform,
- "onion_peeling": abel.dasch.onion_peeling_transform
+ "two_point": pyabel.dasch.two_point_transform,
+ "three_point": pyabel.dasch.three_point_transform,
+ "onion_peeling": pyabel.dasch.onion_peeling_transform
 }
 
 
@@ -31,24 +31,24 @@ def test_dasch_zeros():
 
 
 def test_dasch_deconvolution_array_sources():
-    im = abel.tools.analytical.SampleImage(101).func
-    q = abel.tools.symmetry.get_image_quadrants(im)[0]
+    im = pyabel.tools.analytical.SampleImage(101).func
+    q = pyabel.tools.symmetry.get_image_quadrants(im)[0]
 
     # clean up any old deconvolution array files
     fn = os.path.join(DATA_DIR, f'three_point_basis_{q.shape[0]}.npy')
     if os.path.exists(fn):
         os.remove(fn)
 
-    gb = abel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
-    np.testing.assert_equal(abel.dasch._source, 'generated')
+    gb = pyabel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
+    np.testing.assert_equal(pyabel.dasch._source, 'generated')
 
-    cb = abel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
-    np.testing.assert_equal(abel.dasch._source, 'cache')
+    cb = pyabel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
+    np.testing.assert_equal(pyabel.dasch._source, 'cache')
     np.testing.assert_allclose(gb, cb)
 
-    abel.dasch.cache_cleanup()
-    fb = abel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
-    np.testing.assert_equal(abel.dasch._source, 'file')
+    pyabel.dasch.cache_cleanup()
+    fb = pyabel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
+    np.testing.assert_equal(pyabel.dasch._source, 'file')
     np.testing.assert_allclose(gb, fb)
 
     os.remove(fn)
@@ -98,7 +98,7 @@ def test_dasch_cyl_gaussian(n=101):
     IM = gauss(X, 0, sigma)  # cylindrical Gaussian located at pixel R=0
     Q0 = IM[:r2, c2:]  # quadrant, top-right
     Q0_copy = Q0.copy()
-    ospeed = abel.tools.vmi.angular_integration_3D(Q0_copy, origin=(0, 0))
+    ospeed = pyabel.tools.vmi.angular_integration_3D(Q0_copy, origin=(0, 0))
 
     # dasch method inverse Abel transform
     for method in dasch_transforms.keys():

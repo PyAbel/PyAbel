@@ -3,9 +3,9 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-import abel
-from abel.basex import get_bs_cached, cache_cleanup
-from abel.tools.analytical import GaussianAnalytical
+import pyabel
+from pyabel.basex import get_bs_cached, cache_cleanup
+from pyabel.tools.analytical import GaussianAnalytical
 
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
@@ -86,9 +86,9 @@ def test_basex_basis_sets_resize_1_5():
 def test_basex_shape():
     n = 21
     x = np.ones((n, n), dtype='float32')
-    Ai = abel.basex.get_bs_cached(n, basis_dir=None, verbose=False)
+    Ai = pyabel.basex.get_bs_cached(n, basis_dir=None, verbose=False)
 
-    recon = abel.basex.basex_core_transform(x, Ai)
+    recon = pyabel.basex.basex_core_transform(x, Ai)
 
     assert recon.shape == (n, n)
 
@@ -96,9 +96,9 @@ def test_basex_shape():
 def test_basex_zeros():
     n = 21
     x = np.zeros((n, n), dtype='float32')
-    Ai = abel.basex.get_bs_cached(n, basis_dir=None, verbose=False)
+    Ai = pyabel.basex.get_bs_cached(n, basis_dir=None, verbose=False)
 
-    recon = abel.basex.basex_core_transform(x, Ai)
+    recon = pyabel.basex.basex_core_transform(x, Ai)
 
     assert_allclose(recon, 0)
 
@@ -113,11 +113,11 @@ def basex_gaussian(sigma, reg, cor, tol):
 
     correction = cor if isinstance(cor, bool) else False
 
-    Ai = abel.basex.get_bs_cached(n, sigma=sigma, reg=reg,
+    Ai = pyabel.basex.get_bs_cached(n, sigma=sigma, reg=reg,
                                   correction=correction,
                                   basis_dir=None, verbose=False)
 
-    recon = abel.basex.basex_core_transform(tr, Ai)
+    recon = pyabel.basex.basex_core_transform(tr, Ai)
     recon = recon[n // 2 + n % 2]
 
     ref = ref.func
@@ -173,11 +173,11 @@ def basex_forward_gaussian(sigma, reg, atol, rtol):
     ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=30)
     tr = np.tile(ref.func[None, :], (n, 1))  # make a 2D array from 1D
 
-    Ai = abel.basex.get_bs_cached(n, sigma=sigma, reg=reg,
+    Ai = pyabel.basex.get_bs_cached(n, sigma=sigma, reg=reg,
                                   basis_dir=None, verbose=False,
                                   direction='forward')
 
-    proj = abel.basex.basex_core_transform(tr, Ai)
+    proj = pyabel.basex.basex_core_transform(tr, Ai)
     proj = proj[n // 2 + n % 2]
 
     ref = ref.abel

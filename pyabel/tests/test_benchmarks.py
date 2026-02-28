@@ -1,9 +1,9 @@
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
-from abel.benchmark import AbelTiming, DistributionsTiming, \
+from pyabel.benchmark import AbelTiming, DistributionsTiming, \
                            absolute_ratio_benchmark, is_symmetric
-from abel.tools.analytical import StepAnalytical, GaussianAnalytical
+from pyabel.tools.analytical import StepAnalytical, GaussianAnalytical
 
 
 def test_AbelTiming():

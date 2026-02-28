@@ -1,8 +1,8 @@
 import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
-from abel.tools.analytical import SampleImage
-import abel.tools.vmi as vmi
+from pyabel.tools.analytical import SampleImage
+import pyabel.tools.vmi as vmi
 
 # The Distributions class and related functions are tested separately in
 # test_tools_distributions.py

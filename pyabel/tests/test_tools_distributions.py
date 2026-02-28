@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_equal, assert_allclose
 import itertools
 
-from abel.tools.vmi import Distributions, harmonics
+from pyabel.tools.vmi import Distributions, harmonics
 
 
 def test_origin():

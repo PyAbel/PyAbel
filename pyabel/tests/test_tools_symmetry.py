@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.testing import assert_allclose
 
-import abel
+import pyabel
 
 def test_symmetry_get_put_quadrants(image_shape=(5,5), verbose=False):
     
@@ -21,14 +21,14 @@ def test_symmetry_get_put_quadrants(image_shape=(5,5), verbose=False):
             print(" odd-size axes tagged with '-1'")
         print(z)
 
-    q = abel.tools.symmetry.get_image_quadrants(z, reorient=True)
+    q = pyabel.tools.symmetry.get_image_quadrants(z, reorient=True)
 
     if verbose:
         for i, qi in enumerate(q):
             print(f'\nreoriented quadrant Q{i}')
             print(qi)
 
-    r = abel.tools.symmetry.put_image_quadrants(q, original_image_shape=z.shape)
+    r = pyabel.tools.symmetry.put_image_quadrants(q, original_image_shape=z.shape)
 
     if verbose:
         print("\nreassembled image, shape = ", r.shape)
@@ -37,7 +37,7 @@ def test_symmetry_get_put_quadrants(image_shape=(5,5), verbose=False):
     assert not (z-r).any()
 
 """
-    q = abel.tools.symmetry.get_image_quadrants(z, reorient=True, 
+    q = pyabel.tools.symmetry.get_image_quadrants(z, reorient=True, 
             use_quadrants=(True, False, False, False), symmetry_axis=(0, 1)) 
 
     if verbose:

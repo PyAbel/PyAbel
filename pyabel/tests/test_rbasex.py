@@ -3,11 +3,11 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_less
 
-from abel.rbasex import rbasex_transform, cache_cleanup
-from abel.rbasex import get_bs_cached, cache_cleanup
-from abel.tools.analytical import GaussianAnalytical
-from abel.hansenlaw import hansenlaw_transform
-from abel import Transform
+from pyabel.rbasex import rbasex_transform, cache_cleanup
+from pyabel.rbasex import get_bs_cached, cache_cleanup
+from pyabel.tools.analytical import GaussianAnalytical
+from pyabel.hansenlaw import hansenlaw_transform
+from pyabel import Transform
 
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')

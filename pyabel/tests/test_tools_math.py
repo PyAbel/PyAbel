@@ -1,7 +1,7 @@
 from warnings import catch_warnings, simplefilter
 import numpy as np
 from numpy.testing import assert_allclose
-from abel.tools.math import gradient, trapezoid
+from pyabel.tools.math import gradient, trapezoid
 
 
 def test_gradient():

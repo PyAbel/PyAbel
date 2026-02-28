@@ -3,7 +3,7 @@ import os
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from abel.transform import get_basis_dir, set_basis_dir
+from pyabel.transform import get_basis_dir, set_basis_dir
 
 
 def test_basis_dir():

@@ -2,11 +2,11 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_equal, assert_raises
 import pytest
 
-import abel
-from abel import direct
-from abel.direct import direct_transform
-from abel.tools.analytical import GaussianAnalytical, TransformPair
-from abel.tools.math import trapezoid
+import pyabel
+from pyabel import direct
+from pyabel.direct import direct_transform
+from pyabel.tools.analytical import GaussianAnalytical, TransformPair
+from pyabel.tools.math import trapezoid
 
 
 def test_direct_shape():
@@ -40,12 +40,12 @@ def test_direct_gaussian():
 
     # forward:
     recon = direct_transform(ref.func, dr=ref.dr, direction='forward')
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='forward')
+    ratio = pyabel.benchmark.absolute_ratio_benchmark(ref, recon, kind='forward')
     assert_allclose(ratio, 1.0, rtol=2e-2, atol=2e-2)
 
     # inverse:
     recon = direct_transform(ref.abel, dr=ref.dr, direction='inverse')
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='inverse')
+    ratio = pyabel.benchmark.absolute_ratio_benchmark(ref, recon, kind='inverse')
     assert_allclose(ratio, 1.0, rtol=2e-2, atol=2e-2)
 
 
@@ -132,7 +132,7 @@ def test_direct_background():
 
 
 @pytest.mark.skipif(not direct.cython_ext,
-                    reason='abel.direct C extension not installed')
+                    reason='pyabel.direct C extension not installed')
 def test_direct_c_python_correspondence():
     """ Check that both the C and Python backends are identical """
     N = 10
@@ -140,8 +140,8 @@ def test_direct_c_python_correspondence():
     x = 2*r.reshape((1, -1))**2
 
     for correction in [0, 1]:
-        out1 = abel.direct._pyabel_direct_integral(x, r, correction, trapezoid)
-        out2 = abel.direct._cabel_direct_integral(x, r, correction)
+        out1 = pyabel.direct._pyabel_direct_integral(x, r, correction, trapezoid)
+        out2 = pyabel.direct._cabel_direct_integral(x, r, correction)
         assert_allclose(out1, out2, rtol=1e-9, atol=1e-9,
                         err_msg=f'-> {correction=}')
 
