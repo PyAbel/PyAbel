@@ -6,7 +6,7 @@ import numpy as np
 from scipy.linalg import inv, toeplitz, solve_banded, solve_triangular
 from scipy.optimize import nnls
 
-import abel
+import pyabel
 
 
 def daun_transform(data, reg=0.0, degree=0, dr=1.0, direction='inverse',
@@ -191,7 +191,7 @@ def get_bs_cached(n, degree=0, reg_type='diff', strength=0,
     if not bs_OK:
         # try to load
         if basis_dir == '':
-            basis_dir = abel.transform.get_basis_dir(make=True)
+            basis_dir = pyabel.transform.get_basis_dir(make=True)
         _bs = _load_bs(basis_dir, n, degree, verbose)
         if _bs is None:
             # generate and cache
@@ -476,7 +476,7 @@ def basis_dir_cleanup(basis_dir=''):
     None
     """
     if basis_dir == '':
-        basis_dir = abel.transform.get_basis_dir(make=False)
+        basis_dir = pyabel.transform.get_basis_dir(make=False)
 
     if basis_dir is None:
         return

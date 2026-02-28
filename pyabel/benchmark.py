@@ -1,5 +1,5 @@
 import numpy as np
-import abel
+import pyabel
 from . import basex
 from . import dasch
 from . import daun
@@ -596,7 +596,7 @@ class DistributionsTiming:
             full image (*n*, *n*), centered
     rmax : str or sequence of str
         ``'MIN'`` (default) and/or ``'all'``, see **rmax** in
-        :class:`abel.tools.vmi.Distributions`
+        :class:`pyabel.tools.vmi.Distributions`
     order : int
         highest order in the angular distributions. Even number ≥ 0.
     weight : str or sequence of str
@@ -674,7 +674,7 @@ class DistributionsTiming:
                                       for r in rmaxs}
                                       for m in methods}
 
-        from abel.tools.vmi import Ibeta, Distributions
+        from pyabel.tools.vmi import Ibeta, Distributions
         # make sure that everything is loaded
         # (otherwise the 1st timing call is very slow)
         Ibeta(np.array([[0]]))

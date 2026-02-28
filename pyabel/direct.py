@@ -57,7 +57,7 @@ def direct_transform(f, dr=None, r=None, direction='inverse', derivative=None,
     integral : callable, optional
         function that will be called like ``integral(f, r)`` and should return
         ``f`` integrated over ``r`` row by row. Only used by the Python backend
-        (:func:`abel.tools.math.trapezoid` by default); the C backend
+        (:func:`pyabel.tools.math.trapezoid` by default); the C backend
         always uses the trapezoidal rule.
     correction : bool, optional
         If ``False``, the pixel where the Abel integrand has a singularity is
@@ -126,7 +126,7 @@ def direct_transform(f, dr=None, r=None, direction='inverse', derivative=None,
                 g = derivative(f, r)
             except TypeError:
                 _deprecate('Passing one-argument derivative function to '
-                           'abel.direct.direct_transform() is deprecated.')
+                           'pyabel.direct.direct_transform() is deprecated.')
                 g = derivative(f) / (r[1] - r[0])  # assuming uniform
         g /= -np.pi
     else:  # 'forward'
@@ -148,7 +148,7 @@ def direct_transform(f, dr=None, r=None, direction='inverse', derivative=None,
         out = _cabel_direct_integral(g, r, int(correction))
     elif backend == 'python':
         if int_func is not _deprecated:
-            deprecate('abel.direct.direct_transform() argument "int_func" '
+            deprecate('pyabel.direct.direct_transform() argument "int_func" '
                       'is deprecated, use "integral" instead.')
             integral = int_func
         out = _pyabel_direct_integral(g, r, correction, integral or trapezoid)

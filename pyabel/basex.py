@@ -7,8 +7,8 @@ import numpy as np
 from scipy.special import gammaln
 from scipy.linalg import inv
 
-import abel
-from abel.tools.polynomial import PiecewisePolynomial
+import pyabel
+from pyabel.tools.polynomial import PiecewisePolynomial
 
 #############################################################################
 # This is adapted from the BASEX Matlab code provided by the Reisler group.
@@ -78,7 +78,7 @@ def basex_transform(data, sigma=1.0, reg=0.0, correction=True, basis_dir='',
     object, and ``data[0,0]`` should correspond to a central pixel.
     To perform a BASEX transform on a whole image, use ::
 
-        abel.Transform(image, method='basex', direction='inverse').transform
+        pyabel.Transform(image, method='basex', direction='inverse').transform
 
     This BASEX implementation only works with images that have an
     odd-integer full width.
@@ -292,7 +292,7 @@ def get_bs_cached(n, sigma=1.0, reg=0.0, correction=True, basis_dir='', dr=1.0,
         M, Mc = _bs
     else:  # try to load basis
         if basis_dir == '':
-            basis_dir = abel.transform.get_basis_dir(make=True)
+            basis_dir = pyabel.transform.get_basis_dir(make=True)
 
         if basis_dir is not None:
             basis_file = f'basex_basis_{n}_{sigma}.npy'
@@ -457,7 +457,7 @@ def basis_dir_cleanup(basis_dir=''):
     None
     """
     if basis_dir == '':
-        basis_dir = abel.transform.get_basis_dir(make=False)
+        basis_dir = pyabel.transform.get_basis_dir(make=False)
 
     if basis_dir is None:
         return

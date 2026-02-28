@@ -18,7 +18,7 @@ from . import tools
 
 class Transform:
     r"""
-    Abel transform image class. Also accessible as :class:`abel.Transform`.
+    Abel transform image class. Also accessible as :class:`pyabel.Transform`.
 
     This class provides whole-image forward and inverse Abel
     transforms, together with preprocessing (centering, symmetrizing)
@@ -137,24 +137,24 @@ class Transform:
     transform_options : dict
         Additional arguments passed to the individual transform functions.
         See the documentation for the individual transform method for options:
-        :func:`basex <abel.basex.basex_transform>`,
-        :func:`daun <abel.daun.daun_transform>`,
-        :func:`direct <abel.direct.direct_transform>`,
-        :func:`hansenlaw <abel.hansenlaw.hansenlaw_transform>`,
-        :func:`linbasex <abel.linbasex.linbasex_transform>`,
-        :func:`onion_bordas <abel.onion_bordas.onion_bordas_transform>`,
-        :func:`onion_peeling <abel.dasch.onion_peeling_transform>`,
-        :func:`rbasex <abel.rbasex.rbasex_transform>`,
-        :func:`three_point <abel.dasch.three_point_transform>`,
-        :func:`two_point <abel.dasch.two_point_transform>`.
+        :func:`basex <pyabel.basex.basex_transform>`,
+        :func:`daun <pyabel.daun.daun_transform>`,
+        :func:`direct <pyabel.direct.direct_transform>`,
+        :func:`hansenlaw <pyabel.hansenlaw.hansenlaw_transform>`,
+        :func:`linbasex <pyabel.linbasex.linbasex_transform>`,
+        :func:`onion_bordas <pyabel.onion_bordas.onion_bordas_transform>`,
+        :func:`onion_peeling <pyabel.dasch.onion_peeling_transform>`,
+        :func:`rbasex <pyabel.rbasex.rbasex_transform>`,
+        :func:`three_point <pyabel.dasch.three_point_transform>`,
+        :func:`two_point <pyabel.dasch.two_point_transform>`.
 
     center_options : dict
         Additional arguments to be passed to the centering function,
-        see :func:`abel.tools.center.center_image()`.
+        see :func:`pyabel.tools.center.center_image()`.
 
     angular_integration_options : dict
         Additional arguments passed to the angular integration functions,
-        see :func:`abel.tools.vmi.angular_integration_3D()`.
+        see :func:`pyabel.tools.vmi.angular_integration_3D()`.
 
     recast_as_float64 : bool
         determines whether the input image should be recast to
@@ -371,7 +371,7 @@ class Transform:
     angular_integration : tuple
         (radial-grid, radial-intensity)
         radial coordinates and the radial intensity (speed) distribution,
-        evaluated using :func:`abel.tools.vmi.angular_integration_3D()`.
+        evaluated using :func:`pyabel.tools.vmi.angular_integration_3D()`.
 
     residual : numpy 2D array
         residual image (not currently implemented).
@@ -749,7 +749,7 @@ def basis_dir_cleanup(basis_dir='', method=None):
         if method in ['onion_peeling', 'three_point', 'two_point']:
             dasch.basis_dir_cleanup(method, basis_dir)
         else:
-            module = sys.modules.get('abel.' + method)
+            module = sys.modules.get('pyabel.' + method)
             if not module:
                 warn(f'Unknown method "{method}"!',
                      SyntaxWarning, stacklevel=2)

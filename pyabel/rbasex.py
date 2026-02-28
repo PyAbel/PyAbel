@@ -7,9 +7,9 @@ import numpy as np
 from scipy.linalg import inv, solve_triangular, svd, pascal, invpascal
 from scipy.optimize import nnls
 
-import abel
-from abel.tools.vmi import Distributions
-from abel.tools.symmetry import put_image_quadrants
+import pyabel
+from pyabel.tools.vmi import Distributions
+from pyabel.tools.symmetry import put_image_quadrants
 
 ###############################################################################
 #
@@ -61,7 +61,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
     transform as an image and its radial distributions.
 
     The **origin**, **rmax**, **order**, **odd** and **weights** parameters are
-    passed to :class:`abel.tools.vmi.Distributions`, so see its documentation
+    passed to :class:`pyabel.tools.vmi.Distributions`, so see its documentation
     for their detailed descriptions.
 
     Parameters
@@ -112,7 +112,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         ``'pos'``:
             non-parameterized method, finds the best (in the least-squares
             sense) solution with non-negative :math:`\cos^n\theta \sin^m\theta`
-            terms (see :meth:`~abel.tools.vmi.Distributions.Results.cossin`).
+            terms (see :meth:`~pyabel.tools.vmi.Distributions.Results.cossin`).
             For **order** = 0, 1, and 2 (with **odd** = `False`) this is
             equivalent to :math:`I(r, \theta) \geqslant 0`; for higher orders
             this assumption is stronger than :math:`I \geqslant 0` and
@@ -165,7 +165,7 @@ def rbasex_transform(IM, origin='center', rmax='MIN', order=2, odd=False,
         than the input image.
     distr : Distributions.Results object
         the object from which various distributions for the transformed image
-        can be retrieved, see :class:`abel.tools.vmi.Distributions.Results`
+        can be retrieved, see :class:`pyabel.tools.vmi.Distributions.Results`
     """
     if order == 0:
         odd = False  # (to eliminate additional checks)
@@ -580,7 +580,7 @@ def get_bs_cached(Rmax, order=2, odd=False, direction='inverse', reg=None,
     global _bs_prm, _bs, _trf, _tri_full, _tri_prm, _tri
 
     if basis_dir == '':
-        basis_dir = abel.transform.get_basis_dir(make=True)
+        basis_dir = pyabel.transform.get_basis_dir(make=True)
 
     new_bs = False  # new basis set computed (for saving to disk)
 
@@ -777,7 +777,7 @@ def basis_dir_cleanup(basis_dir=''):
     None
     """
     if basis_dir == '':
-        basis_dir = abel.transform.get_basis_dir(make=False)
+        basis_dir = pyabel.transform.get_basis_dir(make=False)
 
     if basis_dir is None:
         return

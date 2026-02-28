@@ -66,7 +66,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     This function performs the :doc:`Hansen–Law transform
     <transform_methods/hansenlaw>` on only one "right-side" image::
 
-        Abeltrans = abel.hansenlaw.hansenlaw_transform(image, direction='inverse')
+        Abeltrans = pyabel.hansenlaw.hansenlaw_transform(image, direction='inverse')
 
     .. note::  Image should be a right-side image, like this::
 
@@ -86,15 +86,15 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
 
     For the full image transform, use the
-    :class:`abel.Transform<abel.transform.Transform>`.
+    :class:`pyabel.Transform<pyabel.transform.Transform>`.
 
     Inverse Abel transform::
 
-      iAbel = abel.Transform(image, method='hansenlaw').transform
+      iAbel = pyabel.Transform(image, method='hansenlaw').transform
 
     Forward Abel transform::
 
-      fAbel = abel.Transform(image, direction='forward', method='hansenlaw').transform
+      fAbel = pyabel.Transform(image, direction='forward', method='hansenlaw').transform
 
 
     Parameters

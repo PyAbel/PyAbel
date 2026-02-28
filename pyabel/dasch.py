@@ -1,7 +1,7 @@
 import os.path
 import numpy as np
 from glob import glob
-import abel
+import pyabel
 from scipy.linalg import inv
 
 ###############################################################################
@@ -334,15 +334,15 @@ def get_bs_cached(method, cols, basis_dir='', verbose=False):
 
     D_name = f'{method}_basis_{cols}.npy'
     D_generator = {
-        "onion_peeling": abel.dasch._bs_onion_peeling,
-        "three_point": abel.dasch._bs_three_point,
-        "two_point": abel.dasch._bs_two_point
+        "onion_peeling": pyabel.dasch._bs_onion_peeling,
+        "three_point": pyabel.dasch._bs_three_point,
+        "two_point": pyabel.dasch._bs_two_point
     }
 
     _method = method
 
     if basis_dir == '':
-        basis_dir = abel.transform.get_basis_dir(make=True)
+        basis_dir = pyabel.transform.get_basis_dir(make=True)
 
     # read deconvolution operator array if available
     if basis_dir is not None:
@@ -420,7 +420,7 @@ def basis_dir_cleanup(method, basis_dir=''):
     None
     """
     if basis_dir == '':
-        basis_dir = abel.transform.get_basis_dir(make=False)
+        basis_dir = pyabel.transform.get_basis_dir(make=False)
 
     if basis_dir is None:
         return

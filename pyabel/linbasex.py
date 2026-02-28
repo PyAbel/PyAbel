@@ -5,7 +5,7 @@ import scipy
 from scipy.special import eval_legendre
 from scipy.ndimage import rotate, shift, gaussian_filter1d
 
-import abel
+import pyabel
 
 ###############################################################################
 # linbasex - inversion procedure based on 1-dimensional projections of
@@ -82,7 +82,7 @@ def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
 
     # duplicate the quadrant, re-forming the whole image.
     quad_rows, quad_cols = IM.shape
-    full_image = abel.tools.symmetry.put_image_quadrants((IM, IM, IM, IM),
+    full_image = pyabel.tools.symmetry.put_image_quadrants((IM, IM, IM, IM),
                  original_image_shape=(quad_rows*2-1, quad_cols*2-1))
 
     # inverse Abel transform
@@ -95,7 +95,7 @@ def linbasex_transform(IM, basis_dir=None, proj_angles=[0, np.pi/2],
                                verbose=verbose)
 
     # unpack upper right quadrant
-    inv_IM = abel.tools.symmetry.get_image_quadrants(recon)[0]
+    inv_IM = pyabel.tools.symmetry.get_image_quadrants(recon)[0]
 
     if return_Beta:
         return inv_IM, radial, Beta, QLz
@@ -506,7 +506,7 @@ def get_bs_cached(cols, basis_dir=None, legendre_orders=[0, 2],
     _radial_step = radial_step
     _clip = clip
     if basis_dir == '':
-        basis_dir = abel.transform.get_basis_dir(make=True)
+        basis_dir = pyabel.transform.get_basis_dir(make=True)
     if basis_dir is not None:
         path_to_basis_file = os.path.join(basis_dir, basis_name)
         if os.path.exists(path_to_basis_file):
@@ -575,7 +575,7 @@ def basis_dir_cleanup(basis_dir=''):
     None
     """
     if basis_dir == '':
-        basis_dir = abel.transform.get_basis_dir(make=False)
+        basis_dir = pyabel.transform.get_basis_dir(make=False)
 
     if basis_dir is None:
         return

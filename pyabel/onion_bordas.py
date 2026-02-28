@@ -86,7 +86,7 @@ def onion_bordas_transform(IM, dr=1, direction="inverse", shift_grid=True,
 
     To perform a onion-peeling transorm on a whole image, use ::
     
-        abel.Transform(image, method='onion_bordas').transform
+        pyabel.Transform(image, method='onion_bordas').transform
 
     Parameters
     ----------
