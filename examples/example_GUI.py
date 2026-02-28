@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib; matplotlib.use('TkAgg')  # avoids crash on OSX
 import matplotlib.pyplot as plt
-import abel
+import pyabel
 
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,\
@@ -330,7 +330,7 @@ class PyAbel:  # (tk.Tk):
             self.direction.current(0)
         else:
             self.fn = self.fn.split(' ')[-1]
-            self.IM = abel.tools.analytical.SampleImage(n=1001,
+            self.IM = pyabel.tools.analytical.SampleImage(n=1001,
                                                         name=self.fn).func
             if len(self.direction["values"]) > 1:
                 self.direction.current(1)  # raw images require 'forward' transform
@@ -364,7 +364,7 @@ class PyAbel:  # (tk.Tk):
         self.canvas.draw()
 
         # center image via chosen method
-        self.IM = abel.tools.center.center_image(self.IM, method=center_method,
+        self.IM = pyabel.tools.center.center_image(self.IM, method=center_method,
                                                  odd_size=True)
         # self.text.insert(tk.END, f'\ncenter offset = {self.offset}')
         self.text.see(tk.END)
@@ -398,14 +398,14 @@ class PyAbel:  # (tk.Tk):
 
             try:
                 if self.method == 'linbasex':
-                    self.AIM = abel.Transform(
+                    self.AIM = pyabel.Transform(
                         self.IM, method=self.method, direction=self.fi)
                 elif self.method == 'daun(nonneg)':
-                    self.AIM = abel.Transform(
+                    self.AIM = pyabel.Transform(
                         self.IM, method='daun', direction=self.fi,
                         transform_options=dict(reg='nonneg'))
                 else:
-                    self.AIM = abel.Transform(
+                    self.AIM = pyabel.Transform(
                         self.IM, method=self.method, direction=self.fi,
                         symmetry_axis=None)
             except Exception as e:
@@ -451,7 +451,7 @@ class PyAbel:  # (tk.Tk):
         else:
             # speed distribution
             self.radial, self.speed_dist = \
-                abel.tools.vmi.angular_integration_3D(self.AIM.transform)
+                pyabel.tools.vmi.angular_integration_3D(self.AIM.transform)
 
         self.plt[1].axis("on")
         self.plt[1].plot(
@@ -531,7 +531,7 @@ class PyAbel:  # (tk.Tk):
         else:
             # intensity vs angle
             self.beta, self.amp, self.rad, self.intensity, self.theta =\
-               abel.tools.vmi.radial_integration(self.AIM.transform,
+               pyabel.tools.vmi.radial_integration(self.AIM.transform,
                                                  radial_ranges=[self.rmx, ])
 
             self.text.insert(

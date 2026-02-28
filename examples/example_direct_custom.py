@@ -1,8 +1,8 @@
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
-from abel.tools.analytical import TransformPair
-from abel.direct import direct_transform
+from pyabel.tools.analytical import TransformPair
+from pyabel.direct import direct_transform
 
 ref = TransformPair(100, profile=6)
 noise = 0.05  # RMS intensity of additive noise

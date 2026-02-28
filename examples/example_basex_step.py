@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-from abel.basex import basex_transform
-from abel.tools.analytical import StepAnalytical
+from pyabel.basex import basex_transform
+from pyabel.tools.analytical import StepAnalytical
 
 # This example calculates the BASEX transform of a step function and
 # compares with the analtical result.

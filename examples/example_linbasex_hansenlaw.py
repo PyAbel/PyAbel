@@ -1,5 +1,5 @@
 import numpy as np
-import abel
+import pyabel
 import matplotlib.pyplot as plt
 
 IM = np.loadtxt("data/VMI_art1.txt.bz2")
@@ -13,7 +13,7 @@ clip = 0  # clip first vectors (smallest Newton spheres) to avoid singularities
 
 # linbasex method - center ensures image has odd square shape
 #                 - speed and anisotropy parameters evaluated by method
-LIM = abel.Transform(IM, method='linbasex', origin='convolution',
+LIM = pyabel.Transform(IM, method='linbasex', origin='convolution',
                      center_options=dict(square=True),
                      transform_options=dict(
                          proj_angles=proj_angles,
@@ -21,14 +21,14 @@ LIM = abel.Transform(IM, method='linbasex', origin='convolution',
                          threshold=threshold, clip=clip, verbose=True))
 
 # hansenlaw method - speed and anisotropy parameters evaluated by integration
-HIM = abel.Transform(IM, method="hansenlaw", origin='convolution',
+HIM = pyabel.Transform(IM, method="hansenlaw", origin='convolution',
                      center_options=dict(square=True),
                      angular_integration=True)
 
 # alternative derivation of anisotropy parameters via integration
 rrange = [(20, 50), (60, 80), (85, 100), (125, 155), (185, 205), (220, 240)]
 Beta, Amp, rr, intensity, theta =\
-      abel.tools.vmi.radial_integration(HIM.transform, radial_ranges=rrange)
+      pyabel.tools.vmi.radial_integration(HIM.transform, radial_ranges=rrange)
 
 plt.figure(figsize=(12, 6))
 ax0 = plt.subplot2grid((2, 4), (0, 0))

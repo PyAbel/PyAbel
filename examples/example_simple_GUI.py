@@ -5,7 +5,7 @@
 
 import numpy as np
 
-import abel
+import pyabel
 
 from scipy.ndimage import shift
 
@@ -83,12 +83,12 @@ def _center():
     text.delete(1.0, tk.END)
     text.insert(
         tk.END,
-        f'centering image using abel.tools.center.center_image({method=})\n')
+        f'centering image using pyabel.tools.center.center_image({method=})\n')
     canvas.draw()
 
     # center image via horizontal (left, right), and vertical (top, bottom)
     # intensity slices
-    IM = abel.tools.center.center_image(IM, method=method, odd_size=True)
+    IM = pyabel.tools.center.center_image(IM, method=method, odd_size=True)
 
     _display()
 
@@ -109,7 +109,7 @@ def _transform():
     canvas.draw()
 
     # inverse Abel transform of whole image
-    AIM = abel.Transform(IM, method=method, direction="inverse",
+    AIM = pyabel.Transform(IM, method=method, direction="inverse",
                          symmetry_axis=None)
 
     f.clf()
@@ -134,7 +134,7 @@ def _speed():
     elif transform.get() == 'rbasex':
         radial, speed, _ = AIM.distr.rIbeta()
     else:
-        radial, speed = abel.tools.vmi.angular_integration_3D(AIM.transform)
+        radial, speed = pyabel.tools.vmi.angular_integration_3D(AIM.transform)
 
     f.clf()
     a = f.add_subplot(111)
@@ -184,7 +184,7 @@ def _anisotropy():
     else:
         # intensity vs angle
         beta, amp, rad, intensity, theta =\
-            abel.tools.vmi.radial_integration(AIM.transform,
+            pyabel.tools.vmi.radial_integration(AIM.transform,
                                               radial_ranges=[rmx, ])
 
         beta = beta[0]

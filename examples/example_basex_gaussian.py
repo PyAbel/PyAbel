@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import abel
+import pyabel
 
 # This example performs a BASEX transform of a simple 1D Gaussian function and
 # compares this to the analytical inverse Abel transform
@@ -13,7 +13,7 @@ n = 101
 r_max = 20
 sigma = 10
 
-ref = abel.tools.analytical.GaussianAnalytical(n, r_max, sigma, symmetric=False)
+ref = pyabel.tools.analytical.GaussianAnalytical(n, r_max, sigma, symmetric=False)
 
 ax.plot(ref.r, ref.func, 'b', label='Original signal')
 ax.plot(ref.r, ref.abel, 'r', label='Direct Abel transform ×0.05 [analytical]')
@@ -22,7 +22,7 @@ center = n // 2
 
 # BASEX Transform:
 # Calculate the inverse abel transform for the centered data
-recon = abel.basex.basex_transform(ref.abel, verbose=True, basis_dir=None,
+recon = pyabel.basex.basex_transform(ref.abel, verbose=True, basis_dir=None,
                                    dr=ref.dr, direction='inverse')
 
 ax.plot(ref.r, recon, 'o', color='red', label='Inverse transform [BASEX]',

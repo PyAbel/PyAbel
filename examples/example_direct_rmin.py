@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-from abel.direct import direct_transform
-from abel.tools.analytical import TransformPair
+from pyabel.direct import direct_transform
+from pyabel.tools.analytical import TransformPair
 
 ref = TransformPair(n=100, profile=4)
 

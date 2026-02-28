@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import abel
-from abel.tools.circularize import circularize, circularize_image
+import pyabel
+from pyabel.tools.circularize import circularize, circularize_image
 import scipy.interpolate
 
 #######################################################################
@@ -16,10 +16,10 @@ import scipy.interpolate
 
 
 # sample image -----------
-IM = abel.tools.analytical.SampleImage(n=511, name='Ominus', sigma=2).func
+IM = pyabel.tools.analytical.SampleImage(n=511, name='Ominus', sigma=2).func
 
 # forward transform == what is measured
-IMf = abel.Transform(IM, method='hansenlaw', direction="forward").transform
+IMf = pyabel.Transform(IM, method='hansenlaw', direction="forward").transform
 
 # flower image distortion
 def flower_scaling(theta, freq=2, amp=0.1):
@@ -34,12 +34,12 @@ IMcirc, sla, sc, scspl = circularize_image(IMdist,
                                            tol=0, return_correction=True)
 
 # inverse Abel transform for distored and circularized images ---------
-AIMdist = abel.Transform(IMdist, method="three_point").transform
-AIMcirc = abel.Transform(IMcirc, method="three_point").transform
+AIMdist = pyabel.Transform(IMdist, method="three_point").transform
+AIMcirc = pyabel.Transform(IMcirc, method="three_point").transform
 
 # respective speed distributions
-rdist, speeddist = abel.tools.vmi.angular_integration_3D(AIMdist, dr=0.5)
-rcirc, speedcirc = abel.tools.vmi.angular_integration_3D(AIMcirc, dr=0.5)
+rdist, speeddist = pyabel.tools.vmi.angular_integration_3D(AIMdist, dr=0.5)
+rcirc, speedcirc = pyabel.tools.vmi.angular_integration_3D(AIMcirc, dr=0.5)
 
 # note the small image size is responsible for the slight over correction
 # of the background near peaks

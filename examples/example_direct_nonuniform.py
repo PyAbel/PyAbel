@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from abel.tools.analytical import GaussianAnalytical
-from abel.direct import direct_transform
+from pyabel.tools.analytical import GaussianAnalytical
+from pyabel.direct import direct_transform
 
 # a Gaussian sampled on a non-uniform grid (denser in more curved regions)
 n = 30

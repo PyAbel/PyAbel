@@ -5,7 +5,7 @@ from time import time
 import matplotlib.pylab as plt
 import numpy as np
 
-import abel
+import pyabel
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
@@ -26,7 +26,7 @@ ntrans = len(transforms)
 # sample image radius in pixels
 R = 150
 
-fIM = abel.tools.analytical.SampleImage(n=2 * R + 1, name="Dribinski").abel
+fIM = pyabel.tools.analytical.SampleImage(n=2 * R + 1, name="Dribinski").abel
 # fIM += np.random.normal(0, 5000, fIM.shape)  # try adding some noise
 
 print(f'image shape {fIM.shape}')
@@ -46,7 +46,7 @@ for i, method in enumerate(transforms):
     t0 = time()
 
     # inverse Abel transform using 'method'
-    recon = abel.Transform(fIM, method=method, direction="inverse",
+    recon = pyabel.Transform(fIM, method=method, direction="inverse",
                            symmetry_axis=(0, 1)).transform
 
     print(f'                    {time() - t0:.4f} s')
@@ -62,7 +62,7 @@ for i, method in enumerate(transforms):
     ax1.annotate(method, annot_coord, color="white", ha="center")
 
     # polar projection and speed profile
-    radial, speed = abel.tools.vmi.angular_integration_3D(recon)
+    radial, speed = pyabel.tools.vmi.angular_integration_3D(recon)
 
     # plot speed distribution
     ax2.plot(radial, speed, label=method)

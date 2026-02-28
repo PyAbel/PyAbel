@@ -1,15 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import abel
+import pyabel
 
 # one quadrant of Dribinski sample image, its size and intensity distribution
-im = abel.tools.analytical.SampleImage().func
-q0 = abel.tools.symmetry.get_image_quadrants(im)[0]
+im = pyabel.tools.analytical.SampleImage().func
+q0 = pyabel.tools.symmetry.get_image_quadrants(im)[0]
 n = q0.shape[0]
-I0, _ = abel.tools.vmi.Ibeta(q0, origin='ll')
+I0, _ = pyabel.tools.vmi.Ibeta(q0, origin='ll')
 
 # forward-transformed quadrant
-Q = abel.rbasex.rbasex_transform(q0, origin='ll', direction='forward')[0]
+Q = pyabel.rbasex.rbasex_transform(q0, origin='ll', direction='forward')[0]
 # rescale intensities to 1000 max
 scale = 1000 / Q.max()
 q0 *= scale
@@ -34,11 +34,11 @@ for i, reg in enumerate(regs):
     plt.subplot(3, 4, 1 + i)
     plt.axis('off')
 
-    q = abel.daun.daun_transform(Q, degree=1, reg=reg)
+    q = pyabel.daun.daun_transform(Q, degree=1, reg=reg)
     plt.imshow(q, clim=(-3, 3), cmap='seismic')
     plt.text(n / 2, 0, f'{reg=!r}', ha='center', va='top')
 
-    I, _ = abel.tools.vmi.Ibeta(q, origin='ll')
+    I, _ = pyabel.tools.vmi.Ibeta(q, origin='ll')
     Is.append(I)
 
 # plots of intensity distributions

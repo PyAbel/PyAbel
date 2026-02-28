@@ -1,5 +1,5 @@
 import numpy as np
-import abel
+import pyabel
 import matplotlib.pylab as plt
 
 # Hansen and Law inverse Abel transform of velocity-map imaged electrons
@@ -15,11 +15,11 @@ IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 rows, cols = IM.shape    # image size
 
 # center image returning odd size
-IMc = abel.tools.center.center_image(IM, method='com')
+IMc = pyabel.tools.center.center_image(IM, method='com')
 
 # dr=0.5 may help reduce pixel grid coarseness
 # NB remember to also pass as an option to angular_integration
-AIM = abel.Transform(IMc, method='hansenlaw',
+AIM = pyabel.Transform(IMc, method='hansenlaw',
                      use_quadrants=(True, True, True, True),
                      symmetry_axis=None,
                      transform_options=dict(dr=0.5, align_grid=False),
@@ -29,7 +29,7 @@ AIM = abel.Transform(IMc, method='hansenlaw',
 
 # convert to photoelectron spectrum vs binding energy
 # conversion factors depend on measurement parameters
-eBE, PES = abel.tools.vmi.toPES(*AIM.angular_integration,
+eBE, PES = pyabel.tools.vmi.toPES(*AIM.angular_integration,
                                 energy_cal_factor=1.204e-5,
                                 photon_energy=1.0e7/454.5, Vrep=-2200,
                                 zoom=IM.shape[-1]/2048)

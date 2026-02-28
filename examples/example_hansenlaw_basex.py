@@ -3,7 +3,7 @@ import os.path
 import numpy as np
 import matplotlib.pyplot as plt
 
-import abel
+import pyabel
 
 from scipy.ndimage import shift, zoom
 
@@ -37,7 +37,7 @@ im = zoom(im, 0.4892578125)
 if cols % 2 == 0:
     print(f'Even pixel image {cols=}, adjusting image centre\n'
           ' center_image()')
-    im = abel.tools.center.center_image(im, origin="slice", odd_size=True)
+    im = pyabel.tools.center.center_image(im, origin="slice", odd_size=True)
     # alternative
     #im = shift(im,(0.5, 0.5))
     #im = im[:-1, 1::]  # drop left col, bottom row
@@ -51,15 +51,15 @@ print(f'image size {rows}x{cols}')
 print('Performing Hansen and Law inverse Abel transform:')
 
 # quad = (True ... => combine the 4 quadrants into one
-reconH = abel.Transform(im, method="hansenlaw", direction="inverse",
+reconH = pyabel.Transform(im, method="hansenlaw", direction="inverse",
                         verbose=True, symmetry_axis=None).transform
-rH, speedsH = abel.tools.vmi.angular_integration_3D(reconH)
+rH, speedsH = pyabel.tools.vmi.angular_integration_3D(reconH)
 
 # Basex inverse Abel transform
 print('Performing basex inverse Abel transform:')
-reconB = abel.Transform(im, method="basex", direction="inverse",
+reconB = pyabel.Transform(im, method="basex", direction="inverse",
                         verbose=True, symmetry_axis=None).transform
-rB, speedsB = abel.tools.vmi.angular_integration_3D(reconB)
+rB, speedsB = pyabel.tools.vmi.angular_integration_3D(reconB)
 
 # plot the results - VMI, inverse Abel transformed image, speed profiles
 # Set up some axes

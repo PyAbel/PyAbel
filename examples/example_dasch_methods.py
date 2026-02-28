@@ -1,16 +1,16 @@
 import numpy as np
-import abel
+import pyabel
 import matplotlib.pyplot as plt
 
 # Dribinski sample image size 501x501
 n = 501
-IM = abel.tools.analytical.SampleImage(n).func
+IM = pyabel.tools.analytical.SampleImage(n).func
 
 # split into quadrants
-origQ = abel.tools.symmetry.get_image_quadrants(IM)
+origQ = pyabel.tools.symmetry.get_image_quadrants(IM)
 
 # speed distribution of original image
-orig_speed = abel.tools.vmi.angular_integration_3D(origQ[0], origin=(-1, 0))
+orig_speed = pyabel.tools.vmi.angular_integration_3D(origQ[0], origin=(-1, 0))
 scale_factor = orig_speed[1].max()
 
 plt.plot(orig_speed[0], orig_speed[1]/scale_factor, linestyle='dashed',
@@ -18,15 +18,15 @@ plt.plot(orig_speed[0], orig_speed[1]/scale_factor, linestyle='dashed',
 
 
 # forward Abel projection
-fIM = abel.Transform(IM, direction="forward", method="hansenlaw").transform
+fIM = pyabel.Transform(IM, direction="forward", method="hansenlaw").transform
 
 # split projected image into quadrants
-Q = abel.tools.symmetry.get_image_quadrants(fIM)
+Q = pyabel.tools.symmetry.get_image_quadrants(fIM)
 
 dasch_transform = {
-    "two_point": abel.dasch.two_point_transform,
-    "three_point": abel.dasch.three_point_transform,
-    "onion_peeling": abel.dasch.onion_peeling_transform
+    "two_point": pyabel.dasch.two_point_transform,
+    "three_point": pyabel.dasch.three_point_transform,
+    "onion_peeling": pyabel.dasch.onion_peeling_transform
 }
 
 for method in dasch_transform.keys():
@@ -34,7 +34,7 @@ for method in dasch_transform.keys():
 # method inverse Abel transform
     AQ0 = dasch_transform[method](Q0)
 # speed distribution
-    speed = abel.tools.vmi.angular_integration_3D(AQ0, origin=(-1, 0))
+    speed = pyabel.tools.vmi.angular_integration_3D(AQ0, origin=(-1, 0))
 
     plt.plot(speed[0], speed[1]*orig_speed[1][14]/speed[1][14]/scale_factor,
              label=method)
