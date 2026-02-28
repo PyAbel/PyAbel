@@ -26,11 +26,11 @@ incorporates no smoothing.
 How to use it
 -------------
 
-To complete the inverse transform of a full image with the ``two_point method``, simply use the :class:`abel.Transform <abel.transform.Transform>` class::
+To complete the inverse transform of a full image with the ``two_point method``, simply use the :class:`pyabel.Transform <pyabel.transform.Transform>` class::
 
-    abel.Transform(myImage, method='two_point').transform
+    pyabel.Transform(myImage, method='two_point').transform
 
-If you would like to access the ``two_point`` algorithm directly (to transform a right-side half-image), you can use :func:`abel.dasch.two_point_transform`.
+If you would like to access the ``two_point`` algorithm directly (to transform a right-side half-image), you can use :func:`pyabel.dasch.two_point_transform`.
 
 
 Example

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import abel.tools.transform_pairs
+import pyabel.tools.transform_pairs
 
 n = 100
 
@@ -15,7 +15,7 @@ def plot(profile):
 
     eps = 1e-8  # (some profiles do not like exact 0 and 1)
     r = np.linspace(0 + eps, 1 - eps, n)
-    f, a = getattr(abel.tools.transform_pairs, profile)(r)
+    f, a = getattr(pyabel.tools.transform_pairs, profile)(r)
 
     for i, p in enumerate([f, a]):
         ax = axs[i]

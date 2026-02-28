@@ -1,8 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
-import abel
+import pyabel
 
-from abel.tools.polynomial import ApproxGaussian, PiecewisePolynomial
+from pyabel.tools.polynomial import ApproxGaussian, PiecewisePolynomial
 
 r = np.arange(201)
 r0 = 100
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     print('rel diff =', D / M * 100, '%')
     plot('func', approx.func, gauss, 0.005)
 
-    M = ref.abel.max()
+    M = ref.pyabel.max()
     D = (approx.abel - ref.abel).max()
     print('max abel =', M)
     print('max diff =', D)

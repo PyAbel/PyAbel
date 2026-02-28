@@ -27,13 +27,13 @@ He also notes that this technique works best for cases where the real difference
 How to use it
 -------------
 
-To complete the inverse transform of a full image with the ``three_point method``, simply use the :class:`abel.Transform <abel.transform.Transform>` class::
+To complete the inverse transform of a full image with the ``three_point method``, simply use the :class:`pyabel.Transform <pyabel.transform.Transform>` class::
 
-    abel.Transform(myImage, method='three_point', direction='inverse').transform
+    pyabel.Transform(myImage, method='three_point', direction='inverse').transform
 
 Note that the forward Three point transform is not yet implemented in PyAbel.
 
-If you would like to access the Three Point algorithm directly (to transform a right-side half-image), you can use :func:`abel.dasch.three_point_transform`.
+If you would like to access the Three Point algorithm directly (to transform a right-side half-image), you can use :func:`pyabel.dasch.three_point_transform`.
 
 
 Example

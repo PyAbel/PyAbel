@@ -1,16 +1,16 @@
 import numpy as np
-import abel
+import pyabel
 
 import os
 
 
 def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
-    """run abel.benchmark and save timings to '{benchmark_dir}/{method}.dat'.
+    """run pyabel.benchmark and save timings to '{benchmark_dir}/{method}.dat'.
 
     """
     # check whether PyAbel version has '{method}' and basis calculation
     try:
-        res = abel.benchmark.AbelTiming(n=21, select=method, verbose=False)
+        res = pyabel.benchmark.AbelTiming(n=21, select=method, verbose=False)
         try:
             res.bs[method]
             has_basis = True
@@ -41,7 +41,7 @@ def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
         for line in previous:
             print(line.strip('\n'))
 
-    res = abel.benchmark.AbelTiming(n=ns, select=method, repeat=repeats,
+    res = pyabel.benchmark.AbelTiming(n=ns, select=method, repeat=repeats,
                                     t_min=min_time, t_max=max_time,
                                     verbose=True)
 

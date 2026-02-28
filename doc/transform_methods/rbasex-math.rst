@@ -352,7 +352,7 @@ approximation for cylindrical rings.)
 Overall, the transforms proceed as follows:
 
 1. Radial distributions for each angular order are extracted from the input
-   data using :class:`abel.tools.vmi.Distributions`. This takes
+   data using :class:`pyabel.tools.vmi.Distributions`. This takes
    :math:`O(N\,R_\text{max}^2)` time, where :math:`N` is the number of angular
    terms, and :math:`R_\text{max}` is the largest analyzed radius (assuming
    :math:`N \ll R_\text{max}`).

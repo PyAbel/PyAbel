@@ -22,11 +22,11 @@ Methods
    .. plot:: ../examples/example_linbasex.py
 
 
-   Method 2: using :func:`abel.tools.vmi.radial_integration`.
+   Method 2: using :func:`pyabel.tools.vmi.radial_integration`.
 
        This method determines the anisotropy parameter from the inverse Abel-transformed image, by extracting intensity vs angle for each specified radial range and then fitting the intensity formula given above. This method is best applied to the radial ranges corresponding to strong spectral intensity in the image. It has the advantage of providing the least-squares fit error estimate for the parameter(s).
 
-   Method 3: using :class:`abel.tools.vmi.Distributions`.
+   Method 3: using :class:`pyabel.tools.vmi.Distributions`.
 
        This method, like the previous one, works on the inverse Abel-transformed image, but fits the angular intensity dependence at each radius, providing radially dependent anisotropy parameters, like in the first method. If the anisotropy parameters are known to be smooth radial functions, a moving-window averaging can be employed for noise reduction.
 
@@ -44,7 +44,7 @@ See :doc:`example_anisotropy_parameter`. In this case the anisotropy parameter i
 
 .. plot:: ../examples/example_anisotropy_parameter.py
 
-A demonstration of using :class:`~abel.tools.vmi.Distributions` for incomplete images is also included in :doc:`example_rbasex_block`.
+A demonstration of using :class:`~pyabel.tools.vmi.Distributions` for incomplete images is also included in :doc:`example_rbasex_block`.
 
 
 .. raw:: html

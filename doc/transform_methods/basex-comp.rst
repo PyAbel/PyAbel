@@ -287,7 +287,7 @@ the “broad” basis set can be reproduced by replacing the line ::
 
     return rawdata.dot(A)
 
-in :func:`abel.basex.basex_core_transform` with the following code::
+in :func:`pyabel.basex.basex_core_transform` with the following code::
 
     Mc = (_bs[1])[::-1]  # PyAbel and BASEX.exe use different coordinates
     V = Mc.dot(inv((Mc.T).dot(Mc))).dot(Mc.T)

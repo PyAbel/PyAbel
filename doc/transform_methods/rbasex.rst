@@ -130,49 +130,49 @@ special case, it offers several benefits:
 How to use it
 -------------
 
-The method can be accessed through the universal :class:`abel.Transform
-<abel.transform.Transform>` class::
+The method can be accessed through the universal :class:`pyabel.Transform
+<pyabel.transform.Transform>` class::
 
-    res = abel.Transform(image, method='rbasex')
+    res = pyabel.Transform(image, method='rbasex')
     recon = res.transform
     distr = res.distr
 
-optionally using other :class:`Transform <abel.transform.Transform>` arguments
+optionally using other :class:`Transform <pyabel.transform.Transform>` arguments
 and passing additional rBasex parameters (see
-:func:`abel.rbasex.rbasex_transform` documentation for their full description)
+:func:`pyabel.rbasex.rbasex_transform` documentation for their full description)
 through the ``transform_options`` argument. Alternatively, it might be more
 convenient to use the method by calling its transform function directly::
 
-    recon, distr = abel.rbasex.rbasex_transform(image)
+    recon, distr = pyabel.rbasex.rbasex_transform(image)
     r, I, beta = distr.rIbeta()
 
 It returns the transformed image ``recon`` and a :class:`Distributions.Results
-<abel.tools.vmi.Distributions.Results>` object ``distr``, from which various
+<pyabel.tools.vmi.Distributions.Results>` object ``distr``, from which various
 radial distributions can be retrieved, such as the intensity and
 anisotropy-parameter distributions in this example.
 
 If only the distributions are needed, but not the transformed image itself, the
 calculations can be accelerated by disabling the creation of the output image::
 
-    _, distr = abel.rbasex.rbasex_transform(image, out=None)
+    _, distr = pyabel.rbasex.rbasex_transform(image, out=None)
     r, I, beta = distr.rIbeta()
 
 Note that rBasex does not require the input image to be centered. Thus instead
-of centering it with :func:`~abel.tools.center.center_image` (or using the
-``origin`` argument of :class:`Transform <abel.transform.Transform>`), which
+of centering it with :func:`~pyabel.tools.center.center_image` (or using the
+``origin`` argument of :class:`Transform <pyabel.transform.Transform>`), which
 will crop some data or fill it with zeros, it is better to pass the image
 origin directly to the transform function, determining it automatically, if
 needed::
 
-    origin = abel.tools.center.find_origin(image, method='convolution')
-    recon, distr = abel.rbasex.rbasex_transform(image, origin=origin)
+    origin = pyabel.tools.center.find_origin(image, method='convolution')
+    recon, distr = pyabel.rbasex.rbasex_transform(image, origin=origin)
 
 This also *must* be done if optional pixel weighting is used, since otherwise
 the centered image would become inconsistent with the weights array. For
-example, when using the :class:`Transform <abel.transform.Transform>` class,
+example, when using the :class:`Transform <pyabel.transform.Transform>` class,
 pass the origin as follows::
 
-    res = abel.Transform(image, method='rbasex',
+    res = pyabel.Transform(image, method='rbasex',
                          transform_options=dict(origin=..., weights=...))
 
 The weights array can also be used as a mask, using zero weights to exclude

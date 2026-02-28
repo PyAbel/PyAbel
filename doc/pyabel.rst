@@ -1,75 +1,75 @@
-abel package
-============
+pyabel package
+==============
 
     
-abel.transform module
+pyabel.transform module
 ---------------------
 
-.. automodule:: abel.transform
+.. automodule:: pyabel.transform
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.basex module
+pyabel.basex module
 -----------------
 
-.. automodule:: abel.basex
+.. automodule:: pyabel.basex
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.dasch module
+pyabel.dasch module
 -----------------
 
-.. automodule:: abel.dasch
+.. automodule:: pyabel.dasch
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.daun module
+pyabel.daun module
 ----------------
 
-.. automodule:: abel.daun
+.. automodule:: pyabel.daun
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.direct module
+pyabel.direct module
 ------------------
 
-.. automodule:: abel.direct
+.. automodule:: pyabel.direct
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.hansenlaw module
+pyabel.hansenlaw module
 ---------------------
 
-.. automodule:: abel.hansenlaw
+.. automodule:: pyabel.hansenlaw
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.linbasex module
+pyabel.linbasex module
 --------------------
 
-.. automodule:: abel.linbasex
+.. automodule:: pyabel.linbasex
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.onion_bordas module
+pyabel.onion_bordas module
 ------------------------
 
-.. automodule:: abel.onion_bordas
+.. automodule:: pyabel.onion_bordas
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.rbasex module
+pyabel.rbasex module
 ------------------
 
-.. automodule:: abel.rbasex
+.. automodule:: pyabel.rbasex
     :members:
     :undoc-members:
     :show-inheritance:
@@ -79,50 +79,50 @@ Image processing tools
 ======================
 
 
-abel.tools.analytical module
+pyabel.tools.analytical module
 ----------------------------
 
-.. automodule:: abel.tools.analytical
+.. automodule:: pyabel.tools.analytical
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.tools.center module
+pyabel.tools.center module
 ------------------------
 
-.. automodule:: abel.tools.center
+.. automodule:: pyabel.tools.center
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.tools.circularize module
+pyabel.tools.circularize module
 ------------------------------
 
-.. automodule:: abel.tools.circularize
+.. automodule:: pyabel.tools.circularize
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.tools.math module
+pyabel.tools.math module
 ----------------------
 
-.. automodule:: abel.tools.math
+.. automodule:: pyabel.tools.math
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.tools.polar module
+pyabel.tools.polar module
 -----------------------
 
-.. automodule:: abel.tools.polar
+.. automodule:: pyabel.tools.polar
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.tools.polynomial module
+pyabel.tools.polynomial module
 ----------------------------
 
-.. automodule:: abel.tools.polynomial
+.. automodule:: pyabel.tools.polynomial
     :members:
     :undoc-members:
     :show-inheritance:
@@ -133,34 +133,34 @@ abel.tools.polynomial module
 
     tools/polynomial
 
-abel.tools.transform_pairs module
+pyabel.tools.transform_pairs module
 ----------------------------------
 
-.. automodule:: abel.tools.transform_pairs
+.. automodule:: pyabel.tools.transform_pairs
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.tools.symmetry module
+pyabel.tools.symmetry module
 --------------------------
 
-.. automodule:: abel.tools.symmetry
+.. automodule:: pyabel.tools.symmetry
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.tools.vmi module
+pyabel.tools.vmi module
 ---------------------
 
-.. automodule:: abel.tools.vmi
+.. automodule:: pyabel.tools.vmi
     :members:
     :undoc-members:
     :show-inheritance:
 
-abel.benchmark module
+pyabel.benchmark module
 ---------------------
 
-.. automodule:: abel.benchmark
+.. automodule:: pyabel.benchmark
     :members:
     :undoc-members:
     :show-inheritance:

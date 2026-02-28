@@ -2,7 +2,7 @@ import numpy as np
 from scipy.linalg import inv, svd
 import matplotlib.pyplot as plt
 
-from abel.rbasex import _bs_rbasex
+from pyabel.rbasex import _bs_rbasex
 
 Rmax = 40
 

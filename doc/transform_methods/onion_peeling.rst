@@ -42,11 +42,11 @@ states that it has less smoothing that other methods (discussed in Dasch).
 How to use it
 -------------
 
-To complete the inverse transform of a full image with the ``onion_dasch`` method, simply use the :class:`abel.Transform <abel.transform.Transform>` class::
+To complete the inverse transform of a full image with the ``onion_dasch`` method, simply use the :class:`pyabel.Transform <pyabel.transform.Transform>` class::
 
-    abel.Transform(myImage, method='onion_peeling').transform
+    pyabel.Transform(myImage, method='onion_peeling').transform
 
-If you would like to access the ``onion_peeling`` algorithm directly (to transform a right-side half-image), you can use :func:`abel.dasch.onion_peeling_transform`.
+If you would like to access the ``onion_peeling`` algorithm directly (to transform a right-side half-image), you can use :func:`pyabel.dasch.onion_peeling_transform`.
 
 
 Example

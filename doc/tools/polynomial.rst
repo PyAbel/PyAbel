@@ -3,7 +3,7 @@
 Polynomials
 ===========
 
-Implemented in :mod:`abel.tools.polynomial`.
+Implemented in :mod:`pyabel.tools.polynomial`.
 
 Abel transform
 --------------
@@ -179,7 +179,7 @@ polynomial by :math:`A`:
     import matplotlib.pyplot as plt
     import numpy as np
 
-    from abel.tools.polynomial import PiecewisePolynomial as PP
+    from pyabel.tools.polynomial import PiecewisePolynomial as PP
 
     r = np.arange(51.0)
 
@@ -207,11 +207,11 @@ polynomial by :math:`A`:
     plt.show()
 
 ``Polynomial`` and ``PiecewisePolynomial`` are also accessible through the
-:mod:`abel.tools.analytical` module. Amplitude scaling by multiplying the
+:mod:`pyabel.tools.analytical` module. Amplitude scaling by multiplying the
 “function” (a Python object actually) is not supported there, but it can be
 achieved simply by scaling all the coefficients::
 
-    from abel.tools.analytical import PiecewisePolynomial as PP
+    from pyabel.tools.analytical import PiecewisePolynomial as PP
     c = A * np.array([0, 0, 3, -2])
     smoothstep = PP(..., [(rmin - w, rmin + w, c, rmin - w, 2 * w),
                           (rmin + w, rmax - w, [A]),
@@ -380,7 +380,7 @@ equations :math:`f_n(r) = g(r)` for :math:`r = R_n, R_{n+\frac12}, R_{n+1}`.
 As an example, here is the outcome for the default approximation accuracy
 ≲0.5 %, resulting in just 7 segments::
 
-    from abel.tools.polynomial import ApproxGaussian, PiecewisePolynomial
+    from pyabel.tools.polynomial import ApproxGaussian, PiecewisePolynomial
     r = np.arange(201)
     r0 = 100
     sigma = 20

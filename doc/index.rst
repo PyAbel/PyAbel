@@ -16,7 +16,7 @@ Welcome to PyAbel's documentation!
     :maxdepth: 2
 
     readme_link
-    abel
+    pyabel
     transform_methods
     anisotropy_parameter
     circularize_image

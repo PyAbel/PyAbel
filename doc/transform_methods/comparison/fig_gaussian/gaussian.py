@@ -1,19 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import abel
+import pyabel
 
 transforms = [
-    ('basex',             abel.basex.basex_transform),
+    ('basex',             pyabel.basex.basex_transform),
     (r'daun\ (degree=1)', lambda *args, **kwargs:
-                          abel.daun.daun_transform(*args, degree=1, **kwargs)),
+                          pyabel.daun.daun_transform(*args, degree=1, **kwargs)),
     (r'daun\ (degree=3)', lambda *args, **kwargs:
-                          abel.daun.daun_transform(*args, degree=3, **kwargs)),
-    ('direct',            abel.direct.direct_transform),
-    ('hansenlaw',         abel.hansenlaw.hansenlaw_transform),
-    ('onion_bordas',      abel.onion_bordas.onion_bordas_transform),
-    ('onion_peeling',     abel.dasch.onion_peeling_transform),
-    ('three_point',       abel.dasch.three_point_transform),
-    ('two_point',         abel.dasch.two_point_transform)
+                          pyabel.daun.daun_transform(*args, degree=3, **kwargs)),
+    ('direct',            pyabel.direct.direct_transform),
+    ('hansenlaw',         pyabel.hansenlaw.hansenlaw_transform),
+    ('onion_bordas',      pyabel.onion_bordas.onion_bordas_transform),
+    ('onion_peeling',     pyabel.dasch.onion_peeling_transform),
+    ('three_point',       pyabel.dasch.three_point_transform),
+    ('two_point',         pyabel.dasch.two_point_transform)
 ]
 
 ntrans = len(transforms)  # number of transforms
@@ -28,7 +28,7 @@ if case == 'gaussian':
     r_max = n
     sigma = n*0.25
 
-    ref = abel.tools.analytical.GaussianAnalytical(n, r_max, sigma,
+    ref = pyabel.tools.analytical.GaussianAnalytical(n, r_max, sigma,
                                                    symmetric=False)
     func = ref.func
     proj = ref.abel

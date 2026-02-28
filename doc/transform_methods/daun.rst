@@ -222,7 +222,7 @@ of transformed images is generally not equal to the transform of the averaged
 image. It is thus recommended to perform as much averaging (image
 symmetrization and summation of multiple images if applicable) as possible
 before applying the transform. In particular, using ``symmetry_axis=(0, 1)`` in
-:class:`abel.transform.Transform` would in fact require transforming only one
+:class:`pyabel.transform.Transform` would in fact require transforming only one
 quadrant, which is 4 times faster that transforming the whole image. Third, the
 method is only *asymptotically* `unbiased
 <https://en.wikipedia.org/wiki/Bias_of_an_estimator>`_, but for sufficiently
@@ -262,34 +262,34 @@ How to use it
 -------------
 
 The inverse Abel transform of a full image can be done with the
-:class:`abel.Transform <abel.transform.Transform>` class::
+:class:`pyabel.Transform <pyabel.transform.Transform>` class::
 
-    abel.Transform(myImage, method='daun').transform
+    pyabel.Transform(myImage, method='daun').transform
 
 For the forward Abel transform, simply add :attr:`direction='forward'`::
 
-    abel.Transform(myImage, method='daun', direction='forward').transform
+    pyabel.Transform(myImage, method='daun', direction='forward').transform
 
 Additional parameters can be passed through the :attr:`transform_options`
 parameter. For example, to use the original regularization method with the
 regularization parameter set to 100::
 
-    abel.Transform(myImage, method='daun',
+    pyabel.Transform(myImage, method='daun',
                    transform_options=dict{reg=100}).transform
 
 The :math:`L_2` regularization can be applied using ::
 
-    abel.Transform(myImage, method='daun',
+    pyabel.Transform(myImage, method='daun',
                    transform_options=dict{reg=('L2', 100)}).transform
 
 And the non-negative solution is obtained by ::
 
-    abel.Transform(myImage, method='daun',
+    pyabel.Transform(myImage, method='daun',
                    transform_options=dict{reg='nonneg'}).transform
 
 In this case, it is recommended to use symmetrization::
 
-    abel.Transform(myImage, method='daun',
+    pyabel.Transform(myImage, method='daun',
                    symmetry_axis=0,  # or symmetry_axis=(0, 1) if applicable
                    transform_options=dict{reg='nonneg'}).transform
 
@@ -297,7 +297,7 @@ unless independent inspection of all image parts is desired.
 
 The algorithm can be also accessed directly (to transform a right-side
 half-image or properly oriented quadrants) through the
-:func:`abel.daun.daun_transform()` function.
+:func:`pyabel.daun.daun_transform()` function.
 
 
 Examples
