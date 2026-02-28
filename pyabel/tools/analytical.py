@@ -379,7 +379,7 @@ class TransformPair(BaseAnalytical):
 
         if profile > 9:
             raise ValueError('Only 1-9 profiles: '
-                             'see "abel/tools/transform_pairs.py"')
+                             'see "pyabel/tools/transform_pairs.py"')
 
         self.label = f'profile{profile}'
 

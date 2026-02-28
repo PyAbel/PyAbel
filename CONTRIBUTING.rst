@@ -52,7 +52,7 @@ Before submitting a pull request, be sure to run the unit tests. The test suite 
     
 For more detailed information, the following can be used::
 
-    pytest abel/  -v  --cov=abel
+    pytest pyabel/  -v  --cov=abel
 
 Note that this requires that you have `pytest <https://docs.pytest.org/en/latest/>`__ and (optionally) `pytest-cov <https://pytest-cov.readthedocs.io/en/latest/>`__ installed. You can install these with ::
 
@@ -110,7 +110,7 @@ In order to allow a consistent user experience between different implementations
 Naming conventions
 ~~~~~~~~~~~~~~~~~~
 
-The implementation named ``<implementation>``, located under ``abel/<implementation>.py``, should use the following naming system for top-level functions:
+The implementation named ``<implementation>``, located under ``pyabel/<implementation>.py``, should use the following naming system for top-level functions:
 
 - ``<implementation>_transform`` — core transform (when defined)
 - ``_bs_<implementation>`` — function that generates  the basis sets (if necessary)
@@ -126,14 +126,14 @@ To detect issues early, the submitted implementation should have the following p
 
 3. The implementation should be able to calculate the inverse (or forward) transform of a Gaussian function defined by a standard deviation ``sigma``, with better than a 10 % relative error with respect to the analytical solution for ``0 < r < 2*sigma``.
 
-Unit tests for a given implementation are located under ``abel/tests/test_<implementation>.py``, which should contain at least the following 3 functions:
+Unit tests for a given implementation are located under ``pyabel/tests/test_<implementation>.py``, which should contain at least the following 3 functions:
 
 - ``test_<implementation>_shape``
 - ``test_<implementation>_zeros``
 - ``test_<implementation>_gaussian``
 
-.. |test_basex.py| replace:: ``abel/tests/test_basex.py``
-.. _test_basex.py: https://github.com/PyAbel/PyAbel/blob/master/abel/tests/test_basex.py
+.. |test_basex.py| replace:: ``pyabel/tests/test_basex.py``
+.. _test_basex.py: https://github.com/PyAbel/PyAbel/blob/master/pyabel/tests/test_basex.py
 
 See |test_basex.py|_ for a concrete example.
 
@@ -160,7 +160,7 @@ For maintainers: Releasing a new version
 
 First, make a pull request that does the following:
 
-- Increment the version number in ``abel/_version.py``.
+- Increment the version number in ``pyabel/_version.py``.
 - Update ``CHANGELOG.rst`` by renaming the "Unreleased" section to the new version and adding the expected release date.
 - Use the changelog to write version release notes that can be included as a comment in the PR and will be used later.
 - Update copyright years in ``doc/conf.py``.
@@ -180,5 +180,5 @@ After the PR is merged:
 Notes:
 
 - The workflows to build sdist and wheels can also be run manually for testing the distributions. This also runs PyAbel tests on more platforms than routine PR tests and helps to catch errors before making a release.
-- Running the "Publish to (Test)PyPI" workflow manually will publish the current (or selected) version `to TestPyPI <https://test.pypi.org/project/PyAbel/#history>`__. However, TestPyPI will reject attempts to publish a package with any version previously published on TestPyPI, even if it was deleted. Thus the version in ``abel/_version.py`` must be made unique (by using ``rc``, ``.post`` or ``.dev`` suffixes; see `Version specifiers <https://packaging.python.org/en/latest/specifications/version-specifiers/#version-scheme>`__), maybe in a separate branch, before running the workflow. **Do not create a new tag**, as this will initiate the actual release process.
+- Running the "Publish to (Test)PyPI" workflow manually will publish the current (or selected) version `to TestPyPI <https://test.pypi.org/project/PyAbel/#history>`__. However, TestPyPI will reject attempts to publish a package with any version previously published on TestPyPI, even if it was deleted. Thus the version in ``pyabel/_version.py`` must be made unique (by using ``rc``, ``.post`` or ``.dev`` suffixes; see `Version specifiers <https://packaging.python.org/en/latest/specifications/version-specifiers/#version-scheme>`__), maybe in a separate branch, before running the workflow. **Do not create a new tag**, as this will initiate the actual release process.
 - The conda-forge bot is triggered only when the "latest version" on PyPI changes, thus ignoring pre-releases.
