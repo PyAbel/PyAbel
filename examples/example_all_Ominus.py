@@ -5,7 +5,7 @@
 # using the fundamental transform code
 
 import numpy as np
-import abel
+import pyabel
 
 import matplotlib.pylab as plt
 from time import time
@@ -14,24 +14,24 @@ from time import time
 #   dictionary of method: function()
 
 transforms = {
-    "direct": abel.direct.direct_transform,
-    "onion": abel.dasch.onion_peeling_transform,
-    "hansenlaw": abel.hansenlaw.hansenlaw_transform,
-    "basex": abel.basex.basex_transform,
-    "three_point": abel.dasch.three_point_transform,
+    "direct": pyabel.direct.direct_transform,
+    "onion": pyabel.dasch.onion_peeling_transform,
+    "hansenlaw": pyabel.hansenlaw.hansenlaw_transform,
+    "basex": pyabel.basex.basex_transform,
+    "three_point": pyabel.dasch.three_point_transform,
 }
 ntrans = len(transforms)  # number of transforms
 
 
 # Image:   O2- VMI 1024x1024 pixel ------------------
-IM = abel.tools.analytical.SampleImage(n=501, name="Ominus").func
+IM = pyabel.tools.analytical.SampleImage(n=501, name="Ominus").func
 
 h, w = IM.shape
 
 # forward transform (whole image)
-fIM = abel.Transform(IM, direction="forward", method="hansenlaw").transform
+fIM = pyabel.Transform(IM, direction="forward", method="hansenlaw").transform
 
-Q0, Q1, Q2, Q3 = abel.tools.symmetry.get_image_quadrants(fIM, reorient=True)
+Q0, Q1, Q2, Q3 = pyabel.tools.symmetry.get_image_quadrants(fIM, reorient=True)
 
 Q0fresh = Q0.copy()  # keep clean copy
 print(f'quadrant shape {Q0.shape}')
@@ -59,7 +59,7 @@ for q, method in enumerate(sorted(transforms.keys())):
     iabelQ.append(IAQ0)  # store for plot
 
     # polar projection and speed profile
-    radial, speed = abel.tools.vmi.angular_integration_3D(IAQ0, origin=(-1, 0))
+    radial, speed = pyabel.tools.vmi.angular_integration_3D(IAQ0, origin=(-1, 0))
 
     # normalize image intensity and speed distribution
     IAQ0 /= IAQ0.max()
@@ -92,7 +92,7 @@ if ntrans == 5:
 # Fix me when > 5 images
 
 
-im = abel.tools.symmetry.put_image_quadrants((iabelQ[0], iabelQ[1],
+im = pyabel.tools.symmetry.put_image_quadrants((iabelQ[0], iabelQ[1],
                                               iabelQ[2], iabelQ[3]),
                                              original_image_shape=IM.shape)
 

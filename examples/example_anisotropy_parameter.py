@@ -1,5 +1,5 @@
 import numpy as np
-import abel
+import pyabel
 
 import matplotlib.pylab as plt
 
@@ -19,7 +19,7 @@ threshold = 0.2  # threshold for normalization of higher order Newton spheres
 clip = 0  # clip first vectors (smallest Newton spheres) to avoid singularities
 
 # linbasex method - center and center_options ensure image has odd square shape
-LIM = abel.Transform(IM, method='linbasex', origin='slice',
+LIM = pyabel.Transform(IM, method='linbasex', origin='slice',
                      center_options=dict(square=True),
                      transform_options=dict(
                          proj_angles=proj_angles,
@@ -29,7 +29,7 @@ LIM = abel.Transform(IM, method='linbasex', origin='slice',
 
 
 # === Hansen & Law inverse Abel transform ==================
-HIM = abel.Transform(IM, origin="slice", method="hansenlaw",
+HIM = pyabel.Transform(IM, origin="slice", method="hansenlaw",
                      symmetry_axis=None, angular_integration=True)
 
 # speed distribution
@@ -51,14 +51,14 @@ r_range = [(145, 162), (200, 218), (230, 250), (255, 280), (280, 310),
 
 # anisotropy parameter from image for each tuple r_range
 Beta, Amp, Rmid, Ivstheta, theta =\
-    abel.tools.vmi.radial_integration(HIM.transform, radial_ranges=r_range)
+    pyabel.tools.vmi.radial_integration(HIM.transform, radial_ranges=r_range)
 
 # OR  anisotropy parameter for ranges (0, 20), (20, 40) ...
 # Beta_whole_grid, Amp_whole_grid, Radial_midpoints =\
-#                         abel.tools.vmi.anisotropy(AIM.transform, 20)
+#                         pyabel.tools.vmi.anisotropy(AIM.transform, 20)
 
 # Radial intensity and anisotropy distributions
-I, beta2 = abel.tools.vmi.Ibeta(HIM.transform, window=9)
+I, beta2 = pyabel.tools.vmi.Ibeta(HIM.transform, window=9)
 # normalize to max intensity peak
 I /= I.max()
 # remove (noisy) anisotropy values for low-intensity parts

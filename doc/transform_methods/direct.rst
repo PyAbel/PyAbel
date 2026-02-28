@@ -57,19 +57,19 @@ necessarily assuming that :math:`g(0) = 0`, which is true for well-behaved funct
 When to use it
 --------------
 
-When a robust forward transform is required, this method works quite well. It is not typically recommended for the inverse transform, but it can work well for smooth functions that are finely sampled. The sampling does not need to be uniform, so more points can be allocated to more important areas. Note, however, that :class:`abel.Transform <abel.transform.Transform>` and image-processing tools in PyAbel work only with uniform sampling, thus if you need to use them, it is recommended to resample the original data on a sufficiently fine uniform grid and use one of the more efficient transform methods.
+When a robust forward transform is required, this method works quite well. It is not typically recommended for the inverse transform, but it can work well for smooth functions that are finely sampled. The sampling does not need to be uniform, so more points can be allocated to more important areas. Note, however, that :class:`pyabel.Transform <pyabel.transform.Transform>` and image-processing tools in PyAbel work only with uniform sampling, thus if you need to use them, it is recommended to resample the original data on a sufficiently fine uniform grid and use one of the more efficient transform methods.
 
 
 How to use it
 -------------
 
-To complete the forward or inverse transform of a full image with the direct method, simply use the :class:`abel.Transform <abel.transform.Transform>` class::
+To complete the forward or inverse transform of a full image with the direct method, simply use the :class:`pyabel.Transform <pyabel.transform.Transform>` class::
 
-    abel.Transform(myImage, method='direct', direction='forward').transform
-    abel.Transform(myImage, method='direct', direction='inverse').transform
+    pyabel.Transform(myImage, method='direct', direction='forward').transform
+    pyabel.Transform(myImage, method='direct', direction='inverse').transform
 
 
-If you would like to access the Direct algorithm directly (to transform a right-side half-image, possibly with non-uniform sampling), you can use :func:`abel.direct.direct_transform`.
+If you would like to access the Direct algorithm directly (to transform a right-side half-image, possibly with non-uniform sampling), you can use :func:`pyabel.direct.direct_transform`.
 
 
 Examples

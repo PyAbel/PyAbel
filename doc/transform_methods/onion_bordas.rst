@@ -34,14 +34,14 @@ How to use it
 -------------
 
 To complete the inverse transform of a full image with the
-``onion_bordas`` method, simply use the :class:`abel.Transform
-<abel.transform.Transform>` class::
+``onion_bordas`` method, simply use the :class:`pyabel.Transform
+<pyabel.transform.Transform>` class::
 
-    abel.Transform(myImage, method='onion_bordas').transform
+    pyabel.Transform(myImage, method='onion_bordas').transform
 
 If you would like to access the onion-peeling algorithm directly 
 (to transform a right-side half-image), you can 
-use :func:`abel.onion_bordas.onion_bordas_transform`.
+use :func:`pyabel.onion_bordas.onion_bordas_transform`.
 
 
 Example

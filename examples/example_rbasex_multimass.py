@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import abel
-from abel.rbasex import rbasex_transform
+import pyabel
+from pyabel.rbasex import rbasex_transform
 
 # This example demonstrates analysis of partially overlapping velocity-map
 # images, which might be useful for the "multimass imaging" method (see
@@ -58,9 +58,9 @@ r3 = min(h3, w3) // 2
 # Create "masks" for each part with unit weights for "good" pixels and zero
 # weights for "bad" pixels.
 # coordinates relative to each origin
-x1, y1 = abel.tools.polar.index_coords(im, origin=origin1)
-x2, y2 = abel.tools.polar.index_coords(im, origin=origin2)
-x3, y3 = abel.tools.polar.index_coords(im, origin=origin3)
+x1, y1 = pyabel.tools.polar.index_coords(im, origin=origin1)
+x2, y2 = pyabel.tools.polar.index_coords(im, origin=origin2)
+x3, y3 = pyabel.tools.polar.index_coords(im, origin=origin3)
 # for left image (include left, exclude central)
 mask1 = np.array((x1**2 + y1**2 < r1**2) *  # inside radius r1 from origin1 and
                  (x2**2 + y2**2 > r2**2),   # outside radius r2 from origin2

@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from abel.tools.analytical import SampleImage
-from abel.tools.vmi import Ibeta
-from abel.rbasex import rbasex_transform
+from pyabel.tools.analytical import SampleImage
+from pyabel.tools.vmi import Ibeta
+from pyabel.rbasex import rbasex_transform
 
 rmax = 200
 scale = 10000

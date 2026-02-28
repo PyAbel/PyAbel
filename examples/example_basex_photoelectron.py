@@ -1,7 +1,7 @@
 import os.path
 import numpy as np
 import matplotlib.pyplot as plt
-import abel
+import pyabel
 
 # This example demonstrates a BASEX transform of an image obtained using a
 # velocity map imaging (VMI) photoelecton spectrometer to record the
@@ -37,10 +37,10 @@ origin = (245, 340)
 # Step 3: perform the BASEX transform!
 print('Performing the inverse Abel transform:')
 
-recon = abel.Transform(raw_data, direction='inverse', method='basex',
+recon = pyabel.Transform(raw_data, direction='inverse', method='basex',
                        origin=origin, verbose=True).transform
 
-speeds = abel.tools.vmi.angular_integration_3D(recon)
+speeds = pyabel.tools.vmi.angular_integration_3D(recon)
 
 # Set up some axes
 fig = plt.figure(figsize=(15, 4))

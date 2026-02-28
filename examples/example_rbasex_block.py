@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from copy import copy
 
-import abel
-from abel.tools.analytical import SampleImage
-from abel.tools.vmi import rharmonics
-from abel.rbasex import rbasex_transform
+import pyabel
+from pyabel.tools.analytical import SampleImage
+from pyabel.tools.vmi import rharmonics
+from pyabel.rbasex import rbasex_transform
 
 # This example demonstrates analysis of velocity-map images with "damaged"
 # areas, in this case, with some parts obstructed by a beam block (see
@@ -54,7 +54,7 @@ mask[im_r < mask_r] = 0
 mask[:R, R-mask_w:R+mask_w] = 0
 
 # reconstruct "as is" by a general Abel-transform method
-rec_abel = abel.Transform(im, method='two_point').transform
+rec_abel = pyabel.Transform(im, method='two_point').transform
 # extract profiles "as is"
 r_abel, P0_abel, P2_abel = rharmonics(rec_abel)
 # extract profiles from masked reconstruction

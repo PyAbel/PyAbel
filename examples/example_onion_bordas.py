@@ -1,27 +1,27 @@
 import numpy as np
-import abel
+import pyabel
 import matplotlib.pyplot as plt
 
 # Dribinski sample image
-IM = abel.tools.analytical.SampleImage(n=501).func
+IM = pyabel.tools.analytical.SampleImage(n=501).func
 
 # split into quadrants
-origQ = abel.tools.symmetry.get_image_quadrants(IM)
+origQ = pyabel.tools.symmetry.get_image_quadrants(IM)
 
 # speed distribution
-orig_speed = abel.tools.vmi.angular_integration_3D(origQ[0], origin=(-1, 0))
+orig_speed = pyabel.tools.vmi.angular_integration_3D(origQ[0], origin=(-1, 0))
 
 # forward Abel projection
-fIM = abel.Transform(IM, direction="forward", method="hansenlaw").transform
+fIM = pyabel.Transform(IM, direction="forward", method="hansenlaw").transform
 
 # split projected image into quadrants
-Q = abel.tools.symmetry.get_image_quadrants(fIM)
+Q = pyabel.tools.symmetry.get_image_quadrants(fIM)
 Q0 = Q[0].copy()
 
 # onion_bordas inverse Abel transform
-borQ0 = abel.onion_bordas.onion_bordas_transform(Q0)
+borQ0 = pyabel.onion_bordas.onion_bordas_transform(Q0)
 # speed distribution
-bor_speed = abel.tools.vmi.angular_integration_3D(borQ0, origin=(-1, 0))
+bor_speed = pyabel.tools.vmi.angular_integration_3D(borQ0, origin=(-1, 0))
 
 plt.plot(*orig_speed, linestyle='dashed', label="Dribinski sample")
 plt.plot(bor_speed[0], bor_speed[1], label="onion_bordas")

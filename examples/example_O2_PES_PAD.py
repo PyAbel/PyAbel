@@ -1,5 +1,5 @@
 import numpy as np
-import abel
+import pyabel
 
 import matplotlib.pylab as plt
 
@@ -19,20 +19,20 @@ rows, cols = IM.shape    # image size
 # Image center should be mid-pixel, i.e. odd number of colums
 if cols % 2 != 1:
     print("even pixel width image, make it odd and re-adjust image center")
-    IM = abel.tools.center.center_image(IM, method="slice")
+    IM = pyabel.tools.center.center_image(IM, method="slice")
     rows, cols = IM.shape   # new image size
 
 r2 = rows//2   # half-height image size
 c2 = cols//2   # half-width image size
 
 # Hansen & Law inverse Abel transform
-AIM = abel.Transform(IM, method="hansenlaw", direction="inverse",
+AIM = pyabel.Transform(IM, method="hansenlaw", direction="inverse",
                      symmetry_axis=None).transform
 
 # PES - photoelectron speed distribution  -------------
 print('Calculating speed distribution:')
 
-r, speed = abel.tools.vmi.angular_integration_3D(AIM)
+r, speed = pyabel.tools.vmi.angular_integration_3D(AIM)
 
 # normalize to max intensity peak
 speed /= speed[200:].max()  # exclude transform noise near centerline of image
@@ -46,7 +46,7 @@ r_range = [(93, 111), (145, 162), (255, 280), (330, 350), (350, 370),
 
 # map to intensity vs theta for each radial range
 Beta, Amp, rad, intensities, theta = \
-    abel.tools.vmi.radial_integration(AIM, radial_ranges=r_range)
+    pyabel.tools.vmi.radial_integration(AIM, radial_ranges=r_range)
 
 print("radial-range      anisotropy parameter (beta)")
 for beta, rr in zip(Beta, r_range):

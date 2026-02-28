@@ -1,0 +1,168 @@
+import numpy as np
+from numpy.testing import assert_allclose, assert_equal
+
+from pyabel.tools.analytical import SampleImage
+import pyabel.tools.vmi as vmi
+
+# The Distributions class and related functions are tested separately in
+# test_tools_distributions.py
+
+
+def make_images(R):
+    """
+    Make test images (square, centered): 1, cos^2, sin^2
+    """
+    n = 2 * R + 1  # image size
+    ones = np.ones((n, n))
+
+    x = np.arange(float(n)) - R
+    x2 = x**2
+    r2 = x2 + x2[:, None]
+    r2[R, R] = np.inf  # for sin = 0 at r = 0
+
+    sin2 = x2 / r2
+    cos2 = 1 - sin2
+
+    return n, ones, cos2, sin2
+
+
+def test_radial_intensity():
+    """
+    Basic tests of radial-intensity calculations.
+    """
+    func = {
+        'int2D': vmi.angular_integration_2D,
+        'int3D': vmi.angular_integration_3D,
+        'avg2D': vmi.average_radial_intensity_2D,
+        'avg3D': vmi.average_radial_intensity_3D
+    }
+
+    R = 50  # image radius
+    n, ones, cos2, sin2 = make_images(R)
+
+    def check(name, ref, rtol, kind, IM, **kwargs):
+        r, intensity = vmi.radial_intensity(kind, IM, **kwargs)
+        r_, intensity_ = func[kind](IM, **kwargs)
+        assert_equal([r_, intensity_], [r, intensity],
+                     err_msg=f'{func[kind]}(...) != radial_intensity({kind}, ...)')
+        # (ignoring pixels at r = 0 and 1, which can be poor)
+        assert_allclose(intensity[2:R], ref(r[2:R]), rtol=rtol,
+                        err_msg=f'-> {kind}, {name}, {kwargs}')
+
+    def int2D(r):
+        return 2 * np.pi * r
+
+    check('ones', int2D, 0.01, 'int2D', ones)
+    check('ones', int2D, 0.01, 'int2D', ones, dr=0.5)
+    check('ones', int2D, 0.01, 'int2D', ones, dt=0.01)
+    check('cos2', int2D, 0.01, 'int2D', cos2 * 2)
+    check('sin2', int2D, 0.001, 'int2D', sin2 * 2)
+
+    def int3D(r):
+        return 4 * np.pi * r**2
+
+    check('ones', int3D, 1e-7, 'int3D', ones)
+    check('ones', int3D, 1e-7, 'int3D', ones, dr=0.5)
+    check('ones', int3D, 1e-4, 'int3D', ones, dt=0.01)
+    check('cos2', int3D, 0.01, 'int3D', cos2 * 3)
+    check('sin2', int3D, 0.01, 'int3D', sin2 * 3/2)
+
+    def avg(r):
+        return np.ones_like(r)
+
+    check('ones', avg, 0.01, 'avg2D', ones)
+    check('ones', avg, 0.01, 'avg2D', ones, dr=0.5)
+    check('ones', avg, 0.01, 'avg2D', ones, dt=0.01)
+    check('cos2', avg, 0.01, 'avg2D', cos2 * 2)
+    check('sin2', avg, 0.001, 'avg2D', sin2 * 2)
+
+    check('ones', avg, 1e-7, 'avg3D', ones)
+    check('ones', avg, 1e-7, 'avg3D', ones, dr=0.5)
+    check('ones', avg, 1e-4, 'avg3D', ones, dt=0.01)
+    check('cos2', avg, 0.01, 'avg3D', cos2 * 3)
+    check('sin2', avg, 0.01, 'avg3D', sin2 * 3/2)
+
+
+def test_anisotropy_parameter():
+    """
+    Basic tests of anisotropy fitting.
+    """
+    n = 100
+    theta = np.linspace(-np.pi, np.pi, n, endpoint=False)
+
+    ones = np.ones_like(theta)
+    cos2 = np.cos(theta)**2
+    sin2 = np.sin(theta)**2
+
+    noise = 0.01 * (2 * (np.arange(n) % 2) - 1)
+    chi2 = 0.01 / np.sqrt(n - 2)  # reduced chi2 for "noise"
+
+    def check(name, bref, aref, theta, intensity, mode='raw'):
+        """
+        Reference values:
+            bref = (beta, error_beta / chi2)
+            aref = (amplitude, error_amplitude / chi2)
+        """
+        beta, amplitude = vmi.anisotropy_parameter(theta, intensity, mode=mode)
+        err_msg = f'-> {name}, {mode}'
+        assert_allclose((beta[0], amplitude[0]), (bref[0], aref[0]), atol=2e-8,
+                        err_msg=err_msg + ' (val)')
+        assert_allclose((beta[1] / chi2, amplitude[1] / chi2),
+                        (bref[1], aref[1]), atol=1e-8 / chi2, rtol=0.01,
+                        err_msg=err_msg + ' (err)')
+
+    # exact
+    check('ones', (0, 0), (1, 0), theta, ones)
+    check('cos2', (2, 0), (1/3, 0), theta, cos2)
+    check('sin2', (-1, 0), (2/3, 0), theta, sin2)
+    # noisy
+    check('ones+noise', (0, 1.89), (1, 1.11), theta, ones + noise)
+    # bad
+    check('cos2sin2', (0, 133), (1/8, 9.77), theta, cos2 * sin2)
+    check('cos4', (3.2, 198), (5/24, 9.77), theta, cos2 * cos2)
+    check('cos4', (np.nan, np.nan), (5/24, 9.77), theta, cos2 * cos2, 'reject')
+    check('cos4', (2, 142), (5/18, 12.6), theta, cos2 * cos2, 'bound')
+
+
+def test_radial_integration():
+    """
+    Basic test of radial integration.
+    """
+    # test image (not projected)
+    IM = SampleImage(name='dribinski').func
+
+    Beta, Amplitude, Rmidpt, _, _ = \
+        vmi.radial_integration(IM, radial_ranges=([(65, 75), (80, 90), (95, 105)]))
+
+    assert_equal(Rmidpt, [70, 85, 100], err_msg='Rmidpt')
+    assert_allclose([b[0] for b in Beta], [0, 1.58, -0.85], atol=0.01,
+                    err_msg='Beta')
+    assert_allclose([a[0] for a in Amplitude], [880, 600, 560], rtol=0.01,
+                    err_msg='Amplitude')
+
+
+def test_toPES():
+    """
+    Basic test of toPES conversion.
+    """
+    # test image (not projected)
+    IM = SampleImage(name='Ominus').func
+
+    eBE, PES = vmi.toPES(*vmi.angular_integration_3D(IM),
+                         energy_cal_factor=1.2e-5,
+                         photon_energy=1.0e7/808.6, Vrep=-100,
+                         zoom=IM.shape[-1]/2048)
+
+    assert_allclose(eBE[PES.argmax()], 11780, rtol=0.001,
+                    err_msg='-> eBE @ max PES')
+    assert_allclose(PES.max(), 16620, rtol=0.001,
+                    err_msg='-> max PES')
+
+
+if __name__ == "__main__":
+    test_radial_intensity()
+    test_angular_integration()
+    test_average_radial_intensity()
+    test_anisotropy_parameter()
+    test_radial_integration()
+    test_toPES()

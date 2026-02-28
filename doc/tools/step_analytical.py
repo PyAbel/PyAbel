@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from abel.tools.analytical import StepAnalytical
+from pyabel.tools.analytical import StepAnalytical
 
 fig, axs = plt.subplots(1, 2, figsize=(6, 2.5))
 

@@ -1,5 +1,5 @@
-import abel
-from abel.tools.analytical import PiecewisePolynomial
+import pyabel
+from pyabel.tools.analytical import PiecewisePolynomial
 from itertools import chain
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,16 +28,16 @@ np.random.seed(4)
 func = comb.abel + np.random.random(comb.abel.size)*1.2
 
 transforms = [
-    ('basex',          abel.basex.basex_transform,               '#006600'),
-    ('basex (reg=10)', abel.basex.basex_transform,               '#006600'),
-    ('daun (reg=5)',   abel.daun.daun_transform,                 '#880000'),
-    ('daun (nonneg)',  abel.daun.daun_transform,                 '#880000'),
-    ('direct',         abel.direct.direct_transform,             '#EE0000'),
-    ('hansenlaw',      abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
-    ('onion_bordas',   abel.onion_bordas.onion_bordas_transform, '#00AA00'),
-    ('onion_peeling',  abel.dasch.onion_peeling_transform,       '#00CCFF'),
-    ('three_point',    abel.dasch.three_point_transform,         '#0000FF'),
-    ('two_point',      abel.dasch.two_point_transform,           '#CC00FF'),
+    ('basex',          pyabel.basex.basex_transform,               '#006600'),
+    ('basex (reg=10)', pyabel.basex.basex_transform,               '#006600'),
+    ('daun (reg=5)',   pyabel.daun.daun_transform,                 '#880000'),
+    ('daun (nonneg)',  pyabel.daun.daun_transform,                 '#880000'),
+    ('direct',         pyabel.direct.direct_transform,             '#EE0000'),
+    ('hansenlaw',      pyabel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
+    ('onion_bordas',   pyabel.onion_bordas.onion_bordas_transform, '#00AA00'),
+    ('onion_peeling',  pyabel.dasch.onion_peeling_transform,       '#00CCFF'),
+    ('three_point',    pyabel.dasch.three_point_transform,         '#0000FF'),
+    ('two_point',      pyabel.dasch.two_point_transform,           '#CC00FF'),
 ]
 
 ntrans = len(transforms)  # number of transforms

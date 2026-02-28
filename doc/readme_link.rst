@@ -23,11 +23,11 @@
 
 .. plot::
 
-    import abel
-    original = abel.tools.analytical.SampleImage(name='Gerber').func
-    forward_abel = abel.Transform(original, direction='forward',
+    import pyabel
+    original = pyabel.tools.analytical.SampleImage(name='Gerber').func
+    forward_abel = pyabel.Transform(original, direction='forward',
                                   method='hansenlaw').transform
-    inverse_abel = abel.Transform(forward_abel, direction='inverse',
+    inverse_abel = pyabel.Transform(forward_abel, direction='inverse',
                                   method='three_point').transform
 
     import matplotlib.pyplot as plt

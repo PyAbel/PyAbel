@@ -5,7 +5,7 @@ from setuptools import setup, Extension
 
 
 # Set __version__ to the current package version
-exec(Path('abel/_version.py').read_text('utf-8'))
+exec(Path('pyabel/_version.py').read_text('utf-8'))
 
 
 # Use README as the project description on PyPI
@@ -43,7 +43,7 @@ try:
     ext_modules = [
         # ("Path" below is a workaround for Setuptools bug on Windows,
         #  see https://github.com/pypa/setuptools/issues/5093)
-        Extension('abel.lib.direct', [Path('abel/lib/direct.pyx')],
+        Extension('pyabel.lib.direct', [Path('pyabel/lib/direct.pyx')],
                   include_dirs=[numpy.get_include()],
                   libraries=libraries,
                   extra_compile_args=extra_compile_args,
@@ -53,7 +53,7 @@ except ImportError:
     ext_modules = None
     print(f'''\
 {'=' * 75}
-Warning: Cython extensions will not be built, thus the abel.direct
+Warning: Cython extensions will not be built, thus the pyabel.direct
          C implementation will not be available.
          To build them, install Cython (and NumPy), then reinstall PyAbel
          using pip with the --no-build-isolation option.

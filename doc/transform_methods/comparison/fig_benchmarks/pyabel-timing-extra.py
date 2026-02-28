@@ -2,7 +2,7 @@ import os
 from time import time
 import numpy as np
 
-import abel
+import pyabel
 
 # The following should be used for Intel CPUs, since they work very slowly
 # with subnormal floating-point numbers (see PyAbel issue #246):
@@ -27,7 +27,7 @@ IM = np.loadtxt('../../../../examples/data/O2-ANU1024.txt.bz2')
 print('Timing Daun transform of O2- sample data with reg="nonneg":\n')
 
 t0 = time()
-abel.Transform(IM, method='daun', symmetry_axis=0,
+pyabel.Transform(IM, method='daun', symmetry_axis=0,
                transform_options=dict(reg='nonneg', verbose=True)
                ).transform
 t = time() - t0

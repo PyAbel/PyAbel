@@ -67,9 +67,9 @@ author = 'PyAbel team'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-import abel
+import pyabel
 # The short X.Y version.
-version = abel._version.__version__
+version = pyabel._version.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
 

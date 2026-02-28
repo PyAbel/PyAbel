@@ -1,4 +1,5 @@
 include README.rst
 include LICENSE.txt
-recursive-include abel *.py *.pyx *.txt
+recursive-include pyabel *.py *.pyx *.txt
+recursive-include abel *.py *.txt
 recursive-include examples *.py *.txt

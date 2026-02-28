@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import abel
+import pyabel
 
 # This example demonstrates Hansen and Law inverse Abel transform
 # of an image obtained using a velocity map imaging (VMI) photoelecton
@@ -29,11 +29,11 @@ print(f'image size {rows}x{cols}')
 # Step 2: perform the Hansen & Law transform!
 print('Performing Hansen and Law inverse Abel transform:')
 
-recon = abel.Transform(im, method="hansenlaw", direction="inverse",
+recon = pyabel.Transform(im, method="hansenlaw", direction="inverse",
                        symmetry_axis=None, verbose=True,
                        origin=(240, 340)).transform
 
-r, speeds = abel.tools.vmi.angular_integration_3D(recon)
+r, speeds = pyabel.tools.vmi.angular_integration_3D(recon)
 
 # Set up some axes
 fig = plt.figure(figsize=(15, 4))

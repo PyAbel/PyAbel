@@ -6,7 +6,7 @@
 # using the fundamental transform code
 
 import numpy as np
-import abel
+import pyabel
 
 import matplotlib.pylab as plt
 from time import time
@@ -15,14 +15,14 @@ from time import time
 #   dictionary of method: function()
 
 transforms = {
-    "basex": abel.basex.basex_transform,
-    "linbasex": abel.linbasex.linbasex_transform,
-    "direct": abel.direct.direct_transform,
-    "hansenlaw": abel.hansenlaw.hansenlaw_transform,
-    "onion_bordas": abel.onion_bordas.onion_bordas_transform,
-    "onion_dasch": abel.dasch.onion_peeling_transform,
-    "three_point": abel.dasch.three_point_transform,
-    "two_point": abel.dasch.two_point_transform,
+    "basex": pyabel.basex.basex_transform,
+    "linbasex": pyabel.linbasex.linbasex_transform,
+    "direct": pyabel.direct.direct_transform,
+    "hansenlaw": pyabel.hansenlaw.hansenlaw_transform,
+    "onion_bordas": pyabel.onion_bordas.onion_bordas_transform,
+    "onion_dasch": pyabel.dasch.onion_peeling_transform,
+    "three_point": pyabel.dasch.three_point_transform,
+    "two_point": pyabel.dasch.two_point_transform,
 }
 ntrans = len(transforms)  # number of transforms
 
@@ -31,14 +31,14 @@ ntrans = len(transforms)  # number of transforms
 IM = np.loadtxt('data/O2-ANU1024.txt.bz2')
 
 # recenter the image to mid-pixel (odd image width, square shape)
-IModd = abel.tools.center.center_image(IM, method="convolution",
+IModd = pyabel.tools.center.center_image(IM, method="convolution",
                                        odd_size=True, square=True)
 
 h, w = IModd.shape
 print(f'centered image "data/O2-ANU2048.txt" shape = {h}x{w}')
 
 # split image into quadrants
-Q = abel.tools.symmetry.get_image_quadrants(IModd, reorient=True)
+Q = pyabel.tools.symmetry.get_image_quadrants(IModd, reorient=True)
 
 Q0 = Q[0]
 Q0fresh = Q0.copy()    # keep clean copy
@@ -69,7 +69,7 @@ for q, method in enumerate(sorted(transforms.keys())):
     print(f'                    {time() - t0:.1f} s')
 
     # polar projection and speed profile
-    radial, speed = abel.tools.vmi.angular_integration_3D(IAQ0, origin=(-1, 0),
+    radial, speed = pyabel.tools.vmi.angular_integration_3D(IAQ0, origin=(-1, 0),
                                                           dr=0.1)
 
     # update normalization
@@ -113,7 +113,7 @@ for q in range(4):
     iq += 1
 
 # reassemble image from transformed (part-)quadrants
-im = abel.tools.symmetry.put_image_quadrants((Q[0], Q[1], Q[2], Q[3]),
+im = pyabel.tools.symmetry.put_image_quadrants((Q[0], Q[1], Q[2], Q[3]),
                                              original_image_shape=IModd.shape)
 
 ax0.axis('off')

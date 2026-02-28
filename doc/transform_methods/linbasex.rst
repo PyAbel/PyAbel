@@ -103,10 +103,10 @@ How to use it
 -------------
 
 To complete the inverse Abel transform of a full image with the 
-``linbasex method``, simply use the :class:`abel.Transform
-<abel.transform.Transform>` class::
+``linbasex method``, simply use the :class:`pyabel.Transform
+<pyabel.transform.Transform>` class::
 
-    abel.Transform(myImage, method='linbasex').transform
+    pyabel.Transform(myImage, method='linbasex').transform
 
 
 Note, the parameter :attr:`transform_options=dict(return_Beta=True)`, 
@@ -120,10 +120,10 @@ provides additional attributes, direct from the transform procedure:
 A more complete global call, that centers the image, ensures that the size is odd,
 and returns the attributes above, would be e.g. ::
 
-    abel.Transform(myImage, method='linbasex', center='convolution',
+    pyabel.Transform(myImage, method='linbasex', center='convolution',
                    transform_options=dict(return_Beta=True)) 
 
-Alternatively, the linbasex algorithm :func:`abel.linbasex.linbasex_transform_full()` directly 
+Alternatively, the linbasex algorithm :func:`pyabel.linbasex.linbasex_transform_full()` directly 
 transforms the full image, with the attributes returned as a tuple in this case.
 
 

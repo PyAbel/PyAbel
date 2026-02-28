@@ -1,5 +1,5 @@
 import numpy as np
-import abel
+import pyabel
 import os
 
 import matplotlib.pylab as plt
@@ -19,7 +19,7 @@ if os.environ.get('READTHEDOCS', None) == 'True':
 
 # Image center should be mid-pixel and the image square,
 # `origin="convolution"` takes care of this
-IM = abel.tools.center.center_image(IM, origin="convolution", square=True)
+IM = pyabel.tools.center.center_image(IM, origin="convolution", square=True)
 
 un = [0, 2]  # spherical harmonic orders
 proj_angles = np.arange(0, 2*np.pi, np.pi/20)  # projection angles
@@ -31,7 +31,7 @@ radial_step = 1
 clip = 0
 
 # linbasex inverse Abel transform
-LIM = abel.Transform(IM, method="linbasex",
+LIM = pyabel.Transform(IM, method="linbasex",
                      transform_options=dict(legendre_orders=un,
                                             proj_angles=proj_angles,
                                             smoothing=smoothing,

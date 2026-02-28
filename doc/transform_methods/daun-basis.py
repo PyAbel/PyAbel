@@ -4,7 +4,7 @@ from scipy.linalg import solve_banded
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-from abel.tools.polynomial import PiecewisePolynomial as PP
+from pyabel.tools.polynomial import PiecewisePolynomial as PP
 
 n = 10
 r0 = 2.3

@@ -1,27 +1,27 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import abel
+import pyabel
 
 transforms = [
-  ("basex (reg=200)", abel.basex.basex_transform,               '#006600'),
-  ("daun (reg=100)",  abel.daun.daun_transform,                 '#880000'),
-  ("daun (nonneg)",   abel.daun.daun_transform,                 '#880000'),
-  ("direct",          abel.direct.direct_transform,             '#EE0000'),
-  ("hansenlaw",       abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
-  ("onion_bordas",    abel.onion_bordas.onion_bordas_transform, '#00AA00'),
-  ("onion_peeling",   abel.dasch.onion_peeling_transform,       '#00CCFF'),
-  ("three_point",     abel.dasch.three_point_transform,         '#0000FF'),
-  ("two_point",       abel.dasch.two_point_transform,           '#CC00FF'),
-  ("linbasex",        abel.linbasex.linbasex_transform,         '#AAAAAA'),
-  ("rbasex",          abel.rbasex.rbasex_transform,             '#AACC00'),
+  ("basex (reg=200)", pyabel.basex.basex_transform,               '#006600'),
+  ("daun (reg=100)",  pyabel.daun.daun_transform,                 '#880000'),
+  ("daun (nonneg)",   pyabel.daun.daun_transform,                 '#880000'),
+  ("direct",          pyabel.direct.direct_transform,             '#EE0000'),
+  ("hansenlaw",       pyabel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
+  ("onion_bordas",    pyabel.onion_bordas.onion_bordas_transform, '#00AA00'),
+  ("onion_peeling",   pyabel.dasch.onion_peeling_transform,       '#00CCFF'),
+  ("three_point",     pyabel.dasch.three_point_transform,         '#0000FF'),
+  ("two_point",       pyabel.dasch.two_point_transform,           '#CC00FF'),
+  ("linbasex",        pyabel.linbasex.linbasex_transform,         '#AAAAAA'),
+  ("rbasex",          pyabel.rbasex.rbasex_transform,             '#AACC00'),
 ]
 
 IM = np.loadtxt('../../../../examples/data/O2-ANU1024.txt.bz2')
 
-IModd = abel.tools.center.center_image(IM, origin="convolution",
+IModd = pyabel.tools.center.center_image(IM, origin="convolution",
                                        odd_size=True, square=True)
 
-Q = abel.tools.symmetry.get_image_quadrants(IModd, reorient=True)
+Q = pyabel.tools.symmetry.get_image_quadrants(IModd, reorient=True)
 Q0 = Q[1]
 
 h, w = np.shape(IM)
@@ -52,7 +52,7 @@ for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
     else:
         trans = transFunc(Q0, direction="inverse", **targs)
 
-    r, inten = abel.tools.vmi.angular_integration_3D(trans[::-1],
+    r, inten = pyabel.tools.vmi.angular_integration_3D(trans[::-1],
                                                      origin=(0, 0),
                                                      dr=0.1)
 
