@@ -48,7 +48,7 @@ import numpy as np
 
 
 def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
-                        **kwargs):
+                        background=0, **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm from
 
     E. W. Hansen,
@@ -90,42 +90,49 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
     Inverse Abel transform::
 
-      iAbel = abel.Transform(image, method='hansenlaw').transform
+        iAbel = abel.Transform(image, method='hansenlaw').transform
 
     Forward Abel transform::
 
-      fAbel = abel.Transform(image, direction='forward', method='hansenlaw').transform
+        fAbel = abel.Transform(image, direction='forward', method='hansenlaw').transform
 
 
     Parameters
     ----------
     image : 1D or 2D numpy array
-        Right-side half-image (or quadrant). See figure below.
+        Right-side half-image (or quadrant). See figure above.
 
     dr : float
         Sampling size, used for Jacobian scaling.
-        Default: `1` (appliable for pixel images).
+        Default: ``1`` (appliable for pixel images).
 
     direction : string 'forward' or 'inverse'
-        ``forward`` or ``inverse`` Abel transform.
-        Default: 'inverse'.
+        ``'forward'`` or ``'inverse'`` Abel transform.
+        Default: ``'inverse'``.
 
     hold_order : int 0 or 1
-        The order of the hold approximation, used to evaluate the state equation
-        integral. 
-        `0` assumes a constant intensity across a pixel (between grid points)
+        The order of the hold approximation, used to evaluate the state
+        equation integral.
+        ``0`` assumes a constant intensity across a pixel (between grid points)
         for the driving function (the image gradient for the inverse transform,
         or the original image, for the forward transform).
-        `1` assumes a linear intensity variation between grid points, which may
-        yield a more accurate transform for some functions (see PR 211).
-        Default: `0`.
+        ``1`` assumes a linear intensity variation between grid points, which
+        may yield a more accurate transform for some functions (see PR 211).
+        Default: ``0``.
+
+    background : float or None, optional
+        Initial conditions at the outer edge. ``None`` reproduces the behavior
+        in PyAbel < 0.10.0, were they were taken from the edge column. This
+        lead to the transformed image missing the outermost column. Also, the
+        inverse transform used intensities relative to the edge pixel, such
+        that its intensity (if not zero) was essentially subtracted from the
+        whole row.
+        Default: ``0``.
 
     Returns
     -------
     aim : 1D or 2D numpy array
         forward/inverse Abel transform half-image
-
-
     """
 
     # state equation integral_r0^r (epsilon/r)^(lamda+a) d\epsilon
@@ -153,9 +160,12 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     aim = np.empty_like(image)  # Abel transform array
     rows, cols = image.shape
 
+    if background is not None:
+        image = np.pad(image, ((0, 0), (0, 1)), constant_values=background)
+
     if direction == 'forward':
-        # copy image for the driving function, include Jacobian factor,
-        drive = -2*dr*np.pi*np.copy(image)
+        # the driving function, including the Jacobian factor
+        drive = -2*dr*np.pi*image
         a = 1  # integration increases lambda + 1
     else:  # inverse Abel transform
         if hold_order == 0:
@@ -167,7 +177,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
             drive = np.gradient(image, dr, axis=-1)
         a = 0  # due to 1/piR factor
 
-    n = np.arange(cols-1, 1, -1)
+    n = np.arange(image.shape[1] - 1, 1, -1)
 
     phi = np.empty((n.size, h.size))
     for k, lamk in enumerate(lam):
@@ -177,7 +187,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
     if hold_order == 0:  # Hansen (& Law) zero-order hold approximation
         B1 = gamma0
-        B0 = gamma0*0  # empty array
+        B0 = np.zeros_like(gamma0)  # empty array
 
     else:  # Hansen first-order hold approximation
         gamma1 = I(n, lam, a+1)*h
@@ -193,9 +203,14 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
                                  + B1[indx][:, None]*drive[:, col]
         aim[:, col] = x.sum(axis=0)
 
-    # missing column at each side of image
+    # missing axial column
     aim[:, 0] = aim[:, 1]
-    aim[:, -1] = aim[:, -2]
+    if background is None:
+        # edge column is zero
+        aim[:, -1] = 0
+    else:
+        # crop to original size
+        aim = aim[:, :cols]
 
     if rows == 1:
         aim = aim[0]  # flatten to a vector
