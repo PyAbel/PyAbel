@@ -53,7 +53,7 @@ if __name__ == '__main__':
     print('rel diff =', D / M * 100, '%')
     plot('func', approx.func, gauss, 0.005)
 
-    M = ref.pyabel.max()
+    M = ref.abel.max()
     D = (approx.abel - ref.abel).max()
     print('max abel =', M)
     print('max diff =', D)

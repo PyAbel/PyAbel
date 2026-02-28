@@ -25,7 +25,7 @@ comb = PiecewisePolynomial(rmax + 1, rmax,
                            symmetric=False)
 
 np.random.seed(4)
-func = comb.abel + np.random.random(comb.pyabel.size)*1.2
+func = comb.abel + np.random.random(comb.abel.size)*1.2
 
 transforms = [
     ('basex',          pyabel.basex.basex_transform,               '#006600'),
