@@ -13,6 +13,7 @@ Transform Methods
     transform_methods/direct
     transform_methods/hansenlaw
     transform_methods/linbasex
+    transform_methods/nestorolsen
     transform_methods/onion_bordas
     transform_methods/onion_peeling
     transform_methods/rbasex

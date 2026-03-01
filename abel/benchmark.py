@@ -6,6 +6,7 @@ from . import daun
 from . import direct
 from . import hansenlaw
 from . import linbasex
+from . import nestorolsen
 from . import onion_bordas
 from . import rbasex
 from . import tools
@@ -198,6 +199,7 @@ class AbelTiming:
             'direct_C',
             'direct_Python',
             'hansenlaw',
+            'nestorolsen',
             'onion_bordas',
             'onion_peeling',
             'two_point',
@@ -469,6 +471,13 @@ class AbelTiming:
 
         # discard all caches
         linbasex.cache_cleanup()
+
+    @_skip((['inverse', 'forward'], 'nestorolsen'))
+    def _time_nestorolsen(self):
+        for direction in ['inverse', 'forward']:
+            self._benchmark(direction, 'nestorolsen',
+                            nestorolsen.nestorolsen_transform,
+                            self.half_image, direction=direction)
 
     @_skip(('inverse', 'onion_bordas'))
     def _time_onion_bordas(self):

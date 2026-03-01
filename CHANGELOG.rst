@@ -16,6 +16,7 @@ Unreleased
 * Direct and Hansen–Law methods now, by default, assume zero intensity outside
   the image frame but can optionally disregard a constant background, as before
   (PR #419, #420).
+* Added Nestor-Olsen transform method (PR #421)
 
 v0.9.1 (2025-09-22)
 -------------------
