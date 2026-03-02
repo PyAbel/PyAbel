@@ -472,8 +472,16 @@ class AbelTiming:
         # discard all caches
         linbasex.cache_cleanup()
 
-    @_skip((['inverse', 'forward'], 'nestorolsen'))
+    @_skip((['bs', 'inverse', 'forward'], 'nestorolsen'))
     def _time_nestorolsen(self):
+        # benchmark the basis generation
+        def gen_basis():
+            nestorolsen.cache_cleanup()
+            nestorolsen.get_bs_cached(self.h, basis_dir=None)
+        self._benchmark('bs', 'nestorolsen',
+                        gen_basis)
+
+        # benchmark the transform (basis is already cached)
         for direction in ['inverse', 'forward']:
             self._benchmark(direction, 'nestorolsen',
                             nestorolsen.nestorolsen_transform,

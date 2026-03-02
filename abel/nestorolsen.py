@@ -1,31 +1,37 @@
 import os.path
-import numpy as np
 from glob import glob
-import abel
+
+import numpy as np
 from scipy.linalg import inv
+
+import abel
 
 ###############################################################################
 #
-#  Nestor, Olsen line probe deconvolution
-#  as described in SIAM Review, vol. 2, no. 3, 1960, pp. 200–07.
+#  Nestor–Olsen "inversion of line probe data"
+#  as described in SIAM Review, vol. 2, no. 3, 1960, pp. 200–207.
 #  https://epubs.siam.org/doi/10.1137/1002042
 #
 ###############################################################################
 
-# cache deconvolution operator array
+# Cached inverse-transform coefficients
 _D = None
-_source = None   # 'cache', 'generated', or 'file', for unit testing
 
 
-def nestorolsen_transform(IM, basis_dir='', dr=1, direction="inverse", verbose=False):
+def nestorolsen_transform(IM, basis_dir='', dr=1, direction='inverse',
+                          verbose=False):
     """
-    The :doc:`nestorolsen-method deconvolution method
-    <transform_methods/nestorolsen_method>`.
+    The :doc:`Nestor–Olsen method <transform_methods/nestorolsen>` for the
+    inverse Abel transform. The forward transform is also supported but was not
+    described in the original publication.
 
-    O. H. Nestor and H. N. Olsen,
-    "Numerical Methods for Reducing Line and Surface Probe Data",
-    `SIAM Review, vol. 2, no. 3, 1960, pp. 200–07
-    <https://doi.org/10.1137/1002042>`__.
+    O. H. Nestor, H. N. Olsen,
+    "Numerical methods for reducing line and surface probe data",
+    `SIAM Rev. 2(3), 200–207 (1960) <https://doi.org/10.1137/1002042>`__.
+
+    This function operates on the “right side” of an image, that it, just one
+    half of a cylindrically symmetric image, with the axial pixels located in
+    the 0-th column.
 
     Parameters
     ----------
@@ -33,15 +39,14 @@ def nestorolsen_transform(IM, basis_dir='', dr=1, direction="inverse", verbose=F
         right-side half-image (or quadrant)
 
     basis_dir: str or None
-        path to the directory for saving / loading the "nestorolsen_method"
-        deconvolution operator array. Here, called ``basis_dir`` for
-        consistency with the other true basis methods. Use ``''`` for the
-        default directory. If ``None``, the operator array will not be loaded
-        from or saved to disk.
+        path to the directory for saving / loading the transform coefficients
+        (called ``basis_dir`` for consistency with the other methods).
+        Use ``''`` for the default directory. If ``None``, the coefficients
+        will not be loaded from or saved to disk.
 
     dr : float
-        sampling size (=1 for pixel images), used for Jacobian scaling.
-        The resulting inverse transform is simply scaled by 1/dr.
+        sampling step (=1 for pixel images), used for Jacobian scaling.
+        The resulting transform is simply scaled by 1/dr.
 
     direction : str: ``'forward'`` or ``'inverse'``
         type of Abel transform to be performed
@@ -49,43 +54,38 @@ def nestorolsen_transform(IM, basis_dir='', dr=1, direction="inverse", verbose=F
     verbose : bool
         trace printing
 
-
     Returns
     -------
-    inv_IM: 1D or 2D numpy array
-        the "nestorolsen_method" inverse Abel transformed half-image
-
+    recon: 1D or 2D numpy array
+        the Abel-transformed half-image
     """
-    global _D
-
     # make sure that the data has 2D shape
     IM = np.atleast_2d(IM)
 
     rows, cols = IM.shape
 
-    _D = get_bs_cached(cols, basis_dir=basis_dir, verbose=verbose)
-    D = _D / dr
+    D = get_bs_cached(cols, basis_dir=basis_dir, verbose=verbose) / dr
 
     if direction == 'forward':
         D = inv(D)
 
-    inv_IM = np.tensordot(IM, D, axes=(1, 1))
+    recon = np.tensordot(IM, D, axes=(1, 1))
 
     if rows == 1:
-        inv_IM = inv_IM[0]  # flatten array
+        recon = recon[0]  # 1D array
 
-    return inv_IM
+    return recon
 
 
 def _bs_nestorolsen(cols):
-    """deconvolution function for nestorolsen.
+    """
+    Calculation of the inverse-transform coefficients.
 
     Parameters
     ----------
     cols : int
-        width of the image
+        width of the half-image
     """
-
     A = np.zeros((cols, cols))
 
     k, n = np.diag_indices(cols)
@@ -101,84 +101,68 @@ def _bs_nestorolsen(cols):
 
 
 def get_bs_cached(cols, basis_dir='', verbose=False):
-    """Load nestorolsen method deconvolution operator array from cache, or disk.
+    """
+    Load the inverse-transform coefficients from memory cache or disk.
     Generate and store if not available.
 
-    Checks whether nestorolsen deconvolution array has been previously
-    calculated, or whether the file ``nestorolsen_basis_{cols}.npy`` is
-    present in `basis_dir`.
+    Checks whether the coefficients have been previously calculated, or whether
+    the file ``nestorolsen_basis_{cols}.npy`` is present in `basis_dir`.
 
-    Either, assign, read, or generate the deconvolution array
-    (saving it to file).
-
+    Either assign, read, or generate the coefficients (saving them to file).
 
     Parameters
     ----------
     cols : int
-        width of image
+        width of half-image
 
     basis_dir : str or None
-        path to the directory for saving or loading the deconvolution array.
+        path to the directory for saving or loading the coefficients.
         Use ``''`` for the default directory.
-        For ``None``, do not load or save the deconvolution operator array
+        For ``None``, do not load or save the coefficients.
 
-    verbose: boolean
+    verbose: bool
         print information (mainly for debugging purposes)
 
     Returns
     -------
     D: numpy 2D array of shape (cols, cols)
-       deconvolution operator array
-
-    file.npy: file
-       saves `D`, the deconvolution array to file name:
-       ``nestorolsen_basis_{cols}.npy``
-
+        inverse-transform coefficients
     """
+    global _D
 
-    global _D, _source
-
-    # check whether the deconvolution operator array is cached
+    # check whether the coefficients are cached
     if _D is not None:
         if _D.shape[0] >= cols:
             if verbose:
-                print('Using memory cached deconvolution operator array,'
-                      f' shape {_D.shape}')
-            _source = 'cache'
+                print(f'Using memory-cached coefficients, shape {_D.shape}.')
             return _D[:cols, :cols]  # sliced to correct size
-
-    D_name = f'nestorolsen_basis_{cols}.npy'
 
     if basis_dir == '':
         basis_dir = abel.transform.get_basis_dir(make=True)
 
-    # read deconvolution operator array if available
+    # read the coefficients from a file if available
     if basis_dir is not None:
-        path_to_basis_files = os.path.join(basis_dir, 'nestorolsen_basis*')
-        basis_files = glob(path_to_basis_files)
-        for bf in basis_files:
+        files = glob(os.path.join(basis_dir, 'nestorolsen_basis_*.npy'))
+        for bf in files:
             if int(bf.split('_')[-1].split('.')[0]) >= cols:
                 # relies on file order
                 if verbose:
-                    print('Loading deconvolution operator array from file', bf)
+                    print('Loading coefficients from file', bf)
                 # slice to size
                 _D = np.load(bf)[:cols, :cols]
-                _source = 'file'
                 return _D
 
     if verbose:
-        print(f'A suitable deconvolution array for "nestorolsen" was not found.\n'
-              'A new array will be generated.')
+        print('Suitable stored coefficients for "nestorolsen" were not found.'
+              '\nA new array will be generated.')
 
     _D = _bs_nestorolsen(cols)
-    _source = 'generated'
 
     if basis_dir is not None:
-        path_to_basis_file = os.path.join(basis_dir, D_name)
-        np.save(path_to_basis_file, _D)
+        file_path = os.path.join(basis_dir, f'nestorolsen_basis_{cols}.npy')
+        np.save(file_path, _D)
         if verbose:
-            print('\ndeconvolution operator array saved to'
-                  f' "{path_to_basis_file}"')
+            print(f'\nCoefficients saved to "{file_path}".')
 
     return _D
 
@@ -187,7 +171,7 @@ def cache_cleanup():
     """
     Utility function.
 
-    Frees the memory caches created by :func:`get_bs_cached`.
+    Frees the memory cache created by :func:`get_bs_cached`.
     This is usually pointless, but might be required after working
     with very large images, if more RAM is needed for further tasks.
 
@@ -199,25 +183,22 @@ def cache_cleanup():
     -------
     None
     """
-
-    global _D, _source
+    global _D
 
     _D = None
-    _source = None
 
 
 def basis_dir_cleanup(basis_dir=''):
     """
     Utility function.
 
-    Deletes deconvolution operator arrays saved on disk.
+    Deletes all coefficients saved on disk.
 
     Parameters
     ----------
     basis_dir : str or None
-        absolute or relative path to the directory with saved deconvolution
-        operator arrays. Use ``''`` for the default directory. ``None`` does
-        nothing.
+        absolute or relative path to the directory with saved coefficients.
+        Use ``''`` for the default directory. ``None`` does nothing.
 
     Returns
     -------

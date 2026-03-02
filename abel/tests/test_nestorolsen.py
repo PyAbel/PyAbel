@@ -3,8 +3,7 @@ import os.path
 import numpy as np
 from numpy.testing import assert_allclose
 
-import abel
-from abel.nestorolsen import get_bs_cached, cache_cleanup
+from abel.nestorolsen import get_bs_cached, cache_cleanup, nestorolsen_transform
 from abel.tools.analytical import GaussianAnalytical
 
 
@@ -16,8 +15,7 @@ def get_basis_file_name(n):
 
 
 def test_nestorolsen_basis_sets_cache():
-    # n = 61  (121 full width)
-    n = 61
+    n = 61  # (121 full width)
     file_name = get_basis_file_name(n)
     if os.path.exists(file_name):
         os.remove(file_name)
@@ -69,18 +67,18 @@ def test_nestorolsen_basis_sets_resize():
 
 def test_nestorolsen_shape():
     n = 21
-    x = np.ones((n, n), dtype='float32')
+    x = np.ones((n, n), dtype=float)
 
-    recon = abel.nestorolsen.nestorolsen_transform(x, basis_dir=None, verbose=False)
+    recon = nestorolsen_transform(x, basis_dir=None, verbose=False)
 
     assert recon.shape == (n, n)
 
 
 def test_nestorolsen_zeros():
     n = 21
-    x = np.zeros((n, n), dtype='float32')
+    x = np.zeros((n, n), dtype=float)
 
-    recon = abel.nestorolsen.nestorolsen_transform(x, basis_dir=None, verbose=False)
+    recon = nestorolsen_transform(x, basis_dir=None, verbose=False)
 
     assert_allclose(recon, 0)
 
@@ -95,7 +93,7 @@ def test_nestorolsen_gaussian():
     ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=30)
     tr = np.tile(ref.abel[None, :], (n, 1))  # make a 2D array from 1D
 
-    recon = abel.nestorolsen.nestorolsen_transform(tr, basis_dir=None, verbose=False)
+    recon = nestorolsen_transform(tr, basis_dir=None, verbose=False)
     recon = recon[n // 2 + n % 2]
 
     assert_allclose(recon, ref.func, atol=atol, rtol=rtol)
@@ -111,8 +109,8 @@ def test_nestorolsen_forward_gaussian():
     ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=30)
     tr = np.tile(ref.func[None, :], (n, 1))  # make a 2D array from 1D
 
-    recon = abel.nestorolsen.nestorolsen_transform(tr, basis_dir=None, verbose=False,
-                                                   direction='forward')
+    recon = nestorolsen_transform(tr, basis_dir=None, verbose=False,
+                                  direction='forward')
     recon = recon[n // 2 + n % 2]
 
     assert_allclose(recon, ref.abel, atol=atol, rtol=rtol)
