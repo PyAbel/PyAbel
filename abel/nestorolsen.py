@@ -2,7 +2,7 @@ import os.path
 from glob import glob
 
 import numpy as np
-from scipy.linalg import inv
+from scipy.linalg import inv, solve_triangular
 
 import abel
 
@@ -66,10 +66,11 @@ def nestorolsen_transform(IM, basis_dir='', dr=1, direction='inverse',
 
     D = get_bs_cached(cols, basis_dir=basis_dir, verbose=verbose) / dr
 
-    if direction == 'forward':
-        D = inv(D)
-
-    recon = np.tensordot(IM, D, axes=(1, 1))
+    if direction == 'inverse':
+        # transposed wrt the article because we operate on row vectors
+        recon = IM.dot(D.T)
+    else:  # 'forward'
+        recon = solve_triangular(D, IM.T).T
 
     if rows == 1:
         recon = recon[0]  # 1D array
@@ -78,26 +79,27 @@ def nestorolsen_transform(IM, basis_dir='', dr=1, direction='inverse',
 
 
 def _bs_nestorolsen(cols):
-    """
+    r"""
     Calculation of the inverse-transform coefficients.
 
     Parameters
     ----------
     cols : int
         width of the half-image
+
+    Returns
+    -------
+    N : 2D numpy array
+        lower triangular matrix of the coefficients
+        (including the :math:`-2/\pi` factor)
     """
-    A = np.zeros((cols, cols))
+    k, n = np.triu_indices(cols)
+    B = np.zeros((cols, cols))
+    B[k, n] = (np.sqrt(n**2 - k**2) - np.sqrt((n + 1)**2 - k**2)) / (2 * n + 1)
+    B[:, 1:] -= B[:, :-1]
+    B *= -2 / np.pi
 
-    k, n = np.diag_indices(cols)
-    A[k, n] = (np.sqrt(n**2-k**2)-np.sqrt((n+1)**2-k**2))/(2*n+1)
-
-    ku, nu = np.triu_indices(cols, k=1)
-    A[ku, nu] = (np.sqrt(nu**2-ku**2)-np.sqrt((nu+1)**2-ku**2))/(2*nu+1) -\
-        (np.sqrt((nu-1)**2-ku**2)-np.sqrt(nu**2-ku**2))/(2*nu-1)
-
-    A *= -2/np.pi
-
-    return A
+    return B
 
 
 def get_bs_cached(cols, basis_dir='', verbose=False):
