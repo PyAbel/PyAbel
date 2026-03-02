@@ -85,35 +85,29 @@ def test_nestorolsen_zeros():
 
 def test_nestorolsen_gaussian():
     """Check a gaussian solution for 'nestorolsen' inverse transform"""
-    atol = 1e-3
-    rtol = 1e-2
     n = 100
-    r_max = n - 1
 
-    ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=30)
+    ref = GaussianAnalytical(n, r_max=10, symmetric=False, sigma=3)
     tr = np.tile(ref.abel[None, :], (n, 1))  # make a 2D array from 1D
 
-    recon = nestorolsen_transform(tr, basis_dir=None, verbose=False)
+    recon = nestorolsen_transform(tr, basis_dir=None, dr=ref.dr, verbose=False)
     recon = recon[n // 2 + n % 2]
 
-    assert_allclose(recon, ref.func, atol=atol, rtol=rtol)
+    assert_allclose(recon, ref.func, atol=1e-3, rtol=1e-2)
 
 
 def test_nestorolsen_forward_gaussian():
     """Check a gaussian solution for 'nestorolsen' forward transform"""
-    atol = 1e-3
-    rtol = 1e-2
     n = 100
-    r_max = n - 1
 
-    ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=30)
+    ref = GaussianAnalytical(n, r_max=10, symmetric=False, sigma=3)
     tr = np.tile(ref.func[None, :], (n, 1))  # make a 2D array from 1D
 
-    recon = nestorolsen_transform(tr, basis_dir=None, verbose=False,
+    recon = nestorolsen_transform(tr, basis_dir=None, dr=ref.dr, verbose=False,
                                   direction='forward')
     recon = recon[n // 2 + n % 2]
 
-    assert_allclose(recon, ref.abel, atol=atol, rtol=rtol)
+    assert_allclose(recon, ref.abel, atol=1e-3, rtol=1e-2)
 
 
 if __name__ == '__main__':
