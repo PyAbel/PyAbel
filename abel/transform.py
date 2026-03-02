@@ -60,7 +60,7 @@ class Transform:
             the 1D projections of velocity-mapping images in terms of 1D
             spherical functions by Gerber et al. (2013).
         ``nestorolsen``
-            the line probe deconvolution by Nestor, Olsen (1960).
+            the line probe inversion by Nestor and Olsen (1960).
         ``onion_bordas``
             the algorithm of Bordas and co-workers (1996),
             re-implemented by Rallis, Wells and co-workers (2014).
@@ -299,11 +299,11 @@ class Transform:
 
     ``nestorolsen`` *
         One of the first Abel transform methods for experimental data.
-        Conceptually it is similar to "Two point" and "Three point".
+        Conceptually it is similar to the Dasch "two-point method".
 
-        O. H. Nestor and H. N. Olsen,
-        "Numerical Methods for Reducing Line and Surface Probe Data",
-        `SIAM Review, vol. 2, no. 3, 1960, pp. 200–07
+        O. H. Nestor, H. N. Olsen,
+        "Numerical methods for reducing line and surface probe data",
+        `SIAM Rev. 2(3), 200–207 (1960)
         <https://doi.org/10.1137/1002042>`__.
 
     ``onion_bordas``
