@@ -66,7 +66,7 @@ If you would like to access the ``nestorolsen`` algorithm directly (to transform
 Citation
 --------
 
-.. |ref1| replace:: \ O. H. Nestor, H. N. Olsen, "Numerical Methods for Reducing Line and Surface Probe Data", `SIAM Rev. 2(3), 200–207 (1960) <https://doi.org/10.1137/1002042>`__.
+.. |ref1| replace:: \ O. H. Nestor, H. N. Olsen, "Numerical methods for reducing line and surface probe data", `SIAM Rev. 2(3), 200–207 (1960) <https://doi.org/10.1137/1002042>`__.
 
 .. [1] |ref1|
 

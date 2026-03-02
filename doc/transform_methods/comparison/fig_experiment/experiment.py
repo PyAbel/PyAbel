@@ -8,7 +8,8 @@ transforms = [
   ("daun (nonneg)",   abel.daun.daun_transform,                 '#880000'),
   ("direct",          abel.direct.direct_transform,             '#EE0000'),
   ("hansenlaw",       abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
-  ("onion_bordas",    abel.onion_bordas.onion_bordas_transform, '#00AA00'),
+  ("hansenlaw",       abel.hansenlaw.hansenlaw_transform,       '#CCAA00'),
+  ("nestorolsen",     abel.nestorolsen.nestorolsen_transform,   None),
   ("onion_peeling",   abel.dasch.onion_peeling_transform,       '#00CCFF'),
   ("three_point",     abel.dasch.three_point_transform,         '#0000FF'),
   ("two_point",       abel.dasch.two_point_transform,           '#CC00FF'),
@@ -31,7 +32,7 @@ fig1, axs1 = plt.subplots(3, 1, figsize=(7, 8))
 
 for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
                                                               transforms,
-                                                              'abcdefghijk')):
+                                                              'abcdefghijkl')):
     print(label)
 
     targs = dict()
@@ -65,6 +66,8 @@ for num, (ax, (label, transFunc, color), letter) in enumerate(zip(axs.ravel(),
                  x=0.05, y=0.93, ha='left', va='top',
                  weight='bold', color='k')
 
+    if color is None:
+        continue
     axs1[0].plot(r, inten,              **pargs)
     axs1[1].plot(r, inten, label=label, **pargs)
     axs1[2].plot(r, inten,              **pargs)

@@ -65,6 +65,8 @@ The outcome of the numerical Abel transform depends on the exact method used. So
 
 10. ``daun`` – the regularized deconvolution method by Daun and co-workers, with additional capabilities.
 
+11. ``nestorolsen`` – one of the earliest matrix methods, of Nestor and Olsen.
+
 
 Installation
 ------------
