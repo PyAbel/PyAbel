@@ -2,7 +2,7 @@ import os.path
 import numpy as np
 from glob import glob
 import abel
-from scipy.linalg import inv
+from scipy.linalg import inv, solve_triangular
 
 ###############################################################################
 #
@@ -47,17 +47,17 @@ _dasch_parameter_docstring = \
         The resulting inverse transform is simply scaled by 1/dr.
 
     direction : str
-        only the `direction="inverse"` transform is currently implemented
+        ``'forward'`` or ``'inverse'`` Abel transform. Default: ``'inverse'``.
+        (The forward transform is implemented by inverting the deconvolution
+        operator.)
 
     verbose : bool
         trace printing
 
-
     Returns
     -------
-    inv_IM: 1D or 2D numpy array
-        the "dasch_method" inverse Abel transformed half-image
-
+    tr_IM: 1D or 2D numpy array
+        the "dasch_method" Abel-transformed half-image
     """
 
 # cache deconvolution operator array
@@ -100,11 +100,6 @@ onion_peeling_transform.__doc__ = _dasch_parameter_docstring\
 
 def _dasch_transform(IM, basis_dir='', dr=1, direction="inverse",
                      method="three_point", verbose=False):
-    global _D, _method
-
-    if direction != 'inverse':
-        raise ValueError('Forward "two_point" transform not implemented')
-
     # make sure that the data has 2D shape
     IM = np.atleast_2d(IM)
 
@@ -116,14 +111,17 @@ def _dasch_transform(IM, basis_dir='', dr=1, direction="inverse",
     if cols < 3 and method == "three_point":
         raise ValueError('"three_point" requires image width (cols) > 3')
 
-    _D = get_bs_cached(method, cols, basis_dir=basis_dir, verbose=verbose)
+    D = get_bs_cached(method, cols, basis_dir=basis_dir, verbose=verbose)
 
-    inv_IM = dasch_transform(IM, _D)
+    if direction == 'inverse':
+        tr_IM = dasch_transform(IM, D)
+    else:
+        tr_IM = dasch_transform_forward(IM, D)
 
     if rows == 1:
-        inv_IM = inv_IM[0]  # flatten array
+        tr_IM = tr_IM[0]  # flatten array
 
-    return inv_IM/dr
+    return tr_IM/dr
 
 
 def dasch_transform(IM, D):
@@ -145,6 +143,34 @@ def dasch_transform(IM, D):
 
     # one-line Abel transform - dot product of each row of IM with D
     return np.tensordot(IM, D, axes=(1, 1))
+
+
+def dasch_transform_forward(IM, D):
+    """
+    Forward Abel transform using the inverse of the given deconvolution
+    D-operator array.
+
+    Parameters
+    ----------
+    IM : 2D numpy array
+        image data
+
+    D : 2D numpy array
+        deconvolution operator array, of shape (cols, cols)
+
+    Returns
+    -------
+    fwd_IM : 2D numpy array
+        forward Abel transform according to inverted deconvolution operator D
+    """
+
+    if D[1, 0] == 0:
+        # D for 'two_point' and 'onion_peeling' is upper-triangular, so back
+        # substitution can be used (it is more efficient)
+        return solve_triangular(D, IM.T).T
+
+    # D for 'three_point' has a subdiagonal, thus using general formula
+    return IM.dot(inv(D).T)  # transposed because we operate on row vectors
 
 
 def _bs_two_point(cols):

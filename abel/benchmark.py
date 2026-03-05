@@ -504,15 +504,19 @@ class AbelTiming:
 
         # get the transform matrix (is already cached)
         D = dasch.get_bs_cached(method, self.w, basis_dir=None)
-        # benchmark the transform
+        # benchmark the inverse transform
         self._benchmark('inverse', method,
                         dasch.dasch_transform,
+                        self.half_image, D)
+        # benchmark the forward transform
+        self._benchmark('forward', method,
+                        dasch.dasch_transform_forward,
                         self.half_image, D)
 
         # discard all caches
         dasch.cache_cleanup()
 
-    @_skip((['bs', 'inverse'], 'onion_peeling'))
+    @_skip((['bs', 'inverse', 'forward'], 'onion_peeling'))
     def _time_onion_peeling(self):
         self._time_dasch('onion_peeling')
 
@@ -545,11 +549,11 @@ class AbelTiming:
         # discard all caches
         rbasex.cache_cleanup()
 
-    @_skip((['bs', 'inverse'], 'three_point'))
+    @_skip((['bs', 'inverse', 'forward'], 'three_point'))
     def _time_three_point(self):
         self._time_dasch('three_point')
 
-    @_skip((['bs', 'inverse'], 'two_point'))
+    @_skip((['bs', 'inverse', 'forward'], 'two_point'))
     def _time_two_point(self):
         self._time_dasch('two_point')
 
