@@ -9,6 +9,7 @@ transforms = [
   ("direct_C",      '#EE0000', {}),
   ("direct_Python", '#EE0000', {'mfc': 'w'}),
   ("hansenlaw",     '#CCAA00', {}),
+  ("nestorolsen",   '#CCCC00', {}),
   ("onion_bordas",  '#00AA00', {}),
   ("onion_peeling", '#00CCFF', {'ms': 7}),
   ("three_point",   '#0000FF', {}),
@@ -32,10 +33,6 @@ def plot(directory, xlim, ylim, va):
         t = times[1] * 1e-3  # in ms
         pargs = {'color': color, 'ms': 5} | pargs
         plt.plot(n, n**2 / t, 'o-', label=meth, **pargs)
-
-        # add an empty entry to end column 1 for more logical grouping
-        if meth == 'daun(var)':
-            plt.plot(np.nan, np.nan, 'o-', color='none', label=' ')
 
     plt.xlabel('Image size ($n$, pixels)')
     plt.xscale('log')

@@ -169,6 +169,7 @@ methods = [
   'two_point',
   'three_point',
   'onion_peeling',
+  'nestorolsen',
   'hansenlaw',
   'daun',
   'basex',
