@@ -58,6 +58,14 @@ abel.linbasex module
     :undoc-members:
     :show-inheritance:
 
+abel.nestorolsen module
+-----------------------
+
+.. automodule:: abel.nestorolsen
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 abel.onion_bordas module
 ------------------------
 

@@ -10,6 +10,7 @@ transforms = [
     ("direct_C",      '#EE0000', {}),
     ("direct_Python", '#EE0000', {'mfc': 'w'}),
     ("hansenlaw",     '#CCAA00', {}),
+    ("nestorolsen",   '#CCCC00', {}),
     ("onion_bordas",  '#00AA00', {}),
     ("onion_peeling", '#00CCFF', {}),
     ("three_point",   '#0000FF', {}),

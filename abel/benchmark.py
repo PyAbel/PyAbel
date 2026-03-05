@@ -6,6 +6,7 @@ from . import daun
 from . import direct
 from . import hansenlaw
 from . import linbasex
+from . import nestorolsen
 from . import onion_bordas
 from . import rbasex
 from . import tools
@@ -198,6 +199,7 @@ class AbelTiming:
             'direct_C',
             'direct_Python',
             'hansenlaw',
+            'nestorolsen',
             'onion_bordas',
             'onion_peeling',
             'two_point',
@@ -469,6 +471,21 @@ class AbelTiming:
 
         # discard all caches
         linbasex.cache_cleanup()
+
+    @_skip((['bs', 'inverse', 'forward'], 'nestorolsen'))
+    def _time_nestorolsen(self):
+        # benchmark the basis generation
+        def gen_basis():
+            nestorolsen.cache_cleanup()
+            nestorolsen.get_bs_cached(self.h, basis_dir=None)
+        self._benchmark('bs', 'nestorolsen',
+                        gen_basis)
+
+        # benchmark the transform (basis is already cached)
+        for direction in ['inverse', 'forward']:
+            self._benchmark(direction, 'nestorolsen',
+                            nestorolsen.nestorolsen_transform,
+                            self.half_image, direction=direction)
 
     @_skip(('inverse', 'onion_bordas'))
     def _time_onion_bordas(self):

@@ -55,6 +55,7 @@ from . import daun
 from . import direct
 from . import hansenlaw
 from . import linbasex
+from . import nestorolsen
 from . import onion_bordas
 from . import rbasex
 from . import tools

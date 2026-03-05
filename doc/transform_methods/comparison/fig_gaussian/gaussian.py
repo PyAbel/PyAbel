@@ -10,6 +10,7 @@ transforms = [
                           abel.daun.daun_transform(*args, degree=3, **kwargs)),
     ('direct',            abel.direct.direct_transform),
     ('hansenlaw',         abel.hansenlaw.hansenlaw_transform),
+    ('nestorolsen',       abel.nestorolsen.nestorolsen_transform),
     ('onion_bordas',      abel.onion_bordas.onion_bordas_transform),
     ('onion_peeling',     abel.dasch.onion_peeling_transform),
     ('three_point',       abel.dasch.three_point_transform),
@@ -54,7 +55,7 @@ axs = axs.T.reshape(-1)
 for row, (label, transFunc) in enumerate(transforms):
     axs[row].plot(r, func, label='Analytical' if row == 0 else None, lw=1)
 
-    inverse = transFunc(np.copy(proj), dr=dr, direction='inverse')
+    inverse = transFunc(proj, dr=dr, direction='inverse')
 
     rms = np.mean((inverse - func)**2)**0.5
     boldlabel = '$\\bf ' + label.replace('_', '\\_') + '$'
@@ -78,7 +79,7 @@ axs[-1].set_xlabel('$r$ (pixels)')
 axs[(ntrans - 1) // 2].set_xlabel('$r$ (pixels)')
 axs[ntrans // 4].set_ylabel('$z$')
 
-for ax, letter in zip(axs, 'abcdefghi'):
+for ax, letter in zip(axs, 'abcdefghij'):
     ax.grid(ls='solid', alpha=0.05, color='k')
     if case == 'gaussian':
         ax.set_ylim(-0.2, 1.3)
