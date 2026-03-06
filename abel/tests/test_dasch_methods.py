@@ -4,6 +4,7 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_equal
 
 import abel
+from abel.tools.analytical import GaussianAnalytical
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
@@ -29,7 +30,7 @@ def test_dasch_zeros():
 
     for method, transform in dasch_transforms.items():
         recon = transform(x, direction='inverse', basis_dir=None)
-        assert_allclose(recon, 0)
+        assert_allclose(recon, 0, err_msg=f'-> {method=}')
 
 
 def test_dasch_deconvolution_array_sources():
@@ -57,54 +58,21 @@ def test_dasch_deconvolution_array_sources():
 
 
 def test_dasch_1d_gaussian(n=101):
-    def gauss(r, r0, sigma):
-        return np.exp(-(r-r0)**2/sigma**2)
-
-    rows, cols = n, n
-    r2 = rows//2
-    c2 = cols//2
-
-    sigma = 20*n/100
-
-    # 1D Gaussian -----------
-    r = np.linspace(0, c2-1, c2)
-
-    orig = gauss(r, 0, sigma)
+    ref = GaussianAnalytical(n, r_max=10, symmetric=False, sigma=3)
 
     for method, transform in dasch_transforms.items():
-        orig_copy = orig.copy()
-
-        recon = transform(orig, basis_dir=None)
-
-        ratio_1d = np.sqrt(np.pi)*sigma
-
-        assert_allclose(orig_copy[20:], recon[20:]*ratio_1d, atol=5e-3,
+        recon = transform(ref.abel, basis_dir=None, dr=ref.dr)
+        assert_allclose(ref.func, recon, atol=1e-2, rtol=1e-2,
                         err_msg=f'-> {method=}')
 
 
 def test_dasch_1d_gaussian_forward(n=101):
-    def gauss(r, r0, sigma):
-        return np.exp(-(r-r0)**2/sigma**2)
-
-    rows, cols = n, n
-    r2 = rows//2
-    c2 = cols//2
-
-    sigma = 20*n/100
-
-    # 1D Gaussian -----------
-    r = np.linspace(0, c2-1, c2)
-
-    orig = gauss(r, 0, sigma)
+    ref = GaussianAnalytical(n, r_max=10, symmetric=False, sigma=3)
 
     for method, transform in dasch_transforms.items():
-        orig_copy = orig.copy()
-
-        recon = transform(orig, basis_dir=None, direction='forward')
-
-        ratio_1d = 1/(np.sqrt(np.pi)*sigma)
-
-        assert_allclose(orig_copy[20:], recon[20:]*ratio_1d, atol=2e-3,
+        recon = transform(ref.func, basis_dir=None, dr=ref.dr,
+                          direction='forward')
+        assert_allclose(ref.abel, recon, atol=3e-3, rtol=3e-3,
                         err_msg=f'-> {method=}')
 
 

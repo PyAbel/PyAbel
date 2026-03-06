@@ -114,14 +114,14 @@ def _dasch_transform(IM, basis_dir='', dr=1, direction="inverse",
     D = get_bs_cached(method, cols, basis_dir=basis_dir, verbose=verbose)
 
     if direction == 'inverse':
-        tr_IM = dasch_transform(IM, D)
+        tr_IM = dasch_transform(IM, D) / dr
     else:
-        tr_IM = dasch_transform_forward(IM, D)
+        tr_IM = dasch_transform_forward(IM, D) * dr
 
     if rows == 1:
         tr_IM = tr_IM[0]  # flatten array
 
-    return tr_IM/dr
+    return tr_IM
 
 
 def dasch_transform(IM, D):
