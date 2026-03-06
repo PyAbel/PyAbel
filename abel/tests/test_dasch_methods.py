@@ -1,14 +1,17 @@
 import os.path
 
 import numpy as np
+from numpy.testing import assert_allclose, assert_equal
+
 import abel
+from abel.tools.analytical import GaussianAnalytical
 
 DATA_DIR = os.path.join(os.path.split(__file__)[0], 'data')
 
 dasch_transforms = {
- "two_point": abel.dasch.two_point_transform,
- "three_point": abel.dasch.three_point_transform,
- "onion_peeling": abel.dasch.onion_peeling_transform
+    "two_point": abel.dasch.two_point_transform,
+    "three_point": abel.dasch.three_point_transform,
+    "onion_peeling": abel.dasch.onion_peeling_transform
 }
 
 
@@ -16,18 +19,18 @@ def test_dasch_shape():
     n = 21
     x = np.ones((n, n), dtype='float32')
 
-    for method in dasch_transforms.keys():
-        recon = dasch_transforms[method](x, direction='inverse', basis_dir=None)
-        np.testing.assert_equal(recon.shape, (n, n))
+    for method, transform in dasch_transforms.items():
+        recon = transform(x, direction='inverse', basis_dir=None)
+        assert_equal(recon.shape, (n, n), err_msg=f'-> {method=}')
 
 
 def test_dasch_zeros():
     n = 21
     x = np.zeros((n, n), dtype='float32')
 
-    for method in dasch_transforms.keys():
-        recon = dasch_transforms[method](x, direction='inverse', basis_dir=None)
-        np.testing.assert_allclose(recon, 0)
+    for method, transform in dasch_transforms.items():
+        recon = transform(x, direction='inverse', basis_dir=None)
+        assert_allclose(recon, 0, err_msg=f'-> {method=}')
 
 
 def test_dasch_deconvolution_array_sources():
@@ -40,44 +43,37 @@ def test_dasch_deconvolution_array_sources():
         os.remove(fn)
 
     gb = abel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
-    np.testing.assert_equal(abel.dasch._source, 'generated')
+    assert_equal(abel.dasch._source, 'generated')
 
     cb = abel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
-    np.testing.assert_equal(abel.dasch._source, 'cache')
-    np.testing.assert_allclose(gb, cb)
+    assert_equal(abel.dasch._source, 'cache')
+    assert_allclose(gb, cb)
 
     abel.dasch.cache_cleanup()
     fb = abel.dasch.three_point_transform(q, basis_dir=DATA_DIR)
-    np.testing.assert_equal(abel.dasch._source, 'file')
-    np.testing.assert_allclose(gb, fb)
+    assert_equal(abel.dasch._source, 'file')
+    assert_allclose(gb, fb)
 
     os.remove(fn)
 
 
 def test_dasch_1d_gaussian(n=101):
-    def gauss(r, r0, sigma):
-        return np.exp(-(r-r0)**2/sigma**2)
+    ref = GaussianAnalytical(n, r_max=10, symmetric=False, sigma=3)
 
-    rows, cols = n, n
-    r2 = rows//2
-    c2 = cols//2
+    for method, transform in dasch_transforms.items():
+        recon = transform(ref.abel, basis_dir=None, dr=ref.dr)
+        assert_allclose(ref.func, recon, atol=1e-2, rtol=1e-2,
+                        err_msg=f'-> {method=}')
 
-    sigma = 20*n/100
 
-    # 1D Gaussian -----------
-    r = np.linspace(0, c2-1, c2)
+def test_dasch_1d_gaussian_forward(n=101):
+    ref = GaussianAnalytical(n, r_max=10, symmetric=False, sigma=3)
 
-    orig = gauss(r, 0, sigma)
-
-    for method in dasch_transforms.keys():
-        orig_copy = orig.copy()
-
-        recon = dasch_transforms[method](orig, basis_dir=None)
-
-        ratio_1d = np.sqrt(np.pi)*sigma
-
-        np.testing.assert_allclose(orig_copy[20:], recon[20:]*ratio_1d,
-                                   rtol=0.0, atol=0.5)
+    for method, transform in dasch_transforms.items():
+        recon = transform(ref.func, basis_dir=None, dr=ref.dr,
+                          direction='forward')
+        assert_allclose(ref.abel, recon, atol=3e-3, rtol=3e-3,
+                        err_msg=f'-> {method=}')
 
 
 def test_dasch_cyl_gaussian(n=101):
@@ -101,12 +97,13 @@ def test_dasch_cyl_gaussian(n=101):
     ospeed = abel.tools.vmi.angular_integration_3D(Q0_copy, origin=(0, 0))
 
     # dasch method inverse Abel transform
-    for method in dasch_transforms.keys():
+    for method, transform in dasch_transforms.items():
         Q0_copy = Q0.copy()
-        AQ0 = dasch_transforms[method](Q0, basis_dir=None)
+        AQ0 = transform(Q0, basis_dir=None)
         ratio_2d = np.sqrt(np.pi)*sigma
 
-        np.testing.assert_allclose(Q0_copy, AQ0*ratio_2d, rtol=0.0, atol=0.3)
+        assert_allclose(Q0_copy, AQ0*ratio_2d, atol=2e-2,
+                        err_msg=f'-> {method=}')
 
 
 if __name__ == "__main__":
@@ -114,4 +111,5 @@ if __name__ == "__main__":
     test_dasch_zeros()
     test_dasch_deconvolution_array_sources()
     test_dasch_1d_gaussian()
+    test_dasch_1d_gaussian_forward()
     test_dasch_cyl_gaussian()
