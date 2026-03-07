@@ -5,6 +5,7 @@ import abel
 from abel.hansenlaw import hansenlaw_transform
 from abel.tools.analytical import GaussianAnalytical, SampleImage, \
                                   TransformPair
+from abel.benchmark import absolute_ratio_benchmark
 
 
 def test_hansenlaw_shape():
@@ -32,11 +33,11 @@ def test_hansenlaw_forward_tansform_gaussian():
 
     ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=200)
 
-    recon = hansenlaw_transform(ref.func, ref.dr, direction='forward')
-
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='forward')
-
-    assert_allclose(ratio, 1.0, rtol=7e-2, atol=0)
+    for hold_order in [0, 1]:
+        recon = hansenlaw_transform(ref.func, ref.dr, direction='forward',
+                                    hold_order=hold_order)
+        ratio = absolute_ratio_benchmark(ref, recon, kind='forward')
+        assert_allclose(ratio, 1.0, rtol=4e-2, err_msg=f'-> {hold_order=}')
 
 
 def test_hansenlaw_inverse_transform_gaussian():
@@ -47,12 +48,12 @@ def test_hansenlaw_inverse_transform_gaussian():
     ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=200)
     tr = np.tile(ref.abel[None, :], (n, 1))  # make a 2D array from 1D
 
-    recon = hansenlaw_transform(tr, ref.dr, direction='inverse')
-    recon1d = recon[n//2]  # center row
-
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)
-
-    assert_allclose(ratio, 1.0, rtol=1e-1, atol=0)
+    for hold_order in [0, 1]:
+        recon = hansenlaw_transform(tr, ref.dr, direction='inverse',
+                                    hold_order=hold_order)
+        recon1d = recon[n//2]  # center row
+        ratio = absolute_ratio_benchmark(ref, recon1d)
+        assert_allclose(ratio, 1.0, rtol=3e-3, err_msg=f'-> {hold_order=}')
 
 
 def test_hansenlaw_forward_curveA():
