@@ -161,7 +161,7 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     rows, cols = image.shape
 
     if background is not None:
-        image = np.pad(image, ((0, 0), (0, 1)), constant_values=background)
+        image = np.hstack((image, np.full((rows, 1), background)))
 
     if direction == 'forward':
         # the driving function, including the Jacobian factor
@@ -170,8 +170,9 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     else:  # inverse Abel transform
         if hold_order == 0:
             # better suits sharp structure - see issue #249
-            drive = np.zeros_like(image)
-            drive[:, :-1] = (image[:, 1:] - image[:, :-1])/dr
+            drive = np.empty_like(image)
+            drive[:, :-1] = np.diff(image) / dr
+            drive[:, -1] = 0
         else:
             # hold_order=1 prefers gradient
             drive = np.gradient(image, dr, axis=-1)
@@ -199,8 +200,8 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     x = np.zeros((h.size, rows))
 
     for indx, col in enumerate(n-1):
-        x = phi[indx][:, None]*x + B0[indx][:, None]*drive[:, col+1]\
-                                 + B1[indx][:, None]*drive[:, col]
+        x = phi[indx, :, None]*x + np.outer(B0[indx], drive[:, col+1])\
+                                 + np.outer(B1[indx], drive[:, col])
         aim[:, col] = x.sum(axis=0)
 
     # missing axial column

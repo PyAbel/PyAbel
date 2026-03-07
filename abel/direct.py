@@ -98,9 +98,9 @@ def direct_transform(f, dr=None, r=None, direction='inverse', derivative=None,
         the forward or inverse Abel transform of **f**, with the same shape
     """
     f = np.atleast_2d(f)
-    cols = f.shape[1]
+    rows, cols = f.shape
     if background is not None:
-        f = np.pad(f, ((0, 0), (0, 1)), constant_values=background)
+        f = np.hstack((f, np.full((rows, 1), background)))
 
     if dr is not None and r is not None:
         raise ValueError('Specifying both dr and r is meaningless.')
