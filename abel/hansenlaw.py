@@ -187,12 +187,10 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     gamma0 = I(n, lam, a)*h
 
     if hold_order == 0:  # Hansen (& Law) zero-order hold approximation
+        B0 = None  # not used
         B1 = gamma0
-        B0 = np.zeros_like(gamma0)  # empty array
-
     else:  # Hansen first-order hold approximation
         gamma1 = I(n, lam, a+1)*h
-
         B0 = gamma1 - gamma0*(n-1)[:, None]  # f_n
         B1 = gamma0*n[:, None] - gamma1  # f_n-1
 
@@ -200,8 +198,10 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
     x = np.zeros((h.size, rows))
 
     for indx, col in enumerate(n-1):
-        x = phi[indx, :, None]*x + np.outer(B0[indx], drive[:, col+1])\
-                                 + np.outer(B1[indx], drive[:, col])
+        x *= phi[indx, :, None]
+        x += np.outer(B1[indx], drive[:, col])
+        if B0 is not None:
+            x += np.outer(B0[indx], drive[:, col+1])
         aim[:, col] = x.sum(axis=0)
 
     # missing axial column
