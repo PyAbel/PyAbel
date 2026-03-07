@@ -22,7 +22,7 @@ and [2]_:
 *"... Abel transform, which maps an axisymmetric two-dimensional function into a line integral projection."*
 
 
-The algorithm is efficient, one of the few methods to provide both the **forward** Abel and **inverse** Abel transform.
+The algorithm is efficient, providing both the **forward** Abel and **inverse** Abel transform.
 
 
 How it works
