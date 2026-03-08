@@ -8,6 +8,7 @@ transforms = [
   ("daun(var)",        '#880000', {'mfc': 'w'}),
   ("direct_C",         '#EE0000', {}),
   ("direct_Python",    '#EE0000', {'mfc': 'w'}),
+  ("hansenlaw",        '#CCAA00', {'ls': ':'}),
   ("hansenlaw_C",      '#CCAA00', {}),
   ("hansenlaw_Python", '#CCAA00', {'mfc': 'w'}),
   ("nestorolsen",      '#CCCC00', {}),
