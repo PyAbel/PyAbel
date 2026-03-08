@@ -5,7 +5,7 @@ import numpy as np
 from . import _deprecate, _deprecated
 from .tools.math import gradient, trapezoid
 try:
-    from .lib.direct import _cabel_direct_integral
+    from .lib.cython import _cabel_direct_integral
     cython_ext = True
 except ImportError:
     cython_ext = False

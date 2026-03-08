@@ -43,7 +43,7 @@ try:
     ext_modules = [
         # ("Path" below is a workaround for Setuptools bug on Windows,
         #  see https://github.com/pypa/setuptools/issues/5093)
-        Extension('abel.lib.direct', [Path('abel/lib/direct.pyx')],
+        Extension('abel.lib.cython', [Path('abel/lib/cython.pyx')],
                   include_dirs=[numpy.get_include()],
                   libraries=libraries,
                   extra_compile_args=extra_compile_args,
