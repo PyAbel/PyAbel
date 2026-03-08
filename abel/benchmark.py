@@ -136,9 +136,10 @@ class AbelTiming:
         methods to benchmark. Use ``'all'`` (default) for all available or
         choose any combination of individual methods::
 
-            select=['basex', 'direct_C', 'direct_Python', 'hansenlaw_C',
-                    'hansenlaw_Python', 'linbasex', 'onion_bordas,
-                    'onion_peeling', 'two_point', 'three_point']
+            select=['basex', 'daun', 'direct_C', 'direct_Python',
+                    'hansenlaw_C', 'hansenlaw_Python', 'linbasex',
+                    'nestorolsen', 'onion_bordas', 'onion_peeling', 'rbasex',
+                    'two_point', 'three_point']
 
     repeat : int
         repeat each benchmark at least this number of times to get the average
