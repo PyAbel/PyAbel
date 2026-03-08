@@ -4,20 +4,21 @@ import matplotlib.pyplot as plt
 benchmark_dir = 'working'
 
 transforms = [
-    ("basex",         '#006600', {}),
-    ("basex(var)",    '#006600', {'mfc': 'w'}),
-    ("daun",          '#880000', {}),
-    ("daun(var)",     '#880000', {'mfc': 'w'}),
-    ("direct_C",      '#EE0000', {}),
-    ("direct_Python", '#EE0000', {'mfc': 'w'}),
-    ("hansenlaw",     '#CCAA00', {}),
-    ("onion_bordas",  '#00AA00', {}),
-    ("onion_peeling", '#00CCFF', {}),
-    ("three_point",   '#0000FF', {}),
-    ("two_point",     '#CC00FF', {}),
-    ("linbasex",      '#AAAAAA', {}),
-    ("rbasex",        '#AACC00', {}),
-    ("rbasex(None)",  '#AACC00', {'mfc': 'w'}),
+    ("basex",            '#006600', {}),
+    ("basex(var)",       '#006600', {'mfc': 'w'}),
+    ("daun",             '#880000', {}),
+    ("daun(var)",        '#880000', {'mfc': 'w'}),
+    ("direct_C",         '#EE0000', {}),
+    ("direct_Python",    '#EE0000', {'mfc': 'w'}),
+    ("hansenlaw_C",      '#CCAA00', {}),
+    ("hansenlaw_Python", '#CCAA00', {'mfc': 'w'}),
+    ("onion_bordas",     '#00AA00', {}),
+    ("onion_peeling",    '#00CCFF', {}),
+    ("three_point",      '#0000FF', {}),
+    ("two_point",        '#CC00FF', {}),
+    ("linbasex",         '#AAAAAA', {}),
+    ("rbasex",           '#AACC00', {}),
+    ("rbasex(None)",     '#AACC00', {'mfc': 'w'}),
 ]
 
 fig, axs = plt.subplots(2, 1, figsize=(5, 8))
