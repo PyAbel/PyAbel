@@ -1,5 +1,11 @@
 import numpy as np
 
+try:
+    from .lib.cython import _cabel_hansenlaw_recursion
+    cython_ext = True
+except ImportError:
+    cython_ext = False
+
 #############################################################################
 # hansenlaw - a recursive method forward/inverse Abel transform algorithm
 #
@@ -48,7 +54,7 @@ import numpy as np
 
 
 def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
-                        background=0, **kwargs):
+                        background=0, backend='C', **kwargs):
     r"""Forward/Inverse Abel transformation using the algorithm from
 
     E. W. Hansen,
@@ -129,6 +135,18 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         whole row.
         Default: ``0``.
 
+    backend : str, optional
+        select the implementation (case-insensitive):
+
+        ``'C'``:
+            compiled Cython extension. Is faster and used by default, with a
+            fallback to ``'Python'`` if the extension is not available.
+        ``'Python'``:
+            Python, using NumPy. Slower but always available.
+
+        Both implementations produce identical results (within numerical
+        errors).
+
     Returns
     -------
     aim : 1D or 2D numpy array
@@ -157,7 +175,6 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
                     -47391.1])
 
     image = np.atleast_2d(image)   # 2D input image
-    aim = np.empty_like(image)  # Abel transform array
     rows, cols = image.shape
 
     if background is not None:
@@ -195,14 +212,10 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
         B1 = gamma0*n[:, None] - gamma1  # f_n-1
 
     # Hansen Abel transform  --------------------
-    x = np.zeros((h.size, rows))
-
-    for indx, col in enumerate(n-1):
-        x *= phi[indx, :, None]
-        x += np.outer(B1[indx], drive[:, col])
-        if B0 is not None:
-            x += np.outer(B0[indx], drive[:, col+1])
-        aim[:, col] = x.sum(axis=0)
+    if backend.lower() == 'c' and cython_ext:
+        aim = _cabel_hansenlaw_recursion(phi, B0, B1, drive)
+    else:
+        aim = _pyabel_hansenlaw_recursion(phi, B0, B1, drive)
 
     # missing axial column
     aim[:, 0] = aim[:, 1]
@@ -215,5 +228,40 @@ def hansenlaw_transform(image, dr=1, direction='inverse', hold_order=0,
 
     if rows == 1:
         aim = aim[0]  # flatten to a vector
+
+    return aim
+
+
+def _pyabel_hansenlaw_recursion(phi, B0, B1, drive):
+    """
+    Hansen–Law recursion.
+
+    Parameters
+    ----------
+    phi : numpy 2D array
+    B0 : numpy 2D array or None
+    B1 : numpy 2D array
+        recursion coefficients, all shapes are (cols-2, K), where K = 9 is the
+        expansion order; B0 is None for hold_order=0.
+    drive : numpy 2D array
+        driving function with shape (rows, cols), same as the input image
+
+    Returns
+    -------
+    aim : numpy 2D array
+        output image with shape (rows, cols), same as input, but with first and
+        last columns undefined
+    """
+    rows, cols = drive.shape
+    aim = np.empty_like(drive)  # Abel-transformed image
+
+    x = np.zeros((B1.shape[1], rows))  # state
+    for col in range(cols - 2, 0, -1):
+        i = cols - 2 - col
+        x *= phi[i, :, None]
+        x += np.outer(B1[i], drive[:, col])
+        if B0 is not None:
+            x += np.outer(B0[i], drive[:, col+1])
+        aim[:, col] = x.sum(axis=0)
 
     return aim

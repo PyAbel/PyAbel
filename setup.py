@@ -53,8 +53,8 @@ except ImportError:
     ext_modules = None
     print(f'''\
 {'=' * 75}
-Warning: Cython extensions will not be built, thus the abel.direct
-         C implementation will not be available.
+Warning: Cython extensions will not be built, thus the abel.direct and
+         abel.hansenlaw C implementations will not be available.
          To build them, install Cython (and NumPy), then reinstall PyAbel
          using pip with the --no-build-isolation option.
 {'=' * 75}''')
