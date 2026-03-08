@@ -43,7 +43,7 @@ try:
     ext_modules = [
         # ("Path" below is a workaround for Setuptools bug on Windows,
         #  see https://github.com/pypa/setuptools/issues/5093)
-        Extension('abel.lib.direct', [Path('abel/lib/direct.pyx')],
+        Extension('abel.lib.cython', [Path('abel/lib/cython.pyx')],
                   include_dirs=[numpy.get_include()],
                   libraries=libraries,
                   extra_compile_args=extra_compile_args,
@@ -53,8 +53,8 @@ except ImportError:
     ext_modules = None
     print(f'''\
 {'=' * 75}
-Warning: Cython extensions will not be built, thus the abel.direct
-         C implementation will not be available.
+Warning: Cython extensions will not be built, thus the abel.direct and
+         abel.hansenlaw C implementations will not be available.
          To build them, install Cython (and NumPy), then reinstall PyAbel
          using pip with the --no-build-isolation option.
 {'=' * 75}''')

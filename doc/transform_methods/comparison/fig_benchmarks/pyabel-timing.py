@@ -1,7 +1,6 @@
+import os
 import numpy as np
 import abel
-
-import os
 
 
 def bench(method, repeats, min_time, max_time, benchmark_dir, append=True):
@@ -166,25 +165,35 @@ max_time *= 60  # seconds
 
 
 methods = [
-  'two_point',
-  'three_point',
-  'onion_peeling',
-  'nestorolsen',
-  'hansenlaw',
-  'daun',
-  'basex',
-  'rbasex',
-  'direct_C',
-  'onion_bordas',
-  'linbasex',
-  'direct_Python'
+    'basex',
+    'daun',
+    'direct',  # = 'direct_C', 'direct_Python'
+    'hansenlaw',  # = 'hansenlaw_C', 'hansenlaw_Python'
+    'linbasex',
+    'nestorolsen',
+    'onion_bordas',
+    'onion_peeling',
+    'rbasex',
+    'two_point',
+    'three_point',
 ]
+
+
+def add_backends(method):
+    if method not in methods:
+        return
+    i = methods.index(method)
+    methods.pop(i)
+    methods.insert(i, method + '_Python')
+    methods.insert(i, method + '_C')
+
 
 method = input('benchmark single method (name) [blank = all]: ')
 if len(method) > 0:
     methods = [method]
+add_backends('direct')
+add_backends('hansenlaw')
 print('\n    methods:\n   ', methods, '\n')
-
 
 for method in methods:
     bench(method, repeats, min_time, max_time, benchmark_dir, append)

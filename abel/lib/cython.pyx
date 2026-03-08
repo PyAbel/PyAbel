@@ -6,7 +6,8 @@
 
 import numpy as np
 from libc.math cimport sqrt, log
-from cython.parallel import prange
+from libc.stdlib cimport calloc, free
+from cython.parallel import parallel, prange
 
 
 cpdef _cabel_direct_integral(const double[:, ::1] g, const double[::1] r,
@@ -19,7 +20,7 @@ cpdef _cabel_direct_integral(const double[:, ::1] g, const double[::1] r,
                ⎮   _________
                ⌡  √ r² − x²
                r
-    used in the forward and inverse Abel transforms.
+    used in the forward and inverse direct Abel transforms.
 
     Parameters
     ----------
@@ -86,3 +87,58 @@ cpdef _cabel_direct_integral(const double[:, ::1] g, const double[::1] r,
                 G[i, j] = s
 
     return G.base
+
+
+cpdef _cabel_hansenlaw_recursion(const double[:, ::1] phi,
+                                 const double[:, ::1] B0,
+                                 const double[:, ::1] B1,
+                                 const double[:, ::1] drive):
+    """
+    Hansen–Law recursion.
+
+    Parameters
+    ----------
+    phi : numpy 2D array
+    B0 : numpy 2D array or None
+    B1 : numpy 2D array
+        recursion coefficients, all shapes are (cols-2, K), where K = 9 is the
+        expansion order; B0 is None for hold_order=0.
+    drive : numpy 2D array
+        driving function with shape (rows, cols), same as the input image
+
+    Returns
+    -------
+    aim : numpy 2D array
+        output image with shape (rows, cols), same as input, but with first and
+        last columns undefined
+    """
+    cdef Py_ssize_t K = phi.shape[1]
+    cdef int use_B0 = B0 is not None
+    cdef Py_ssize_t rows, cols  # image size (= drive size)
+    rows, cols = drive.shape[:2]
+
+    cdef double[:, ::1] aim = np.empty((rows, cols))  # Abel-transformed image
+
+    cdef Py_ssize_t row, col, i, k  # loop indices
+    cdef double* x  # state (per row)
+    cdef double s  # for running sum
+
+    with nogil, parallel():
+        x = <double*>calloc(K, sizeof(double))  # (thread-local)
+        # Parallelized loop over rows (must use "s = s + ..." instead of
+        # "s += ..." because Cython interprets "+=" as parallel reduction)
+        for row in prange(rows):
+            for k in range(K):
+                x[k] = 0
+            for col in range(cols - 2, 0, -1):
+                i = cols - 2 - col
+                s = 0
+                for k in range(K):
+                    x[k] = phi[i, k] * x[k] + B1[i, k] * drive[row, col]
+                    if use_B0:
+                        x[k] += B0[i, k] * drive[row, col+1]
+                    s = s + x[k]
+                aim[row, col] = s
+        free(x)
+
+    return aim.base
