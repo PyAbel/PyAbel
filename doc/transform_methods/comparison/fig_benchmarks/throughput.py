@@ -2,21 +2,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 transforms = [
-  ("basex",         '#006600', {}),
-  ("basex(var)",    '#006600', {'mfc': 'w'}),
-  ("daun",          '#880000', {}),
-  ("daun(var)",     '#880000', {'mfc': 'w'}),
-  ("direct_C",      '#EE0000', {}),
-  ("direct_Python", '#EE0000', {'mfc': 'w'}),
-  ("hansenlaw",     '#CCAA00', {}),
-  ("nestorolsen",   '#CCCC00', {}),
-  ("onion_bordas",  '#00AA00', {}),
-  ("onion_peeling", '#00CCFF', {'ms': 7}),
-  ("three_point",   '#0000FF', {}),
-  ("two_point",     '#CC00FF', {'ms': 3}),
-  ("linbasex",      '#AAAAAA', {}),
-  ("rbasex",        '#AACC00', {}),
-  ("rbasex(None)",  '#AACC00', {'mfc': 'w'}),
+  ("basex",            '#006600', {}),
+  ("basex(var)",       '#006600', {'mfc': 'w'}),
+  ("daun",             '#880000', {}),
+  ("daun(var)",        '#880000', {'mfc': 'w'}),
+  ("direct_C",         '#EE0000', {}),
+  ("direct_Python",    '#EE0000', {'mfc': 'w'}),
+  ("hansenlaw",        '#CCAA00', {'ls': ':'}),
+  ("hansenlaw_C",      '#CCAA00', {}),
+  ("hansenlaw_Python", '#CCAA00', {'mfc': 'w'}),
+  ("nestorolsen",      '#CCCC00', {}),
+  ("onion_bordas",     '#00AA00', {}),
+  ("onion_peeling",    '#00CCFF', {'ms': 7}),
+  ("three_point",      '#0000FF', {}),
+  ("two_point",        '#CC00FF', {'ms': 3}),
+  ("linbasex",         '#AAAAAA', {}),
+  ("rbasex",           '#AACC00', {}),
+  ("rbasex(None)",     '#AACC00', {'mfc': 'w'}),
 ]
 
 
@@ -53,7 +55,7 @@ def plot(directory, xlim, ylim, va):
                  xytext=(0, -4 if va == 'top' else 2),
                  textcoords='offset points')
 
-    plt.legend(ncol=3)
+    plt.legend(ncols=2, loc=(0.05, 0.01))
 
     plt.tight_layout(pad=0.1)
 

@@ -102,23 +102,23 @@ Results
     plot('i7-6700_Linux', xlim=(5, 1e5), ylim=(4e-5, 1e4), linex=1e2)
 
 
-AMD Ryzen 5 5600G (Linux)
+AMD Ryzen 7 6800U (Linux)
 -------------------------
 
 :CPU:
-    `AMD Ryzen 5 5600G <https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-5-5600g.html#amd_support_product_spec>`_
-    (6 cores, 12 threads; 3.9 GHz base, 4.4 GHz max)
+    `AMD Ryzen 7 6800U <https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-6000-series/amd-ryzen-7-6800u.html#amd_support_product_spec>`_
+    (8 cores, 16 threads; 2.7 GHz base, 4.7 GHz max)
 
 :RAM:
-    32 GB DDR4-3200
+    24 GB LPDDR5
 
 :OS:
-    `Debian GNU/Linux 12 <https://www.debian.org/releases/bookworm/>`_
+    `Debian GNU/Linux 13 <https://www.debian.org/releases/trixie/>`_
 
 :Libraries:
-    * NumPy 1.24.2
-    * SciPy 1.10.1
-    * OpenBLAS 0.3.21
+    * NumPy 2.2.4
+    * SciPy 1.15.3
+    * OpenBLAS 0.3.29
 
 
 Results
@@ -128,40 +128,40 @@ Results
     :align: center
 
     from transform_time import plot
-    plot('Ryzen5-5600G_Linux', xlim=(5, 1e5), ylim=(4e-7, 3e3), linex=9e1)
+    plot('Ryzen7-6800U_Linux', xlim=(5, 1e5), ylim=(4e-7, 7e3), linex=1e2)
 
 
 .. plot::
     :align: center
 
     from throughput import plot
-    plot('Ryzen5-5600G_Linux', xlim=(5, 1e5), ylim=(4e3, 1e9), va='top')
+    plot('Ryzen7-6800U_Linux', xlim=(5, 1e5), ylim=(2e3, 2e9), va='bottom')
 
 
 .. plot::
     :align: center
 
     from basis_time import plot
-    plot('Ryzen5-5600G_Linux', xlim=(5, 1e5), ylim=(2e-5, 2e3), linex=1e2)
+    plot('Ryzen7-6800U_Linux', xlim=(5, 1e5), ylim=(1e-5, 1e4), linex=1e2)
 
 
-AMD Ryzen 5 5600G (Windows)
+AMD Ryzen 7 6800U (Windows)
 ---------------------------
 
 :CPU:
-    `AMD Ryzen 5 5600G <https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-5-5600g.html#amd_support_product_spec>`_
-    (6 cores, 12 threads; 3.9 GHz base, 4.4 GHz max)
+    `AMD Ryzen 7 6800U <https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-6000-series/amd-ryzen-7-6800u.html#amd_support_product_spec>`_
+    (8 cores, 16 threads; 2.7 GHz base, 4.7 GHz max)
 
 :RAM:
-    32 GB DDR4-3200
+    24 GB LPDDR5
 
 :OS:
     `Microsoft Windows 11 <https://www.microsoft.com/en-us/windows/windows-11-specifications>`_
 
 :Libraries:
-    * NumPy 1.26.0
-    * SciPy 1.11.2
-    * OpenBLAS 0.3.23
+    * NumPy 2.4.2
+    * SciPy 1.17.1
+    * OpenBLAS 0.3.31
 
 
 Results
@@ -171,21 +171,21 @@ Results
     :align: center
 
     from transform_time import plot
-    plot('Ryzen5-5600G_Windows', xlim=(5, 1e5), ylim=(5e-7, 6e3), linex=8e1)
+    plot('Ryzen7-6800U_Windows', xlim=(5, 1e5), ylim=(5e-7, 8e3), linex=1e2)
 
 
 .. plot::
     :align: center
 
     from throughput import plot
-    plot('Ryzen5-5600G_Windows', xlim=(5, 1e5), ylim=(8e2, 1e9), va='top')
+    plot('Ryzen7-6800U_Windows', xlim=(5, 1e5), ylim=(1e3, 2e9), va='bottom')
 
 
 .. plot::
     :align: center
 
     from basis_time import plot
-    plot('Ryzen5-5600G_Windows', xlim=(5, 1e5), ylim=(2e-5, 3e3), linex=8e1)
+    plot('Ryzen7-6800U_Windows', xlim=(5, 1e5), ylim=(1e-5, 2e4), linex=8e1)
 
 
 Raspberry Pi 4B (Linux)

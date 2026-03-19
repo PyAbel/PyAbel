@@ -136,9 +136,10 @@ class AbelTiming:
         methods to benchmark. Use ``'all'`` (default) for all available or
         choose any combination of individual methods::
 
-            select=['basex', 'direct_C', 'direct_Python', 'hansenlaw',
-                    'linbasex', 'onion_bordas, 'onion_peeling', 'two_point',
-                    'three_point']
+            select=['basex', 'daun', 'direct_C', 'direct_Python',
+                    'hansenlaw_C', 'hansenlaw_Python', 'linbasex',
+                    'nestorolsen', 'onion_bordas', 'onion_peeling', 'rbasex',
+                    'two_point', 'three_point']
 
     repeat : int
         repeat each benchmark at least this number of times to get the average
@@ -198,7 +199,8 @@ class AbelTiming:
             'daun',
             'direct_C',
             'direct_Python',
-            'hansenlaw',
+            'hansenlaw_C',
+            'hansenlaw_Python',
             'nestorolsen',
             'onion_bordas',
             'onion_peeling',
@@ -211,9 +213,11 @@ class AbelTiming:
         ])
         # all available methods (= union of the above sets)
         all_methods = need_half | need_whole
-        # remove direct_C, if not supported
+        # remove Cython implementations, if not supported
         if not direct.cython_ext:
             all_methods = all_methods - frozenset(['direct_C'])
+        if not hansenlaw.cython_ext:
+            all_methods = all_methods - frozenset(['hansenlaw_C'])
 
         # Select methods
         if 'all' in select:
@@ -448,12 +452,20 @@ class AbelTiming:
                             self.half_image, direction=direction,
                             backend='python')
 
-    @_skip((['inverse', 'forward'], 'hansenlaw'))
-    def _time_hansenlaw(self):
+    @_skip((['inverse', 'forward'], 'hansenlaw_C'))
+    def _time_hansenlaw_C(self):
         for direction in ['inverse', 'forward']:
-            self._benchmark(direction, 'hansenlaw',
+            self._benchmark(direction, 'hansenlaw_C',
                             hansenlaw.hansenlaw_transform,
-                            self.half_image, direction=direction)
+                            self.half_image, direction=direction, backend='C')
+
+    @_skip((['inverse', 'forward'], 'hansenlaw_Python'))
+    def _time_hansenlaw_Python(self):
+        for direction in ['inverse', 'forward']:
+            self._benchmark(direction, 'hansenlaw_Python',
+                            hansenlaw.hansenlaw_transform,
+                            self.half_image, direction=direction,
+                            backend='python')
 
     @_skip((['bs', 'inverse'], 'linbasex'))
     def _time_linbasex(self):
@@ -566,15 +578,15 @@ class AbelTiming:
                'time in milliseconds']
 
         # field widths are chosen to accommodate up to:
-        #   method = 15 characters
+        #   method = 16 characters ("hansenlaw_Python")
         #   ni = 99999 (would require at least 75 GB RAM)
         #   time = 9999999.9 ms (almost 3 hours)
         # data columns are 9 characters wide and separated by 3 spaces
         TITLE_FORMAT = '=== {} ==='
-        HEADER_ROW = 'Method         ' + \
+        HEADER_ROW = 'Method          ' + \
                      ''.join([f'   {f"n = {ni}":>9}' for ni in self.n])
         SEP_ROW = '-' * len(HEADER_ROW)
-        ROW_FORMAT = '{:15}' + '   {:9.1f}' * len(self.n)
+        ROW_FORMAT = '{:16}' + '   {:9.1f}' * len(self.n)
 
         def print_benchmark(name, res):
             title = f'{TITLE_FORMAT.format(name):=<{f"{len(SEP_ROW)}"}}'

@@ -1,15 +1,17 @@
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_less
+import pytest
 
 import abel
-from abel.hansenlaw import hansenlaw_transform
+from abel.hansenlaw import hansenlaw_transform, cython_ext
 from abel.tools.analytical import GaussianAnalytical, SampleImage, \
                                   TransformPair
+from abel.benchmark import absolute_ratio_benchmark
 
 
 def test_hansenlaw_shape():
     n = 21
-    x = np.ones((n, n), dtype='float32')
+    x = np.ones((n, n))
 
     recon = hansenlaw_transform(x, direction='inverse')
 
@@ -18,7 +20,7 @@ def test_hansenlaw_shape():
 
 def test_hansenlaw_zeros():
     n = 21
-    x = np.zeros((n, n), dtype='float32')
+    x = np.zeros((n, n))
 
     recon = hansenlaw_transform(x, direction="inverse")
 
@@ -32,11 +34,11 @@ def test_hansenlaw_forward_tansform_gaussian():
 
     ref = GaussianAnalytical(n, r_max, symmetric=False,  sigma=200)
 
-    recon = hansenlaw_transform(ref.func, ref.dr, direction='forward')
-
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon, kind='forward')
-
-    assert_allclose(ratio, 1.0, rtol=7e-2, atol=0)
+    for hold_order in [0, 1]:
+        recon = hansenlaw_transform(ref.func, ref.dr, direction='forward',
+                                    hold_order=hold_order)
+        ratio = absolute_ratio_benchmark(ref, recon, kind='forward')
+        assert_allclose(ratio, 1.0, rtol=4e-2, err_msg=f'-> {hold_order=}')
 
 
 def test_hansenlaw_inverse_transform_gaussian():
@@ -47,12 +49,13 @@ def test_hansenlaw_inverse_transform_gaussian():
     ref = GaussianAnalytical(n, r_max, symmetric=False, sigma=200)
     tr = np.tile(ref.abel[None, :], (n, 1))  # make a 2D array from 1D
 
-    recon = hansenlaw_transform(tr, ref.dr, direction='inverse')
-    recon1d = recon[n//2]  # center row
-
-    ratio = abel.benchmark.absolute_ratio_benchmark(ref, recon1d)
-
-    assert_allclose(ratio, 1.0, rtol=1e-1, atol=0)
+    for hold_order in [0, 1]:
+        recon = hansenlaw_transform(tr, ref.dr, direction='inverse',
+                                    hold_order=hold_order)
+        for row in range(n):
+            ratio = absolute_ratio_benchmark(ref, recon[row])
+            assert_allclose(ratio, 1.0, rtol=3e-3,
+                            err_msg=f'-> {hold_order=}, {row=}')
 
 
 def test_hansenlaw_forward_curveA():
@@ -165,6 +168,28 @@ def test_hansenlaw_background():
     assert_allclose(recon9[:-2], 1, atol=4e-2)
 
 
+@pytest.mark.skipif(not cython_ext,
+                    reason='abel.hansenlaw C extension not installed')
+def test_hansenlaw_c_python_correspondence():
+    """ Check that both the C and Python backends are identical """
+    rows, cols = 3, 20
+    K = 9  # (actual expansion order)
+
+    # reproducibly random arrays
+    rnd = np.random.RandomState(0)
+    phi = rnd.rand(cols - 2, K)
+    B0_ = rnd.rand(cols - 2, K)
+    B1 = rnd.rand(cols - 2, K)
+    drive = rnd.rand(rows, cols)
+
+    for hold_order in [0, 1]:
+        B0 = B0_ if hold_order else None
+        out1 = abel.hansenlaw._pyabel_hansenlaw_recursion(phi, B0, B1, drive)
+        out2 = abel.hansenlaw._cabel_hansenlaw_recursion(phi, B0, B1, drive)
+        # check without first and last columns, as they are undefined
+        assert_allclose(out1[:, 1:-1], out2[:, 1:-1], rtol=1e-9, atol=1e-9,
+                        err_msg=f'-> {hold_order=}')
+
 if __name__ == "__main__":
     test_hansenlaw_shape()
     test_hansenlaw_zeros()
@@ -174,3 +199,4 @@ if __name__ == "__main__":
     test_hansenlaw_inverse_transform_curveA()
     test_hansenlaw_forward_dribinski_image()
     test_hansenlaw_background()
+    test_hansenlaw_c_python_correspondence()
