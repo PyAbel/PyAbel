@@ -18,6 +18,8 @@ Unreleased
   (PR #419, #420).
 * Added Nestor–Olsen transform method (PR #421)
 * Dasch methods now also implement the forward transform (PR #424).
+* Correct subtraction of angular polynomials when the left operand has the same
+  or fewer coefficients, avoiding sign-reversed spherical distributions.
 
 v0.9.1 (2025-09-22)
 -------------------

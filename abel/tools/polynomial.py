@@ -643,9 +643,12 @@ class Angular:
         """
         Difference of two objects (might have different orders).
         """
-        a, b, = sorted([self.c, other.c], key=len)
-        c = b.copy()  # copy the longer array
-        c[:len(a)] -= a  # subtract the shorter array from the relevant part
+        if len(self.c) >= len(other.c):
+            c = self.c.copy()
+            c[:len(other.c)] -= other.c
+        else:
+            c = -other.c
+            c[:len(self.c)] += self.c
         return Angular(c)
 
     def __mul__(self, obj):
